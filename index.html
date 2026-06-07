@@ -361,6 +361,10 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
 .anno-bar .share-btn{font-family:'Fraunces',serif;font-size:.76rem;color:var(--paper);background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.45);border-radius:6px;padding:4px 10px;cursor:pointer;margin-left:2px;}
 .anno-bar .share-btn:hover{background:rgba(255,255,255,.3);}
 .pub-flash{background:rgba(154,123,53,.30);border-radius:3px;transition:background .5s;}
+.pub-badge{font-family:'Fraunces',serif;font-size:.66rem;font-weight:600;padding:1px 8px;border-radius:20px;background:var(--ink);color:var(--paper);}
+.pub-badge.red{background:var(--red);}
+.pub-note.pub-hidden,.pub-reply.pub-hidden{opacity:.6;}
+.pub-reasons{font-size:.82rem;color:var(--ink-soft);font-style:italic;margin:2px 0 4px;}
 </style>
 <script src="config.js"></script>
 </head>
@@ -1595,8 +1599,10 @@ drawTRPF();
         if(!pu){try{pu=localStorage.getItem('liremarx.pendinguser')||'';}catch(e){}}
         if(pu&&reUser.test(pu)&&!(await usernameTaken(pu))){const r=await saveUsername(pu);if(r.ok){try{localStorage.removeItem('liremarx.pendinguser');}catch(e){}}}
       }
+      try{const mr=await sb.from('moderators').select('id').eq('id',user.id).maybeSingle();isMod=!!(mr&&mr.data);}catch(e){isMod=false;}
       pullAll();
-    }else{profile=null;}
+      if(box)loadPublic();
+    }else{profile=null;isMod=false;modView=false;}
     renderAcct();refreshAcct();
   }
 
@@ -1868,7 +1874,7 @@ drawTRPF();
   }
 
   /* ===== Notes partagées (forum public) ===== */
-  let pubNotes=[],pubPop=null,replyOpen=null;
+  let pubNotes=[],pubPop=null,replyOpen=null,reportOpen=null,isMod=false,modView=false,reports=[];
   function fmtDate(ms){try{return new Date(ms).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'});}catch(e){return '';}}
   function ensurePosterSilent(){return !!(configured&&sb&&user&&profile&&profile.username);}
   function ensurePoster(){
@@ -1882,7 +1888,7 @@ drawTRPF();
     if(!sb){renderPublic();return;}
     try{
       const res=await sb.from('public_notes')
-        .select('id,author_id,section,before,quote,after,body,parent_id,created,profiles(username)')
+        .select('id,author_id,section,before,quote,after,body,parent_id,hidden,created,profiles(username)')
         .eq('work',WORK).eq('section',curN).order('created',{ascending:true});
       if(res.error)throw res.error;
       const rows=res.data||[],tops={},reps=[];
@@ -1891,7 +1897,55 @@ drawTRPF();
       reps.forEach(r=>{if(tops[r.parent_id])tops[r.parent_id].replies.push(r);});
       pubNotes=Object.keys(tops).map(k=>tops[k]).sort((a,b)=>a.created-b.created);
     }catch(e){toast('Notes partagées : '+(e.message||e));}
+    if(isMod){await loadReports();}
     renderPublic();
+  }
+  async function loadReports(){
+    reports=[];
+    if(!sb||!isMod)return;
+    try{
+      const res=await sb.from('reports')
+        .select('id,note_id,reason,created,resolved,public_notes(id,section,work,quote,body,hidden,parent_id,author_id,profiles(username))')
+        .eq('resolved',false).order('created',{ascending:true});
+      if(res.error)throw res.error;
+      reports=(res.data||[]).filter(r=>r.public_notes&&r.public_notes.work===WORK&&r.public_notes.section===curN);
+    }catch(e){}
+  }
+  function groupedReports(){
+    const m={},order=[];
+    reports.forEach(r=>{const n=r.public_notes;if(!n)return;
+      if(!m[n.id]){m[n.id]={note:n,count:0,reasons:[]};order.push(n.id);}
+      m[n.id].count++;if(r.reason)m[n.id].reasons.push(r.reason);});
+    return order.map(k=>m[k]);
+  }
+  async function reportNote(id,reason){
+    if(!ensurePoster())return;
+    const row={id:uid(),note_id:id,reporter_id:user.id,reason:(reason||'').trim()||null,created:Date.now()};
+    const res=await sb.from('reports').insert(row);
+    if(res.error){toast('Signalement : '+res.error.message);return;}
+    reportOpen=null;toast('Signalement envoyé. Merci.');renderPublic();
+  }
+  async function hideNote(id,hidden){
+    if(!sb||!isMod)return;
+    const res=await sb.from('public_notes').update({hidden:hidden}).eq('id',id);
+    if(res.error){toast('Masquage : '+res.error.message);return;}
+    await loadPublic();
+  }
+  async function resolveReports(noteId){
+    if(!sb||!isMod)return;
+    const res=await sb.from('reports').update({resolved:true}).eq('note_id',noteId).eq('resolved',false);
+    if(res.error){toast('Traitement : '+res.error.message);return;}
+    await loadPublic();
+  }
+  function reportBoxHtml(id){
+    if(reportOpen!==id)return '';
+    return '<div class="pub-replybox"><textarea class="pub-rpta" placeholder="Motif (facultatif)…"></textarea><div class="pub-compose-act"><button class="lk" data-reportcancel="1" type="button">Annuler</button><button class="btn red" data-sendreport="'+id+'" type="button">Signaler</button></div></div>';
+  }
+  function modBtns(n){
+    let h='';
+    if(user&&n.author_id!==user.id)h+='<button class="lk" data-report="'+n.id+'" type="button">Signaler</button>';
+    if(isMod)h+=n.hidden?'<button class="lk" data-show="'+n.id+'" type="button">Afficher</button>':'<button class="lk" data-hide="'+n.id+'" type="button">Masquer</button>';
+    return h;
   }
   async function addPublic(anchor,body){
     if(!ensurePoster())return;
@@ -1956,30 +2010,55 @@ drawTRPF();
   }
   function noteBlockHtml(n){
     const mine=user&&n.author_id===user.id;
-    let h='<div class="pub-note" data-id="'+n.id+'"><div class="pub-meta"><span class="pub-author">'+escapeHtml(n.author)+'</span><span class="pub-date">'+fmtDate(n.created)+'</span></div>';
+    let h='<div class="pub-note'+(n.hidden?' pub-hidden':'')+'" data-id="'+n.id+'"><div class="pub-meta"><span class="pub-author">'+escapeHtml(n.author)+'</span><span class="pub-date">'+fmtDate(n.created)+'</span>'+(n.hidden?'<span class="pub-badge">masqué</span>':'')+'</div>';
     if(n.quote)h+='<div class="pub-q" data-go="'+n.id+'">« '+escapeHtml(n.quote.slice(0,140))+(n.quote.length>140?'…':'')+' »</div>';
     h+='<div class="pub-body">'+escapeHtml(n.body)+'</div>';
-    h+='<div class="pub-acts"><button class="lk" data-go="'+n.id+'" type="button">Aller au passage</button><button class="lk" data-reply="'+n.id+'" type="button">Répondre'+(n.replies&&n.replies.length?' ('+n.replies.length+')':'')+'</button>'+(mine?'<button class="lk" data-del="'+n.id+'" type="button">Supprimer</button>':'')+'</div>';
+    h+='<div class="pub-acts"><button class="lk" data-go="'+n.id+'" type="button">Aller au passage</button><button class="lk" data-reply="'+n.id+'" type="button">Répondre'+(n.replies&&n.replies.length?' ('+n.replies.length+')':'')+'</button>'+(mine?'<button class="lk" data-del="'+n.id+'" type="button">Supprimer</button>':'')+modBtns(n)+'</div>'+reportBoxHtml(n.id);
     if(n.replies&&n.replies.length){h+='<div class="pub-replies">';
       n.replies.forEach(r=>{const rm=user&&r.author_id===user.id;
-        h+='<div class="pub-reply"><div class="pub-meta"><span class="pub-author">'+escapeHtml(r.author)+'</span><span class="pub-date">'+fmtDate(r.created)+'</span></div><div class="pub-body">'+escapeHtml(r.body)+'</div>'+(rm?'<div class="pub-acts"><button class="lk" data-del="'+r.id+'" type="button">Supprimer</button></div>':'')+'</div>';});
+        h+='<div class="pub-reply'+(r.hidden?' pub-hidden':'')+'"><div class="pub-meta"><span class="pub-author">'+escapeHtml(r.author)+'</span><span class="pub-date">'+fmtDate(r.created)+'</span>'+(r.hidden?'<span class="pub-badge">masqué</span>':'')+'</div><div class="pub-body">'+escapeHtml(r.body)+'</div><div class="pub-acts">'+(rm?'<button class="lk" data-del="'+r.id+'" type="button">Supprimer</button>':'')+modBtns(r)+'</div>'+reportBoxHtml(r.id)+'</div>';});
       h+='</div>';}
     if(replyOpen===n.id)h+='<div class="pub-replybox"><textarea class="pub-rta" placeholder="Ta réponse…"></textarea><div class="pub-compose-act"><button class="lk" data-replycancel="1" type="button">Annuler</button><button class="btn red" data-sendreply="'+n.id+'" type="button">Répondre</button></div></div>';
     h+='</div>';return h;
   }
   function renderPublic(){
     const pp=document.getElementById('publicPanel');if(!pp)return;
-    let h='<div class="np-head"><b>Notes partagées</b> <span class="np-n">'+pubNotes.length+'</span><span class="np-tools"><button class="lk" id="pubClose" type="button">Fermer</button></span></div>'+pubStatusHtml();
-    if(ensurePosterSilent())h+='<div class="pub-hint">Sélectionne un passage du texte, puis « Partager » pour ouvrir une note publique.</div>';
-    if(!pubNotes.length)h+='<div class="pub-empty">Aucune note partagée sur ce chapitre pour l’instant.</div>';
-    else pubNotes.forEach(n=>{h+=noteBlockHtml(n);});
+    const groups=isMod?groupedReports():[];
+    let h='<div class="np-head"><b>Notes partagées</b> <span class="np-n">'+pubNotes.length+'</span><span class="np-tools">'
+      +(isMod?'<button class="lk'+(modView?' on':'')+'" data-modview="1" type="button">Signalements ('+groups.length+')</button>':'')
+      +'<button class="lk" id="pubClose" type="button">Fermer</button></span></div>'+pubStatusHtml();
+    if(isMod&&modView){
+      if(!groups.length)h+='<div class="pub-empty">Aucun signalement en attente sur ce chapitre.</div>';
+      else groups.forEach(g=>{const n=g.note;
+        h+='<div class="pub-note'+(n.hidden?' pub-hidden':'')+'"><div class="pub-meta"><span class="pub-author">'+escapeHtml((n.profiles&&n.profiles.username)||'?')+'</span><span class="pub-badge red">'+g.count+' signalement'+(g.count>1?'s':'')+'</span>'+(n.hidden?'<span class="pub-badge">masqué</span>':'')+'</div>';
+        if(n.quote)h+='<div class="pub-q">« '+escapeHtml(n.quote.slice(0,120))+(n.quote.length>120?'…':'')+' »</div>';
+        h+='<div class="pub-body">'+escapeHtml((n.body||'').slice(0,300))+((n.body||'').length>300?'…':'')+'</div>';
+        if(g.reasons.length)h+='<div class="pub-reasons">Motifs : '+g.reasons.map(x=>escapeHtml(x)).join(' · ')+'</div>';
+        h+='<div class="pub-acts">'+(n.quote?'<button class="lk" data-goq="'+n.id+'" type="button">Aller</button>':'')
+          +(n.hidden?'<button class="lk" data-show="'+n.id+'" type="button">Afficher</button>':'<button class="lk" data-hide="'+n.id+'" type="button">Masquer</button>')
+          +'<button class="lk" data-resolve="'+n.id+'" type="button">Marquer traité</button>'
+          +'<button class="lk" data-del="'+n.id+'" type="button">Supprimer</button></div></div>';
+      });
+    }else{
+      if(ensurePosterSilent())h+='<div class="pub-hint">Sélectionne un passage du texte, puis « Partager » pour ouvrir une note publique.</div>';
+      if(!pubNotes.length)h+='<div class="pub-empty">Aucune note partagée sur ce chapitre pour l’instant.</div>';
+      else pubNotes.forEach(n=>{h+=noteBlockHtml(n);});
+    }
     pp.innerHTML=h;
     const cl=pp.querySelector('#pubClose');if(cl)cl.onclick=()=>{pp.hidden=true;};
+    pp.querySelectorAll('[data-modview]').forEach(b=>b.onclick=()=>{modView=!modView;renderPublic();});
     pp.querySelectorAll('[data-pa="login"]').forEach(b=>b.onclick=()=>openAcctModal());
     pp.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{const n=pubNotes.find(x=>x.id===b.dataset.go);if(n)flashAnchor(n);});
-    pp.querySelectorAll('[data-reply]').forEach(b=>b.onclick=()=>{replyOpen=(replyOpen===b.dataset.reply)?null:b.dataset.reply;renderPublic();const ta=pp.querySelector('.pub-rta');if(ta)ta.focus();});
+    pp.querySelectorAll('[data-goq]').forEach(b=>b.onclick=()=>{const g=groups.find(x=>x.note.id===b.dataset.goq);if(g)flashAnchor(g.note);});
+    pp.querySelectorAll('[data-reply]').forEach(b=>b.onclick=()=>{replyOpen=(replyOpen===b.dataset.reply)?null:b.dataset.reply;reportOpen=null;renderPublic();const ta=pp.querySelector('.pub-rta');if(ta)ta.focus();});
     pp.querySelectorAll('[data-replycancel]').forEach(b=>b.onclick=()=>{replyOpen=null;renderPublic();});
     pp.querySelectorAll('[data-sendreply]').forEach(b=>b.onclick=()=>{const ta=pp.querySelector('.pub-rta');addReply(b.dataset.sendreply,ta?ta.value:'');});
+    pp.querySelectorAll('[data-report]').forEach(b=>b.onclick=()=>{reportOpen=(reportOpen===b.dataset.report)?null:b.dataset.report;replyOpen=null;renderPublic();const ta=pp.querySelector('.pub-rpta');if(ta)ta.focus();});
+    pp.querySelectorAll('[data-reportcancel]').forEach(b=>b.onclick=()=>{reportOpen=null;renderPublic();});
+    pp.querySelectorAll('[data-sendreport]').forEach(b=>b.onclick=()=>{const ta=pp.querySelector('.pub-rpta');reportNote(b.dataset.sendreport,ta?ta.value:'');});
+    pp.querySelectorAll('[data-hide]').forEach(b=>b.onclick=()=>hideNote(b.dataset.hide,true));
+    pp.querySelectorAll('[data-show]').forEach(b=>b.onclick=()=>hideNote(b.dataset.show,false));
+    pp.querySelectorAll('[data-resolve]').forEach(b=>b.onclick=()=>resolveReports(b.dataset.resolve));
     pp.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{delPublic(b.dataset.del);});
   }
 

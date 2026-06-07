@@ -73,14 +73,20 @@ en pages séparées + composants partagés.
 - **Phase 3 — notes publiques + modération** *(en cours)*
   Table `public_notes` (forum) : notes publiques ancrées à un passage, avec
   fils de réponses, lisibles par tous, écriture réservée aux comptes ayant un
-  pseudo. **Fait** : la mécanique (table + RLS, panneau « Notes partagées »
-  dans la liseuse, publication via « Partager » sur une sélection, réponses,
-  suppression de ses propres contributions, saut au passage). **À faire avant
-  d'ouvrir au public** : outils de signalement / masquage / mise en avant,
-  notes éditoriales, et la conformité RGPD (politique de confidentialité,
-  consentement, droit à l'effacement). Tant que ces garde-fous ne sont pas en
-  place, garder l'accès restreint (par ex. ne pas diffuser largement, ou
-  limiter les inscriptions).
+  pseudo. **Fait** : la mécanique du forum (table + RLS, panneau « Notes
+  partagées », publication, réponses, suppression de ses contributions, saut
+  au passage) **et la modération** (bouton « Signaler », table `reports`,
+  rôle modérateur via la table `moderators`, masquage/affichage des notes,
+  file de signalements côté modérateur). **À faire avant d'ouvrir au public** :
+  notes éditoriales / mise en avant, et la conformité RGPD (politique de
+  confidentialité, consentement, droit à l'effacement — la suppression
+  complète d'un compte nécessitera une fonction côté serveur). Tant que ces
+  garde-fous ne sont pas complets, garder l'accès restreint.
+
+  > **Se désigner modérateur** : Supabase → Authentication → Users → copier
+  > son UID, puis Table Editor → `moderators` → Insert (coller l'UID), ou en
+  > SQL : `insert into public.moderators (id) values ('TON-UID');`. La table
+  > `moderators` n'a aucune écriture côté client : impossible de s'auto-promouvoir.
 
 ---
 
