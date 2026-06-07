@@ -17,6 +17,6 @@
    ici la clé « secret » / « service_role ».
    ============================================================ */
 window.LIREMARX_SUPABASE = {
-  url:  'https://VOTRE-PROJET.supabase.co',
-  anon: 'VOTRE_CLE_PUBLISHABLE_OU_ANON'
+  url:  'https://iblovjzsfawckizixgfh.supabase.co',
+  anon: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlibG92anpzZmF3Y2tpeml4Z2ZoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4MjM0OTYsImV4cCI6MjA5NjM5OTQ5Nn0.nxU5o5S5LFzRiCohjfAwzoyPtvweaJOMhn_mXoP8IT0'
 };
