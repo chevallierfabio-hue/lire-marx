@@ -261,6 +261,43 @@ footer b{font-family:'Fraunces',serif;font-style:normal;color:var(--ink);}
 .extrait-note{font-style:italic;color:var(--ink-soft);font-size:.84rem;margin:12px 2px 2px;}
 .chap-inner .reader{max-width:none;margin:10px 0 0;padding:22px clamp(16px,3.2vw,30px);}
 .chap-inner .reader .rsrc{display:none;}
+
+/* ===== Annotation (liseuse) ===== */
+.anno-hint{font-size:.86rem;color:var(--ink-soft);font-style:italic;margin:0 0 16px;}
+.anno-hint b{color:var(--ink);font-style:normal;}
+mark.anno{color:inherit;border-radius:2px;padding:.02em 0;cursor:pointer;transition:box-shadow .15s;}
+mark.anno.c-gold{background:rgba(154,123,53,.34);}
+mark.anno.c-red{background:rgba(165,42,33,.26);}
+mark.anno.c-blue{background:rgba(57,89,107,.30);}
+mark.anno.c-green{background:rgba(82,116,47,.30);}
+mark.anno.has-note{box-shadow:inset 0 -2px 0 0 var(--ink);}
+mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
+.anno-bar{position:absolute;z-index:80;display:none;align-items:center;gap:8px;background:var(--ink);color:var(--paper);padding:7px 11px;border-radius:9px;box-shadow:0 8px 22px rgba(0,0,0,.32);}
+.anno-bar-l{font-family:'Fraunces',serif;font-size:.78rem;letter-spacing:.04em;}
+.anno-sw{width:20px;height:20px;border-radius:50%;border:2px solid rgba(255,255,255,.55);cursor:pointer;padding:0;}
+.anno-sw.on{border-color:#fff;box-shadow:0 0 0 2px var(--ink),0 0 0 4px #fff;}
+.anno-sw.c-gold{background:#9a7b35;}.anno-sw.c-red{background:#a52a21;}.anno-sw.c-blue{background:#39596b;}.anno-sw.c-green{background:#52742f;}
+.anno-pop{position:absolute;z-index:81;width:300px;max-width:92vw;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;box-shadow:0 14px 34px -10px rgba(0,0,0,.4);}
+.anno-pop-q{font-style:italic;color:var(--ink-soft);font-size:.9rem;line-height:1.4;margin-bottom:10px;}
+.anno-pop-sw{display:flex;gap:8px;margin-bottom:10px;}
+.anno-pop-t{width:100%;min-height:78px;font-family:'Spectral',serif;font-size:.95rem;padding:9px 11px;border:1px solid var(--line);border-radius:7px;background:var(--paper);color:var(--ink);resize:vertical;}
+.anno-pop-act{display:flex;align-items:center;justify-content:space-between;margin-top:10px;}
+.notes-panel{margin-top:18px;border:1px solid var(--line);background:var(--card);border-radius:8px;padding:16px 18px;}
+.np-head{display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line-soft);padding-bottom:10px;margin-bottom:10px;}
+.np-head b{font-family:'Fraunces',serif;font-size:1.05rem;}
+.np-n{background:var(--ink);color:var(--paper);font-family:'Fraunces',serif;font-size:.74rem;padding:1px 9px;border-radius:20px;}
+.np-tools{margin-left:auto;display:flex;gap:8px;}
+.np-warn{background:rgba(165,42,33,.08);border-left:3px solid var(--red);padding:9px 12px;border-radius:0 4px 4px 0;font-size:.85rem;color:var(--ink-soft);margin-bottom:10px;}
+.np-empty,.np-empty2{color:var(--ink-soft);font-style:italic;font-size:.9rem;}
+.np-list{list-style:none;margin:0;padding:0;}
+.np-list li{display:flex;align-items:flex-start;gap:10px;padding:11px 0;border-top:1px solid var(--line-soft);}
+.np-list li:first-child{border-top:none;}
+.np-dot{flex:none;width:12px;height:12px;border-radius:3px;margin-top:4px;}
+.np-dot.c-gold{background:#9a7b35;}.np-dot.c-red{background:#a52a21;}.np-dot.c-blue{background:#39596b;}.np-dot.c-green{background:#52742f;}
+.np-body{flex:1;min-width:0;}
+.np-q{font-style:italic;color:var(--ink-soft);font-size:.9rem;line-height:1.4;}
+.np-note{font-size:.95rem;color:var(--ink);margin-top:3px;}
+.np-act{display:flex;gap:6px;flex:none;}
 </style>
 </head>
 <body>
@@ -475,8 +512,11 @@ footer b{font-family:'Fraunces',serif;font-style:normal;color:var(--ink);}
     <div class="reader-bar">
       <select id="chapSelect" aria-label="Choisir un chapitre"></select>
       <button id="loadBtn" class="btn red" type="button">Charger le texte intégral →</button>
+      <button id="notesToggle" class="btn" type="button">Mes notes</button>
     </div>
+    <div class="anno-hint">Une fois le texte chargé : <b>sélectionne un passage</b> pour le surligner, puis <b>clique le surlignage</b> pour y attacher une note. Tout reste sur cet appareil (sauvegarde locale) — la synchronisation par compte viendra ensuite.</div>
     <div id="readerOut"><div class="reader"><div class="placeholder"><div class="pi">📖</div><b>Choisis un chapitre ci-dessus, puis clique sur « Charger le texte intégral ».</b><br><span style="font-size:.9rem">Le texte complet du chapitre s'affichera ici.</span></div></div></div>
+    <div id="notesPanel" class="notes-panel" hidden></div>
   </section>
 
   <!-- LABORATOIRE -->
@@ -1185,6 +1225,7 @@ async function showSelection(doScroll){
     const html=await loadSection(n);
     out.innerHTML='<div class="reader"><div class="rkicker">Section '+sec.rn+' — '+sec.t+'</div><div class="rtitle">Chapitre '+num+'. '+title+'</div><div class="rsrc">Texte intégral — traduction Joseph Roy, domaine public (source Wikisource). La section entière est affichée ; Ctrl/Cmd+F pour y circuler.</div><div class="ws-text">'+html+'</div></div>';
     if(doScroll)scrollToAnchor(out,title);
+    try{if(window.Anno)window.Anno.mount(n,out.querySelector('.ws-text'));}catch(e){}
   }catch(err){
     out.innerHTML='<div class="reader"><div class="placeholder"><div class="pi">⚠️</div><b>Le texte n’a pas pu être chargé.</b><br>Le chargement se fait en ligne depuis Wikisource : il faut une connexion internet, et il est le plus souvent bloqué dans l’aperçu intégré au chat. Ouvre le fichier <em>téléchargé</em> dans ton navigateur pour lire le texte intégral.<br><span style="font-size:.82rem">détail : '+(err&&err.message?err.message:err)+'</span></div></div>';
   }}
@@ -1313,6 +1354,196 @@ STEPS.forEach((s,i)=>{const step=document.createElement('div');step.className='s
   stair.appendChild(step);if(i<STEPS.length-1){const m=document.createElement('div');m.className='motor';m.textContent=s.motor;stair.appendChild(m);}});
 
 drawTRPF();
+
+/* ===== Annotation — local-first, prêt pour synchronisation (Supabase) ===== */
+(function(){
+  const WORK='capital';
+  const KEY='liremarx.anno.v1';
+  const COLORS=[['gold','Or'],['red','Rouge'],['blue','Bleu'],['green','Vert']];
+  let box=null,curN=0,store={},persistOK=true,bar=null,pop=null;
+  const panel=document.getElementById('notesPanel');
+  const toggle=document.getElementById('notesToggle');
+
+  try{localStorage.setItem('liremarx.__t','1');localStorage.removeItem('liremarx.__t');}catch(e){persistOK=false;}
+  try{const r=localStorage.getItem(KEY);store=r?JSON.parse(r):{};}catch(e){store={};}
+  function persist(){try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){persistOK=false;}}
+  function keyOf(n){return WORK+'|'+n;}
+  function listFor(n){return store[keyOf(n)]||[];}
+  function findAnn(id){return listFor(curN).find(a=>a.id===id);}
+  function uid(){return 'a'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
+  function escapeHtml(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+  /* --- ancrage par citation (fonctions testées hors-ligne) --- */
+  function rangeOffsets(container,range){
+    if(range.startContainer.nodeType!==3||range.endContainer.nodeType!==3)return null;
+    const w=document.createTreeWalker(container,NodeFilter.SHOW_TEXT,null);
+    let pos=0,start=-1,end=-1,n;
+    while(n=w.nextNode()){
+      if(n===range.startContainer)start=pos+range.startOffset;
+      if(n===range.endContainer)end=pos+range.endOffset;
+      pos+=n.nodeValue.length;
+      if(start>=0&&end>=0)break;
+    }
+    if(start<0||end<0||end<=start)return null;
+    return {start,end};
+  }
+  function contextFor(full,start,end,pad){
+    pad=pad||40;
+    return {before:full.slice(Math.max(0,start-pad),start),quote:full.slice(start,end),after:full.slice(end,end+pad)};
+  }
+  function locate(full,a){
+    if(!a.quote)return null;
+    let i=full.indexOf(a.before+a.quote+a.after);
+    if(i>=0){const s=i+a.before.length;return {start:s,end:s+a.quote.length};}
+    i=full.indexOf(a.before+a.quote);
+    if(i>=0){const s=i+a.before.length;return {start:s,end:s+a.quote.length};}
+    i=full.indexOf(a.quote);
+    if(i>=0)return {start:i,end:i+a.quote.length};
+    return null;
+  }
+  function wrapByOffsets(container,start,end,cls,id){
+    const w=document.createTreeWalker(container,NodeFilter.SHOW_TEXT,null);
+    let pos=0,n;const snap=[];
+    while(n=w.nextNode()){snap.push({node:n,pos});pos+=n.nodeValue.length;}
+    for(const it of snap){
+      const len=it.node.nodeValue.length,a=it.pos,b=it.pos+len;
+      const s=Math.max(start,a)-a,e=Math.min(end,b)-a;
+      if(e<=s)continue;
+      let node=it.node;
+      if(s>0)node=node.splitText(s);
+      if(e-s<node.nodeValue.length)node.splitText(e-s);
+      const mark=document.createElement('mark');mark.className=cls;mark.dataset.anno=id;
+      node.parentNode.insertBefore(mark,node);mark.appendChild(node);
+    }
+  }
+
+  /* --- rendu des surlignages --- */
+  function renderHighlights(){
+    if(!box)return;
+    listFor(curN).forEach(an=>{try{
+      const loc=locate(box.textContent,an);
+      if(!loc)return;
+      wrapByOffsets(box,loc.start,loc.end,'anno c-'+an.color+(an.note?' has-note':''),an.id);
+    }catch(e){}});
+  }
+  function clearMarks(){if(!box)return;box.querySelectorAll('mark.anno').forEach(m=>{m.replaceWith(document.createTextNode(m.textContent));});box.normalize();}
+  function unwrap(id){if(!box)return;box.querySelectorAll('mark[data-anno="'+id+'"]').forEach(m=>{m.replaceWith(document.createTextNode(m.textContent));});box.normalize();}
+  function reclass(id,color,hasNote){if(!box)return;box.querySelectorAll('mark[data-anno="'+id+'"]').forEach(m=>{m.className='anno c-'+color+(hasNote?' has-note':'');});}
+
+  /* --- barre de sélection --- */
+  function ensureBar(){
+    if(bar)return bar;
+    bar=document.createElement('div');bar.className='anno-bar';
+    let h='<span class="anno-bar-l">Surligner</span>';
+    COLORS.forEach(c=>{h+='<button class="anno-sw c-'+c[0]+'" data-c="'+c[0]+'" title="'+c[1]+'"></button>';});
+    bar.innerHTML=h;
+    bar.addEventListener('mousedown',e=>e.preventDefault());
+    bar.addEventListener('click',e=>{const b=e.target.closest('[data-c]');if(b)addFromSelection(b.dataset.c);});
+    document.body.appendChild(bar);
+    return bar;
+  }
+  function hideBar(){if(bar)bar.style.display='none';}
+  function selectionInBox(){
+    const s=window.getSelection();
+    if(!s||s.isCollapsed||s.rangeCount===0)return null;
+    const r=s.getRangeAt(0);
+    if(!box||!box.contains(r.commonAncestorContainer))return null;
+    if((r.toString()||'').trim().length<2)return null;
+    return r;
+  }
+  function onSelect(){
+    if(pop&&pop.style.display!=='none')return;
+    const r=selectionInBox();
+    if(!r){hideBar();return;}
+    ensureBar();
+    const rect=r.getBoundingClientRect();
+    bar.style.display='flex';
+    bar.style.top=Math.max(window.scrollY+4,window.scrollY+rect.top-bar.offsetHeight-8)+'px';
+    bar.style.left=Math.max(6,window.scrollX+rect.left+rect.width/2-bar.offsetWidth/2)+'px';
+  }
+  function addFromSelection(color){
+    const r=selectionInBox();if(!r)return;
+    const off=rangeOffsets(box,r);if(!off){hideBar();return;}
+    const ctx=contextFor(box.textContent,off.start,off.end);
+    const an={id:uid(),work:WORK,section:curN,before:ctx.before,quote:ctx.quote,after:ctx.after,color:color,note:'',created:Date.now()};
+    const k=keyOf(curN);(store[k]=store[k]||[]).push(an);persist();
+    try{wrapByOffsets(box,off.start,off.end,'anno c-'+color,an.id);}catch(e){}
+    window.getSelection().removeAllRanges();hideBar();renderPanel();openPop(an.id);
+  }
+
+  /* --- popover note --- */
+  function openPop(id){
+    const an=findAnn(id);if(!an||!box)return;
+    if(!pop){pop=document.createElement('div');pop.className='anno-pop';document.body.appendChild(pop);}
+    let sw='';COLORS.forEach(c=>{sw+='<button class="anno-sw c-'+c[0]+(c[0]===an.color?' on':'')+'" data-c="'+c[0]+'"></button>';});
+    pop.innerHTML='<div class="anno-pop-q">« '+escapeHtml(an.quote.slice(0,140))+(an.quote.length>140?'…':'')+' »</div>'
+      +'<div class="anno-pop-sw">'+sw+'</div>'
+      +'<textarea class="anno-pop-t" placeholder="Ta note…">'+escapeHtml(an.note||'')+'</textarea>'
+      +'<div class="anno-pop-act"><button class="btn red" data-act="save" type="button">Enregistrer</button><button class="lk" data-act="del" type="button">Supprimer</button></div>';
+    const first=box.querySelector('mark[data-anno="'+id+'"]');
+    const rect=(first||box).getBoundingClientRect();
+    pop.style.display='block';
+    pop.style.top=(window.scrollY+rect.bottom+8)+'px';
+    pop.style.left=Math.max(6,window.scrollX+rect.left)+'px';
+    const ta=pop.querySelector('.anno-pop-t');ta.focus();
+    pop.querySelectorAll('[data-c]').forEach(b=>b.addEventListener('click',()=>{pop.querySelectorAll('.anno-sw').forEach(x=>x.classList.remove('on'));b.classList.add('on');}));
+    pop.querySelector('[data-act="save"]').onclick=()=>{
+      an.note=ta.value.trim();
+      const onSw=pop.querySelector('.anno-sw.on');if(onSw)an.color=onSw.dataset.c;
+      persist();reclass(an.id,an.color,!!an.note);renderPanel();closePop();
+    };
+    pop.querySelector('[data-act="del"]').onclick=()=>{delAnn(an.id);closePop();};
+  }
+  function closePop(){if(pop)pop.style.display='none';}
+  function delAnn(id){const k=keyOf(curN);store[k]=(store[k]||[]).filter(a=>a.id!==id);persist();unwrap(id);renderPanel();}
+
+  /* --- panneau des notes --- */
+  function renderPanel(){
+    if(!panel)return;
+    const items=listFor(curN);
+    let h='<div class="np-head"><b>Mes notes</b> <span class="np-n">'+items.length+'</span>'
+      +'<span class="np-tools"><button class="lk" id="annoExport" type="button">Exporter</button><button class="lk" id="annoImport" type="button">Importer</button></span></div>';
+    if(!persistOK)h+='<div class="np-warn">Sauvegarde locale indisponible ici (par ex. dans l’aperçu du chat) : les annotations ne seront pas conservées. Sur le site en ligne, elles le seront.</div>';
+    if(!items.length)h+='<div class="np-empty">Aucune note sur ce chapitre. Sélectionne un passage du texte pour commencer.</div>';
+    else{h+='<ul class="np-list">';items.forEach(an=>{
+      h+='<li><span class="np-dot c-'+an.color+'"></span><div class="np-body"><div class="np-q">'+escapeHtml(an.quote.slice(0,120))+(an.quote.length>120?'…':'')+'</div>'
+        +(an.note?'<div class="np-note">'+escapeHtml(an.note)+'</div>':'<div class="np-note np-empty2">— sans note —</div>')+'</div>'
+        +'<span class="np-act"><button class="lk" data-go="'+an.id+'" type="button">Aller</button><button class="lk" data-ed="'+an.id+'" type="button">Éditer</button></span></li>';
+    });h+='</ul>';}
+    panel.innerHTML=h;
+    panel.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>gotoAnn(b.dataset.go)));
+    panel.querySelectorAll('[data-ed]').forEach(b=>b.addEventListener('click',()=>openPop(b.dataset.ed)));
+    const ex=panel.querySelector('#annoExport');if(ex)ex.onclick=exportAll;
+    const im=panel.querySelector('#annoImport');if(im)im.onclick=importAll;
+  }
+  function gotoAnn(id){
+    const m=box&&box.querySelector('mark[data-anno="'+id+'"]');if(!m)return;
+    m.scrollIntoView({behavior:'smooth',block:'center'});
+    box.querySelectorAll('mark[data-anno="'+id+'"]').forEach(x=>x.classList.add('flashmk'));
+    setTimeout(()=>{if(box)box.querySelectorAll('mark[data-anno="'+id+'"]').forEach(x=>x.classList.remove('flashmk'));},1400);
+  }
+  function exportAll(){
+    const blob=new Blob([JSON.stringify(store,null,2)],{type:'application/json'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='lire-marx-notes.json';a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+  }
+  function importAll(){
+    const inp=document.createElement('input');inp.type='file';inp.accept='application/json,.json';
+    inp.onchange=()=>{const f=inp.files&&inp.files[0];if(!f)return;const fr=new FileReader();
+      fr.onload=()=>{try{const data=JSON.parse(fr.result);if(data&&typeof data==='object'){store=data;persist();if(box){clearMarks();renderHighlights();}renderPanel();}else alert('Format inattendu.');}catch(e){alert('Fichier illisible.');}};
+      fr.readAsText(f);};
+    inp.click();
+  }
+
+  /* --- écouteurs globaux --- */
+  document.addEventListener('mouseup',e=>{if(e.target.closest&&e.target.closest('.anno-bar,.anno-pop'))return;setTimeout(onSelect,0);});
+  document.addEventListener('mousedown',e=>{if(!(e.target.closest&&e.target.closest('.anno-bar,.anno-pop,mark.anno')))closePop();});
+  document.addEventListener('click',e=>{const m=e.target.closest&&e.target.closest('mark.anno');if(m&&box&&box.contains(m)){e.preventDefault();openPop(m.dataset.anno);}});
+  window.addEventListener('scroll',hideBar,{passive:true});
+  if(toggle&&panel)toggle.addEventListener('click',()=>{panel.hidden=!panel.hidden;if(!panel.hidden)renderPanel();});
+
+  window.Anno={mount:function(n,container){closePop();hideBar();curN=n;box=container;if(!box)return;renderHighlights();if(panel&&!panel.hidden)renderPanel();}};
+})();
 </script>
 </body>
 </html>
