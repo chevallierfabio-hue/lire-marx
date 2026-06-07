@@ -196,6 +196,42 @@ svg.exchange{width:100%;height:auto;display:block;margin:22px 0 6px;font-family:
 footer{text-align:center;margin-top:54px;padding-top:22px;border-top:1px solid var(--line);color:var(--ink-soft);font-style:italic;font-size:.86rem;}
 footer b{font-family:'Fraunces',serif;font-style:normal;color:var(--ink);}
 
+/* ===== Outils ajoutés : forme de la valeur, circuits, accumulation ===== */
+.forme-pick{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;}
+.formebtn{font-family:'Fraunces',serif;font-weight:600;font-size:.86rem;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--ink-soft);padding:8px 14px;border-radius:6px;transition:all .18s;}
+.formebtn:hover{border-color:var(--ink);color:var(--ink);}
+.formebtn.active{background:var(--red);color:#fff;border-color:var(--red);}
+.forme-stage{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:stretch;}@media(max-width:760px){.forme-stage{grid-template-columns:1fr;}}
+.forme-board{border:1px solid var(--line);background:var(--card);border-radius:6px;padding:24px;display:flex;flex-direction:column;justify-content:center;}
+.forme-tag{font-family:'Fraunces',serif;font-weight:900;font-size:1.05rem;color:var(--red-deep);margin-bottom:20px;text-align:center;letter-spacing:-.01em;}
+.forme-eq{display:flex;align-items:center;gap:12px;}
+.fside{flex:1;min-width:0;}
+.fside-lab{font-size:.68rem;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:9px;text-align:center;}
+.fcol{display:flex;flex-direction:column;gap:6px;align-items:center;}
+.fchip{font-family:'Fraunces',serif;font-weight:600;font-size:.85rem;padding:6px 12px;border-radius:6px;text-align:center;line-height:1.25;width:100%;}
+.fchip.rel{background:rgba(57,89,107,.13);color:var(--blue);border:1px solid var(--blue);}
+.fchip.eq{background:rgba(165,42,33,.09);color:var(--red-deep);border:1px solid var(--red);}
+.fchip.gold{background:rgba(154,123,53,.16);color:var(--gold-deep);border:1px solid var(--gold-deep);}
+.feq{font-family:'Fraunces',serif;font-weight:900;font-size:1.7rem;color:var(--ink);flex:none;}
+.forme-read{border:1px solid var(--line);background:var(--card);border-radius:6px;padding:24px;font-size:.96rem;line-height:1.62;}
+.fr-role{color:var(--ink);margin-bottom:14px;}
+.fr-flaw{color:var(--ink-soft);border-left:3px solid var(--red);padding:10px 14px;background:rgba(165,42,33,.06);border-radius:0 4px 4px 0;margin-bottom:13px;}
+.fr-k{display:block;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--red);font-weight:600;margin-bottom:3px;}
+.fr-next{font-style:italic;color:var(--gold-deep);font-family:'Fraunces',serif;font-weight:600;}
+.fr-done{font-style:italic;color:var(--ok);font-family:'Fraunces',serif;font-weight:600;}
+.btn:disabled{opacity:.4;cursor:default;}.btn:disabled:hover{background:none;color:var(--ink);}
+svg.circuits{width:100%;height:auto;display:block;margin:6px 0 4px;font-family:'Fraunces',serif;}
+.opp-wrap{margin-top:26px;}
+.opp-title{font-family:'Fraunces',serif;font-weight:900;font-size:1.15rem;margin-bottom:12px;}
+.opp-table{width:100%;border-collapse:collapse;font-size:.93rem;background:var(--card);border:1px solid var(--line);border-radius:6px;overflow:hidden;}
+.opp-table th,.opp-table td{padding:11px 14px;text-align:left;border-bottom:1px solid var(--line-soft);vertical-align:top;}
+.opp-table thead th{font-family:'Fraunces',serif;font-weight:700;color:#fff;background:var(--ink);font-size:.95rem;}
+.opp-table thead th:nth-child(2){background:var(--blue);}
+.opp-table thead th:nth-child(3){background:var(--red);}
+.opp-table tbody th{font-family:'Fraunces',serif;font-weight:600;color:var(--ink);width:24%;background:var(--paper-2);}
+.opp-table tbody tr:last-child th,.opp-table tbody tr:last-child td{border-bottom:none;}
+@media(max-width:620px){.opp-table{font-size:.86rem;}.opp-table th,.opp-table td{padding:8px 9px;}}
+
 /* ===== Lire Marx — accueil / bibliothèque ===== */
 .work-view{display:none;}
 .home-view header.masthead{padding:56px 0 14px;}
@@ -628,6 +664,9 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
       <button class="subtab" data-sub="s-trpf">Baisse tendancielle</button>
       <button class="subtab" data-sub="s-jour">Journée de travail</button>
       <button class="subtab" data-sub="s-repro">Reproduction (Dép. I &amp; II)</button>
+      <button class="subtab" data-sub="s-forme">Forme de la valeur</button>
+      <button class="subtab" data-sub="s-circuit">A&#8209;M&#8209;A&prime; vs M&#8209;A&#8209;M</button>
+      <button class="subtab" data-sub="s-accum">Accumulation &amp; armée de réserve</button>
     </div>
     <div class="subpanel active" id="s-taux">
       <div class="howto"><span class="pin">i</span><div><b>Comment lire :</b> déplace les curseurs. La barre montre la décomposition de la valeur ; les pastilles recalculent le taux d'exploitation et le taux de profit.</div></div>
@@ -706,6 +745,71 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
       <svg class="exchange" id="exchange" viewBox="0 0 560 210" role="img" aria-label="flux entre départements"></svg>
       <div class="verdict" id="reproVerdict"></div>
       <div class="concepts-wrap"><h3>Comprendre les concepts</h3><div class="csub">Les notions des schémas de reproduction.</div><div class="concept-cards" id="cc-repro"></div></div>
+    </div>
+
+    <!-- Forme de la valeur -->
+    <div class="subpanel" id="s-forme">
+      <div class="howto"><span class="pin">i</span><div><b>Comment lire :</b> avance d'une forme à l'autre. À gauche, la marchandise dont on exprime la valeur (<b>forme relative</b>, pôle actif) ; à droite, celle qui sert de miroir (<b>équivalent</b>, pôle passif). On voit la monnaie naître par simple déduction.</div></div>
+      <div class="forme-pick" id="formePick">
+        <button class="formebtn active" data-f="0">A · simple</button>
+        <button class="formebtn" data-f="1">B · développée</button>
+        <button class="formebtn" data-f="2">C · générale</button>
+        <button class="formebtn" data-f="3">D · argent</button>
+      </div>
+      <div class="forme-stage">
+        <div class="forme-board" id="formeBoard"></div>
+        <div class="forme-read" id="formeRead"></div>
+      </div>
+      <div class="preset-row" style="margin-top:16px"><button class="btn" id="formePrev">‹ Forme précédente</button><button class="btn red" id="formeNext">Forme suivante ›</button></div>
+      <div class="concepts-wrap"><h3>Comprendre les concepts</h3><div class="csub">Les deux pôles de l'expression et les quatre formes.</div><div class="concept-cards" id="cc-forme"></div></div>
+    </div>
+
+    <!-- A-M-A' vs M-A-M -->
+    <div class="subpanel" id="s-circuit">
+      <div class="howto"><span class="pin">i</span><div><b>Comment lire :</b> deux circuits. <b>M&#8209;A&#8209;M</b> : vendre pour acheter (circulation simple). <b>A&#8209;M&#8209;A&prime;</b> : acheter pour vendre (le capital). Fais varier le ΔA pour voir ce qui distingue le second du premier.</div></div>
+      <div class="lab">
+        <div class="controls">
+          <h3>Le mouvement de la valeur</h3>
+          <div class="field"><label for="rA"><span>Argent avancé <i>A</i></span><span class="val" id="vA">100</span></label><input type="range" id="rA" min="50" max="300" step="10" value="100" aria-label="argent avancé"></div>
+          <div class="field"><label for="rdA"><span>Plus-value <i>ΔA</i></span><span class="val" id="vdA">20</span></label><input type="range" id="rdA" min="0" max="120" step="5" value="20" aria-label="plus-value delta A"><div style="font-size:.82rem;color:var(--ink-soft);font-style:italic;margin-top:6px;">ΔA = 0 : A′ = A, le circuit perd tout sens. ΔA &gt; 0 : la valeur s'est valorisée.</div></div>
+        </div>
+        <div class="readout">
+          <h3>Les deux circuits</h3>
+          <svg class="circuits" id="circuitSvg" viewBox="0 0 520 300" role="img" aria-label="circuits M-A-M et A-M-A prime"></svg>
+          <div class="verdict" id="circuitVerdict"></div>
+        </div>
+      </div>
+      <div class="opp-wrap">
+        <div class="opp-title">Ce qui oppose les deux circuits</div>
+        <table class="opp-table"><thead><tr><th></th><th>M — A — M</th><th>A — M — A′</th></tr></thead><tbody id="oppBody"></tbody></table>
+      </div>
+      <div class="concepts-wrap"><h3>Comprendre les concepts</h3><div class="csub">Les notions des deux circulations.</div><div class="concept-cards" id="cc-circuit"></div></div>
+    </div>
+
+    <!-- Accumulation & armée de réserve -->
+    <div class="subpanel" id="s-accum">
+      <div class="howto"><span class="pin">i</span><div><b>Comment lire :</b> le capital s'accumule et se mécanise (<i>c/v</i> monte). Le travail vivant employé croît, mais <b>plus lentement</b> que le capital : l'écart est l'<b>armée industrielle de réserve</b> que l'accumulation engendre.</div></div>
+      <div class="lab">
+        <div class="controls">
+          <h3>Les ressorts de l'accumulation</h3>
+          <div class="field"><label for="aq0"><span>Composition organique de départ <i>c/v</i></span><span class="val" id="vaq0">1,0</span></label><input type="range" id="aq0" min="0.5" max="4" step="0.1" value="1" aria-label="composition organique de départ"></div>
+          <div class="field"><label for="ae"><span>Taux d'exploitation <i>pl/v</i></span><span class="val" id="vae">100 %</span></label><input type="range" id="ae" min="50" max="300" step="10" value="100" aria-label="taux d'exploitation"></div>
+          <div class="field"><label for="aa"><span>Taux d'accumulation <i>(part de pl réinvestie)</i></span><span class="val" id="vaa">60 %</span></label><input type="range" id="aa" min="0" max="100" step="5" value="60" aria-label="taux d'accumulation"></div>
+          <div class="field"><label for="ag"><span>Vitesse de mécanisation <i>(c/v par période)</i></span><span class="val" id="vag">8 %</span></label><input type="range" id="ag" min="0" max="25" step="1" value="8" aria-label="vitesse de mécanisation"><div style="font-size:.82rem;color:var(--ink-soft);font-style:italic;margin-top:6px;">À 0 % : composition constante, le capital absorbe le travail proportionnellement — pas d'armée de réserve.</div></div>
+        </div>
+        <div class="readout">
+          <h3>Capital, emploi, réserve</h3>
+          <div class="chartbox" style="border:none;padding:0;background:none"><svg class="chart" id="accumChart" viewBox="0 0 560 320" role="img" aria-label="capital et emploi dans le temps"></svg>
+            <div class="chart-legend"><span><i style="border-color:var(--red)"></i> capital total</span><span><i style="border-color:var(--blue)"></i> travail vivant employé</span><span style="color:var(--red)">▨ armée de réserve (l'écart)</span></div>
+          </div>
+          <div class="metric" style="margin-top:10px"><div class="mlab"><span class="miconw" style="background:var(--blue)"><svg viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/></svg></span><span>Composition organique finale<small>c/v après 12 périodes</small></span></div><div class="mval blue" id="maQ">—</div></div>
+          <div class="metric"><div class="mlab"><span class="miconw" style="background:var(--red)"><svg viewBox="0 0 24 24"><path d="M3 21V11l5 3V11l5 3V8l6 3v9z"/><path d="M3 21h18"/></svg></span><span>Capital multiplié par<small>indice final / 100</small></span></div><div class="mval red" id="maK">—</div></div>
+          <div class="metric"><div class="mlab"><span class="miconw" style="background:var(--blue)"><svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="3.2"/><path d="M5 20c0-4 3.5-6 7-6s7 2 7 6"/></svg></span><span>Emploi multiplié par<small>travail vivant employé</small></span></div><div class="mval blue" id="maN">—</div></div>
+          <div class="metric"><div class="mlab"><span class="miconw" style="background:var(--gold-deep)"><svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="1.5" fill="#fff" stroke="none"/><circle cx="12" cy="17" r="1.5" fill="#fff" stroke="none"/><path d="M6 12h12"/></svg></span><span>Armée de réserve<small>% du travail attendu, non absorbé</small></span></div><div class="mval gold" id="maR">—</div></div>
+        </div>
+      </div>
+      <div class="verdict" id="accumVerdict" style="margin-top:16px"></div>
+      <div class="concepts-wrap"><h3>Comprendre les concepts</h3><div class="csub">Les notions de la loi générale de l'accumulation.</div><div class="concept-cards" id="cc-accum"></div></div>
     </div>
   </section>
 
@@ -1361,7 +1465,24 @@ const CONCEPTS={
   {ic:'store',ac:'var(--blue)',t:'Département II',d:"Fabrique les moyens de consommation.",f:'biens de consommation'},
   {ic:'cycle',ac:'var(--ink)',t:'Reproduction simple',d:"Toute la plus-value est consommée.",f:'échelle constante'},
   {ic:'cycle',ac:'var(--gold-deep)',t:'Reproduction élargie',d:"Une part est réinvestie : l'échelle grandit.",f:'accumulation'},
-  {ic:'scale',ac:'var(--red)',t:'Condition I(v+pl)=II(c)',d:"L'échange croisé entre les deux secteurs s'équilibre.",f:'pivot de la reproduction'}]};
+  {ic:'scale',ac:'var(--red)',t:'Condition I(v+pl)=II(c)',d:"L'échange croisé entre les deux secteurs s'équilibre.",f:'pivot de la reproduction'}],
+ 'cc-forme':[{ic:'scale',ac:'var(--blue)',t:'Forme relative',d:"La marchandise dont on exprime la valeur — pôle actif de l'équation.",f:'pôle actif'},
+  {ic:'scale',ac:'var(--red)',t:'Forme équivalent',d:"Celle qui sert de miroir : sa valeur d'usage devient forme de valeur.",f:'pôle passif'},
+  {ic:'coin',ac:'var(--ink)',t:'Forme simple (A)',d:"Une marchandise = une autre. Expression isolée, accidentelle.",f:'x A = y B'},
+  {ic:'layers',ac:'var(--blue)',t:'Forme développée (B)',d:"Une marchandise = une série illimitée d'autres. Sans clôture ni unité.",f:'série ouverte'},
+  {ic:'cycle',ac:'var(--gold-deep)',t:'Forme générale (C)',d:"Toutes s'expriment dans une seule : l'équivalent général.",f:'équivalent général'},
+  {ic:'coin',ac:'var(--red-deep)',t:'Forme argent (D)',d:"L'or monopolise la place d'équivalent. Naissance de la forme prix.",f:'forme prix'}],
+ 'cc-circuit':[{ic:'cycle',ac:'var(--blue)',t:'M — A — M',d:"Vendre pour acheter : la circulation simple des marchandises.",f:'qualitatif, fini'},
+  {ic:'cycle',ac:'var(--red)',t:'A — M — A′',d:"Acheter pour vendre : le mouvement propre du capital.",f:'quantitatif, sans fin'},
+  {ic:'coin',ac:'var(--red)',t:'ΔA — plus-value',d:"L'accroissement sans lequel A—M—A′ n'aurait aucun sens.",f:'A′ = A + ΔA'},
+  {ic:'bolt',ac:'var(--gold-deep)',t:'La valeur qui se valorise',d:"Le capital est de la valeur en mouvement, qui se grossit elle-même.",f:'sujet automate'},
+  {ic:'worker',ac:'var(--ink)',t:'Force de travail',d:"La seule marchandise dont l'usage crée plus de valeur qu'elle ne coûte.",f:'source du ΔA'}],
+ 'cc-accum':[{ic:'cycle',ac:'var(--gold-deep)',t:'Accumulation',d:"La plus-value capitalisée : une part de pl redevient capital.",f:'pl → capital'},
+  {ic:'layers',ac:'var(--blue)',t:'Composition organique',d:"Le poids du capital constant rapporté au travail vivant ; elle monte.",f:'c/v ↑'},
+  {ic:'worker',ac:'var(--blue)',t:'Demande de travail',d:"Proportionnelle à v : elle croît plus lentement que le capital total.",f:'∝ v'},
+  {ic:'ratio',ac:'var(--red)',t:'Armée de réserve',d:"La surpopulation relative que l'accumulation produit elle-même.",f:'travail non absorbé'},
+  {ic:'cycle',ac:'var(--ink)',t:'Loi générale',d:"Plus le capital s'accumule, plus la réserve grossit avec lui.",f:'tendance du système'},
+  {ic:'percent',ac:'var(--gold-deep)',t:'Régulation des salaires',d:"La réserve pèse sur les salaires : une armée toujours disponible.",f:'pression sur v'}]};
 for(const id in CONCEPTS){document.getElementById(id).innerHTML=CONCEPTS[id].map(x=>`<div class="ccard" style="--accent:${x.ac}"><div class="cc-icon">${ICONS[x.ic]}</div><div><div class="cc-term">${x.t}</div><div class="cc-def">${x.d}</div><span class="cc-formula">${x.f}</span></div></div>`).join('');}
 
 /* ---- Lab 1 ---- */
@@ -1432,6 +1553,136 @@ function lab4(){const g=id=>+document.getElementById(id).value||0;const Ic=g('I_
 document.getElementById('presetSimple').addEventListener('click',()=>{const s={I_c:4000,I_v:1000,I_pl:1000,II_c:2000,II_v:500,II_pl:500};for(const k in s)document.getElementById(k).value=s[k];lab4();});
 document.getElementById('presetElargie').addEventListener('click',()=>{const s={I_c:4000,I_v:1000,I_pl:1000,II_c:1500,II_v:750,II_pl:750};for(const k in s)document.getElementById(k).value=s[k];lab4();});
 lab4();
+
+/* ====== Outil : La forme de la valeur (chap. I, §3) ====== */
+const FORMES=[
+ {tag:"A — Forme simple ou accidentelle",
+  rel:["20 mètres de toile"], eqv:["1 habit"],
+  role:"La toile exprime sa valeur dans un seul habit. La toile est <b>forme relative</b> (pôle actif) ; l'habit sert d'<b>équivalent</b> (pôle passif). Deux pôles d'une même expression, corrélatifs mais qui s'excluent : une marchandise ne peut revêtir les deux à la fois.",
+  flaw:"Expression isolée, accidentelle : la valeur de la toile ne se reflète que dans une seule autre marchandise.",
+  next:"On multiplie les marchandises où la toile s'exprime →"},
+ {tag:"B — Forme totale ou développée",
+  rel:["20 mètres de toile"], eqv:["1 habit","ou 10 livres de thé","ou 40 livres de café","ou 2 onces d'or","ou etc."],
+  role:"La valeur de la toile se reflète dans une série illimitée d'équivalents. Il devient manifeste que c'est sa grandeur de valeur qui règle l'échange, et non l'échange qui la règle.",
+  flaw:"La série n'est jamais close et manque d'unité : autant d'expressions fragmentaires que de marchandises.",
+  next:"On retourne l'équation →"},
+ {tag:"C — Forme générale",
+  rel:["1 habit","10 livres de thé","40 livres de café","2 onces d'or","etc."], eqv:["20 mètres de toile"],
+  role:"Toutes les marchandises expriment désormais leur valeur dans <b>une seule</b> : la toile devient l'<b>équivalent général</b>. C'est la première forme qui les met réellement en rapport entre elles comme valeurs.",
+  flaw:"L'équivalent général reste flottant : n'importe quelle marchandise pourrait occuper cette place.",
+  next:"Une marchandise monopolise la place →"},
+ {tag:"D — Forme argent",
+  rel:["20 mètres de toile","1 habit","10 livres de thé","40 livres de café","etc."], eqv:["2 onces d'or"], gold:true,
+  role:"L'<b>or</b> conquiert le monopole de l'équivalent général : il devient marchandise-monnaie. L'expression de la valeur d'une marchandise dans l'or est sa <b>forme prix</b>. L'énigme de la monnaie est dissoute.",
+  flaw:"Plus de défaut interne : la forme est achevée. La monnaie n'était que la forme accomplie de l'équivalent, déjà en germe dans la forme simple.",
+  next:null}
+];
+let formeIdx=0;
+const formeBoard=document.getElementById('formeBoard'),formeRead=document.getElementById('formeRead');
+const formePrev=document.getElementById('formePrev'),formeNext=document.getElementById('formeNext');
+function drawForme(){
+  const F=FORMES[formeIdx];
+  document.querySelectorAll('.formebtn').forEach(b=>b.classList.toggle('active',+b.dataset.f===formeIdx));
+  const relCol=F.rel.map(x=>`<span class="fchip rel">${x}</span>`).join('');
+  const eqCls=F.gold?'fchip gold':'fchip eq';
+  const eqCol=F.eqv.map(x=>`<span class="${eqCls}">${x}</span>`).join('');
+  formeBoard.innerHTML=`<div class="forme-tag">${F.tag}</div>
+    <div class="forme-eq">
+      <div class="fside"><div class="fside-lab">forme relative · pôle actif</div><div class="fcol">${relCol}</div></div>
+      <div class="feq">=</div>
+      <div class="fside"><div class="fside-lab">${F.gold?'équivalent · monnaie':'forme équivalent · pôle passif'}</div><div class="fcol">${eqCol}</div></div>
+    </div>`;
+  formeRead.innerHTML=`<div class="fr-role">${F.role}</div>
+    <div class="fr-flaw"><span class="fr-k">Défaut / limite</span>${F.flaw}</div>
+    ${F.next?`<div class="fr-next">${F.next}</div>`:`<div class="fr-done">✓ Forme achevée — fin de la déduction</div>`}`;
+  formePrev.disabled=formeIdx===0;formeNext.disabled=formeIdx===FORMES.length-1;
+}
+document.querySelectorAll('.formebtn').forEach(b=>b.addEventListener('click',()=>{formeIdx=+b.dataset.f;drawForme();}));
+formePrev.addEventListener('click',()=>{if(formeIdx>0){formeIdx--;drawForme();}});
+formeNext.addEventListener('click',()=>{if(formeIdx<FORMES.length-1){formeIdx++;drawForme();}});
+drawForme();
+
+/* ====== Outil : A-M-A' contre M-A-M (chap. IV) ====== */
+const rA=document.getElementById('rA'),rdA=document.getElementById('rdA'),vA=document.getElementById('vA'),vdA=document.getElementById('vdA');
+const OPP=[
+ ["Point de départ et d'arrivée","des marchandises — qualitativement différentes (le blé, puis l'habit)","de l'argent — qualitativement identique (A, puis A′)"],
+ ["Médiateur du mouvement","l'argent","la marchandise"],
+ ["Mobile","la valeur d'usage : satisfaire un besoin","la valeur d'échange : l'accroissement pur"],
+ ["Mesure du succès","qualitative — un autre usage","quantitative — le ΔA"],
+ ["Terme du mouvement","fini : la marchandise finale sort de la circulation","sans fin : l'argent revient au point de départ"]
+];
+function cnode(x,y,big,sub,color){return `<circle cx="${x}" cy="${y}" r="28" fill="var(--card)" stroke="${color}" stroke-width="2.5"/><text x="${x}" y="${y+6}" text-anchor="middle" font-size="20" font-weight="900" fill="${color}">${big}</text><text x="${x}" y="${y+45}" text-anchor="middle" font-size="11" fill="var(--ink-soft)">${sub}</text>`;}
+function carrow(x1,x2,y,label,color,mk){const mid=(x1+x2)/2;return `<line x1="${x1+31}" y1="${y}" x2="${x2-34}" y2="${y}" stroke="${color}" stroke-width="2.2" marker-end="url(#${mk})"/><text x="${mid}" y="${y-13}" text-anchor="middle" font-size="11.5" font-weight="600" fill="var(--ink)">${label}</text>`;}
+function drawCircuit(){
+  const A=+rA.value,dA=+rdA.value,Ap=A+dA;
+  vA.textContent=A;vdA.textContent=dA;
+  const xL=80,xM=260,xR=440,col2=dA>0?'var(--red)':'var(--ink-soft)';
+  const svg=`<defs>
+   <marker id="cah" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="var(--ink)"/></marker>
+   <marker id="car" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="${col2}"/></marker></defs>
+   <text x="260" y="22" text-anchor="middle" font-size="13" font-weight="900" fill="var(--blue)">M — A — M · circulation simple</text>
+   ${cnode(xL,70,'M','blé','var(--blue)')}${cnode(xM,70,'A','argent','var(--ink)')}${cnode(xR,70,'M','habit','var(--blue)')}
+   ${carrow(xL,xM,70,'vendre (M-A)','var(--ink)','cah')}${carrow(xM,xR,70,'acheter (A-M)','var(--ink)','cah')}
+   <text x="260" y="152" text-anchor="middle" font-size="13" font-weight="900" fill="var(--red)">A — M — A′ · le capital</text>
+   ${cnode(xL,200,'A',String(A),'var(--ink)')}${cnode(xM,200,'M','force de travail','var(--ink)')}${cnode(xR,200,'A′',String(Ap),col2)}
+   ${carrow(xL,xM,200,'acheter (A-M)','var(--ink)','cah')}${carrow(xM,xR,200,'vendre (M-A′)',col2,'car')}
+   <path d="M${xR} 230 C ${xR} 285, ${xL} 285, ${xL} 230" fill="none" stroke="${col2}" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#car)"/>
+   <text x="260" y="278" text-anchor="middle" font-size="11" font-style="italic" fill="var(--ink-soft)">…et l'argent repart : le mouvement n'a pas de fin</text>`;
+  document.getElementById('circuitSvg').innerHTML=svg;
+  const v=document.getElementById('circuitVerdict');
+  if(dA===0){v.className='verdict warn';
+   v.innerHTML=`<div class="vt">Un circuit sans raison d'être</div><div class="cond">A′ <span class="eq">=</span> A → ${A} = ${A}</div><p style="margin-top:8px;color:var(--ink-soft);font-size:.94rem">Pourquoi avancer ${A} pour récupérer exactement ${A} ? Échanger de l'argent contre de l'argent de même grandeur serait « une opération absurde et vide ». Le circuit du capital n'a de sens que si la valeur s'accroît.</p>`;}
+  else{v.className='verdict ok';
+   v.innerHTML=`<div class="vt">La valeur qui se valorise</div><div class="cond">A′ <span class="eq">=</span> A + ΔA = ${A} + ${dA} = <b>${Ap}</b></div><p style="margin-top:8px;color:var(--ink-soft);font-size:.94rem">L'argent est devenu <b>capital</b>. Mais d'où vient le ΔA ? Pas de la circulation, où s'échangent des équivalents ; pas non plus hors d'elle. Il faut une marchandise dont l'<b>usage même crée de la valeur</b> — et plus qu'elle n'en coûte : la <b>force de travail</b>.</p>`;}
+}
+document.getElementById('oppBody').innerHTML=OPP.map(r=>`<tr><th>${r[0]}</th><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('');
+[rA,rdA].forEach(r=>r.addEventListener('input',drawCircuit));drawCircuit();
+
+/* ====== Outil : Composition organique & armée de réserve (chap. XXV) ====== */
+const aq0=document.getElementById('aq0'),ae=document.getElementById('ae'),aa=document.getElementById('aa'),ag=document.getElementById('ag');
+const T_ACC=12;
+function drawAccum(){
+  const q0=+aq0.value,e=(+ae.value)/100,a=(+aa.value)/100,g=(+ag.value)/100;
+  document.getElementById('vaq0').textContent=fmt(q0,1);
+  document.getElementById('vae').textContent=Math.round(+ae.value)+' %';
+  document.getElementById('vaa').textContent=Math.round(+aa.value)+' %';
+  document.getElementById('vag').textContent=Math.round(+ag.value)+' %';
+  let K=100,q=q0;const v0=100/(1+q0);
+  const cap=[],emp=[];
+  for(let t=0;t<=T_ACC;t++){
+    const v=K/(1+q);
+    cap.push(K);                 // indice capital (K0=100)
+    emp.push(v/v0*100);          // indice emploi
+    const pl=e*v;K=K+a*pl;q=q*(1+g);
+  }
+  const qT=q0*Math.pow(1+g,T_ACC);
+  const ML=50,MR=16,MT=16,MB=40,W=560,H=320,PW=W-ML-MR,PH=H-MT-MB;
+  let ymax=0;cap.forEach(y=>ymax=Math.max(ymax,y));ymax=Math.ceil(ymax/50)*50;if(ymax<100)ymax=100;
+  const X=t=>ML+(t/T_ACC)*PW,Y=val=>MT+PH-(val/ymax)*PH;
+  const pathOf=arr=>arr.map((y,t)=>(t?'L':'M')+X(t).toFixed(1)+','+Y(y).toFixed(1)).join(' ');
+  let fill='M'+X(0)+','+Y(cap[0]);for(let t=1;t<=T_ACC;t++)fill+=' L'+X(t).toFixed(1)+','+Y(cap[t]).toFixed(1);
+  for(let t=T_ACC;t>=0;t--)fill+=' L'+X(t).toFixed(1)+','+Y(emp[t]).toFixed(1);fill+=' Z';
+  let g2='';for(let t=0;t<=T_ACC;t+=2)g2+=`<line class="grid" x1="${X(t)}" y1="${MT}" x2="${X(t)}" y2="${MT+PH}"/><text class="axlabel" x="${X(t)}" y="${MT+PH+16}" text-anchor="middle">${t}</text>`;
+  for(let i=0;i<=4;i++){const yv=ymax*i/4;g2+=`<line class="grid" x1="${ML}" y1="${Y(yv)}" x2="${ML+PW}" y2="${Y(yv)}"/><text class="axlabel" x="${ML-8}" y="${Y(yv)+4}" text-anchor="end">${Math.round(yv)}</text>`;}
+  document.getElementById('accumChart').innerHTML=g2
+    +`<path d="${fill}" fill="rgba(165,42,33,.13)" stroke="none"/>`
+    +`<line class="axis" x1="${ML}" y1="${MT}" x2="${ML}" y2="${MT+PH}"/><line class="axis" x1="${ML}" y1="${MT+PH}" x2="${ML+PW}" y2="${MT+PH}"/>`
+    +`<path class="curve" style="stroke:var(--red)" d="${pathOf(cap)}"/>`
+    +`<path class="curve" style="stroke:var(--blue)" d="${pathOf(emp)}"/>`
+    +`<text class="axtitle" x="${ML+PW/2}" y="${H-4}" text-anchor="middle">périodes d'accumulation</text>`
+    +`<text class="axtitle" transform="rotate(-90 13 ${MT+PH/2})" x="13" y="${MT+PH/2}" text-anchor="middle">indice (base 100)</text>`;
+  const capX=cap[T_ACC]/100,empX=emp[T_ACC]/100,reserve=(1-(1+q0)/(1+qT))*100;
+  document.getElementById('maQ').textContent=fmt(qT,2);
+  document.getElementById('maK').textContent='× '+fmt(capX,2);
+  document.getElementById('maN').textContent='× '+fmt(empX,2);
+  document.getElementById('maR').textContent=Math.round(reserve)+' %';
+  const ver=document.getElementById('accumVerdict');
+  if(g<0.005){ver.className='verdict ok';
+   ver.innerHTML=`<div class="vt">Composition constante — pas de surpopulation</div><p style="color:var(--ink-soft);font-size:.94rem">Tant que <i>c/v</i> ne monte pas, le capital absorbe le travail vivant <b>proportionnellement</b> à sa croissance : capital et emploi montent ensemble. C'est précisément le cas que Marx écarte aussitôt comme irréel.</p>`;}
+  else{ver.className='verdict warn';
+   ver.innerHTML=`<div class="vt">L'accumulation produit sa propre population de trop</div><p style="color:var(--ink-soft);font-size:.94rem">En ${T_ACC} périodes, le capital est multiplié par <b>${fmt(capX,2)}</b>, mais l'emploi seulement par <b>${fmt(empX,2)}</b>. L'écart — <b>${Math.round(reserve)} %</b> du travail qui aurait été demandé à composition constante — est l'<b>armée industrielle de réserve</b> : une surpopulation relative engendrée par l'accumulation elle-même, et qui pèse en retour sur les salaires.</p>`;}
+}
+[aq0,ae,aa,ag].forEach(r=>r.addEventListener('input',drawAccum));drawAccum();
 
 /* ---- Dérivation ---- */
 const STEPS=[
