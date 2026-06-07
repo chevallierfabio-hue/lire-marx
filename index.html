@@ -394,7 +394,7 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
       <p><b>Finalités &amp; base légale.</b> Fournir la lecture annotée, la synchronisation entre appareils et les notes partagées modérées (exécution du service demandé) ; assurer la modération et la sécurité (intérêt légitime).</p>
       <p><b>Hébergement.</b> Authentification et base de données via Supabase. [À COMPLÉTER : région d'hébergement, par ex. Union européenne].</p>
       <p><b>Conservation.</b> Tes données sont conservées tant que ton compte existe, et supprimées à ta demande.</p>
-      <p><b>Tes droits (RGPD).</b> Accès, rectification, effacement, opposition. Tu peux effacer toi-même l'ensemble de tes contributions depuis « Mon compte » → <i>Supprimer mes données</i>. Pour la suppression complète du compte ou toute autre demande : [À COMPLÉTER : adresse e-mail].</p>
+      <p><b>Tes droits (RGPD).</b> Accès, rectification, effacement, opposition. Tu peux supprimer toi-même ton compte et l'ensemble de tes données depuis « Mon compte » → <i>Supprimer mon compte</i> (effacement définitif et immédiat). Pour toute autre demande : [À COMPLÉTER : adresse e-mail].</p>
       <p><b>Stockage local.</b> Le site conserve tes surlignages et ta session de connexion dans ton navigateur. C'est un stockage <i>fonctionnel</i> (nécessaire au service), sans pistage ni cookie publicitaire.</p>
     </div>
   </div>
@@ -1615,14 +1615,14 @@ drawTRPF();
   async function eraseMyData(){
     if(!sb||!user)return;errMsg='';notice='';busy=true;renderAcct();
     try{
-      let r=await sb.from('annotations').delete().eq('user_id',user.id);if(r.error)throw r.error;
-      r=await sb.from('profiles').delete().eq('id',user.id);if(r.error)throw r.error;
+      const res=await sb.functions.invoke('delete-account');
+      if(res.error)throw res.error;
       try{localStorage.removeItem(KEY);}catch(e){}
       store={};profile=null;pubNotes=[];reports=[];eraseConfirm=false;
-      if(box){clearMarks();}
-      toast('Tes données ont été supprimées.');
+      if(box)clearMarks();
+      toast('Ton compte et toutes tes données ont été supprimés.');
       await signOut();
-    }catch(e){errMsg='Suppression : '+(e.message||e);}
+    }catch(e){errMsg='Suppression : '+((e&&e.message)||e)+' — la fonction « delete-account » est-elle déployée ?';}
     busy=false;renderAcct();
   }
 
@@ -1709,9 +1709,9 @@ drawTRPF();
         +'<p class="ac-note">Ce pseudo apparaîtra à côté de tes notes publiques (à venir) ; ton e-mail, jamais.</p>'
         +'<div class="ac-stat">'+nc+' annotation'+s+' reliée'+s+' à ce compte et synchronisée'+s+'.</div>'
         +(eraseConfirm
-          ?'<div class="ac-danger"><b>Tout supprimer ?</b> Cela efface définitivement tes annotations privées, tes notes et réponses publiques, ton pseudo et tes signalements. Action irréversible.<div class="ac-row" style="margin-top:8px"><button class="btn red" data-act="erase-yes" type="button"'+(busy?' disabled':'')+'>Oui, tout supprimer</button><button class="lk" data-act="erase-no" type="button">Annuler</button></div></div>'
+          ?'<div class="ac-danger"><b>Supprimer définitivement ton compte ?</b> Cela efface ton compte et toutes tes données — annotations privées, notes et réponses publiques, pseudo, signalements. Tu seras déconnecté et ne pourras plus te reconnecter. Action irréversible.<div class="ac-row" style="margin-top:8px"><button class="btn red" data-act="erase-yes" type="button"'+(busy?' disabled':'')+'>'+(busy?'Suppression…':'Oui, supprimer mon compte')+'</button><button class="lk" data-act="erase-no" type="button">Annuler</button></div></div>'
           :'')
-        +'<div class="ac-row ac-end"><button class="lk" data-act="signout" type="button">Se déconnecter</button><button class="lk ac-del" data-act="erase" type="button">Supprimer mes données</button></div>'
+        +'<div class="ac-row ac-end"><button class="lk" data-act="signout" type="button">Se déconnecter</button><button class="lk ac-del" data-act="erase" type="button">Supprimer mon compte</button></div>'
         +'<div class="ac-foot"><button class="lk" data-act="privacy" type="button">Confidentialité &amp; données</button></div></div>';
     }else{
       const signup=authMode==='signup';
