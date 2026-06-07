@@ -308,7 +308,7 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
 .np-acct .btn{padding:5px 12px;font-size:.82rem;}
 .anno-toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:120;background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:8px;font-size:.88rem;line-height:1.4;box-shadow:0 10px 30px rgba(0,0,0,.35);max-width:90vw;opacity:0;pointer-events:none;transition:opacity .25s;}
 .anno-toast.show{opacity:1;}
-#compte .ac-card{max-width:440px;margin:0 auto;border:1px solid var(--line);background:var(--card);border-radius:10px;padding:26px 26px 22px;}
+.ac-card{max-width:440px;margin:0 auto;border:1px solid var(--line);background:var(--card);border-radius:10px;padding:26px 26px 22px;}
 .ac-card h3{font-family:'Fraunces',serif;font-size:1.3rem;margin:0 0 16px;}
 .ac-card input{display:block;width:100%;box-sizing:border-box;font-family:'Spectral',serif;font-size:1rem;padding:11px 13px;margin-bottom:11px;border:1px solid var(--line);border-radius:7px;background:var(--paper);color:var(--ink);}
 .ac-card input:focus{outline:none;border-color:var(--red);}
@@ -330,9 +330,27 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
 .ac-pseudo{font-family:'Fraunces',serif;font-size:1.15rem;}
 .ac-mail{font-size:.86rem;color:var(--ink-soft);}
 .ac-stat{font-size:.88rem;color:var(--ink-soft);margin-top:16px;}
+.acct-chip{position:fixed;top:13px;right:15px;z-index:130;display:inline-flex;align-items:center;gap:8px;max-width:44vw;font-family:'Fraunces',serif;font-weight:600;font-size:.83rem;padding:7px 14px;border:1px solid var(--line);border-radius:30px;background:var(--card);color:var(--ink);cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.12);transition:border-color .16s;}
+.acct-chip:hover{border-color:var(--red);}
+.acct-chip.guest{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+.acct-chip .chip-ava{flex:none;width:24px;height:24px;border-radius:50%;background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;font-size:.82rem;}
+.acct-chip .chip-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.acct-modal{position:fixed;inset:0;z-index:140;background:rgba(28,20,14,.46);display:flex;align-items:flex-start;justify-content:center;padding:6vh 16px 24px;overflow:auto;}
+.acct-modal[hidden]{display:none;}
+.acct-modal-box{position:relative;width:100%;max-width:460px;}
+.acct-modal-x{position:absolute;top:-12px;right:-12px;z-index:1;width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:1.4rem;line-height:1;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.2);}
+.acct-modal-x:hover{border-color:var(--red);color:var(--red);}
+@media(max-width:560px){.acct-chip{top:10px;right:10px;font-size:.78rem;padding:6px 11px;}}
 </style>
 </head>
 <body>
+<button id="acctChip" class="acct-chip" type="button" aria-haspopup="dialog" style="display:none">Se connecter</button>
+<div id="acctModal" class="acct-modal" hidden>
+  <div class="acct-modal-box" role="dialog" aria-modal="true" aria-label="Mon compte">
+    <button class="acct-modal-x" type="button" aria-label="Fermer">&times;</button>
+    <div id="acctView"></div>
+  </div>
+</div>
 <div class="wrap">
 
   <!-- ===================== ACCUEIL — LIRE MARX ===================== -->
@@ -454,7 +472,6 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
     <button class="tab" data-tab="lire"><span class="num">III</span>Lire le Capital</button>
     <button class="tab" data-tab="labo"><span class="num">IV</span>Laboratoire</button>
     <button class="tab" data-tab="deriv"><span class="num">V</span>Cheminement</button>
-    <button class="tab" data-tab="compte"><span class="num">VI</span>Mon compte</button>
   </nav>
 
   <!-- ACCUEIL DE L'ŒUVRE -->
@@ -649,13 +666,6 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
     <div class="method-note"><b>Ordre d'exposition ≠ ordre de recherche.</b> La marchandise est le point de départ logique dont tout découle. Le moteur, à chaque marche, est une <b>contradiction</b>.</div>
     <div class="stair" id="stair"></div>
     <div class="closing">⟶ Les Livres II et III poursuivent l'ascension : circulation, puis procès d'ensemble — profit, prix de production, intérêt, rente, formule trinitaire.</div>
-  </section>
-
-  <!-- MON COMPTE -->
-  <section class="panel" id="compte">
-    <h2 class="sec">Mon compte</h2>
-    <p class="lead">Un compte synchronise tes annotations entre tes appareils et te prépare aux notes publiques à venir. Ton adresse e-mail reste privée — seul ton <b>pseudo</b> sera visible des autres lecteurs.</p>
-    <div id="acctView"></div>
   </section>
 
   <footer><b>L'Atelier du Capital</b> — texte intégral dans le domaine public (source Wikisource) ; explications, modèles et carte de la méthode originaux.</footer>
@@ -1576,7 +1586,7 @@ drawTRPF();
     try{
       const m=await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
       sb=m.createClient(CONFIG.url,CONFIG.anon);
-      sb.auth.onAuthStateChange((ev,session)=>{if(ev==='PASSWORD_RECOVERY'){recovery=true;try{activateTab('compte');}catch(e){}}setSession(session);});
+      sb.auth.onAuthStateChange((ev,session)=>{if(ev==='PASSWORD_RECOVERY'){recovery=true;openAcctModal();}setSession(session);});
       const res=await sb.auth.getSession();
       await setSession(res.data&&res.data.session);
     }catch(e){sb=null;configured=false;toast('Compte indisponible (chargement du client échoué).');}
@@ -1586,7 +1596,26 @@ drawTRPF();
   /* ---------- vue de l onglet Mon compte ---------- */
   function noteCount(){let n=0;Object.keys(store).forEach(k=>{if(k.indexOf(WORK+'|')===0)n+=(store[k]||[]).length;});return n;}
   function field(el,id){const x=el.querySelector('#'+id);return x?x.value:'';}
+  function renderChip(){
+    const chip=document.getElementById('acctChip');if(!chip)return;
+    if(!configured){chip.style.display='none';return;}
+    chip.style.display='inline-flex';
+    if(user){const p=(profile&&profile.username)||user.email||'compte';
+      chip.className='acct-chip';
+      chip.innerHTML='<span class="chip-ava">'+escapeHtml((p||'?').slice(0,1).toUpperCase())+'</span><span class="chip-name">'+escapeHtml(p)+'</span>';
+    }else{chip.className='acct-chip guest';chip.textContent='Se connecter';}
+  }
+  function openAcctModal(){const m=document.getElementById('acctModal');if(!m)return;renderAcct();m.hidden=false;document.body.style.overflow='hidden';}
+  function closeAcctModal(){const m=document.getElementById('acctModal');if(!m)return;m.hidden=true;document.body.style.overflow='';}
+  function wireAcctChrome(){
+    const chip=document.getElementById('acctChip');const m=document.getElementById('acctModal');
+    if(chip)chip.onclick=()=>{errMsg='';notice='';openAcctModal();};
+    if(m){m.addEventListener('click',e=>{if(e.target===m)closeAcctModal();});
+      const x=m.querySelector('.acct-modal-x');if(x)x.onclick=closeAcctModal;}
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'){const mm=document.getElementById('acctModal');if(mm&&!mm.hidden)closeAcctModal();}});
+  }
   function renderAcct(){
+    renderChip();
     const el=document.getElementById('acctView');if(!el)return;
     const err=errMsg?'<div class="ac-err">'+escapeHtml(errMsg)+'</div>':'';
     const ok=notice?'<div class="ac-ok">'+escapeHtml(notice)+'</div>':'';
@@ -1646,7 +1675,7 @@ drawTRPF();
   function wireAcct(){
     if(!panel)return;const row=panel.querySelector('.np-acct');if(!row)return;
     const g=row.querySelector('[data-act="goacct"]');
-    if(g)g.onclick=()=>{try{activateTab('compte');window.scrollTo({top:0,behavior:'smooth'});}catch(e){}};
+    if(g)g.onclick=()=>openAcctModal();
   }
   function refreshAcct(){if(panel&&!panel.hidden)renderPanel();}
 
@@ -1822,6 +1851,7 @@ drawTRPF();
   window.addEventListener('scroll',hideBar,{passive:true});
   if(toggle&&panel)toggle.addEventListener('click',()=>{panel.hidden=!panel.hidden;if(!panel.hidden)renderPanel();});
 
+  wireAcctChrome();
   initSync();
 
   window.Anno={mount:function(n,container){closePop();hideBar();curN=n;box=container;if(!box)return;renderHighlights();if(panel&&!panel.hidden)renderPanel();}};
