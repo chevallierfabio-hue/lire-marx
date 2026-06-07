@@ -232,6 +232,70 @@ svg.circuits{width:100%;height:auto;display:block;margin:6px 0 4px;font-family:'
 .opp-table tbody tr:last-child th,.opp-table tbody tr:last-child td{border-bottom:none;}
 @media(max-width:620px){.opp-table{font-size:.86rem;}.opp-table th,.opp-table td{padding:8px 9px;}}
 
+/* ===== Chronologie-simulation ===== */
+.chrono-controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:20px 0 14px;}
+.chrono-year{font-family:'Fraunces',serif;font-weight:900;font-size:2rem;color:var(--red);margin-left:auto;letter-spacing:-.01em;font-variant-numeric:tabular-nums;}
+.chrono-track{position:relative;height:96px;background:var(--card);border:1px solid var(--line);border-radius:8px;margin-bottom:8px;cursor:pointer;touch-action:none;overflow:hidden;}
+.chrono-actband{position:absolute;top:0;bottom:0;}
+.chrono-actband.act1{background:rgba(154,123,53,.07);}
+.chrono-actband.act2{background:rgba(165,42,33,.06);}
+.chrono-axisline{position:absolute;left:0;right:0;top:50%;border-top:1px solid var(--line);}
+.chrono-tick{position:absolute;top:50%;}
+.chrono-tick i{display:block;width:1px;height:6px;background:var(--line);}
+.chrono-tick span{font-size:.66rem;color:var(--ink-soft);position:absolute;top:8px;left:0;transform:translateX(-50%);white-space:nowrap;}
+.chrono-dot{position:absolute;width:13px;height:13px;border-radius:50%;transform:translate(-50%,-50%);border:2px solid var(--paper);cursor:pointer;transition:transform .15s,box-shadow .15s,opacity .2s;z-index:3;}
+.chrono-dot.act1{background:var(--gold-deep);}
+.chrono-dot.act2{background:var(--red);}
+.chrono-dot.relais{background:var(--blue);}
+.chrono-dot.current{transform:translate(-50%,-50%) scale(1.55);box-shadow:0 0 0 4px rgba(165,42,33,.25);z-index:5;}
+.chrono-dot:not(.fired){opacity:.32;}
+.chrono-head{position:absolute;top:0;bottom:0;width:2px;background:var(--ink);z-index:4;}
+.chrono-head::before{content:"";position:absolute;top:0;left:50%;transform:translateX(-50%);border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid var(--ink);}
+.chrono-actlabels{display:flex;justify-content:space-between;gap:10px;font-family:'Fraunces',serif;font-size:.76rem;color:var(--ink-soft);font-style:italic;margin-bottom:4px;}
+.chrono-phase{display:inline-block;font-family:'Fraunces',serif;font-weight:700;font-size:.8rem;padding:5px 14px;border-radius:20px;color:#fff;background:var(--ink);margin-bottom:18px;transition:background .25s;}
+.instrument{margin-bottom:20px;}
+.instrument:last-child{margin-bottom:0;}
+.inst-lab{font-size:.78rem;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:8px;display:flex;justify-content:space-between;align-items:baseline;gap:10px;}
+.inst-lab b{font-family:'Fraunces',serif;color:var(--ink);font-size:1.45rem;font-weight:900;letter-spacing:-.01em;}
+.meter{height:18px;border-radius:10px;background:var(--paper-2);border:1px solid var(--line);overflow:hidden;}
+.meter .depo-fill{height:100%;background:linear-gradient(90deg,var(--gold-deep),var(--red-deep));transition:width .3s ease;}
+.gauge{display:flex;height:30px;border-radius:6px;overflow:hidden;border:1px solid var(--line);}
+.gauge .g-cap{background:var(--red);}.gauge .g-lab{background:var(--blue);}
+.gauge div{display:flex;align-items:center;justify-content:center;color:#fff;font-size:.72rem;font-family:'Fraunces',serif;font-weight:600;transition:width .3s ease;white-space:nowrap;overflow:hidden;}
+.inst-muted{color:var(--ink-soft);font-style:italic;font-size:.94rem;padding:8px 0;line-height:1.55;}
+.chrono-eventcard .ec-year{font-family:'Fraunces',serif;font-weight:900;font-size:2.3rem;line-height:1;letter-spacing:-.02em;}
+.chrono-eventcard .ec-year.act1{color:var(--gold-deep);}.chrono-eventcard .ec-year.act2{color:var(--red);}.chrono-eventcard .ec-year.relais{color:var(--blue);}
+.chrono-eventcard .ec-title{font-family:'Fraunces',serif;font-weight:600;font-size:1.22rem;margin:7px 0 11px;line-height:1.2;}
+.chrono-eventcard .ec-desc{color:var(--ink-soft);font-size:.98rem;line-height:1.64;margin-bottom:15px;}
+.chrono-eventcard .ec-chap{font-family:'Fraunces',serif;font-size:.78rem;font-weight:600;color:var(--red-deep);border:1px solid var(--red);border-radius:5px;padding:4px 11px;display:inline-block;}
+
+/* ===== Procès de valorisation & circulation de la monnaie ===== */
+.valhand{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ink);box-shadow:0 0 0 1px var(--paper);}
+.valhand::before{content:"";position:absolute;top:-5px;left:50%;transform:translateX(-50%);border-left:5px solid transparent;border-right:5px solid transparent;border-top:7px solid var(--ink);}
+.vbar{margin-bottom:9px;}
+.vbar-lab{font-size:.8rem;color:var(--ink-soft);margin-bottom:4px;}
+.vbar-track{height:22px;background:var(--paper-2);border:1px solid var(--line);border-radius:6px;overflow:hidden;}
+.vbar-fill{height:100%;}
+.vbar-fill.sp{background:var(--ink);}
+.vbar-fill.m{background:var(--red);transition:width .3s ease;}
+
+/* ===== Explorations ===== */
+.xsub{font-family:'Fraunces',serif;font-weight:600;font-size:.9rem;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--ink-soft);padding:9px 16px;border-radius:30px;transition:all .18s;}
+.xsub:hover{border-color:var(--ink);color:var(--ink);}
+.xsub.active{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+.xpane{display:none;}.xpane.active{display:block;animation:fade .35s;}
+svg.x-scene{width:100%;height:auto;display:block;background:var(--card);border:1px solid var(--line);border-radius:8px;margin-bottom:14px;font-family:'Fraunces',serif;}
+.x-row{display:flex;justify-content:space-between;gap:14px;padding:10px 0;border-bottom:1px solid var(--line-soft);font-size:.93rem;align-items:baseline;}
+.x-row:last-child{border-bottom:none;}
+.x-row .x-k{color:var(--ink-soft);flex:1;}
+.x-row .x-v{font-family:'Fraunces',serif;font-weight:600;color:var(--ink);text-align:right;}
+.transp-fill{height:100%;background:linear-gradient(90deg,var(--gold-deep),var(--ok));transition:width .3s ease;}
+.feti-toggle-row{display:flex;justify-content:center;margin:2px 0 16px;}
+.x-caption{font-size:.96rem;line-height:1.62;color:var(--ink-soft);border-left:3px solid var(--gold);background:rgba(154,123,53,.07);padding:13px 16px;border-radius:0 4px 4px 0;}
+.x-caption b{color:var(--ink);}
+.salmask{position:absolute;top:0;bottom:0;background:repeating-linear-gradient(45deg,rgba(165,42,33,.18),rgba(165,42,33,.18) 6px,transparent 6px,transparent 12px);border-left:2px dashed var(--red-deep);display:flex;align-items:center;justify-content:center;}
+.salmask span{font-size:.68rem;color:var(--red-deep);font-style:italic;font-family:'Fraunces',serif;text-align:center;padding:0 4px;}
+
 /* ===== Lire Marx — accueil / bibliothèque ===== */
 .work-view{display:none;}
 .home-view header.masthead{padding:56px 0 14px;}
@@ -556,6 +620,8 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
     <button class="tab" data-tab="lire"><span class="num">III</span>Lire le Capital</button>
     <button class="tab" data-tab="labo"><span class="num">IV</span>Laboratoire</button>
     <button class="tab" data-tab="deriv"><span class="num">V</span>Cheminement</button>
+    <button class="tab" data-tab="chrono"><span class="num">VI</span>Chronologie</button>
+    <button class="tab" data-tab="explore"><span class="num">VII</span>Explorations</button>
   </nav>
 
   <!-- ACCUEIL DE L'ŒUVRE -->
@@ -667,6 +733,8 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
       <button class="subtab" data-sub="s-forme">Forme de la valeur</button>
       <button class="subtab" data-sub="s-circuit">A&#8209;M&#8209;A&prime; vs M&#8209;A&#8209;M</button>
       <button class="subtab" data-sub="s-accum">Accumulation &amp; armée de réserve</button>
+      <button class="subtab" data-sub="s-valor">Procès de valorisation</button>
+      <button class="subtab" data-sub="s-monnaie">Circulation de la monnaie</button>
     </div>
     <div class="subpanel active" id="s-taux">
       <div class="howto"><span class="pin">i</span><div><b>Comment lire :</b> déplace les curseurs. La barre montre la décomposition de la valeur ; les pastilles recalculent le taux d'exploitation et le taux de profit.</div></div>
@@ -811,6 +879,61 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
       <div class="verdict" id="accumVerdict" style="margin-top:16px"></div>
       <div class="concepts-wrap"><h3>Comprendre les concepts</h3><div class="csub">Les notions de la loi générale de l'accumulation.</div><div class="concept-cards" id="cc-accum"></div></div>
     </div>
+
+    <!-- Procès de valorisation -->
+    <div class="subpanel" id="s-valor">
+      <div class="howto"><span class="pin">i</span><div><b>Comment lire :</b> règle l'avance du capital, puis clique <b>Dérouler la journée</b>. On voit la valeur du produit se former heure par heure : le travail mort (c) reparaît, le travail vivant reproduit d'abord le salaire (v), puis produit du surtravail pur (pl).</div></div>
+      <div class="lab">
+        <div class="controls">
+          <h3>L'avance et la journée</h3>
+          <div class="field"><label for="valJ"><span>Longueur de la journée</span><span class="val" id="valJv">10 h</span></label><input type="range" id="valJ" min="6" max="14" step="0.5" value="10" aria-label="longueur de la journée"></div>
+          <div class="field"><label for="valTn"><span>Temps de travail nécessaire</span><span class="val" id="valTnv">5 h</span></label><input type="range" id="valTn" min="1" max="10" step="0.5" value="5" aria-label="temps de travail nécessaire"></div>
+          <div class="field"><label for="valVph"><span>Valeur créée par heure <i>(travail vivant)</i></span><span class="val" id="valVphv">6</span></label><input type="range" id="valVph" min="2" max="12" step="1" value="6" aria-label="valeur créée par heure"></div>
+          <div class="field"><label for="valC"><span><span class="tagdot" style="background:var(--const)"></span>Capital constant <i>c</i> consommé</span><span class="val" id="valCv">40</span></label><input type="range" id="valC" min="0" max="200" step="5" value="40" aria-label="capital constant consommé"></div>
+          <div class="preset-row"><button class="btn red" id="valPlay" type="button">▶ Dérouler la journée</button></div>
+        </div>
+        <div class="readout">
+          <h3>La valeur en formation</h3>
+          <div class="bartitle">La journée de travail</div>
+          <div class="daybar" id="valDay" role="img" aria-label="journée nécessaire et surtravail"></div>
+          <div class="ticks" id="valTicks"></div>
+          <div class="bartitle" style="margin-top:16px">Valeur du produit (c + v + pl)</div>
+          <div class="compbar" id="valBar" role="img" aria-label="décomposition de la valeur du produit"></div>
+          <div class="metric" style="margin-top:14px"><div class="mlab"><span class="miconw" style="background:var(--const)"><svg viewBox="0 0 24 24"><rect x="4" y="7.5" width="16" height="12.5" rx="1"/><path d="M4 7.5l8-4 8 4"/></svg></span><span>Valeur transférée<small>travail mort — reparaît</small></span></div><div class="mval" style="color:var(--const)" id="valTrans">40</div></div>
+          <div class="metric"><div class="mlab"><span class="miconw" style="background:var(--blue)"><svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="3.2"/><path d="M5 20c0-4 3.5-6 7-6s7 2 7 6"/></svg></span><span>Valeur nouvelle (v + pl)<small>créée par le travail vivant</small></span></div><div class="mval blue" id="valNew">60</div></div>
+          <div class="metric"><div class="mlab"><span class="miconw" style="background:var(--blue)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.5 2"/></svg></span><span>dont nécessaire (v)<small>reproduit le salaire</small></span></div><div class="mval blue" id="valNec">30</div></div>
+          <div class="metric"><div class="mlab"><span class="miconw" style="background:var(--red)"><svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="1.5" fill="#fff" stroke="none"/><circle cx="12" cy="17" r="1.5" fill="#fff" stroke="none"/><path d="M6 12h12"/></svg></span><span>dont surtravail (pl)<small>la plus-value</small></span></div><div class="mval red" id="valSur">30</div></div>
+          <div class="metric"><div class="mlab"><span class="miconw" style="background:var(--gold-deep)"><svg viewBox="0 0 24 24"><circle cx="7.5" cy="7.5" r="2.4"/><circle cx="16.5" cy="16.5" r="2.4"/><path d="M6 18L18 6"/></svg></span><span>Taux de plus-value<small>pl / v</small></span></div><div class="mval gold" id="valTaux">100 %</div></div>
+          <div class="metric"><div class="mlab"><span class="miconw" style="background:var(--ink)"><svg viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/></svg></span><span>Valeur totale du produit<small>c + v + pl</small></span></div><div class="mval" id="valTot">100</div></div>
+          <div class="note" id="valNote"></div>
+        </div>
+      </div>
+      <div class="concepts-wrap"><h3>Comprendre les concepts</h3><div class="csub">Transfert et création de valeur dans la production.</div><div class="concept-cards" id="cc-valor"></div></div>
+    </div>
+
+    <!-- Circulation de la monnaie -->
+    <div class="subpanel" id="s-monnaie">
+      <div class="howto"><span class="pin">i</span><div><b>Comment lire :</b> dans la circulation simple <b>M&#8209;A&#8209;M</b>, une même pièce sert à plusieurs achats. La masse de monnaie nécessaire n'est donc pas la somme des prix, mais cette somme <b>divisée par la vitesse</b> de circulation — le crédit la réduit encore.</div></div>
+      <div class="lab">
+        <div class="controls">
+          <h3>Ce qu'il faut réaliser</h3>
+          <div class="field"><label for="mSP"><span>Somme des prix des marchandises <i>ΣP</i></span><span class="val" id="mSPv">1200</span></label><input type="range" id="mSP" min="100" max="3000" step="50" value="1200" aria-label="somme des prix"></div>
+          <div class="field"><label for="mV"><span>Vitesse de circulation <i>V</i></span><span class="val" id="mVv">4×</span></label><input type="range" id="mV" min="1" max="10" step="1" value="4" aria-label="vitesse de circulation"><div style="font-size:.82rem;color:var(--ink-soft);font-style:italic;margin-top:6px;">Combien de fois une même pièce change de mains dans la période.</div></div>
+          <div class="field"><label for="mComp"><span>Crédit &amp; paiements compensés</span><span class="val" id="mCompv">0</span></label><input type="range" id="mComp" min="0" max="1500" step="50" value="0" aria-label="crédit et compensations"><div style="font-size:.82rem;color:var(--ink-soft);font-style:italic;margin-top:6px;">Les dettes qui s'annulent entre elles : autant d'échanges réalisés sans numéraire.</div></div>
+        </div>
+        <div class="readout">
+          <h3>La monnaie nécessaire</h3>
+          <div class="metric"><div class="mlab"><span class="miconw" style="background:var(--red)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v8M8 12h8"/></svg></span><span>Masse de monnaie nécessaire<small>M = ΣP ÷ V</small></span></div><div class="mval red" id="mM">—</div></div>
+          <div class="bartitle" style="margin-top:14px">La vitesse réduit le numéraire nécessaire</div>
+          <div class="vbar"><div class="vbar-lab">Valeur à réaliser — ΣP</div><div class="vbar-track"><div class="vbar-fill sp" style="width:100%"></div></div></div>
+          <div class="vbar"><div class="vbar-lab" id="mBarMlab">Monnaie nécessaire — M</div><div class="vbar-track"><div class="vbar-fill m" id="mBarM"></div></div></div>
+          <svg class="circuits" id="monnaieSvg" viewBox="0 0 520 72" role="img" aria-label="circulation d'une pièce"></svg>
+          <div class="formula-board" id="mFboard"></div>
+          <div class="note" id="mNote"></div>
+        </div>
+      </div>
+      <div class="concepts-wrap"><h3>Comprendre les concepts</h3><div class="csub">La loi de la circulation et les fonctions de la monnaie.</div><div class="concept-cards" id="cc-monnaie"></div></div>
+    </div>
   </section>
 
   <!-- DÉRIVATION -->
@@ -820,6 +943,108 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
     <div class="method-note"><b>Ordre d'exposition ≠ ordre de recherche.</b> La marchandise est le point de départ logique dont tout découle. Le moteur, à chaque marche, est une <b>contradiction</b>.</div>
     <div class="stair" id="stair"></div>
     <div class="closing">⟶ Les Livres II et III poursuivent l'ascension : circulation, puis procès d'ensemble — profit, prix de production, intérêt, rente, formule trinitaire.</div>
+  </section>
+
+  <!-- CHRONOLOGIE -->
+  <section class="panel" id="chrono">
+    <h2 class="sec">La chronologie du Capital</h2>
+    <p class="lead">Le pendant <em>concret</em> de la Dérivation : non plus la marche logique des catégories, mais l'histoire réelle sur laquelle elles reposent — une frise qu'on ne lit pas, qu'on <b>joue</b>.</p>
+    <div class="method-note"><b>Deux actes, un seul mouvement.</b> D'abord la <b>genèse</b> violente du capital (l'accumulation primitive : expropriation, lois sanglantes, colonies) ; puis, une fois le rapport institué, la <b>bataille de la journée de travail</b>, où la loi vient enfin disputer au capital la durée du travail. Entre les deux, un passage de relais : ce qui fut imposé par la force se met à se reproduire de lui-même.</div>
+    <div class="howto"><span class="pin">i</span><div><b>Comment jouer :</b> appuie sur <b>Jouer</b> : la frise avance et <b>s'arrête sur chaque événement</b> le temps de le lire, puis repart. Tu peux aussi faire glisser le curseur ou cliquer une pastille pour aller directement à un moment. Le tableau de bord se met à jour en direct.</div></div>
+
+    <div class="chrono-controls">
+      <button class="btn red" id="chronoPlay" type="button">▶ Jouer</button>
+      <button class="btn" id="chronoReset" type="button">⟲ Début</button>
+      <div class="chrono-year" id="chronoYear">1450</div>
+    </div>
+    <div class="chrono-track" id="chronoTrack" role="slider" aria-label="curseur chronologique" aria-valuemin="1450" aria-valuemax="1870">
+      <div class="chrono-actband act1" id="band1"></div>
+      <div class="chrono-actband act2" id="band2"></div>
+      <div class="chrono-axis" id="chronoAxis"></div>
+      <div class="chrono-events" id="chronoEvents"></div>
+      <div class="chrono-head" id="chronoHead"></div>
+    </div>
+    <div class="chrono-actlabels"><span>Acte I — la genèse (accumulation primitive)</span><span>Acte II — la journée de travail</span></div>
+
+    <div class="lab" style="margin-top:24px">
+      <div class="controls">
+        <h3>Tableau de bord</h3>
+        <div class="chrono-phase" id="chronoPhase">Avant-propos</div>
+        <div class="instrument" id="instDepo"></div>
+        <div class="instrument" id="instDay"></div>
+      </div>
+      <div class="readout">
+        <h3>L'événement</h3>
+        <div class="chrono-eventcard" id="chronoCard"></div>
+      </div>
+    </div>
+
+    <div class="concepts-wrap"><h3>Comprendre les concepts</h3><div class="csub">Les notions de l'accumulation primitive et de la journée de travail.</div><div class="concept-cards" id="cc-chrono"></div></div>
+  </section>
+
+  <!-- EXPLORATIONS -->
+  <section class="panel" id="explore">
+    <h2 class="sec">Explorations</h2>
+    <p class="lead">Deux pièces moins quantitatives que qualitatives : non des lois à régler, mais des transformations et des renversements à voir de ses propres yeux.</p>
+    <div class="subtabs">
+      <button class="xsub active" data-x="x-coop">L'atelier : coopération → machinisme</button>
+      <button class="xsub" data-x="x-feti">Le fétichisme</button>
+      <button class="xsub" data-x="x-salaire">La forme-salaire</button>
+    </div>
+
+    <div class="xpane active" id="x-coop">
+      <div class="howto"><span class="pin">i</span><div><b>Comment lire :</b> change de stade. La scène de l'atelier se transforme, la force productive monte — et la place de l'ouvrier se réduit, jusqu'à n'être plus qu'un appendice de la machine. C'est toute la Section IV en trois temps.</div></div>
+      <div class="forme-pick" id="coopPick"><button class="formebtn active" type="button">Coopération</button><button class="formebtn" type="button">Manufacture</button><button class="formebtn" type="button">Grande industrie</button></div>
+      <svg class="x-scene" id="coopScene" viewBox="0 0 520 165" role="img" aria-label="l'atelier selon le stade"></svg>
+      <div class="lab">
+        <div class="controls"><h3>Le stade</h3><div id="coopDesc"></div></div>
+        <div class="readout"><h3>Ce qui change</h3>
+          <div class="inst-lab"><span>Force productive</span><b id="coopProdv"></b></div><div class="meter"><div class="depo-fill" id="coopProd"></div></div>
+          <div style="margin-top:16px">
+            <div class="x-row"><span class="x-k">Qui détient le savoir / l'outil</span><span class="x-v" id="coopSavoir"></span></div>
+            <div class="x-row"><span class="x-k">Rapport de l'ouvrier au moyen de production</span><span class="x-v" id="coopRapport"></span></div>
+            <div class="x-row"><span class="x-k">Subsomption sous le capital</span><span class="x-v" id="coopSubs"></span></div>
+          </div>
+        </div>
+      </div>
+      <div class="concepts-wrap"><h3>Comprendre les concepts</h3><div class="csub">De la coopération à la machine.</div><div class="concept-cards" id="cc-coop"></div></div>
+    </div>
+
+    <div class="xpane" id="x-feti">
+      <div class="howto"><span class="pin">i</span><div><b>Comment lire :</b> une marchandise et son prix. Clique <b>Révéler le rapport social</b> pour faire glisser de l'<b>apparence</b> (un rapport entre choses) à la <b>réalité</b> (un rapport entre des travaux humains). Puis explore les contre-mondes où ce rapport est transparent.</div></div>
+      <svg class="x-scene" id="fetiScene" viewBox="0 0 520 205" role="img" aria-label="apparence et réalité de la marchandise"></svg>
+      <div class="feti-toggle-row"><button class="btn red" id="fetiToggle" type="button">Révéler</button></div>
+      <div class="x-caption" id="fetiCaption"></div>
+      <div style="margin-top:28px">
+        <div class="opp-title">Les contre-mondes de Marx</div>
+        <p style="color:var(--ink-soft);font-size:.95rem;margin-bottom:13px">Quatre formes de production où le rapport social du travail est transparent — pour mieux faire ressortir, par contraste, l'opacité propre à la marchandise.</p>
+        <div class="forme-pick" id="mondePick"><button class="formebtn active" type="button">Le monde marchand</button><button class="formebtn" type="button">Robinson</button><button class="formebtn" type="button">Le moyen âge</button><button class="formebtn" type="button">La famille paysanne</button><button class="formebtn" type="button">Les producteurs associés</button></div>
+        <div class="inst-lab"><span>Transparence du rapport social</span><b id="mondeMeterv"></b></div><div class="meter"><div class="transp-fill" id="mondeMeter"></div></div>
+        <div class="x-caption" id="mondeDesc" style="margin-top:14px;border-left-color:var(--blue);background:rgba(57,89,107,.07)"></div>
+      </div>
+      <div class="concepts-wrap"><h3>Comprendre les concepts</h3><div class="csub">La marchandise comme hiéroglyphe social.</div><div class="concept-cards" id="cc-feti"></div></div>
+    </div>
+
+    <div class="xpane" id="x-salaire">
+      <div class="howto"><span class="pin">i</span><div><b>Comment lire :</b> une même journée de travail, sous deux descriptions. En « vérité » elle se partage en travail payé (le nécessaire) et travail gratuit (le surtravail) ; clique <b>Chausser les lunettes du salaire</b> et la ligne du surtravail s'efface — toute la journée paraît payée.</div></div>
+      <div class="lab">
+        <div class="controls">
+          <h3>La journée</h3>
+          <div class="field"><label for="salJ"><span>Longueur de la journée</span><span class="val" id="salJv">10 h</span></label><input type="range" id="salJ" min="6" max="14" step="0.5" value="10" aria-label="longueur de la journée"></div>
+          <div class="field"><label for="salTn"><span>Travail nécessaire <i>(valeur de la force de travail)</i></span><span class="val" id="salTnv">5 h</span></label><input type="range" id="salTn" min="1" max="10" step="0.5" value="5" aria-label="travail nécessaire"></div>
+          <div class="feti-toggle-row" style="justify-content:flex-start"><button class="btn red" id="salToggle" type="button">Chausser les lunettes du salaire</button></div>
+        </div>
+        <div class="readout">
+          <h3 id="salViewTitle">En vérité</h3>
+          <div class="bartitle" id="salBarTitle">Le partage réel de la journée</div>
+          <div class="daybar" id="salDay" role="img" aria-label="partage de la journée"></div>
+          <div class="ticks" id="salTicks"></div>
+          <div class="metric" style="margin-top:14px"><div class="mlab"><span class="miconw" style="background:var(--red)"><svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="1.5" fill="#fff" stroke="none"/><circle cx="12" cy="17" r="1.5" fill="#fff" stroke="none"/><path d="M6 12h12"/></svg></span><span>Part non payée de la journée<small>le surtravail</small></span></div><div class="mval red" id="salPart">—</div></div>
+          <div class="x-caption" id="salCaption" style="margin-top:14px"></div>
+        </div>
+      </div>
+      <div class="concepts-wrap"><h3>Comprendre les concepts</h3><div class="csub">La forme qui efface le partage du travail.</div><div class="concept-cards" id="cc-salaire"></div></div>
+    </div>
   </section>
 
   <footer><b>L'Atelier du Capital</b> — texte intégral dans le domaine public (source Wikisource) ; explications, modèles et carte de la méthode originaux.<br><button id="footPrivacy" class="lk" type="button" style="margin-top:10px">Confidentialité &amp; données</button></footer>
@@ -1482,7 +1707,43 @@ const CONCEPTS={
   {ic:'worker',ac:'var(--blue)',t:'Demande de travail',d:"Proportionnelle à v : elle croît plus lentement que le capital total.",f:'∝ v'},
   {ic:'ratio',ac:'var(--red)',t:'Armée de réserve',d:"La surpopulation relative que l'accumulation produit elle-même.",f:'travail non absorbé'},
   {ic:'cycle',ac:'var(--ink)',t:'Loi générale',d:"Plus le capital s'accumule, plus la réserve grossit avec lui.",f:'tendance du système'},
-  {ic:'percent',ac:'var(--gold-deep)',t:'Régulation des salaires',d:"La réserve pèse sur les salaires : une armée toujours disponible.",f:'pression sur v'}]};
+  {ic:'percent',ac:'var(--gold-deep)',t:'Régulation des salaires',d:"La réserve pèse sur les salaires : une armée toujours disponible.",f:'pression sur v'}],
+ 'cc-chrono':[{ic:'scale',ac:'var(--gold-deep)',t:'Accumulation primitive',d:"La genèse violente du capital : le présupposé historique posé, à la fin, comme résultat.",f:'présupposé ≠ éternel'},
+  {ic:'layers',ac:'var(--gold-deep)',t:'Expropriation / enclosures',d:"Séparer le producteur de la terre : la condition de naissance du salariat.",f:'producteur ⊥ moyens'},
+  {ic:'bolt',ac:'var(--red)',t:'Législation sanglante',d:"Dresser de force les expropriés à la discipline du travail salarié.",f:'fouet, marque, loi'},
+  {ic:'clock',ac:'var(--ink)',t:'La journée de travail',d:"Un champ de lutte, non une donnée naturelle : capital et loi s'y disputent les heures.",f:'le terrain du conflit'},
+  {ic:'ratio',ac:'var(--blue)',t:'Factory Acts & inspecteurs',d:"La loi limite la journée ; les inspecteurs fournissent les Blue Books où Marx puise ses faits.",f:'la loi entre en scène'},
+  {ic:'cycle',ac:'var(--red)',t:'Le passage de relais',d:"Une fois institué, le rapport capitaliste se reproduit de lui-même, sans plus de violence ouverte.",f:'force → mécanique'}],
+ 'cc-valor':[{ic:'box',ac:'var(--const)',t:'Travail mort (c)',d:"Les moyens de production : ils transfèrent leur valeur au produit sans en créer de nouvelle.",f:'reparaît dans le produit'},
+  {ic:'worker',ac:'var(--blue)',t:'Travail vivant',d:"Seul actif : il transfère la valeur de c ET ajoute de la valeur nouvelle.",f:'transfère + crée'},
+  {ic:'coin',ac:'var(--const)',t:'Valeur transférée',d:"La valeur des moyens de production consommés reparaît intacte dans le produit.",f:'c → produit'},
+  {ic:'bolt',ac:'var(--blue)',t:'Valeur nouvelle (v + pl)',d:"Tout ce que le travail vivant ajoute au cours de la journée.",f:'valeur horaire × journée'},
+  {ic:'clock',ac:'var(--blue)',t:'Travail nécessaire (v)',d:"Les premières heures, qui reproduisent la valeur de la force de travail.",f:'rembourse le salaire'},
+  {ic:'ratio',ac:'var(--red)',t:'Surtravail (pl)',d:"Les heures travaillées gratuitement, au-delà du nécessaire : la plus-value.",f:'au-delà du nécessaire'}],
+ 'cc-monnaie':[{ic:'scale',ac:'var(--gold-deep)',t:'Mesure des valeurs',d:"L'argent exprime idéalement le prix des marchandises avant tout échange réel.",f:'donne les prix'},
+  {ic:'cycle',ac:'var(--blue)',t:'Moyen de circulation',d:"Dans M-A-M, la monnaie passe de main en main ; les marchandises, elles, sortent du circuit.",f:'M-A-M'},
+  {ic:'percent',ac:'var(--gold-deep)',t:'Vitesse de circulation',d:"Une même pièce sert à plusieurs achats successifs : elle circule V fois.",f:'V'},
+  {ic:'coin',ac:'var(--const)',t:'Thésaurisation',d:"L'argent retiré de la circulation et mis en réserve, immobilisé.",f:'argent thésaurisé'},
+  {ic:'ratio',ac:'var(--red)',t:'Moyen de paiement',d:"Ventes à crédit et dettes qui se compensent : autant d'échanges sans numéraire.",f:'crédit, compensation'},
+  {ic:'cycle',ac:'var(--ink)',t:'Loi de la circulation',d:"La masse de monnaie nécessaire égale la somme des prix divisée par la vitesse.",f:'M = ΣP ÷ V'}],
+ 'cc-coop':[{ic:'worker',ac:'var(--blue)',t:'Coopération',d:"La réunion de nombreux ouvriers fait surgir une force productive collective irréductible à leur somme.",f:'force collective'},
+  {ic:'layers',ac:'var(--gold-deep)',t:'Division du travail',d:"Le métier décomposé en opérations parcellaires, fixées à vie sur chaque ouvrier.",f:'parcellisation'},
+  {ic:'factory',ac:'var(--gold-deep)',t:'Travailleur collectif',d:"L'atelier devient un mécanisme dont les ouvriers ne sont que les organes.",f:'l’atelier-mécanisme'},
+  {ic:'bolt',ac:'var(--red)',t:'Machine-outil',d:"La machine s'empare de l'outil ; la force motrice n'est plus le bras humain.",f:'l’outil quitte la main'},
+  {ic:'worker',ac:'var(--red)',t:'Appendice de la machine',d:"L'ouvrier ne manie plus l'instrument : il sert la machine qui le commande.",f:'servir la machine'},
+  {ic:'cycle',ac:'var(--ink)',t:'Subsomption réelle',d:"Le capital ne se contente plus de commander le travail : il en refond le procès même.",f:'formelle → réelle'}],
+ 'cc-feti':[{ic:'coin',ac:'var(--red)',t:'Fétichisme',d:"Le rapport social entre des travaux humains revêt la forme fantastique d'un rapport entre des choses.",f:'chose ⇄ rapport'},
+  {ic:'box',ac:'var(--ink)',t:'Valeur d’usage vs valeur',d:"Rien de mystérieux dans l'utilité ; le mystère naît de la forme valeur, non de la matière.",f:'utile ≠ valeur'},
+  {ic:'worker',ac:'var(--blue)',t:'Travaux privés',d:"Exécutés indépendamment, ils ne se relient socialement que par l'échange des produits.",f:'reliés par l’échange'},
+  {ic:'scale',ac:'var(--gold-deep)',t:'Le hiéroglyphe social',d:"La valeur ne porte pas écrit sur le front ce qu'elle est : il faut la déchiffrer.",f:'à déchiffrer'},
+  {ic:'cycle',ac:'var(--blue)',t:'Les contre-mondes',d:"Robinson, le moyen âge, la famille, les associés : là, le rapport social est transparent.",f:'transparence'},
+  {ic:'bolt',ac:'var(--ok)',t:'Lever le voile',d:"Le mysticisme se dissipe quand la production devient l'œuvre d'hommes librement associés.",f:'producteurs associés'}],
+ 'cc-salaire':[{ic:'worker',ac:'var(--blue)',t:'Force de travail',d:"Ce que l'ouvrier vend réellement, payé à sa valeur — le coût de sa reproduction.",f:'vendue à sa valeur'},
+  {ic:'coin',ac:'var(--ink)',t:'Le « prix du travail »',d:"La forme illusoire : le travail n'a pas de valeur, il en est la substance et la mesure.",f:'forme trompeuse'},
+  {ic:'clock',ac:'var(--blue)',t:'Travail payé (nécessaire)',d:"Les heures qui reproduisent la valeur de la force de travail.",f:'le nécessaire'},
+  {ic:'ratio',ac:'var(--red)',t:'Travail gratuit (surtravail)',d:"Les heures non payées — que la forme-salaire rend invisibles.",f:'la plus-value cachée'},
+  {ic:'scale',ac:'var(--gold-deep)',t:'La forme-salaire',d:"Elle efface la division payé / non payé : tout le travail paraît payé.",f:'tout paraît payé'},
+  {ic:'cycle',ac:'var(--ink)',t:'Corvée · esclave · salarié',d:"Le servage montre le partage ; l'esclavage fait tout paraître non payé ; le salariat, tout payé.",f:'inversion des apparences'}]};
 for(const id in CONCEPTS){document.getElementById(id).innerHTML=CONCEPTS[id].map(x=>`<div class="ccard" style="--accent:${x.ac}"><div class="cc-icon">${ICONS[x.ic]}</div><div><div class="cc-term">${x.t}</div><div class="cc-def">${x.d}</div><span class="cc-formula">${x.f}</span></div></div>`).join('');}
 
 /* ---- Lab 1 ---- */
@@ -1683,6 +1944,241 @@ function drawAccum(){
    ver.innerHTML=`<div class="vt">L'accumulation produit sa propre population de trop</div><p style="color:var(--ink-soft);font-size:.94rem">En ${T_ACC} périodes, le capital est multiplié par <b>${fmt(capX,2)}</b>, mais l'emploi seulement par <b>${fmt(empX,2)}</b>. L'écart — <b>${Math.round(reserve)} %</b> du travail qui aurait été demandé à composition constante — est l'<b>armée industrielle de réserve</b> : une surpopulation relative engendrée par l'accumulation elle-même, et qui pèse en retour sur les salaires.</p>`;}
 }
 [aq0,ae,aa,ag].forEach(r=>r.addEventListener('input',drawAccum));drawAccum();
+
+/* ====== Chronologie-simulation (1450-1870) ====== */
+const CHRONO=[
+ {year:1470,act:1,title:"Dissolution des suites féodales",desc:"Les grands seigneurs licencient leurs gens d'armes et chassent la paysannerie pour transformer les terres en pâturages. Surgissent les premiers prolétaires « libres comme l'air » — libres de leur personne, et libres de tout moyen de subsistance.",chap:"chap. XXVII",depo:12},
+ {year:1489,act:1,title:"Premières lois contre les expulsions",desc:"Henri VII tente de freiner la démolition des fermes paysannes. La loi elle-même atteste que l'expropriation est déjà massive : on légifère contre un fait accompli.",chap:"chap. XXVII",depo:18},
+ {year:1536,act:1,title:"Spoliation des biens d'Église",desc:"La Réforme et la sécularisation des couvents jettent sur le pavé leurs habitants et leurs fermiers héréditaires. Les terres passent à des spéculateurs qui en chassent les anciens tenanciers.",chap:"chap. XXVII",depo:32},
+ {year:1547,act:1,title:"La législation sanglante",desc:"Fouet, marque au fer rouge, mise en esclavage temporaire de quiconque erre sans maître (Henri VIII, Édouard VI). On dresse de force les expropriés à la discipline du salariat.",chap:"chap. XXVIII",depo:46},
+ {year:1688,act:1,title:"La « Glorieuse Révolution »",desc:"Les nouveaux maîtres se font octroyer à vil prix les terres de l'État et de la Couronne : un vol moderne du domaine public, base des grandes fortunes foncières.",chap:"chap. XXVII",depo:60},
+ {year:1694,act:1,title:"Dette publique & Banque d'Angleterre",desc:"La dette publique, le crédit et la fiscalité deviennent de puissants leviers d'accumulation. « La dette publique fait du capital » : l'argent de l'État se change en capital sans le risque de l'investissement.",chap:"chap. XXXI",depo:70},
+ {year:1730,act:1,title:"Le système colonial",desc:"Pillage, esclavage, monopoles commerciaux : les trésors arrachés aux colonies refluent vers la métropole et s'y transforment en capital. « Le capital naît suant le sang et la boue par tous les pores. »",chap:"chap. XXXI",depo:82},
+ {year:1760,act:1,title:"Les Bills for Inclosures of Commons",desc:"Le Parlement légalise en masse la clôture des terres communales : le bien commun devient propriété privée, et le petit paysan est définitivement détaché du sol qui le nourrissait.",chap:"chap. XXVII",depo:94},
+ {year:1785,act:'relais',title:"La grande industrie — le passage de relais",desc:"Machine à vapeur et filature mécanique : le rapport capitaliste est désormais institué. Il cesse d'avoir besoin de la violence ouverte — la mécanique économique elle-même reproduit la séparation entre le capital et le travail. La genèse s'achève, la dynamique commence.",chap:"chap. XV",depo:100},
+ {year:1802,act:2,title:"Health and Morals Act (Peel)",desc:"Première loi sur les fabriques : 12 heures pour les apprentis. Faute d'inspection, elle reste presque lettre morte — le capital ignore une limite qu'il n'est pas contraint d'appliquer.",chap:"chap. X",hours:12,force:14},
+ {year:1819,act:2,title:"Cotton Mills Act",desc:"Interdiction du travail des enfants de moins de 9 ans ; 12 heures pour les moins de 16 ans. Toujours sans contrôle réel : la journée tend encore vers son maximum physique.",chap:"chap. X",hours:12,force:24},
+ {year:1833,act:2,title:"Factory Act — naissance des inspecteurs",desc:"Création du corps des inspecteurs de fabrique : enfin des rapports officiels et chiffrés. C'est la source même des Blue Books où Marx puisera ses faits. 9 h pour les enfants (9-13 ans), 12 h pour les adolescents, travail de nuit interdit avant 18 ans.",chap:"chap. X",hours:12,force:40},
+ {year:1844,act:2,title:"La loi de 1844",desc:"Les femmes sont assimilées aux adolescents (12 h) ; les enfants passent au demi-temps (6 h ½). Le capital riposte par le « système des relais », faisant tourner les équipes pour brouiller le contrôle.",chap:"chap. X",hours:12,force:50},
+ {year:1847,act:2,title:"Le Ten Hours Act",desc:"Après des années de lutte ouvrière et chartiste : 10 heures pour les femmes et les adolescents. Une victoire arrachée, première grande limite imposée de l'extérieur à l'appétit du capital.",chap:"chap. X",hours:10,force:70},
+ {year:1850,act:2,title:"La journée normale",desc:"Compromis fixant la journée à 10 h ½ entre des bornes horaires fixes, mettant fin aux évasions patronales de 1848-1850. La « journée de travail normale » est enfin une réalité légale.",chap:"chap. X",hours:10.5,force:76},
+ {year:1867,act:2,title:"Extension des Factory Acts",desc:"La protection s'étend des seules filatures à l'ensemble de la grande industrie. C'est l'année même de la parution du Livre I : l'histoire que Marx raconte rejoint le présent de son livre.",chap:"chap. X · XXXI",hours:10.5,force:84}
+];
+const CY0=1450,CY1=1870,CYB=1785,CPB=55;
+function yearToPct(y){return y<=CYB?(y-CY0)/(CYB-CY0)*CPB:CPB+(y-CYB)/(CY1-CYB)*(100-CPB);}
+function pctToYear(p){return p<=CPB?Math.round(CY0+p/CPB*(CYB-CY0)):Math.round(CYB+(p-CPB)/(100-CPB)*(CY1-CYB));}
+const hFmt=h=>(Math.round(h)===h?String(h):fmt(h,1))+' h';
+let chronoYear=CY0,chronoPlaying=false,chronoTimer=null,chronoDrag=false;
+const cTrack=document.getElementById('chronoTrack');
+function buildChronoTrack(){
+  const b1=document.getElementById('band1'),b2=document.getElementById('band2');
+  b1.style.left='0%';b1.style.width=yearToPct(CYB)+'%';
+  b2.style.left=yearToPct(CYB)+'%';b2.style.width=(100-yearToPct(CYB))+'%';
+  let ticks='';for(let y=1450;y<=1850;y+=50){ticks+=`<div class="chrono-tick" style="left:${yearToPct(y)}%"><i></i><span>${y}</span></div>`;}
+  document.getElementById('chronoAxis').innerHTML='<div class="chrono-axisline"></div>'+ticks;
+  document.getElementById('chronoEvents').innerHTML=CHRONO.map((e,i)=>{
+    const top=i%2===0?32:64;return `<div class="chrono-dot ${e.act===1?'act1':e.act===2?'act2':'relais'}" data-i="${i}" style="left:${yearToPct(e.year)}%;top:${top}px" title="${e.year} — ${e.title}"></div>`;}).join('');
+  document.querySelectorAll('.chrono-dot').forEach(d=>d.addEventListener('click',ev=>{ev.stopPropagation();stopChrono();setChronoYear(CHRONO[+d.dataset.i].year);}));
+}
+function setChronoYear(y){chronoYear=Math.max(CY0,Math.min(CY1,y));renderChrono();}
+function renderChrono(){
+  document.getElementById('chronoYear').textContent=chronoYear;
+  document.getElementById('chronoHead').style.left=yearToPct(chronoYear)+'%';
+  let depo=0,hours=null,force=null,curr=null;
+  CHRONO.forEach(e=>{if(e.year<=chronoYear){curr=e;if(e.depo!=null)depo=e.depo;if(e.hours!=null)hours=e.hours;if(e.force!=null)force=e.force;}});
+  document.querySelectorAll('.chrono-dot').forEach(d=>{const e=CHRONO[+d.dataset.i];d.classList.toggle('fired',e.year<=chronoYear);d.classList.toggle('current',curr&&e.year===curr.year);});
+  // phase
+  let phase,pc='var(--ink)';
+  if(!curr){phase="Avant-propos — l'ancien monde";}
+  else if(curr.act===1){phase='Acte I — la genèse du capital';pc='var(--gold-deep)';}
+  else if(curr.act==='relais'){phase='Passage de relais';pc='var(--blue)';}
+  else{phase='Acte II — la journée de travail';pc='var(--red)';}
+  const ph=document.getElementById('chronoPhase');ph.textContent=phase;ph.style.background=pc;
+  // instrument dépossession
+  const depoNote=depo>=100?"Accompli — le rapport capitaliste est institué et se reproduit désormais de lui-même.":"Le producteur est arraché à ses moyens de production : la matière première du salariat se constitue.";
+  document.getElementById('instDepo').innerHTML=`<div class="inst-lab"><span>Dépossession du producteur</span><b>${Math.round(depo)} %</b></div><div class="meter"><div class="depo-fill" style="width:${depo}%"></div></div><div style="font-size:.84rem;color:var(--ink-soft);margin-top:7px;font-style:italic">${depoNote}</div>`;
+  // instrument journée
+  if(hours==null){document.getElementById('instDay').innerHTML=`<div class="inst-lab"><span>La journée de travail</span></div><div class="inst-muted">La grande industrie n'est pas encore née : pas de journée de travail légale à disputer.</div>`;}
+  else{const cap=Math.max(0,100-force);document.getElementById('instDay').innerHTML=`<div class="inst-lab"><span>Journée de travail légale</span><b>${hFmt(hours)}</b></div><div class="gauge"><div class="g-cap" style="width:${cap}%">${cap>22?'Capital ⟶ allonger':''}</div><div class="g-lab" style="width:${force}%">${force>22?'limiter ⟵ Loi':''}</div></div><div style="font-size:.84rem;color:var(--ink-soft);margin-top:7px;font-style:italic">Le rapport de forces bascule vers la limitation à mesure que la classe ouvrière et la loi contraignent le capital.</div>`;}
+  // carte événement
+  const card=document.getElementById('chronoCard');
+  if(!curr){card.innerHTML=`<div class="inst-muted">Appuie sur <b>Jouer</b> ou fais glisser le curseur sur la frise pour parcourir l'histoire que Marx documente, de l'expropriation des paysans à la journée de travail de 1867.</div>`;}
+  else{const cls=curr.act===1?'act1':curr.act===2?'act2':'relais';card.innerHTML=`<div class="ec-year ${cls}">${curr.year}</div><div class="ec-title">${curr.title}</div><div class="ec-desc">${curr.desc}</div><span class="ec-chap">→ ${curr.chap}</span>`;}
+}
+const CH_TICK=40,CH_LEG=1700,CH_DWELL=2800;
+let legFrom=0,legTo=0,legStart=0,dwellUntil=0,playIdx=-1,playMode='idle';
+function beginLeg(y){const idx=CHRONO.findIndex(e=>e.year>y+0.001);legFrom=y;legStart=Date.now();playMode='travel';if(idx===-1){legTo=CY1;playIdx=-1;}else{playIdx=idx;legTo=CHRONO[idx].year;}}
+function tickChrono(){const now=Date.now();
+  if(playMode==='dwell'){if(now>=dwellUntil)beginLeg(chronoYear);return;}
+  const t=Math.min(1,(now-legStart)/CH_LEG);
+  setChronoYear(Math.round(legFrom+(legTo-legFrom)*t));
+  if(t>=1){setChronoYear(legTo);if(playIdx===-1){stopChrono();return;}playMode='dwell';dwellUntil=now+CH_DWELL;}}
+function startChrono(){if(chronoPlaying)return;if(chronoYear>=CY1)setChronoYear(CY0);chronoPlaying=true;document.getElementById('chronoPlay').textContent='❚❚ Pause';beginLeg(chronoYear);chronoTimer=setInterval(tickChrono,CH_TICK);}
+function stopChrono(){chronoPlaying=false;clearInterval(chronoTimer);playMode='idle';document.getElementById('chronoPlay').textContent='▶ Jouer';}
+document.getElementById('chronoPlay').addEventListener('click',()=>{chronoPlaying?stopChrono():startChrono();});
+document.getElementById('chronoReset').addEventListener('click',()=>{stopChrono();setChronoYear(CY0);});
+function cClientToYear(clientX){const r=cTrack.getBoundingClientRect();const p=(clientX-r.left)/r.width*100;return pctToYear(Math.max(0,Math.min(100,p)));}
+cTrack.addEventListener('pointerdown',e=>{if(e.target.classList.contains('chrono-dot'))return;stopChrono();chronoDrag=true;try{cTrack.setPointerCapture(e.pointerId);}catch(_){}setChronoYear(cClientToYear(e.clientX));});
+cTrack.addEventListener('pointermove',e=>{if(chronoDrag)setChronoYear(cClientToYear(e.clientX));});
+cTrack.addEventListener('pointerup',()=>{chronoDrag=false;});
+cTrack.addEventListener('pointercancel',()=>{chronoDrag=false;});
+buildChronoTrack();renderChrono();
+
+/* ====== Outil : le procès de valorisation (Section III) ====== */
+const gid=id=>document.getElementById(id);
+const valJ=gid('valJ'),valTn=gid('valTn'),valVph=gid('valVph'),valC=gid('valC');
+let valH=null,valTimer=null;
+function labValor(){
+  if(+valTn.value>+valJ.value)valTn.value=valJ.value;
+  const J=+valJ.value,tn=Math.min(+valTn.value,J),vph=+valVph.value,c=+valC.value;
+  gid('valJv').textContent=hFmt(J);gid('valTnv').textContent=hFmt(tn);gid('valVphv').textContent=vph;gid('valCv').textContent=c;
+  const v=vph*tn,pl=vph*(J-tn),tot=c+v+pl;
+  const h=(valH==null)?J:Math.min(valH,J);
+  const transH=c*(J>0?h/J:0),newH=vph*h,vH=Math.min(newH,v),plH=Math.max(0,newH-v);
+  const necPct=J>0?tn/J*100:0,surPct=J>0?(J-tn)/J*100:0,handPct=J>0?h/J*100:0;
+  gid('valDay').innerHTML=`<div class="nec" style="width:${necPct}%">${necPct>16?'nécessaire · '+hFmt(tn):''}</div><div class="sur" style="width:${surPct}%">${surPct>16?'surtravail · '+hFmt(J-tn):''}</div>`+((valH!=null&&valH<J)?`<div class="valhand" style="left:${handPct}%"></div>`:'');
+  gid('valTicks').innerHTML=`<span>0 h</span><span>${hFmt(J)}</span>`;
+  const W=x=>tot>0?x/tot*100:0;
+  gid('valBar').innerHTML=`<div class="seg-c" style="width:${W(transH)}%">${W(transH)>8?'c':''}</div><div class="seg-v" style="width:${W(vH)}%">${W(vH)>8?'v':''}</div><div class="seg-pl" style="width:${W(plH)}%">${W(plH)>8?'pl':''}</div>`;
+  gid('valTrans').textContent=fmt(c,0);gid('valNew').textContent=fmt(v+pl,0);gid('valNec').textContent=fmt(v,0);gid('valSur').textContent=fmt(pl,0);
+  gid('valTaux').textContent=v>0?pct(pl/v*100):'—';gid('valTot').textContent=fmt(tot,0);
+  gid('valNote').innerHTML=`Le capital constant <b>${fmt(c,0)}</b> ne fait que <b>reparaître</b> dans le produit : le travail mort ne crée aucune valeur. Seules les ${hFmt(J)} de travail vivant en ajoutent — mais dès la <b>${hFmt(tn)}</b>, le salaire est remboursé : tout ce qui suit (<b>${hFmt(J-tn)}</b>) est du surtravail gratuit, source de la plus-value <b>${fmt(pl,0)}</b>.`;
+}
+[valJ,valTn,valVph,valC].forEach(r=>r.addEventListener('input',()=>{valH=null;labValor();}));
+gid('valPlay').addEventListener('click',()=>{clearInterval(valTimer);const J=+valJ.value;valH=0;labValor();valTimer=setInterval(()=>{valH+=J/40;if(valH>=J){valH=J;clearInterval(valTimer);}labValor();},45);});
+labValor();
+
+/* ====== Outil : la circulation de la monnaie (chap. III) ====== */
+const mSP=gid('mSP'),mV=gid('mV'),mComp=gid('mComp');
+function velocitySvg(V){const n=Math.min(Math.max(V,1),9),xs=40,xe=480,y=42;
+  let s=`<line x1="${xs}" y1="${y}" x2="${xe}" y2="${y}" stroke="var(--line)" stroke-width="2"/>`;
+  for(let i=0;i<=n;i++){const x=xs+(xe-xs)*(n?i/n:0);s+=`<circle cx="${x}" cy="${y}" r="4" fill="var(--ink-soft)"/>`;if(i<n){const xm=xs+(xe-xs)*((i+0.5)/n);s+=`<path d="M${x+8} ${y-7} Q ${xm} ${y-22} ${xs+(xe-xs)*((i+1)/n)-8} ${y-7}" fill="none" stroke="var(--gold-deep)" stroke-width="1.5"/>`;}}
+  s+=`<circle cx="${xs}" cy="${y}" r="9" fill="var(--gold-deep)" stroke="var(--paper)" stroke-width="2"/><text x="${(xs+xe)/2}" y="${y+24}" text-anchor="middle" font-size="11" fill="var(--ink)">une même pièce réalise ${V} achats successifs</text>`;
+  return s;}
+function labMonnaie(){
+  const SP=+mSP.value,V=Math.max(1,+mV.value),comp=Math.min(+mComp.value,SP);
+  gid('mSPv').textContent=fmt(SP,0);gid('mVv').textContent=fmt(V,0)+'×';gid('mCompv').textContent=fmt(comp,0);
+  const realiser=SP-comp,M=realiser/V;
+  gid('mM').textContent=fmt(M,0);
+  gid('mBarM').style.width=(SP>0?M/SP*100:0)+'%';
+  gid('mFboard').innerHTML=`<div class="frow"><span class="flab">La masse de monnaie nécessaire</span><span class="chip tot">ΣP ${fmt(SP,0)}</span>${comp>0?`<span class="op">−</span><span class="chip c">crédit ${fmt(comp,0)}</span>`:''}<span class="op">÷</span><span class="chip new">V ${fmt(V,0)}</span><span class="op">=</span><span class="res" style="color:var(--red)">${fmt(M,0)}</span></div>`;
+  gid('monnaieSvg').innerHTML=velocitySvg(V);
+  gid('mNote').innerHTML=`Une même pièce circule <b>${fmt(V,0)} fois</b> : il suffit de <b>ΣP ÷ V</b> en numéraire pour réaliser toutes les ventes.${comp>0?` Le crédit et les <b>compensations</b> annulent ${fmt(comp,0)} d'échanges sans monnaie — c'est la fonction de <b>moyen de paiement</b>.`:''}`;
+}
+[mSP,mV,mComp].forEach(r=>r.addEventListener('input',labMonnaie));labMonnaie();
+
+/* ====== Explorations : sous-navigation ====== */
+document.querySelectorAll('.xsub').forEach(t=>t.addEventListener('click',()=>{
+  document.querySelectorAll('.xsub').forEach(x=>x.classList.toggle('active',x===t));
+  document.querySelectorAll('.xpane').forEach(p=>p.classList.toggle('active',p.id===t.dataset.x));}));
+
+function workerSvg(x,y,col){return `<circle cx="${x}" cy="${y}" r="7" fill="none" stroke="${col}" stroke-width="2"/><path d="M${x-9} ${y+22} c0-9 4-13 9-13 s9 4 9 13" fill="none" stroke="${col}" stroke-width="2"/>`;}
+
+/* ====== Exploration : coopération → manufacture → grande industrie ====== */
+const COOP=[
+ {n:'Coopération simple',chap:'chap. XI',
+  pose:"Beaucoup d'ouvriers travaillent côte à côte à la même tâche, sous le même capital. De leur seule réunion naît une force productive nouvelle — la <b>force collective</b> — qui n'appartient à aucun pris isolément.",
+  meca:"Économies sur les bâtiments et l'outillage, émulation, continuité : le tout dépasse la somme des parties. Mais chaque ouvrier reste un travailleur complet, maître de son métier.",
+  prod:34,savoir:"L'ouvrier — il possède tout son métier",rapport:"Il se sert de ses outils",subs:"Subsomption formelle"},
+ {n:'Manufacture',chap:'chap. XII',
+  pose:"La division du travail décompose le métier en opérations parcellaires, chacune confiée à vie à un ouvrier spécialisé. L'atelier devient un mécanisme dont les ouvriers sont les organes : le <b>travailleur collectif</b>.",
+  meca:"La virtuosité parcellaire accélère le travail mais mutile l'ouvrier, qui perd la maîtrise du tout. Le savoir-faire passe de l'individu à l'atelier organisé.",
+  prod:64,savoir:"Le travailleur collectif — l'atelier, non l'individu",rapport:"Il devient l'organe partiel d'un mécanisme",subs:"Transition"},
+ {n:'Grande industrie',chap:'chap. XV',
+  pose:"La machine s'empare de l'outil. Ce n'est plus l'ouvrier qui manie l'instrument, mais la machine — mue par une force motrice propre — qui exécute, l'ouvrier la <b>servant</b>. Il devient un appendice vivant du système mécanique.",
+  meca:"La force productive bondit ; l'outil, le savoir et le rythme sont incorporés au capital fixe. La subsomption devient réelle : le procès de travail lui-même est refondu par le capital.",
+  prod:100,savoir:"La machine — le savoir objectivé en capital fixe",rapport:"Il devient l'appendice de la machine",subs:"Subsomption réelle"}];
+let coopStage=0;
+function drawCoop(){
+  const S=COOP[coopStage];
+  document.querySelectorAll('#coopPick .formebtn').forEach((b,i)=>b.classList.toggle('active',i===coopStage));
+  let scene='';
+  if(coopStage===0){let w='';for(let i=0;i<5;i++)w+=workerSvg(80+i*90,92,'var(--blue)');
+    scene=w+`<path d="M68 62 q192 -26 384 0" fill="none" stroke="var(--gold-deep)" stroke-width="1.5"/><text x="260" y="46" text-anchor="middle" font-size="13" font-weight="600" fill="var(--gold-deep)">force collective</text><text x="260" y="148" text-anchor="middle" font-size="11" fill="var(--ink-soft)">cinq fois le même travail complet, réunis</text>`;}
+  else if(coopStage===1){let w='';const xs=[95,215,335,455],tl=['fil','tissu','coupe','couture'];
+    xs.forEach((x,i)=>{w+=workerSvg(x,92,'var(--blue)')+`<rect x="${x-18}" y="110" width="36" height="15" rx="3" fill="none" stroke="var(--ink-soft)"/><text x="${x}" y="121" text-anchor="middle" font-size="8" fill="var(--ink-soft)">${tl[i]}</text>`;if(i<3)w+=`<path d="M${x+20} 92 L${xs[i+1]-20} 92" stroke="var(--gold-deep)" stroke-width="1.5" marker-end="url(#cm2)"/>`;});
+    scene=`<defs><marker id="cm2" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="var(--gold-deep)"/></marker></defs>`+w+`<text x="275" y="46" text-anchor="middle" font-size="13" font-weight="600" fill="var(--gold-deep)">travailleur collectif</text><text x="275" y="150" text-anchor="middle" font-size="11" fill="var(--ink-soft)">le produit passe d'une opération parcellaire à la suivante</text>`;}
+  else{scene=`<circle cx="68" cy="100" r="15" fill="none" stroke="var(--ink-soft)" stroke-width="2"/><text x="68" y="132" text-anchor="middle" font-size="9" fill="var(--ink-soft)">moteur</text><path d="M83 100 L180 100" stroke="var(--ink-soft)" stroke-width="2"/>`
+    +`<rect x="180" y="62" width="170" height="76" rx="6" fill="var(--card)" stroke="var(--ink)" stroke-width="2"/><circle cx="225" cy="100" r="16" fill="none" stroke="var(--ink)" stroke-width="2"/><circle cx="300" cy="100" r="24" fill="none" stroke="var(--ink)" stroke-width="2"/><text x="265" y="152" text-anchor="middle" font-size="12" font-weight="600" fill="var(--ink)">la machine</text>`
+    +workerSvg(405,98,'var(--red)')+workerSvg(455,98,'var(--red)')+`<text x="430" y="140" text-anchor="middle" font-size="10" fill="var(--red)">appendices</text>`
+    +`<text x="265" y="42" text-anchor="middle" font-size="13" font-weight="600" fill="var(--red)">l'ouvrier sert la machine</text>`;}
+  document.getElementById('coopScene').innerHTML=scene;
+  document.getElementById('coopDesc').innerHTML=`<div class="forme-tag" style="text-align:left">${S.n} · ${S.chap}</div><div class="fr-role">${S.pose}</div><div class="fr-flaw"><span class="fr-k">Mécanisme</span>${S.meca}</div>`;
+  document.getElementById('coopProd').style.width=S.prod+'%';
+  document.getElementById('coopProdv').textContent=S.prod+' / 100';
+  document.getElementById('coopSavoir').textContent=S.savoir;
+  document.getElementById('coopRapport').textContent=S.rapport;
+  document.getElementById('coopSubs').textContent=S.subs;
+}
+document.querySelectorAll('#coopPick .formebtn').forEach((b,i)=>b.addEventListener('click',()=>{coopStage=i;drawCoop();}));
+drawCoop();
+
+/* ====== Exploration : le fétichisme ====== */
+let fetiMode='app';
+function drawFeti(){
+  const real=fetiMode==='real';
+  const to=real?'0.22':'1',ho=real?'1':'0.2';
+  let s=`<g opacity="${to}"><rect x="70" y="56" width="124" height="50" rx="6" fill="var(--card)" stroke="var(--ink)" stroke-width="2"/><text x="132" y="86" text-anchor="middle" font-size="14" font-weight="600" fill="var(--ink)">1 table</text><text x="232" y="88" text-anchor="middle" font-size="22" font-weight="900" fill="var(--ink)">=</text><rect x="272" y="56" width="148" height="50" rx="6" fill="var(--card)" stroke="var(--gold-deep)" stroke-width="2"/><text x="346" y="86" text-anchor="middle" font-size="14" font-weight="600" fill="var(--gold-deep)">2 onces d'or</text></g>`;
+  s+=`<g opacity="${ho}">`;
+  if(real)s+=`<path d="M170 152 L322 152" stroke="var(--ink)" stroke-width="1.6"/><text x="246" y="144" text-anchor="middle" font-size="11" font-style="italic" fill="var(--ink)">rapport social entre travaux</text>`;
+  s+=workerSvg(150,152,'var(--blue)')+`<text x="150" y="192" text-anchor="middle" font-size="11" fill="var(--ink-soft)">le tisserand</text>`;
+  s+=workerSvg(346,152,'var(--red)')+`<text x="346" y="192" text-anchor="middle" font-size="11" fill="var(--ink-soft)">le tailleur</text></g>`;
+  document.getElementById('fetiScene').innerHTML=s;
+  document.getElementById('fetiToggle').textContent=real?'◐  Revenir à l’apparence':'◑  Révéler le rapport social';
+  document.getElementById('fetiCaption').innerHTML=real
+   ?`<b>Réalité.</b> Derrière l'égalité des choses se cache l'égalité de <b>travaux humains privés</b>, exécutés indépendamment et reliés seulement par l'échange de leurs produits. Le caractère social du travail apparaît comme un caractère des choses : voilà le <b>fétichisme</b>.`
+   :`<b>Apparence.</b> La valeur paraît une propriété naturelle de l'objet, comme son poids ou sa couleur. Le rapport social entre les producteurs prend la forme d'un rapport entre les produits — la marchandise devient un hiéroglyphe.`;
+}
+document.getElementById('fetiToggle').addEventListener('click',()=>{fetiMode=(fetiMode==='app')?'real':'app';drawFeti();});
+drawFeti();
+
+const MONDES=[
+ {n:'Le monde marchand',transp:14,d:"Des travaux privés, indépendants, qui ne se relient que par l'échange de leurs produits. Le caractère social du travail n'apparaît jamais que comme un caractère des choses : le rapport reste opaque. C'est le fétichisme même."},
+ {n:'Robinson dans son île',transp:90,d:"Seul, Robinson répartit son temps entre ses tâches selon leur utilité et leur difficulté. Toutes les déterminations de la valeur y sont présentes — mais transparentes, car il n'a affaire qu'à lui-même."},
+ {n:'Le moyen âge',transp:82,d:"La dépendance personnelle est la base de la société : corvée, dîme. Les rapports sociaux s'affirment ouvertement comme des rapports entre personnes, et ne se déguisent pas en rapports entre choses."},
+ {n:'La famille paysanne',transp:78,d:"La famille patriarcale produit pour ses propres besoins ; ses travaux divers — filer, tisser, cultiver — sont d'emblée des fonctions sociales, réparties selon le sexe, l'âge et les saisons."},
+ {n:'Les producteurs associés',transp:100,d:"Une réunion d'hommes libres travaillant avec des moyens de production communs et répartissant le produit selon un plan concerté : le rapport des hommes à leur travail et à ses fruits y reste limpide, dans la production comme dans la distribution. Le voile se lève."}];
+let mondeIdx=0;
+function drawMonde(){
+  const M=MONDES[mondeIdx];
+  document.querySelectorAll('#mondePick .formebtn').forEach((b,i)=>b.classList.toggle('active',i===mondeIdx));
+  document.getElementById('mondeMeter').style.width=M.transp+'%';
+  document.getElementById('mondeMeterv').textContent=M.transp+' %';
+  document.getElementById('mondeDesc').innerHTML=`<div class="forme-tag" style="text-align:left;margin-bottom:8px">${M.n}</div>${M.d}`;
+}
+document.querySelectorAll('#mondePick .formebtn').forEach((b,i)=>b.addEventListener('click',()=>{mondeIdx=i;drawMonde();}));
+drawMonde();
+
+/* ====== Exploration : la forme-salaire ====== */
+let salMode='verite';
+const salJ=gid('salJ'),salTn=gid('salTn');
+function drawSalaire(){
+  if(+salTn.value>+salJ.value)salTn.value=salJ.value;
+  const J=+salJ.value,tn=Math.min(+salTn.value,J),sur=J-tn;
+  gid('salJv').textContent=hFmt(J);gid('salTnv').textContent=hFmt(tn);
+  const necPct=J>0?tn/J*100:0,surPct=J>0?sur/J*100:0;
+  gid('salTicks').innerHTML=`<span>0 h</span><span>${hFmt(J)}</span>`;
+  if(salMode!=='forme'){
+    gid('salDay').innerHTML=`<div class="nec" style="width:${necPct}%">${necPct>18?'payé · nécessaire':''}</div><div class="sur" style="width:${surPct}%">${surPct>18?'gratuit · surtravail':''}</div>`;
+    gid('salViewTitle').textContent='En vérité';
+    gid('salBarTitle').textContent='Le partage réel de la journée';
+    gid('salToggle').textContent='◑  Chausser les lunettes du salaire';
+    gid('salToggle').className='btn red';
+    gid('salPart').textContent=Math.round(surPct)+' %';gid('salPart').style.color='var(--red)';
+    gid('salCaption').innerHTML=`La journée se divise en <b>travail payé</b> (le nécessaire, qui reproduit la valeur de la force de travail) et <b>travail gratuit</b> (le surtravail, source de la plus-value). Ici, <b>${Math.round(surPct)} %</b> de la journée n'est pas payée.`;
+  }else{
+    gid('salDay').innerHTML=`<div class="nec" style="width:100%">travail payé · toute la journée</div><div class="salmask" style="left:${necPct}%;width:${surPct}%"><span>surtravail masqué</span></div>`;
+    gid('salViewTitle').textContent='Sous la forme-salaire';
+    gid('salBarTitle').textContent='Ce que la forme-salaire donne à voir';
+    gid('salToggle').textContent='◐  Retirer les lunettes';
+    gid('salToggle').className='btn';
+    gid('salPart').textContent='masquée';gid('salPart').style.color='var(--ink-soft)';
+    gid('salCaption').innerHTML=`Payée à un « prix de l'heure », la journée entière apparaît comme du <b>travail payé</b> : la ligne du surtravail (hachurée) s'est <b>effacée</b>. Comme le « travail » n'a pas de valeur — il <em>est</em> la mesure de la valeur — ce qu'on croit payer (le travail) recouvre ce qu'on paie vraiment, la <b>force de travail</b>. Toute trace d'exploitation a disparu de la surface : c'est le ressort de la forme-salaire.`;
+  }
+}
+[salJ,salTn].forEach(r=>r.addEventListener('input',drawSalaire));
+gid('salToggle').addEventListener('click',()=>{salMode=(salMode==='verite')?'forme':'verite';drawSalaire();});
+drawSalaire();
 
 /* ---- Dérivation ---- */
 const STEPS=[
