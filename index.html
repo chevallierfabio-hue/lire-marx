@@ -330,6 +330,13 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
 .ac-pseudo{font-family:'Fraunces',serif;font-size:1.15rem;}
 .ac-mail{font-size:.86rem;color:var(--ink-soft);}
 .ac-stat{font-size:.88rem;color:var(--ink-soft);margin-top:16px;}
+.ac-del{color:var(--red);margin-left:auto;}
+.ac-danger{margin-top:14px;background:rgba(165,42,33,.07);border:1px solid var(--red);border-radius:8px;padding:12px 14px;font-size:.88rem;line-height:1.5;color:var(--ink);}
+.ac-danger b{color:var(--red-deep);}
+.ac-foot{margin-top:14px;padding-top:12px;border-top:1px solid var(--line-soft);text-align:center;}
+.privacy-text{max-width:520px;text-align:left;}
+.privacy-text p{font-size:.92rem;line-height:1.6;margin:0 0 11px;color:var(--ink);}
+.privacy-text .pz-warn{font-style:italic;color:var(--ink-soft);font-size:.85rem;background:rgba(154,123,53,.10);border-left:3px solid var(--gold);padding:8px 11px;border-radius:0 4px 4px 0;}
 .acct-chip{position:fixed;top:13px;right:15px;z-index:130;display:inline-flex;align-items:center;gap:8px;max-width:44vw;font-family:'Fraunces',serif;font-weight:600;font-size:.83rem;padding:7px 14px;border:1px solid var(--line);border-radius:30px;background:var(--card);color:var(--ink);cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.12);transition:border-color .16s;}
 .acct-chip:hover{border-color:var(--red);}
 .acct-chip.guest{background:var(--ink);color:var(--paper);border-color:var(--ink);}
@@ -374,6 +381,22 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
   <div class="acct-modal-box" role="dialog" aria-modal="true" aria-label="Mon compte">
     <button class="acct-modal-x" type="button" aria-label="Fermer">&times;</button>
     <div id="acctView"></div>
+  </div>
+</div>
+<div id="privacyModal" class="acct-modal" hidden>
+  <div class="acct-modal-box" role="dialog" aria-modal="true" aria-label="Confidentialité">
+    <button class="acct-modal-x" type="button" aria-label="Fermer">&times;</button>
+    <div class="ac-card privacy-text">
+      <h3>Confidentialité &amp; données</h3>
+      <p class="pz-warn">Modèle de départ, à relire et compléter (les passages entre crochets) ; ce n'est pas un conseil juridique.</p>
+      <p><b>Responsable.</b> [À COMPLÉTER : nom ou structure, et qualité]. Contact : [À COMPLÉTER : adresse e-mail].</p>
+      <p><b>Données traitées.</b> Adresse e-mail (connexion uniquement, jamais affichée), pseudo (public), annotations privées, notes et réponses publiques, signalements. Aucune donnée n'est revendue ni utilisée à des fins publicitaires.</p>
+      <p><b>Finalités &amp; base légale.</b> Fournir la lecture annotée, la synchronisation entre appareils et les notes partagées modérées (exécution du service demandé) ; assurer la modération et la sécurité (intérêt légitime).</p>
+      <p><b>Hébergement.</b> Authentification et base de données via Supabase. [À COMPLÉTER : région d'hébergement, par ex. Union européenne].</p>
+      <p><b>Conservation.</b> Tes données sont conservées tant que ton compte existe, et supprimées à ta demande.</p>
+      <p><b>Tes droits (RGPD).</b> Accès, rectification, effacement, opposition. Tu peux effacer toi-même l'ensemble de tes contributions depuis « Mon compte » → <i>Supprimer mes données</i>. Pour la suppression complète du compte ou toute autre demande : [À COMPLÉTER : adresse e-mail].</p>
+      <p><b>Stockage local.</b> Le site conserve tes surlignages et ta session de connexion dans ton navigateur. C'est un stockage <i>fonctionnel</i> (nécessaire au service), sans pistage ni cookie publicitaire.</p>
+    </div>
   </div>
 </div>
 <div class="wrap">
@@ -695,7 +718,7 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
     <div class="closing">⟶ Les Livres II et III poursuivent l'ascension : circulation, puis procès d'ensemble — profit, prix de production, intérêt, rente, formule trinitaire.</div>
   </section>
 
-  <footer><b>L'Atelier du Capital</b> — texte intégral dans le domaine public (source Wikisource) ; explications, modèles et carte de la méthode originaux.</footer>
+  <footer><b>L'Atelier du Capital</b> — texte intégral dans le domaine public (source Wikisource) ; explications, modèles et carte de la méthode originaux.<br><button id="footPrivacy" class="lk" type="button" style="margin-top:10px">Confidentialité &amp; données</button></footer>
   </div><!-- /work-capital -->
 </div>
 
@@ -1466,7 +1489,7 @@ drawTRPF();
     anon: 'VOTRE_CLE_ANON_PUBLIQUE'
   };
 
-  let sb=null, user=null, profile=null, configured=false, authMode='signin', recovery=false, busy=false, notice='', errMsg='', pendingUsername='', toastT=null;
+  let sb=null, user=null, profile=null, configured=false, authMode='signin', recovery=false, busy=false, notice='', errMsg='', pendingUsername='', eraseConfirm=false, toastT=null;
 
   function toast(msg){
     let t=document.getElementById('annoToast');
@@ -1589,6 +1612,20 @@ drawTRPF();
   }
   async function signOut(){try{if(sb)await sb.auth.signOut();}catch(e){}}
 
+  async function eraseMyData(){
+    if(!sb||!user)return;errMsg='';notice='';busy=true;renderAcct();
+    try{
+      let r=await sb.from('annotations').delete().eq('user_id',user.id);if(r.error)throw r.error;
+      r=await sb.from('profiles').delete().eq('id',user.id);if(r.error)throw r.error;
+      try{localStorage.removeItem(KEY);}catch(e){}
+      store={};profile=null;pubNotes=[];reports=[];eraseConfirm=false;
+      if(box){clearMarks();}
+      toast('Tes données ont été supprimées.');
+      await signOut();
+    }catch(e){errMsg='Suppression : '+(e.message||e);}
+    busy=false;renderAcct();
+  }
+
   async function setSession(session){
     user=(session&&session.user)||null;
     if(user){
@@ -1634,12 +1671,20 @@ drawTRPF();
   }
   function openAcctModal(){const m=document.getElementById('acctModal');if(!m)return;renderAcct();m.hidden=false;document.body.style.overflow='hidden';}
   function closeAcctModal(){const m=document.getElementById('acctModal');if(!m)return;m.hidden=true;document.body.style.overflow='';}
+  function openPrivacy(){const m=document.getElementById('privacyModal');if(!m)return;m.hidden=false;document.body.style.overflow='hidden';}
+  function closePrivacy(){const m=document.getElementById('privacyModal');if(!m)return;m.hidden=true;const am=document.getElementById('acctModal');document.body.style.overflow=(am&&!am.hidden)?'hidden':'';}
   function wireAcctChrome(){
     const chip=document.getElementById('acctChip');const m=document.getElementById('acctModal');
+    const pm=document.getElementById('privacyModal');const fp=document.getElementById('footPrivacy');
     if(chip)chip.onclick=()=>{errMsg='';notice='';openAcctModal();};
     if(m){m.addEventListener('click',e=>{if(e.target===m)closeAcctModal();});
       const x=m.querySelector('.acct-modal-x');if(x)x.onclick=closeAcctModal;}
-    document.addEventListener('keydown',e=>{if(e.key==='Escape'){const mm=document.getElementById('acctModal');if(mm&&!mm.hidden)closeAcctModal();}});
+    if(pm){pm.addEventListener('click',e=>{if(e.target===pm)closePrivacy();});
+      const x=pm.querySelector('.acct-modal-x');if(x)x.onclick=closePrivacy;}
+    if(fp)fp.onclick=()=>openPrivacy();
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'){
+      const pp=document.getElementById('privacyModal');if(pp&&!pp.hidden){closePrivacy();return;}
+      const mm=document.getElementById('acctModal');if(mm&&!mm.hidden)closeAcctModal();}});
   }
   function renderAcct(){
     renderChip();
@@ -1663,7 +1708,11 @@ drawTRPF();
         +'<div class="ac-row"><input type="text" id="acUser" value="'+escapeHtml(pseudo)+'" placeholder="ton-pseudo" maxlength="24"><button class="btn" data-act="saveuser" type="button">Enregistrer</button></div>'
         +'<p class="ac-note">Ce pseudo apparaîtra à côté de tes notes publiques (à venir) ; ton e-mail, jamais.</p>'
         +'<div class="ac-stat">'+nc+' annotation'+s+' reliée'+s+' à ce compte et synchronisée'+s+'.</div>'
-        +'<div class="ac-row ac-end"><button class="lk" data-act="signout" type="button">Se déconnecter</button></div></div>';
+        +(eraseConfirm
+          ?'<div class="ac-danger"><b>Tout supprimer ?</b> Cela efface définitivement tes annotations privées, tes notes et réponses publiques, ton pseudo et tes signalements. Action irréversible.<div class="ac-row" style="margin-top:8px"><button class="btn red" data-act="erase-yes" type="button"'+(busy?' disabled':'')+'>Oui, tout supprimer</button><button class="lk" data-act="erase-no" type="button">Annuler</button></div></div>'
+          :'')
+        +'<div class="ac-row ac-end"><button class="lk" data-act="signout" type="button">Se déconnecter</button><button class="lk ac-del" data-act="erase" type="button">Supprimer mes données</button></div>'
+        +'<div class="ac-foot"><button class="lk" data-act="privacy" type="button">Confidentialité &amp; données</button></div></div>';
     }else{
       const signup=authMode==='signup';
       h='<div class="ac-card"><div class="ac-tabs">'
@@ -1674,7 +1723,7 @@ drawTRPF();
         +'<input type="password" id="acPw" placeholder="mot de passe" autocomplete="'+(signup?'new-password':'current-password')+'">'
         +'<div class="ac-row"><button class="btn red" data-act="'+(signup?'do-signup':'do-signin')+'" type="button"'+(busy?' disabled':'')+'>'+(busy?'…':(signup?'Créer mon compte':'Se connecter'))+'</button>'
         +(signup?'':'<button class="lk" data-act="reset" type="button">Mot de passe oublié ?</button>')+'</div>'
-        +'<p class="ac-note">'+(signup?'Tu choisis un pseudo public et un mot de passe ; ton adresse e-mail reste privée.':'Retrouve et synchronise tes annotations sur tous tes appareils.')+'</p></div>';
+        +'<p class="ac-note">'+(signup?'Tu choisis un pseudo public et un mot de passe ; ton adresse e-mail reste privée.':'Retrouve et synchronise tes annotations sur tous tes appareils.')+'</p><div class="ac-foot"><button class="lk" data-act="privacy" type="button">Confidentialité &amp; données</button></div></div>';
     }
     el.innerHTML=h;
     el.querySelectorAll('[data-act]').forEach(b=>{
@@ -1687,6 +1736,10 @@ drawTRPF();
         else if(a==='reset'){const em=field(el,'acEmail').trim();if(!em){errMsg='Indique d’abord ton adresse e-mail.';notice='';renderAcct();}else doReset(em);}
         else if(a==='setpw'){setNewPassword(field(el,'acNew'));}
         else if(a==='saveuser'){errMsg='';notice='';saveUsername(field(el,'acUser').trim()).then(r=>{if(r.ok)notice='Pseudo enregistré.';else errMsg=r.msg;renderAcct();});}
+        else if(a==='erase'){eraseConfirm=true;renderAcct();}
+        else if(a==='erase-no'){eraseConfirm=false;renderAcct();}
+        else if(a==='erase-yes'){eraseMyData();}
+        else if(a==='privacy'){openPrivacy();}
         else if(a==='signout'){signOut();}
       };
     });

@@ -77,10 +77,13 @@ en pages séparées + composants partagés.
   partagées », publication, réponses, suppression de ses contributions, saut
   au passage) **et la modération** (bouton « Signaler », table `reports`,
   rôle modérateur via la table `moderators`, masquage/affichage des notes,
-  file de signalements côté modérateur). **À faire avant d'ouvrir au public** :
-  notes éditoriales / mise en avant, et la conformité RGPD (politique de
-  confidentialité, consentement, droit à l'effacement — la suppression
-  complète d'un compte nécessitera une fonction côté serveur). Tant que ces
+  file de signalements côté modérateur) **et une première couche RGPD** (avis
+  de confidentialité accessible partout, et « Supprimer mes données » qui
+  efface annotations, notes/réponses publiques, pseudo et signalements de
+  l'utilisateur). **À faire avant d'ouvrir au public** : compléter le texte de
+  l'avis de confidentialité (passages entre crochets), prévoir la suppression
+  *complète* du compte `auth.users` (fonction côté serveur / Edge Function),
+  et éventuellement des notes éditoriales / mise en avant. Tant que ces
   garde-fous ne sont pas complets, garder l'accès restreint.
 
   > **Se désigner modérateur** : Supabase → Authentication → Users → copier
