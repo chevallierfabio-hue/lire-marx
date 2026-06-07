@@ -44,7 +44,9 @@ Cloudflare Pages depuis un dépôt GitHub, puis enrichi d'un backend Supabase.
 
 ```
 lire-marx/
-├── index.html     # le site : accueil (bibliothèque) + atelier du Capital
+├── index.html         # le site : accueil + atelier du Capital + annotation/synchro
+├── supabase/
+│   └── schema.sql     # table `annotations` + politiques d'accès (Phase 2)
 └── README.md
 ```
 
@@ -55,17 +57,17 @@ en pages séparées + composants partagés.
 
 ## Feuille de route
 
-- **Phase 1 — hébergement + annotation « local-first »** *(en cours)*
-  Mettre le site en ligne (cette étape), puis construire l'interface de
-  surlignage / prise de notes côté navigateur, avec un modèle de données déjà
-  pensé pour la synchronisation (chaque annotation = œuvre + chapitre + citation
-  ancre + couleur + texte + date + auteur). Sauvegarde locale + export/import.
+- **Phase 1 — hébergement + annotation « local-first »** *(fait)*
+  Site en ligne, puis interface de surlignage / prise de notes côté
+  navigateur, avec un modèle de données pensé pour la synchronisation (chaque
+  annotation = œuvre + chapitre + citation ancre + couleur + texte + date).
+  Sauvegarde locale + export/import JSON.
 
-- **Phase 2 — Supabase**
-  Authentification + table de notes privées (protégée par utilisateur, chacun ne
-  voit que les siennes). Le schéma SQL et le code client seront ajoutés ici
-  (`supabase/schema.sql`). La clé publique « anon » vit dans le front-end ;
-  les clés de service restent secrètes (jamais commitées).
+- **Phase 2 — Supabase** *(en cours)*
+  Authentification (lien magique par e-mail) + table de notes privées (chacun
+  ne voit que les siennes, via Row Level Security). Schéma SQL fourni dans
+  `supabase/schema.sql` ; le code client est intégré à `index.html`. Voir
+  « Mise en route Supabase » ci-dessous.
 
 - **Phase 3 — notes publiques + modération**
   Table d'annotations publiques lisible par tous, écriture réservée aux comptes,
@@ -81,3 +83,39 @@ en pages séparées + composants partagés.
   Pages, et coller tes clés (notamment la clé `anon` publique).
 - **Moi** : le front-end et la couche d'annotation, le schéma de base de données
   et le code client Supabase.
+
+---
+
+## Mise en route Supabase (Phase 2)
+
+Une fois un projet Supabase créé (https://supabase.com) :
+
+1. **Schéma** — tableau de bord → **SQL Editor** → coller le contenu de
+   `supabase/schema.sql` → **Run**. Cela crée la table `annotations` et les
+   politiques d'accès « chacun ne voit/écrit que les siennes ».
+2. **Authentification** — **Authentication → Providers** : laisser **Email**
+   activé. Le site utilise une **inscription e-mail + mot de passe** (onglet
+   « Mon compte »), avec pseudo public. Tu peux garder « Confirm email »
+   activé (l'utilisateur confirme via un mail avant connexion) ou le
+   désactiver (inscription instantanée). Puis
+   **Authentication → URL Configuration** :
+   - **Site URL** : `https://<projet>.pages.dev`
+   - **Redirect URLs** : `https://<projet>.pages.dev/**`
+3. **Clés** — **Project Settings → API** : copier **Project URL** et la clé
+   **anon public**, puis les coller dans `index.html`, dans le bloc `CONFIG`
+   en haut du module de synchronisation (cherche `VOTRE-PROJET`).
+
+> La clé `anon` est **publique par conception** : elle peut figurer dans
+> `index.html` commité. Ne jamais y mettre la clé `service_role`.
+
+Tant que les valeurs `CONFIG` restent les placeholders, le site reste en mode
+**local pur** (rien n'est envoyé). Une fois les clés en place, l'onglet
+**« Mon compte »** permet de **créer un compte** (e-mail + mot de passe +
+pseudo) ou de **se connecter**. Les notes locales déjà prises sont alors
+**téléversées automatiquement** (migration), puis synchronisées entre
+appareils, et reliées au compte par `user_id`. Le pseudo (table `profiles`)
+est l'identité publique réservée au futur forum ; l'e-mail reste privé.
+
+> **Si tu mets à jour un projet Supabase déjà créé** : re-exécute simplement
+> `supabase/schema.sql` en entier dans le SQL Editor — il est idempotent et
+> ajoute la table `profiles` sans toucher aux annotations existantes.

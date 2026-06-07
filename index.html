@@ -308,6 +308,28 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
 .np-acct .btn{padding:5px 12px;font-size:.82rem;}
 .anno-toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:120;background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:8px;font-size:.88rem;line-height:1.4;box-shadow:0 10px 30px rgba(0,0,0,.35);max-width:90vw;opacity:0;pointer-events:none;transition:opacity .25s;}
 .anno-toast.show{opacity:1;}
+#compte .ac-card{max-width:440px;margin:0 auto;border:1px solid var(--line);background:var(--card);border-radius:10px;padding:26px 26px 22px;}
+.ac-card h3{font-family:'Fraunces',serif;font-size:1.3rem;margin:0 0 16px;}
+.ac-card input{display:block;width:100%;box-sizing:border-box;font-family:'Spectral',serif;font-size:1rem;padding:11px 13px;margin-bottom:11px;border:1px solid var(--line);border-radius:7px;background:var(--paper);color:var(--ink);}
+.ac-card input:focus{outline:none;border-color:var(--red);}
+.ac-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:2px;}
+.ac-row input{margin-bottom:0;}
+.ac-row.ac-end{justify-content:flex-end;margin-top:18px;border-top:1px solid var(--line-soft);padding-top:14px;}
+.ac-note{font-size:.84rem;color:var(--ink-soft);font-style:italic;line-height:1.5;margin:12px 0 0;}
+.ac-note code{font-style:normal;background:rgba(0,0,0,.05);padding:1px 5px;border-radius:4px;font-size:.85em;}
+.ac-p{font-size:.95rem;line-height:1.6;color:var(--ink-soft);}
+.ac-p code{background:rgba(0,0,0,.05);padding:1px 5px;border-radius:4px;}
+.ac-err{background:rgba(165,42,33,.10);border-left:3px solid var(--red);padding:9px 12px;border-radius:0 4px 4px 0;font-size:.88rem;color:var(--red-deep);margin-bottom:13px;}
+.ac-ok{background:rgba(82,116,47,.12);border-left:3px solid var(--ok);padding:9px 12px;border-radius:0 4px 4px 0;font-size:.88rem;margin-bottom:13px;}
+.ac-tabs{display:flex;margin-bottom:18px;border:1px solid var(--line);border-radius:8px;overflow:hidden;}
+.ac-t{flex:1;padding:10px;font-family:'Fraunces',serif;font-size:.92rem;background:transparent;border:none;cursor:pointer;color:var(--ink-soft);}
+.ac-t.on{background:var(--ink);color:var(--paper);}
+.ac-lab{display:block;font-size:.74rem;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-soft);margin:6px 0;}
+.ac-id{display:flex;align-items:center;gap:14px;margin-bottom:20px;padding-bottom:18px;border-bottom:1px solid var(--line-soft);}
+.ac-ava{flex:none;width:46px;height:46px;border-radius:50%;background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:1.3rem;}
+.ac-pseudo{font-family:'Fraunces',serif;font-size:1.15rem;}
+.ac-mail{font-size:.86rem;color:var(--ink-soft);}
+.ac-stat{font-size:.88rem;color:var(--ink-soft);margin-top:16px;}
 </style>
 </head>
 <body>
@@ -432,6 +454,7 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
     <button class="tab" data-tab="lire"><span class="num">III</span>Lire le Capital</button>
     <button class="tab" data-tab="labo"><span class="num">IV</span>Laboratoire</button>
     <button class="tab" data-tab="deriv"><span class="num">V</span>Cheminement</button>
+    <button class="tab" data-tab="compte"><span class="num">VI</span>Mon compte</button>
   </nav>
 
   <!-- ACCUEIL DE L'ŒUVRE -->
@@ -626,6 +649,13 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
     <div class="method-note"><b>Ordre d'exposition ≠ ordre de recherche.</b> La marchandise est le point de départ logique dont tout découle. Le moteur, à chaque marche, est une <b>contradiction</b>.</div>
     <div class="stair" id="stair"></div>
     <div class="closing">⟶ Les Livres II et III poursuivent l'ascension : circulation, puis procès d'ensemble — profit, prix de production, intérêt, rente, formule trinitaire.</div>
+  </section>
+
+  <!-- MON COMPTE -->
+  <section class="panel" id="compte">
+    <h2 class="sec">Mon compte</h2>
+    <p class="lead">Un compte synchronise tes annotations entre tes appareils et te prépare aux notes publiques à venir. Ton adresse e-mail reste privée — seul ton <b>pseudo</b> sera visible des autres lecteurs.</p>
+    <div id="acctView"></div>
   </section>
 
   <footer><b>L'Atelier du Capital</b> — texte intégral dans le domaine public (source Wikisource) ; explications, modèles et carte de la méthode originaux.</footer>
@@ -1401,7 +1431,7 @@ drawTRPF();
     anon: 'VOTRE_CLE_ANON_PUBLIQUE'
   };
 
-  let sb=null, user=null, configured=false, sentTo='', authView=false, toastT=null;
+  let sb=null, user=null, profile=null, configured=false, authMode='signin', recovery=false, busy=false, notice='', errMsg='', pendingUsername='', toastT=null;
 
   function toast(msg){
     let t=document.getElementById('annoToast');
@@ -1458,55 +1488,165 @@ drawTRPF();
     }catch(e){toast('Lecture cloud impossible : '+(e.message||e));}
   }
 
-  async function signIn(email){
-    if(!sb)return;
+  /* ---------- profils (pseudo public) ---------- */
+  const reUser=/^[A-Za-z0-9_\-]{2,24}$/;
+  async function loadProfile(){
+    profile=null;
+    if(!sb||!user)return;
+    try{const res=await sb.from('profiles').select('*').eq('id',user.id).maybeSingle();if(!res.error)profile=res.data||null;}catch(e){}
+  }
+  async function usernameTaken(name){
+    if(!sb)return false;
+    try{const res=await sb.from('profiles').select('id').eq('username',name).maybeSingle();
+      return !!(res&&res.data&&res.data.id!==(user&&user.id));}catch(e){return false;}
+  }
+  async function saveUsername(name){
+    if(!sb||!user)return {ok:false,msg:'Non connecté.'};
+    name=(name||'').trim();
+    if(!reUser.test(name))return {ok:false,msg:'Pseudo : 2 à 24 caractères (lettres, chiffres, _ ou -).'};
+    if(await usernameTaken(name))return {ok:false,msg:'Ce pseudo est déjà pris.'};
     try{
-      const res=await sb.auth.signInWithOtp({email:email,options:{emailRedirectTo:location.origin+location.pathname}});
+      const res=await sb.from('profiles').upsert({id:user.id,username:name}).select().maybeSingle();
+      if(res.error)return {ok:false,msg:(res.error.message||'').indexOf('duplicate')>=0?'Ce pseudo est déjà pris.':res.error.message};
+      profile=res.data||{id:user.id,username:name};
+      return {ok:true};
+    }catch(e){return {ok:false,msg:e.message||String(e)};}
+  }
+
+  /* ---------- authentification e-mail + mot de passe ---------- */
+  function redirectURL(){return location.origin+location.pathname;}
+  async function doSignUp(email,password,username){
+    if(!sb)return;errMsg='';notice='';
+    username=(username||'').trim();
+    if(!reUser.test(username)){errMsg='Pseudo : 2 à 24 caractères (lettres, chiffres, _ ou -).';renderAcct();return;}
+    if((password||'').length<6){errMsg='Mot de passe : 6 caractères minimum.';renderAcct();return;}
+    busy=true;renderAcct();
+    try{
+      if(await usernameTaken(username))throw new Error('Ce pseudo est déjà pris.');
+      pendingUsername=username;try{localStorage.setItem('liremarx.pendinguser',username);}catch(e){}
+      const res=await sb.auth.signUp({email:email,password:password,options:{data:{username:username},emailRedirectTo:redirectURL()}});
       if(res.error)throw res.error;
-    }catch(e){toast('Envoi du lien echoue : '+(e.message||e));sentTo='';refreshAcct();}
+      if(res.data&&res.data.session)notice='Compte créé. Bienvenue, '+username+'.';
+      else{authMode='signin';notice='Compte créé. Confirme ton adresse via le mail reçu, puis connecte-toi.';}
+    }catch(e){errMsg='Inscription : '+(e.message||e);}
+    busy=false;renderAcct();
+  }
+  async function doSignIn(email,password){
+    if(!sb)return;errMsg='';notice='';busy=true;renderAcct();
+    try{const res=await sb.auth.signInWithPassword({email:email,password:password});if(res.error)throw res.error;}
+    catch(e){errMsg='Connexion : '+(e.message||e);}
+    busy=false;renderAcct();
+  }
+  async function doReset(email){
+    if(!sb)return;errMsg='';notice='';
+    try{const res=await sb.auth.resetPasswordForEmail(email,{redirectTo:redirectURL()});if(res.error)throw res.error;
+      notice='Si un compte existe pour cette adresse, un mail de réinitialisation vient de partir.';}
+    catch(e){errMsg='Réinitialisation : '+(e.message||e);}
+    renderAcct();
+  }
+  async function setNewPassword(password){
+    if(!sb)return;errMsg='';notice='';
+    if((password||'').length<6){errMsg='Mot de passe : 6 caractères minimum.';renderAcct();return;}
+    busy=true;renderAcct();
+    try{const res=await sb.auth.updateUser({password:password});if(res.error)throw res.error;recovery=false;notice='Mot de passe enregistré.';}
+    catch(e){errMsg='Mot de passe : '+(e.message||e);}
+    busy=false;renderAcct();
   }
   async function signOut(){try{if(sb)await sb.auth.signOut();}catch(e){}}
 
-  function setSession(session){
+  async function setSession(session){
     user=(session&&session.user)||null;
-    if(user){sentTo='';authView=false;pullAll();}
-    refreshAcct();
+    if(user){
+      await loadProfile();
+      if(!profile){
+        let pu=pendingUsername;
+        if(!pu&&user.user_metadata&&user.user_metadata.username)pu=user.user_metadata.username;
+        if(!pu){try{pu=localStorage.getItem('liremarx.pendinguser')||'';}catch(e){}}
+        if(pu&&reUser.test(pu)&&!(await usernameTaken(pu))){const r=await saveUsername(pu);if(r.ok){try{localStorage.removeItem('liremarx.pendinguser');}catch(e){}}}
+      }
+      pullAll();
+    }else{profile=null;}
+    renderAcct();refreshAcct();
   }
 
   async function initSync(){
-    const ph = CONFIG.url.indexOf('VOTRE')>=0 || CONFIG.anon.indexOf('VOTRE')>=0;
-    if(ph||!CONFIG.url||!CONFIG.anon){configured=false;return;}
+    const ph=CONFIG.url.indexOf('VOTRE')>=0||CONFIG.anon.indexOf('VOTRE')>=0;
+    if(ph||!CONFIG.url||!CONFIG.anon){configured=false;renderAcct();return;}
     configured=true;
     try{
       const m=await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
       sb=m.createClient(CONFIG.url,CONFIG.anon);
-      sb.auth.onAuthStateChange((_ev,session)=>setSession(session));
+      sb.auth.onAuthStateChange((ev,session)=>{if(ev==='PASSWORD_RECOVERY'){recovery=true;try{activateTab('compte');}catch(e){}}setSession(session);});
       const res=await sb.auth.getSession();
-      setSession(res.data&&res.data.session);
-    }catch(e){sb=null;configured=false;toast('Synchro indisponible (chargement du client echoue).');}
-    refreshAcct();
+      await setSession(res.data&&res.data.session);
+    }catch(e){sb=null;configured=false;toast('Compte indisponible (chargement du client échoué).');}
+    renderAcct();
   }
 
+  /* ---------- vue de l onglet Mon compte ---------- */
+  function noteCount(){let n=0;Object.keys(store).forEach(k=>{if(k.indexOf(WORK+'|')===0)n+=(store[k]||[]).length;});return n;}
+  function field(el,id){const x=el.querySelector('#'+id);return x?x.value:'';}
+  function renderAcct(){
+    const el=document.getElementById('acctView');if(!el)return;
+    const err=errMsg?'<div class="ac-err">'+escapeHtml(errMsg)+'</div>':'';
+    const ok=notice?'<div class="ac-ok">'+escapeHtml(notice)+'</div>':'';
+    let h='';
+    if(!configured){
+      h='<div class="ac-card"><h3>Compte non configuré</h3><p class="ac-p">La synchronisation par compte n’est pas encore branchée : il reste à renseigner les clés Supabase dans le fichier (bloc <code>CONFIG</code>, en haut du script). En attendant, tes annotations sont conservées localement sur cet appareil.</p></div>';
+    }else if(recovery){
+      h='<div class="ac-card"><h3>Choisir un nouveau mot de passe</h3>'+err+ok
+        +'<input type="password" id="acNew" placeholder="nouveau mot de passe (6 caractères min.)" autocomplete="new-password">'
+        +'<div class="ac-row"><button class="btn red" data-act="setpw" type="button"'+(busy?' disabled':'')+'>Enregistrer</button></div></div>';
+    }else if(user){
+      const pseudo=(profile&&profile.username)||'';
+      const initial=escapeHtml((pseudo||user.email||'?').slice(0,1).toUpperCase());
+      const nc=noteCount();const s=nc>1?'s':'';
+      h='<div class="ac-card"><h3>Mon compte</h3>'+err+ok
+        +'<div class="ac-id"><span class="ac-ava">'+initial+'</span><div><div class="ac-pseudo">'+(pseudo?escapeHtml(pseudo):'<i>sans pseudo</i>')+'</div><div class="ac-mail">'+escapeHtml(user.email||'')+'</div></div></div>'
+        +'<label class="ac-lab">Pseudo public</label>'
+        +'<div class="ac-row"><input type="text" id="acUser" value="'+escapeHtml(pseudo)+'" placeholder="ton-pseudo" maxlength="24"><button class="btn" data-act="saveuser" type="button">Enregistrer</button></div>'
+        +'<p class="ac-note">Ce pseudo apparaîtra à côté de tes notes publiques (à venir) ; ton e-mail, jamais.</p>'
+        +'<div class="ac-stat">'+nc+' annotation'+s+' reliée'+s+' à ce compte et synchronisée'+s+'.</div>'
+        +'<div class="ac-row ac-end"><button class="lk" data-act="signout" type="button">Se déconnecter</button></div></div>';
+    }else{
+      const signup=authMode==='signup';
+      h='<div class="ac-card"><div class="ac-tabs">'
+        +'<button class="ac-t'+(signup?'':' on')+'" data-act="mode-signin" type="button">Se connecter</button>'
+        +'<button class="ac-t'+(signup?' on':'')+'" data-act="mode-signup" type="button">Créer un compte</button></div>'+err+ok
+        +'<input type="email" id="acEmail" placeholder="adresse e-mail" autocomplete="email">'
+        +(signup?'<input type="text" id="acUser" placeholder="pseudo public (2 à 24 caractères)" maxlength="24">':'')
+        +'<input type="password" id="acPw" placeholder="mot de passe" autocomplete="'+(signup?'new-password':'current-password')+'">'
+        +'<div class="ac-row"><button class="btn red" data-act="'+(signup?'do-signup':'do-signin')+'" type="button"'+(busy?' disabled':'')+'>'+(busy?'…':(signup?'Créer mon compte':'Se connecter'))+'</button>'
+        +(signup?'':'<button class="lk" data-act="reset" type="button">Mot de passe oublié ?</button>')+'</div>'
+        +'<p class="ac-note">'+(signup?'Tu choisis un pseudo public et un mot de passe ; ton adresse e-mail reste privée.':'Retrouve et synchronise tes annotations sur tous tes appareils.')+'</p></div>';
+    }
+    el.innerHTML=h;
+    el.querySelectorAll('[data-act]').forEach(b=>{
+      b.onclick=()=>{
+        const a=b.dataset.act;
+        if(a==='mode-signin'){authMode='signin';errMsg='';notice='';renderAcct();}
+        else if(a==='mode-signup'){authMode='signup';errMsg='';notice='';renderAcct();}
+        else if(a==='do-signin'){doSignIn(field(el,'acEmail').trim(),field(el,'acPw'));}
+        else if(a==='do-signup'){doSignUp(field(el,'acEmail').trim(),field(el,'acPw'),field(el,'acUser').trim());}
+        else if(a==='reset'){const em=field(el,'acEmail').trim();if(!em){errMsg='Indique d’abord ton adresse e-mail.';notice='';renderAcct();}else doReset(em);}
+        else if(a==='setpw'){setNewPassword(field(el,'acNew'));}
+        else if(a==='saveuser'){errMsg='';notice='';saveUsername(field(el,'acUser').trim()).then(r=>{if(r.ok)notice='Pseudo enregistré.';else errMsg=r.msg;renderAcct();});}
+        else if(a==='signout'){signOut();}
+      };
+    });
+  }
+
+  /* statut compact dans le panneau Mes notes */
   function acctHtml(){
-    if(!configured)
-      return '<div class="np-acct"><span class="dot"></span>Synchronisation par compte : <b>a configurer</b> (cles Supabase dans le fichier).</div>';
-    if(user)
-      return '<div class="np-acct on"><span class="dot"></span>Synchronise &middot; <b>'+escapeHtml(user.email||'compte')+'</b><span style="margin-left:auto"></span><button class="lk" data-act="signout" type="button">Se deconnecter</button></div>';
-    if(authView)
-      return '<div class="np-acct"><span class="dot"></span><input type="email" id="annoEmail" placeholder="ton@email" value="'+escapeHtml(sentTo)+'"><button class="btn red" data-act="sendlink" type="button">Recevoir un lien</button><button class="lk" data-act="cancel" type="button">Annuler</button></div>';
-    if(sentTo)
-      return '<div class="np-acct"><span class="dot"></span>Lien de connexion envoye a <b>'+escapeHtml(sentTo)+'</b>. Ouvre-le sur cet appareil. <button class="lk" data-act="login" type="button">Autre adresse</button></div>';
-    return '<div class="np-acct"><span class="dot"></span>Notes locales sur cet appareil.<span style="margin-left:auto"></span><button class="lk" data-act="login" type="button">Se connecter pour synchroniser</button></div>';
+    if(!configured)return '<div class="np-acct"><span class="dot"></span>Notes locales (compte non configuré).</div>';
+    if(user){const p=(profile&&profile.username)||user.email||'compte';
+      return '<div class="np-acct on"><span class="dot"></span>Synchronisé &middot; <b>'+escapeHtml(p)+'</b><span style="margin-left:auto"></span><button class="lk" data-act="goacct" type="button">Mon compte</button></div>';}
+    return '<div class="np-acct"><span class="dot"></span>Non connecté — notes locales.<span style="margin-left:auto"></span><button class="lk" data-act="goacct" type="button">Se connecter</button></div>';
   }
   function wireAcct(){
     if(!panel)return;const row=panel.querySelector('.np-acct');if(!row)return;
-    const g=a=>row.querySelector('[data-act="'+a+'"]');
-    const login=g('login');if(login)login.onclick=()=>{authView=true;renderPanel();const i=panel.querySelector('#annoEmail');if(i)i.focus();};
-    const cancel=g('cancel');if(cancel)cancel.onclick=()=>{authView=false;renderPanel();};
-    const send=g('sendlink');if(send)send.onclick=()=>{const i=panel.querySelector('#annoEmail');const em=((i&&i.value)||'').trim();
-      if(!em||em.indexOf('@')<1){toast('Indique une adresse e-mail valide.');return;}
-      sentTo=em;authView=false;renderPanel();signIn(em);};
-    const out=g('signout');if(out)out.onclick=()=>{signOut();};
+    const g=row.querySelector('[data-act="goacct"]');
+    if(g)g.onclick=()=>{try{activateTab('compte');window.scrollTo({top:0,behavior:'smooth'});}catch(e){}};
   }
   function refreshAcct(){if(panel&&!panel.hidden)renderPanel();}
 
