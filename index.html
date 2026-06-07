@@ -1334,6 +1334,7 @@ if(loadBtn)loadBtn.addEventListener('click',()=>showSelection(true));
 sel.addEventListener('change',()=>{
   const out=document.getElementById('readerOut');
   out.innerHTML='<div class="reader"><div class="placeholder"><div class="pi">📖</div><b>Prêt à charger.</b><br><span style="font-size:.9rem">Clique sur « Charger le texte intégral » pour afficher ce chapitre.</span></div></div>';
+  try{const nn=+sel.value.split('|')[0];if(window.Anno&&nn)window.Anno.context(nn);}catch(e){}
 });
 
 /* ---- Concepts ---- */
@@ -1460,7 +1461,7 @@ drawTRPF();
   const WORK='capital';
   const KEY='liremarx.anno.v1';
   const COLORS=[['gold','Or'],['red','Rouge'],['blue','Bleu'],['green','Vert']];
-  let box=null,curN=0,store={},persistOK=true,bar=null,pop=null;
+  let box=null,curN=0,store={},persistOK=true,bar=null,pop=null,pendingJump=null;
   const panel=document.getElementById('notesPanel');
   const toggle=document.getElementById('notesToggle');
 
@@ -1862,18 +1863,17 @@ drawTRPF();
 
   /* --- popover note --- */
   function openPop(id){
-    const an=findAnn(id);if(!an||!box)return;
+    const an=findAnn(id);if(!an)return;
     if(!pop){pop=document.createElement('div');pop.className='anno-pop';document.body.appendChild(pop);}
     let sw='';COLORS.forEach(c=>{sw+='<button class="anno-sw c-'+c[0]+(c[0]===an.color?' on':'')+'" data-c="'+c[0]+'"></button>';});
     pop.innerHTML='<div class="anno-pop-q">« '+escapeHtml(an.quote.slice(0,140))+(an.quote.length>140?'…':'')+' »</div>'
       +'<div class="anno-pop-sw">'+sw+'</div>'
       +'<textarea class="anno-pop-t" placeholder="Ta note…">'+escapeHtml(an.note||'')+'</textarea>'
       +'<div class="anno-pop-act"><button class="btn red" data-act="save" type="button">Enregistrer</button><button class="lk" data-act="del" type="button">Supprimer</button></div>';
-    const first=box.querySelector('mark[data-anno="'+id+'"]');
-    const rect=(first||box).getBoundingClientRect();
+    const first=box?box.querySelector('mark[data-anno="'+id+'"]'):null;
     pop.style.display='block';
-    pop.style.top=(window.scrollY+rect.bottom+8)+'px';
-    pop.style.left=Math.max(6,window.scrollX+rect.left)+'px';
+    if(first){const rect=first.getBoundingClientRect();pop.style.top=(window.scrollY+rect.bottom+8)+'px';pop.style.left=Math.max(6,window.scrollX+rect.left)+'px';}
+    else{pop.style.top=(window.scrollY+100)+'px';pop.style.left=(window.scrollX+20)+'px';}
     const ta=pop.querySelector('.anno-pop-t');ta.focus();
     pop.querySelectorAll('[data-c]').forEach(b=>b.addEventListener('click',()=>{pop.querySelectorAll('.anno-sw').forEach(x=>x.classList.remove('on'));b.classList.add('on');}));
     pop.querySelector('[data-act="save"]').onclick=()=>{
@@ -1902,7 +1902,7 @@ drawTRPF();
     panel.innerHTML=h;
     wireAcct();
     const cl=panel.querySelector('#annoClose');if(cl)cl.onclick=()=>{panel.hidden=true;};
-    panel.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>gotoAnn(b.dataset.go)));
+    panel.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>requestJumpPriv(b.dataset.go)));
     panel.querySelectorAll('[data-ed]').forEach(b=>b.addEventListener('click',()=>openPop(b.dataset.ed)));
     const ex=panel.querySelector('#annoExport');if(ex)ex.onclick=exportAll;
     const im=panel.querySelector('#annoImport');if(im)im.onclick=importAll;
@@ -1912,6 +1912,17 @@ drawTRPF();
     m.scrollIntoView({behavior:'smooth',block:'center'});
     box.querySelectorAll('mark[data-anno="'+id+'"]').forEach(x=>x.classList.add('flashmk'));
     setTimeout(()=>{if(box)box.querySelectorAll('mark[data-anno="'+id+'"]').forEach(x=>x.classList.remove('flashmk'));},1400);
+  }
+  function triggerLoad(){const lb=document.getElementById('loadBtn');if(lb){lb.click();return true;}return false;}
+  function requestJumpPriv(id){
+    if(box&&box.querySelector('mark[data-anno="'+id+'"]')){gotoAnn(id);return;}
+    pendingJump=function(){gotoAnn(id);};
+    if(!triggerLoad()){pendingJump=null;toast('Charge le texte du chapitre pour aller au passage.');}
+  }
+  function requestJumpPub(n){
+    if(box){flashAnchor(n);return;}
+    pendingJump=function(){flashAnchor(n);};
+    if(!triggerLoad()){pendingJump=null;toast('Charge le texte du chapitre pour aller au passage.');}
   }
   function exportAll(){
     const blob=new Blob([JSON.stringify(store,null,2)],{type:'application/json'});
@@ -2101,8 +2112,8 @@ drawTRPF();
     const cl=pp.querySelector('#pubClose');if(cl)cl.onclick=()=>{pp.hidden=true;};
     pp.querySelectorAll('[data-modview]').forEach(b=>b.onclick=()=>{modView=!modView;renderPublic();});
     pp.querySelectorAll('[data-pa="login"]').forEach(b=>b.onclick=()=>openAcctModal());
-    pp.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{const n=pubNotes.find(x=>x.id===b.dataset.go);if(n)flashAnchor(n);});
-    pp.querySelectorAll('[data-goq]').forEach(b=>b.onclick=()=>{const g=groups.find(x=>x.note.id===b.dataset.goq);if(g)flashAnchor(g.note);});
+    pp.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{const n=pubNotes.find(x=>x.id===b.dataset.go);if(n)requestJumpPub(n);});
+    pp.querySelectorAll('[data-goq]').forEach(b=>b.onclick=()=>{const g=groups.find(x=>x.note.id===b.dataset.goq);if(g)requestJumpPub(g.note);});
     pp.querySelectorAll('[data-reply]').forEach(b=>b.onclick=()=>{replyOpen=(replyOpen===b.dataset.reply)?null:b.dataset.reply;reportOpen=null;renderPublic();const ta=pp.querySelector('.pub-rta');if(ta)ta.focus();});
     pp.querySelectorAll('[data-replycancel]').forEach(b=>b.onclick=()=>{replyOpen=null;renderPublic();});
     pp.querySelectorAll('[data-sendreply]').forEach(b=>b.onclick=()=>{const ta=pp.querySelector('.pub-rta');addReply(b.dataset.sendreply,ta?ta.value:'');});
@@ -2129,7 +2140,18 @@ drawTRPF();
   wireAcctChrome();
   initSync();
 
-  window.Anno={mount:function(n,container){closePop();closePubCompose();hideBar();curN=n;box=container;replyOpen=null;if(!box)return;renderHighlights();if(panel&&!panel.hidden)renderPanel();loadPublic();}};
+  function setChapter(n,container){
+    closePop();closePubCompose();hideBar();
+    curN=n;box=container||null;replyOpen=null;reportOpen=null;
+    if(box)renderHighlights();
+    if(panel&&!panel.hidden)renderPanel();
+    loadPublic();
+    if(box&&pendingJump){const pj=pendingJump;pendingJump=null;setTimeout(pj,90);}
+  }
+  window.Anno={
+    mount:function(n,container){setChapter(n,container);},
+    context:function(n){setChapter(n,null);}
+  };
 })();
 </script>
 </body>
