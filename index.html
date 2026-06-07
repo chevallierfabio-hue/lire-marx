@@ -341,6 +341,26 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
 .acct-modal-x{position:absolute;top:-12px;right:-12px;z-index:1;width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:1.4rem;line-height:1;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.2);}
 .acct-modal-x:hover{border-color:var(--red);color:var(--red);}
 @media(max-width:560px){.acct-chip{top:10px;right:10px;font-size:.78rem;padding:6px 11px;}}
+.pub-hint{font-size:.82rem;color:var(--ink-soft);font-style:italic;margin:0 0 10px;}
+.pub-empty{color:var(--ink-soft);font-style:italic;font-size:.9rem;}
+.pub-note{padding:12px 0;border-top:1px solid var(--line-soft);}
+.pub-note:first-of-type{border-top:none;}
+.pub-meta{display:flex;align-items:baseline;gap:8px;margin-bottom:3px;}
+.pub-author{font-family:'Fraunces',serif;font-weight:600;font-size:.9rem;color:var(--red-deep);}
+.pub-date{font-size:.74rem;color:var(--ink-soft);}
+.pub-q{font-style:italic;color:var(--ink-soft);font-size:.84rem;border-left:2px solid var(--line);padding-left:8px;margin:3px 0;cursor:pointer;}
+.pub-q:hover{color:var(--ink);}
+.pub-body{font-size:.95rem;line-height:1.5;margin:3px 0;white-space:pre-wrap;}
+.pub-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:3px;}
+.pub-replies{margin:8px 0 0 6px;padding-left:12px;border-left:2px solid var(--line-soft);}
+.pub-reply{padding:6px 0;}
+.pub-replybox{margin-top:8px;}
+.pub-replybox textarea,.pub-compose textarea{width:100%;box-sizing:border-box;min-height:58px;font-family:'Spectral',serif;font-size:.92rem;padding:8px 10px;border:1px solid var(--line);border-radius:7px;background:var(--paper);color:var(--ink);resize:vertical;}
+.pub-compose{position:absolute;z-index:100;width:330px;max-width:92vw;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;box-shadow:0 14px 34px -10px rgba(0,0,0,.4);}
+.pub-compose-act{display:flex;align-items:center;justify-content:space-between;margin-top:10px;}
+.anno-bar .share-btn{font-family:'Fraunces',serif;font-size:.76rem;color:var(--paper);background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.45);border-radius:6px;padding:4px 10px;cursor:pointer;margin-left:2px;}
+.anno-bar .share-btn:hover{background:rgba(255,255,255,.3);}
+.pub-flash{background:rgba(154,123,53,.30);border-radius:3px;transition:background .5s;}
 </style>
 </head>
 <body>
@@ -563,10 +583,12 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
       <select id="chapSelect" aria-label="Choisir un chapitre"></select>
       <button id="loadBtn" class="btn red" type="button">Charger le texte intégral →</button>
       <button id="notesToggle" class="btn" type="button">Mes notes</button>
+      <button id="pubToggle" class="btn" type="button">Notes partagées</button>
     </div>
     <div class="anno-hint">Une fois le texte chargé : <b>sélectionne un passage</b> pour le surligner, puis <b>clique le surlignage</b> pour y attacher une note. Tout reste sur cet appareil (sauvegarde locale) ; tu peux aussi te connecter, depuis le panneau <b>« Mes notes »</b>, pour synchroniser tes annotations entre tes appareils.</div>
     <div id="readerOut"><div class="reader"><div class="placeholder"><div class="pi">📖</div><b>Choisis un chapitre ci-dessus, puis clique sur « Charger le texte intégral ».</b><br><span style="font-size:.9rem">Le texte complet du chapitre s'affichera ici.</span></div></div></div>
     <div id="notesPanel" class="notes-panel" hidden></div>
+    <div id="publicPanel" class="notes-panel pub-panel" hidden></div>
   </section>
 
   <!-- LABORATOIRE -->
@@ -1743,9 +1765,10 @@ drawTRPF();
     bar=document.createElement('div');bar.className='anno-bar';
     let h='<span class="anno-bar-l">Surligner</span>';
     COLORS.forEach(c=>{h+='<button class="anno-sw c-'+c[0]+'" data-c="'+c[0]+'" title="'+c[1]+'"></button>';});
+    h+='<button class="share-btn" data-share="1" type="button">Partager</button>';
     bar.innerHTML=h;
     bar.addEventListener('mousedown',e=>e.preventDefault());
-    bar.addEventListener('click',e=>{const b=e.target.closest('[data-c]');if(b)addFromSelection(b.dataset.c);});
+    bar.addEventListener('click',e=>{const c=e.target.closest('[data-c]');if(c){addFromSelection(c.dataset.c);return;}const s=e.target.closest('[data-share]');if(s)shareFromSelection();});
     document.body.appendChild(bar);
     return bar;
   }
@@ -1760,6 +1783,7 @@ drawTRPF();
   }
   function onSelect(){
     if(pop&&pop.style.display!=='none')return;
+    if(pubPop&&pubPop.style.display!=='none')return;
     const r=selectionInBox();
     if(!r){hideBar();return;}
     ensureBar();
@@ -1844,17 +1868,137 @@ drawTRPF();
     inp.click();
   }
 
+  /* ===== Notes partagées (forum public) ===== */
+  let pubNotes=[],pubPop=null,replyOpen=null;
+  function fmtDate(ms){try{return new Date(ms).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'});}catch(e){return '';}}
+  function ensurePosterSilent(){return !!(configured&&sb&&user&&profile&&profile.username);}
+  function ensurePoster(){
+    if(!configured||!sb){toast('Le compte n’est pas configuré.');return false;}
+    if(!user){openAcctModal();return false;}
+    if(!(profile&&profile.username)){toast('Choisis d’abord un pseudo (Mon compte).');openAcctModal();return false;}
+    return true;
+  }
+  async function loadPublic(){
+    pubNotes=[];
+    if(!sb){renderPublic();return;}
+    try{
+      const res=await sb.from('public_notes')
+        .select('id,author_id,section,before,quote,after,body,parent_id,created,profiles(username)')
+        .eq('work',WORK).eq('section',curN).order('created',{ascending:true});
+      if(res.error)throw res.error;
+      const rows=res.data||[],tops={},reps=[];
+      rows.forEach(r=>{r.author=(r.profiles&&r.profiles.username)||'(compte supprimé)';
+        if(r.parent_id){reps.push(r);}else{r.replies=[];tops[r.id]=r;}});
+      reps.forEach(r=>{if(tops[r.parent_id])tops[r.parent_id].replies.push(r);});
+      pubNotes=Object.keys(tops).map(k=>tops[k]).sort((a,b)=>a.created-b.created);
+    }catch(e){toast('Notes partagées : '+(e.message||e));}
+    renderPublic();
+  }
+  async function addPublic(anchor,body){
+    if(!ensurePoster())return;
+    body=(body||'').trim();if(!body){toast('Écris ta note.');return;}
+    const row={id:uid(),author_id:user.id,work:WORK,section:curN,before:anchor.before,quote:anchor.quote,after:anchor.after,body:body,parent_id:null,created:Date.now()};
+    const res=await sb.from('public_notes').insert(row);
+    if(res.error){toast('Publication : '+res.error.message);return;}
+    closePubCompose();
+    const pp=document.getElementById('publicPanel');if(pp&&pp.hidden){pp.hidden=false;if(panel)panel.hidden=true;}
+    await loadPublic();
+  }
+  async function addReply(parentId,body){
+    if(!ensurePoster())return;
+    body=(body||'').trim();if(!body)return;
+    const row={id:uid(),author_id:user.id,work:WORK,section:curN,body:body,parent_id:parentId,created:Date.now()};
+    const res=await sb.from('public_notes').insert(row);
+    if(res.error){toast('Réponse : '+res.error.message);return;}
+    replyOpen=null;await loadPublic();
+  }
+  async function delPublic(id){
+    if(!sb||!user)return;
+    const res=await sb.from('public_notes').delete().eq('id',id);
+    if(res.error){toast('Suppression : '+res.error.message);return;}
+    await loadPublic();
+  }
+  function flashAnchor(an){
+    if(!box||!an.quote)return;
+    const probe=an.quote.replace(/\s+/g,' ').trim().slice(0,40);
+    const els=box.querySelectorAll('p,h2,h3,h4,h5,li,blockquote');let target=null;
+    for(let i=0;i<els.length;i++){if(els[i].textContent.replace(/\s+/g,' ').indexOf(probe)>=0){target=els[i];break;}}
+    if(!target&&probe.length>14){const short=probe.slice(0,16);for(let i=0;i<els.length;i++){if(els[i].textContent.replace(/\s+/g,' ').indexOf(short)>=0){target=els[i];break;}}}
+    if(target){target.scrollIntoView({behavior:'smooth',block:'center'});target.classList.add('pub-flash');setTimeout(()=>target.classList.remove('pub-flash'),1500);}
+    else toast('Passage introuvable dans ce chapitre.');
+  }
+  function shareFromSelection(){
+    const r=selectionInBox();if(!r){hideBar();return;}
+    const off=rangeOffsets(box,r);if(!off){hideBar();return;}
+    const ctx=contextFor(box.textContent,off.start,off.end);
+    let rect=null;try{rect=r.getBoundingClientRect();}catch(e){}
+    window.getSelection().removeAllRanges();hideBar();
+    if(!ensurePoster())return;
+    openPubCompose(ctx,rect);
+  }
+  function openPubCompose(anchor,rect){
+    if(!pubPop){pubPop=document.createElement('div');pubPop.className='pub-compose';document.body.appendChild(pubPop);}
+    pubPop.innerHTML='<div class="pub-q">« '+escapeHtml(anchor.quote.slice(0,160))+(anchor.quote.length>160?'…':'')+' »</div>'
+      +'<textarea class="pub-ta" placeholder="Ta note publique sur ce passage…"></textarea>'
+      +'<div class="pub-compose-act"><button class="lk" data-act="cancel" type="button">Annuler</button><button class="btn red" data-act="publish" type="button">Publier</button></div>';
+    let top=window.scrollY+120,left=window.scrollX+20;
+    if(rect){top=window.scrollY+rect.bottom+8;left=Math.max(8,window.scrollX+rect.left);}
+    pubPop.style.display='block';pubPop.style.top=top+'px';pubPop.style.left=left+'px';
+    const ta=pubPop.querySelector('.pub-ta');if(ta)ta.focus();
+    pubPop.querySelector('[data-act="cancel"]').onclick=closePubCompose;
+    pubPop.querySelector('[data-act="publish"]').onclick=()=>{addPublic(anchor,ta?ta.value:'');};
+  }
+  function closePubCompose(){if(pubPop)pubPop.style.display='none';}
+  function pubStatusHtml(){
+    if(!configured)return '<div class="np-acct"><span class="dot"></span>Notes partagées indisponibles (compte non configuré).</div>';
+    if(!user)return '<div class="np-acct"><span class="dot"></span>Connecte-toi pour participer.<span style="margin-left:auto"></span><button class="lk" data-pa="login" type="button">Se connecter</button></div>';
+    if(!(profile&&profile.username))return '<div class="np-acct"><span class="dot"></span>Choisis un pseudo pour publier.<span style="margin-left:auto"></span><button class="lk" data-pa="login" type="button">Mon compte</button></div>';
+    return '<div class="np-acct on"><span class="dot"></span>Tu participes en tant que <b>'+escapeHtml(profile.username)+'</b>.</div>';
+  }
+  function noteBlockHtml(n){
+    const mine=user&&n.author_id===user.id;
+    let h='<div class="pub-note" data-id="'+n.id+'"><div class="pub-meta"><span class="pub-author">'+escapeHtml(n.author)+'</span><span class="pub-date">'+fmtDate(n.created)+'</span></div>';
+    if(n.quote)h+='<div class="pub-q" data-go="'+n.id+'">« '+escapeHtml(n.quote.slice(0,140))+(n.quote.length>140?'…':'')+' »</div>';
+    h+='<div class="pub-body">'+escapeHtml(n.body)+'</div>';
+    h+='<div class="pub-acts"><button class="lk" data-go="'+n.id+'" type="button">Aller au passage</button><button class="lk" data-reply="'+n.id+'" type="button">Répondre'+(n.replies&&n.replies.length?' ('+n.replies.length+')':'')+'</button>'+(mine?'<button class="lk" data-del="'+n.id+'" type="button">Supprimer</button>':'')+'</div>';
+    if(n.replies&&n.replies.length){h+='<div class="pub-replies">';
+      n.replies.forEach(r=>{const rm=user&&r.author_id===user.id;
+        h+='<div class="pub-reply"><div class="pub-meta"><span class="pub-author">'+escapeHtml(r.author)+'</span><span class="pub-date">'+fmtDate(r.created)+'</span></div><div class="pub-body">'+escapeHtml(r.body)+'</div>'+(rm?'<div class="pub-acts"><button class="lk" data-del="'+r.id+'" type="button">Supprimer</button></div>':'')+'</div>';});
+      h+='</div>';}
+    if(replyOpen===n.id)h+='<div class="pub-replybox"><textarea class="pub-rta" placeholder="Ta réponse…"></textarea><div class="pub-compose-act"><button class="lk" data-replycancel="1" type="button">Annuler</button><button class="btn red" data-sendreply="'+n.id+'" type="button">Répondre</button></div></div>';
+    h+='</div>';return h;
+  }
+  function renderPublic(){
+    const pp=document.getElementById('publicPanel');if(!pp)return;
+    let h='<div class="np-head"><b>Notes partagées</b> <span class="np-n">'+pubNotes.length+'</span><span class="np-tools"><button class="lk" id="pubClose" type="button">Fermer</button></span></div>'+pubStatusHtml();
+    if(ensurePosterSilent())h+='<div class="pub-hint">Sélectionne un passage du texte, puis « Partager » pour ouvrir une note publique.</div>';
+    if(!pubNotes.length)h+='<div class="pub-empty">Aucune note partagée sur ce chapitre pour l’instant.</div>';
+    else pubNotes.forEach(n=>{h+=noteBlockHtml(n);});
+    pp.innerHTML=h;
+    const cl=pp.querySelector('#pubClose');if(cl)cl.onclick=()=>{pp.hidden=true;};
+    pp.querySelectorAll('[data-pa="login"]').forEach(b=>b.onclick=()=>openAcctModal());
+    pp.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{const n=pubNotes.find(x=>x.id===b.dataset.go);if(n)flashAnchor(n);});
+    pp.querySelectorAll('[data-reply]').forEach(b=>b.onclick=()=>{replyOpen=(replyOpen===b.dataset.reply)?null:b.dataset.reply;renderPublic();const ta=pp.querySelector('.pub-rta');if(ta)ta.focus();});
+    pp.querySelectorAll('[data-replycancel]').forEach(b=>b.onclick=()=>{replyOpen=null;renderPublic();});
+    pp.querySelectorAll('[data-sendreply]').forEach(b=>b.onclick=()=>{const ta=pp.querySelector('.pub-rta');addReply(b.dataset.sendreply,ta?ta.value:'');});
+    pp.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{delPublic(b.dataset.del);});
+  }
+
   /* --- écouteurs globaux --- */
   document.addEventListener('mouseup',e=>{if(e.target.closest&&e.target.closest('.anno-bar,.anno-pop'))return;setTimeout(onSelect,0);});
-  document.addEventListener('mousedown',e=>{if(!(e.target.closest&&e.target.closest('.anno-bar,.anno-pop,mark.anno')))closePop();});
+  document.addEventListener('mousedown',e=>{const t=e.target;
+    if(!(t.closest&&t.closest('.anno-bar,.anno-pop,mark.anno')))closePop();
+    if(!(t.closest&&t.closest('.anno-bar,.pub-compose')))closePubCompose();});
   document.addEventListener('click',e=>{const m=e.target.closest&&e.target.closest('mark.anno');if(m&&box&&box.contains(m)){e.preventDefault();openPop(m.dataset.anno);}});
   window.addEventListener('scroll',hideBar,{passive:true});
-  if(toggle&&panel)toggle.addEventListener('click',()=>{panel.hidden=!panel.hidden;if(!panel.hidden)renderPanel();});
+  if(toggle&&panel)toggle.addEventListener('click',()=>{const pp=document.getElementById('publicPanel');panel.hidden=!panel.hidden;if(!panel.hidden){if(pp)pp.hidden=true;renderPanel();}});
+  const pubToggle=document.getElementById('pubToggle'),pubPanelEl=document.getElementById('publicPanel');
+  if(pubToggle&&pubPanelEl)pubToggle.addEventListener('click',()=>{pubPanelEl.hidden=!pubPanelEl.hidden;if(!pubPanelEl.hidden){if(panel)panel.hidden=true;renderPublic();}});
 
   wireAcctChrome();
   initSync();
 
-  window.Anno={mount:function(n,container){closePop();hideBar();curN=n;box=container;if(!box)return;renderHighlights();if(panel&&!panel.hidden)renderPanel();}};
+  window.Anno={mount:function(n,container){closePop();closePubCompose();hideBar();curN=n;box=container;replyOpen=null;if(!box)return;renderHighlights();if(panel&&!panel.hidden)renderPanel();loadPublic();}};
 })();
 </script>
 </body>

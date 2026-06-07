@@ -69,11 +69,17 @@ en pages séparées + composants partagés.
   `supabase/schema.sql` ; le code client est intégré à `index.html`. Voir
   « Mise en route Supabase » ci-dessous.
 
-- **Phase 3 — notes publiques + modération**
-  Table d'annotations publiques lisible par tous, écriture réservée aux comptes,
-  outils de signalement / masquage / mise en avant, et notes éditoriales
-  intégrées. À cadrer avec une politique de modération et la conformité RGPD
-  (politique de confidentialité, consentement, droit à l'effacement).
+- **Phase 3 — notes publiques + modération** *(en cours)*
+  Table `public_notes` (forum) : notes publiques ancrées à un passage, avec
+  fils de réponses, lisibles par tous, écriture réservée aux comptes ayant un
+  pseudo. **Fait** : la mécanique (table + RLS, panneau « Notes partagées »
+  dans la liseuse, publication via « Partager » sur une sélection, réponses,
+  suppression de ses propres contributions, saut au passage). **À faire avant
+  d'ouvrir au public** : outils de signalement / masquage / mise en avant,
+  notes éditoriales, et la conformité RGPD (politique de confidentialité,
+  consentement, droit à l'effacement). Tant que ces garde-fous ne sont pas en
+  place, garder l'accès restreint (par ex. ne pas diffuser largement, ou
+  limiter les inscriptions).
 
 ---
 
@@ -94,8 +100,9 @@ Une fois un projet Supabase créé (https://supabase.com) :
    `supabase/schema.sql` → **Run**. Cela crée la table `annotations` et les
    politiques d'accès « chacun ne voit/écrit que les siennes ».
 2. **Authentification** — **Authentication → Providers** : laisser **Email**
-   activé. Le site utilise une **inscription e-mail + mot de passe** (onglet
-   « Mon compte »), avec pseudo public. Tu peux garder « Confirm email »
+   activé. Le site utilise une **inscription e-mail + mot de passe** (pastille
+   « compte » en haut à droite, présente sur tout le site), avec pseudo public.
+   Tu peux garder « Confirm email »
    activé (l'utilisateur confirme via un mail avant connexion) ou le
    désactiver (inscription instantanée). Puis
    **Authentication → URL Configuration** :
@@ -109,9 +116,10 @@ Une fois un projet Supabase créé (https://supabase.com) :
 > `index.html` commité. Ne jamais y mettre la clé `service_role`.
 
 Tant que les valeurs `CONFIG` restent les placeholders, le site reste en mode
-**local pur** (rien n'est envoyé). Une fois les clés en place, l'onglet
-**« Mon compte »** permet de **créer un compte** (e-mail + mot de passe +
-pseudo) ou de **se connecter**. Les notes locales déjà prises sont alors
+**local pur** (rien n'est envoyé). Une fois les clés en place, la **pastille
+« compte »** en haut à droite (présente partout, accueil compris) ouvre une
+fenêtre pour **créer un compte** (e-mail + mot de passe + pseudo) ou
+**se connecter**. Les notes locales déjà prises sont alors
 **téléversées automatiquement** (migration), puis synchronisées entre
 appareils, et reliées au compte par `user_id`. Le pseudo (table `profiles`)
 est l'identité publique réservée au futur forum ; l'e-mail reste privé.
