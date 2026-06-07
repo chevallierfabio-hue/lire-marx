@@ -2301,10 +2301,24 @@ try{if(window.Anno&&sel&&sel.value){const nn0=+sel.value.split('|')[0];if(nn0)wi
     });
     return made;
   }
+  function voiceScore(v){
+    var n=(v.name||'').toLowerCase(), s=0;
+    if(/google/.test(n)) s+=120;
+    if(/siri/.test(n)) s+=95;
+    if(/natural|neural|wavenet|studio|premium|enhanced|amélior/.test(n)) s+=80;
+    if(v.localService===false) s+=60;            // voix « en ligne » = en général bien plus naturelles
+    if(/thomas|aurélie|amélie|audrey|marie|julie|paul|hortense|chantal|nicolas/.test(n)) s+=25;
+    if(/^fr-fr/i.test(v.lang||'')) s+=10;
+    if(/compact|eloquence|espeak|pico|robot/.test(n)) s-=70;  // voix locales très synthétiques
+    return s;
+  }
+  function bestVoice(){
+    var fv=frVoices(); if(!fv.length)return null;
+    return fv.slice().sort(function(a,b){return voiceScore(b)-voiceScore(a);})[0];
+  }
   function pickVoice(){
-    var fv=frVoices();
     if(S.voice){ var m=voices.filter(function(v){return v.voiceURI===S.voice||v.name===S.voice;})[0]; if(m)return m; }
-    return fv[0]||null;
+    return bestVoice();
   }
   function buildQueue(){
     var q=[];
@@ -2439,11 +2453,15 @@ try{if(window.Anno&&sel&&sel.value){const nn0=+sel.value.split('|')[0];if(nn0)wi
   /* ---- voix ---- */
   function renderVoiceSelect(){
     if(!cur)return; var box=cur.readerEl.querySelector('[data-pop="audio"] .rd-vwrap'); if(!box)return;
-    var fv=frVoices();
     if(!synth){ box.innerHTML='<div class="rd-note">La synthèse vocale n’est pas disponible dans ce navigateur.</div>'; return; }
-    var opts='<option value="">Voix française par défaut</option>';
-    fv.forEach(function(v){ opts+='<option value="'+esc(v.voiceURI||v.name)+'"'+((S.voice===(v.voiceURI||v.name))?' selected':'')+'>'+esc(v.name)+'</option>'; });
-    var warn = fv.length?'' : '<div class="rd-note">Aucune voix française détectée sur ce système : la lecture utilisera la voix par défaut, dont la prononciation du français peut être approximative.</div>';
+    var fv=frVoices().slice().sort(function(a,b){return voiceScore(b)-voiceScore(a);});
+    var best=fv[0];
+    var auto = best ? ('Auto — la plus naturelle : '+best.name+(best.localService===false?' (en ligne)':'')) : 'Voix par défaut';
+    var opts='<option value="">'+esc(auto)+'</option>';
+    fv.forEach(function(v){ opts+='<option value="'+esc(v.voiceURI||v.name)+'"'+((S.voice===(v.voiceURI||v.name))?' selected':'')+'>'+esc(v.name)+(v.localService===false?' · en ligne':'')+'</option>'; });
+    var warn = fv.length
+      ? '<div class="rd-note">La voix la plus humaine est choisie automatiquement. Les voix « en ligne » (Google sur Chrome, Siri/améliorées sur Mac et iPhone) sont de loin les plus naturelles — c’est dans Chrome que le français sonne le mieux.</div>'
+      : '<div class="rd-note">Aucune voix française détectée : ouvre le fichier dans Chrome (voix Google en ligne) ou installe une voix française améliorée dans les réglages de ton système pour une lecture naturelle.</div>';
     box.innerHTML='<div class="rd-setrow"><span class="lab">Voix</span><select class="rd-vsel" data-rd-voice>'+opts+'</select></div>'+warn;
     var sels=box.querySelector('[data-rd-voice]');
     if(sels)sels.onchange=function(){ S.voice=sels.value; saveS(); };
