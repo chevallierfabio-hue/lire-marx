@@ -45,8 +45,9 @@ Cloudflare Pages depuis un dépôt GitHub, puis enrichi d'un backend Supabase.
 ```
 lire-marx/
 ├── index.html         # le site : accueil + atelier du Capital + annotation/synchro
+├── config.js          # tes clés Supabase (à remplir une fois ; jamais écrasé)
 ├── supabase/
-│   └── schema.sql     # table `annotations` + politiques d'accès (Phase 2)
+│   └── schema.sql     # tables `annotations`, `profiles`, `public_notes` + RLS
 └── README.md
 ```
 
@@ -109,11 +110,13 @@ Une fois un projet Supabase créé (https://supabase.com) :
    - **Site URL** : `https://<projet>.pages.dev`
    - **Redirect URLs** : `https://<projet>.pages.dev/**`
 3. **Clés** — **Project Settings → API** : copier **Project URL** et la clé
-   **anon public**, puis les coller dans `index.html`, dans le bloc `CONFIG`
-   en haut du module de synchronisation (cherche `VOTRE-PROJET`).
+   **Publishable** (`sb_publishable_…`) — ou la clé **anon** (onglet *Legacy
+   API Keys*) pour un projet ancien. Les coller dans **`config.js`** (les deux
+   champs `url` et `anon`). Ne **jamais** y mettre la clé `service_role`.
 
-> La clé `anon` est **publique par conception** : elle peut figurer dans
-> `index.html` commité. Ne jamais y mettre la clé `service_role`.
+> Les clés vivent dans `config.js`, **pas** dans `index.html` : tu les remplis
+> une fois, et les mises à jour d'`index.html` ne les écrasent jamais. (Si
+> `config.js` est absent ou laissé en placeholder, le site reste 100 % local.)
 
 Tant que les valeurs `CONFIG` restent les placeholders, le site reste en mode
 **local pur** (rien n'est envoyé). Une fois les clés en place, la **pastille

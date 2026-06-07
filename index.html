@@ -362,6 +362,7 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
 .anno-bar .share-btn:hover{background:rgba(255,255,255,.3);}
 .pub-flash{background:rgba(154,123,53,.30);border-radius:3px;transition:background .5s;}
 </style>
+<script src="config.js"></script>
 </head>
 <body>
 <button id="acctChip" class="acct-chip" type="button" aria-haspopup="dialog" style="display:none">Se connecter</button>
@@ -1448,15 +1449,13 @@ drawTRPF();
   /* ============================================================
      SYNCHRONISATION SUPABASE (Phase 2)
      ------------------------------------------------------------
-     1. Colle ci-dessous l URL de ton projet et la cle "anon"
-        publique (Project Settings -> API). Tant que ces valeurs
-        restent les placeholders, l appli fonctionne en local
-        exactement comme avant, sans rien tenter de distant.
-     2. Execute supabase/schema.sql dans l editeur SQL Supabase.
-     3. Dans Authentication -> URL Configuration, ajoute l URL de
-        ton site (https://...pages.dev) en Site URL et en Redirect.
-     La cle "anon" est PUBLIQUE par conception : elle peut vivre
-     dans ce fichier. Ne colle jamais la cle "service_role" ici.
+     Les clés se renseignent dans le fichier séparé config.js
+     (chargé avant ce script), PAS ici. Ainsi tes clés survivent
+     à toutes les mises à jour de ce fichier index.html.
+     Les valeurs ci-dessous ne servent que de repli si config.js
+     est absent. Tant qu'elles restent des placeholders et que
+     config.js n'est pas rempli, l'appli reste 100 % locale.
+     N'utilise jamais la clé "service_role" (garde-la secrète).
      ============================================================ */
   const CONFIG = (window.LIREMARX_SUPABASE) || {
     url:  'https://VOTRE-PROJET.supabase.co',
