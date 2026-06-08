@@ -29,6 +29,11 @@ nav.tabs{position:sticky;top:0;z-index:40;background:var(--paper);border-top:1px
 .tab .num{color:var(--red);font-style:italic;margin-right:6px;}
 .tab:hover{color:var(--ink);}.tab.active{color:var(--ink);}
 .tab.active::after{content:"";position:absolute;left:14px;right:14px;bottom:-2px;height:3px;background:var(--red);}
+nav.subnav{display:flex;flex-wrap:wrap;justify-content:center;gap:4px;margin:16px 0 2px;}
+.subnavbtn{font-family:'Fraunces',serif;font-weight:600;font-size:1rem;background:none;border:none;cursor:pointer;color:var(--ink-soft);padding:9px 17px;position:relative;transition:color .18s;}
+.subnavbtn:hover{color:var(--ink);}
+.subnavbtn.active{color:var(--ink);}
+.subnavbtn.active::after{content:"";position:absolute;left:14px;right:14px;bottom:2px;height:3px;background:var(--gold-deep);border-radius:2px;}
 .panel{display:none;padding-top:30px;animation:fade .4s ease;}.panel.active{display:block;}
 @keyframes fade{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
 .lead{font-size:1.06rem;color:var(--ink-soft);max-width:730px;margin-bottom:22px;font-style:italic;}
@@ -193,6 +198,48 @@ svg.exchange{width:100%;height:auto;display:block;margin:22px 0 6px;font-family:
 .field-block p{color:var(--ink-soft);font-size:1rem;line-height:1.6;}.field-block p b{color:var(--ink);}
 .motor{margin:0 0 6px 78px;font-size:.84rem;font-style:italic;color:var(--red);display:flex;align-items:center;gap:8px;}.motor::before{content:"↓";font-style:normal;font-size:1.1rem;}
 .closing{margin-top:24px;text-align:center;font-style:italic;color:var(--ink-soft);font-size:.96rem;}
+.stairmap-wrap{margin-bottom:16px;}
+svg.stairmap{width:100%;height:auto;display:block;background:var(--card);border:1px solid var(--line);border-radius:8px;}
+.stair-node{cursor:pointer;}
+.stair-node circle{transition:r .15s ease;}
+.stair-node:hover circle{stroke:var(--ink);}
+.stair-node.on circle{stroke:var(--ink);stroke-width:3;}
+.stair-caption{text-align:center;font-family:'Fraunces',serif;font-size:.96rem;color:var(--ink-soft);margin:11px 0 2px;}
+.stair-caption b{color:var(--ink);}
+.step-links{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:14px;padding-top:13px;border-top:1px solid var(--line-soft);}
+.step-links-lab{font-size:.8rem;color:var(--ink-soft);font-style:italic;}
+.lk.expl{color:var(--blue);border-color:var(--blue);background:rgba(57,89,107,.08);}
+.lk.expl:hover{background:var(--blue);color:#fff;}
+.lk.chrono{color:var(--gold-deep);border-color:var(--gold-deep);background:rgba(154,123,53,.1);}
+.lk.chrono:hover{background:var(--gold-deep);color:#fff;}
+
+/* ===== Cheminement en serpentin vertical ===== */
+.walk{position:relative;margin:10px 0 6px;}
+.walk::before{content:"";position:absolute;left:50%;top:8px;bottom:8px;width:3px;transform:translateX(-50%);background:linear-gradient(var(--blue),var(--red));border-radius:2px;}
+.walk-step{display:grid;grid-template-columns:1fr 60px 1fr;align-items:center;position:relative;}
+.walk-axis{grid-column:2;display:flex;justify-content:center;z-index:2;}
+.walk-dot{width:18px;height:18px;border-radius:50%;border:3px solid var(--paper);box-shadow:0 0 0 1px var(--line);}
+.walk-card{grid-column:1;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:16px 18px;position:relative;}
+.walk-step.right .walk-card{grid-column:3;}
+.walk-card::after{content:"";position:absolute;top:50%;transform:translateY(-50%);width:18px;height:2px;background:var(--line);}
+.walk-step.left .walk-card::after{right:-19px;}
+.walk-step.right .walk-card::after{left:-19px;}
+.walk-head{display:flex;align-items:center;gap:11px;margin-bottom:12px;}
+.walk-num{flex:none;width:30px;height:30px;border-radius:50%;color:#fff;font-family:'Fraunces',serif;font-weight:900;display:flex;align-items:center;justify-content:center;font-size:.95rem;}
+.walk-title{font-family:'Fraunces',serif;font-weight:600;font-size:1.18rem;line-height:1.16;letter-spacing:-.01em;}
+.walk-card .field-block{margin-bottom:11px;}
+.walk-card .field-block:last-of-type{margin-bottom:0;}
+.walk-motor{display:flex;justify-content:center;padding:9px 0;position:relative;z-index:2;}
+.walk-motor span{background:var(--paper-2);border:1px solid var(--line-soft);color:var(--red);font-size:.82rem;font-style:italic;padding:4px 15px;border-radius:20px;}
+.walk-step.flash .walk-card{box-shadow:0 0 0 3px var(--red);}
+@media(max-width:720px){
+  .walk::before{left:19px;}
+  .walk-step{grid-template-columns:40px 1fr;}
+  .walk-axis{grid-column:1;justify-content:flex-start;}
+  .walk-step.left .walk-card,.walk-step.right .walk-card{grid-column:2;}
+  .walk-card::after{left:-21px !important;right:auto !important;}
+  .walk-motor{justify-content:flex-start;padding-left:4px;}
+}
 footer{text-align:center;margin-top:54px;padding-top:22px;border-top:1px solid var(--line);color:var(--ink-soft);font-style:italic;font-size:.86rem;}
 footer b{font-family:'Fraunces',serif;font-style:normal;color:var(--ink);}
 
@@ -615,14 +662,11 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
     <div class="rule"></div>
   </header>
   <nav class="tabs">
-    <button class="tab active" data-tab="accueil"><span class="num">I</span>Accueil</button>
-    <button class="tab" data-tab="nav"><span class="num">II</span>Navigateur</button>
-    <button class="tab" data-tab="lire"><span class="num">III</span>Lire le Capital</button>
-    <button class="tab" data-tab="labo"><span class="num">IV</span>Laboratoire</button>
-    <button class="tab" data-tab="deriv"><span class="num">V</span>Cheminement</button>
-    <button class="tab" data-tab="chrono"><span class="num">VI</span>Chronologie</button>
-    <button class="tab" data-tab="explore"><span class="num">VII</span>Explorations</button>
+    <button class="tab active" data-top="accueil"><span class="num">I</span>Accueil</button>
+    <button class="tab" data-top="lire"><span class="num">II</span>Lire le Capital</button>
+    <button class="tab" data-top="atelier"><span class="num">III</span>Atelier</button>
   </nav>
+  <nav class="subnav" id="subnav" style="display:none"></nav>
 
   <!-- ACCUEIL DE L'ŒUVRE -->
   <section class="panel active" id="accueil">
@@ -688,7 +732,7 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
 
   <!-- NAVIGATEUR -->
   <section class="panel" id="nav">
-    <h2 class="sec">Navigateur</h2>
+    <h2 class="sec">Parcourir le Capital</h2>
     <p class="lead">Le texte intégral, en 8 sections et 33 chapitres, en lecture rapide : chaque section donne son fil, chaque chapitre un résumé argumenté. Les renvois t'envoient d'un clic au texte intégral, à la loi du Laboratoire ou à la marche logique correspondante.</p>
     <div class="edition-note"><b>Texte intégral, libre de droits.</b> On s'appuie sur le texte intégral du domaine public — reproduit ici depuis Wikisource. Vocabulaire de cette édition : <b>plus-value</b>, <b>accumulation primitive</b>, <b>force de travail</b>.</div>
     <div class="search"><input type="text" id="filter" placeholder="Filtrer : plus-value, journée, machinisme, accumulation…" aria-label="Filtrer les chapitres"></div>
@@ -698,7 +742,7 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
 
   <!-- LIRE -->
   <section class="panel" id="lire">
-    <h2 class="sec">Lire le Capital</h2>
+    <h2 class="sec">Texte intégral</h2>
     <p class="lead">Le texte intégral du Livre I, dans la traduction Joseph Roy (1872, revue par Marx) — domaine public.</p>
 
     <div class="method-note"><b>À quoi sert cet onglet.</b> C'est la <b>liseuse</b> de l'atelier : on y lit le texte original de Marx, en entier. Le <i>Navigateur</i> en donne des résumés et le <i>Cheminement</i> en suit la logique ; ici, ce sont les mots mêmes du <i>Capital</i> qui s'affichent.</div>
@@ -1055,17 +1099,32 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
 const ICONS={box:'<svg viewBox="0 0 24 24"><rect x="4" y="7.5" width="16" height="12.5" rx="1"/><path d="M4 7.5l8-4 8 4"/><path d="M12 3.5v16.5"/></svg>',worker:'<svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="3.2"/><path d="M5 20c0-4 3.5-6 7-6s7 2 7 6"/></svg>',coin:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v8M8 12h8"/></svg>',ratio:'<svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="1.5" fill="#fff" stroke="none"/><circle cx="12" cy="17" r="1.5" fill="#fff" stroke="none"/><path d="M6 12h12"/></svg>',layers:'<svg viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/></svg>',percent:'<svg viewBox="0 0 24 24"><circle cx="7.5" cy="7.5" r="2.4"/><circle cx="16.5" cy="16.5" r="2.4"/><path d="M6 18L18 6"/></svg>',clock:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.5 2"/></svg>',bolt:'<svg viewBox="0 0 24 24"><path d="M13 2L5 13h6l-1 9 8-12h-6l1-8z" fill="#fff" stroke="none"/></svg>',factory:'<svg viewBox="0 0 24 24"><path d="M3 21V11l5 3V11l5 3V8l6 3v9z"/><path d="M3 21h18"/></svg>',store:'<svg viewBox="0 0 24 24"><path d="M4 11l8-6 8 6"/><path d="M6 10v10h12V10"/><rect x="10" y="14.5" width="4" height="5.5"/></svg>',cycle:'<svg viewBox="0 0 24 24"><path d="M5 12a7 7 0 0 1 12-4.5"/><path d="M19 12a7 7 0 0 1-12 4.5"/><path d="M17 3.5V8h-4"/><path d="M7 20.5V16h4"/></svg>',scale:'<svg viewBox="0 0 24 24"><path d="M12 4v16M6 20h12"/><path d="M12 6l-6 2 6 2 6-2-6-2z"/></svg>'};
 
 /* ---- navigation onglets ---- */
-function activateTab(id){document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===id));
-  document.querySelectorAll('.panel').forEach(x=>x.classList.toggle('active',x.id===id));if(id==='labo')drawTRPF();}
+const GROUPS={
+ accueil:{panels:['accueil'],labels:[]},
+ lire:{panels:['nav','lire'],labels:['Parcourir','Texte intégral']},
+ atelier:{panels:['deriv','labo','explore','chrono'],labels:['Cheminement','Modèles','Explorations','Chronologie']}
+};
+const curPanel={accueil:'accueil',lire:'nav',atelier:'deriv'};
+function panelTop(id){for(const t in GROUPS)if(GROUPS[t].panels.indexOf(id)>=0)return t;return 'accueil';}
+function activateTop(top){
+  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.top===top));
+  const g=GROUPS[top]||GROUPS.accueil,sn=document.getElementById('subnav');
+  if(g.panels.length<2){sn.style.display='none';sn.innerHTML='';}
+  else{sn.style.display='flex';
+    sn.innerHTML=g.panels.map((pid,i)=>`<button class="subnavbtn${pid===curPanel[top]?' active':''}" data-panel="${pid}">${g.labels[i]}</button>`).join('');
+    sn.querySelectorAll('.subnavbtn').forEach(b=>b.addEventListener('click',()=>{curPanel[top]=b.dataset.panel;activateTop(top);window.scrollTo({top:0,behavior:'smooth'});}));}
+  const pid=curPanel[top];document.querySelectorAll('.panel').forEach(x=>x.classList.toggle('active',x.id===pid));
+  if(pid==='labo')drawTRPF();
+}
+function activateTab(id){const t=panelTop(id);curPanel[t]=id;activateTop(t);}
 function activateSub(s){document.querySelectorAll('.subtab').forEach(x=>x.classList.toggle('active',x.dataset.sub===s));
   document.querySelectorAll('.subpanel').forEach(x=>x.classList.toggle('active',x.id===s));if(s==='s-trpf')drawTRPF();}
 function goLabo(s){activateTab('labo');activateSub(s);window.scrollTo({top:0,behavior:'smooth'});}
 function goDeriv(n){activateTab('deriv');window.scrollTo({top:0,behavior:'smooth'});
-  setTimeout(()=>{const el=document.querySelector('.step[data-step="'+n+'"]');if(!el)return;
-    if(!el.classList.contains('open'))el.querySelector('.step-head').click();
-    el.classList.add('flash');el.scrollIntoView({behavior:'smooth',block:'center'});setTimeout(()=>el.classList.remove('flash'),1600);},120);}
+  setTimeout(()=>{const el=document.querySelector('.walk-step[data-step="'+n+'"]');if(!el)return;
+    el.classList.add('flash');el.scrollIntoView({behavior:'smooth',block:'center'});setTimeout(()=>el.classList.remove('flash'),1600);},150);}
 function goLire(n,num,title){activateTab('lire');document.getElementById('chapSelect').value=n+'|'+num+'|'+title;showSelection(true);window.scrollTo({top:0,behavior:'smooth'});}
-document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{activateTab(t.dataset.tab);window.scrollTo({top:0,behavior:'smooth'});}));
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{activateTop(t.dataset.top);window.scrollTo({top:0,behavior:'smooth'});}));
 document.querySelectorAll('.subtab').forEach(t=>t.addEventListener('click',()=>activateSub(t.dataset.sub)));
 
 /* ---- navigation accueil <-> œuvre ---- */
@@ -2182,25 +2241,29 @@ drawSalaire();
 
 /* ---- Dérivation ---- */
 const STEPS=[
- {t:"La marchandise",pose:"Deux faces — <b>valeur d'usage</b> et <b>valeur</b> — car le travail a un double caractère.",contra:"Le travail privé ne devient social que par l'échange ; la valeur n'a pas de forme d'expression dans la marchandise seule.",pass:"La valeur doit s'exprimer dans une autre marchandise.",motor:"La valeur cherche une forme"},
- {t:"La forme de la valeur",pose:"Forme simple → développée → générale.",contra:"La forme générale exige un équivalent exclu, sans vocation naturelle.",pass:"Une marchandise se fixe comme équivalent universel.",motor:"Un équivalent général stable"},
- {t:"L'argent",pose:"Équivalent général : mesure, circulation, thésaurisation, paiement.",contra:"L'argent thésaurisé est stérile, mais sa nature le pousse à croître.",pass:"Retournement : A-M-A′.",motor:"La valeur veut se valoriser"},
- {t:"Le capital (A-M-A′)",pose:"A′ = A + ΔA : valorisation sans fin.",contra:"La plus-value ne peut naître de la circulation ni hors d'elle.",pass:"Il faut une marchandise dont l'usage crée de la valeur.",motor:"D'où vient le ΔA ?"},
- {t:"La force de travail",pose:"Sa valeur = coût de reproduction ; son usage = produire de la valeur.",contra:"Cette valeur d'usage ne se réalise que dans la production.",pass:"On passe au lieu de la production.",motor:"Suivre la force de travail"},
- {t:"Procès de travail et de valorisation",pose:"Le travail transfère (c) et crée (v) ; la plus-value = surtravail non payé.",contra:"Comment accroître le rapport surtravail / nécessaire ?",pass:"Allonger la journée, ou comprimer le nécessaire.",motor:"Maximiser le surtravail"},
- {t:"La plus-value absolue",pose:"Allonger la journée au-delà du nécessaire.",contra:"Limites physiques et sociales ; lutte de classe.",pass:"Révolutionner la productivité.",motor:"La durée a des limites"},
- {t:"La plus-value relative",pose:"Hausser la productivité pour abaisser le nécessaire.",contra:"L'ouvrier devient appendice de la machine.",pass:"Comprendre comment le rapport se reproduit.",motor:"Comment se perpétue-t-il ?"},
- {t:"Le salaire",pose:"Forme transformée : le travail paraît intégralement payé.",contra:"Cette forme efface l'exploitation qu'elle suppose.",pass:"Suivre la dynamique d'ensemble.",motor:"De la forme à la dynamique"},
- {t:"L'accumulation",pose:"La plus-value capitalisée : reproduction élargie.",contra:"Elle suppose des travailleurs déjà séparés des moyens de production.",pass:"La composition monte, une population de trop apparaît.",motor:"D'où vient le rapport supposé ?"},
- {t:"La loi générale",pose:"Une <b>armée industrielle de réserve</b> régule les salaires.",contra:"Tout suppose, comme donné, le rapport capitaliste.",pass:"Remonter au présupposé historique.",motor:"D'où vient ce point de départ ?"},
- {t:"L'accumulation primitive",pose:"Genèse <b>violente</b> : expropriation, colonialisme.",contra:"Le présupposé est posé comme résultat d'une histoire.",pass:"L'exposition du Livre I est close.",motor:"Le commencement comme résultat"}];
-const stair=document.getElementById('stair');
-STEPS.forEach((s,i)=>{const step=document.createElement('div');step.className='step';step.dataset.step=String(i+1);
-  step.innerHTML=`<div class="step-card"><button class="step-head" aria-expanded="false"><span class="sn">${i+1}</span><span class="stt">${s.t}</span><span class="chev">›</span></button>
-    <div class="step-body"><div class="step-inner"><div class="field-block pose"><div class="fl">Ce que la catégorie pose</div><p>${s.pose}</p></div><div class="field-block contra"><div class="fl">La contradiction interne</div><p>${s.contra}</p></div><div class="field-block pass"><div class="fl">Ce qui force le passage</div><p>${s.pass}</p></div></div></div></div>`;
-  const h=step.querySelector('.step-head'),b=step.querySelector('.step-body');
-  h.addEventListener('click',()=>{const o=step.classList.contains('open');step.classList.toggle('open');h.setAttribute('aria-expanded',String(!o));b.style.maxHeight=o?null:b.scrollHeight+'px';});
-  stair.appendChild(step);if(i<STEPS.length-1){const m=document.createElement('div');m.className='motor';m.textContent=s.motor;stair.appendChild(m);}});
+ {t:"La marchandise",pose:"Deux faces — <b>valeur d'usage</b> et <b>valeur</b> — car le travail a un double caractère.",contra:"Le travail privé ne devient social que par l'échange ; la valeur n'a pas de forme d'expression dans la marchandise seule.",pass:"La valeur doit s'exprimer dans une autre marchandise.",motor:"La valeur cherche une forme",links:[{k:'labo',t:'s-forme',label:'Forme de la valeur'},{k:'explore',t:'x-feti',label:'Fétichisme'}]},
+ {t:"La forme de la valeur",pose:"Forme simple → développée → générale.",contra:"La forme générale exige un équivalent exclu, sans vocation naturelle.",pass:"Une marchandise se fixe comme équivalent universel.",motor:"Un équivalent général stable",links:[{k:'labo',t:'s-forme',label:'Forme de la valeur'}]},
+ {t:"L'argent",pose:"Équivalent général : mesure, circulation, thésaurisation, paiement.",contra:"L'argent thésaurisé est stérile, mais sa nature le pousse à croître.",pass:"Retournement : A-M-A′.",motor:"La valeur veut se valoriser",links:[{k:'labo',t:'s-monnaie',label:'Circulation de la monnaie'}]},
+ {t:"Le capital (A-M-A′)",pose:"A′ = A + ΔA : valorisation sans fin.",contra:"La plus-value ne peut naître de la circulation ni hors d'elle.",pass:"Il faut une marchandise dont l'usage crée de la valeur.",motor:"D'où vient le ΔA ?",links:[{k:'labo',t:'s-circuit',label:'A‑M‑A′ vs M‑A‑M'}]},
+ {t:"La force de travail",pose:"Sa valeur = coût de reproduction ; son usage = produire de la valeur.",contra:"Cette valeur d'usage ne se réalise que dans la production.",pass:"On passe au lieu de la production.",motor:"Suivre la force de travail",links:[{k:'labo',t:'s-valor',label:'Procès de valorisation'}]},
+ {t:"Procès de travail et de valorisation",pose:"Le travail transfère (c) et crée (v) ; la plus-value = surtravail non payé.",contra:"Comment accroître le rapport surtravail / nécessaire ?",pass:"Allonger la journée, ou comprimer le nécessaire.",motor:"Maximiser le surtravail",links:[{k:'labo',t:'s-valor',label:'Procès de valorisation'},{k:'labo',t:'s-taux',label:'Taux & profit'}]},
+ {t:"La plus-value absolue",pose:"Allonger la journée au-delà du nécessaire.",contra:"Limites physiques et sociales ; lutte de classe.",pass:"Révolutionner la productivité.",motor:"La durée a des limites",links:[{k:'labo',t:'s-jour',label:'Journée de travail'}]},
+ {t:"La plus-value relative",pose:"Hausser la productivité pour abaisser le nécessaire.",contra:"L'ouvrier devient appendice de la machine.",pass:"Comprendre comment le rapport se reproduit.",motor:"Comment se perpétue-t-il ?",links:[{k:'labo',t:'s-jour',label:'Journée de travail'},{k:'explore',t:'x-coop',label:'Machinisme'}]},
+ {t:"Le salaire",pose:"Forme transformée : le travail paraît intégralement payé.",contra:"Cette forme efface l'exploitation qu'elle suppose.",pass:"Suivre la dynamique d'ensemble.",motor:"De la forme à la dynamique",links:[{k:'explore',t:'x-salaire',label:'La forme-salaire'}]},
+ {t:"L'accumulation",pose:"La plus-value capitalisée : reproduction élargie.",contra:"Elle suppose des travailleurs déjà séparés des moyens de production.",pass:"La composition monte, une population de trop apparaît.",motor:"D'où vient le rapport supposé ?",links:[{k:'labo',t:'s-repro',label:'Reproduction'},{k:'labo',t:'s-accum',label:'Accumulation'}]},
+ {t:"La loi générale",pose:"Une <b>armée industrielle de réserve</b> régule les salaires.",contra:"Tout suppose, comme donné, le rapport capitaliste.",pass:"Remonter au présupposé historique.",motor:"D'où vient ce point de départ ?",links:[{k:'labo',t:'s-accum',label:'Armée de réserve'},{k:'labo',t:'s-trpf',label:'Baisse tendancielle'}]},
+ {t:"L'accumulation primitive",pose:"Genèse <b>violente</b> : expropriation, colonialisme.",contra:"Le présupposé est posé comme résultat d'une histoire.",pass:"L'exposition du Livre I est close.",motor:"Le commencement comme résultat",links:[{k:'chrono',label:'Chronologie'}]}];
+function stairColor(t){const a=[57,89,107],b=[165,42,33];return 'rgb('+a.map((v,k)=>Math.round(v+(b[k]-v)*t)).join(',')+')';}
+function goExplore(xid){activateTab('explore');document.querySelectorAll('.xsub').forEach(x=>x.classList.toggle('active',x.dataset.x===xid));document.querySelectorAll('.xpane').forEach(p=>p.classList.toggle('active',p.id===xid));window.scrollTo({top:0,behavior:'smooth'});}
+function goChrono(){activateTab('chrono');window.scrollTo({top:0,behavior:'smooth'});}
+const stair=document.getElementById('stair');stair.className='walk';const WN=STEPS.length;
+STEPS.forEach((s,i)=>{const side=i%2===0?'left':'right',col=stairColor(i/(WN-1));
+  const lh=(s.links||[]).map(l=>`<button class="lk ${l.k==='labo'?'labo':l.k==='explore'?'expl':'chrono'}" data-k="${l.k}" data-t="${l.t||''}">${l.label} →</button>`).join('');
+  const row=document.createElement('div');row.className='walk-step '+side;row.dataset.step=String(i+1);
+  row.innerHTML=`<div class="walk-card"><div class="walk-head"><span class="walk-num" style="background:${col}">${i+1}</span><span class="walk-title">${s.t}</span></div><div class="field-block pose"><div class="fl">Ce que la catégorie pose</div><p>${s.pose}</p></div><div class="field-block contra"><div class="fl">La contradiction interne</div><p>${s.contra}</p></div><div class="field-block pass"><div class="fl">Ce qui force le passage</div><p>${s.pass}</p></div>${lh?`<div class="step-links"><span class="step-links-lab">Voir à l'œuvre :</span>${lh}</div>`:''}</div><div class="walk-axis"><span class="walk-dot" style="background:${col}"></span></div>`;
+  stair.appendChild(row);
+  if(i<WN-1){const m=document.createElement('div');m.className='walk-motor';m.innerHTML=`<span>${s.motor} ↓</span>`;stair.appendChild(m);}});
+stair.querySelectorAll('.step-links .lk').forEach(btn=>btn.addEventListener('click',()=>{const k=btn.dataset.k,t=btn.dataset.t;if(k==='labo')goLabo(t);else if(k==='explore')goExplore(t);else goChrono();}));
 
 drawTRPF();
 
