@@ -3,17 +3,45 @@
   "title": "Manuscrits de 1844",
   "author": "Karl Marx",
   "year": 1844,
-  "status": "draft",
+  "status": "available",
   "source": {
     "type": "manuscript",
     "originalLanguage": "allemand",
     "firstPublication": 1932,
-    "reader": "remote",
+    "reader": "local",
+    "localBase": "oeuvres/manuscrits-1844/textes/",
     "baseUrl": "https://www.marxists.org/francais/marx/works/1844/00/km18440000/",
     "indexUrl": "https://www.marxists.org/francais/marx/works/1844/00/km18440000/index.htm",
     "xmlArchive": "https://www.marxists.org/francais/marx/works/1844/00/km18440000/km18440000_xml.zip",
-    "note": "Manuscrits rediges a Paris en 1844 et publies apres la mort de Marx. Lecture distante amorcee depuis le Marxists Internet Archive. Le texte francais complet n'est pas copie localement pour l'instant : choisir une edition libre ou obtenir une autorisation avant transcription."
+    "note": "Manuscrits rediges a Paris en 1844 et publies apres la mort de Marx. La liseuse charge des fichiers locaux depuis oeuvres/manuscrits-1844/textes/, importes depuis l'archive XML/TEI du Marxists Internet Archive."
   },
+  "localParts": [
+    {
+      "id": "note-traducteur",
+      "title": "Note du traducteur",
+      "file": "oeuvres/manuscrits-1844/textes/note-traducteur.html"
+    },
+    {
+      "id": "preface",
+      "title": "Preface",
+      "file": "oeuvres/manuscrits-1844/textes/preface.html"
+    },
+    {
+      "id": "premier-manuscrit",
+      "title": "Premier manuscrit",
+      "file": "oeuvres/manuscrits-1844/textes/premier-manuscrit.html"
+    },
+    {
+      "id": "deuxieme-manuscrit",
+      "title": "Deuxieme manuscrit",
+      "file": "oeuvres/manuscrits-1844/textes/second-manuscrit.html"
+    },
+    {
+      "id": "troisieme-manuscrit",
+      "title": "Troisieme manuscrit",
+      "file": "oeuvres/manuscrits-1844/textes/troisieme-manuscrit.html"
+    }
+  ],
   "remoteParts": [
     {
       "id": "note-traducteur",
@@ -49,26 +77,26 @@
         {
           "id": "salaire",
           "title": "Salaire",
-          "status": "planned",
-          "file": ""
+          "status": "available",
+          "file": "oeuvres/manuscrits-1844/textes/premier-manuscrit.html#N1130E"
         },
         {
           "id": "profit-capital",
           "title": "Profit du capital",
-          "status": "planned",
-          "file": ""
+          "status": "available",
+          "file": "oeuvres/manuscrits-1844/textes/premier-manuscrit.html#N1174B"
         },
         {
           "id": "rente-fonciere",
           "title": "Rente fonciere",
-          "status": "planned",
-          "file": ""
+          "status": "available",
+          "file": "oeuvres/manuscrits-1844/textes/premier-manuscrit.html#N11BFE"
         },
         {
           "id": "travail-aliene",
           "title": "Le travail aliene",
-          "status": "planned",
-          "file": ""
+          "status": "available",
+          "file": "oeuvres/manuscrits-1844/textes/premier-manuscrit.html#N11E2E"
         }
       ]
     },
@@ -79,8 +107,8 @@
         {
           "id": "rapport-propriete-privee",
           "title": "Le rapport de la propriete privee",
-          "status": "planned",
-          "file": ""
+          "status": "available",
+          "file": "oeuvres/manuscrits-1844/textes/second-manuscrit.html#N12135"
         }
       ]
     },
@@ -91,26 +119,26 @@
         {
           "id": "propriete-privee-communisme",
           "title": "Propriete privee et communisme",
-          "status": "planned",
-          "file": ""
+          "status": "available",
+          "file": "oeuvres/manuscrits-1844/textes/troisieme-manuscrit.html#N123D8"
         },
         {
           "id": "besoins-production-division",
           "title": "Besoins, production et division du travail",
-          "status": "planned",
-          "file": ""
+          "status": "available",
+          "file": "oeuvres/manuscrits-1844/textes/troisieme-manuscrit.html#N1283A"
         },
         {
           "id": "argent",
           "title": "L'argent",
-          "status": "planned",
-          "file": ""
+          "status": "available",
+          "file": "oeuvres/manuscrits-1844/textes/troisieme-manuscrit.html#N12CB2"
         },
         {
           "id": "critique-hegel",
           "title": "Critique de la dialectique et de la philosophie hegeliennes",
-          "status": "planned",
-          "file": ""
+          "status": "available",
+          "file": "oeuvres/manuscrits-1844/textes/troisieme-manuscrit.html#N12E59"
         }
       ]
     }
@@ -172,8 +200,8 @@
   ],
   "notes": [
     "Page de chantier disponible dans oeuvres/manuscrits-1844.html.",
-    "Lecture distante disponible dans l'onglet Lire les manuscrits.",
-    "Aucun texte complet n'est encore copie localement.",
-    "Conserver le status draft jusqu'a verification de l'edition utilisee et affichage effectif des textes."
+    "Liseuse locale disponible dans l'onglet Lire les manuscrits.",
+    "Texte local importe depuis l'archive XML/TEI du Marxists Internet Archive.",
+    "Verifier les parties dans la page oeuvres/manuscrits-1844.html avant toute evolution editoriale."
   ]
 }

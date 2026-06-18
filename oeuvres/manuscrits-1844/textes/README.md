@@ -1,13 +1,31 @@
 # Textes — Manuscrits de 1844
 
-Emplacement reserve aux futurs fichiers de texte.
+Fichiers locaux charges par la liseuse de `../manuscrits-1844.html`.
 
-Aucun texte complet n'est encore integre.
+Le texte a ete importe depuis l'archive XML/TEI du Marxists Internet Archive :
 
-Avant d'ajouter les fichiers :
+- source HTML : `https://www.marxists.org/francais/marx/works/1844/00/km18440000/index.htm`
+- archive XML : `https://www.marxists.org/francais/marx/works/1844/00/km18440000/km18440000_xml.zip`
 
-- choisir une edition francaise libre de droits ou obtenir une autorisation ;
-- verifier le statut de la traduction, pas seulement celui du texte original ;
-- decouper les fichiers selon `../manifest.json` ;
-- renseigner le champ `file` des chapitres dans le manifest ;
-- passer l'oeuvre en `available` seulement quand la page affiche effectivement les textes.
+Avant de modifier ces fichiers :
+
+- conserver le decoupage de `../manifest.json` ;
+- verifier que la liseuse charge toujours les cinq parties ;
+- garder les liens source pour pouvoir comparer avec l'archive distante.
+
+Fichiers attendus par la liseuse :
+
+- `note-traducteur.html`
+- `preface.html`
+- `premier-manuscrit.html`
+- `second-manuscrit.html`
+- `troisieme-manuscrit.html`
+
+Format utilise :
+
+```html
+<article data-reader-text>
+  <h1>Titre de la partie</h1>
+  <p>Texte...</p>
+</article>
+```

@@ -69,8 +69,19 @@ h1 em{font-style:italic;font-weight:500;color:var(--red);}
 .reader-title{font-family:'Fraunces',Georgia,serif;font-weight:700;font-size:1.1rem;color:var(--ink);}
 .placeholder{min-height:60vh;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--ink-soft);padding:34px;font-family:var(--f-serif);font-size:1.02rem;}
 .placeholder b{display:block;color:var(--ink);font-family:'Fraunces',Georgia,serif;font-size:1.25rem;margin-bottom:7px;}
-.reader-frame{display:block;width:100%;height:72vh;border:0;background:#fff;}
-.reader-frame[hidden],.placeholder[hidden]{display:none;}
+.reader-content{min-height:72vh;background:#fffaf0;padding:28px clamp(18px,4vw,46px);color:#221d16;font-family:Georgia,'Times New Roman',serif;font-size:1rem;line-height:1.72;overflow:auto;}
+.reader-content[hidden],.placeholder[hidden]{display:none;}
+.reader-content h1,.reader-content h2,.reader-content h3{font-family:'Fraunces',Georgia,serif;line-height:1.15;margin:1.2em 0 .55em;color:var(--ink);}
+.reader-content p{margin:.72em 0;}
+.reader-content a{color:var(--red-deep);}
+.reader-local-head{border-bottom:1px solid var(--line-soft);margin-bottom:22px;padding-bottom:16px;}
+.reader-local-head h1{font-size:clamp(2rem,5vw,3.2rem);line-height:1;color:var(--ink);}
+.reader-kicker,.reader-source{font-family:var(--f-ui);font-size:.76rem;color:var(--const);}
+.reader-kicker{font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;}
+.reader-source{margin-top:10px;}
+.reader-footnote{display:block;margin:.55em 0 .55em 1.25em;padding-left:.75em;border-left:2px solid var(--line);color:var(--ink-soft);font-size:.92em;}
+.reader-content .reader-error{max-width:720px;margin:40px auto;padding:22px;border:1px dashed var(--line);border-radius:8px;background:rgba(241,231,210,.72);font-family:var(--f-serif);color:var(--ink-soft);}
+.reader-content .reader-error b{display:block;color:var(--ink);font-family:'Fraunces',Georgia,serif;font-size:1.18rem;margin-bottom:8px;}
 .reader-note{font-family:var(--f-ui);font-size:.76rem;color:var(--const);line-height:1.45;padding:10px 15px;border-top:1px solid var(--line);background:rgba(241,231,210,.72);}
 .chapter-grid,.cards,.models,.explore-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:18px;}
 .chapter small,.card small,.model small,.explore-card small{display:inline-flex;font-family:var(--f-ui);font-size:.66rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--gold-deep);background:rgba(154,123,53,.14);border-radius:999px;padding:3px 8px;margin-bottom:9px;}
@@ -106,7 +117,7 @@ footer{margin-top:38px;padding-top:18px;border-top:1px solid var(--line);font-fa
   <header class="work-head">
     <div class="kicker">Atelier de lecture &amp; de concepts</div>
     <h1>L'Atelier des <em>Manuscrits</em></h1>
-    <div class="sub">Manuscrits de 1844 — lecture complète distante, parcours et laboratoire du jeune Marx</div>
+    <div class="sub">Manuscrits de 1844 — lecture complète locale, parcours et laboratoire du jeune Marx</div>
     <div class="rule"></div>
   </header>
 
@@ -120,7 +131,7 @@ footer{margin-top:38px;padding-top:18px;border-top:1px solid var(--line);font-fa
   <section class="panel active" id="accueil">
     <h2 class="sec">Manuscrits de 1844</h2>
     <p class="lead">Un texte de transition : Marx y rencontre l'économie politique, Feuerbach et Hegel, et formule la grande scène du travail aliéné.</p>
-    <div class="method-note"><b>Avant d'entrer.</b> Cette page reprend l'organisation de l'atelier du Capital : présentation de l'œuvre, lecture intégrale, navigation, cheminement, concepts, explorations et chronologie. La lecture complète s'appuie pour l'instant sur la version française du Marxists Internet Archive, sans copie locale du texte complet.</div>
+    <div class="method-note"><b>Avant d'entrer.</b> Cette page reprend l'organisation de l'atelier du Capital : présentation de l'œuvre, lecture intégrale, navigation, cheminement, concepts, explorations et chronologie. La liseuse charge le texte depuis les fichiers locaux dans <code>oeuvres/manuscrits-1844/textes/</code>.</div>
 
     <div class="intro-grid">
       <div class="intro-block">
@@ -158,14 +169,14 @@ footer{margin-top:38px;padding-top:18px;border-top:1px solid var(--line);font-fa
   <section class="panel" id="nav">
     <h2 class="sec">Parcourir les Manuscrits</h2>
     <p class="lead">Comme dans l'atelier du Capital, ce navigateur donne le plan avant l'entrée dans le texte intégral.</p>
-    <div class="edition-note"><b>Statut de l'édition.</b> La lecture s'appuie sur la version française du Marxists Internet Archive. Le texte original de Marx est libre, mais la traduction française doit être clarifiée avant une copie locale.</div>
+    <div class="edition-note"><b>Statut de l'édition.</b> La lecture locale est branchée sur l'archive XML/TEI du Marxists Internet Archive. Le bouton “Ouvrir la source” permet de comparer chaque partie avec la page source.</div>
     <div class="chapter-grid" id="chapterGrid"></div>
   </section>
 
   <section class="panel" id="lire">
     <h2 class="sec">Texte intégral</h2>
-    <p class="lead">Lecture complète des Manuscrits de 1844, section par section, depuis la source distante MIA.</p>
-    <div class="method-note"><b>À quoi sert cet onglet.</b> C'est la liseuse de l'atelier. Elle reprend le principe du Capital I, mais charge pour l'instant les pages distantes au lieu de fichiers locaux vérifiés.</div>
+    <p class="lead">Lecture complète des Manuscrits de 1844, section par section, depuis les fichiers locaux du dossier <code>textes/</code>.</p>
+    <div class="method-note"><b>À quoi sert cet onglet.</b> C'est la liseuse de l'atelier. Elle reprend le principe du Capital I : choisir une partie, charger le texte, puis lire dans la page. Le texte est servi localement pour éviter les blocages de connexion distante.</div>
     <div class="reader-bar">
       <select id="partSelect" aria-label="Choisir une partie"></select>
       <button id="loadBtn" class="btn red" type="button">Charger le texte →</button>
@@ -173,9 +184,9 @@ footer{margin-top:38px;padding-top:18px;border-top:1px solid var(--line);font-fa
     </div>
     <div class="reader">
       <div class="reader-head"><div class="reader-title" id="readerTitle">Note du traducteur</div></div>
-      <div class="placeholder" id="readerPlaceholder"><div><b>Choisis une partie, puis clique sur “Charger le texte”.</b><span>La partie sélectionnée s'affichera ici depuis le Marxists Internet Archive.</span></div></div>
-      <iframe class="reader-frame" id="readerFrame" title="Texte des Manuscrits de 1844" loading="lazy" hidden></iframe>
-      <p class="reader-note">Si le texte ne s'affiche pas dans le cadre, ouvre la source dans un nouvel onglet. Cette étape prépare une incorporation locale future, mais ne copie pas encore la traduction dans le dépôt.</p>
+      <div class="placeholder" id="readerPlaceholder"><div><b>Choisis une partie, puis clique sur “Charger le texte”.</b><span>La partie sélectionnée sera chargée depuis <code>manuscrits-1844/textes/</code>.</span></div></div>
+      <div class="reader-content" id="readerContent" hidden></div>
+      <p class="reader-note">La liseuse utilise les fichiers locaux du dépôt. Le bouton “Ouvrir la source” garde un accès de vérification à la source distante.</p>
     </div>
   </section>
 
@@ -207,18 +218,19 @@ footer{margin-top:38px;padding-top:18px;border-top:1px solid var(--line);font-fa
     <div class="timeline" id="timeline"></div>
   </section>
 
-  <footer><b>L'Atelier des Manuscrits de 1844</b> — lecture distante via Marxists Internet Archive ; parcours, concepts et organisation éditoriale Lire Marx.</footer>
+  <footer><b>L'Atelier des Manuscrits de 1844</b> — lecture locale importée depuis Marxists Internet Archive ; parcours, concepts et organisation éditoriale Lire Marx.</footer>
 </main>
 
 <script>
 (function(){
   var base='https://www.marxists.org/francais/marx/works/1844/00/km18440000/';
+  var textBase='manuscrits-1844/textes/';
   var parts=[
-    {id:'note-traducteur',title:'Note du traducteur',file:'km18440000_1.htm'},
-    {id:'preface',title:'Préface',file:'km18440000_2.htm'},
-    {id:'premier-manuscrit',title:'Premier manuscrit',file:'km18440000_3.htm'},
-    {id:'second-manuscrit',title:'Second manuscrit',file:'km18440000_4.htm'},
-    {id:'troisieme-manuscrit',title:'Troisième manuscrit',file:'km18440000_5.htm'}
+    {id:'note-traducteur',title:'Note du traducteur',file:'note-traducteur.html',remote:'km18440000_1.htm'},
+    {id:'preface',title:'Préface',file:'preface.html',remote:'km18440000_2.htm'},
+    {id:'premier-manuscrit',title:'Premier manuscrit',file:'premier-manuscrit.html',remote:'km18440000_3.htm'},
+    {id:'second-manuscrit',title:'Second manuscrit',file:'second-manuscrit.html',remote:'km18440000_4.htm'},
+    {id:'troisieme-manuscrit',title:'Troisième manuscrit',file:'troisieme-manuscrit.html',remote:'km18440000_5.htm'}
   ];
   var chapters=[
     ['Premier manuscrit','Salaire, profit du capital, rente foncière, travail aliéné.','Le point d’entrée conseillé reste le travail aliéné.'],
@@ -270,17 +282,37 @@ footer{margin-top:38px;padding-top:18px;border-top:1px solid var(--line);font-fa
   };
   window.activateTab=function(id){var t=panelTop(id);curPanel[t]=id;activateTop(t);window.scrollTo({top:0,behavior:'smooth'});};
   function preparePart(i){
-    var p=parts[i]||parts[0],url=base+p.file;
+    var p=parts[i]||parts[0],remoteUrl=base+p.remote;
     byId('readerTitle').textContent=p.title;
-    byId('readerOpen').href=url;
+    byId('readerOpen').href=remoteUrl;
     byId('partSelect').value=String(i);
-    return url;
+    return textBase+p.file;
+  }
+  function cleanLocalHtml(html){
+    var doc=new DOMParser().parseFromString(html,'text/html');
+    doc.querySelectorAll('script,style,link,meta,iframe,object,embed,noscript').forEach(function(n){n.remove();});
+    doc.querySelectorAll('*').forEach(function(el){
+      Array.prototype.slice.call(el.attributes).forEach(function(a){
+        if(/^on/i.test(a.name)||a.name==='style')el.removeAttribute(a.name);
+      });
+    });
+    var main=doc.querySelector('[data-reader-text]')||doc.querySelector('main')||doc.querySelector('body');
+    return main?main.innerHTML:'';
+  }
+  function showMissingLocal(path){
+    byId('readerContent').innerHTML='<div class="reader-error"><b>Texte local non encore intégré.</b><p>La liseuse cherche le fichier :</p><p><code>'+esc(path)+'</code></p><p>Ajoute ici une transcription française libre ou autorisée, puis recharge cette partie. Le bouton “Ouvrir la source” reste disponible pour vérifier la source distante.</p></div>';
+    byId('readerContent').hidden=false;
+    byId('readerPlaceholder').hidden=true;
   }
   function loadPart(i){
-    var url=preparePart(i);
+    var path=preparePart(i);
     byId('readerPlaceholder').hidden=true;
-    byId('readerFrame').hidden=false;
-    byId('readerFrame').src=url;
+    byId('readerContent').hidden=false;
+    byId('readerContent').innerHTML='<div class="placeholder"><div><b>Chargement du texte...</b><span>Lecture du fichier local.</span></div></div>';
+    fetch(path,{cache:'no-cache'})
+      .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.text();})
+      .then(function(html){byId('readerContent').innerHTML=cleanLocalHtml(html)||'<div class="reader-error"><b>Texte introuvable.</b><p>Le fichier local a été chargé, mais son contenu n’a pas pu être extrait.</p></div>';})
+      .catch(function(){showMissingLocal(path);});
   }
   function init(){
     document.querySelectorAll('.tab').forEach(function(t){t.addEventListener('click',function(){activateTop(t.dataset.top);window.scrollTo({top:0,behavior:'smooth'});});});
