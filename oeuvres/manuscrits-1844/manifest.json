@@ -1,0 +1,33 @@
+{
+  "work": "manuscrits-1844",
+  "title": "Manuscrits de 1844",
+  "author": "Karl Marx",
+  "year": 1844,
+  "status": "planned",
+  "source": {
+    "type": "manuscript",
+    "note": "Manuscrits publies apres la mort de Marx. Texte complet non integre pour l'instant."
+  },
+  "sections": [
+    {
+      "id": "premier-manuscrit",
+      "title": "Premier manuscrit",
+      "chapters": []
+    },
+    {
+      "id": "deuxieme-manuscrit",
+      "title": "Deuxieme manuscrit",
+      "chapters": []
+    },
+    {
+      "id": "troisieme-manuscrit",
+      "title": "Troisieme manuscrit",
+      "chapters": []
+    }
+  ],
+  "notes": [
+    "Structure preparatoire uniquement.",
+    "Aucun texte complet n'est encore integre.",
+    "Conserver le status planned jusqu'a verification de l'edition utilisee."
+  ]
+}

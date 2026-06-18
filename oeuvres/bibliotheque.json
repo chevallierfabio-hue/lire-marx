@@ -79,8 +79,8 @@
       "year": 1859,
       "status": "planned",
       "category": "critique-economie-politique",
-      "path": "oeuvres/contribution-critique-economie-politique.html",
-      "manifest": "oeuvres/contribution-critique-economie-politique/manifest.json",
+      "path": "oeuvres/contribution-1859.html",
+      "manifest": "oeuvres/contribution-1859/manifest.json",
       "description": "Premiere mise en forme publiee de la critique de l'economie politique, avec la celebre preface sur la methode materialiste.",
       "concepts": [
         "marchandise",
@@ -145,8 +145,8 @@
       "year": 1848,
       "status": "planned",
       "category": "politique",
-      "path": "oeuvres/manifeste-parti-communiste.html",
-      "manifest": "oeuvres/manifeste-parti-communiste/manifest.json",
+      "path": "oeuvres/manifeste.html",
+      "manifest": "oeuvres/manifeste/manifest.json",
       "description": "Texte politique majeur sur la bourgeoisie, le proletariat, la lutte des classes et le mouvement communiste.",
       "concepts": [
         "lutte des classes",
@@ -167,8 +167,8 @@
       "year": 1852,
       "status": "planned",
       "category": "histoire-politique",
-      "path": "oeuvres/dix-huit-brumaire.html",
-      "manifest": "oeuvres/dix-huit-brumaire/manifest.json",
+      "path": "oeuvres/18-brumaire.html",
+      "manifest": "oeuvres/18-brumaire/manifest.json",
       "description": "Analyse du coup d'Etat de Louis Bonaparte, des classes sociales, de la representation politique et des formes de l'Etat.",
       "concepts": [
         "classe",

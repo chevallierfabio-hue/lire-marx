@@ -1,0 +1,38 @@
+{
+  "work": "ideologie-allemande",
+  "title": "L'Ideologie allemande",
+  "author": "Karl Marx et Friedrich Engels",
+  "year": 1846,
+  "status": "planned",
+  "source": {
+    "type": "manuscript",
+    "note": "Manuscrit de 1845-1846 publie apres la mort des auteurs. Texte complet non integre pour l'instant."
+  },
+  "sections": [
+    {
+      "id": "feuerbach",
+      "title": "Feuerbach",
+      "chapters": []
+    },
+    {
+      "id": "saint-bruno",
+      "title": "Saint Bruno",
+      "chapters": []
+    },
+    {
+      "id": "saint-max",
+      "title": "Saint Max",
+      "chapters": []
+    },
+    {
+      "id": "vrai-socialisme",
+      "title": "Le vrai socialisme",
+      "chapters": []
+    }
+  ],
+  "notes": [
+    "Structure preparatoire uniquement.",
+    "Aucun texte complet n'est encore integre.",
+    "Les decoupages devront etre confirmes avec l'edition retenue."
+  ]
+}

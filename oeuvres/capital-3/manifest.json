@@ -1,0 +1,53 @@
+{
+  "work": "capital-3",
+  "title": "Le Capital — Livre III",
+  "author": "Karl Marx",
+  "year": 1894,
+  "status": "planned",
+  "source": {
+    "type": "public-domain",
+    "note": "Edition posthume etablie par Friedrich Engels. Texte complet non integre pour l'instant."
+  },
+  "sections": [
+    {
+      "id": "section-1",
+      "title": "La transformation de la plus-value en profit et du taux de plus-value en taux de profit",
+      "chapters": []
+    },
+    {
+      "id": "section-2",
+      "title": "La transformation du profit en profit moyen",
+      "chapters": []
+    },
+    {
+      "id": "section-3",
+      "title": "La loi de la baisse tendancielle du taux de profit",
+      "chapters": []
+    },
+    {
+      "id": "section-4",
+      "title": "Le capital marchand et le capital-argent",
+      "chapters": []
+    },
+    {
+      "id": "section-5",
+      "title": "Le partage du profit en interet et profit d'entreprise",
+      "chapters": []
+    },
+    {
+      "id": "section-6",
+      "title": "La transformation du surprofit en rente fonciere",
+      "chapters": []
+    },
+    {
+      "id": "section-7",
+      "title": "Les revenus et leurs sources",
+      "chapters": []
+    }
+  ],
+  "notes": [
+    "Structure preparatoire uniquement.",
+    "Aucun texte complet n'est encore integre.",
+    "Conserver le status planned jusqu'a l'ajout et la verification des textes."
+  ]
+}

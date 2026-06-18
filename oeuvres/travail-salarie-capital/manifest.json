@@ -1,0 +1,33 @@
+{
+  "work": "travail-salarie-capital",
+  "title": "Travail salarie et capital",
+  "author": "Karl Marx",
+  "year": 1849,
+  "status": "planned",
+  "source": {
+    "type": "public-domain",
+    "note": "Texte issu de conferences publiees en 1849. Texte complet non integre pour l'instant."
+  },
+  "sections": [
+    {
+      "id": "salaire",
+      "title": "Le salaire",
+      "chapters": []
+    },
+    {
+      "id": "capital",
+      "title": "Le capital",
+      "chapters": []
+    },
+    {
+      "id": "travail-salarie-et-capital",
+      "title": "Travail salarie et capital",
+      "chapters": []
+    }
+  ],
+  "notes": [
+    "Structure preparatoire uniquement.",
+    "Aucun texte complet n'est encore integre.",
+    "Le status restera planned tant que le texte n'est pas ajoute."
+  ]
+}

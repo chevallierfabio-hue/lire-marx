@@ -1,0 +1,33 @@
+{
+  "work": "contribution-critique-economie-politique",
+  "title": "Contribution a la critique de l'economie politique",
+  "author": "Karl Marx",
+  "year": 1859,
+  "status": "planned",
+  "source": {
+    "type": "public-domain",
+    "note": "Texte complet non integre pour l'instant. Source fiable a confirmer avant publication."
+  },
+  "sections": [
+    {
+      "id": "preface",
+      "title": "Preface",
+      "chapters": []
+    },
+    {
+      "id": "marchandise",
+      "title": "La marchandise",
+      "chapters": []
+    },
+    {
+      "id": "argent",
+      "title": "L'argent ou la circulation simple",
+      "chapters": []
+    }
+  ],
+  "notes": [
+    "Structure preparatoire uniquement.",
+    "Aucun texte complet n'est encore integre.",
+    "Le champ work reprend l'id utilise dans oeuvres/bibliotheque.json."
+  ]
+}

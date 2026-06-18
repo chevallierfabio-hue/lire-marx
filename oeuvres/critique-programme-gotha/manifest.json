@@ -1,0 +1,38 @@
+{
+  "work": "critique-programme-gotha",
+  "title": "Critique du programme de Gotha",
+  "author": "Karl Marx",
+  "year": 1875,
+  "status": "planned",
+  "source": {
+    "type": "public-domain",
+    "note": "Texte complet non integre pour l'instant."
+  },
+  "sections": [
+    {
+      "id": "partie-1",
+      "title": "I",
+      "chapters": []
+    },
+    {
+      "id": "partie-2",
+      "title": "II",
+      "chapters": []
+    },
+    {
+      "id": "partie-3",
+      "title": "III",
+      "chapters": []
+    },
+    {
+      "id": "partie-4",
+      "title": "IV",
+      "chapters": []
+    }
+  ],
+  "notes": [
+    "Structure preparatoire uniquement.",
+    "Aucun texte complet n'est encore integre.",
+    "Conserver le status planned jusqu'a l'ajout du texte."
+  ]
+}

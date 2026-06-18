@@ -1,0 +1,33 @@
+{
+  "work": "capital-2",
+  "title": "Le Capital — Livre II",
+  "author": "Karl Marx",
+  "year": 1885,
+  "status": "planned",
+  "source": {
+    "type": "public-domain",
+    "note": "Edition posthume etablie par Friedrich Engels. Texte complet non integre pour l'instant."
+  },
+  "sections": [
+    {
+      "id": "section-1",
+      "title": "Les metamorphoses du capital et leur cycle",
+      "chapters": []
+    },
+    {
+      "id": "section-2",
+      "title": "La rotation du capital",
+      "chapters": []
+    },
+    {
+      "id": "section-3",
+      "title": "La reproduction et la circulation du capital social total",
+      "chapters": []
+    }
+  ],
+  "notes": [
+    "Structure preparatoire uniquement.",
+    "Aucun texte complet n'est encore integre.",
+    "Conserver le status planned jusqu'a l'ajout et la verification des textes."
+  ]
+}

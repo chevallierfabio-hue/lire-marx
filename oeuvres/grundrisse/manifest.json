@@ -1,0 +1,33 @@
+{
+  "work": "grundrisse",
+  "title": "Grundrisse",
+  "author": "Karl Marx",
+  "year": 1857,
+  "status": "planned",
+  "source": {
+    "type": "manuscript",
+    "note": "Manuscrits de 1857-1858 publies apres la mort de Marx. Texte complet non integre pour l'instant."
+  },
+  "sections": [
+    {
+      "id": "introduction",
+      "title": "Introduction",
+      "chapters": []
+    },
+    {
+      "id": "chapitre-argent",
+      "title": "Chapitre de l'argent",
+      "chapters": []
+    },
+    {
+      "id": "chapitre-capital",
+      "title": "Chapitre du capital",
+      "chapters": []
+    }
+  ],
+  "notes": [
+    "Structure preparatoire uniquement.",
+    "Aucun texte complet n'est encore integre.",
+    "Les decoupages devront etre ajustes selon l'edition retenue."
+  ]
+}

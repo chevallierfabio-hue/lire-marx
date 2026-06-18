@@ -1,0 +1,33 @@
+{
+  "work": "salaire-prix-profit",
+  "title": "Salaire, prix et profit",
+  "author": "Karl Marx",
+  "year": 1865,
+  "status": "planned",
+  "source": {
+    "type": "public-domain",
+    "note": "Expose de 1865 publie ensuite sous forme de brochure. Texte complet non integre pour l'instant."
+  },
+  "sections": [
+    {
+      "id": "valeur-et-travail",
+      "title": "Valeur et travail",
+      "chapters": []
+    },
+    {
+      "id": "force-de-travail-et-profit",
+      "title": "Force de travail, salaire et profit",
+      "chapters": []
+    },
+    {
+      "id": "luttes-salariales",
+      "title": "Luttes salariales et organisation",
+      "chapters": []
+    }
+  ],
+  "notes": [
+    "Structure preparatoire uniquement.",
+    "Aucun texte complet n'est encore integre.",
+    "Le status restera planned tant que le texte n'est pas ajoute."
+  ]
+}

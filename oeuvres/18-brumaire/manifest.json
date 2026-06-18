@@ -1,0 +1,46 @@
+{
+  "work": "dix-huit-brumaire",
+  "title": "Le 18 Brumaire de Louis Bonaparte",
+  "author": "Karl Marx",
+  "year": 1852,
+  "status": "planned",
+  "source": {
+    "type": "public-domain",
+    "note": "Texte complet non integre pour l'instant. Edition francaise a confirmer."
+  },
+  "chapters": [
+    {
+      "id": "chapitre-1",
+      "title": "Chapitre I"
+    },
+    {
+      "id": "chapitre-2",
+      "title": "Chapitre II"
+    },
+    {
+      "id": "chapitre-3",
+      "title": "Chapitre III"
+    },
+    {
+      "id": "chapitre-4",
+      "title": "Chapitre IV"
+    },
+    {
+      "id": "chapitre-5",
+      "title": "Chapitre V"
+    },
+    {
+      "id": "chapitre-6",
+      "title": "Chapitre VI"
+    },
+    {
+      "id": "chapitre-7",
+      "title": "Chapitre VII"
+    }
+  ],
+  "notes": [
+    "Structure preparatoire uniquement.",
+    "Aucun texte complet n'est encore integre.",
+    "Le champ work reprend l'id utilise dans oeuvres/bibliotheque.json."
+  ]
+}

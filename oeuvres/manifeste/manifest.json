@@ -1,0 +1,38 @@
+{
+  "work": "manifeste-parti-communiste",
+  "title": "Manifeste du parti communiste",
+  "author": "Karl Marx et Friedrich Engels",
+  "year": 1848,
+  "status": "planned",
+  "source": {
+    "type": "public-domain",
+    "note": "Texte complet non integre pour l'instant."
+  },
+  "sections": [
+    {
+      "id": "bourgeois-et-proletaires",
+      "title": "Bourgeois et proletaires",
+      "chapters": []
+    },
+    {
+      "id": "proletaires-et-communistes",
+      "title": "Proletaires et communistes",
+      "chapters": []
+    },
+    {
+      "id": "litterature-socialiste-et-communiste",
+      "title": "Litterature socialiste et communiste",
+      "chapters": []
+    },
+    {
+      "id": "position-des-communistes",
+      "title": "Position des communistes envers les divers partis d'opposition",
+      "chapters": []
+    }
+  ],
+  "notes": [
+    "Structure preparatoire uniquement.",
+    "Aucun texte complet n'est encore integre.",
+    "Le champ work reprend l'id utilise dans oeuvres/bibliotheque.json."
+  ]
+}
