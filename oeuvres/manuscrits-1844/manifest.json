@@ -8,8 +8,39 @@
     "type": "manuscript",
     "originalLanguage": "allemand",
     "firstPublication": 1932,
-    "note": "Manuscrits rediges a Paris en 1844 et publies apres la mort de Marx. Texte francais complet non integre pour l'instant : choisir une edition libre ou obtenir une autorisation avant transcription."
+    "reader": "remote",
+    "baseUrl": "https://www.marxists.org/francais/marx/works/1844/00/km18440000/",
+    "indexUrl": "https://www.marxists.org/francais/marx/works/1844/00/km18440000/index.htm",
+    "xmlArchive": "https://www.marxists.org/francais/marx/works/1844/00/km18440000/km18440000_xml.zip",
+    "note": "Manuscrits rediges a Paris en 1844 et publies apres la mort de Marx. Lecture distante amorcee depuis le Marxists Internet Archive. Le texte francais complet n'est pas copie localement pour l'instant : choisir une edition libre ou obtenir une autorisation avant transcription."
   },
+  "remoteParts": [
+    {
+      "id": "note-traducteur",
+      "title": "Note du traducteur",
+      "url": "https://www.marxists.org/francais/marx/works/1844/00/km18440000/km18440000_1.htm"
+    },
+    {
+      "id": "preface",
+      "title": "Preface",
+      "url": "https://www.marxists.org/francais/marx/works/1844/00/km18440000/km18440000_2.htm"
+    },
+    {
+      "id": "premier-manuscrit",
+      "title": "Premier manuscrit",
+      "url": "https://www.marxists.org/francais/marx/works/1844/00/km18440000/km18440000_3.htm"
+    },
+    {
+      "id": "deuxieme-manuscrit",
+      "title": "Deuxieme manuscrit",
+      "url": "https://www.marxists.org/francais/marx/works/1844/00/km18440000/km18440000_4.htm"
+    },
+    {
+      "id": "troisieme-manuscrit",
+      "title": "Troisieme manuscrit",
+      "url": "https://www.marxists.org/francais/marx/works/1844/00/km18440000/km18440000_5.htm"
+    }
+  ],
   "sections": [
     {
       "id": "premier-manuscrit",
@@ -95,9 +126,54 @@
     "Hegel",
     "Feuerbach"
   ],
+  "readingPaths": [
+    {
+      "id": "travail-aliene",
+      "title": "Entrer par le travail aliene",
+      "description": "Lire d'abord le passage sur le travail aliene pour saisir la logique de depossession."
+    },
+    {
+      "id": "categories-economiques",
+      "title": "Revenir aux categories economiques",
+      "description": "Relire salaire, profit, rente et propriete privee comme formes sociales de l'alienation."
+    },
+    {
+      "id": "communisme-besoins",
+      "title": "Passer au communisme et aux besoins",
+      "description": "Suivre le deplacement vers la reappropriation humaine, les besoins et les sens."
+    },
+    {
+      "id": "critique-hegel",
+      "title": "Finir par la critique de Hegel",
+      "description": "Comprendre le rapport entre dialectique, alienation et pratique humaine reelle."
+    }
+  ],
+  "timeline": [
+    {
+      "year": 1843,
+      "title": "Rupture politique et depart pour Paris"
+    },
+    {
+      "year": 1844,
+      "title": "Redaction des manuscrits a Paris"
+    },
+    {
+      "year": 1845,
+      "title": "Theses sur Feuerbach"
+    },
+    {
+      "year": "1845-1846",
+      "title": "L'Ideologie allemande"
+    },
+    {
+      "year": 1932,
+      "title": "Premiere publication dans la MEGA"
+    }
+  ],
   "notes": [
     "Page de chantier disponible dans oeuvres/manuscrits-1844.html.",
-    "Aucun texte complet n'est encore integre.",
+    "Lecture distante disponible dans l'onglet Lire les manuscrits.",
+    "Aucun texte complet n'est encore copie localement.",
     "Conserver le status draft jusqu'a verification de l'edition utilisee et affichage effectif des textes."
   ]
 }
