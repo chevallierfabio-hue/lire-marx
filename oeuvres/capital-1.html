@@ -1212,6 +1212,158 @@ function showHome(){
 }
 const fmt=(x,d=2)=>x.toLocaleString('fr-FR',{minimumFractionDigits:d,maximumFractionDigits:d});const pct=x=>Math.round(x)+' %';
 
+/* ---- Bibliotheque centrale : rendue dans l'app, pas depuis l'iframe parente ---- */
+(function(){
+  const FALLBACK={works:[{
+    id:'capital-1',
+    title:'Le Capital — Livre I',
+    shortTitle:'Capital I',
+    author:'Karl Marx',
+    year:1867,
+    status:'available',
+    category:'critique-economie-politique',
+    path:'oeuvres/capital-1.html',
+    manifest:'oeuvres/capital-1/manifest.json',
+    description:"Le developpement de la production capitaliste : marchandise, monnaie, plus-value, journee de travail, machinisme, salaire, accumulation et accumulation primitive.",
+    concepts:['marchandise','valeur','argent','capital','plus-value','force de travail'],
+    readingGuide:"Commencer par le chapitre I, puis suivre le parcours par sections.",
+    sourceNote:'Texte du domaine public, traduction Joseph Roy revue par Marx.'
+  }]};
+  const FILTERS=[
+    {id:'all',label:'Toutes'},
+    {id:'eco',label:"Critique de l'economie politique",match:w=>w.category==='critique-economie-politique'},
+    {id:'young',label:'Jeune Marx',match:w=>['manuscrits-1844','ideologie-allemande'].includes(w.id)||w.category==='philosophie'||w.category==='philosophie-histoire'},
+    {id:'politics',label:'Ecrits politiques',match:w=>w.category==='politique'||w.category==='histoire-politique'||['manifeste-parti-communiste','dix-huit-brumaire','critique-programme-gotha'].includes(w.id)},
+    {id:'shorts',label:'Textes courts',match:w=>['manifeste-parti-communiste','critique-programme-gotha','salaire-prix-profit','travail-salarie-capital'].includes(w.id)},
+    {id:'drafts',label:'Brouillons et ateliers',match:w=>w.category==='manuscrits-economie'||['grundrisse','manuscrits-1844'].includes(w.id)}
+  ];
+  const state={works:[],filter:'all',query:''};
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+  function norm(s){return String(s==null?'':s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();}
+  function statusLabel(s){return s==='available'?'Disponible':(s==='draft'?'Brouillon':'En preparation');}
+  function catLabel(cat){return ({
+    'critique-economie-politique':"Critique de l'economie politique",
+    'philosophie':'Jeune Marx',
+    'philosophie-histoire':'Jeune Marx',
+    'politique':'Ecrits politiques',
+    'histoire-politique':'Ecrits politiques',
+    'manuscrits-economie':'Brouillons et ateliers'
+  })[cat]||cat||'Oeuvre';}
+  function matchesFilter(w){
+    const f=FILTERS.find(x=>x.id===state.filter);
+    return !f||!f.match||f.match(w);
+  }
+  function matchesQuery(w){
+    const q=norm(state.query).trim();
+    if(!q)return true;
+    const hay=[w.title,w.shortTitle,w.author,w.year,w.category,w.description,w.readingGuide,w.sourceNote,(w.concepts||[]).join(' ')].join(' ');
+    return norm(hay).includes(q);
+  }
+  function openWorkFromLibrary(w){
+    if(!w||w.status!=='available')return;
+    if(w.id==='capital-1'){showWork('work-capital');return;}
+    if(w.path)location.href=w.path.replace(/^oeuvres\//,'');
+  }
+  function ensureStyles(){
+    if(document.getElementById('libraryDynamicCss'))return;
+    const st=document.createElement('style');
+    st.id='libraryDynamicCss';
+    st.textContent=[
+      '.bib-tools{display:flex;flex-direction:column;gap:12px;margin:-8px 0 20px;}',
+      '.bib-search{width:100%;font-family:var(--f-ui);font-size:.9rem;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:9px;padding:10px 12px;outline:none;}',
+      '.bib-search:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(154,123,53,.15);}',
+      '.bib-filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}',
+      '.bib-filter{font-family:var(--f-ui);font-size:.76rem;font-weight:700;color:var(--ink-soft);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:7px 11px;cursor:pointer;}',
+      '.bib-filter:hover{border-color:var(--gold);color:var(--ink);}',
+      '.bib-filter.on{background:var(--ink);border-color:var(--ink);color:var(--paper);}',
+      '.bib-all{margin-left:auto;font-family:var(--f-ui);font-weight:700;font-size:.78rem;color:var(--red-deep);text-decoration:none;border-bottom:1px solid rgba(124,29,22,.4);}',
+      '.bib-all:hover{color:var(--red);}',
+      '.work-card .wc-meta{font-family:var(--f-ui);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--const);margin:8px 0 6px;}',
+      '.work-card .wc-concepts{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px;}',
+      '.work-card .wc-chip{font-family:var(--f-ui);font-size:.66rem;color:var(--gold-deep);background:rgba(154,123,53,.14);border-radius:999px;padding:2px 7px;}',
+      '.work-card .wc-reading{font-size:.88rem;color:var(--ink-soft);font-style:italic;margin-top:9px;line-height:1.45;}',
+      '.work-card .wc-action{margin-top:13px;font-family:var(--f-ui);font-size:.78rem;color:var(--const);}',
+      '.work-card .wc-readbtn{font-weight:800;color:#f7f1e2;background:var(--red);border:1px solid var(--red);border-radius:5px;padding:7px 13px;display:inline-flex;}',
+      '.work-card.avail:hover .wc-readbtn{background:#f7f1e2;color:var(--red-deep);border-color:#f7f1e2;}',
+      '.bib-empty{grid-column:1/-1;background:var(--card);border:1px dashed var(--line);border-radius:10px;padding:18px;color:var(--const);font-style:italic;}'
+    ].join('');
+    document.head.appendChild(st);
+  }
+  function render(){
+    const shelf=document.querySelector('.shelf');
+    const count=document.querySelector('.shelf-count');
+    const head=document.querySelector('.shelf-head');
+    if(!shelf||!head)return;
+    ensureStyles();
+    let tools=document.getElementById('bibTools');
+    if(!tools){
+      tools=document.createElement('div');
+      tools.id='bibTools';
+      tools.className='bib-tools';
+      tools.innerHTML='<input class="bib-search" id="bibSearch" type="search" placeholder="Rechercher par titre, annee, concept ou description..." aria-label="Rechercher dans la bibliotheque"><div class="bib-filters" id="bibFilters"></div>';
+      head.parentNode.insertBefore(tools,shelf);
+      const filters=tools.querySelector('#bibFilters');
+      FILTERS.forEach(f=>{
+        const b=document.createElement('button');
+        b.type='button';b.className='bib-filter';b.dataset.filter=f.id;b.textContent=f.label;
+        b.addEventListener('click',()=>{state.filter=f.id;render();});
+        filters.appendChild(b);
+      });
+      const all=document.createElement('a');
+      all.className='bib-all';all.href='index.html';all.target='_top';all.textContent='Bibliotheque generale';
+      filters.appendChild(all);
+      tools.querySelector('#bibSearch').addEventListener('input',e=>{state.query=e.target.value;render();});
+    }
+    const input=tools.querySelector('#bibSearch');
+    if(input&&input.value!==state.query)input.value=state.query;
+    tools.querySelectorAll('.bib-filter').forEach(b=>b.classList.toggle('on',b.dataset.filter===state.filter));
+    const available=state.works.filter(w=>w.status==='available').length;
+    const pending=state.works.length-available;
+    if(count)count.textContent=available+' disponible'+(available>1?'s':'')+' · '+pending+' en preparation';
+    const list=state.works.filter(w=>matchesFilter(w)&&matchesQuery(w));
+    shelf.innerHTML='';
+    if(!list.length){
+      const empty=document.createElement('div');
+      empty.className='bib-empty';
+      empty.textContent='Aucune oeuvre ne correspond a cette recherche.';
+      shelf.appendChild(empty);
+      return;
+    }
+    list.forEach(w=>{
+      const availableWork=w.status==='available';
+      const card=document.createElement(availableWork?'button':'div');
+      card.className='work-card '+(availableWork?'avail':'soon');
+      if(availableWork){
+        card.type='button';
+        card.setAttribute('aria-label','Lire '+w.title);
+        card.addEventListener('click',()=>openWorkFromLibrary(w));
+      }else card.setAttribute('aria-disabled','true');
+      const concepts=(w.concepts||[]).slice(0,4).map(c=>'<span class="wc-chip">'+esc(c)+'</span>').join('');
+      card.innerHTML=
+        '<span class="wc-spine"></span><div class="wc-body">'+
+        '<div class="wc-top"><span class="wc-year">'+esc(w.year||'')+'</span><span class="wc-status '+(availableWork?'ok':'soon')+'">'+esc(statusLabel(w.status))+'</span></div>'+
+        '<div class="wc-title">'+esc(w.title||w.shortTitle||'Oeuvre')+'</div>'+
+        '<div class="wc-sub">'+esc(w.author||'Karl Marx')+'</div>'+
+        '<div class="wc-meta">'+esc(catLabel(w.category))+'</div>'+
+        '<div class="wc-desc">'+esc(w.description||'')+'</div>'+
+        (concepts?'<div class="wc-concepts">'+concepts+'</div>':'')+
+        (w.readingGuide?'<div class="wc-reading">'+esc(w.readingGuide)+'</div>':'')+
+        '<div class="wc-action">'+(availableWork?'<span class="wc-readbtn">Lire</span>':'<span>A venir</span>')+'</div>'+
+        '</div>';
+      shelf.appendChild(card);
+    });
+    const sbSoon=document.querySelector('#sbBiblio .sb-soon');
+    if(sbSoon)sbSoon.innerHTML='<span class="sb-dot" style="background:var(--gold)"></span>'+pending+' en preparation<span class="sb-soon-tag">a venir</span>';
+  }
+  function load(){
+    fetch('bibliotheque.json',{cache:'no-cache'})
+      .then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
+      .then(data=>{state.works=(data&&Array.isArray(data.works)?data.works:FALLBACK.works);render();})
+      .catch(()=>{state.works=FALLBACK.works;render();});
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',load);else load();
+})();
+
 /* ---- texte intégral (domaine public) ---- */
   /* ---- textes des chapitres : fichiers externes chargés à la demande (voir capital-1/textes/) ---- */
   const CHAP_AVAIL=new Set([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33]);
