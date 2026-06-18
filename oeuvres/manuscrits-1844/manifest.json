@@ -3,31 +3,101 @@
   "title": "Manuscrits de 1844",
   "author": "Karl Marx",
   "year": 1844,
-  "status": "planned",
+  "status": "draft",
   "source": {
     "type": "manuscript",
-    "note": "Manuscrits publies apres la mort de Marx. Texte complet non integre pour l'instant."
+    "originalLanguage": "allemand",
+    "firstPublication": 1932,
+    "note": "Manuscrits rediges a Paris en 1844 et publies apres la mort de Marx. Texte francais complet non integre pour l'instant : choisir une edition libre ou obtenir une autorisation avant transcription."
   },
   "sections": [
     {
       "id": "premier-manuscrit",
       "title": "Premier manuscrit",
-      "chapters": []
+      "chapters": [
+        {
+          "id": "salaire",
+          "title": "Salaire",
+          "status": "planned",
+          "file": ""
+        },
+        {
+          "id": "profit-capital",
+          "title": "Profit du capital",
+          "status": "planned",
+          "file": ""
+        },
+        {
+          "id": "rente-fonciere",
+          "title": "Rente fonciere",
+          "status": "planned",
+          "file": ""
+        },
+        {
+          "id": "travail-aliene",
+          "title": "Le travail aliene",
+          "status": "planned",
+          "file": ""
+        }
+      ]
     },
     {
       "id": "deuxieme-manuscrit",
       "title": "Deuxieme manuscrit",
-      "chapters": []
+      "chapters": [
+        {
+          "id": "rapport-propriete-privee",
+          "title": "Le rapport de la propriete privee",
+          "status": "planned",
+          "file": ""
+        }
+      ]
     },
     {
       "id": "troisieme-manuscrit",
       "title": "Troisieme manuscrit",
-      "chapters": []
+      "chapters": [
+        {
+          "id": "propriete-privee-communisme",
+          "title": "Propriete privee et communisme",
+          "status": "planned",
+          "file": ""
+        },
+        {
+          "id": "besoins-production-division",
+          "title": "Besoins, production et division du travail",
+          "status": "planned",
+          "file": ""
+        },
+        {
+          "id": "argent",
+          "title": "L'argent",
+          "status": "planned",
+          "file": ""
+        },
+        {
+          "id": "critique-hegel",
+          "title": "Critique de la dialectique et de la philosophie hegeliennes",
+          "status": "planned",
+          "file": ""
+        }
+      ]
     }
   ],
+  "concepts": [
+    "alienation",
+    "travail aliene",
+    "propriete privee",
+    "communisme",
+    "besoin",
+    "argent",
+    "humanisme",
+    "Hegel",
+    "Feuerbach"
+  ],
   "notes": [
-    "Structure preparatoire uniquement.",
+    "Page de chantier disponible dans oeuvres/manuscrits-1844.html.",
     "Aucun texte complet n'est encore integre.",
-    "Conserver le status planned jusqu'a verification de l'edition utilisee."
+    "Conserver le status draft jusqu'a verification de l'edition utilisee et affichage effectif des textes."
   ]
 }

@@ -99,11 +99,11 @@
       "shortTitle": "Manuscrits de 1844",
       "author": "Karl Marx",
       "year": 1844,
-      "status": "planned",
+      "status": "draft",
       "category": "philosophie",
       "path": "oeuvres/manuscrits-1844.html",
       "manifest": "oeuvres/manuscrits-1844/manifest.json",
-      "description": "Manuscrits economico-philosophiques sur le travail aliene, la propriete privee, l'argent et l'emancipation humaine.",
+      "description": "Chantier de lecture des Manuscrits economico-philosophiques : travail aliene, propriete privee, communisme, besoins, argent et critique de Hegel.",
       "concepts": [
         "alienation",
         "travail aliene",
@@ -112,8 +112,8 @@
         "humanisme",
         "emancipation"
       ],
-      "readingGuide": "Une bonne entree dans le jeune Marx, a lire comme laboratoire philosophique plutot que comme systeme acheve.",
-      "sourceNote": "Manuscrits publies apres la mort de Marx. Texte a integrer depuis une edition du domaine public ou autorisee."
+      "readingGuide": "Commencer par le travail aliene, puis lire les passages sur la propriete privee, le communisme et l'argent comme un laboratoire du jeune Marx.",
+      "sourceNote": "Manuscrits rediges en 1844 et publies pour la premiere fois en 1932. Page de chantier creee ; texte integral francais a integrer seulement depuis une edition libre ou autorisee."
     },
     {
       "id": "ideologie-allemande",

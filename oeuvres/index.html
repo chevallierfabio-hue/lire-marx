@@ -195,10 +195,11 @@ footer{margin-top:36px;padding-top:18px;border-top:1px solid var(--line);font-fa
     var article=document.createElement('article');
     article.className='work '+(work.status||'planned');
     var isAvailable=work.status==='available';
+    var isDraft=work.status==='draft'&&!!work.path;
     var concepts=(work.concepts||[]).slice(0,7).map(function(c){return '<span class="concept">'+esc(c)+'</span>';}).join('');
     var action=isAvailable
       ? '<a class="read" href="'+esc(localPath(work.path))+'">Lire</a>'
-      : '<span class="soon">Texte non intégré</span>';
+      : (isDraft?'<a class="read" href="'+esc(localPath(work.path))+'">Voir le chantier</a>':'<span class="soon">Texte non intégré</span>');
     var manifest=work.manifest?'<a class="manifest" href="'+esc(localPath(work.manifest))+'">manifest</a>':'';
     article.innerHTML=
       '<span class="spine"></span>'+

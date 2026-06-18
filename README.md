@@ -1,23 +1,23 @@
 # Lire Marx
 
 Atelier de lecture critique des œuvres de Marx, à partir de textes du domaine public.
-Site statique (un seul fichier `index.html` pour la v1), destiné à être hébergé sur
-Cloudflare Pages depuis un dépôt GitHub, puis enrichi d'un backend Supabase.
+Site statique, destiné à être hébergé sur Cloudflare Pages depuis un dépôt
+GitHub, sans framework, sans compilation et sans étape de build.
 
 ---
 
-## Déploiement (v1 — site statique)
+## Déploiement (site statique)
 
 ### 1. GitHub
 
 1. Crée un dépôt (par ex. `lire-marx`).
-2. Ajoute à la racine : `index.html` et ce `README.md`.
+2. Ajoute les fichiers du site à la racine du dépôt.
    - Soit via l'interface web GitHub (« Add file → Upload files »),
    - soit en ligne de commande :
      ```bash
      git init
-     git add index.html README.md
-     git commit -m "v1 : site statique Lire Marx"
+     git add .
+     git commit -m "Initialiser le site statique Lire Marx"
      git branch -M main
      git remote add origin https://github.com/<toi>/lire-marx.git
      git push -u origin main
@@ -40,23 +40,155 @@ Cloudflare Pages depuis un dépôt GitHub, puis enrichi d'un backend Supabase.
 
 ---
 
-## Structure (v1)
+## Structure
 
 ```
 lire-marx/
-├── index.html         # le site : accueil + atelier du Capital + annotation/synchro
-├── config.js          # tes clés Supabase (à remplir une fois ; jamais écrasé)
+├── index.html                 # enveloppe statique et animation d'accueil
+├── config.js                  # configuration Supabase publique (jamais de secret)
+├── oeuvres/
+│   ├── bibliotheque.json      # source centrale de la liste des œuvres
+│   ├── index.html             # page Bibliothèque générale
+│   ├── capital-1.html         # atelier existant du Capital, Livre I
+│   ├── capital-1/             # fichiers et manifest du Capital, Livre I
+│   └── <id-oeuvre>/
+│       ├── manifest.json      # métadonnées et découpage de l'œuvre
+│       └── textes/            # textes intégrés progressivement
 ├── supabase/
 │   └── schema.sql     # tables `annotations`, `profiles`, `public_notes` + RLS
 └── README.md
 ```
 
-À mesure que d'autres œuvres s'ajouteront, on pourra éclater ce fichier unique
-en pages séparées + composants partagés.
+La bibliothèque est pilotée par `oeuvres/bibliotheque.json`. Les pages peuvent
+charger ce fichier pour afficher les œuvres disponibles ou à venir, sans
+dupliquer la liste dans plusieurs fichiers. L'atelier du Capital, Livre I,
+reste la page de lecture principale existante : il ne faut pas le remplacer par
+une version simplifiée.
+
+---
+
+## Ajouter une œuvre
+
+Chaque nouvelle œuvre doit être ajoutée progressivement, en gardant le site
+statique et compatible Cloudflare Pages.
+
+1. **Créer l'entrée dans `oeuvres/bibliotheque.json`**
+
+   Ajouter un objet avec les champs suivants :
+
+   ```json
+   {
+     "id": "id-de-loeuvre",
+     "title": "Titre complet",
+     "shortTitle": "Titre court",
+     "author": "Karl Marx",
+     "year": 1859,
+     "status": "planned",
+     "category": "Marx — critique de l'économie politique",
+     "path": "",
+     "manifest": "oeuvres/id-de-loeuvre/manifest.json",
+     "description": "Courte présentation de l'œuvre.",
+     "concepts": ["concept 1", "concept 2"],
+     "readingGuide": "Indication de parcours de lecture.",
+     "sourceNote": "Indication sur la source et le statut du texte."
+   }
+   ```
+
+   Utiliser `planned` ou `draft` tant que la page de lecture n'est pas prête.
+   Ne passer à `available` que lorsque le chemin, le manifest, les textes et la
+   page fonctionnent réellement.
+
+2. **Créer le dossier de l'œuvre**
+
+   Le dossier doit suivre la forme :
+
+   ```text
+   oeuvres/<id-oeuvre>/
+   ├── manifest.json
+   └── textes/
+   ```
+
+   Le dossier `textes/` peut contenir un `README.md` ou un `.gitkeep` tant que
+   les textes complets ne sont pas intégrés.
+
+3. **Créer `manifest.json`**
+
+   Le manifest décrit l'œuvre et son découpage. Il doit rester cohérent avec
+   l'entrée de `bibliotheque.json` :
+
+   ```json
+   {
+     "work": "id-de-loeuvre",
+     "title": "Titre complet",
+     "author": "Karl Marx",
+     "year": 1859,
+     "status": "planned",
+     "source": {
+       "label": "Source à préciser",
+       "url": "",
+       "rights": "Domaine public à vérifier"
+     },
+     "chapters": [],
+     "sections": [],
+     "notes": "Texte non encore intégré."
+   }
+   ```
+
+   Selon l'œuvre, utiliser `chapters`, `sections`, ou les deux. Ne pas créer de
+   faux contenu complet : mieux vaut indiquer clairement que l'intégration est
+   en préparation.
+
+4. **Ajouter les textes**
+
+   Placer les fichiers sources dans `oeuvres/<id-oeuvre>/textes/`, puis les
+   relier au manifest. Vérifier les sources, le domaine public, la cohérence du
+   découpage et les chemins relatifs.
+
+5. **Passer l'œuvre en disponible**
+
+   Passer `status` de `planned` ou `draft` à `available` seulement quand :
+
+   - l'entrée de `bibliotheque.json` pointe vers une vraie page fonctionnelle ;
+   - le manifest est valide ;
+   - les textes s'affichent correctement ;
+   - aucun lien cassé n'est exposé dans la bibliothèque ;
+   - l'atelier du Capital, Livre I, fonctionne toujours.
+
+---
+
+## Règles importantes
+
+- Ne jamais mettre de clés secrètes dans `config.js`.
+- Ne jamais utiliser ni exposer la clé Supabase `service_role` côté client.
+- `config.js` ne doit contenir que les informations publiques nécessaires au
+  client, comme l'URL du projet et la clé `anon` ou `Publishable`.
+- Ne pas casser l'atelier du Capital, Livre I : `oeuvres/capital-1.html` porte
+  encore la lecture, les annotations, le forum, la modération et les éléments
+  RGPD.
+- Le projet reste statique : HTML, CSS et JavaScript simples, sans React, Vite,
+  Next ou autre build obligatoire.
 
 ---
 
 ## Feuille de route
+
+- **Bibliothèque**
+  Maintenir `oeuvres/bibliotheque.json` comme source centrale, améliorer la page
+  `oeuvres/index.html` et garder l'entrée par la barre latérale de l'atelier.
+
+- **Intégration progressive des textes**
+  Ajouter les œuvres une par une via leur dossier, leur manifest et leurs
+  fichiers dans `textes/`, sans annoncer une œuvre comme disponible avant que
+  la lecture fonctionne.
+
+- **Unification future des pages d'œuvres**
+  À terme, factoriser progressivement les comportements communs des pages
+  d'œuvres, tout en conservant la compatibilité statique Cloudflare Pages et
+  sans casser l'atelier du Capital, Livre I.
+
+- **Amélioration éditoriale**
+  Compléter les guides de lecture, les notes de source, les concepts associés,
+  les introductions et les parcours de lecture.
 
 - **Phase 1 — hébergement + annotation « local-first »** *(fait)*
   Site en ligne, puis interface de surlignage / prise de notes côté
@@ -67,8 +199,9 @@ en pages séparées + composants partagés.
 - **Phase 2 — Supabase** *(en cours)*
   Authentification (lien magique par e-mail) + table de notes privées (chacun
   ne voit que les siennes, via Row Level Security). Schéma SQL fourni dans
-  `supabase/schema.sql` ; le code client est intégré à `index.html`. Voir
-  « Mise en route Supabase » ci-dessous.
+  `supabase/schema.sql` ; le code client est intégré aux pages statiques du
+  site, notamment l'atelier du Capital, Livre I. Voir « Mise en route
+  Supabase » ci-dessous.
 
 - **Phase 3 — notes publiques + modération** *(en cours)*
   Table `public_notes` (forum) : notes publiques ancrées à un passage, avec

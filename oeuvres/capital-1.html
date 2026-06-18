@@ -1260,7 +1260,8 @@ const fmt=(x,d=2)=>x.toLocaleString('fr-FR',{minimumFractionDigits:d,maximumFrac
     return norm(hay).includes(q);
   }
   function openWorkFromLibrary(w){
-    if(!w||w.status!=='available')return;
+    if(!w||!w.path)return;
+    if(w.status!=='available'&&w.status!=='draft')return;
     if(w.id==='capital-1'){showWork('work-capital');return;}
     if(w.path)location.href=w.path.replace(/^oeuvres\//,'');
   }
@@ -1326,11 +1327,13 @@ const fmt=(x,d=2)=>x.toLocaleString('fr-FR',{minimumFractionDigits:d,maximumFrac
     }
     list.forEach(w=>{
       const availableWork=w.status==='available';
-      const card=document.createElement(availableWork?'button':'div');
-      card.className='work-card '+(availableWork?'avail':'soon');
-      if(availableWork){
+      const draftWork=w.status==='draft'&&!!w.path;
+      const actionable=availableWork||draftWork;
+      const card=document.createElement(actionable?'button':'div');
+      card.className='work-card '+(availableWork?'avail':(draftWork?'avail':'soon'));
+      if(actionable){
         card.type='button';
-        card.setAttribute('aria-label','Lire '+w.title);
+        card.setAttribute('aria-label',(availableWork?'Lire ':'Voir le chantier ')+w.title);
         card.addEventListener('click',()=>openWorkFromLibrary(w));
       }else card.setAttribute('aria-disabled','true');
       const concepts=(w.concepts||[]).slice(0,4).map(c=>'<span class="wc-chip">'+esc(c)+'</span>').join('');
@@ -1343,7 +1346,7 @@ const fmt=(x,d=2)=>x.toLocaleString('fr-FR',{minimumFractionDigits:d,maximumFrac
         '<div class="wc-desc">'+esc(w.description||'')+'</div>'+
         (concepts?'<div class="wc-concepts">'+concepts+'</div>':'')+
         (w.readingGuide?'<div class="wc-reading">'+esc(w.readingGuide)+'</div>':'')+
-        '<div class="wc-action">'+(availableWork?'<span class="wc-readbtn">Lire</span>':'<span>A venir</span>')+'</div>'+
+        '<div class="wc-action">'+(availableWork?'<span class="wc-readbtn">Lire</span>':(draftWork?'<span class="wc-readbtn">Voir le chantier</span>':'<span>A venir</span>'))+'</div>'+
         '</div>';
       shelf.appendChild(card);
     });
