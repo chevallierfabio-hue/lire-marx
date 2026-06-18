@@ -80,6 +80,11 @@ h1.big em{font-style:italic;font-weight:500;color:#e5392a;}
 .loading{position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;background:#0d0b0a;
   font-size:.8rem;letter-spacing:.24em;text-transform:uppercase;color:#6b6051;transition:opacity .6s;}
 .loading.gone{opacity:0;pointer-events:none;}
+.library-entry{position:fixed;top:24px;right:clamp(22px,6vw,80px);z-index:65;font-family:'Bricolage Grotesque',system-ui,sans-serif;
+  font-weight:700;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:#efe6d6;text-decoration:none;
+  border:1px solid rgba(212,168,67,.45);background:rgba(13,11,10,.42);border-radius:999px;padding:9px 15px;
+  backdrop-filter:blur(5px);transition:background .18s,border-color .18s,color .18s;}
+.library-entry:hover{background:rgba(124,29,22,.82);border-color:#d4a843;color:#fff3dc;}
 .vtag{position:fixed;left:14px;bottom:9px;z-index:55;font-family:'Bricolage Grotesque',sans-serif;
   font-size:.62rem;letter-spacing:.18em;color:#6a5f4a;opacity:.85;}
 @media(max-width:680px){.cine .center{max-width:100%;}.paper::before{display:none;}}
@@ -87,6 +92,7 @@ h1.big em{font-style:italic;font-weight:500;color:#e5392a;}
 </head>
 <body>
 <div class="loading" id="loading">Reliure de l'atelier…</div>
+<a class="library-entry" href="oeuvres/index.html">Bibliothèque</a>
 <canvas id="scene"></canvas>
 
 <div class="cine" id="cine">

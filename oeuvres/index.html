@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bibliothèque — Lire Marx</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,900;1,9..144,500&family=Spectral:ital,wght@0,400;0,500;0,600;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#f1e7d2;--paper-2:#e7dac0;--card:#f8f1df;--ink:#221d16;--ink-soft:#5d5346;
+  --red:#a52a21;--red-deep:#7c1d16;--gold:#9a7b35;--gold-deep:#756021;--blue:#39596b;
+  --green:#52742f;--line:#cabb9d;--line-soft:#ddd1b6;--const:#6b6051;
+  --f-ui:'Bricolage Grotesque',system-ui,sans-serif;--f-serif:'Spectral',Georgia,serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{min-height:100vh;background:
+  radial-gradient(circle at 18% 6%,rgba(165,42,33,.08),transparent 36%),
+  radial-gradient(circle at 84% 22%,rgba(57,89,107,.10),transparent 32%),
+  linear-gradient(180deg,#f4ead5 0%,var(--paper) 46%,#e8d9bb 100%);
+  color:var(--ink);font-family:var(--f-serif);line-height:1.55;-webkit-font-smoothing:antialiased;}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;opacity:.035;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+a{color:inherit;}
+.topbar{position:sticky;top:0;z-index:20;background:rgba(241,231,210,.86);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);}
+.topbar-in{max-width:1180px;margin:0 auto;padding:13px 22px;display:flex;align-items:center;gap:16px;}
+.brand{font-family:var(--f-ui);font-weight:800;letter-spacing:-.025em;text-decoration:none;font-size:1.08rem;white-space:nowrap;}
+.brand .d{color:var(--red);}
+.navlink{margin-left:auto;font-family:var(--f-ui);font-size:.78rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;color:var(--red-deep);border:1px solid rgba(124,29,22,.28);border-radius:999px;padding:7px 12px;background:rgba(248,241,223,.7);}
+.navlink:hover{background:rgba(165,42,33,.08);border-color:var(--red);}
+.wrap{max-width:1180px;margin:0 auto;padding:44px 22px 80px;}
+.hero{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(250px,.88fr);gap:36px;align-items:end;margin-bottom:28px;}
+.kicker{font-family:var(--f-ui);font-size:.72rem;letter-spacing:.32em;text-transform:uppercase;color:var(--red);font-weight:700;margin-bottom:13px;}
+h1{font-family:'Fraunces',Georgia,serif;font-weight:900;font-size:clamp(2.45rem,7vw,5.5rem);line-height:.9;letter-spacing:-.028em;color:var(--ink);}
+h1 em{font-style:italic;font-weight:500;color:var(--red);}
+.lead{max-width:66ch;margin-top:18px;color:var(--ink-soft);font-size:1.08rem;font-style:italic;}
+.ledger{border:1px solid var(--line);background:rgba(248,241,223,.76);border-radius:8px;padding:18px 18px 16px;box-shadow:0 18px 45px -36px rgba(34,29,22,.7);}
+.ledger-title{font-family:'Fraunces',Georgia,serif;font-weight:700;font-size:1.15rem;margin-bottom:10px;}
+.ledger-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.metric{border-top:2px solid var(--ink);padding-top:9px;}
+.metric b{display:block;font-family:'Fraunces',Georgia,serif;font-weight:900;font-size:1.65rem;line-height:1;color:var(--red-deep);}
+.metric span{display:block;font-family:var(--f-ui);font-size:.72rem;color:var(--const);margin-top:4px;text-transform:uppercase;letter-spacing:.06em;}
+.tools{display:grid;grid-template-columns:minmax(240px,1fr) auto;gap:14px;align-items:start;margin:30px 0 22px;}
+.search{width:100%;height:43px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font-family:var(--f-ui);font-size:.92rem;padding:0 14px;outline:none;}
+.search:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(154,123,53,.16);}
+.filter-block{display:flex;flex-direction:column;gap:9px;align-items:flex-end;}
+.filters{display:flex;flex-wrap:wrap;gap:7px;justify-content:flex-end;}
+.filter-label{font-family:var(--f-ui);font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--const);}
+.chip{font-family:var(--f-ui);font-weight:700;font-size:.76rem;border:1px solid var(--line);background:var(--card);color:var(--ink-soft);border-radius:999px;padding:7px 11px;cursor:pointer;}
+.chip:hover{border-color:var(--gold);color:var(--ink);}
+.chip.on{background:var(--ink);border-color:var(--ink);color:var(--paper);}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;}
+.work{position:relative;display:flex;min-height:100%;border:1px solid var(--line);background:rgba(248,241,223,.86);border-radius:8px;overflow:hidden;box-shadow:0 14px 35px -32px rgba(34,29,22,.7);}
+.spine{flex:0 0 9px;background:var(--line);}
+.work.available .spine{background:var(--red);}
+.work.draft .spine{background:var(--blue);}
+.body{padding:17px 18px 18px;display:flex;flex-direction:column;min-width:0;flex:1;}
+.row{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-bottom:9px;}
+.year{font-family:var(--f-ui);font-size:.75rem;font-weight:800;letter-spacing:.1em;color:var(--gold-deep);}
+.status{font-family:var(--f-ui);font-size:.66rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;border-radius:999px;padding:3px 8px;white-space:nowrap;}
+.status.available{background:rgba(82,116,47,.14);color:#3d5a20;}
+.status.planned{background:rgba(154,123,53,.16);color:var(--gold-deep);}
+.status.draft{background:rgba(57,89,107,.14);color:var(--blue);}
+.title{font-family:'Fraunces',Georgia,serif;font-weight:700;font-size:1.17rem;line-height:1.16;letter-spacing:-.01em;color:var(--ink);}
+.author{font-family:var(--f-serif);font-style:italic;color:var(--ink-soft);font-size:.92rem;margin-top:3px;}
+.cat{font-family:var(--f-ui);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--const);margin-top:9px;}
+.desc{color:var(--ink-soft);font-size:.94rem;margin-top:8px;}
+.concepts{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px;}
+.concept{font-family:var(--f-ui);font-size:.66rem;color:var(--gold-deep);background:rgba(154,123,53,.14);border-radius:999px;padding:2px 7px;}
+.guide{border-top:1px solid var(--line-soft);margin-top:13px;padding-top:11px;color:var(--ink-soft);font-size:.86rem;font-style:italic;}
+.actions{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:auto;padding-top:16px;}
+.read{display:inline-flex;align-items:center;justify-content:center;font-family:var(--f-ui);font-weight:800;font-size:.82rem;text-decoration:none;color:#f8f1df;background:var(--red);border-radius:6px;padding:8px 13px;border:1px solid var(--red);}
+.read:hover{background:var(--red-deep);border-color:var(--red-deep);}
+.soon{font-family:var(--f-ui);font-size:.8rem;color:var(--const);}
+.manifest{font-family:var(--f-ui);font-size:.72rem;color:var(--blue);text-decoration:none;}
+.manifest:hover{text-decoration:underline;}
+.empty,.error{border:1px dashed var(--line);background:rgba(248,241,223,.7);border-radius:8px;padding:20px;color:var(--const);font-style:italic;}
+footer{margin-top:36px;padding-top:18px;border-top:1px solid var(--line);font-family:var(--f-ui);font-size:.78rem;color:var(--const);}
+@media(max-width:760px){
+  .hero{grid-template-columns:1fr;}
+  .tools{grid-template-columns:1fr;}
+  .filter-block{align-items:flex-start;}
+  .filters{justify-content:flex-start;}
+  .ledger-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="brand" href="../index.html">Lire<span class="d">.</span>Marx</a>
+    <a class="navlink" href="../index.html">Retour à l’atelier</a>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <div>
+      <div class="kicker">Bibliothèque générale</div>
+      <h1>Les œuvres, <em>avant l’atelier</em></h1>
+      <p class="lead">Un inventaire unique des textes disponibles et des chantiers à préparer. Les œuvres non intégrées restent visibles, mais sans lien cassé.</p>
+    </div>
+    <aside class="ledger" aria-label="Compteur de la bibliothèque">
+      <div class="ledger-title">État du fonds</div>
+      <div class="ledger-grid">
+        <div class="metric"><b id="countAll">0</b><span>œuvres</span></div>
+        <div class="metric"><b id="countAvailable">0</b><span>disponibles</span></div>
+        <div class="metric"><b id="countPending">0</b><span>à préparer</span></div>
+      </div>
+    </aside>
+  </section>
+
+  <section class="tools" aria-label="Filtres de la bibliothèque">
+    <input id="search" class="search" type="search" placeholder="Rechercher par titre, année, concept ou description…" aria-label="Rechercher dans la bibliothèque">
+    <div class="filter-block">
+      <div class="filter-label">Catégorie</div>
+      <div id="categoryFilters" class="filters"></div>
+      <div class="filter-label">Statut</div>
+      <div id="statusFilters" class="filters"></div>
+    </div>
+  </section>
+
+  <section id="works" class="grid" aria-live="polite"></section>
+  <footer>Lire Marx — bibliothèque statique, alimentée par <code>oeuvres/bibliotheque.json</code>.</footer>
+</main>
+
+<script>
+(function(){
+  var FALLBACK={
+    works:[{
+      id:'capital-1',
+      title:'Le Capital — Livre I',
+      shortTitle:'Capital I',
+      author:'Karl Marx',
+      year:1867,
+      status:'available',
+      category:'critique-economie-politique',
+      path:'oeuvres/capital-1.html',
+      manifest:'oeuvres/capital-1/manifest.json',
+      description:'Le developpement de la production capitaliste : marchandise, monnaie, plus-value, journee de travail et accumulation primitive.',
+      concepts:['marchandise','valeur','capital','plus-value'],
+      readingGuide:'Commencer par le chapitre I, puis suivre le parcours par sections.',
+      sourceNote:'Texte du domaine public.'
+    }]
+  };
+  var state={works:[],category:'all',status:'all',query:''};
+  var categories=[
+    ['all','Toutes'],
+    ['critique-economie-politique','Critique de l’économie politique'],
+    ['philosophie','Jeune Marx'],
+    ['philosophie-histoire','Jeune Marx et histoire'],
+    ['politique','Écrits politiques'],
+    ['histoire-politique','Histoire politique'],
+    ['manuscrits-economie','Brouillons et ateliers']
+  ];
+  var statuses=[['all','Tous'],['available','Disponible'],['planned','En préparation'],['draft','Brouillon']];
+  function byId(id){return document.getElementById(id);}
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function norm(s){return String(s==null?'':s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();}
+  function statusLabel(s){return ({available:'Disponible',planned:'En préparation',draft:'Brouillon'})[s]||s||'Statut inconnu';}
+  function categoryLabel(cat){return (categories.find(function(c){return c[0]===cat;})||[,cat||'Œuvre'])[1];}
+  function localPath(path){
+    path=String(path||'');
+    if(path.indexOf('oeuvres/')===0)return path.slice('oeuvres/'.length);
+    return path;
+  }
+  function matches(work){
+    if(state.category!=='all'&&work.category!==state.category)return false;
+    if(state.status!=='all'&&work.status!==state.status)return false;
+    var q=norm(state.query).trim();
+    if(!q)return true;
+    var hay=[work.title,work.shortTitle,work.author,work.year,work.category,work.status,work.description,work.readingGuide,work.sourceNote,(work.concepts||[]).join(' ')].join(' ');
+    return norm(hay).indexOf(q)>=0;
+  }
+  function renderFilters(target,items,key){
+    var el=byId(target);el.innerHTML='';
+    items.forEach(function(item){
+      var b=document.createElement('button');
+      b.type='button';b.className='chip';b.textContent=item[1];b.dataset.value=item[0];
+      b.classList.toggle('on',state[key]===item[0]);
+      b.addEventListener('click',function(){state[key]=item[0];render();});
+      el.appendChild(b);
+    });
+  }
+  function renderCounts(){
+    var all=state.works.length;
+    var available=state.works.filter(function(w){return w.status==='available';}).length;
+    byId('countAll').textContent=all;
+    byId('countAvailable').textContent=available;
+    byId('countPending').textContent=all-available;
+  }
+  function card(work){
+    var article=document.createElement('article');
+    article.className='work '+(work.status||'planned');
+    var isAvailable=work.status==='available';
+    var concepts=(work.concepts||[]).slice(0,7).map(function(c){return '<span class="concept">'+esc(c)+'</span>';}).join('');
+    var action=isAvailable
+      ? '<a class="read" href="'+esc(localPath(work.path))+'">Lire</a>'
+      : '<span class="soon">Texte non intégré</span>';
+    var manifest=work.manifest?'<a class="manifest" href="'+esc(localPath(work.manifest))+'">manifest</a>':'';
+    article.innerHTML=
+      '<span class="spine"></span>'+
+      '<div class="body">'+
+        '<div class="row"><span class="year">'+esc(work.year||'')+'</span><span class="status '+esc(work.status||'planned')+'">'+esc(statusLabel(work.status))+'</span></div>'+
+        '<h2 class="title">'+esc(work.title||work.shortTitle||'Œuvre')+'</h2>'+
+        '<div class="author">'+esc(work.author||'Karl Marx')+'</div>'+
+        '<div class="cat">'+esc(categoryLabel(work.category))+'</div>'+
+        '<p class="desc">'+esc(work.description||'')+'</p>'+
+        (concepts?'<div class="concepts">'+concepts+'</div>':'')+
+        (work.readingGuide?'<div class="guide">'+esc(work.readingGuide)+'</div>':'')+
+        '<div class="actions">'+action+manifest+'</div>'+
+      '</div>';
+    return article;
+  }
+  function render(){
+    renderFilters('categoryFilters',categories,'category');
+    renderFilters('statusFilters',statuses,'status');
+    renderCounts();
+    var list=state.works.filter(matches);
+    var host=byId('works');
+    host.innerHTML='';
+    if(!list.length){
+      var empty=document.createElement('div');
+      empty.className='empty';
+      empty.textContent='Aucune œuvre ne correspond à ces filtres.';
+      host.appendChild(empty);
+      return;
+    }
+    list.forEach(function(work){host.appendChild(card(work));});
+  }
+  byId('search').addEventListener('input',function(e){state.query=e.target.value;render();});
+  fetch('bibliotheque.json',{cache:'no-cache'})
+    .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
+    .then(function(data){state.works=(data&&Array.isArray(data.works)?data.works:FALLBACK.works);render();})
+    .catch(function(){
+      state.works=FALLBACK.works;
+      render();
+      var host=byId('works');
+      var warn=document.createElement('div');
+      warn.className='error';
+      warn.textContent='Le catalogue complet n’a pas pu être chargé. Affichage de secours.';
+      host.insertBefore(warn,host.firstChild);
+    });
+})();
+</script>
+</body>
+</html>
