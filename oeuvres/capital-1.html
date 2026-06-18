@@ -541,11 +541,6 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
 <header class="topbar"><div class="topbar-in">
 <button id="sbToggle" class="sb-toggle" type="button" aria-label="Ouvrir le menu">☰</button>
 <button class="brandmark" type="button" onclick="showHome()" aria-label="Lire Marx — revenir à la bibliothèque">Lire<span class="d">.</span>Marx</button>
-<nav class="tb-tabs" aria-label="Navigation principale">
-  <button class="tb-tab on" type="button" data-main-tab="library">Bibliothèque</button>
-  <button class="tb-tab" type="button" data-main-tab="commons">Place publique</button>
-  <button class="tb-tab" type="button" data-main-tab="contacts">Contacts</button>
-</nav>
 <div class="tb-search"><span class="tb-search-ic" aria-hidden="true">⌕</span><input id="tbSearch" type="text" autocomplete="off" spellcheck="false" placeholder="Rechercher un concept, une date, un chapitre…" aria-label="Rechercher" /><div id="tbResults" class="tb-results" role="listbox" hidden></div></div>
 <div class="topbar-right">
 <button id="supportBtn" class="tb-btn tb-support" type="button" aria-label="Nous soutenir"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 20.3l-1-1.4C5.9 14.3 3 11.7 3 8.4 3 5.9 4.9 4 7.4 4 9 4 10.4 4.8 11.2 6 12 4.8 13.4 4 15 4c2.5 0 4.4 1.9 4.4 4.4 0 3.3-2.9 5.9-8 10.5l-1 1.4z"/></svg><span class="tb-lbl">Nous soutenir</span></button>
@@ -3980,9 +3975,12 @@ try{if(window.Anno&&sel&&sel.value){const nn0=+sel.value.split('|')[0];if(nn0)wi
   }
   function toggleBiblio(btn){
     var sub=document.getElementById('sbBiblio'); if(!sub)return;
-    var wasHidden=sub.hidden; sub.hidden=!wasHidden;
-    btn.setAttribute('aria-expanded', wasHidden?'true':'false');
-    if(wasHidden){ try{ if(typeof showHome==='function')showHome(); }catch(e){} }
+    sub.hidden=false;
+    btn.setAttribute('aria-expanded','true');
+    document.querySelectorAll('.sb-item').forEach(function(x){x.classList.remove('on');});
+    btn.classList.add('on');
+    try{ if(typeof showHome==='function')showHome(); }catch(e){}
+    if(window.innerWidth<=860)document.body.classList.remove('sb-open');
   }
   function initSB(){
     if(!window.__sbWrapped){window.__sbWrapped=1;
@@ -4005,58 +4003,6 @@ try{if(window.Anno&&sel&&sel.value){const nn0=+sel.value.split('|')[0];if(nn0)wi
     if(bd&&!bd.dataset.w){bd.dataset.w='1';bd.addEventListener('click',function(){document.body.classList.remove('sb-open');});}
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initSB);else initSB();
-})();
-
-/* ===== ONGLETS PRINCIPAUX ===== */
-(function(){
-  function setMainTab(id){
-    document.querySelectorAll('.tb-tab').forEach(function(b){
-      b.classList.toggle('on',b.getAttribute('data-main-tab')===id);
-    });
-  }
-  function closeMobileMenu(){
-    if(window.innerWidth<=860)document.body.classList.remove('sb-open');
-  }
-  function openMainTab(id){
-    if(id==='library'){
-      if(typeof showHome==='function')showHome();
-    }else if(id==='commons'){
-      if(typeof window.showPlacePublique==='function')window.showPlacePublique();
-      else if(typeof showHome==='function')showHome();
-    }else if(id==='contacts'){
-      if(typeof window.showContactsPage==='function')window.showContactsPage();
-    }
-    setMainTab(id);
-    closeMobileMenu();
-  }
-  function initMainTabs(){
-    document.querySelectorAll('.tb-tab').forEach(function(b){
-      if(b.dataset.mainTabWire)return;
-      b.dataset.mainTabWire='1';
-      b.addEventListener('click',function(){openMainTab(b.getAttribute('data-main-tab'));});
-    });
-    if(!window.__mainTabsWrapped){
-      window.__mainTabsWrapped=1;
-      if(typeof showHome==='function'){
-        var _mtHome=showHome;
-        showHome=function(){var r=_mtHome.apply(this,arguments);setMainTab('library');return r;};
-      }
-      if(typeof showWork==='function'){
-        var _mtWork=showWork;
-        showWork=function(){var r=_mtWork.apply(this,arguments);setMainTab('library');return r;};
-      }
-      if(typeof window.showPlacePublique==='function'){
-        var _mtCommons=window.showPlacePublique;
-        window.showPlacePublique=function(){var r=_mtCommons.apply(this,arguments);setMainTab('commons');return r;};
-      }
-      if(typeof window.showContactsPage==='function'){
-        var _mtContacts=window.showContactsPage;
-        window.showContactsPage=function(){var r=_mtContacts.apply(this,arguments);setMainTab('contacts');return r;};
-      }
-    }
-    setMainTab('library');
-  }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initMainTabs);else initMainTabs();
 })();
 
 </script>
