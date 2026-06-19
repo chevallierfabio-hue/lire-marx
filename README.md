@@ -42,35 +42,61 @@ GitHub, sans framework, sans compilation et sans étape de build.
 
 ## Structure
 
+Chaque œuvre suit le même motif : une page d'atelier `oeuvres/<id>.html`
+adossée à un dossier `oeuvres/<id>/` qui contient son `manifest.json` et
+ses `textes/`. Les œuvres sont de même niveau dans l'arborescence ; aucune
+n'est « la » page principale.
+
 ```
 lire-marx/
-├── index.html                 # enveloppe statique et animation d'accueil
-├── config.js                  # configuration Supabase publique (jamais de secret)
+├── index.html                       # enveloppe statique et animation d'accueil
+├── config.js                        # configuration Supabase publique (jamais de secret)
 ├── oeuvres/
-│   ├── bibliotheque.json      # source centrale de la liste des œuvres
-│   ├── index.html             # page Bibliothèque générale
-│   ├── capital-1.html         # atelier existant du Capital, Livre I
-│   ├── capital-1/             # fichiers et manifest du Capital, Livre I
-│   └── <id-oeuvre>/
-│       ├── manifest.json      # métadonnées et découpage de l'œuvre
-│       └── textes/            # textes intégrés progressivement
+│   ├── index.html                   # page Bibliothèque générale
+│   ├── bibliotheque.json            # source centrale de la liste des œuvres
+│   ├── capital-1.html               # atelier du Capital, Livre I
+│   ├── capital-1/
+│   │   ├── manifest.json
+│   │   └── textes/
+│   ├── manuscrits-1844.html         # atelier des Manuscrits de 1844
+│   ├── manuscrits-1844/
+│   │   ├── manifest.json
+│   │   └── textes/
+│   └── <id-oeuvre>.html             # même motif pour toute œuvre future
+│       └── <id-oeuvre>/
+│           ├── manifest.json
+│           └── textes/
 ├── supabase/
-│   └── schema.sql     # tables `annotations`, `profiles`, `public_notes` + RLS
+│   └── schema.sql                   # tables `annotations`, `profiles`, `public_notes` + RLS
 └── README.md
 ```
 
-La bibliothèque est pilotée par `oeuvres/bibliotheque.json`. Les pages peuvent
-charger ce fichier pour afficher les œuvres disponibles ou à venir, sans
-dupliquer la liste dans plusieurs fichiers. L'atelier du Capital, Livre I,
-reste la page de lecture principale existante : il ne faut pas le remplacer par
-une version simplifiée.
+Œuvres actuellement disponibles, à parts égales :
+
+- **Le Capital, Livre I** — `oeuvres/capital-1.html` + `oeuvres/capital-1/`.
+- **Manuscrits de 1844** — `oeuvres/manuscrits-1844.html` + `oeuvres/manuscrits-1844/`.
+
+`oeuvres/index.html` est la bibliothèque générale du site ; elle est pilotée
+par `oeuvres/bibliotheque.json`, source centrale de la liste des œuvres
+(disponibles ou à venir), pour éviter toute duplication entre pages.
+
+> **Note sur l'état actuel — `capital-1.html` ne se limite pas à son atelier.**
+> Pour des raisons historiques, c'est encore lui qui héberge la *coquille
+> partagée* du site : la vue d'accueil / bibliothèque interne, la barre
+> supérieure, la pastille « compte » Supabase, le forum (notes publiques),
+> la modération et les éléments RGPD. Ce n'est pas un état idéal — c'est un
+> héritage. Toute nouvelle page d'atelier (comme `manuscrits-1844.html`) est
+> de même niveau qu'elle côté œuvre, mais ne reprend pas cette coquille.
+> Toutes les pages d'atelier partagent en revanche le **même système visuel**
+> (typographie, couleurs, espacements, composants éditoriaux).
 
 ---
 
 ## Ajouter une œuvre
 
-Chaque nouvelle œuvre doit être ajoutée progressivement, en gardant le site
-statique et compatible Cloudflare Pages.
+Chaque nouvelle œuvre est ajoutée progressivement en suivant le motif
+générique : `oeuvres/<id>.html` + `oeuvres/<id>/{manifest.json, textes/}`.
+Le site reste statique et compatible Cloudflare Pages (aucune compilation).
 
 1. **Créer l'entrée dans `oeuvres/bibliotheque.json`**
 
@@ -146,13 +172,15 @@ statique et compatible Cloudflare Pages.
 
 5. **Passer l'œuvre en disponible**
 
-   Passer `status` de `planned` ou `draft` à `available` seulement quand :
+   Passer `status` de `planned` ou `draft` à `available` seulement quand la
+   page fonctionne réellement :
 
    - l'entrée de `bibliotheque.json` pointe vers une vraie page fonctionnelle ;
    - le manifest est valide ;
    - les textes s'affichent correctement ;
    - aucun lien cassé n'est exposé dans la bibliothèque ;
-   - l'atelier du Capital, Livre I, fonctionne toujours.
+   - la coquille partagée encore hébergée par `oeuvres/capital-1.html`
+     (auth Supabase, forum, modération, RGPD) reste intacte.
 
 ---
 
@@ -162,9 +190,12 @@ statique et compatible Cloudflare Pages.
 - Ne jamais utiliser ni exposer la clé Supabase `service_role` côté client.
 - `config.js` ne doit contenir que les informations publiques nécessaires au
   client, comme l'URL du projet et la clé `anon` ou `Publishable`.
-- Ne pas casser l'atelier du Capital, Livre I : `oeuvres/capital-1.html` porte
-  encore la lecture, les annotations, le forum, la modération et les éléments
-  RGPD.
+- Ne pas casser la coquille partagée encore hébergée par
+  `oeuvres/capital-1.html` : la barre supérieure, la pastille « compte »
+  Supabase, les annotations, le forum (notes publiques), la modération et les
+  éléments RGPD y sont toujours portés (héritage). L'atelier du Capital
+  lui-même reste de même niveau que les autres ateliers ; c'est cette
+  coquille-là qui doit rester intacte tant qu'elle n'a pas été factorisée.
 - Le projet reste statique : HTML, CSS et JavaScript simples, sans React, Vite,
   Next ou autre build obligatoire.
 
@@ -184,7 +215,17 @@ statique et compatible Cloudflare Pages.
 - **Unification future des pages d'œuvres**
   À terme, factoriser progressivement les comportements communs des pages
   d'œuvres, tout en conservant la compatibilité statique Cloudflare Pages et
-  sans casser l'atelier du Capital, Livre I.
+  sans casser la coquille partagée encore hébergée par `oeuvres/capital-1.html`.
+
+- **Système visuel partagé**
+  Factoriser à terme le CSS commun des ateliers (variables `:root`,
+  typographie, composants éditoriaux : `tabs`, `panel`, `intro-block`,
+  `reader`, `plan-list`, `btn`, etc.) dans une feuille unique chargée par
+  toutes les pages d'œuvres. Aujourd'hui chaque page embarque sa propre copie
+  du style, ce qui a déjà provoqué une dérive entre `capital-1.html` et
+  `manuscrits-1844.html` corrigée à la main : une source unique empêchera
+  toute future divergence et fera des pages d'atelier une famille visuelle
+  cohérente.
 
 - **Amélioration éditoriale**
   Compléter les guides de lecture, les notes de source, les concepts associés,
