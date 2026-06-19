@@ -365,6 +365,10 @@
   function openModal(){
     if(!modalEl) modalEl = document.getElementById('acctModal');
     if(!modalEl) return;
+    // Reset de l'état UI : évite qu'un view.busy resté à true d'une
+    // tentative précédente (signin hanguée) laisse le bouton "..."
+    // sans bouton valide quand on rouvre la modale.
+    view.busy = false; view.err = ''; view.notice = '';
     renderModal();
     modalEl.hidden = false;
     document.body.style.overflow = 'hidden';
@@ -555,6 +559,16 @@
   }
   function field(el, id){ var x = el.querySelector('#' + id); return x ? x.value : ''; }
   function wireModalActions(slot){
+    // Permettre la touche Entrée pour valider le formulaire courant.
+    var primaryBtn = slot.querySelector('[data-act="do-signin"], [data-act="do-signup"], [data-act="setpw"]');
+    slot.querySelectorAll('input').forEach(function(inp){
+      inp.addEventListener('keydown', function(e){
+        if(e.key === 'Enter' && primaryBtn && !primaryBtn.disabled){
+          e.preventDefault();
+          primaryBtn.click();
+        }
+      });
+    });
     slot.querySelectorAll('[data-act]').forEach(function(b){
       b.onclick = function(){
         var a = b.dataset.act;
