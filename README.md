@@ -188,18 +188,23 @@ statique et compatible Cloudflare Pages.
   compte et RGPD) vit dans `oeuvres/shell.css` côté style et dans
   `oeuvres/shell.js` côté markup+comportement (la page appelle
   `installShell({workId, workTitle, tabs:[...]})` qui injecte tout le shell).
-  Les Manuscrits utilisent déjà ce shell ; toute nouvelle page d'œuvre
-  suivra le même motif.
+  Les Manuscrits, la bibliothèque (`oeuvres/index.html`) et le Capital lui-même
+  utilisent ce shell. L'accueil canonique du site est désormais la
+  bibliothèque : le brandmark Lire.Marx y renvoie depuis n'importe quelle
+  page. Capital n'a plus de vue #home propre ; il est devenu un livre comme
+  un autre.
 
 - **Shell JS à factoriser entièrement (mission future)**
-  `oeuvres/capital-1.html` inline encore l'auth Supabase, le forum public,
-  la modération, la RGPD, la recherche et la vue d'accueil avec étagère.
-  Tant qu'elles ne sont pas extraites vers `shell.js`, les pages qui
-  utilisent `installShell()` redirigent vers `capital-1.html` pour ces
-  fonctionnalités (clic sur la pastille compte, recherche, Place publique,
-  Contacts, CGU). Prochaine étape architecturale : sortir ce code de
-  `capital-1.html`, le placer dans `shell.js`, et faire que Capital
-  lui-même consomme `installShell()` comme les autres livres.
+  `oeuvres/capital-1.html` inline encore l'auth Supabase, le forum public
+  (Place publique), la modération, la RGPD, la recherche, les messages, les
+  contacts et un routeur de hash qui leur sert de point d'entrée depuis
+  les autres pages. Tant qu'elles ne sont pas extraites vers `shell.js`, le
+  shell partagé redirige vers `capital-1.html#commune` / `#contacts` /
+  `#cgu` lors d'un clic sur le sidebar Place publique / Contacts / CGU
+  depuis Manuscrits ou la bibliothèque. Prochaine étape architecturale :
+  sortir ce code de `capital-1.html`, le placer dans `shell.js`, et faire
+  que toutes les pages le consomment uniformément — sans plus avoir besoin
+  de `SHELL_HOST` ni du routeur de hash.
 
 - **Amélioration éditoriale**
   Compléter les guides de lecture, les notes de source, les concepts associés,
