@@ -2057,16 +2057,28 @@ drawTRPF();
 
   /* ----- bootstrap : connecte Capital au shell partagé ---------------- */
   async function initSync(){
+    // Si shell.js n'est pas chargé (cas dégradé), on ne tente même pas.
+    if(!window.SHELL || !window.SHELL.auth){ configured=false; return; }
+
+    // 1) On branche la chip et les modales IMMÉDIATEMENT, indépendamment
+    //    de l'état Supabase. Comme ça un clic sur "Se connecter" ouvre
+    //    toujours quelque chose — même si l'import du client échoue.
+    try{ window.SHELL.auth.setLoggedInRenderer(renderLoggedIn); }catch(e){}
+    try{ window.SHELL.auth.onChange(setSession); }catch(e){}
+    try{ window.SHELL.auth._wireChrome(); }catch(e){}
+    const fp=document.getElementById('footPrivacy');
+    if(fp) fp.onclick=function(){ try{ window.SHELL.auth.openPrivacy(); }catch(e){} };
+
+    // 2) On charge le client Supabase ; les échecs sont absorbés
+    //    silencieusement (la modale affichera "Compte non configuré").
     try{
       sb = await window.SHELL.auth.getClient();
-      if(!sb){configured=false;renderAcct();return;}
+      if(!sb){ configured=false; return; }
       configured = window.SHELL.auth.isConfigured();
-      window.SHELL.auth.setLoggedInRenderer(renderLoggedIn);
-      window.SHELL.auth.onChange(setSession);
-      window.SHELL.auth._wireChrome();
-      const fp=document.getElementById('footPrivacy'); if(fp) fp.onclick=()=>openPrivacy();
       await window.SHELL.auth._bootstrap();
-    }catch(e){sb=null;configured=false;toast('Compte indisponible (chargement du client échoué).');}
+    }catch(e){
+      sb=null; configured=false;
+    }
   }
 
   /* ----- nombre d'annotations (utilisé par renderLoggedIn) ------------ */
