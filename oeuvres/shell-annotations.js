@@ -57,6 +57,16 @@
   var fab = null;            // bouton flottant « Mes notes » (idem)
   var pulledWorks = {};      // workId → true une fois pullAll appelé
   var initialized = false;
+  // ----- forum par passage (5b) -----
+  var pubNotes = [];         // notes publiques de la section courante (top-level + replies)
+  var pubPanel = null;       // .notes-panel.pub-panel (créé à la volée)
+  var pubFab = null;         // 2e bouton flottant « Notes partagées »
+  var pubPop = null;         // popover de composition (.pub-compose)
+  var replyOpen = null;      // id de la note dont la zone réponse est ouverte
+  var pubPoll = null;        // setInterval de refresh
+  // Deep-link pendant à la 1re attach (parsé depuis location.hash au _init).
+  var pendingDeepLink = null;
+  var pendingDeepLinkConsumed = false;
 
   // ----- localStorage (chargement initial) -----
   try { localStorage.setItem('liremarx.__t', '1'); localStorage.removeItem('liremarx.__t'); }
@@ -261,11 +271,14 @@
     COLORS.forEach(function(c){
       h += '<button class="anno-sw c-' + c[0] + '" data-c="' + c[0] + '" title="' + c[1] + '" type="button"></button>';
     });
+    h += '<button class="share-btn" data-share="1" type="button">Partager</button>';
     bar.innerHTML = h;
     bar.addEventListener('mousedown', function(e){ e.preventDefault(); });
     bar.addEventListener('click', function(e){
       var c = e.target.closest && e.target.closest('[data-c]');
-      if(c) addFromSelection(c.dataset.c);
+      if(c){ addFromSelection(c.dataset.c); return; }
+      var s = e.target.closest && e.target.closest('[data-share]');
+      if(s) shareFromSelection();
     });
     document.body.appendChild(bar);
     return bar;
@@ -481,6 +494,374 @@
     inp.click();
   }
 
+  // ===== Forum public par passage (5b) =====
+  // Notes publiques ancrées (table `public_notes`) pour la section
+  // courante. La modération (signalements, masquage) est différée à
+  // la sous-mission 5c — pas de bouton « Signaler » ni de vue
+  // modérateur ici.
+
+  function fmtDate(ms){
+    try { return new Date(ms).toLocaleDateString('fr-FR', { day:'numeric', month:'short', year:'numeric' }); }
+    catch(e){ return ''; }
+  }
+  function isConfigured(){
+    return !!(SHELL.auth && SHELL.auth.isConfigured && SHELL.auth.isConfigured());
+  }
+  function openAcctModal(){
+    if(SHELL.auth && SHELL.auth.openModal) SHELL.auth.openModal();
+  }
+  function ensurePosterSilent(){
+    return !!(sb && user && profile && profile.username);
+  }
+  function ensurePoster(){
+    if(!isConfigured() || !sb){ toast('Le compte n\'est pas configuré.'); return false; }
+    if(!user){ openAcctModal(); return false; }
+    if(!(profile && profile.username)){
+      toast('Choisis d\'abord un pseudo (Mon compte).');
+      openAcctModal();
+      return false;
+    }
+    return true;
+  }
+
+  async function loadPublic(workId, section){
+    pubNotes = [];
+    if(!sb || !workId){ renderPublic(); return; }
+    try {
+      var res = await sb.from('public_notes')
+        .select('id,author_id,section,before,quote,after,body,parent_id,hidden,created,profiles(username)')
+        .eq('work', workId).eq('section', section).eq('hidden', false)
+        .order('created', { ascending: true });
+      if(res.error) throw res.error;
+      var rows = res.data || [], tops = {}, reps = [];
+      rows.forEach(function(r){
+        r.author = (r.profiles && r.profiles.username) || '(compte supprimé)';
+        if(r.parent_id){ reps.push(r); }
+        else { r.replies = []; tops[r.id] = r; }
+      });
+      reps.forEach(function(r){ if(tops[r.parent_id]) tops[r.parent_id].replies.push(r); });
+      pubNotes = Object.keys(tops).map(function(k){ return tops[k]; })
+        .sort(function(a, b){ return a.created - b.created; });
+    } catch(e){
+      toast('Notes partagées : ' + ((e && e.message) || e));
+    }
+    renderPublic();
+    updatePubFab();
+  }
+
+  async function addPublic(anchor, body){
+    if(!ensurePoster()) return;
+    body = (body || '').trim();
+    if(!body){ toast('Écris ta note.'); return; }
+    var row = {
+      id: uid(), author_id: user.id,
+      work: curWork, section: curSection,
+      before: anchor.before, quote: anchor.quote, after: anchor.after,
+      body: body, parent_id: null, created: Date.now()
+    };
+    var res = await sb.from('public_notes').insert(row);
+    if(res.error){ toast('Publication : ' + res.error.message); return; }
+    closePubCompose();
+    ensurePubPanel();
+    if(pubPanel.hidden){ pubPanel.hidden = false; if(panel) panel.hidden = true; }
+    await loadPublic(curWork, curSection);
+  }
+  async function addReply(parentId, body){
+    if(!ensurePoster()) return;
+    body = (body || '').trim();
+    if(!body) return;
+    var row = {
+      id: uid(), author_id: user.id,
+      work: curWork, section: curSection,
+      body: body, parent_id: parentId, created: Date.now()
+    };
+    var res = await sb.from('public_notes').insert(row);
+    if(res.error){ toast('Réponse : ' + res.error.message); return; }
+    replyOpen = null;
+    await loadPublic(curWork, curSection);
+  }
+  async function delPublic(id){
+    if(!sb || !user) return;
+    var res = await sb.from('public_notes').delete().eq('id', id);
+    if(res.error){ toast('Suppression : ' + res.error.message); return; }
+    await loadPublic(curWork, curSection);
+  }
+
+  // flashAnchor : retrouve le passage par recherche de la citation
+  // (court extrait + repli sur 16 caractères) dans les éléments de bloc
+  // du conteneur, scroll dessus et fait clignoter une mise en avant.
+  function flashAnchor(an){
+    if(!box || !an || !an.quote) return;
+    var probe = String(an.quote).replace(/\s+/g, ' ').trim().slice(0, 40);
+    if(!probe) return;
+    var els = box.querySelectorAll('p,h2,h3,h4,h5,li,blockquote');
+    var target = null;
+    for(var i = 0; i < els.length; i++){
+      if(els[i].textContent.replace(/\s+/g, ' ').indexOf(probe) >= 0){ target = els[i]; break; }
+    }
+    if(!target && probe.length > 14){
+      var short = probe.slice(0, 16);
+      for(var j = 0; j < els.length; j++){
+        if(els[j].textContent.replace(/\s+/g, ' ').indexOf(short) >= 0){ target = els[j]; break; }
+      }
+    }
+    if(target){
+      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      target.classList.add('pub-flash');
+      setTimeout(function(){ target.classList.remove('pub-flash'); }, 1500);
+    } else {
+      toast('Passage introuvable dans cette section.');
+    }
+  }
+
+  function shareFromSelection(){
+    var r = selectionInBox();
+    if(!r){ hideBar(); return; }
+    var off = rangeOffsets(box, r);
+    if(!off){ hideBar(); return; }
+    var ctx = contextFor(box.textContent, off.start, off.end);
+    var rect = null;
+    try { rect = r.getBoundingClientRect(); } catch(e){}
+    window.getSelection().removeAllRanges();
+    hideBar();
+    if(!ensurePoster()) return;
+    openPubCompose(ctx, rect);
+  }
+  function openPubCompose(anchor, rect){
+    if(!pubPop){
+      pubPop = document.createElement('div');
+      pubPop.className = 'pub-compose';
+      document.body.appendChild(pubPop);
+    }
+    pubPop.innerHTML = '<div class="pub-q">« ' + esc(anchor.quote.slice(0, 160)) + (anchor.quote.length > 160 ? '…' : '') + ' »</div>'
+      + '<textarea class="pub-ta" placeholder="Ta note publique sur ce passage…"></textarea>'
+      + '<div class="pub-compose-act"><button class="lk" data-act="cancel" type="button">Annuler</button><button class="btn red" data-act="publish" type="button">Publier</button></div>';
+    var top = window.scrollY + 120, left = window.scrollX + 20;
+    if(rect){ top = window.scrollY + rect.bottom + 8; left = Math.max(8, window.scrollX + rect.left); }
+    pubPop.style.display = 'block';
+    pubPop.style.top = top + 'px';
+    pubPop.style.left = left + 'px';
+    var ta = pubPop.querySelector('.pub-ta');
+    if(ta) ta.focus();
+    pubPop.querySelector('[data-act="cancel"]').onclick = closePubCompose;
+    pubPop.querySelector('[data-act="publish"]').onclick = function(){
+      addPublic(anchor, ta ? ta.value : '');
+    };
+  }
+  function closePubCompose(){ if(pubPop) pubPop.style.display = 'none'; }
+
+  function pubStatusHtml(){
+    if(!isConfigured()) return '<div class="np-acct"><span class="dot"></span>Notes partagées indisponibles (compte non configuré).</div>';
+    if(!user) return '<div class="np-acct"><span class="dot"></span>Connecte-toi pour participer.<span style="margin-left:auto"></span><button class="lk" data-pa="login" type="button">Se connecter</button></div>';
+    if(!(profile && profile.username)) return '<div class="np-acct"><span class="dot"></span>Choisis un pseudo pour publier.<span style="margin-left:auto"></span><button class="lk" data-pa="login" type="button">Mon compte</button></div>';
+    return '<div class="np-acct on"><span class="dot"></span>Tu participes en tant que <b>' + esc(profile.username) + '</b>.</div>';
+  }
+
+  function noteBlockHtml(n){
+    var mine = user && n.author_id === user.id;
+    var h = '<div class="pub-note" data-id="' + n.id + '">'
+      + '<div class="pub-meta"><span class="pub-author">' + esc(n.author) + '</span>'
+      + '<span class="pub-date">' + esc(fmtDate(n.created)) + '</span></div>';
+    if(n.quote){
+      h += '<div class="pub-q" data-go="' + n.id + '">« ' + esc(n.quote.slice(0, 140)) + (n.quote.length > 140 ? '…' : '') + ' »</div>';
+    }
+    h += '<div class="pub-body">' + esc(n.body) + '</div>';
+    h += '<div class="pub-acts">'
+      + '<button class="lk" data-go="' + n.id + '" type="button">Aller au passage</button>'
+      + '<button class="lk" data-reply="' + n.id + '" type="button">Répondre' + (n.replies && n.replies.length ? ' (' + n.replies.length + ')' : '') + '</button>'
+      + (mine ? '<button class="lk" data-del="' + n.id + '" type="button">Supprimer</button>' : '')
+      + '</div>';
+    if(n.replies && n.replies.length){
+      h += '<div class="pub-replies">';
+      n.replies.forEach(function(r){
+        var rm = user && r.author_id === user.id;
+        h += '<div class="pub-reply"><div class="pub-meta"><span class="pub-author">' + esc(r.author) + '</span><span class="pub-date">' + esc(fmtDate(r.created)) + '</span></div>'
+          + '<div class="pub-body">' + esc(r.body) + '</div>'
+          + '<div class="pub-acts">' + (rm ? '<button class="lk" data-del="' + r.id + '" type="button">Supprimer</button>' : '') + '</div></div>';
+      });
+      h += '</div>';
+    }
+    if(replyOpen === n.id){
+      h += '<div class="pub-replybox"><textarea class="pub-rta" placeholder="Ta réponse…"></textarea><div class="pub-compose-act"><button class="lk" data-replycancel="1" type="button">Annuler</button><button class="btn red" data-sendreply="' + n.id + '" type="button">Répondre</button></div></div>';
+    }
+    h += '</div>';
+    return h;
+  }
+
+  function ensurePubPanel(){
+    if(pubPanel) return pubPanel;
+    pubPanel = document.createElement('div');
+    pubPanel.id = 'publicPanel';
+    pubPanel.className = 'notes-panel pub-panel';
+    pubPanel.hidden = true;
+    document.body.appendChild(pubPanel);
+    return pubPanel;
+  }
+  function ensurePubFab(){
+    if(pubFab) return pubFab;
+    pubFab = document.createElement('button');
+    pubFab.type = 'button';
+    pubFab.id = 'pubFab';
+    pubFab.className = 'notes-fab notes-fab-pub';
+    pubFab.textContent = 'Notes partagées';
+    pubFab.addEventListener('click', function(){
+      ensurePubPanel();
+      if(pubPanel.hidden){ renderPublic(); pubPanel.hidden = false; if(panel) panel.hidden = true; }
+      else pubPanel.hidden = true;
+    });
+    document.body.appendChild(pubFab);
+    return pubFab;
+  }
+  function updatePubFab(){
+    if(!pubFab) return;
+    pubFab.textContent = pubNotes.length ? ('Notes partagées · ' + pubNotes.length) : 'Notes partagées';
+  }
+
+  function renderPublic(){
+    ensurePubPanel();
+    if(!pubPanel) return;
+    var h = '<div class="np-head"><b>Notes partagées</b>'
+      + (curLabel ? ' · <span class="np-sec">' + esc(curLabel) + '</span>' : '')
+      + ' <span class="np-n">' + pubNotes.length + '</span>'
+      + '<span class="np-tools"><button class="lk" id="pubClose" type="button">Fermer</button></span></div>'
+      + pubStatusHtml();
+    if(ensurePosterSilent()){
+      h += '<div class="pub-hint">Sélectionne un passage du texte, puis « Partager » pour ouvrir une note publique.</div>';
+    }
+    if(!pubNotes.length){
+      h += '<div class="pub-empty">Aucune note partagée sur cette section pour l’instant.</div>';
+    } else {
+      pubNotes.forEach(function(n){ h += noteBlockHtml(n); });
+    }
+    pubPanel.innerHTML = h;
+    var cl = pubPanel.querySelector('#pubClose');
+    if(cl) cl.onclick = function(){ pubPanel.hidden = true; };
+    pubPanel.querySelectorAll('[data-pa="login"]').forEach(function(b){ b.onclick = function(){ openAcctModal(); }; });
+    pubPanel.querySelectorAll('[data-go]').forEach(function(b){
+      b.onclick = function(){
+        var n = pubNotes.find(function(x){ return x.id === b.dataset.go; });
+        if(n) flashAnchor(n);
+      };
+    });
+    pubPanel.querySelectorAll('[data-reply]').forEach(function(b){
+      b.onclick = function(){
+        replyOpen = (replyOpen === b.dataset.reply) ? null : b.dataset.reply;
+        renderPublic();
+        var ta = pubPanel.querySelector('.pub-rta');
+        if(ta) ta.focus();
+      };
+    });
+    pubPanel.querySelectorAll('[data-replycancel]').forEach(function(b){
+      b.onclick = function(){ replyOpen = null; renderPublic(); };
+    });
+    pubPanel.querySelectorAll('[data-sendreply]').forEach(function(b){
+      b.onclick = function(){
+        var ta = pubPanel.querySelector('.pub-rta');
+        addReply(b.dataset.sendreply, ta ? ta.value : '');
+      };
+    });
+    pubPanel.querySelectorAll('[data-del]').forEach(function(b){
+      b.onclick = function(){ delPublic(b.dataset.del); };
+    });
+  }
+
+  // ----- contrat de deep-link au passage (#note=<id> ou #s=&q=) -----
+  // SHELL.commune (Place publique) et SHELL.social (notifications)
+  // ajoutent `#note=<id>` au lien d'ouverture de l'œuvre. Au chargement
+  // de la page, on parse le hash et on garde la cible en attente :
+  //   - si #note=<id> : on fetch la ligne public_notes pour récupérer
+  //     section, quote, before, after — ce qui permet à la page de
+  //     livre de savoir quelle section ouvrir avant d'appeler attach.
+  //   - quand attach() est appelée avec la bonne section : on appelle
+  //     flashAnchor sur le passage.
+  function parseDeepLink(){
+    var h = location.hash || '';
+    if(!h) return null;
+    if(h.charAt(0) === '#') h = h.slice(1);
+    if(!h) return null;
+    var out = {};
+    h.split('&').forEach(function(p){
+      var eq = p.indexOf('=');
+      if(eq < 0) return;
+      var k = decodeURIComponent(p.slice(0, eq));
+      var v = decodeURIComponent(p.slice(eq + 1));
+      out[k] = v;
+    });
+    if(out.note) return { noteId: out.note };
+    if(out.s || out.q){
+      return {
+        section: out.s ? +out.s : null,
+        quote:   out.q || '',
+        before:  out.b || '',
+        after:   out.a || ''
+      };
+    }
+    return null;
+  }
+  async function resolveDeepLink(workId){
+    if(pendingDeepLinkConsumed) return pendingDeepLink;
+    var dl = pendingDeepLink;
+    if(!dl) return null;
+    // Si c'est un noteId nu, on fetch la ligne pour enrichir.
+    if(dl.noteId && dl.section == null){
+      try {
+        if(!sb && SHELL.auth) sb = await SHELL.auth.getClient();
+        if(!sb) return null;
+        var res = await sb.from('public_notes')
+          .select('id,work,section,before,quote,after,parent_id')
+          .eq('id', dl.noteId).maybeSingle();
+        if(res.error || !res.data) return null;
+        var note = res.data;
+        // Si c'est une réponse (parent_id présent, quote vide), on
+        // remonte au parent pour récupérer l'ancre du passage.
+        if(note.parent_id && !note.quote){
+          try {
+            var parent = await sb.from('public_notes')
+              .select('id,work,section,before,quote,after')
+              .eq('id', note.parent_id).maybeSingle();
+            if(parent && parent.data){
+              note = {
+                id: note.id,
+                work: parent.data.work || note.work,
+                section: parent.data.section != null ? parent.data.section : note.section,
+                before: parent.data.before || '',
+                quote: parent.data.quote || '',
+                after: parent.data.after || ''
+              };
+            }
+          } catch(e){}
+        }
+        // Alias hérité : la ligne peut avoir work='capital' et viser
+        // workId='capital-1' (ou vice versa).
+        if(workId && note.work && note.work !== workId){
+          var ok = (note.work === 'capital' && workId === 'capital-1')
+                || (note.work === 'capital-1' && workId === 'capital');
+          if(!ok) return null;
+        }
+        pendingDeepLink = {
+          noteId: note.id,
+          section: +note.section || null,
+          quote:   note.quote || '',
+          before:  note.before || '',
+          after:   note.after || ''
+        };
+      } catch(e){ return null; }
+    }
+    return pendingDeepLink;
+  }
+  function applyDeepLinkOnAttach(workId, section){
+    if(!pendingDeepLink || pendingDeepLinkConsumed) return;
+    var dl = pendingDeepLink;
+    if(dl.section != null && dl.section !== section) return;
+    if(!dl.quote) return;
+    pendingDeepLinkConsumed = true;
+    pendingDeepLink = null;
+    // léger délai pour laisser les highlights / le DOM finir de poser
+    setTimeout(function(){
+      if(box) flashAnchor({ quote: dl.quote, before: dl.before, after: dl.after });
+    }, 220);
+  }
+
   // ----- contrat liseuse : SHELL.reader.attach -----
   function attach(opts){
     opts = opts || {};
@@ -497,6 +878,7 @@
     curLabel = label;
     box = container;
     ensureFab();
+    ensurePubFab();
     // setTimeout(0) : laisse la page hôte finir ses mises à jour DOM
     // avant qu'on insère les marks (sinon une rerender peut les écraser).
     setTimeout(function(){
@@ -507,7 +889,22 @@
       if(panel && !panel.hidden) renderPanel();
       // premier accès à cette œuvre + utilisateur connecté → pullAll
       if(user && !pulledWorks[workId]) pullAll(workId);
+      // 5b : recharger les notes publiques de la section + appliquer
+      // le deep-link en attente (Place publique / notifications).
+      loadPublic(workId, section);
+      applyDeepLinkOnAttach(workId, section);
+      ensurePolling();
     }, 0);
+  }
+
+  // Polling de secours toutes les 30 s pour rafraîchir les notes
+  // partagées de la section ouverte (en attendant un realtime dédié).
+  function ensurePolling(){
+    if(pubPoll) return;
+    pubPoll = setInterval(function(){
+      if(!curWork || !box) return;
+      if(pubPanel && !pubPanel.hidden) loadPublic(curWork, curSection);
+    }, 30000);
   }
 
   // ----- événements globaux (sélection / clic mark / Échap) -----
@@ -519,6 +916,7 @@
     document.addEventListener('mousedown', function(e){
       var t = e.target;
       if(!(t.closest && t.closest('.anno-bar,.anno-pop,mark.anno'))) closePop();
+      if(!(t.closest && t.closest('.anno-bar,.pub-compose'))) closePubCompose();
     });
     document.addEventListener('click', function(e){
       var m = e.target.closest && e.target.closest('mark.anno');
@@ -530,7 +928,9 @@
     window.addEventListener('scroll', hideBar, { passive: true });
     document.addEventListener('keydown', function(e){
       if(e.key !== 'Escape') return;
+      if(pubPop && pubPop.style.display !== 'none'){ closePubCompose(); return; }
       if(pop && pop.style.display !== 'none'){ closePop(); return; }
+      if(pubPanel && !pubPanel.hidden){ pubPanel.hidden = true; return; }
       if(panel && !panel.hidden){ panel.hidden = true; }
     });
   }
@@ -567,13 +967,27 @@
     }
   }
 
+  // Lit le deep-link immédiatement au chargement du module : ainsi la
+  // page de livre peut appeler SHELL.reader.resolveDeepLink(workId)
+  // dès son init() pour savoir quelle section ouvrir.
+  pendingDeepLink = parseDeepLink();
+
   // ----- API exposée -----
   SHELL.annotations = {
     _init: _init,
     pullAll: pullAll,
     exportAll: exportAll,
-    importAll: importAll
+    importAll: importAll,
+    // forum (5b)
+    loadPublic: function(){ return loadPublic(curWork, curSection); },
+    flashAnchor: flashAnchor
   };
   SHELL.reader = SHELL.reader || {};
   SHELL.reader.attach = attach;
+  // Contrat de deep-link : la page lit la cible (synchrone si #s=&q=,
+  // asynchrone si #note=<id> car il faut fetch la ligne pour récupérer
+  // section + quote), puis ouvre la bonne section. attach() finit le
+  // travail (flashAnchor au passage).
+  SHELL.reader.parseDeepLink = function(){ return pendingDeepLink; };
+  SHELL.reader.resolveDeepLink = resolveDeepLink;
 })();

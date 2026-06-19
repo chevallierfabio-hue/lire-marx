@@ -75,9 +75,12 @@ Toutes les pages (bibliothèque comme livres) partagent :
 - `oeuvres/shell-annotations.js` (optionnel) — module
   `SHELL.annotations` + contrat `SHELL.reader.attach()` :
   surlignage + notes privées (local + synchro Supabase) + panneau
-  « Mes notes ». Capital-1.html garde sa propre version inlinée
-  jusqu'à `retrait-shell-host` ; `manuscrits-1844.html` est la
-  **première page de livre à adopter le contrat**.
+  « Mes notes » ; **forum public par passage** (`public_notes`
+  ancrées, composer + répondre + flashAnchor) ; **contrat de
+  deep-link au passage** (`#note=<id>` ou `#s=N&q=...`). Capital-1.html
+  garde sa propre version inlinée jusqu'à `retrait-shell-host` ;
+  `manuscrits-1844.html` est la **première page de livre à adopter le
+  contrat**.
 
 **Règle realtime.** Un seul canal Supabase `lm-<userid>` par session,
 qui multiplexe deux abonnements `INSERT` : `direct_messages` (filtré
@@ -133,6 +136,28 @@ de policy RLS le pose à `auth.uid()`. Préserver ce comportement à
 l'identique côté shell ; si un INSERT échoue depuis une page shell
 alors qu'il marche sur Capital, c'est une policy à revoir, pas un
 contournement à coder.
+
+**Contrat de deep-link au passage.** Place publique
+(`SHELL.commune`) et notifications (`SHELL.social`) ouvrent une
+page d'œuvre avec un fragment `#note=<id>` (id `public_notes`).
+`SHELL.reader.parseDeepLink()` lit la cible au chargement du module,
+`SHELL.reader.resolveDeepLink(workId)` fetch la ligne pour
+récupérer `section / quote / before / after` (et suit `parent_id`
+si la ligne est une réponse sans citation propre). La page d'œuvre
+appelle `resolveDeepLink` dans son `init()`, ouvre la bonne section,
+et la prochaine `SHELL.reader.attach()` déclenche `flashAnchor` sur
+le passage. Variante explicite supportée :
+`#s=<section>&q=<quote>&b=<before>&a=<after>`.
+
+**Forum public par passage.** À chaque `attach()`, le shell
+recharge les `public_notes` ancrées (filtrées sur `work=workId`,
+`section`, `hidden=false`). Le bouton flottant « Notes partagées »
+ouvre un panneau qui liste les notes (top + replies), avec
+« Aller au passage », « Répondre » et « Supprimer » (pour mes
+propres notes). Composition : sélection dans le texte → bouton
+« Partager » dans l'anno-bar → popover avec textarea → INSERT
+dans `public_notes` (avec `before/quote/after`). La modération
+(`reports`, `hidden`, rôle `moderators`) reste **différée à 5c**.
 
 **Reste couplé à la liseuse.** Le surlignage précis du passage
 (deep-link au passage) et le profil membre cliquable (notes publiques

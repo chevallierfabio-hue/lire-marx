@@ -957,7 +957,7 @@
     var ac = accent(note.section);
     return (
       '<article class="cm-card' + (clickable ? '' : ' cm-card-soon') + '"' +
-        (clickable ? ' data-open="' + esc(path) + '" role="button" tabindex="0"' : '') + '>' +
+        (clickable ? ' data-open="' + esc(path) + '" data-note="' + esc(note.id) + '" role="button" tabindex="0"' : '') + '>' +
         '<div class="cm-row">' +
           '<span class="cm-av" style="background:' + ac + '">' + esc(initials(name)) + '</span>' +
           '<span class="cm-name">' + esc(name) + '</span>' +
@@ -978,7 +978,15 @@
   function wireCards(container){
     if(!container) return;
     container.querySelectorAll('[data-open]').forEach(function(c){
-      var go = function(){ var p = c.getAttribute('data-open'); if(p) location.href = p; };
+      // 5b : deep-link au passage. La page d'œuvre lit #note=<id>,
+      // résout la ligne public_notes, ouvre la bonne section, puis
+      // SHELL.annotations.flashAnchor surligne le passage.
+      var go = function(){
+        var p = c.getAttribute('data-open');
+        if(!p) return;
+        var nid = c.getAttribute('data-note');
+        location.href = nid ? (p + '#note=' + encodeURIComponent(nid)) : p;
+      };
       c.addEventListener('click', go);
       c.addEventListener('keydown', function(e){
         if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); go(); }

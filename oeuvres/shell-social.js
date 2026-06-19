@@ -540,11 +540,11 @@
         if(!it) return;
         socClosePops(null);
         var meta = resolveWork(it.work, biblio);
-        // Contrat de deep-link : pour l'instant, on ouvre la page de
-        // l'œuvre si elle est available. Le surlignage précis du
-        // passage est différé à la mission annotations.
+        // Contrat de deep-link au passage : on ajoute #note=<id> ;
+        // SHELL.reader.resolveDeepLink côté page d'œuvre suivra
+        // parent_id si nécessaire pour atterrir sur la bonne ancre.
         if(meta && meta.status === 'available' && meta.path){
-          location.href = meta.path;
+          location.href = meta.path + '#note=' + encodeURIComponent(it.id);
         }
       };
     });

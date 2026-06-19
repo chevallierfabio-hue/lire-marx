@@ -244,6 +244,22 @@
     sel.addEventListener('change',function(){preparePart(+sel.value||0);});
     byId('loadBtn').addEventListener('click',function(){loadPart(+sel.value||0);});
     preparePart(0);
+    applyDeepLinkIfAny();
+  }
+  // Contrat de deep-link au passage : si la page a été ouverte avec
+  // #note=<id> (Place publique / notifications) ou #s=N&q=..., on
+  // ouvre l'onglet « Texte intégral », on charge la bonne partie ;
+  // attach() finit le travail (flashAnchor au passage) côté shell.
+  async function applyDeepLinkIfAny(){
+    if(!(window.SHELL && window.SHELL.reader && window.SHELL.reader.resolveDeepLink)) return;
+    var dl;
+    try { dl = await window.SHELL.reader.resolveDeepLink('manuscrits-1844'); }
+    catch(e){ return; }
+    if(!dl || dl.section == null) return;
+    var idx = Math.max(0, Math.min(parts.length - 1, dl.section - 1));
+    activateTab('lire');
+    byId('partSelect').value = String(idx);
+    loadPart(idx);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
