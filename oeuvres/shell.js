@@ -451,18 +451,21 @@
     }
     if(state.user){
       if(loggedInRenderer){
-        try { loggedInRenderer(slot, { user: state.user, profile: state.profile, view: view, esc: esc, avaHtml: avaHtml }); }
-        catch(e){ slot.innerHTML = '<div class="ac-card"><h3>Mon compte</h3>' + err + ok + '<p class="ac-p">Erreur de rendu.</p></div>'; }
-      } else {
-        // Rendu par défaut (Manuscrits, bibliothèque) : juste pseudo + déconnexion
-        var p = state.profile, u = state.user;
-        var pseudo = (p && p.username) || '';
-        slot.innerHTML = '<div class="ac-card"><h3>Mon compte</h3>' + err + ok
-          + '<div class="ac-id"><span class="ac-ava">' + avaHtml(pseudo || u.email, p && p.avatar_url) + '</span><div><div class="ac-pseudo">' + (pseudo ? esc(pseudo) : '<i>sans pseudo</i>') + '</div><div class="ac-mail">' + esc(u.email || '') + '</div></div></div>'
-          + '<p class="ac-p">Pour gérer ton profil complet (pseudo, photo, suppression de compte), ouvre cette page depuis <a href="capital-1.html">l\'atelier du Capital</a>.</p>'
-          + '<div class="ac-row ac-end"><button class="lk" data-act="signout" type="button">Se déconnecter</button></div>'
-          + '<div class="ac-foot"><button class="lk" data-act="privacy" type="button">Confidentialité &amp; données</button></div></div>';
+        // La page fournit son propre rendu ET gère ses propres handlers
+        // (saveuser, savemeta, ava-pick, signout, privacy, etc.). On n'appelle
+        // PAS wireModalActions pour éviter d'écraser ses handlers.
+        try { loggedInRenderer(slot, { user: state.user, profile: state.profile, view: view, esc: esc, avaHtml: avaHtml, errMsg: view.err, notice: view.notice }); }
+        catch(e){ slot.innerHTML = '<div class="ac-card"><h3>Mon compte</h3>' + err + ok + '<p class="ac-p">Erreur de rendu.</p></div>'; wireModalActions(slot); }
+        return;
       }
+      // Rendu par défaut (Manuscrits, bibliothèque) : juste pseudo + déconnexion
+      var p = state.profile, u = state.user;
+      var pseudo = (p && p.username) || '';
+      slot.innerHTML = '<div class="ac-card"><h3>Mon compte</h3>' + err + ok
+        + '<div class="ac-id"><span class="ac-ava">' + avaHtml(pseudo || u.email, p && p.avatar_url) + '</span><div><div class="ac-pseudo">' + (pseudo ? esc(pseudo) : '<i>sans pseudo</i>') + '</div><div class="ac-mail">' + esc(u.email || '') + '</div></div></div>'
+        + '<p class="ac-p">Pour gérer ton profil complet (pseudo, photo, suppression de compte), ouvre cette page depuis <a href="capital-1.html">l\'atelier du Capital</a>.</p>'
+        + '<div class="ac-row ac-end"><button class="lk" data-act="signout" type="button">Se déconnecter</button></div>'
+        + '<div class="ac-foot"><button class="lk" data-act="privacy" type="button">Confidentialité &amp; données</button></div></div>';
       wireModalActions(slot);
       return;
     }
