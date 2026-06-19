@@ -225,3 +225,59 @@
     wire(cfg);
   };
 })();
+
+/* ===== SHELL.auth — Supabase singleton (sous-mission 1)
+   ------------------------------------------------------
+   Toutes les pages partagent le même client Supabase. La config publique
+   (url + clé anon) vient de window.LIREMARX_SUPABASE, défini par config.js
+   à la racine du dépôt. Si la config est absente ou en placeholder, le
+   site reste 100 % local et getClient() renvoie null.
+   ===================================================== */
+(function(){
+  var SHELL = window.SHELL = window.SHELL || {};
+  if(SHELL.auth) return; // déjà initialisé
+
+  var client = null;
+  var pending = null;
+  var configured = null; // true | false (résolu après la première tentative)
+
+  function getConfig(){
+    return (typeof window.LIREMARX_SUPABASE !== 'undefined' && window.LIREMARX_SUPABASE) || null;
+  }
+  function isPlaceholder(cfg){
+    if(!cfg) return true;
+    var u = String(cfg.url || ''), a = String(cfg.anon || '');
+    return !u || !a || u.indexOf('VOTRE') >= 0 || a.indexOf('VOTRE') >= 0;
+  }
+
+  // Charge le client Supabase une seule fois, en lazy import. Retourne null
+  // si la config est manquante ou si l'import échoue (mode local pur).
+  async function getClient(){
+    if(client) return client;
+    if(pending) return pending;
+    var cfg = getConfig();
+    if(isPlaceholder(cfg)){ configured = false; return null; }
+    pending = (async function(){
+      try {
+        var m = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+        client = m.createClient(cfg.url, cfg.anon);
+        configured = true;
+        return client;
+      } catch(e) {
+        configured = false;
+        client = null;
+        return null;
+      } finally {
+        pending = null;
+      }
+    })();
+    return pending;
+  }
+
+  function isConfigured(){ return configured === true; }
+
+  SHELL.auth = {
+    getClient: getClient,
+    isConfigured: isConfigured
+  };
+})();

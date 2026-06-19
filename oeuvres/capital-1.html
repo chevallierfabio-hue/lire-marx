@@ -2057,12 +2057,14 @@ drawTRPF();
   }
 
   async function initSync(){
-    const ph=CONFIG.url.indexOf('VOTRE')>=0||CONFIG.anon.indexOf('VOTRE')>=0;
-    if(ph||!CONFIG.url||!CONFIG.anon){configured=false;renderAcct();return;}
-    configured=true;
+    // Le client Supabase est désormais un singleton géré par shell.js
+    // (SHELL.auth.getClient). Cette page reste responsable de l'état d'auth
+    // (user, profile, session) et de ses effets de bord (profil, annotations,
+    // forum, modération). Voir CLAUDE.md / README pour la feuille de route.
     try{
-      const m=await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
-      sb=m.createClient(CONFIG.url,CONFIG.anon);
+      sb = await window.SHELL.auth.getClient();
+      if(!sb){configured=false;renderAcct();return;}
+      configured = window.SHELL.auth.isConfigured();
       sb.auth.onAuthStateChange((ev,session)=>{if(ev==='PASSWORD_RECOVERY'){recovery=true;openAcctModal();}setSession(session);});
       const res=await sb.auth.getSession();
       await setSession(res.data&&res.data.session);
