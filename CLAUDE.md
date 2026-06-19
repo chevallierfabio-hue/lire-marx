@@ -55,18 +55,31 @@ Toutes les pages (bibliothèque comme livres) partagent :
   `SHELL.commune` (Place publique, lecture seule).
 - `oeuvres/shell-social.js` (optionnel) — module `SHELL.social` :
   messagerie privée (contacts + DM + popover msgBtn + modale
-  `#contactsModal` + realtime des `direct_messages`). Notifications
-  réponses & mentions (multi-œuvres) à ajouter par la sous-mission 4b
-  dans ce même fichier. Branché par `installShell()` après
-  `SHELL.auth._bootstrap()`. Les pages qui veulent la messagerie
-  doivent charger `shell-social.js` **après** `shell.js`.
+  `#contactsModal` + realtime des `direct_messages`) ET notifications
+  (popover notifBtn + pastille notifDot + realtime des `public_notes`).
+  Branché par `installShell()` après `SHELL.auth._bootstrap()`. Les
+  pages qui veulent la messagerie/notifications doivent charger
+  `shell-social.js` **après** `shell.js`.
 
-**Règle realtime.** Un seul canal Supabase `lm-<userid>` par session ;
-(dé)branché sur `SHELL.auth.onChange` (connexion → `ensureRealtime()`,
-déconnexion → `teardownRealtime()`). Polling de secours toutes les 15 s
-au cas où le canal tomberait. Ne **jamais** ouvrir un second client
-Supabase — toujours passer par `SHELL.auth.getClient()` (sinon
-warning « Multiple GoTrueClient instances »).
+**Règle realtime.** Un seul canal Supabase `lm-<userid>` par session,
+qui multiplexe deux abonnements `INSERT` : `direct_messages` (filtré
+sur `recipient_id=eq.<me>`) et `public_notes` (sans filtre `work` —
+les notifications agrègent toutes les œuvres ; le filtrage parent/
+mention se fait côté client dans `onPublicInsert`). (Dé)branché sur
+`SHELL.auth.onChange` (connexion → `ensureRealtime()`, déconnexion →
+`teardownRealtime()` + reset état + pastilles effacées). Polling de
+secours toutes les 15 s au cas où le canal tomberait (`refreshDM` +
+`refreshNotif`). Ne **jamais** ouvrir un second client Supabase —
+toujours passer par `SHELL.auth.getClient()` (sinon warning « Multiple
+GoTrueClient instances »).
+
+**Notifications multi-œuvres.** `refreshNotif` interroge `public_notes`
+sans filtre `work` (réponses à mes notes + mentions @pseudo), agrège
+les résultats et limite à 40. Le clic sur une notification résout
+`work → path` via `bibliotheque.json` (alias `'capital' → 'capital-1'`
+pour les lignes héritées) et navigue vers la page de l'œuvre si elle
+est `available`. Le surlignage précis du passage est différé à la
+mission annotations (contrat de deep-link).
 
 **Reste couplé à la liseuse.** Le surlignage précis du passage
 (deep-link au passage) et le profil membre cliquable (notes publiques

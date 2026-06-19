@@ -143,6 +143,9 @@
 .cv-conv-h{margin:0;font-family:'Fraunces',serif;font-size:1.1rem;color:var(--ink);}
 @media(max-width:760px){.cv-grid{grid-template-columns:1fr;}.cv-left,.cv-right{min-height:0;}.cv-right .msg-thread{min-height:260px;}.ct-modal{padding:2vh 8px 8px;}.ct-modal-box{padding:18px 14px 12px;}}
 
+/* Notifications (popover notifBtn) — extension du bloc .nt-* déjà chargé en tête. */
+.nt-meta{font-family:var(--f-ui);font-size:.7rem;letter-spacing:.02em;color:var(--gold-deep);margin-top:4px;}
+
 /* Toast flottant (créé par SHELL.social._toast). */
 .lm-toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,12px);background:var(--ink);color:var(--paper);font-family:var(--f-ui);font-size:.86rem;padding:10px 16px;border-radius:8px;box-shadow:0 12px 32px rgba(0,0,0,.28);z-index:200;opacity:0;pointer-events:none;transition:opacity .22s ease,transform .22s ease;}
 .lm-toast.on{opacity:1;transform:translate(-50%,0);}

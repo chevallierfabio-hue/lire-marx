@@ -238,9 +238,8 @@
     });
 
     // Boutons qui dépendent encore de la coquille hébergée par capital-1.html
-    // (acctChip → SHELL.auth, msgBtn → SHELL.social ; notifBtn rejoindra
-    // SHELL.social à la sous-mission 4b).
-    var hostBtns = ['supportBtn','notifBtn'];
+    // (acctChip → SHELL.auth ; msgBtn + notifBtn → SHELL.social).
+    var hostBtns = ['supportBtn'];
     hostBtns.forEach(function(id){
       var b = document.getElementById(id);
       if(b) b.addEventListener('click', function(){ gotoHost(); });

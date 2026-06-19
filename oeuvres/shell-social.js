@@ -41,8 +41,15 @@
   var modalEl = null;            // #contactsModal
   var bodyEl = null;             // corps scrollable de la modale
   var initialized = false;
-  var rtNotifT = null;           // timer debounce notifications (4b)
-  var rtPubT = null;             // timer debounce flux public (4b)
+  // notifications (sous-mission 4b)
+  var notifItems = [];           // [{id, kind:'reply'|'mention', work, section, who, snip, created}]
+  var notifPop = null;           // popover #notifBtn (.tb-pop)
+  var rtNotifT = null;           // timer debounce notifications
+  // bibliotheque.json (work → {title, path, status}) pour la navigation
+  // des notifications. Chargée une seule fois, alias 'capital'→'capital-1'
+  // appliqué pour couvrir les lignes héritées de public_notes.
+  var biblioMap = null;
+  var biblioPromise = null;
 
   // ----- helpers HTML -----
   function esc(s){
@@ -105,6 +112,54 @@
     t.classList.add('on');
     clearTimeout(toastT);
     toastT = setTimeout(function(){ t.classList.remove('on'); }, 3800);
+  }
+
+  // ----- bibliothèque (résolution work → page d'œuvre) -----
+  // Variante locale du loader de SHELL.commune. On duplique plutôt
+  // que d'introduire un couplage public_API entre modules ; la taille
+  // est triviale et la sémantique est exactement la même (alias
+  // hérité 'capital' → 'capital-1', strip du préfixe 'oeuvres/').
+  async function loadBiblio(){
+    if(biblioMap) return biblioMap;
+    if(biblioPromise) return biblioPromise;
+    biblioPromise = (async function(){
+      try {
+        var r = await fetch('bibliotheque.json', { cache: 'no-cache' });
+        if(!r.ok) throw new Error('biblio HTTP ' + r.status);
+        var json = await r.json();
+        var map = {};
+        (json.works || []).forEach(function(w){
+          if(!w || !w.id) return;
+          var path = String(w.path || '');
+          if(path.indexOf('oeuvres/') === 0) path = path.slice('oeuvres/'.length);
+          map[w.id] = {
+            title: w.shortTitle || w.title || 'Œuvre',
+            path: path,
+            status: w.status || 'planned'
+          };
+        });
+        if(map['capital-1'] && !map['capital']) map['capital'] = map['capital-1'];
+        biblioMap = map;
+        return map;
+      } catch(e){
+        biblioMap = {};
+        return biblioMap;
+      } finally {
+        biblioPromise = null;
+      }
+    })();
+    return biblioPromise;
+  }
+
+  // ----- notifications : « dernière vue » (localStorage) -----
+  function notifSeenKey(){
+    return 'liremarx.notifseen.' + ((user && user.id) || 'anon');
+  }
+  function notifGetSeen(){
+    try { return +localStorage.getItem(notifSeenKey()) || 0; } catch(e){ return 0; }
+  }
+  function notifSetSeen(ts){
+    try { localStorage.setItem(notifSeenKey(), String(ts || Date.now())); } catch(e){}
   }
 
   // ----- modale Contacts -----
@@ -378,7 +433,140 @@
     if(ta) ta.onkeydown = function(ev){ if(ev.key === 'Enter' && !ev.shiftKey){ ev.preventDefault(); go(); } };
   }
 
+  // ----- notifications : fetch (multi-œuvres) -----
+  async function refreshNotif(){
+    if(!socReady()){ notifItems = []; updateNotifDot(); return; }
+    try {
+      var uname = profile.username, items = [];
+      // 1) mes notes de tête, toutes œuvres confondues.
+      var mine = await sb.from('public_notes').select('id,work')
+        .eq('author_id', user.id).is('parent_id', null);
+      var workById = {}, myIds = [];
+      (mine.data || []).forEach(function(r){ workById[r.id] = r.work || ''; myIds.push(r.id); });
+      // 2) réponses à mes notes (toutes œuvres confondues — plus de filtre work).
+      if(myIds.length){
+        var rep = await sb.from('public_notes')
+          .select('id,work,section,body,created,parent_id,author_id,profiles(username)')
+          .in('parent_id', myIds).neq('author_id', user.id).eq('hidden', false)
+          .order('created', { ascending: false }).limit(40);
+        (rep.data || []).forEach(function(r){
+          items.push({
+            id: r.id, kind: 'reply',
+            work: r.work || workById[r.parent_id] || '',
+            section: r.section,
+            who: (r.profiles && r.profiles.username) || 'quelqu’un',
+            snip: r.body, created: +r.created
+          });
+        });
+      }
+      // 3) mentions @username, toutes œuvres confondues.
+      var men = await sb.from('public_notes')
+        .select('id,work,section,body,created,author_id,parent_id,profiles(username)')
+        .ilike('body', '%@' + uname + '%').neq('author_id', user.id).eq('hidden', false)
+        .order('created', { ascending: false }).limit(40);
+      (men.data || []).forEach(function(r){
+        items.push({
+          id: r.id, kind: 'mention',
+          work: r.work || '', section: r.section,
+          who: (r.profiles && r.profiles.username) || 'quelqu’un',
+          snip: r.body, created: +r.created
+        });
+      });
+      items.sort(function(a, b){ return b.created - a.created; });
+      var seenById = {}, out = [];
+      items.forEach(function(it){ if(seenById[it.id]) return; seenById[it.id] = 1; out.push(it); });
+      notifItems = out.slice(0, 40);
+    } catch(e){ /* silencieux */ }
+    updateNotifDot();
+    if(notifPop && !notifPop.hidden) renderNotif();
+  }
+
+  function updateNotifDot(){
+    var d = document.getElementById('notifDot');
+    if(!d) return;
+    var seen = notifGetSeen(), n = 0;
+    notifItems.forEach(function(i){ if(i.created > seen) n++; });
+    d.style.display = n > 0 ? 'block' : 'none';
+  }
+
+  // Résout work → page d'œuvre dans bibliotheque.json, avec alias hérité.
+  function resolveWork(work, biblio){
+    var id = (work === 'capital') ? 'capital-1' : work;
+    return biblio[id] || biblio[work] || null;
+  }
+
+  async function renderNotif(){
+    if(!notifPop) return;
+    var configured = SHELL.auth && SHELL.auth.isConfigured && SHELL.auth.isConfigured();
+    if(!configured){
+      notifPop.innerHTML = '<div class="tb-pop-h">Notifications</div><div class="tb-pop-empty">Indisponible (compte non configuré).</div>';
+      return;
+    }
+    if(!user){
+      notifPop.innerHTML = '<div class="tb-pop-h">Notifications</div><div class="tb-pop-empty">Connecte-toi pour suivre les réponses et les mentions.</div><a class="tb-pop-cta" data-soc="login" href="#">Se connecter</a>';
+      var lb = notifPop.querySelector('[data-soc="login"]');
+      if(lb) lb.onclick = function(e){ e.preventDefault(); socClosePops(null); openAcctModal(); };
+      return;
+    }
+    var biblio = await loadBiblio();
+    var seen = notifGetSeen();
+    var h = '<div class="tb-pop-h">Notifications</div>';
+    if(!notifItems.length){
+      h += '<div class="tb-pop-empty">Aucune réponse ni mention pour l’instant.</div>';
+    } else {
+      h += '<div class="nt-list">';
+      notifItems.forEach(function(it, i){
+        var kc = it.kind === 'reply' ? 'nt-k-reply' : 'nt-k-mention';
+        var kl = it.kind === 'reply' ? 'réponse' : 'mention';
+        var meta = resolveWork(it.work, biblio);
+        var workTitle = (meta && meta.title) || 'Œuvre';
+        var sec = (it.section != null && it.section !== '') ? (' · Section ' + String(it.section)) : '';
+        var snipRaw = String(it.snip || '');
+        var snip = snipRaw.slice(0, 150) + (snipRaw.length > 150 ? '…' : '');
+        h += '<button class="nt-item' + (it.created > seen ? ' unseen' : '') + '" data-ni="' + i + '" type="button">'
+          + '<div class="nt-top"><span class="nt-who">' + esc(it.who) + '</span>'
+          + '<span class="nt-kind ' + kc + '">' + kl + '</span>'
+          + '<span class="nt-when">' + esc(pcAgo(it.created)) + '</span></div>'
+          + '<div class="nt-snip">' + esc(snip) + '</div>'
+          + '<div class="nt-meta">' + esc(workTitle + sec) + '</div>'
+          + '</button>';
+      });
+      h += '</div>';
+    }
+    notifPop.innerHTML = h;
+    notifPop.querySelectorAll('[data-ni]').forEach(function(b){
+      b.onclick = function(){
+        var it = notifItems[+b.dataset.ni];
+        if(!it) return;
+        socClosePops(null);
+        var meta = resolveWork(it.work, biblio);
+        // Contrat de deep-link : pour l'instant, on ouvre la page de
+        // l'œuvre si elle est available. Le surlignage précis du
+        // passage est différé à la mission annotations.
+        if(meta && meta.status === 'available' && meta.path){
+          location.href = meta.path;
+        }
+      };
+    });
+  }
+
   // ----- realtime -----
+  // Insertion d'une note publique (réponse ou mention) → debounce
+  // refreshNotif. Pas de filtre work sur l'abonnement : on agrège
+  // toutes les œuvres.
+  function onPublicInsert(row){
+    if(!row || !user) return;
+    var uname = profile && profile.username;
+    var isNotif = (row.author_id !== user.id) && (
+      !!row.parent_id ||
+      (uname && String(row.body || '').toLowerCase().indexOf('@' + String(uname).toLowerCase()) >= 0)
+    );
+    if(isNotif){
+      clearTimeout(rtNotifT);
+      rtNotifT = setTimeout(function(){ refreshNotif(); }, 600);
+    }
+  }
+
   function onIncomingDM(row){
     if(!row || !user) return;
     var convOpen = socConvo && row.sender_id === socConvo.id && ((msgPop && !msgPop.hidden) || modalVisible());
@@ -411,6 +599,12 @@
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'direct_messages', filter: 'recipient_id=eq.' + user.id }, function(payload){
           onIncomingDM(payload && payload.new);
         })
+        // Public_notes : pas de filtre work (notifications multi-œuvres).
+        // onPublicInsert filtre ensuite par parent_id ∈ mes notes /
+        // mention dans le corps.
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'public_notes' }, function(payload){
+          onPublicInsert(payload && payload.new);
+        })
         .subscribe();
     } catch(e){ dmChannel = null; }
   }
@@ -420,6 +614,35 @@
   }
 
   // ----- init -----
+  function wireNotifBtn(){
+    var nb = document.getElementById('notifBtn');
+    if(!nb || nb.dataset.soc) return;
+    nb.dataset.soc = '1';
+    var wrap = nb.closest('.topbar-right') || nb.parentNode;
+    notifPop = document.createElement('div');
+    notifPop.className = 'tb-pop';
+    notifPop.hidden = true;
+    wrap.appendChild(notifPop);
+    renderNotif();
+    nb.addEventListener('click', function(e){
+      e.stopPropagation();
+      var willOpen = notifPop.hidden;
+      socClosePops(notifPop);
+      if(willOpen){
+        renderNotif();
+        notifPop.hidden = false;
+        refreshNotif();
+        // Marquer toutes les notifs comme vues à l'ouverture
+        // (la pastille reflète le « non-vu » depuis la dernière ouverture).
+        notifSetSeen(Date.now());
+        setTimeout(updateNotifDot, 30);
+      } else {
+        notifPop.hidden = true;
+      }
+    });
+    notifPop.addEventListener('click', function(e){ e.stopPropagation(); });
+  }
+
   function wireMsgBtn(){
     var mb = document.getElementById('msgBtn');
     if(!mb || mb.dataset.soc) return;
@@ -456,9 +679,10 @@
       user = SHELL.auth.user || null;
       profile = SHELL.auth.profile || null;
     }
-    // Câblage UI immédiat (même si pas encore connecté : le bouton affiche
-    // « connecte-toi »).
+    // Câblage UI immédiat (même si pas encore connecté : les boutons
+    // affichent un état « connecte-toi »).
     wireMsgBtn();
+    wireNotifBtn();
     // Fermeture popovers sur clic extérieur / Échap.
     document.addEventListener('click', function(){ socClosePops(null); });
     document.addEventListener('keydown', function(e){
@@ -470,6 +694,7 @@
 
     // Première charge.
     refreshDM();
+    refreshNotif();
     if(user){ ensureRealtime(); loadContacts(); }
 
     // Suivi de l'état d'auth via SHELL.auth.onChange : (dé)brancher le
@@ -489,6 +714,7 @@
                 if(modalVisible()) renderContactsPage();
               });
               refreshDM();
+              refreshNotif();
             });
           } else {
             ensureRealtime();
@@ -497,12 +723,16 @@
               if(modalVisible()) renderContactsPage();
             });
             refreshDM();
+            refreshNotif();
           }
         } else if(wasUser){
           teardownRealtime();
           socContacts = []; socConvo = null; socMsgs = []; socUnreadBy = {};
+          notifItems = [];
           updateMsgDot();
+          updateNotifDot();
           renderMsgPop();
+          renderNotif();
           if(modalVisible()) renderContactsPage();
         }
       });
@@ -514,6 +744,7 @@
       if(!sb || !user) return;
       ensureRealtime();
       refreshDM();
+      refreshNotif();
       if(socConvo && ((msgPop && !msgPop.hidden) || modalVisible())){
         loadConvo().then(function(){
           if(msgPop && !msgPop.hidden) renderMsgPop();
