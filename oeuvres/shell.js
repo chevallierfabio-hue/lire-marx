@@ -158,8 +158,8 @@
     });
     bk.addEventListener('click', function(){ document.body.classList.remove('sb-open'); });
 
-    // Brandmark → page d'accueil (vue home dans capital-1.html aujourd'hui)
-    document.getElementById('shellBrand').addEventListener('click', function(){ gotoHost(); });
+    // Brandmark → accueil du site (la bibliothèque oeuvres/index.html)
+    document.getElementById('shellBrand').addEventListener('click', function(){ location.href = 'index.html'; });
 
     // Bibliothèque : ouvre / ferme le sous-menu
     var bib = sb.querySelector('[data-act="biblio"]');
