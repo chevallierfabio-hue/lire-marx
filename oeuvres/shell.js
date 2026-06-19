@@ -313,10 +313,13 @@
   }
 
   // ----- chip de topbar --------------------------------------------------
+  // Toujours visible : un visiteur déconnecté voit "Se connecter", un visiteur
+  // connecté voit son pseudo + avatar. La chip n'est jamais masquée même si
+  // Supabase n'est pas encore initialisé — sinon elle clignote au chargement
+  // de chaque page (impression désagréable de session qui saute).
   function renderChip(){
     if(!chipEl) chipEl = document.getElementById('acctChip');
     if(!chipEl) return;
-    if(!isConfigured()){ chipEl.style.display = 'none'; return; }
     chipEl.style.display = 'inline-flex';
     var u = state.user, p = state.profile;
     if(u){
@@ -458,12 +461,17 @@
         catch(e){ slot.innerHTML = '<div class="ac-card"><h3>Mon compte</h3>' + err + ok + '<p class="ac-p">Erreur de rendu.</p></div>'; wireModalActions(slot); }
         return;
       }
-      // Rendu par défaut (Manuscrits, bibliothèque) : juste pseudo + déconnexion
+      // Rendu par défaut (Manuscrits, bibliothèque) : pseudo + déconnexion.
+      // L'avatar et la suppression de compte ne sont accessibles que via
+      // Capital pour l'instant, mais l'édition du pseudo, l'identité et la
+      // déconnexion fonctionnent partout.
       var p = state.profile, u = state.user;
       var pseudo = (p && p.username) || '';
       slot.innerHTML = '<div class="ac-card"><h3>Mon compte</h3>' + err + ok
         + '<div class="ac-id"><span class="ac-ava">' + avaHtml(pseudo || u.email, p && p.avatar_url) + '</span><div><div class="ac-pseudo">' + (pseudo ? esc(pseudo) : '<i>sans pseudo</i>') + '</div><div class="ac-mail">' + esc(u.email || '') + '</div></div></div>'
-        + '<p class="ac-p">Pour gérer ton profil complet (pseudo, photo, suppression de compte), ouvre cette page depuis <a href="capital-1.html">l\'atelier du Capital</a>.</p>'
+        + '<label class="ac-lab">Pseudo public</label>'
+        + '<div class="ac-row"><input type="text" id="acUser" value="' + esc(pseudo) + '" placeholder="ton-pseudo" maxlength="24"><button class="btn red" data-act="saveuser" type="button">Enregistrer</button></div>'
+        + '<p class="ac-note">Ce pseudo apparaîtra à côté de tes notes publiques ; ton e-mail, jamais.</p>'
         + '<div class="ac-row ac-end"><button class="lk" data-act="signout" type="button">Se déconnecter</button></div>'
         + '<div class="ac-foot"><button class="lk" data-act="privacy" type="button">Confidentialité &amp; données</button></div></div>';
       wireModalActions(slot);
@@ -497,10 +505,43 @@
         else if(a === 'setpw'){ updatePassword(field(slot,'acNew')); }
         else if(a === 'signout'){ signOut(); }
         else if(a === 'privacy'){ openPrivacy(); }
-        // Les autres data-act (saveuser, savemeta, ava-pick, etc.) sont
-        // gérés par le rendu logged-in fourni par la page (Capital).
+        else if(a === 'saveuser'){
+          var name = field(slot,'acUser').trim();
+          view.err = ''; view.notice = '';
+          saveUsername(name).then(function(r){
+            if(r.ok){ view.notice = 'Pseudo enregistré.'; renderChip(); }
+            else { view.err = r.msg || 'Échec.'; }
+            renderModal();
+          });
+        }
+        // Les autres data-act (savemeta, ava-pick, etc.) sont gérés par le
+        // rendu logged-in fourni par la page (Capital).
       };
     });
+  }
+
+  // Sauvegarde du pseudo public (table `profiles`). Exposé sur SHELL.auth
+  // pour que toutes les pages puissent l'utiliser.
+  async function saveUsername(name){
+    var c = await getClient();
+    if(!c || !state.user) return {ok:false, msg:'Non connecté.'};
+    name = String(name || '').trim();
+    if(!/^[A-Za-z0-9_\-]{2,24}$/.test(name)) return {ok:false, msg:'Pseudo : 2 à 24 caractères (lettres, chiffres, _ ou -).'};
+    try {
+      var t = await c.from('profiles').select('id').eq('username', name).maybeSingle();
+      if(t && t.data && t.data.id !== state.user.id) return {ok:false, msg:'Ce pseudo est déjà pris.'};
+    } catch(e){}
+    try {
+      var r = await c.from('profiles').upsert({id: state.user.id, username: name}).select().maybeSingle();
+      if(r.error){
+        var dup = (r.error.message || '').indexOf('duplicate') >= 0;
+        return {ok:false, msg: dup ? 'Ce pseudo est déjà pris.' : r.error.message};
+      }
+      setProfile(r.data || {id: state.user.id, username: name});
+      return {ok:true};
+    } catch(e){
+      return {ok:false, msg: (e && e.message) || String(e)};
+    }
   }
 
   // ----- branchement automatique sur le shell installé ------------------
@@ -565,6 +606,7 @@
     get profile(){ return state.profile; },
     setProfile: setProfile,
     loadProfile: loadProfile,
+    saveUsername: saveUsername,
     onChange: onChange,
     // flows
     signIn: signIn, signUp: signUp, signOut: signOut,
