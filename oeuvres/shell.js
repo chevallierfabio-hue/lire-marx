@@ -359,7 +359,7 @@
   }
 
   // ----- flows Supabase --------------------------------------------------
-  var view = { authMode:'signin', recovery:false, busy:false, notice:'', err:'', pendingUsername:'' };
+  var view = { authMode:'signin', recovery:false, busy:false, notice:'', err:'', pendingUsername:'', eraseConfirm:false };
 
   async function signIn(email, password){
     var c = await getClient(); if(!c) return { ok:false, msg:'Compte non configuré.' };
@@ -462,17 +462,30 @@
         try { loggedInRenderer(slot, { user: state.user, profile: state.profile, view: view, esc: esc, avaHtml: avaHtml }); }
         catch(e){ slot.innerHTML = '<div class="ac-card"><h3>Mon compte</h3>' + err + ok + '<p class="ac-p">Erreur de rendu.</p></div>'; }
       } else {
-        // Rendu par défaut (Manuscrits, bibliothèque) : pseudo éditable +
-        // déconnexion. Pas de redirection vers Capital — l'utilisateur
-        // peut gérer son pseudo et se déconnecter directement ici.
+        // Rendu Mon compte unifié — identique sur Capital, Manuscrits,
+        // bibliothèque, etc. : pseudo + avatar + description + déconnexion +
+        // suppression de compte. Toutes les pages partagent la même
+        // expérience d'auth.
         var p = state.profile, u = state.user;
         var pseudo = (p && p.username) || '';
+        var bio = (p && p.bio) || '';
         slot.innerHTML = '<div class="ac-card"><h3>Mon compte</h3>' + err + ok
           + '<div class="ac-id"><span class="ac-ava">' + avaHtml(pseudo || u.email, p && p.avatar_url) + '</span><div><div class="ac-pseudo">' + (pseudo ? esc(pseudo) : '<i>sans pseudo</i>') + '</div><div class="ac-mail">' + esc(u.email || '') + '</div></div></div>'
           + '<label class="ac-lab">Pseudo public</label>'
-          + '<div class="ac-row"><input type="text" id="acUser" value="' + esc(pseudo) + '" placeholder="ton-pseudo" maxlength="24"><button class="btn red" data-act="saveuser" type="button">Enregistrer</button></div>'
+          + '<div class="ac-row"><input type="text" id="acUser" value="' + esc(pseudo) + '" placeholder="ton-pseudo" maxlength="24"><button class="btn" data-act="saveuser" type="button">Enregistrer</button></div>'
           + '<p class="ac-note">Ce pseudo apparaîtra à côté de tes notes publiques ; ton e-mail, jamais.</p>'
-          + '<div class="ac-row ac-end"><button class="lk" data-act="signout" type="button">Se déconnecter</button></div>'
+          + '<label class="ac-lab">Photo de profil</label>'
+          + '<div class="ac-avarow"><span class="ac-ava ac-ava-edit">' + avaHtml(pseudo || u.email, p && p.avatar_url) + '</span>'
+          + '<div class="ac-avabtns"><input type="file" id="acAvaFile" accept="image/*" style="display:none">'
+          + '<button class="btn" data-act="ava-pick" type="button"' + (view.busy ? ' disabled' : '') + '>Choisir une image…</button>'
+          + ((p && p.avatar_url) ? '<button class="lk" data-act="ava-clear" type="button">Retirer la photo</button>' : '') + '</div></div>'
+          + '<label class="ac-lab">Description</label>'
+          + '<textarea id="acBio" class="ac-bio" maxlength="280" placeholder="Quelques mots sur toi (280 caractères max).">' + esc(bio) + '</textarea>'
+          + '<div class="ac-row"><button class="btn red" data-act="savemeta" type="button">Enregistrer le profil</button></div>'
+          + (view.eraseConfirm
+              ? '<div class="ac-danger"><b>Supprimer définitivement ton compte ?</b> Cela efface ton compte et toutes tes données — annotations privées, notes et réponses publiques, pseudo, signalements. Tu seras déconnecté et ne pourras plus te reconnecter. Action irréversible.<div class="ac-row" style="margin-top:8px"><button class="btn red" data-act="erase-yes" type="button"' + (view.busy ? ' disabled' : '') + '>' + (view.busy ? 'Suppression…' : 'Oui, supprimer mon compte') + '</button><button class="lk" data-act="erase-no" type="button">Annuler</button></div></div>'
+              : '')
+          + '<div class="ac-row ac-end"><button class="lk" data-act="signout" type="button">Se déconnecter</button><button class="lk ac-del" data-act="erase" type="button">Supprimer mon compte</button></div>'
           + '<div class="ac-foot"><button class="lk" data-act="privacy" type="button">Confidentialité &amp; données</button></div></div>';
       }
       wireModalActions(slot);
@@ -515,10 +528,110 @@
             renderModal();
           });
         }
-        // Les autres data-act (savemeta, ava-pick, etc.) sont gérés par le
-        // rendu logged-in fourni par la page (Capital).
+        else if(a === 'savemeta'){
+          view.err = ''; view.notice = '';
+          saveProfileMeta(field(slot,'acBio'), undefined).then(function(r){
+            if(r.ok){ view.notice = 'Profil enregistré.'; renderChip(); }
+            else { view.err = r.msg || 'Échec.'; }
+            renderModal();
+          });
+        }
+        else if(a === 'ava-pick'){
+          var fi = slot.querySelector('#acAvaFile');
+          if(fi) fi.click();
+        }
+        else if(a === 'ava-clear'){
+          view.err = ''; view.notice = '';
+          saveProfileMeta(undefined, '').then(function(r){
+            if(r.ok){ view.notice = 'Photo retirée.'; renderChip(); }
+            else { view.err = r.msg || 'Échec.'; }
+            renderModal();
+          });
+        }
+        else if(a === 'erase'){ view.eraseConfirm = true; renderModal(); }
+        else if(a === 'erase-no'){ view.eraseConfirm = false; renderModal(); }
+        else if(a === 'erase-yes'){
+          view.busy = true; view.err = ''; view.notice = ''; renderModal();
+          eraseMyData().then(function(r){
+            view.busy = false;
+            if(r.ok){ view.eraseConfirm = false; renderChip(); }
+            else { view.err = r.msg || 'Échec.'; }
+            renderModal();
+          });
+        }
       };
     });
+    // Câbler le file input pour avatar
+    var af = slot.querySelector('#acAvaFile');
+    if(af){
+      af.onchange = function(){
+        var f = af.files && af.files[0];
+        if(!f) return;
+        view.busy = true; view.err = ''; view.notice = ''; renderModal();
+        uploadAvatar(f).then(function(r){
+          view.busy = false;
+          if(r.ok){ view.notice = 'Photo enregistrée.'; renderChip(); }
+          else { view.err = r.msg || 'Échec.'; }
+          renderModal();
+        });
+      };
+    }
+  }
+
+  // Sauvegarde du profil complet (pseudo + bio + avatar). Conserve les
+  // champs non touchés (passe undefined pour ne pas écraser).
+  async function saveProfileMeta(bio, avatarUrl){
+    var c = await getClient();
+    if(!c || !state.user) return {ok:false, msg:'Non connecté.'};
+    var row = {id: state.user.id};
+    if(state.profile && state.profile.username) row.username = state.profile.username;
+    if(bio !== undefined) row.bio = String(bio || '').slice(0, 280);
+    if(avatarUrl !== undefined) row.avatar_url = avatarUrl || null;
+    try {
+      var r = await c.from('profiles').upsert(row).select().maybeSingle();
+      if(r.error) return {ok:false, msg: r.error.message};
+      if(r.data) setProfile(r.data);
+      return {ok:true};
+    } catch(e){
+      return {ok:false, msg: (e && e.message) || String(e)};
+    }
+  }
+
+  // Upload de la photo de profil dans le bucket Storage `avatars`.
+  async function uploadAvatar(file){
+    var c = await getClient();
+    if(!c || !state.user || !file) return {ok:false, msg:'Non connecté.'};
+    if(!(state.profile && state.profile.username)) return {ok:false, msg:'Choisis d\'abord un pseudo.'};
+    try {
+      var ext = ((file.name || '').split('.').pop() || 'png').toLowerCase().replace(/[^a-z0-9]/g, '') || 'png';
+      var path = state.user.id + '/avatar_' + Date.now() + '.' + ext;
+      var up = await c.storage.from('avatars').upload(path, file, {upsert:true, contentType: file.type || undefined});
+      if(up.error) throw up.error;
+      var pub = c.storage.from('avatars').getPublicUrl(path);
+      var url = pub && pub.data && pub.data.publicUrl;
+      if(!url) throw new Error('URL publique introuvable.');
+      var r = await saveProfileMeta(undefined, url);
+      if(!r.ok) throw new Error(r.msg || 'enregistrement échoué');
+      return {ok:true};
+    } catch(e){
+      return {ok:false, msg: 'Photo : ' + ((e && e.message) || e) + ' — le bucket Storage « avatars » est-il créé et public ?'};
+    }
+  }
+
+  // Suppression du compte et de toutes les données via la fonction Edge
+  // « delete-account » côté Supabase.
+  async function eraseMyData(){
+    var c = await getClient();
+    if(!c || !state.user) return {ok:false, msg:'Non connecté.'};
+    try {
+      var r = await c.functions.invoke('delete-account');
+      if(r.error) throw r.error;
+      try { await c.auth.signOut(); } catch(e){}
+      setUser(null); setProfile(null);
+      return {ok:true};
+    } catch(e){
+      return {ok:false, msg: 'Suppression : ' + ((e && e.message) || e) + ' — la fonction « delete-account » est-elle déployée ?'};
+    }
   }
 
   // Sauvegarde du pseudo (table profiles) — accessible partout.
@@ -607,6 +720,9 @@
     setProfile: setProfile,
     loadProfile: loadProfile,
     saveUsername: saveUsername,
+    saveProfileMeta: saveProfileMeta,
+    uploadAvatar: uploadAvatar,
+    eraseMyData: eraseMyData,
     onChange: onChange,
     // flows
     signIn: signIn, signUp: signUp, signOut: signOut,
