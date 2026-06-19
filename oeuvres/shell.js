@@ -691,23 +691,51 @@
   }
 
   // ----- bootstrap session côté shell -----------------------------------
+  // ⚠️ Verrou GoTrue v2 : le callback onAuthStateChange tourne sous un
+  // verrou interne. Tout `await c.from(...)` ou `await c.auth.xxx()`
+  // déclenché à l'intérieur attend la libération du verrou que le
+  // callback détient encore — d'où le deadlock observé (pastille figée
+  // sur « Se connecter », modale qui ne reflète jamais la session).
+  // Règle : dans ce callback, on synchronise l'état + on rend tout de
+  // suite avec l'e-mail, puis on diffère le chargement du profil
+  // (loadProfile fait un SELECT) via setTimeout(…, 0) pour sortir du
+  // verrou avant l'appel Supabase.
   async function bootstrap(){
     var c = await getClient();
     if(!c){ renderChip(); renderModal(); return; }
-    c.auth.onAuthStateChange(async function(ev, session){
+    c.auth.onAuthStateChange(function(ev, session){
       if(ev === 'PASSWORD_RECOVERY'){ view.recovery = true; openModal(); }
       setUser((session && session.user) || null);
-      if(state.user) await loadProfile(); else setProfile(null);
+      if(!state.user) setProfile(null);
+      // rendu immédiat (pas de requête Supabase ici)
       emit();
       renderChip();
       if(modalEl && !modalEl.hidden) renderModal();
+      // chargement du profil HORS du verrou GoTrue
+      if(state.user){
+        setTimeout(function(){
+          loadProfile().then(function(){
+            emit();
+            renderChip();
+            if(modalEl && !modalEl.hidden) renderModal();
+          });
+        }, 0);
+      }
     });
     var r = await c.auth.getSession();
     setUser((r.data && r.data.session && r.data.session.user) || null);
-    if(state.user) await loadProfile();
+    // même règle qu'au-dessus : on rend immédiatement, puis on charge
+    // le profil sans bloquer le premier rendu.
     emit();
     renderChip();
     renderModal();
+    if(state.user){
+      loadProfile().then(function(){
+        emit();
+        renderChip();
+        if(modalEl && !modalEl.hidden) renderModal();
+      });
+    }
   }
 
   SHELL.auth = {

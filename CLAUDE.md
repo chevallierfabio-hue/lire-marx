@@ -109,4 +109,13 @@ deviendrait alors un livre vraiment comme les autres.
     `capital-1.html` (auth, forum, modération, RGPD, recherche) ;
   - aucune clé secrète dans `config.js` ;
   - ne passer une œuvre en `available` que lorsqu'elle fonctionne pour
-    de vrai.
+    de vrai ;
+  - **dans `SHELL.auth`, ne jamais `await` un appel Supabase à
+    l'intérieur d'un callback `onAuthStateChange`.** GoTrue v2 tient
+    un verrou interne pendant le callback ; un `await c.from(...)` ou
+    `await c.auth.xxx()` à l'intérieur attend la libération de ce
+    verrou et provoque un deadlock (pastille figée sur « Se
+    connecter », modale qui ne reflète jamais la session). Synchroniser
+    l'état + rendre tout de suite avec l'e-mail, puis différer toute
+    requête (typiquement `loadProfile()`) via `setTimeout(fn, 0)` et
+    re-rendre quand le résultat arrive.
