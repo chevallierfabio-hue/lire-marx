@@ -200,7 +200,8 @@
     });
 
     // Boutons qui dépendent encore de la coquille hébergée par capital-1.html
-    var hostBtns = ['supportBtn','msgBtn','notifBtn','acctChip'];
+    // (acctChip est désormais géré par SHELL.auth si Supabase est configuré).
+    var hostBtns = ['supportBtn','msgBtn','notifBtn'];
     hostBtns.forEach(function(id){
       var b = document.getElementById(id);
       if(b) b.addEventListener('click', function(){ gotoHost(); });
@@ -223,6 +224,12 @@
     body.appendChild(buildAcctModal());
     body.appendChild(buildPrivacyModal());
     wire(cfg);
+    // Branche SHELL.auth sur le shell installé (chip + modales) et amorce
+    // le client Supabase + l'état d'auth. Sans erreur si config absente.
+    if(window.SHELL && window.SHELL.auth){
+      try { window.SHELL.auth._wireChrome(); } catch(e){}
+      try { window.SHELL.auth._bootstrap(); } catch(e){}
+    }
   };
 })();
 
@@ -276,8 +283,296 @@
 
   function isConfigured(){ return configured === true; }
 
+  // ----- état d'auth partagé ---------------------------------------------
+  var state = { user: null, profile: null };
+  var listeners = [];
+  var loggedInRenderer = null;     // fn(container, ctx) — fourni par la page
+  var modalEl = null;              // élément #acctModal installé par installShell
+  var privacyEl = null;            // élément #privacyModal
+  var chipEl = null;               // élément #acctChip (topbar)
+
+  function emit(){
+    var ctx = { user: state.user, profile: state.profile };
+    listeners.forEach(function(cb){ try { cb(ctx); } catch(e){} });
+  }
+  function onChange(cb){ if(typeof cb === 'function'){ listeners.push(cb); cb({user: state.user, profile: state.profile}); } }
+
+  function setUser(u){ state.user = u || null; }
+  function setProfile(p){ state.profile = p || null; }
+
+  // ----- formats UI ------------------------------------------------------
+  function esc(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+  function avaInitial(name){ return esc(String(name || '?').slice(0,1).toUpperCase()); }
+  function avaHtml(name, url){
+    if(url) return '<img class="ava-img" src="' + esc(url) + '" alt="">' + avaInitial(name);
+    return avaInitial(name);
+  }
+
+  // ----- chip de topbar --------------------------------------------------
+  function renderChip(){
+    if(!chipEl) chipEl = document.getElementById('acctChip');
+    if(!chipEl) return;
+    if(!isConfigured()){ chipEl.style.display = 'none'; return; }
+    chipEl.style.display = 'inline-flex';
+    var u = state.user, p = state.profile;
+    if(u){
+      var name = (p && p.username) || u.email || 'compte';
+      chipEl.className = 'acct-chip';
+      chipEl.innerHTML = '<span class="chip-ava">' + avaHtml(name, p && p.avatar_url) + '</span><span class="chip-name">' + esc(name) + '</span>';
+    } else {
+      chipEl.className = 'acct-chip guest';
+      chipEl.textContent = 'Se connecter';
+    }
+  }
+
+  // ----- modales ---------------------------------------------------------
+  function openModal(){
+    if(!modalEl) modalEl = document.getElementById('acctModal');
+    if(!modalEl) return;
+    renderModal();
+    modalEl.hidden = false;
+    document.body.style.overflow = 'hidden';
+  }
+  function closeModal(){
+    if(!modalEl) return;
+    modalEl.hidden = true;
+    document.body.style.overflow = '';
+  }
+  function openPrivacy(){
+    if(!privacyEl) privacyEl = document.getElementById('privacyModal');
+    if(!privacyEl) return;
+    privacyEl.hidden = false;
+    document.body.style.overflow = 'hidden';
+  }
+  function closePrivacy(){
+    if(!privacyEl) return;
+    privacyEl.hidden = true;
+    if(!modalEl || modalEl.hidden) document.body.style.overflow = '';
+  }
+
+  // ----- flows Supabase --------------------------------------------------
+  var view = { authMode:'signin', recovery:false, busy:false, notice:'', err:'', pendingUsername:'' };
+
+  async function signIn(email, password){
+    var c = await getClient(); if(!c) return { ok:false, msg:'Compte non configuré.' };
+    view.busy = true; view.err = ''; view.notice = ''; renderModal();
+    try {
+      var r = await c.auth.signInWithPassword({ email: email, password: password });
+      if(r.error) throw r.error;
+      return { ok:true };
+    } catch(e){
+      view.err = (e && e.message) || 'Échec de la connexion.';
+      return { ok:false, msg: view.err };
+    } finally {
+      view.busy = false; renderModal();
+    }
+  }
+  async function signUp(email, password, username){
+    var c = await getClient(); if(!c) return { ok:false, msg:'Compte non configuré.' };
+    view.busy = true; view.err = ''; view.notice = ''; renderModal();
+    try {
+      view.pendingUsername = username || '';
+      try { if(username) localStorage.setItem('liremarx.pendinguser', username); } catch(e){}
+      var r = await c.auth.signUp({
+        email: email,
+        password: password,
+        options: { data:{ username: username || '' }, emailRedirectTo: location.href.split('#')[0] }
+      });
+      if(r.error) throw r.error;
+      view.notice = 'Compte créé. Si la confirmation par e-mail est activée, vérifie ta boîte.';
+      return { ok:true };
+    } catch(e){
+      view.err = (e && e.message) || 'Échec de l\'inscription.';
+      return { ok:false, msg: view.err };
+    } finally {
+      view.busy = false; renderModal();
+    }
+  }
+  async function signOut(){
+    var c = await getClient(); if(!c) return;
+    try { await c.auth.signOut(); } catch(e){}
+  }
+  async function resetPassword(email){
+    var c = await getClient(); if(!c) return { ok:false, msg:'Compte non configuré.' };
+    view.busy = true; view.err = ''; view.notice = ''; renderModal();
+    try {
+      var r = await c.auth.resetPasswordForEmail(email, { redirectTo: location.href.split('#')[0] });
+      if(r.error) throw r.error;
+      view.notice = 'Un e-mail de réinitialisation a été envoyé.';
+      return { ok:true };
+    } catch(e){
+      view.err = (e && e.message) || 'Échec.';
+      return { ok:false, msg: view.err };
+    } finally {
+      view.busy = false; renderModal();
+    }
+  }
+  async function updatePassword(password){
+    var c = await getClient(); if(!c) return { ok:false, msg:'Compte non configuré.' };
+    view.busy = true; view.err = ''; view.notice = ''; renderModal();
+    try {
+      var r = await c.auth.updateUser({ password: password });
+      if(r.error) throw r.error;
+      view.recovery = false; view.notice = 'Mot de passe enregistré.';
+      return { ok:true };
+    } catch(e){
+      view.err = (e && e.message) || 'Échec.';
+      return { ok:false, msg: view.err };
+    } finally {
+      view.busy = false; renderModal();
+    }
+  }
+
+  // ----- rendu de la modale ---------------------------------------------
+  function setLoggedInRenderer(fn){ loggedInRenderer = fn; if(modalEl && !modalEl.hidden) renderModal(); }
+
+  function renderModal(){
+    if(!modalEl) modalEl = document.getElementById('acctModal');
+    if(!modalEl) return;
+    var slot = modalEl.querySelector('#acctView');
+    if(!slot) return;
+    var err = view.err ? '<div class="ac-err">' + esc(view.err) + '</div>' : '';
+    var ok  = view.notice ? '<div class="ac-ok">' + esc(view.notice) + '</div>' : '';
+
+    if(!isConfigured()){
+      slot.innerHTML = '<div class="ac-card"><h3>Compte non configuré</h3><p class="ac-p">La synchronisation par compte n’est pas branchée : il reste à renseigner les clés Supabase dans <code>config.js</code> à la racine. En attendant, le site reste 100 % local.</p></div>';
+      return;
+    }
+    if(view.recovery){
+      slot.innerHTML = '<div class="ac-card"><h3>Choisir un nouveau mot de passe</h3>' + err + ok
+        + '<input type="password" id="acNew" placeholder="nouveau mot de passe (6 caractères min.)" autocomplete="new-password">'
+        + '<div class="ac-row"><button class="btn red" data-act="setpw" type="button"' + (view.busy ? ' disabled' : '') + '>Enregistrer</button></div></div>';
+      wireModalActions(slot);
+      return;
+    }
+    if(state.user){
+      if(loggedInRenderer){
+        try { loggedInRenderer(slot, { user: state.user, profile: state.profile, view: view, esc: esc, avaHtml: avaHtml }); }
+        catch(e){ slot.innerHTML = '<div class="ac-card"><h3>Mon compte</h3>' + err + ok + '<p class="ac-p">Erreur de rendu.</p></div>'; }
+      } else {
+        // Rendu par défaut (Manuscrits, bibliothèque) : juste pseudo + déconnexion
+        var p = state.profile, u = state.user;
+        var pseudo = (p && p.username) || '';
+        slot.innerHTML = '<div class="ac-card"><h3>Mon compte</h3>' + err + ok
+          + '<div class="ac-id"><span class="ac-ava">' + avaHtml(pseudo || u.email, p && p.avatar_url) + '</span><div><div class="ac-pseudo">' + (pseudo ? esc(pseudo) : '<i>sans pseudo</i>') + '</div><div class="ac-mail">' + esc(u.email || '') + '</div></div></div>'
+          + '<p class="ac-p">Pour gérer ton profil complet (pseudo, photo, suppression de compte), ouvre cette page depuis <a href="capital-1.html">l\'atelier du Capital</a>.</p>'
+          + '<div class="ac-row ac-end"><button class="lk" data-act="signout" type="button">Se déconnecter</button></div>'
+          + '<div class="ac-foot"><button class="lk" data-act="privacy" type="button">Confidentialité &amp; données</button></div></div>';
+      }
+      wireModalActions(slot);
+      return;
+    }
+
+    // Vue invité (login / inscription)
+    var signup = view.authMode === 'signup';
+    slot.innerHTML = '<div class="ac-card"><div class="ac-tabs">'
+      + '<button class="ac-t' + (signup ? '' : ' on') + '" data-act="mode-signin" type="button">Se connecter</button>'
+      + '<button class="ac-t' + (signup ? ' on' : '') + '" data-act="mode-signup" type="button">Créer un compte</button></div>' + err + ok
+      + '<input type="email" id="acEmail" placeholder="adresse e-mail" autocomplete="email">'
+      + (signup ? '<input type="text" id="acUser" placeholder="pseudo public (2 à 24 caractères)" maxlength="24">' : '')
+      + '<input type="password" id="acPw" placeholder="mot de passe" autocomplete="' + (signup ? 'new-password' : 'current-password') + '">'
+      + '<div class="ac-row"><button class="btn red" data-act="' + (signup ? 'do-signup' : 'do-signin') + '" type="button"' + (view.busy ? ' disabled' : '') + '>' + (view.busy ? '…' : (signup ? 'Créer mon compte' : 'Se connecter')) + '</button>'
+      + (signup ? '' : '<button class="lk" data-act="reset" type="button">Mot de passe oublié ?</button>') + '</div>'
+      + '<p class="ac-note">' + (signup ? 'Tu choisis un pseudo public et un mot de passe ; ton adresse e-mail reste privée.' : 'Retrouve et synchronise tes annotations sur tous tes appareils.') + '</p>'
+      + '<div class="ac-foot"><button class="lk" data-act="privacy" type="button">Confidentialité &amp; données</button></div></div>';
+    wireModalActions(slot);
+  }
+  function field(el, id){ var x = el.querySelector('#' + id); return x ? x.value : ''; }
+  function wireModalActions(slot){
+    slot.querySelectorAll('[data-act]').forEach(function(b){
+      b.onclick = function(){
+        var a = b.dataset.act;
+        if(a === 'mode-signin'){ view.authMode = 'signin'; view.err = ''; view.notice = ''; renderModal(); }
+        else if(a === 'mode-signup'){ view.authMode = 'signup'; view.err = ''; view.notice = ''; renderModal(); }
+        else if(a === 'do-signin'){ signIn(field(slot,'acEmail').trim(), field(slot,'acPw')); }
+        else if(a === 'do-signup'){ signUp(field(slot,'acEmail').trim(), field(slot,'acPw'), field(slot,'acUser').trim()); }
+        else if(a === 'reset'){ var em = field(slot,'acEmail').trim(); if(!em){ view.err = 'Indique d\'abord ton adresse e-mail.'; renderModal(); } else resetPassword(em); }
+        else if(a === 'setpw'){ updatePassword(field(slot,'acNew')); }
+        else if(a === 'signout'){ signOut(); }
+        else if(a === 'privacy'){ openPrivacy(); }
+        // Les autres data-act (saveuser, savemeta, ava-pick, etc.) sont
+        // gérés par le rendu logged-in fourni par la page (Capital).
+      };
+    });
+  }
+
+  // ----- branchement automatique sur le shell installé ------------------
+  function wireChrome(){
+    if(!chipEl) chipEl = document.getElementById('acctChip');
+    if(!modalEl) modalEl = document.getElementById('acctModal');
+    if(!privacyEl) privacyEl = document.getElementById('privacyModal');
+    if(chipEl){ chipEl.onclick = function(){ view.err = ''; view.notice = ''; openModal(); }; }
+    if(modalEl){
+      modalEl.addEventListener('click', function(e){ if(e.target === modalEl) closeModal(); });
+      var x = modalEl.querySelector('.acct-modal-x'); if(x) x.onclick = closeModal;
+    }
+    if(privacyEl){
+      privacyEl.addEventListener('click', function(e){ if(e.target === privacyEl) closePrivacy(); });
+      var xp = privacyEl.querySelector('.acct-modal-x'); if(xp) xp.onclick = closePrivacy;
+    }
+    document.addEventListener('keydown', function(e){
+      if(e.key !== 'Escape') return;
+      if(privacyEl && !privacyEl.hidden){ closePrivacy(); return; }
+      if(modalEl && !modalEl.hidden){ closeModal(); }
+    });
+  }
+
+  // Lecture du profil public (pseudo + avatar) depuis la table `profiles`.
+  // Capital fait sa propre version plus riche (annotations, modération) ;
+  // ici on se contente de l'identité publique pour la pastille.
+  async function loadProfile(){
+    var c = await getClient(); if(!c || !state.user) return null;
+    try {
+      var r = await c.from('profiles').select('id,username,avatar_url,bio').eq('id', state.user.id).maybeSingle();
+      if(r && r.data) setProfile(r.data); else setProfile(null);
+    } catch(e){ /* table absente / RLS / réseau : pseudo non chargé */ }
+    return state.profile;
+  }
+
+  // ----- bootstrap session côté shell -----------------------------------
+  async function bootstrap(){
+    var c = await getClient();
+    if(!c){ renderChip(); renderModal(); return; }
+    c.auth.onAuthStateChange(async function(ev, session){
+      if(ev === 'PASSWORD_RECOVERY'){ view.recovery = true; openModal(); }
+      setUser((session && session.user) || null);
+      if(state.user) await loadProfile(); else setProfile(null);
+      emit();
+      renderChip();
+      if(modalEl && !modalEl.hidden) renderModal();
+    });
+    var r = await c.auth.getSession();
+    setUser((r.data && r.data.session && r.data.session.user) || null);
+    if(state.user) await loadProfile();
+    emit();
+    renderChip();
+    renderModal();
+  }
+
   SHELL.auth = {
+    // singleton client
     getClient: getClient,
-    isConfigured: isConfigured
+    isConfigured: isConfigured,
+    // état + abonnement
+    get user(){ return state.user; },
+    get profile(){ return state.profile; },
+    setProfile: setProfile,
+    loadProfile: loadProfile,
+    onChange: onChange,
+    // flows
+    signIn: signIn, signUp: signUp, signOut: signOut,
+    resetPassword: resetPassword, updatePassword: updatePassword,
+    // UI
+    openModal: openModal, closeModal: closeModal,
+    openPrivacy: openPrivacy, closePrivacy: closePrivacy,
+    renderChip: renderChip, renderModal: renderModal,
+    setLoggedInRenderer: setLoggedInRenderer,
+    // appelée automatiquement par installShell()
+    _wireChrome: wireChrome,
+    _bootstrap: bootstrap
   };
 })();
