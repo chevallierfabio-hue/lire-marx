@@ -418,7 +418,9 @@ h1.big em{font-style:italic;font-weight:500;color:#e5392a;}
   var sheet=document.getElementById('sheet'), cine=document.getElementById('cine');
   var app=document.getElementById('app');
 
-  app.src='oeuvres/capital-1.html';
+  // Après l'animation, on entre dans la bibliothèque (l'accueil canonique
+  // du site), pas directement dans un livre.
+  app.src='oeuvres/index.html';
 
   function resize(){var w=window.innerWidth,h=window.innerHeight;renderer.setSize(w,h,false);
     camera.aspect=w/h;camera.updateProjectionMatrix();}

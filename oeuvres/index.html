@@ -50,6 +50,22 @@
 .manifest{font-family:var(--f-ui);font-size:.72rem;color:var(--blue);text-decoration:none;}
 .manifest:hover{text-decoration:underline;}
 .empty,.error{border:1px dashed var(--line);background:rgba(248,241,223,.7);border-radius:8px;padding:20px;color:var(--const);font-style:italic;}
+/* layout d'accueil : bibliothèque à gauche, place publique à droite, sections (jeux, à propos) en bas */
+.home-grid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:28px;align-items:start;}
+.home-main{min-width:0;}
+.home-aside{position:sticky;top:58px;}
+.home-sec{margin-bottom:34px;}
+.home-ph{background:var(--card);border:1px dashed var(--line);border-radius:12px;padding:22px 20px;color:var(--const);font-style:italic;font-family:'Spectral',Georgia,serif;line-height:1.6;}
+.place-commune{border:1px solid var(--line);background:var(--card);border-radius:12px;padding:18px 18px 16px;}
+.pc-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:14px;}
+.pc-head h2{font-family:'Fraunces',Georgia,serif;font-weight:500;font-size:1.18rem;letter-spacing:-.01em;color:var(--ink);}
+.pc-headsub{font-family:var(--f-ui);font-size:.74rem;letter-spacing:.03em;color:var(--const);white-space:nowrap;}
+.pc-state{font-family:var(--f-ui);font-size:.88rem;color:var(--const);padding:4px 2px;line-height:1.5;}
+.pc-state a{color:var(--red-deep);text-decoration:underline;}
+.sec-head{display:flex;align-items:baseline;gap:14px;border-bottom:2px solid var(--ink);padding-bottom:9px;margin-bottom:18px;}
+.sec-head h2{font-family:'Fraunces',Georgia,serif;font-weight:900;font-size:1.45rem;color:var(--ink);}
+.sec-head .count{font-family:var(--f-ui);font-size:.74rem;color:var(--const);}
+@media(max-width:960px){.home-grid{grid-template-columns:1fr;}.home-aside{position:static;margin-top:20px;}}
 @media(max-width:760px){
   .hero{grid-template-columns:1fr;}
   .tools{grid-template-columns:1fr;}
@@ -77,18 +93,45 @@
     </aside>
   </section>
 
-  <section class="tools" aria-label="Filtres de la bibliothèque">
-    <input id="search" class="search" type="search" placeholder="Rechercher par titre, année, concept ou description…" aria-label="Rechercher dans la bibliothèque">
-    <div class="filter-block">
-      <div class="filter-label">Catégorie</div>
-      <div id="categoryFilters" class="filters"></div>
-      <div class="filter-label">Statut</div>
-      <div id="statusFilters" class="filters"></div>
-    </div>
-  </section>
+  <div class="home-grid">
+    <div class="home-main">
+      <section class="home-sec" aria-label="La bibliothèque">
+        <div class="sec-head"><h2>La bibliothèque</h2><span class="count" id="shelfCount">…</span></div>
+        <section class="tools" aria-label="Filtres de la bibliothèque">
+          <input id="search" class="search" type="search" placeholder="Rechercher par titre, année, concept ou description…" aria-label="Rechercher dans la bibliothèque">
+          <div class="filter-block">
+            <div class="filter-label">Catégorie</div>
+            <div id="categoryFilters" class="filters"></div>
+            <div class="filter-label">Statut</div>
+            <div id="statusFilters" class="filters"></div>
+          </div>
+        </section>
+        <section id="works" class="grid" aria-live="polite"></section>
+      </section>
 
-  <section id="works" class="grid" aria-live="polite"></section>
-  <footer>Lire Marx — bibliothèque statique, alimentée par <code>oeuvres/bibliotheque.json</code>.</footer>
+      <section class="home-sec" id="sec-jeux">
+        <div class="sec-head"><h2>Jeux</h2><span class="count">à venir</span></div>
+        <div class="home-ph">Des jeux et exercices pour éprouver les concepts en jouant — bientôt.</div>
+      </section>
+
+      <section class="home-sec" id="sec-apropos">
+        <div class="sec-head"><h2>À propos</h2><span class="count">à venir</span></div>
+        <div class="home-ph">Présentation du projet, méthode éditoriale et choix de sources — bientôt.</div>
+      </section>
+
+      <footer>Lire Marx — bibliothèque statique, alimentée par <code>oeuvres/bibliotheque.json</code>.</footer>
+    </div>
+
+    <aside class="home-aside" aria-label="Place publique">
+      <section class="place-commune">
+        <div class="pc-head">
+          <h2>Place publique</h2>
+          <span class="pc-headsub">notes partagées</span>
+        </div>
+        <p class="pc-state" id="placeCommuneState">Le forum est en cours de factorisation hors de l'atelier du Capital. En attendant, ouvre <a href="capital-1.html#commune">la Place publique depuis Capital</a>.</p>
+      </section>
+    </aside>
+  </div>
 </main>
 
 <script>
@@ -155,6 +198,8 @@
     byId('countAll').textContent=all;
     byId('countAvailable').textContent=available;
     byId('countPending').textContent=all-available;
+    var sc=byId('shelfCount');
+    if(sc) sc.textContent=available+' œuvre'+(available>1?'s':'')+' disponible'+(available>1?'s':'')+' · '+(all-available)+' en préparation';
   }
   function card(work){
     var article=document.createElement('article');
