@@ -37,6 +37,17 @@ L'accueil du site est `oeuvres/index.html` (la bibliothèque), pilotée par
 œuvres. Ne pas dupliquer cette liste ailleurs ; passer une œuvre en
 `available` seulement quand sa page fonctionne réellement.
 
+À côté de la bibliothèque, deux autres pages « de site » (pas des
+œuvres) partagent le shell :
+
+- `oeuvres/place-publique.html` — page dédiée du flux Place publique
+  (clic sidebar « Place publique » sur toutes les pages). Elle se
+  contente d'appeler `SHELL.commune.mount(#placeFull, {})`. L'aperçu
+  des 6 dernières notes est aussi monté dans la colonne droite de
+  `oeuvres/index.html` (`SHELL.commune.mount(#placeCommuneFlux,
+  {limit:6, compact:true})`) — avec un lien « Voir toutes les notes → »
+  qui pointe vers `place-publique.html`.
+
 ## Shell partagé : atelier.css + shell.css + shell.js (+ shell-social.js)
 
 Toutes les pages (bibliothèque comme livres) partagent :
@@ -52,7 +63,8 @@ Toutes les pages (bibliothèque comme livres) partagent :
   livre l'appelle avec ses onglets ; shell.js câble alors le sb-work pour
   qu'un clic dispatche vers `window.activateTab(id)` que la page définit.
   Embarque `SHELL.auth` (singleton Supabase + Mon compte) et
-  `SHELL.commune` (Place publique, lecture seule).
+  `SHELL.commune` (flux Place publique, lecture seule, monté dans
+  n'importe quel conteneur via `SHELL.commune.mount(el, {limit, compact})`).
 - `oeuvres/shell-social.js` (optionnel) — module `SHELL.social` :
   messagerie privée (contacts + DM + popover msgBtn + modale
   `#contactsModal` + realtime des `direct_messages`) ET notifications

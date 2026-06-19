@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Place publique — Lire Marx</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Place publique de Lire Marx : flux agrégé des notes partagées par la communauté, toutes œuvres confondues.">
+<link rel="stylesheet" href="atelier.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body>
+
+<main class="wrap">
+  <section class="pp-head">
+    <div class="kicker">Place publique</div>
+    <h1>Notes partagées</h1>
+    <p class="sub">Lecture seule. Pour répondre ou annoter un passage, ouvre la page de l’œuvre concernée.</p>
+  </section>
+  <section id="placeFull" class="pp-list" aria-live="polite"></section>
+</main>
+
+<script src="../config.js"></script>
+<script src="shell.js"></script>
+<script src="shell-social.js"></script>
+<script>
+installShell({
+  workTitle: 'Place publique',
+  tabs: []
+});
+// Monte le flux complet (pas de limite, pas de mode compact).
+if(window.SHELL && window.SHELL.commune){
+  SHELL.commune.mount(document.getElementById('placeFull'), {});
+}
+</script>
+</body>
+</html>

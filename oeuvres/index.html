@@ -128,7 +128,7 @@
           <h2>Place publique</h2>
           <span class="pc-headsub">notes partagées</span>
         </div>
-        <p class="pc-state" id="placeCommuneState">Le forum est en cours de factorisation hors de l'atelier du Capital. En attendant, ouvre <a href="capital-1.html#commune">la Place publique depuis Capital</a>.</p>
+        <div id="placeCommuneFlux" class="pp-aside"></div>
       </section>
     </aside>
   </div>
@@ -264,6 +264,12 @@ installShell({
   workTitle: 'Bibliothèque',
   tabs: []
 });
+// Aperçu Place publique dans la colonne droite : 6 dernières notes,
+// avec lien « Voir toutes les notes → » vers oeuvres/place-publique.html
+// si la communauté a publié davantage.
+if(window.SHELL && window.SHELL.commune){
+  SHELL.commune.mount(document.getElementById('placeCommuneFlux'), { limit: 6, compact: true });
+}
 </script>
 </body>
 </html>

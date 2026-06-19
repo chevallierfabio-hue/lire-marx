@@ -188,15 +188,13 @@
       b.addEventListener('click', function(){
         if(act === 'open-capital'){ location.href = 'capital-1.html'; return; }
         if(act === 'open-manuscrits-1844'){ location.href = 'manuscrits-1844.html'; return; }
-        // Place publique : modale locale (SHELL.commune), pas de redirection
-        // vers capital-1.html. Le saut précis vers le passage reste une
-        // mission ultérieure : pour l'instant on affiche le flux agrégé.
+        // Place publique : page dédiée (oeuvres/place-publique.html).
+        // Plus de modale ni de redirection vers capital-1.html.
         if(act === 'commune'){
           if(window.matchMedia('(max-width:860px)').matches){
             document.body.classList.remove('sb-open');
           }
-          if(window.SHELL && window.SHELL.commune){ window.SHELL.commune.open(); }
-          else { gotoHost('#' + act); }
+          location.href = 'place-publique.html';
           return;
         }
         // CGU & règles / Confidentialité : modale locale (SHELL.auth.openPrivacy),
@@ -817,15 +815,20 @@
 
 /* ===== SHELL.commune — Place publique partagée (lecture seule)
    ----------------------------------------------------------------
-   Flux agrégé des notes publiques (`public_notes`), disponible sur
-   toutes les pages via le shell, sans avoir à rediriger vers
-   capital-1.html. Contrairement à la vue riche de capital-1.html
-   (placeCommune + commonsView : tri, filtres, composition, profil
-   membre, modération, deep-link au passage), cette modale est en
-   lecture seule : pas de composer, pas de réponse, pas de
-   signalement, pas de profil membre cliquable. Le saut précis vers
-   le passage est une mission ultérieure ; pour l'instant un clic
-   « Ouvrir → » mène simplement à la page de l'œuvre concernée.
+   Flux agrégé des notes publiques (`public_notes`), monté dans
+   n'importe quel conteneur DOM via SHELL.commune.mount(el, opts).
+   Deux surfaces :
+   - page dédiée oeuvres/place-publique.html (mount sans limite) ;
+   - aperçu colonne droite de la bibliothèque (mount avec
+     {limit:6, compact:true} → ajoute un lien « Voir toutes les
+     notes → » qui mène à la page dédiée).
+   Contrairement à la vue riche de capital-1.html (placeCommune +
+   commonsView : tri, filtres, composition, profil membre,
+   modération, deep-link au passage), cette vue est en lecture
+   seule : pas de composer, pas de réponse, pas de signalement,
+   pas de profil membre cliquable. Le saut précis vers le passage
+   est une mission ultérieure ; pour l'instant un clic « Ouvrir → »
+   mène simplement à la page de l'œuvre concernée.
    ================================================================ */
 (function(){
   var SHELL = window.SHELL = window.SHELL || {};
@@ -908,63 +911,6 @@
     return biblioPromise;
   }
 
-  // ----- modale ---------------------------------------------------------
-  var modalEl = null;
-  var bodyEl = null;
-  var wired = false;
-
-  function ensureModal(){
-    if(modalEl) return modalEl;
-    modalEl = document.getElementById('communeModal');
-    if(modalEl){ bodyEl = modalEl.querySelector('#communeBody'); return modalEl; }
-    var t = document.createElement('template');
-    t.innerHTML = (
-      '<div id="communeModal" class="cm-modal" hidden>' +
-        '<div class="cm-modal-box" role="dialog" aria-modal="true" aria-label="Place publique">' +
-          '<button class="cm-modal-x" type="button" aria-label="Fermer">&times;</button>' +
-          '<div class="cm-modal-h">Place publique</div>' +
-          '<div class="cm-modal-sub">Notes partagées par la communauté — lecture seule. Pour répondre ou annoter, ouvre la page de l’œuvre.</div>' +
-          '<div class="cm-modal-body" id="communeBody"></div>' +
-        '</div>' +
-      '</div>'
-    ).trim();
-    modalEl = t.content.firstElementChild;
-    document.body.appendChild(modalEl);
-    bodyEl = modalEl.querySelector('#communeBody');
-    return modalEl;
-  }
-
-  function wireModal(){
-    if(wired) return;
-    wired = true;
-    var m = ensureModal();
-    m.addEventListener('click', function(e){ if(e.target === m) close(); });
-    var x = m.querySelector('.cm-modal-x');
-    if(x) x.addEventListener('click', close);
-    document.addEventListener('keydown', function(e){
-      if(e.key !== 'Escape') return;
-      if(modalEl && !modalEl.hidden) close();
-    });
-  }
-
-  function open(){
-    ensureModal();
-    wireModal();
-    modalEl.hidden = false;
-    document.body.style.overflow = 'hidden';
-    render();
-  }
-  function close(){
-    if(!modalEl) return;
-    modalEl.hidden = true;
-    document.body.style.overflow = '';
-  }
-
-  function setBody(html){
-    if(!bodyEl) ensureModal();
-    if(bodyEl) bodyEl.innerHTML = html;
-  }
-
   // ----- fetch Supabase -------------------------------------------------
   async function fetchData(){
     var auth = window.SHELL && window.SHELL.auth;
@@ -1022,9 +968,9 @@
     );
   }
 
-  function wireCards(){
-    if(!bodyEl) return;
-    bodyEl.querySelectorAll('[data-open]').forEach(function(c){
+  function wireCards(container){
+    if(!container) return;
+    container.querySelectorAll('[data-open]').forEach(function(c){
       var go = function(){ var p = c.getAttribute('data-open'); if(p) location.href = p; };
       c.addEventListener('click', go);
       c.addEventListener('keydown', function(e){
@@ -1033,31 +979,44 @@
     });
   }
 
-  async function render(){
-    setBody('<div class="cm-state">Chargement…</div>');
+  // Monte le flux dans un conteneur DOM arbitraire.
+  // opts.limit   : nombre max de cartes affichées (sinon : tout ce qui
+  //                est revenu de fetchData, jusqu'à 200) ;
+  // opts.compact : ajoute un lien « Voir toutes les notes → » vers
+  //                place-publique.html si fetchData a renvoyé plus de
+  //                cartes que la limite.
+  async function mount(container, opts){
+    if(!container) return;
+    opts = opts || {};
+    container.innerHTML = '<div class="cm-state">Chargement…</div>';
     var biblio = await loadBiblio();
     var data;
     try { data = await fetchData(); }
     catch(e){
-      setBody(
+      container.innerHTML = (
         '<div class="cm-state">Notes partagées momentanément indisponibles. ' +
         '<button type="button" class="cm-retry">Réessayer</button></div>'
       );
-      var rb = bodyEl && bodyEl.querySelector('.cm-retry');
-      if(rb) rb.addEventListener('click', render);
+      var rb = container.querySelector('.cm-retry');
+      if(rb) rb.addEventListener('click', function(){ mount(container, opts); });
       return;
     }
     if(!data || data.mode === 'no-client'){
-      setBody('<div class="cm-state">La Place publique est disponible en ligne, une fois la synchronisation des comptes activée.</div>');
+      container.innerHTML = '<div class="cm-state">La Place publique est disponible en ligne, une fois la synchronisation des comptes activée.</div>';
       return;
     }
     if(!data.tops.length){
-      setBody('<div class="cm-state">Aucune note partagée pour l’instant. Ouvre un chapitre et sois la première personne à annoter un passage.</div>');
+      container.innerHTML = '<div class="cm-state">Aucune note partagée pour l’instant. Ouvre un chapitre et sois la première personne à annoter un passage.</div>';
       return;
     }
-    setBody(data.tops.map(function(n){ return cardHtml(n, data.counts, biblio); }).join(''));
-    wireCards();
+    var tops = opts.limit ? data.tops.slice(0, opts.limit) : data.tops;
+    var html = tops.map(function(n){ return cardHtml(n, data.counts, biblio); }).join('');
+    if(opts.compact && data.tops.length > tops.length){
+      html += '<a class="cm-all" href="place-publique.html">Voir toutes les notes →</a>';
+    }
+    container.innerHTML = html;
+    wireCards(container);
   }
 
-  SHELL.commune = { open: open, close: close };
+  SHELL.commune = { mount: mount };
 })();
