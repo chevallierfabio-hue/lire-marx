@@ -66,12 +66,21 @@ Capital est **un livre comme un autre** côté UX : pas de #home, brandmark
 qui mène à la bibliothèque, utilise atelier.css + shell.css.
 
 Mais il **inline encore** l'auth Supabase, le forum public, la modération,
-la RGPD, la recherche, les messages, les contacts. Et un routeur de hash
-(`#commune` → `showPlacePublique()`, etc.) qui permet aux autres pages de
-le viser pour déclencher ces vues. Tant que ce code n'est pas extrait
-vers `shell.js`, le shell partagé utilise `SHELL_HOST = 'capital-1.html'`
-pour rediriger les clics sidebar (compte, Place publique, Contacts, CGU)
-vers Capital.
+la recherche, et la messagerie privée (Contacts). Auth (Mon compte),
+Place publique (lecture seule) et CGU/Confidentialité sont désormais
+servis directement par le shell ; ne reste à extraire côté
+`capital-1.html` que ce qui est lourd ou stateful (forum riche avec
+composition/modération, recherche fédérée, messagerie). Tant que ce
+code n'est pas extrait, le shell partagé utilise `SHELL_HOST =
+'capital-1.html'` pour rediriger les clics sidebar restants (Contacts
+en particulier) vers Capital.
+
+**À propos de « Contacts ».** Ce n'est pas une page de contact statique
+mais le futur **module messagerie privée** (threads 1-à-1, marquage lu/
+non-lu, realtime via Supabase) : son extraction vers le shell est
+**lourde** et viendra avec celle des annotations privées. Tant que ce
+n'est pas fait, le bouton sidebar « Contacts » continue de rediriger
+vers `capital-1.html`.
 
 **Règle pratique** : ne pas casser ce code dans capital-1.html. Si une
 intervention touche la coquille applicative, vérifier que l'auth, le

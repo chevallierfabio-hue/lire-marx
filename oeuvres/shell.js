@@ -122,6 +122,11 @@
     );
   }
 
+  // Texte canonique copié depuis capital-1.html (l. 484-493). Les
+  // passages [À COMPLÉTER : …] restent tels quels — c'est à Fabio de
+  // les remplir, pas au shell de les inventer. La suppression de
+  // compte est déjà active partout via SHELL.auth.eraseMyData (bouton
+  // « Supprimer mon compte » dans Mon compte).
   function buildPrivacyModal(){
     return el(
       '<div id="privacyModal" class="acct-modal" hidden>' +
@@ -129,8 +134,14 @@
           '<button class="acct-modal-x" type="button" aria-label="Fermer">&times;</button>' +
           '<div class="ac-card privacy-text">' +
             '<h3>Confidentialité &amp; données</h3>' +
-            '<p class="pz-warn">Modèle de départ, à relire et compléter ; ce n\'est pas un conseil juridique.</p>' +
-            '<p>Avis de confidentialité abrégé. Pour la fonction « Supprimer mes données » et la version complète, ouvre Mon compte sur la page de l\'atelier du Capital où la gestion complète du profil est disponible.</p>' +
+            '<p class="pz-warn">Modèle de départ, à relire et compléter (les passages entre crochets) ; ce n\'est pas un conseil juridique.</p>' +
+            '<p><b>Responsable.</b> [À COMPLÉTER : nom ou structure, et qualité]. Contact : [À COMPLÉTER : adresse e-mail].</p>' +
+            '<p><b>Données traitées.</b> Adresse e-mail (connexion uniquement, jamais affichée), pseudo (public), annotations privées, notes et réponses publiques, signalements. Aucune donnée n\'est revendue ni utilisée à des fins publicitaires.</p>' +
+            '<p><b>Finalités &amp; base légale.</b> Fournir la lecture annotée, la synchronisation entre appareils et les notes partagées modérées (exécution du service demandé) ; assurer la modération et la sécurité (intérêt légitime).</p>' +
+            '<p><b>Hébergement.</b> Authentification et base de données via Supabase. [À COMPLÉTER : région d\'hébergement, par ex. Union européenne].</p>' +
+            '<p><b>Conservation.</b> Tes données sont conservées tant que ton compte existe, et supprimées à ta demande.</p>' +
+            '<p><b>Tes droits (RGPD).</b> Accès, rectification, effacement, opposition. Tu peux supprimer toi-même ton compte et l\'ensemble de tes données depuis « Mon compte » → <i>Supprimer mon compte</i> (effacement définitif et immédiat). Pour toute autre demande : [À COMPLÉTER : adresse e-mail].</p>' +
+            '<p><b>Stockage local.</b> Le site conserve tes surlignages et ta session de connexion dans ton navigateur. C\'est un stockage <i>fonctionnel</i> (nécessaire au service), sans pistage ni cookie publicitaire.</p>' +
           '</div>' +
         '</div>' +
       '</div>'
@@ -188,7 +199,23 @@
           else { gotoHost('#' + act); }
           return;
         }
-        if(act === 'contacts' || act === 'cgu'){
+        // CGU & règles / Confidentialité : modale locale (SHELL.auth.openPrivacy),
+        // texte complet embarqué dans le shell. Plus de redirection vers
+        // capital-1.html#cgu.
+        if(act === 'cgu'){
+          if(window.matchMedia('(max-width:860px)').matches){
+            document.body.classList.remove('sb-open');
+          }
+          if(window.SHELL && window.SHELL.auth && window.SHELL.auth.openPrivacy){
+            window.SHELL.auth.openPrivacy();
+          } else {
+            gotoHost('#' + act);
+          }
+          return;
+        }
+        // Contacts = futur module messagerie privée (lourd, realtime),
+        // toujours hébergé par capital-1.html pour l'instant.
+        if(act === 'contacts'){
           gotoHost('#' + act);
           return;
         }
