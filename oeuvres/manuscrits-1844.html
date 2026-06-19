@@ -5,22 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>L'Atelier des Manuscrits de 1844 - Lire Marx</title>
 <link rel="stylesheet" href="atelier.css">
+<link rel="stylesheet" href="shell.css">
 <link rel="stylesheet" href="manuscrits-1844.css">
 </head>
 <body>
-<header class="topbar">
-  <div class="topbar-in">
-    <a class="brand" href="../index.html">Lire<span class="d">.</span>Marx</a>
-    <nav class="nav" aria-label="Navigation">
-      <a href="index.html">Bibliothèque</a>
-      <a href="../index.html">Atelier</a>
-      <a href="capital-1.html">Capital I</a>
-    </nav>
-  </div>
-</header>
-
 <main class="wrap">
-  <div class="backlink-wrap"><a class="backlink" href="index.html">← Lire Marx · la bibliothèque</a></div>
   <header class="work-head">
     <div class="kicker">Atelier de lecture &amp; de concepts</div>
     <h1>L'Atelier des <em>Manuscrits</em></h1>
@@ -242,6 +231,22 @@
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
+</script>
+<script src="shell.js"></script>
+<script>
+installShell({
+  workId: 'manuscrits-1844',
+  workTitle: 'Manuscrits de 1844',
+  tabs: [
+    {id:'accueil', label:'Accueil'},
+    {id:'nav',     label:'Parcourir'},
+    {id:'lire',    label:'Texte intégral'},
+    {id:'deriv',   label:'Cheminement'},
+    {id:'labo',    label:'Concepts'},
+    {id:'explore', label:'Explorations'},
+    {id:'chrono',  label:'Chronologie'}
+  ]
+});
 </script>
 </body>
 </html>
