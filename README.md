@@ -181,10 +181,25 @@ statique et compatible Cloudflare Pages.
   fichiers dans `textes/`, sans annoncer une œuvre comme disponible avant que
   la lecture fonctionne.
 
-- **Unification future des pages d'œuvres**
-  À terme, factoriser progressivement les comportements communs des pages
-  d'œuvres, tout en conservant la compatibilité statique Cloudflare Pages et
-  sans casser l'atelier du Capital, Livre I.
+- **Système visuel et coquille partagés (en cours)**
+  Le système visuel commun aux ateliers vit dans `oeuvres/atelier.css`. La
+  coquille (barre supérieure 44 px avec brandmark/recherche/compte, sidebar
+  208 px avec Bibliothèque/Place publique/Contacts/CGU/sb-work, modales
+  compte et RGPD) vit dans `oeuvres/shell.css` côté style et dans
+  `oeuvres/shell.js` côté markup+comportement (la page appelle
+  `installShell({workId, workTitle, tabs:[...]})` qui injecte tout le shell).
+  Les Manuscrits utilisent déjà ce shell ; toute nouvelle page d'œuvre
+  suivra le même motif.
+
+- **Shell JS à factoriser entièrement (mission future)**
+  `oeuvres/capital-1.html` inline encore l'auth Supabase, le forum public,
+  la modération, la RGPD, la recherche et la vue d'accueil avec étagère.
+  Tant qu'elles ne sont pas extraites vers `shell.js`, les pages qui
+  utilisent `installShell()` redirigent vers `capital-1.html` pour ces
+  fonctionnalités (clic sur la pastille compte, recherche, Place publique,
+  Contacts, CGU). Prochaine étape architecturale : sortir ce code de
+  `capital-1.html`, le placer dans `shell.js`, et faire que Capital
+  lui-même consomme `installShell()` comme les autres livres.
 
 - **Amélioration éditoriale**
   Compléter les guides de lecture, les notes de source, les concepts associés,
