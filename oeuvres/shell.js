@@ -177,7 +177,18 @@
       b.addEventListener('click', function(){
         if(act === 'open-capital'){ location.href = 'capital-1.html'; return; }
         if(act === 'open-manuscrits-1844'){ location.href = 'manuscrits-1844.html'; return; }
-        if(act === 'commune' || act === 'contacts' || act === 'cgu'){
+        // Place publique : modale locale (SHELL.commune), pas de redirection
+        // vers capital-1.html. Le saut précis vers le passage reste une
+        // mission ultérieure : pour l'instant on affiche le flux agrégé.
+        if(act === 'commune'){
+          if(window.matchMedia('(max-width:860px)').matches){
+            document.body.classList.remove('sb-open');
+          }
+          if(window.SHELL && window.SHELL.commune){ window.SHELL.commune.open(); }
+          else { gotoHost('#' + act); }
+          return;
+        }
+        if(act === 'contacts' || act === 'cgu'){
           gotoHost('#' + act);
           return;
         }
@@ -770,4 +781,251 @@
   // ne montre pas "Compte non configuré" si l'utilisateur clique pendant
   // la phase d'init.
   try { getClient(); } catch(e){}
+})();
+
+/* ===== SHELL.commune — Place publique partagée (lecture seule)
+   ----------------------------------------------------------------
+   Flux agrégé des notes publiques (`public_notes`), disponible sur
+   toutes les pages via le shell, sans avoir à rediriger vers
+   capital-1.html. Contrairement à la vue riche de capital-1.html
+   (placeCommune + commonsView : tri, filtres, composition, profil
+   membre, modération, deep-link au passage), cette modale est en
+   lecture seule : pas de composer, pas de réponse, pas de
+   signalement, pas de profil membre cliquable. Le saut précis vers
+   le passage est une mission ultérieure ; pour l'instant un clic
+   « Ouvrir → » mène simplement à la page de l'œuvre concernée.
+   ================================================================ */
+(function(){
+  var SHELL = window.SHELL = window.SHELL || {};
+  if(SHELL.commune) return;
+
+  // Alias hérité : les premières lignes de public_notes ont été insérées
+  // par capital-1.html avec work='capital' (avant la généralisation à
+  // l'ensemble de la bibliothèque). Désormais public_notes.work doit
+  // valoir l'id de bibliotheque.json (ex. manuscrits-1844).
+  var WORK_ALIAS = { 'capital': 'capital-1' };
+
+  var biblioPromise = null;
+  var biblioMap = null; // id → {title, path, status}
+
+  function esc(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+  function ago(ts){
+    var d = Date.now() - (+ts || 0);
+    var mn = Math.round(d/6e4);
+    if(mn < 1) return "à l'instant";
+    if(mn < 60) return 'il y a ' + mn + ' min';
+    var h = Math.round(mn/60);
+    if(h < 24) return 'il y a ' + h + ' h';
+    var j = Math.round(h/24);
+    if(j <= 1) return 'hier';
+    if(j < 7) return 'il y a ' + j + ' j';
+    return new Date(+ts).toLocaleDateString('fr-FR');
+  }
+  function trunc(t, mx){
+    t = String(t || '').replace(/\s+/g, ' ').trim();
+    return t.length > mx ? t.slice(0, mx-1).trim() + '…' : t;
+  }
+  function initials(name){
+    var s = String(name || '?').replace(/[^A-Za-zÀ-ÿ0-9]/g, '').slice(0, 2).toUpperCase();
+    return s || '?';
+  }
+  function accent(n){
+    var palette = ['#a52a21', '#39596b', '#9a7b35', '#52742f'];
+    return palette[(((+n || 1) - 1) % 4 + 4) % 4];
+  }
+
+  // Charge bibliotheque.json une seule fois et construit la map
+  // id → {title, path, status}. Ajoute l'alias 'capital' → 'capital-1'
+  // pour les lignes héritées de public_notes.
+  async function loadBiblio(){
+    if(biblioMap) return biblioMap;
+    if(biblioPromise) return biblioPromise;
+    biblioPromise = (async function(){
+      try {
+        var r = await fetch('bibliotheque.json', { cache: 'no-cache' });
+        if(!r.ok) throw new Error('biblio HTTP ' + r.status);
+        var json = await r.json();
+        var map = {};
+        (json.works || []).forEach(function(w){
+          if(!w || !w.id) return;
+          // Les pages d'œuvres vivent dans /oeuvres/ ; on retire le
+          // préfixe 'oeuvres/' pour pouvoir naviguer relativement
+          // depuis n'importe quelle page du dossier.
+          var path = String(w.path || '');
+          if(path.indexOf('oeuvres/') === 0) path = path.slice('oeuvres/'.length);
+          map[w.id] = {
+            title: w.shortTitle || w.title || 'Œuvre',
+            path: path,
+            status: w.status || 'planned'
+          };
+        });
+        if(map['capital-1'] && !map['capital']) map['capital'] = map['capital-1'];
+        biblioMap = map;
+        return map;
+      } catch(e){
+        biblioMap = {};
+        return biblioMap;
+      } finally {
+        biblioPromise = null;
+      }
+    })();
+    return biblioPromise;
+  }
+
+  // ----- modale ---------------------------------------------------------
+  var modalEl = null;
+  var bodyEl = null;
+  var wired = false;
+
+  function ensureModal(){
+    if(modalEl) return modalEl;
+    modalEl = document.getElementById('communeModal');
+    if(modalEl){ bodyEl = modalEl.querySelector('#communeBody'); return modalEl; }
+    var t = document.createElement('template');
+    t.innerHTML = (
+      '<div id="communeModal" class="cm-modal" hidden>' +
+        '<div class="cm-modal-box" role="dialog" aria-modal="true" aria-label="Place publique">' +
+          '<button class="cm-modal-x" type="button" aria-label="Fermer">&times;</button>' +
+          '<div class="cm-modal-h">Place publique</div>' +
+          '<div class="cm-modal-sub">Notes partagées par la communauté — lecture seule. Pour répondre ou annoter, ouvre la page de l’œuvre.</div>' +
+          '<div class="cm-modal-body" id="communeBody"></div>' +
+        '</div>' +
+      '</div>'
+    ).trim();
+    modalEl = t.content.firstElementChild;
+    document.body.appendChild(modalEl);
+    bodyEl = modalEl.querySelector('#communeBody');
+    return modalEl;
+  }
+
+  function wireModal(){
+    if(wired) return;
+    wired = true;
+    var m = ensureModal();
+    m.addEventListener('click', function(e){ if(e.target === m) close(); });
+    var x = m.querySelector('.cm-modal-x');
+    if(x) x.addEventListener('click', close);
+    document.addEventListener('keydown', function(e){
+      if(e.key !== 'Escape') return;
+      if(modalEl && !modalEl.hidden) close();
+    });
+  }
+
+  function open(){
+    ensureModal();
+    wireModal();
+    modalEl.hidden = false;
+    document.body.style.overflow = 'hidden';
+    render();
+  }
+  function close(){
+    if(!modalEl) return;
+    modalEl.hidden = true;
+    document.body.style.overflow = '';
+  }
+
+  function setBody(html){
+    if(!bodyEl) ensureModal();
+    if(bodyEl) bodyEl.innerHTML = html;
+  }
+
+  // ----- fetch Supabase -------------------------------------------------
+  async function fetchData(){
+    var auth = window.SHELL && window.SHELL.auth;
+    if(!auth) return { mode: 'no-client' };
+    var c = await auth.getClient();
+    if(!c) return { mode: 'no-client' };
+    var topsRes = await c.from('public_notes')
+      .select('id,author_id,work,section,quote,body,parent_id,created,profiles(username)')
+      .eq('hidden', false).is('parent_id', null)
+      .order('created', { ascending: false }).limit(200);
+    if(topsRes.error) throw topsRes.error;
+    var tops = topsRes.data || [];
+    var counts = {};
+    try {
+      var rc = await c.from('public_notes')
+        .select('parent_id').eq('hidden', false).not('parent_id', 'is', null);
+      if(!rc.error) (rc.data || []).forEach(function(r){
+        if(r.parent_id) counts[r.parent_id] = (counts[r.parent_id] || 0) + 1;
+      });
+    } catch(e){}
+    return { mode: 'ok', tops: tops, counts: counts };
+  }
+
+  // ----- rendu ----------------------------------------------------------
+  function cardHtml(note, counts, biblio){
+    var workKey = note.work || '';
+    var resolvedId = WORK_ALIAS[workKey] || workKey;
+    var workMeta = biblio[resolvedId] || biblio[workKey] || null;
+    var workTitle = (workMeta && workMeta.title) || 'Œuvre';
+    var status = (workMeta && workMeta.status) || 'planned';
+    var path = (workMeta && workMeta.path) || '';
+    var clickable = status === 'available' && !!path;
+    var name = (note.profiles && note.profiles.username) || 'anonyme';
+    var rc = (counts && counts[note.id]) || 0;
+    var rcTxt = rc > 0 ? (rc + ' réponse' + (rc > 1 ? 's' : '')) : 'aucune réponse';
+    var sec = (note.section != null && note.section !== '') ? ('Section ' + note.section) : '';
+    var ac = accent(note.section);
+    return (
+      '<article class="cm-card' + (clickable ? '' : ' cm-card-soon') + '"' +
+        (clickable ? ' data-open="' + esc(path) + '" role="button" tabindex="0"' : '') + '>' +
+        '<div class="cm-row">' +
+          '<span class="cm-av" style="background:' + ac + '">' + esc(initials(name)) + '</span>' +
+          '<span class="cm-name">' + esc(name) + '</span>' +
+          (sec ? '<span class="cm-tag">' + esc(sec) + '</span>' : '') +
+          '<span class="cm-when">' + esc(ago(note.created)) + '</span>' +
+        '</div>' +
+        '<div class="cm-work">' + esc(workTitle) + '</div>' +
+        (note.quote ? '<div class="cm-quote">« ' + esc(trunc(note.quote, 140)) + ' »</div>' : '') +
+        (note.body ? '<div class="cm-body">' + esc(trunc(note.body, 260)) + '</div>' : '') +
+        '<div class="cm-foot">' +
+          '<span class="cm-rc">' + esc(rcTxt) + '</span>' +
+          (clickable ? '<span class="cm-go">Ouvrir →</span>' : '<span class="cm-go cm-go-soon">à venir</span>') +
+        '</div>' +
+      '</article>'
+    );
+  }
+
+  function wireCards(){
+    if(!bodyEl) return;
+    bodyEl.querySelectorAll('[data-open]').forEach(function(c){
+      var go = function(){ var p = c.getAttribute('data-open'); if(p) location.href = p; };
+      c.addEventListener('click', go);
+      c.addEventListener('keydown', function(e){
+        if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); go(); }
+      });
+    });
+  }
+
+  async function render(){
+    setBody('<div class="cm-state">Chargement…</div>');
+    var biblio = await loadBiblio();
+    var data;
+    try { data = await fetchData(); }
+    catch(e){
+      setBody(
+        '<div class="cm-state">Notes partagées momentanément indisponibles. ' +
+        '<button type="button" class="cm-retry">Réessayer</button></div>'
+      );
+      var rb = bodyEl && bodyEl.querySelector('.cm-retry');
+      if(rb) rb.addEventListener('click', render);
+      return;
+    }
+    if(!data || data.mode === 'no-client'){
+      setBody('<div class="cm-state">La Place publique est disponible en ligne, une fois la synchronisation des comptes activée.</div>');
+      return;
+    }
+    if(!data.tops.length){
+      setBody('<div class="cm-state">Aucune note partagée pour l’instant. Ouvre un chapitre et sois la première personne à annoter un passage.</div>');
+      return;
+    }
+    setBody(data.tops.map(function(n){ return cardHtml(n, data.counts, biblio); }).join(''));
+    wireCards();
+  }
+
+  SHELL.commune = { open: open, close: close };
 })();

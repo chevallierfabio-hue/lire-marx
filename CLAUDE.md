@@ -119,3 +119,18 @@ deviendrait alors un livre vraiment comme les autres.
     l'état + rendre tout de suite avec l'e-mail, puis différer toute
     requête (typiquement `loadProfile()`) via `setTimeout(fn, 0)` et
     re-rendre quand le résultat arrive.
+
+## Conventions de données
+
+- **`public_notes.work` = id de bibliothèque.** Toute nouvelle ligne
+  insérée dans la table `public_notes` doit utiliser comme `work`
+  l'id défini dans `oeuvres/bibliotheque.json` (ex.
+  `manuscrits-1844`, `capital-1`). C'est ce qui permet à la Place
+  publique partagée (`SHELL.commune`, modale ouverte depuis n'importe
+  quelle page) de résoudre le titre, le statut et le chemin de la
+  page d'atelier sans dépendre d'un mapping ad-hoc.
+- **Alias hérité `'capital'` → `'capital-1'`.** Les premières lignes
+  écrites par `capital-1.html` portaient `work='capital'`. Cet alias
+  est codé en dur dans `SHELL.commune` (et seulement là) pour couvrir
+  ces lignes historiques. Toute autre œuvre doit s'aligner sur son id
+  de bibliothèque dès le premier `INSERT`.
