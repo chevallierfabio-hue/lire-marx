@@ -481,6 +481,18 @@
       wireModalActions(slot);
       return;
     }
+    // Si on a une chip en cache (probable session encore valide) mais
+    // bootstrap n'a pas encore fini de la confirmer, on affiche un état
+    // de chargement plutôt que la vue invité. Sinon le clic sur la chip
+    // pendant les 1-2 s de bootstrap montrerait un formulaire de
+    // connexion alors que l'utilisateur est déjà connecté.
+    if(!state.user && !bootstrapDone){
+      var cachedDuringBoot = readCachedChip();
+      if(cachedDuringBoot && cachedDuringBoot.n){
+        slot.innerHTML = '<div class="ac-card"><h3>Mon compte</h3><p class="ac-p">Chargement de ta session…</p></div>';
+        return;
+      }
+    }
     if(state.user){
       if(loggedInRenderer){
         // La page fournit son propre rendu ET gère ses propres handlers
