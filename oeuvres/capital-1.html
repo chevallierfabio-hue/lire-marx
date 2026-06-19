@@ -469,7 +469,7 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
 <button id="supportBtn" class="tb-btn tb-support" type="button" aria-label="Nous soutenir"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 20.3l-1-1.4C5.9 14.3 3 11.7 3 8.4 3 5.9 4.9 4 7.4 4 9 4 10.4 4.8 11.2 6 12 4.8 13.4 4 15 4c2.5 0 4.4 1.9 4.4 4.4 0 3.3-2.9 5.9-8 10.5l-1 1.4z"/></svg><span class="tb-lbl">Nous soutenir</span></button>
 <button id="msgBtn" class="tb-btn tb-icon tb-msg" type="button" aria-label="Messages"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v12H7l-3 3z"/></svg><span class="tb-dot" id="msgDot"></span></button>
 <button id="notifBtn" class="tb-btn tb-icon tb-notif" type="button" aria-label="Notifications"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span class="tb-dot" id="notifDot"></span></button>
-<button id="acctChip" class="acct-chip guest" type="button" aria-haspopup="dialog">Se connecter</button>
+<button id="acctChip" class="acct-chip" type="button" aria-haspopup="dialog" style="display:none">Se connecter</button>
 </div>
 </div></header>
 <div id="acctModal" class="acct-modal" hidden>
@@ -1986,27 +1986,45 @@ drawTRPF();
   }
   /* ---------- authentification e-mail + mot de passe ---------- */
   function redirectURL(){return location.origin+location.pathname;}
-  /* ----- alias vers SHELL.auth ----------------------------------------
-     L'auth UI (chip, modale invité/recovery, fermeture, ESC, ouverture/
-     fermeture privacy modal) vit dans oeuvres/shell.js depuis les
-     sous-missions 1+2. Les anciennes fonctions Capital deviennent de fines
-     redirections pour ne pas casser les ~10 callsites disséminés dans ce
-     fichier (notes panel, login pops, etc.).
-  ---------------------------------------------------------------------- */
-  function renderAcct(){ return window.SHELL.auth.renderModal(); }
-  function renderChip(){ return window.SHELL.auth.renderChip(); }
-  function openAcctModal(){ return window.SHELL.auth.openModal(); }
-  function closeAcctModal(){ return window.SHELL.auth.closeModal(); }
-  function openPrivacy(){ return window.SHELL.auth.openPrivacy(); }
-  function closePrivacy(){ return window.SHELL.auth.closePrivacy(); }
-  async function signOut(){ return window.SHELL.auth.signOut(); }
-  function field(el,id){const x=el.querySelector('#'+id);return x?x.value:'';}
+  async function doSignUp(email,password,username){
+    if(!sb)return;errMsg='';notice='';
+    username=(username||'').trim();
+    if(!reUser.test(username)){errMsg='Pseudo : 2 à 24 caractères (lettres, chiffres, _ ou -).';renderAcct();return;}
+    if((password||'').length<6){errMsg='Mot de passe : 6 caractères minimum.';renderAcct();return;}
+    busy=true;renderAcct();
+    try{
+      if(await usernameTaken(username))throw new Error('Ce pseudo est déjà pris.');
+      pendingUsername=username;try{localStorage.setItem('liremarx.pendinguser',username);}catch(e){}
+      const res=await sb.auth.signUp({email:email,password:password,options:{data:{username:username},emailRedirectTo:redirectURL()}});
+      if(res.error)throw res.error;
+      if(res.data&&res.data.session)notice='Compte créé. Bienvenue, '+username+'.';
+      else{authMode='signin';notice='Compte créé. Confirme ton adresse via le mail reçu, puis connecte-toi.';}
+    }catch(e){errMsg='Inscription : '+(e.message||e);}
+    busy=false;renderAcct();
+  }
+  async function doSignIn(email,password){
+    if(!sb)return;errMsg='';notice='';busy=true;renderAcct();
+    try{const res=await sb.auth.signInWithPassword({email:email,password:password});if(res.error)throw res.error;}
+    catch(e){errMsg='Connexion : '+(e.message||e);}
+    busy=false;renderAcct();
+  }
+  async function doReset(email){
+    if(!sb)return;errMsg='';notice='';
+    try{const res=await sb.auth.resetPasswordForEmail(email,{redirectTo:redirectURL()});if(res.error)throw res.error;
+      notice='Si un compte existe pour cette adresse, un mail de réinitialisation vient de partir.';}
+    catch(e){errMsg='Réinitialisation : '+(e.message||e);}
+    renderAcct();
+  }
+  async function setNewPassword(password){
+    if(!sb)return;errMsg='';notice='';
+    if((password||'').length<6){errMsg='Mot de passe : 6 caractères minimum.';renderAcct();return;}
+    busy=true;renderAcct();
+    try{const res=await sb.auth.updateUser({password:password});if(res.error)throw res.error;recovery=false;notice='Mot de passe enregistré.';}
+    catch(e){errMsg='Mot de passe : '+(e.message||e);}
+    busy=false;renderAcct();
+  }
+  async function signOut(){try{if(sb)await sb.auth.signOut();}catch(e){}}
 
-  /* ----- suppression de compte (RGPD) — propre à Capital --------------
-     Reste ici tant que la fonction Edge `delete-account` et la logique
-     d'effacement des annotations locales / forum / signalements ne sont
-     pas factorisées vers shell.js (sous-mission RGPD ultérieure).
-  ---------------------------------------------------------------------- */
   async function eraseMyData(){
     if(!sb||!user)return;errMsg='';notice='';busy=true;renderAcct();
     try{
@@ -2016,121 +2034,143 @@ drawTRPF();
       store={};profile=null;pubNotes=[];reports=[];eraseConfirm=false;
       if(box)clearMarks();
       toast('Ton compte et toutes tes données ont été supprimés.');
-      await window.SHELL.auth.signOut();
+      await signOut();
     }catch(e){errMsg='Suppression : '+((e&&e.message)||e)+' — la fonction « delete-account » est-elle déployée ?';}
     busy=false;renderAcct();
   }
 
-  /* ----- callback SHELL.auth.onChange — effets de bord côté Capital ---
-     Profil enrichi (pseudo+avatar+bio), modération, annotations, forum,
-     DM realtime. SHELL.auth a déjà chargé un profil basique pour la
-     pastille ; on le recharge ici en version riche et on le pousse à
-     SHELL pour que la chip affiche le bon avatar.
-  ---------------------------------------------------------------------- */
-  async function setSession(ctx){
-    user = (ctx && ctx.user) || null;
+  async function setSession(session){
+    user=(session&&session.user)||null;
     if(user){
       await loadProfile();
       if(!profile){
-        let pu='';
-        if(user.user_metadata && user.user_metadata.username) pu = user.user_metadata.username;
+        let pu=pendingUsername;
+        if(!pu&&user.user_metadata&&user.user_metadata.username)pu=user.user_metadata.username;
         if(!pu){try{pu=localStorage.getItem('liremarx.pendinguser')||'';}catch(e){}}
-        if(pu && reUser.test(pu) && !(await usernameTaken(pu))){
-          const r = await saveUsername(pu);
-          if(r.ok){try{localStorage.removeItem('liremarx.pendinguser');}catch(e){}}
-        }
+        if(pu&&reUser.test(pu)&&!(await usernameTaken(pu))){const r=await saveUsername(pu);if(r.ok){try{localStorage.removeItem('liremarx.pendinguser');}catch(e){}}}
       }
-      window.SHELL.auth.setProfile(profile);
-      window.SHELL.auth.renderChip();
       try{const mr=await sb.from('moderators').select('id').eq('id',user.id).maybeSingle();isMod=!!(mr&&mr.data);}catch(e){isMod=false;}
       pullAll();
       if(box)loadPublic();
       try{if(window.__dmRealtimeUp)window.__dmRealtimeUp();}catch(e){}
-    }else{
-      profile=null;isMod=false;modView=false;
-      window.SHELL.auth.setProfile(null);
-      window.SHELL.auth.renderChip();
-      try{if(window.__dmRealtimeDown)window.__dmRealtimeDown();}catch(e){}
-    }
+    }else{profile=null;isMod=false;modView=false;try{if(window.__dmRealtimeDown)window.__dmRealtimeDown();}catch(e){}}
     renderAcct();refreshAcct();
   }
 
-  /* ----- bootstrap : connecte Capital au shell partagé ---------------- */
   async function initSync(){
-    // Si shell.js n'est pas chargé (cas dégradé), on ne tente même pas.
-    if(!window.SHELL || !window.SHELL.auth){ configured=false; return; }
-
-    // 1) On branche la chip et les modales IMMÉDIATEMENT, indépendamment
-    //    de l'état Supabase. Comme ça un clic sur "Se connecter" ouvre
-    //    toujours quelque chose — même si l'import du client échoue.
-    try{ window.SHELL.auth.setLoggedInRenderer(renderLoggedIn); }catch(e){}
-    try{ window.SHELL.auth.onChange(setSession); }catch(e){}
-    try{ window.SHELL.auth._wireChrome(); }catch(e){}
-    const fp=document.getElementById('footPrivacy');
-    if(fp) fp.onclick=function(){ try{ window.SHELL.auth.openPrivacy(); }catch(e){} };
-
-    // 2) On charge le client Supabase ; les échecs sont absorbés
-    //    silencieusement (la modale affichera "Compte non configuré").
+    // Le client Supabase est désormais un singleton géré par shell.js
+    // (SHELL.auth.getClient). Cette page reste responsable de l'état d'auth
+    // (user, profile, session) et de ses effets de bord (profil, annotations,
+    // forum, modération). Voir CLAUDE.md / README pour la feuille de route.
     try{
       sb = await window.SHELL.auth.getClient();
-      if(!sb){ configured=false; return; }
+      if(!sb){configured=false;renderAcct();return;}
       configured = window.SHELL.auth.isConfigured();
-      await window.SHELL.auth._bootstrap();
-    }catch(e){
-      sb=null; configured=false;
-    }
+      sb.auth.onAuthStateChange((ev,session)=>{if(ev==='PASSWORD_RECOVERY'){recovery=true;openAcctModal();}setSession(session);});
+      const res=await sb.auth.getSession();
+      await setSession(res.data&&res.data.session);
+    }catch(e){sb=null;configured=false;toast('Compte indisponible (chargement du client échoué).');}
+    renderAcct();
   }
 
-  /* ----- nombre d'annotations (utilisé par renderLoggedIn) ------------ */
+  /* ---------- vue de l onglet Mon compte ---------- */
   function noteCount(){let n=0;Object.keys(store).forEach(k=>{if(k.indexOf(WORK+'|')===0)n+=(store[k]||[]).length;});return n;}
-
-  /* ----- rendu "Mon compte" enregistré via setLoggedInRenderer --------
-     Reçoit (slot, ctx) de SHELL.auth.renderModal. Capital gère
-     entièrement les data-act spécifiques (saveuser/savemeta/ava-*) ; SHELL
-     n'écrase pas les handlers quand un loggedInRenderer est fourni.
-  ---------------------------------------------------------------------- */
-  function renderLoggedIn(slot, ctx){
+  function field(el,id){const x=el.querySelector('#'+id);return x?x.value:'';}
+  function renderChip(){
+    const chip=document.getElementById('acctChip');if(!chip)return;
+    if(!configured){chip.style.display='none';return;}
+    chip.style.display='inline-flex';
+    if(user){const p=(profile&&profile.username)||user.email||'compte';
+      chip.className='acct-chip';
+      chip.innerHTML='<span class="chip-ava">'+avaHtml(p,(profile&&profile.avatar_url)||'')+'</span><span class="chip-name">'+escapeHtml(p)+'</span>';
+    }else{chip.className='acct-chip guest';chip.textContent='Se connecter';}
+  }
+  function openAcctModal(){const m=document.getElementById('acctModal');if(!m)return;renderAcct();m.hidden=false;document.body.style.overflow='hidden';}
+  function closeAcctModal(){const m=document.getElementById('acctModal');if(!m)return;m.hidden=true;document.body.style.overflow='';}
+  function openPrivacy(){const m=document.getElementById('privacyModal');if(!m)return;m.hidden=false;document.body.style.overflow='hidden';}
+  function closePrivacy(){const m=document.getElementById('privacyModal');if(!m)return;m.hidden=true;const am=document.getElementById('acctModal');document.body.style.overflow=(am&&!am.hidden)?'hidden':'';}
+  function wireAcctChrome(){
+    const chip=document.getElementById('acctChip');const m=document.getElementById('acctModal');
+    const pm=document.getElementById('privacyModal');const fp=document.getElementById('footPrivacy');
+    if(chip)chip.onclick=()=>{errMsg='';notice='';openAcctModal();};
+    if(m){m.addEventListener('click',e=>{if(e.target===m)closeAcctModal();});
+      const x=m.querySelector('.acct-modal-x');if(x)x.onclick=closeAcctModal;}
+    if(pm){pm.addEventListener('click',e=>{if(e.target===pm)closePrivacy();});
+      const x=pm.querySelector('.acct-modal-x');if(x)x.onclick=closePrivacy;}
+    if(fp)fp.onclick=()=>openPrivacy();
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'){
+      const pp=document.getElementById('privacyModal');if(pp&&!pp.hidden){closePrivacy();return;}
+      const mm=document.getElementById('acctModal');if(mm&&!mm.hidden)closeAcctModal();}});
+  }
+  function renderAcct(){
+    renderChip();
+    const el=document.getElementById('acctView');if(!el)return;
     const err=errMsg?'<div class="ac-err">'+escapeHtml(errMsg)+'</div>':'';
     const ok=notice?'<div class="ac-ok">'+escapeHtml(notice)+'</div>':'';
-    const u=ctx.user;
-    const p=ctx.profile||profile;
-    const pseudo=(p&&p.username)||'';
-    const nc=noteCount();const s=nc>1?'s':'';
-    let h='<div class="ac-card"><h3>Mon compte</h3>'+err+ok
-      +'<div class="ac-id"><span class="ac-ava">'+avaHtml(pseudo||u.email,(p&&p.avatar_url)||'')+'</span><div><div class="ac-pseudo">'+(pseudo?escapeHtml(pseudo):'<i>sans pseudo</i>')+'</div><div class="ac-mail">'+escapeHtml(u.email||'')+'</div></div></div>'
-      +'<label class="ac-lab">Pseudo public</label>'
-      +'<div class="ac-row"><input type="text" id="acUser" value="'+escapeHtml(pseudo)+'" placeholder="ton-pseudo" maxlength="24"><button class="btn" data-act="saveuser" type="button">Enregistrer</button></div>'
-      +'<p class="ac-note">Ce pseudo apparaîtra à côté de tes notes publiques ; ton e-mail, jamais.</p>'
-      +'<label class="ac-lab">Photo de profil</label>'
-      +'<div class="ac-avarow"><span class="ac-ava ac-ava-edit">'+avaHtml(pseudo||u.email,(p&&p.avatar_url)||'')+'</span>'
-      +'<div class="ac-avabtns"><input type="file" id="acAvaFile" accept="image/*" style="display:none">'
-      +'<button class="btn" data-act="ava-pick" type="button"'+(busy?' disabled':'')+'>Choisir une image…</button>'
-      +((p&&p.avatar_url)?'<button class="lk" data-act="ava-clear" type="button">Retirer la photo</button>':'')+'</div></div>'
-      +'<label class="ac-lab">Description</label>'
-      +'<textarea id="acBio" class="ac-bio" maxlength="280" placeholder="Quelques mots sur toi (280 caractères max).">'+escapeHtml((p&&p.bio)||'')+'</textarea>'
-      +'<div class="ac-row"><button class="btn red" data-act="savemeta" type="button">Enregistrer le profil</button></div>'
-      +'<div class="ac-stat">'+nc+' annotation'+s+' reliée'+s+' à ce compte et synchronisée'+s+'.</div>'
-      +(eraseConfirm
-        ?'<div class="ac-danger"><b>Supprimer définitivement ton compte ?</b> Cela efface ton compte et toutes tes données — annotations privées, notes et réponses publiques, pseudo, signalements. Tu seras déconnecté et ne pourras plus te reconnecter. Action irréversible.<div class="ac-row" style="margin-top:8px"><button class="btn red" data-act="erase-yes" type="button"'+(busy?' disabled':'')+'>'+(busy?'Suppression…':'Oui, supprimer mon compte')+'</button><button class="lk" data-act="erase-no" type="button">Annuler</button></div></div>'
-        :'')
-      +'<div class="ac-row ac-end"><button class="lk" data-act="signout" type="button">Se déconnecter</button><button class="lk ac-del" data-act="erase" type="button">Supprimer mon compte</button></div>'
-      +'<div class="ac-foot"><button class="lk" data-act="privacy" type="button">Confidentialité &amp; données</button></div></div>';
-    slot.innerHTML=h;
-    slot.querySelectorAll('[data-act]').forEach(b=>{
+    let h='';
+    if(!configured){
+      h='<div class="ac-card"><h3>Compte non configuré</h3><p class="ac-p">La synchronisation par compte n’est pas encore branchée : il reste à renseigner les clés Supabase dans le fichier (bloc <code>CONFIG</code>, en haut du script). En attendant, tes annotations sont conservées localement sur cet appareil.</p></div>';
+    }else if(recovery){
+      h='<div class="ac-card"><h3>Choisir un nouveau mot de passe</h3>'+err+ok
+        +'<input type="password" id="acNew" placeholder="nouveau mot de passe (6 caractères min.)" autocomplete="new-password">'
+        +'<div class="ac-row"><button class="btn red" data-act="setpw" type="button"'+(busy?' disabled':'')+'>Enregistrer</button></div></div>';
+    }else if(user){
+      const pseudo=(profile&&profile.username)||'';
+      const initial=escapeHtml((pseudo||user.email||'?').slice(0,1).toUpperCase());
+      const nc=noteCount();const s=nc>1?'s':'';
+      h='<div class="ac-card"><h3>Mon compte</h3>'+err+ok
+        +'<div class="ac-id"><span class="ac-ava">'+avaHtml(pseudo||user.email,(profile&&profile.avatar_url)||'')+'</span><div><div class="ac-pseudo">'+(pseudo?escapeHtml(pseudo):'<i>sans pseudo</i>')+'</div><div class="ac-mail">'+escapeHtml(user.email||'')+'</div></div></div>'
+        +'<label class="ac-lab">Pseudo public</label>'
+        +'<div class="ac-row"><input type="text" id="acUser" value="'+escapeHtml(pseudo)+'" placeholder="ton-pseudo" maxlength="24"><button class="btn" data-act="saveuser" type="button">Enregistrer</button></div>'
+        +'<p class="ac-note">Ce pseudo apparaîtra à côté de tes notes publiques (à venir) ; ton e-mail, jamais.</p>'
+        +'<label class="ac-lab">Photo de profil</label>'
+        +'<div class="ac-avarow"><span class="ac-ava ac-ava-edit">'+avaHtml(pseudo||user.email,(profile&&profile.avatar_url)||'')+'</span>'
+        +'<div class="ac-avabtns"><input type="file" id="acAvaFile" accept="image/*" style="display:none">'
+        +'<button class="btn" data-act="ava-pick" type="button"'+(busy?' disabled':'')+'>Choisir une image\u2026</button>'
+        +((profile&&profile.avatar_url)?'<button class="lk" data-act="ava-clear" type="button">Retirer la photo</button>':'')+'</div></div>'
+        +'<label class="ac-lab">Description</label>'
+        +'<textarea id="acBio" class="ac-bio" maxlength="280" placeholder="Quelques mots sur toi (280 caractères max).">'+escapeHtml((profile&&profile.bio)||'')+'</textarea>'
+        +'<div class="ac-row"><button class="btn red" data-act="savemeta" type="button">Enregistrer le profil</button></div>'
+        +'<div class="ac-stat">'+nc+' annotation'+s+' reliée'+s+' à ce compte et synchronisée'+s+'.</div>'
+        +(eraseConfirm
+          ?'<div class="ac-danger"><b>Supprimer définitivement ton compte ?</b> Cela efface ton compte et toutes tes données — annotations privées, notes et réponses publiques, pseudo, signalements. Tu seras déconnecté et ne pourras plus te reconnecter. Action irréversible.<div class="ac-row" style="margin-top:8px"><button class="btn red" data-act="erase-yes" type="button"'+(busy?' disabled':'')+'>'+(busy?'Suppression…':'Oui, supprimer mon compte')+'</button><button class="lk" data-act="erase-no" type="button">Annuler</button></div></div>'
+          :'')
+        +'<div class="ac-row ac-end"><button class="lk" data-act="signout" type="button">Se déconnecter</button><button class="lk ac-del" data-act="erase" type="button">Supprimer mon compte</button></div>'
+        +'<div class="ac-foot"><button class="lk" data-act="privacy" type="button">Confidentialité &amp; données</button></div></div>';
+    }else{
+      const signup=authMode==='signup';
+      h='<div class="ac-card"><div class="ac-tabs">'
+        +'<button class="ac-t'+(signup?'':' on')+'" data-act="mode-signin" type="button">Se connecter</button>'
+        +'<button class="ac-t'+(signup?' on':'')+'" data-act="mode-signup" type="button">Créer un compte</button></div>'+err+ok
+        +'<input type="email" id="acEmail" placeholder="adresse e-mail" autocomplete="email">'
+        +(signup?'<input type="text" id="acUser" placeholder="pseudo public (2 à 24 caractères)" maxlength="24">':'')
+        +'<input type="password" id="acPw" placeholder="mot de passe" autocomplete="'+(signup?'new-password':'current-password')+'">'
+        +'<div class="ac-row"><button class="btn red" data-act="'+(signup?'do-signup':'do-signin')+'" type="button"'+(busy?' disabled':'')+'>'+(busy?'…':(signup?'Créer mon compte':'Se connecter'))+'</button>'
+        +(signup?'':'<button class="lk" data-act="reset" type="button">Mot de passe oublié ?</button>')+'</div>'
+        +'<p class="ac-note">'+(signup?'Tu choisis un pseudo public et un mot de passe ; ton adresse e-mail reste privée.':'Retrouve et synchronise tes annotations sur tous tes appareils.')+'</p><div class="ac-foot"><button class="lk" data-act="privacy" type="button">Confidentialité &amp; données</button></div></div>';
+    }
+    el.innerHTML=h;
+    el.querySelectorAll('[data-act]').forEach(b=>{
       b.onclick=()=>{
         const a=b.dataset.act;
-        if(a==='saveuser'){errMsg='';notice='';saveUsername(field(slot,'acUser').trim()).then(r=>{if(r.ok)notice='Pseudo enregistré.';else errMsg=r.msg;renderAcct();});}
+        if(a==='mode-signin'){authMode='signin';errMsg='';notice='';renderAcct();}
+        else if(a==='mode-signup'){authMode='signup';errMsg='';notice='';renderAcct();}
+        else if(a==='do-signin'){doSignIn(field(el,'acEmail').trim(),field(el,'acPw'));}
+        else if(a==='do-signup'){doSignUp(field(el,'acEmail').trim(),field(el,'acPw'),field(el,'acUser').trim());}
+        else if(a==='reset'){const em=field(el,'acEmail').trim();if(!em){errMsg='Indique d’abord ton adresse e-mail.';notice='';renderAcct();}else doReset(em);}
+        else if(a==='setpw'){setNewPassword(field(el,'acNew'));}
+        else if(a==='saveuser'){errMsg='';notice='';saveUsername(field(el,'acUser').trim()).then(r=>{if(r.ok)notice='Pseudo enregistré.';else errMsg=r.msg;renderAcct();});}
         else if(a==='erase'){eraseConfirm=true;renderAcct();}
         else if(a==='erase-no'){eraseConfirm=false;renderAcct();}
         else if(a==='erase-yes'){eraseMyData();}
-        else if(a==='privacy'){window.SHELL.auth.openPrivacy();}
-        else if(a==='signout'){window.SHELL.auth.signOut();}
-        else if(a==='ava-pick'){var fi=slot.querySelector('#acAvaFile');if(fi)fi.click();}
+        else if(a==='privacy'){openPrivacy();}
+        else if(a==='signout'){signOut();}
+        else if(a==='ava-pick'){var fi=el.querySelector('#acAvaFile');if(fi)fi.click();}
         else if(a==='ava-clear'){saveProfileMeta(undefined,'').then(r=>{if(r.ok)notice='Photo retirée.';else errMsg=r.msg||'Échec.';renderAcct();refreshAcct();});}
-        else if(a==='savemeta'){errMsg='';notice='';saveProfileMeta(field(slot,'acBio'),undefined).then(r=>{if(r.ok)notice='Profil enregistré.';else errMsg=r.msg||'Échec.';renderAcct();refreshAcct();});}
+        else if(a==='savemeta'){errMsg='';notice='';saveProfileMeta(field(el,'acBio'),undefined).then(r=>{if(r.ok)notice='Profil enregistré.';else errMsg=r.msg||'Échec.';renderAcct();refreshAcct();});}
       };
     });
-    var _af=slot.querySelector('#acAvaFile');if(_af)_af.onchange=function(){var f=_af.files&&_af.files[0];if(f)uploadAvatar(f);};
+    var _af=el.querySelector('#acAvaFile');if(_af)_af.onchange=function(){var f=_af.files&&_af.files[0];if(f)uploadAvatar(f);};
   }
 
   /* statut compact dans le panneau Mes notes */
@@ -2524,7 +2564,7 @@ drawTRPF();
   const pubToggle=document.getElementById('pubToggle'),pubPanelEl=document.getElementById('publicPanel');
   if(pubToggle&&pubPanelEl)pubToggle.addEventListener('click',()=>{pubPanelEl.hidden=!pubPanelEl.hidden;if(!pubPanelEl.hidden){if(panel)panel.hidden=true;renderPublic();}});
 
-  // initSync() câble SHELL.auth (chip + modales) ET fait le bootstrap auth.
+  wireAcctChrome();
   initSync();
 
   function setChapter(n,container){

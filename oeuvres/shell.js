@@ -130,7 +130,7 @@
           '<div class="ac-card privacy-text">' +
             '<h3>Confidentialité &amp; données</h3>' +
             '<p class="pz-warn">Modèle de départ, à relire et compléter ; ce n\'est pas un conseil juridique.</p>' +
-            '<p>Pour la version complète de l\'avis et la fonction « Supprimer mes données », ouvre cette page depuis <a href="' + SHELL_HOST + '">l\'atelier du Capital</a>, où la coquille applicative est complète.</p>' +
+            '<p>Avis de confidentialité abrégé. Pour la fonction « Supprimer mes données » et la version complète, ouvre Mon compte sur la page de l\'atelier du Capital où la gestion complète du profil est disponible.</p>' +
           '</div>' +
         '</div>' +
       '</div>'
@@ -313,62 +313,27 @@
   }
 
   // ----- chip de topbar --------------------------------------------------
-  // Cache localStorage de la dernière chip "signed-in" pour qu'elle s'affiche
-  // INSTANTANÉMENT au chargement de chaque page, sans attendre que
-  // Supabase ait fini son getSession. Sinon impression de "session qui saute"
-  // pendant les 1-2 s du bootstrap async.
-  var CHIP_CACHE_KEY = 'liremarx.chipCache';
-  function cacheChip(name, avatar_url){
-    try { localStorage.setItem(CHIP_CACHE_KEY, JSON.stringify({n: name || '', a: avatar_url || ''})); } catch(e){}
-  }
-  function readCachedChip(){
-    try { var s = localStorage.getItem(CHIP_CACHE_KEY); return s ? JSON.parse(s) : null; } catch(e){ return null; }
-  }
-  function clearCachedChip(){ try { localStorage.removeItem(CHIP_CACHE_KEY); } catch(e){} }
-
-  // Toujours visible : un visiteur déconnecté voit "Se connecter", un visiteur
-  // connecté voit son pseudo + avatar. La chip n'est jamais masquée même si
-  // Supabase n'est pas encore initialisé — sinon elle clignote au chargement
-  // de chaque page (impression désagréable de session qui saute).
   function renderChip(){
     if(!chipEl) chipEl = document.getElementById('acctChip');
     if(!chipEl) return;
+    // Pastille toujours visible : guest tant que Supabase n'a pas confirmé
+    // la session, ou si pas de config Supabase.
     chipEl.style.display = 'inline-flex';
     var u = state.user, p = state.profile;
     if(u){
       var name = (p && p.username) || u.email || 'compte';
-      var avatar = (p && p.avatar_url) || '';
       chipEl.className = 'acct-chip';
-      chipEl.innerHTML = '<span class="chip-ava">' + avaHtml(name, avatar) + '</span><span class="chip-name">' + esc(name) + '</span>';
-      cacheChip(name, avatar);
+      chipEl.innerHTML = '<span class="chip-ava">' + avaHtml(name, p && p.avatar_url) + '</span><span class="chip-name">' + esc(name) + '</span>';
     } else {
-      // Avant de retomber en "Se connecter", vérifier s'il y a une chip
-      // cachée du dernier passage signed-in. Si oui, on l'affiche en
-      // attendant que le bootstrap dise la vérité. Si bootstrap confirme
-      // sign-out, cacheChip sera retiré ailleurs et le prochain render
-      // affichera bien "Se connecter".
-      var cached = readCachedChip();
-      if(cached && cached.n && !bootstrapDone){
-        chipEl.className = 'acct-chip';
-        chipEl.innerHTML = '<span class="chip-ava">' + avaHtml(cached.n, cached.a) + '</span><span class="chip-name">' + esc(cached.n) + '</span>';
-        return;
-      }
       chipEl.className = 'acct-chip guest';
       chipEl.textContent = 'Se connecter';
     }
   }
-  // Faux tant que _bootstrap n'a pas fini : la chip peut afficher le cache
-  // sans craindre de mentir. Une fois true, la chip dit la vérité.
-  var bootstrapDone = false;
 
   // ----- modales ---------------------------------------------------------
   function openModal(){
     if(!modalEl) modalEl = document.getElementById('acctModal');
     if(!modalEl) return;
-    // Reset de l'état UI : évite qu'un view.busy resté à true d'une
-    // tentative précédente (signin hanguée) laisse le bouton "..."
-    // sans bouton valide quand on rouvre la modale.
-    view.busy = false; view.err = ''; view.notice = '';
     renderModal();
     modalEl.hidden = false;
     document.body.style.overflow = 'hidden';
@@ -429,17 +394,6 @@
     }
   }
   async function signOut(){
-    // Feedback IMMÉDIAT : on nettoie l'état local et le cache avant d'attendre
-    // la réponse de Supabase. Comme ça la pastille passe en "Se connecter"
-    // et la modale en vue invité tout de suite, même si la requête de
-    // déconnexion réseau prend du temps ou échoue.
-    setUser(null);
-    setProfile(null);
-    clearCachedChip();
-    view.err = ''; view.notice = '';
-    emit();
-    renderChip();
-    renderModal();
     var c = await getClient(); if(!c) return;
     try { await c.auth.signOut(); } catch(e){}
   }
@@ -496,49 +450,24 @@
       wireModalActions(slot);
       return;
     }
-    // Si on a une chip en cache (probable session encore valide) mais
-    // bootstrap n'a pas encore fini de la confirmer, on affiche un état
-    // de chargement plutôt que la vue invité. Sinon le clic sur la chip
-    // pendant les 1-2 s de bootstrap montrerait un formulaire de
-    // connexion alors que l'utilisateur est déjà connecté. Le bouton
-    // "Ce n'est pas toi ?" permet d'évader le cache si le précédent
-    // utilisateur s'était mal déconnecté.
-    if(!state.user && !bootstrapDone){
-      var cachedDuringBoot = readCachedChip();
-      if(cachedDuringBoot && cachedDuringBoot.n){
-        slot.innerHTML = '<div class="ac-card"><h3>Mon compte</h3>'
-          + '<p class="ac-p">Chargement de ta session… (' + esc(cachedDuringBoot.n) + ')</p>'
-          + '<div class="ac-row ac-end"><button class="lk" data-act="clear-cache" type="button">Ce n\'est pas toi ?</button></div></div>';
-        wireModalActions(slot);
-        return;
-      }
-    }
     if(state.user){
       if(loggedInRenderer){
-        // La page fournit son propre rendu ET gère ses propres handlers
-        // (saveuser, savemeta, ava-pick, signout, privacy, etc.). On n'appelle
-        // PAS wireModalActions pour éviter d'écraser ses handlers.
-        try { loggedInRenderer(slot, { user: state.user, profile: state.profile, view: view, esc: esc, avaHtml: avaHtml, errMsg: view.err, notice: view.notice }); }
-        catch(e){ slot.innerHTML = '<div class="ac-card"><h3>Mon compte</h3>' + err + ok + '<p class="ac-p">Erreur de rendu.</p></div>'; wireModalActions(slot); }
-        return;
+        try { loggedInRenderer(slot, { user: state.user, profile: state.profile, view: view, esc: esc, avaHtml: avaHtml }); }
+        catch(e){ slot.innerHTML = '<div class="ac-card"><h3>Mon compte</h3>' + err + ok + '<p class="ac-p">Erreur de rendu.</p></div>'; }
+      } else {
+        // Rendu par défaut (Manuscrits, bibliothèque) : pseudo éditable +
+        // déconnexion. Pas de redirection vers Capital — l'utilisateur
+        // peut gérer son pseudo et se déconnecter directement ici.
+        var p = state.profile, u = state.user;
+        var pseudo = (p && p.username) || '';
+        slot.innerHTML = '<div class="ac-card"><h3>Mon compte</h3>' + err + ok
+          + '<div class="ac-id"><span class="ac-ava">' + avaHtml(pseudo || u.email, p && p.avatar_url) + '</span><div><div class="ac-pseudo">' + (pseudo ? esc(pseudo) : '<i>sans pseudo</i>') + '</div><div class="ac-mail">' + esc(u.email || '') + '</div></div></div>'
+          + '<label class="ac-lab">Pseudo public</label>'
+          + '<div class="ac-row"><input type="text" id="acUser" value="' + esc(pseudo) + '" placeholder="ton-pseudo" maxlength="24"><button class="btn red" data-act="saveuser" type="button">Enregistrer</button></div>'
+          + '<p class="ac-note">Ce pseudo apparaîtra à côté de tes notes publiques ; ton e-mail, jamais.</p>'
+          + '<div class="ac-row ac-end"><button class="lk" data-act="signout" type="button">Se déconnecter</button></div>'
+          + '<div class="ac-foot"><button class="lk" data-act="privacy" type="button">Confidentialité &amp; données</button></div></div>';
       }
-      // Rendu par défaut (Manuscrits, bibliothèque) : pseudo + déconnexion.
-      // L'avatar et la suppression de compte ne sont accessibles que via
-      // Capital pour l'instant, mais l'édition du pseudo, l'identité et la
-      // déconnexion fonctionnent partout.
-      var p = state.profile, u = state.user;
-      var pseudo = (p && p.username) || '';
-      var bio = (p && p.bio) || '';
-      slot.innerHTML = '<div class="ac-card"><h3>Mon compte</h3>' + err + ok
-        + '<div class="ac-id"><span class="ac-ava">' + avaHtml(pseudo || u.email, p && p.avatar_url) + '</span><div><div class="ac-pseudo">' + (pseudo ? esc(pseudo) : '<i>sans pseudo</i>') + '</div><div class="ac-mail">' + esc(u.email || '') + '</div></div></div>'
-        + '<label class="ac-lab">Pseudo public</label>'
-        + '<div class="ac-row"><input type="text" id="acUser" value="' + esc(pseudo) + '" placeholder="ton-pseudo" maxlength="24"><button class="btn red" data-act="saveuser" type="button">Enregistrer</button></div>'
-        + '<p class="ac-note">Ce pseudo apparaîtra à côté de tes notes publiques ; ton e-mail, jamais.</p>'
-        + '<label class="ac-lab">Description</label>'
-        + '<textarea id="acBio" class="ac-bio" maxlength="280" placeholder="Quelques mots sur toi (280 caractères max).">' + esc(bio) + '</textarea>'
-        + '<div class="ac-row"><button class="btn red" data-act="savebio" type="button">Enregistrer la description</button></div>'
-        + '<div class="ac-row ac-end"><button class="lk" data-act="signout" type="button">Se déconnecter</button></div>'
-        + '<div class="ac-foot"><button class="lk" data-act="privacy" type="button">Confidentialité &amp; données</button></div></div>';
       wireModalActions(slot);
       return;
     }
@@ -559,16 +488,6 @@
   }
   function field(el, id){ var x = el.querySelector('#' + id); return x ? x.value : ''; }
   function wireModalActions(slot){
-    // Permettre la touche Entrée pour valider le formulaire courant.
-    var primaryBtn = slot.querySelector('[data-act="do-signin"], [data-act="do-signup"], [data-act="setpw"]');
-    slot.querySelectorAll('input').forEach(function(inp){
-      inp.addEventListener('keydown', function(e){
-        if(e.key === 'Enter' && primaryBtn && !primaryBtn.disabled){
-          e.preventDefault();
-          primaryBtn.click();
-        }
-      });
-    });
     slot.querySelectorAll('[data-act]').forEach(function(b){
       b.onclick = function(){
         var a = b.dataset.act;
@@ -589,49 +508,13 @@
             renderModal();
           });
         }
-        else if(a === 'savebio'){
-          var bio = field(slot,'acBio');
-          view.err = ''; view.notice = '';
-          saveBio(bio).then(function(r){
-            if(r.ok){ view.notice = 'Description enregistrée.'; }
-            else { view.err = r.msg || 'Échec.'; }
-            renderModal();
-          });
-        }
-        else if(a === 'clear-cache'){
-          clearCachedChip();
-          setUser(null); setProfile(null);
-          view.err = ''; view.notice = '';
-          renderChip();
-          renderModal();
-        }
         // Les autres data-act (savemeta, ava-pick, etc.) sont gérés par le
         // rendu logged-in fourni par la page (Capital).
       };
     });
   }
 
-  // Sauvegarde de la description (bio) publique.
-  async function saveBio(bio){
-    var c = await getClient();
-    if(!c || !state.user) return {ok:false, msg:'Non connecté.'};
-    bio = String(bio || '').slice(0, 280);
-    try {
-      var row = {id: state.user.id, bio: bio};
-      // Conserve le pseudo existant pour que l'upsert ne le perde pas.
-      if(state.profile && state.profile.username) row.username = state.profile.username;
-      if(state.profile && state.profile.avatar_url) row.avatar_url = state.profile.avatar_url;
-      var r = await c.from('profiles').upsert(row).select().maybeSingle();
-      if(r.error) return {ok:false, msg: r.error.message};
-      setProfile(r.data || Object.assign({}, state.profile || {}, {bio: bio}));
-      return {ok:true};
-    } catch(e){
-      return {ok:false, msg: (e && e.message) || String(e)};
-    }
-  }
-
-  // Sauvegarde du pseudo public (table `profiles`). Exposé sur SHELL.auth
-  // pour que toutes les pages puissent l'utiliser.
+  // Sauvegarde du pseudo (table profiles) — accessible partout.
   async function saveUsername(name){
     var c = await getClient();
     if(!c || !state.user) return {ok:false, msg:'Non connecté.'};
@@ -673,9 +556,6 @@
       if(privacyEl && !privacyEl.hidden){ closePrivacy(); return; }
       if(modalEl && !modalEl.hidden){ closeModal(); }
     });
-    // Affiche la chip dans son dernier état connu IMMÉDIATEMENT, avant
-    // que bootstrap n'ait fini de vérifier la session côté Supabase.
-    renderChip();
   }
 
   // Lecture du profil public (pseudo + avatar) depuis la table `profiles`.
@@ -693,19 +573,18 @@
   // ----- bootstrap session côté shell -----------------------------------
   async function bootstrap(){
     var c = await getClient();
-    if(!c){ bootstrapDone = true; renderChip(); renderModal(); return; }
+    if(!c){ renderChip(); renderModal(); return; }
     c.auth.onAuthStateChange(async function(ev, session){
       if(ev === 'PASSWORD_RECOVERY'){ view.recovery = true; openModal(); }
       setUser((session && session.user) || null);
-      if(state.user) await loadProfile(); else { setProfile(null); clearCachedChip(); }
+      if(state.user) await loadProfile(); else setProfile(null);
       emit();
       renderChip();
       if(modalEl && !modalEl.hidden) renderModal();
     });
     var r = await c.auth.getSession();
     setUser((r.data && r.data.session && r.data.session.user) || null);
-    if(state.user) await loadProfile(); else clearCachedChip();
-    bootstrapDone = true;
+    if(state.user) await loadProfile();
     emit();
     renderChip();
     renderModal();
@@ -721,7 +600,6 @@
     setProfile: setProfile,
     loadProfile: loadProfile,
     saveUsername: saveUsername,
-    saveBio: saveBio,
     onChange: onChange,
     // flows
     signIn: signIn, signUp: signUp, signOut: signOut,
