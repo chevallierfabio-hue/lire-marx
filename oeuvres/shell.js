@@ -425,6 +425,17 @@
     }
   }
   async function signOut(){
+    // Feedback IMMÉDIAT : on nettoie l'état local et le cache avant d'attendre
+    // la réponse de Supabase. Comme ça la pastille passe en "Se connecter"
+    // et la modale en vue invité tout de suite, même si la requête de
+    // déconnexion réseau prend du temps ou échoue.
+    setUser(null);
+    setProfile(null);
+    clearCachedChip();
+    view.err = ''; view.notice = '';
+    emit();
+    renderChip();
+    renderModal();
     var c = await getClient(); if(!c) return;
     try { await c.auth.signOut(); } catch(e){}
   }
@@ -485,11 +496,16 @@
     // bootstrap n'a pas encore fini de la confirmer, on affiche un état
     // de chargement plutôt que la vue invité. Sinon le clic sur la chip
     // pendant les 1-2 s de bootstrap montrerait un formulaire de
-    // connexion alors que l'utilisateur est déjà connecté.
+    // connexion alors que l'utilisateur est déjà connecté. Le bouton
+    // "Ce n'est pas toi ?" permet d'évader le cache si le précédent
+    // utilisateur s'était mal déconnecté.
     if(!state.user && !bootstrapDone){
       var cachedDuringBoot = readCachedChip();
       if(cachedDuringBoot && cachedDuringBoot.n){
-        slot.innerHTML = '<div class="ac-card"><h3>Mon compte</h3><p class="ac-p">Chargement de ta session…</p></div>';
+        slot.innerHTML = '<div class="ac-card"><h3>Mon compte</h3>'
+          + '<p class="ac-p">Chargement de ta session… (' + esc(cachedDuringBoot.n) + ')</p>'
+          + '<div class="ac-row ac-end"><button class="lk" data-act="clear-cache" type="button">Ce n\'est pas toi ?</button></div></div>';
+        wireModalActions(slot);
         return;
       }
     }
@@ -508,11 +524,15 @@
       // déconnexion fonctionnent partout.
       var p = state.profile, u = state.user;
       var pseudo = (p && p.username) || '';
+      var bio = (p && p.bio) || '';
       slot.innerHTML = '<div class="ac-card"><h3>Mon compte</h3>' + err + ok
         + '<div class="ac-id"><span class="ac-ava">' + avaHtml(pseudo || u.email, p && p.avatar_url) + '</span><div><div class="ac-pseudo">' + (pseudo ? esc(pseudo) : '<i>sans pseudo</i>') + '</div><div class="ac-mail">' + esc(u.email || '') + '</div></div></div>'
         + '<label class="ac-lab">Pseudo public</label>'
         + '<div class="ac-row"><input type="text" id="acUser" value="' + esc(pseudo) + '" placeholder="ton-pseudo" maxlength="24"><button class="btn red" data-act="saveuser" type="button">Enregistrer</button></div>'
         + '<p class="ac-note">Ce pseudo apparaîtra à côté de tes notes publiques ; ton e-mail, jamais.</p>'
+        + '<label class="ac-lab">Description</label>'
+        + '<textarea id="acBio" class="ac-bio" maxlength="280" placeholder="Quelques mots sur toi (280 caractères max).">' + esc(bio) + '</textarea>'
+        + '<div class="ac-row"><button class="btn red" data-act="savebio" type="button">Enregistrer la description</button></div>'
         + '<div class="ac-row ac-end"><button class="lk" data-act="signout" type="button">Se déconnecter</button></div>'
         + '<div class="ac-foot"><button class="lk" data-act="privacy" type="button">Confidentialité &amp; données</button></div></div>';
       wireModalActions(slot);
@@ -555,10 +575,45 @@
             renderModal();
           });
         }
+        else if(a === 'savebio'){
+          var bio = field(slot,'acBio');
+          view.err = ''; view.notice = '';
+          saveBio(bio).then(function(r){
+            if(r.ok){ view.notice = 'Description enregistrée.'; }
+            else { view.err = r.msg || 'Échec.'; }
+            renderModal();
+          });
+        }
+        else if(a === 'clear-cache'){
+          clearCachedChip();
+          setUser(null); setProfile(null);
+          view.err = ''; view.notice = '';
+          renderChip();
+          renderModal();
+        }
         // Les autres data-act (savemeta, ava-pick, etc.) sont gérés par le
         // rendu logged-in fourni par la page (Capital).
       };
     });
+  }
+
+  // Sauvegarde de la description (bio) publique.
+  async function saveBio(bio){
+    var c = await getClient();
+    if(!c || !state.user) return {ok:false, msg:'Non connecté.'};
+    bio = String(bio || '').slice(0, 280);
+    try {
+      var row = {id: state.user.id, bio: bio};
+      // Conserve le pseudo existant pour que l'upsert ne le perde pas.
+      if(state.profile && state.profile.username) row.username = state.profile.username;
+      if(state.profile && state.profile.avatar_url) row.avatar_url = state.profile.avatar_url;
+      var r = await c.from('profiles').upsert(row).select().maybeSingle();
+      if(r.error) return {ok:false, msg: r.error.message};
+      setProfile(r.data || Object.assign({}, state.profile || {}, {bio: bio}));
+      return {ok:true};
+    } catch(e){
+      return {ok:false, msg: (e && e.message) || String(e)};
+    }
   }
 
   // Sauvegarde du pseudo public (table `profiles`). Exposé sur SHELL.auth
@@ -652,6 +707,7 @@
     setProfile: setProfile,
     loadProfile: loadProfile,
     saveUsername: saveUsername,
+    saveBio: saveBio,
     onChange: onChange,
     // flows
     signIn: signIn, signUp: signUp, signOut: signOut,
