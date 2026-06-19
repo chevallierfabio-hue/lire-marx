@@ -84,3 +84,65 @@
 .cm-card:hover .cm-go{color:var(--red);}
 .cm-go-soon{color:var(--const);font-style:italic;font-weight:500;}
 @media(max-width:560px){.cm-modal{padding:4vh 10px 16px;}.cm-modal-box{padding:18px 16px 14px;}.cm-modal-h{font-size:1.2rem;}.cm-modal-body{max-height:70vh;}}
+
+/* ----- Messagerie privée (SHELL.social) — popover msgBtn + modale Contacts ----- */
+/* Pastille de non-lus sur le bouton enveloppe : variante des dots existantes. */
+#msgDot{position:absolute;top:5px;right:6px;width:6px;height:6px;border-radius:50%;background:var(--red);display:none;}
+.tb-msg{position:relative;}
+/* Popover compact accroché au bouton msgBtn — réutilise .tb-pop existant. */
+.tb-pop.msg-pop{width:330px;max-width:86vw;padding:12px 14px;}
+.msg-pop .msg-list{max-height:300px;}
+.msg-pop .msg-thread{height:264px;}
+.msg-pop .msg-head{margin-bottom:8px;}
+.msg-pop .msg-add{margin-bottom:10px;}
+.msg-pop .msg-compose{margin-top:8px;}
+.msg-pop .msg-compose textarea{min-height:36px;}
+/* Liste de contacts + carte conversation. */
+.msg-list{margin:0 -4px;}
+.msg-add{display:flex;gap:7px;margin-bottom:12px;}
+.msg-add input{flex:1;min-width:0;height:34px;font-family:var(--f-ui);font-size:.85rem;padding:0 11px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);}
+.msg-ct{display:flex;align-items:center;gap:11px;width:100%;text-align:left;background:transparent;border:0;border-radius:9px;padding:10px;cursor:pointer;font-family:inherit;}
+.msg-ct:hover{background:var(--paper-2);}
+.msg-ct.on{background:var(--paper-2);}
+.msg-ava{flex:0 0 auto;width:34px;height:34px;border-radius:50%;background:var(--red);color:#f7f1e2;font-family:'Fraunces',serif;font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.msg-ct-main{flex:1;min-width:0;display:flex;flex-direction:column;}
+.msg-ct-name{font-family:'Fraunces',serif;font-weight:600;font-size:.92rem;color:var(--ink);}
+.msg-ct-prev{font-family:'Spectral',Georgia,serif;font-size:.8rem;color:var(--const);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.msg-badge{flex:0 0 auto;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:var(--red);color:#fff;font-family:var(--f-ui);font-size:.66rem;display:flex;align-items:center;justify-content:center;}
+/* Fil de messages : bulles + champ. */
+.msg-thread{flex:1;overflow:auto;display:flex;flex-direction:column;gap:7px;padding:6px 2px;}
+.msg-b{max-width:78%;padding:7px 11px;border-radius:13px;font-family:'Spectral',Georgia,serif;font-size:.92rem;line-height:1.45;white-space:pre-wrap;word-wrap:break-word;}
+.msg-b.me{align-self:flex-end;background:var(--red);color:#f7f1e2;border-bottom-right-radius:4px;}
+.msg-b.them{align-self:flex-start;background:var(--paper-2);color:var(--ink);border-bottom-left-radius:4px;}
+.msg-b-t{display:block;font-size:.62rem;opacity:.7;margin-top:3px;font-family:var(--f-ui);}
+.msg-compose{display:flex;gap:7px;margin-top:10px;}
+.msg-compose textarea{flex:1;min-height:40px;max-height:130px;font-family:'Spectral',serif;font-size:.92rem;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:var(--paper);color:var(--ink);resize:vertical;}
+.msg-head{display:flex;align-items:center;gap:9px;margin-bottom:10px;}
+.msg-head h3{font-family:'Fraunces',serif;font-size:1.18rem;margin:0;color:var(--ink);}
+.msg-back{background:transparent;border:0;font-size:1.5rem;line-height:1;cursor:pointer;color:var(--ink);padding:0 6px;}
+.msg-empty,.msg-state{font-family:var(--f-ui);font-size:.85rem;color:var(--const);padding:18px 8px;text-align:center;line-height:1.5;}
+.msg-poplink{display:block;width:100%;text-align:center;margin-top:8px;font-family:'Fraunces',serif;font-weight:600;font-size:.8rem;color:var(--red-deep);background:transparent;border:0;border-top:1px solid var(--line-soft);padding-top:9px;cursor:pointer;}
+.msg-poplink:hover{color:var(--red);}
+
+/* Modale Contacts plein écran (#contactsModal) — enfant direct de body, deux panneaux. */
+.ct-modal{position:fixed;inset:0;z-index:150;background:rgba(28,20,14,.46);display:flex;align-items:flex-start;justify-content:center;padding:4vh 16px 16px;overflow:auto;}
+.ct-modal[hidden]{display:none;}
+.ct-modal-box{position:relative;width:100%;max-width:1000px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:22px 24px 18px;box-shadow:0 24px 60px rgba(0,0,0,.25);}
+.ct-modal-x{position:absolute;top:-12px;right:-12px;z-index:1;width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:1.4rem;line-height:1;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.2);}
+.ct-modal-x:hover{border-color:var(--red);color:var(--red);}
+.ct-modal-body{max-height:84vh;overflow:auto;}
+.cv-head{font-family:'Fraunces',serif;font-weight:900;font-size:1.6rem;color:var(--ink);margin:0 0 4px;}
+.cv-sub{font-family:'Spectral',Georgia,serif;font-style:italic;color:var(--ink-soft);margin:0 0 16px;}
+.cv-grid{display:grid;grid-template-columns:300px 1fr;gap:18px;align-items:start;}
+.cv-pane{border:1px solid var(--line);border-radius:13px;background:var(--paper);padding:14px;}
+.cv-left{min-height:50vh;}
+.cv-right{min-height:50vh;display:flex;flex-direction:column;}
+.cv-right .msg-thread{flex:1;min-height:280px;}
+.cv-ph{margin:auto;color:var(--const);font-family:var(--f-ui);font-size:.9rem;text-align:center;padding:40px 14px;line-height:1.6;}
+.cv-rowbtns{display:flex;gap:9px;align-items:center;margin-bottom:10px;}
+.cv-conv-h{margin:0;font-family:'Fraunces',serif;font-size:1.1rem;color:var(--ink);}
+@media(max-width:760px){.cv-grid{grid-template-columns:1fr;}.cv-left,.cv-right{min-height:0;}.cv-right .msg-thread{min-height:260px;}.ct-modal{padding:2vh 8px 8px;}.ct-modal-box{padding:18px 14px 12px;}}
+
+/* Toast flottant (créé par SHELL.social._toast). */
+.lm-toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,12px);background:var(--ink);color:var(--paper);font-family:var(--f-ui);font-size:.86rem;padding:10px 16px;border-radius:8px;box-shadow:0 12px 32px rgba(0,0,0,.28);z-index:200;opacity:0;pointer-events:none;transition:opacity .22s ease,transform .22s ease;}
+.lm-toast.on{opacity:1;transform:translate(-50%,0);}

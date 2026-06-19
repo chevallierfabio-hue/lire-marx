@@ -238,8 +238,9 @@
     });
 
     // Boutons qui dépendent encore de la coquille hébergée par capital-1.html
-    // (acctChip est désormais géré par SHELL.auth si Supabase est configuré).
-    var hostBtns = ['supportBtn','msgBtn','notifBtn'];
+    // (acctChip → SHELL.auth, msgBtn → SHELL.social ; notifBtn rejoindra
+    // SHELL.social à la sous-mission 4b).
+    var hostBtns = ['supportBtn','notifBtn'];
     hostBtns.forEach(function(id){
       var b = document.getElementById(id);
       if(b) b.addEventListener('click', function(){ gotoHost(); });
@@ -267,6 +268,11 @@
     if(window.SHELL && window.SHELL.auth){
       try { window.SHELL.auth._wireChrome(); } catch(e){}
       try { window.SHELL.auth._bootstrap(); } catch(e){}
+    }
+    // Branche SHELL.social (messagerie privée + notifications) si la
+    // page a chargé oeuvres/shell-social.js avant installShell.
+    if(window.SHELL && window.SHELL.social && window.SHELL.social._init){
+      try { window.SHELL.social._init(); } catch(e){}
     }
   };
 })();

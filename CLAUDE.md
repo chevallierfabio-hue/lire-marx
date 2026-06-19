@@ -37,7 +37,7 @@ L'accueil du site est `oeuvres/index.html` (la bibliothèque), pilotée par
 œuvres. Ne pas dupliquer cette liste ailleurs ; passer une œuvre en
 `available` seulement quand sa page fonctionne réellement.
 
-## Shell partagé : atelier.css + shell.css + shell.js
+## Shell partagé : atelier.css + shell.css + shell.js (+ shell-social.js)
 
 Toutes les pages (bibliothèque comme livres) partagent :
 
@@ -45,19 +45,45 @@ Toutes les pages (bibliothèque comme livres) partagent :
   composants éditoriaux : tabs, panel, intro-block, plan-list, btn, etc.).
 - `oeuvres/shell.css` — coquille visuelle (topbar 44 px sticky avec
   brandmark/recherche/compte, sidebar 208 px avec Bibliothèque/Place
-  publique/Contacts/CGU/sb-work, modales compte et RGPD).
+  publique/Contacts/CGU/sb-work, modales compte/RGPD/Place
+  publique/Contacts, popover messages, toast).
 - `oeuvres/shell.js` — injection DOM + comportements minimaux. Expose
   `installShell({workId, workTitle, tabs:[{id, label}…]})`. Une page de
   livre l'appelle avec ses onglets ; shell.js câble alors le sb-work pour
   qu'un clic dispatche vers `window.activateTab(id)` que la page définit.
+  Embarque `SHELL.auth` (singleton Supabase + Mon compte) et
+  `SHELL.commune` (Place publique, lecture seule).
+- `oeuvres/shell-social.js` (optionnel) — module `SHELL.social` :
+  messagerie privée (contacts + DM + popover msgBtn + modale
+  `#contactsModal` + realtime des `direct_messages`). Notifications
+  réponses & mentions (multi-œuvres) à ajouter par la sous-mission 4b
+  dans ce même fichier. Branché par `installShell()` après
+  `SHELL.auth._bootstrap()`. Les pages qui veulent la messagerie
+  doivent charger `shell-social.js` **après** `shell.js`.
+
+**Règle realtime.** Un seul canal Supabase `lm-<userid>` par session ;
+(dé)branché sur `SHELL.auth.onChange` (connexion → `ensureRealtime()`,
+déconnexion → `teardownRealtime()`). Polling de secours toutes les 15 s
+au cas où le canal tomberait. Ne **jamais** ouvrir un second client
+Supabase — toujours passer par `SHELL.auth.getClient()` (sinon
+warning « Multiple GoTrueClient instances »).
+
+**Reste couplé à la liseuse.** Le surlignage précis du passage
+(deep-link au passage) et le profil membre cliquable (notes publiques
++ « aller au passage ») partagent le même contrat de deep-link et
+sortiront avec la mission annotations. En attendant, le bouton
+« Voir le profil » est masqué dans la modale Contacts, et un clic sur
+une notification ouvrira la page de l'œuvre sans surligner le passage
+exact.
 
 **Pour ajouter un livre :**
 1. Créer `oeuvres/<id>.html` + `oeuvres/<id>.css` + le dossier
    `oeuvres/<id>/{manifest.json, textes/}`.
 2. Lier les CSS dans cet ordre : atelier.css → shell.css → propre.
 3. Définir `window.activateTab` dans le JS du livre.
-4. Appeler `installShell({workId, workTitle, tabs:[…]})` à la fin du body.
-5. Ajouter l'entrée dans `oeuvres/bibliotheque.json` (`status:'planned'`
+4. Charger `shell.js` puis (optionnellement) `shell-social.js`.
+5. Appeler `installShell({workId, workTitle, tabs:[…]})` à la fin du body.
+6. Ajouter l'entrée dans `oeuvres/bibliotheque.json` (`status:'planned'`
    au début, puis `'available'` quand la page fonctionne réellement).
 
 ## `capital-1.html` = hôte de la coquille applicative (héritage)
