@@ -200,6 +200,19 @@
     byId('readerContent').hidden=false;
     byId('readerPlaceholder').hidden=true;
   }
+  function attachReader(i){
+    // Contrat liseuse : on déclare la section affichée au shell pour
+    // brancher annotations privées (5a) + forum par passage (5b).
+    // section = i+1 pour rester 1-indexé comme dans les autres œuvres.
+    if(!(window.SHELL && window.SHELL.reader && window.SHELL.reader.attach)) return;
+    var p=parts[i]||parts[0];
+    window.SHELL.reader.attach({
+      workId: 'manuscrits-1844',
+      section: i + 1,
+      container: byId('readerContent'),
+      sectionLabel: p.title
+    });
+  }
   function loadPart(i){
     var path=preparePart(i);
     byId('readerPlaceholder').hidden=true;
@@ -207,7 +220,10 @@
     byId('readerContent').innerHTML='<div class="placeholder"><div><b>Chargement du texte...</b><span>Lecture du fichier local.</span></div></div>';
     fetch(path,{cache:'no-cache'})
       .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.text();})
-      .then(function(html){byId('readerContent').innerHTML=cleanLocalHtml(html)||'<div class="reader-error"><b>Texte introuvable.</b><p>Le fichier local a été chargé, mais son contenu n’a pas pu être extrait.</p></div>';})
+      .then(function(html){
+        byId('readerContent').innerHTML=cleanLocalHtml(html)||'<div class="reader-error"><b>Texte introuvable.</b><p>Le fichier local a été chargé, mais son contenu n’a pas pu être extrait.</p></div>';
+        attachReader(i);
+      })
       .catch(function(){showMissingLocal(path);});
   }
   function init(){
@@ -235,6 +251,7 @@
 <script src="../config.js"></script>
 <script src="shell.js"></script>
 <script src="shell-social.js"></script>
+<script src="shell-annotations.js"></script>
 <script>
 installShell({
   workId: 'manuscrits-1844',

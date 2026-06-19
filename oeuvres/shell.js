@@ -271,6 +271,13 @@
     if(window.SHELL && window.SHELL.social && window.SHELL.social._init){
       try { window.SHELL.social._init(); } catch(e){}
     }
+    // Branche SHELL.annotations (surlignage + notes privées + synchro)
+    // si la page a chargé oeuvres/shell-annotations.js. Les pages
+    // d'œuvres déclarent ensuite leur liseuse via SHELL.reader.attach()
+    // à chaque rendu de section.
+    if(window.SHELL && window.SHELL.annotations && window.SHELL.annotations._init){
+      try { window.SHELL.annotations._init(); } catch(e){}
+    }
   };
 })();
 

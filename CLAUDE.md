@@ -72,6 +72,12 @@ Toutes les pages (bibliothèque comme livres) partagent :
   Branché par `installShell()` après `SHELL.auth._bootstrap()`. Les
   pages qui veulent la messagerie/notifications doivent charger
   `shell-social.js` **après** `shell.js`.
+- `oeuvres/shell-annotations.js` (optionnel) — module
+  `SHELL.annotations` + contrat `SHELL.reader.attach()` :
+  surlignage + notes privées (local + synchro Supabase) + panneau
+  « Mes notes ». Capital-1.html garde sa propre version inlinée
+  jusqu'à `retrait-shell-host` ; `manuscrits-1844.html` est la
+  **première page de livre à adopter le contrat**.
 
 **Règle realtime.** Un seul canal Supabase `lm-<userid>` par session,
 qui multiplexe deux abonnements `INSERT` : `direct_messages` (filtré
@@ -91,7 +97,42 @@ les résultats et limite à 40. Le clic sur une notification résout
 `work → path` via `bibliotheque.json` (alias `'capital' → 'capital-1'`
 pour les lignes héritées) et navigue vers la page de l'œuvre si elle
 est `available`. Le surlignage précis du passage est différé à la
-mission annotations (contrat de deep-link).
+mission `shell-forum-passage` (5b) — qui fermera la boucle des
+deep-links en émettant un fragment `#note=<id>` (ou `#s=&q=`) ouvert
+ensuite par `SHELL.reader`.
+
+**Contrat liseuse `SHELL.reader.attach`.** Chaque page de livre,
+après avoir rendu le texte d'une section, déclare sa liseuse au
+shell :
+
+```js
+SHELL.reader.attach({
+  workId:       'manuscrits-1844',   // = id bibliotheque.json
+  section:      curSectionNumber,    // identifiant numérique
+  container:    elementContenantLeTexte,
+  sectionLabel: 'Premier manuscrit'  // optionnel
+});
+```
+
+`SHELL.annotations` se branche dessus : applique les surlignages
+stockés, câble sélection → surlignage, gère le popup de note et le
+panneau « Mes notes » + bouton flottant. La page de livre ne s'occupe
+que de **rendre le texte** et d'**appeler attach** à chaque
+(re)affichage de section.
+
+**Invariant d'ancrage.** Une annotation est ancrée par texte
+(`before / quote / after`), pas par range DOM. Toute liseuse qui rend
+le texte d'une section dans un conteneur peut donc réutiliser la même
+logique : la retrouvaille du passage se fait par recherche de `quote`
+avec contexte (`locate()`).
+
+**Règle table `annotations`.** Le schéma est `{id, work, section,
+before, quote, after, color, note, created}`. **Aucun `user_id`
+explicite n'est posé à l'INSERT** — un défaut côté base ou un trigger
+de policy RLS le pose à `auth.uid()`. Préserver ce comportement à
+l'identique côté shell ; si un INSERT échoue depuis une page shell
+alors qu'il marche sur Capital, c'est une policy à revoir, pas un
+contournement à coder.
 
 **Reste couplé à la liseuse.** Le surlignage précis du passage
 (deep-link au passage) et le profil membre cliquable (notes publiques

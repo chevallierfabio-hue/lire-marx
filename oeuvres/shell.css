@@ -156,3 +156,55 @@
 /* Toast flottant (créé par SHELL.social._toast). */
 .lm-toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,12px);background:var(--ink);color:var(--paper);font-family:var(--f-ui);font-size:.86rem;padding:10px 16px;border-radius:8px;box-shadow:0 12px 32px rgba(0,0,0,.28);z-index:200;opacity:0;pointer-events:none;transition:opacity .22s ease,transform .22s ease;}
 .lm-toast.on{opacity:1;transform:translate(-50%,0);}
+
+/* ----- Annotations privées (SHELL.annotations + SHELL.reader.attach) ----- */
+/* Surlignage des passages annotés (mark.anno) — couleurs paire-empaire. */
+mark.anno{color:inherit;border-radius:2px;padding:.02em 0;cursor:pointer;transition:box-shadow .15s;}
+mark.anno.c-gold{background:rgba(154,123,53,.34);}
+mark.anno.c-red{background:rgba(165,42,33,.26);}
+mark.anno.c-blue{background:rgba(57,89,107,.30);}
+mark.anno.c-green{background:rgba(82,116,47,.30);}
+mark.anno.has-note{box-shadow:inset 0 -2px 0 0 var(--ink);}
+mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
+/* Barre de sélection : flotte au-dessus du texte sélectionné. */
+.anno-bar{position:absolute;z-index:80;display:none;align-items:center;gap:8px;background:var(--ink);color:var(--paper);padding:7px 11px;border-radius:9px;box-shadow:0 8px 22px rgba(0,0,0,.32);}
+.anno-bar-l{font-family:'Fraunces',serif;font-size:.78rem;letter-spacing:.04em;}
+.anno-sw{width:20px;height:20px;border-radius:50%;border:2px solid rgba(255,255,255,.55);cursor:pointer;padding:0;}
+.anno-sw.on{border-color:#fff;box-shadow:0 0 0 2px var(--ink),0 0 0 4px #fff;}
+.anno-sw.c-gold{background:#9a7b35;}
+.anno-sw.c-red{background:#a52a21;}
+.anno-sw.c-blue{background:#39596b;}
+.anno-sw.c-green{background:#52742f;}
+/* Popover de note attaché à un surlignage. */
+.anno-pop{position:absolute;z-index:100;width:300px;max-width:92vw;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;box-shadow:0 14px 34px -10px rgba(0,0,0,.4);}
+.anno-pop-q{font-style:italic;color:var(--ink-soft);font-size:.9rem;line-height:1.4;margin-bottom:10px;}
+.anno-pop-sw{display:flex;gap:8px;margin-bottom:10px;}
+.anno-pop-t{width:100%;min-height:78px;font-family:'Spectral',serif;font-size:.95rem;padding:9px 11px;border:1px solid var(--line);border-radius:7px;background:var(--paper);color:var(--ink);resize:vertical;box-sizing:border-box;}
+.anno-pop-act{display:flex;align-items:center;justify-content:space-between;margin-top:10px;}
+/* Panneau « Mes notes » flottant + bouton flottant déclencheur. */
+.notes-panel{position:fixed;right:18px;bottom:78px;top:auto;left:auto;margin:0;width:min(380px,calc(100vw - 32px));max-height:min(72vh,580px);overflow:auto;z-index:90;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:16px 18px;box-shadow:0 18px 50px -12px rgba(0,0,0,.45);}
+.notes-panel[hidden]{display:none;}
+.notes-panel .np-head{position:sticky;top:-16px;background:var(--card);margin:-16px -18px 10px;padding:14px 18px 10px;z-index:1;}
+.np-head{display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line-soft);padding-bottom:10px;margin-bottom:10px;flex-wrap:wrap;}
+.np-head b{font-family:'Fraunces',serif;font-size:1.05rem;}
+.np-sec{font-family:'Spectral',Georgia,serif;font-style:italic;font-size:.86rem;color:var(--ink-soft);}
+.np-n{background:var(--ink);color:var(--paper);font-family:'Fraunces',serif;font-size:.74rem;padding:1px 9px;border-radius:20px;}
+.np-tools{margin-left:auto;display:flex;gap:8px;}
+.np-warn{background:rgba(165,42,33,.08);border-left:3px solid var(--red);padding:9px 12px;border-radius:0 4px 4px 0;font-size:.85rem;color:var(--ink-soft);margin-bottom:10px;}
+.np-empty,.np-empty2{color:var(--ink-soft);font-style:italic;font-size:.9rem;}
+.np-list{list-style:none;margin:0;padding:0;}
+.np-list li{display:flex;align-items:flex-start;gap:10px;padding:11px 0;border-top:1px solid var(--line-soft);}
+.np-list li:first-child{border-top:none;}
+.np-dot{flex:none;width:12px;height:12px;border-radius:3px;margin-top:4px;}
+.np-dot.c-gold{background:#9a7b35;}
+.np-dot.c-red{background:#a52a21;}
+.np-dot.c-blue{background:#39596b;}
+.np-dot.c-green{background:#52742f;}
+.np-body{flex:1;min-width:0;}
+.np-q{font-style:italic;color:var(--ink-soft);font-size:.9rem;line-height:1.4;}
+.np-note{font-size:.95rem;color:var(--ink);margin-top:3px;}
+.np-act{display:flex;gap:6px;flex:none;}
+/* Bouton flottant « Mes notes » (créé par SHELL.annotations à la 1re attach). */
+.notes-fab{position:fixed;right:18px;bottom:18px;z-index:95;font-family:var(--f-ui);font-weight:600;font-size:.84rem;color:var(--paper);background:var(--ink);border:0;border-radius:30px;padding:10px 16px;cursor:pointer;box-shadow:0 12px 32px rgba(0,0,0,.32);transition:background .15s,transform .15s;}
+.notes-fab:hover{background:var(--red);transform:translateY(-1px);}
+@media(max-width:560px){.notes-panel{right:8px;left:8px;bottom:70px;width:auto;}.notes-fab{right:12px;bottom:12px;font-size:.8rem;padding:9px 14px;}}
