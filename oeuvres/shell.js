@@ -334,6 +334,9 @@
   function openModal(){
     if(!modalEl) modalEl = document.getElementById('acctModal');
     if(!modalEl) return;
+    // Reset busy/err/notice à chaque ouverture pour éviter qu'un état
+    // bloqué d'une tentative précédente laisse le bouton "..." figé.
+    view.busy = false; view.err = ''; view.notice = '';
     renderModal();
     modalEl.hidden = false;
     document.body.style.overflow = 'hidden';
@@ -439,7 +442,11 @@
     var err = view.err ? '<div class="ac-err">' + esc(view.err) + '</div>' : '';
     var ok  = view.notice ? '<div class="ac-ok">' + esc(view.notice) + '</div>' : '';
 
-    if(!isConfigured()){
+    // "Compte non configuré" ne doit s'afficher QUE si getClient a tourné
+    // ET a réellement échoué (configured === false). Si configured est null
+    // (init Supabase pas encore lancé ou en cours), on laisse passer pour
+    // afficher la vue invité — le bootstrap re-rendra dès qu'il a fini.
+    if(configured === false){
       slot.innerHTML = '<div class="ac-card"><h3>Compte non configuré</h3><p class="ac-p">La synchronisation par compte n’est pas branchée : il reste à renseigner les clés Supabase dans <code>config.js</code> à la racine. En attendant, le site reste 100 % local.</p></div>';
       return;
     }
@@ -613,4 +620,10 @@
     _wireChrome: wireChrome,
     _bootstrap: bootstrap
   };
+
+  // Lancement IMMÉDIAT (au chargement de shell.js) de l'import Supabase :
+  // comme ça `configured` passe à true le plus tôt possible, et la modale
+  // ne montre pas "Compte non configuré" si l'utilisateur clique pendant
+  // la phase d'init.
+  try { getClient(); } catch(e){}
 })();
