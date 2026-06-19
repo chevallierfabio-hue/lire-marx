@@ -313,6 +313,19 @@
   }
 
   // ----- chip de topbar --------------------------------------------------
+  // Cache localStorage de la dernière chip "signed-in" pour qu'elle s'affiche
+  // INSTANTANÉMENT au chargement de chaque page, sans attendre que
+  // Supabase ait fini son getSession. Sinon impression de "session qui saute"
+  // pendant les 1-2 s du bootstrap async.
+  var CHIP_CACHE_KEY = 'liremarx.chipCache';
+  function cacheChip(name, avatar_url){
+    try { localStorage.setItem(CHIP_CACHE_KEY, JSON.stringify({n: name || '', a: avatar_url || ''})); } catch(e){}
+  }
+  function readCachedChip(){
+    try { var s = localStorage.getItem(CHIP_CACHE_KEY); return s ? JSON.parse(s) : null; } catch(e){ return null; }
+  }
+  function clearCachedChip(){ try { localStorage.removeItem(CHIP_CACHE_KEY); } catch(e){} }
+
   // Toujours visible : un visiteur déconnecté voit "Se connecter", un visiteur
   // connecté voit son pseudo + avatar. La chip n'est jamais masquée même si
   // Supabase n'est pas encore initialisé — sinon elle clignote au chargement
@@ -324,13 +337,29 @@
     var u = state.user, p = state.profile;
     if(u){
       var name = (p && p.username) || u.email || 'compte';
+      var avatar = (p && p.avatar_url) || '';
       chipEl.className = 'acct-chip';
-      chipEl.innerHTML = '<span class="chip-ava">' + avaHtml(name, p && p.avatar_url) + '</span><span class="chip-name">' + esc(name) + '</span>';
+      chipEl.innerHTML = '<span class="chip-ava">' + avaHtml(name, avatar) + '</span><span class="chip-name">' + esc(name) + '</span>';
+      cacheChip(name, avatar);
     } else {
+      // Avant de retomber en "Se connecter", vérifier s'il y a une chip
+      // cachée du dernier passage signed-in. Si oui, on l'affiche en
+      // attendant que le bootstrap dise la vérité. Si bootstrap confirme
+      // sign-out, cacheChip sera retiré ailleurs et le prochain render
+      // affichera bien "Se connecter".
+      var cached = readCachedChip();
+      if(cached && cached.n && !bootstrapDone){
+        chipEl.className = 'acct-chip';
+        chipEl.innerHTML = '<span class="chip-ava">' + avaHtml(cached.n, cached.a) + '</span><span class="chip-name">' + esc(cached.n) + '</span>';
+        return;
+      }
       chipEl.className = 'acct-chip guest';
       chipEl.textContent = 'Se connecter';
     }
   }
+  // Faux tant que _bootstrap n'a pas fini : la chip peut afficher le cache
+  // sans craindre de mentir. Une fois true, la chip dit la vérité.
+  var bootstrapDone = false;
 
   // ----- modales ---------------------------------------------------------
   function openModal(){
@@ -563,6 +592,9 @@
       if(privacyEl && !privacyEl.hidden){ closePrivacy(); return; }
       if(modalEl && !modalEl.hidden){ closeModal(); }
     });
+    // Affiche la chip dans son dernier état connu IMMÉDIATEMENT, avant
+    // que bootstrap n'ait fini de vérifier la session côté Supabase.
+    renderChip();
   }
 
   // Lecture du profil public (pseudo + avatar) depuis la table `profiles`.
@@ -580,18 +612,19 @@
   // ----- bootstrap session côté shell -----------------------------------
   async function bootstrap(){
     var c = await getClient();
-    if(!c){ renderChip(); renderModal(); return; }
+    if(!c){ bootstrapDone = true; renderChip(); renderModal(); return; }
     c.auth.onAuthStateChange(async function(ev, session){
       if(ev === 'PASSWORD_RECOVERY'){ view.recovery = true; openModal(); }
       setUser((session && session.user) || null);
-      if(state.user) await loadProfile(); else setProfile(null);
+      if(state.user) await loadProfile(); else { setProfile(null); clearCachedChip(); }
       emit();
       renderChip();
       if(modalEl && !modalEl.hidden) renderModal();
     });
     var r = await c.auth.getSession();
     setUser((r.data && r.data.session && r.data.session.user) || null);
-    if(state.user) await loadProfile();
+    if(state.user) await loadProfile(); else clearCachedChip();
+    bootstrapDone = true;
     emit();
     renderChip();
     renderModal();
