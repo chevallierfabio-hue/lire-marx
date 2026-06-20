@@ -451,6 +451,7 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
 </style>
 <script src="../config.js"></script>
 <script src="shell.js"></script>
+<script src="shell-social.js"></script>
 <script src="shell-annotations.js"></script>
 <style id="socCss">#msgDot{position:absolute;top:5px;right:6px;width:6px;height:6px;border-radius:50%;background:var(--red);display:none;}.tb-msg{position:relative;}.nt-list{max-height:58vh;overflow:auto;margin:2px -6px -4px;}.nt-item{display:block;width:100%;text-align:left;background:transparent;border:0;border-top:1px solid var(--line-soft);padding:10px 8px;cursor:pointer;font-family:inherit;}.nt-item:first-child{border-top:0;}.nt-item:hover{background:var(--paper-2);}.nt-item.unseen{background:rgba(165,42,33,.06);}.nt-top{display:flex;gap:7px;align-items:baseline;}.nt-who{font-family:"Fraunces",serif;font-weight:600;font-size:.86rem;color:var(--ink);}.nt-kind{font-family:var(--f-ui);font-size:.62rem;letter-spacing:.04em;text-transform:uppercase;border-radius:999px;padding:1px 7px;}.nt-k-reply{background:rgba(57,89,107,.16);color:#2f4a59;}.nt-k-mention{background:rgba(165,42,33,.12);color:#7c1d16;}.nt-when{margin-left:auto;font-family:var(--f-ui);font-size:.68rem;color:var(--const);}.nt-snip{font-family:"Spectral",Georgia,serif;font-size:.84rem;color:var(--ink-soft);margin-top:3px;line-height:1.45;}.msg-wrap{display:flex;flex-direction:column;min-height:0;height:min(74vh,620px);}.msg-head{display:flex;align-items:center;gap:9px;margin-bottom:10px;}.msg-head h3{font-family:"Fraunces",serif;font-size:1.18rem;margin:0;color:var(--ink);}.msg-back{background:transparent;border:0;font-size:1.5rem;line-height:1;cursor:pointer;color:var(--ink);padding:0 6px;}.msg-add{display:flex;gap:7px;margin-bottom:12px;}.msg-add input{flex:1;min-width:0;height:34px;font-family:var(--f-ui);font-size:.85rem;padding:0 11px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);}.msg-list{flex:1;overflow:auto;margin:0 -4px;}.msg-ct{display:flex;align-items:center;gap:11px;width:100%;text-align:left;background:transparent;border:0;border-radius:9px;padding:10px;cursor:pointer;font-family:inherit;}.msg-ct:hover{background:var(--paper-2);}.msg-ava{flex:0 0 auto;width:34px;height:34px;border-radius:50%;background:var(--red);color:#f7f1e2;font-family:"Fraunces",serif;font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center;}.msg-ct-main{flex:1;min-width:0;display:flex;flex-direction:column;}.msg-ct-name{font-family:"Fraunces",serif;font-weight:600;font-size:.92rem;color:var(--ink);}.msg-ct-prev{font-family:"Spectral",Georgia,serif;font-size:.8rem;color:var(--const);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}.msg-badge{flex:0 0 auto;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:var(--red);color:#fff;font-family:var(--f-ui);font-size:.66rem;display:flex;align-items:center;justify-content:center;}.msg-thread{flex:1;overflow:auto;display:flex;flex-direction:column;gap:7px;padding:6px 2px;}.msg-b{max-width:78%;padding:7px 11px;border-radius:13px;font-family:"Spectral",Georgia,serif;font-size:.92rem;line-height:1.45;white-space:pre-wrap;word-wrap:break-word;}.msg-b.me{align-self:flex-end;background:var(--red);color:#f7f1e2;border-bottom-right-radius:4px;}.msg-b.them{align-self:flex-start;background:var(--paper-2);color:var(--ink);border-bottom-left-radius:4px;}.msg-b-t{display:block;font-size:.62rem;opacity:.7;margin-top:3px;font-family:var(--f-ui);}.msg-compose{display:flex;gap:7px;margin-top:10px;}.msg-compose textarea{flex:1;min-height:40px;max-height:130px;font-family:"Spectral",serif;font-size:.92rem;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:var(--paper);color:var(--ink);resize:vertical;}.msg-empty,.msg-state{font-family:var(--f-ui);font-size:.85rem;color:var(--const);padding:18px 8px;text-align:center;line-height:1.5;}</style>
 <style id="socCss2">.tb-pop.msg-pop{width:330px;max-width:86vw;padding:12px 14px;}.msg-pop .msg-list{max-height:300px;}.msg-pop .msg-thread{height:264px;}.msg-pop .msg-head{margin-bottom:8px;}.msg-pop .msg-add{margin-bottom:10px;}.msg-pop .msg-compose{margin-top:8px;}.msg-pop .msg-compose textarea{min-height:36px;}.msg-poplink{display:block;width:100%;text-align:center;margin-top:8px;font-family:"Fraunces",serif;font-weight:600;font-size:.8rem;color:var(--red-deep);background:transparent;border:0;border-top:1px solid var(--line-soft);padding-top:9px;cursor:pointer;}.msg-poplink:hover{color:var(--red);}.contacts-view{max-width:1000px;margin:0 auto;padding:14px 0 60px;}.cv-head{font-family:"Fraunces",serif;font-weight:900;font-size:1.8rem;color:var(--ink);margin:6px 0 2px;}.cv-sub{font-family:"Spectral",Georgia,serif;font-style:italic;color:var(--ink-soft);margin-bottom:18px;}.cv-grid{display:grid;grid-template-columns:300px 1fr;gap:18px;align-items:start;}.cv-pane{border:1px solid var(--line);border-radius:13px;background:var(--card);padding:14px;}.cv-left{min-height:62vh;}.cv-right{min-height:62vh;display:flex;flex-direction:column;}.cv-right .msg-thread{flex:1;min-height:340px;}.cv-ph{margin:auto;color:var(--const);font-family:var(--f-ui);font-size:.9rem;text-align:center;padding:48px 14px;line-height:1.6;}.cv-prof{text-align:center;padding:24px 8px;margin:auto;}.cv-prof .msg-ava{width:64px;height:64px;font-size:1.7rem;margin:0 auto 12px;}.cv-prof-name{font-family:"Fraunces",serif;font-weight:700;font-size:1.3rem;color:var(--ink);}.cv-prof-meta{font-family:var(--f-ui);font-size:.85rem;color:var(--const);margin:6px 0 18px;}.cv-ct.on,.msg-ct.on{background:var(--paper-2);}.cv-rowbtns{display:flex;gap:9px;align-items:center;margin-bottom:10px;}@media(max-width:760px){.cv-grid{grid-template-columns:1fr;}.cv-left,.cv-right{min-height:0;}.cv-right .msg-thread{min-height:300px;}}</style>
@@ -1877,7 +1878,9 @@ drawTRPF();
 
   function avaHtml(name,url){var init=escapeHtml(String(name||'?').slice(0,1).toUpperCase());
     return '<span class="ava-init">'+init+'</span>'+(url?'<img class="ava-img" src="'+escapeHtml(url)+'" alt="" onerror="this.remove()">':'');}
-  function avatarOf(id){for(var i=0;i<socContacts.length;i++){if(socContacts[i].id===id)return socContacts[i].avatar||'';}return '';}
+  // avatarOf : le cache local des contacts vit désormais dans SHELL.social ;
+  // sur la home PLACE COMMUNE (jusqu'à 6d), on ne montre plus l'avatar par id.
+  function avatarOf(_id){return '';}
   async function saveProfileMeta(bio,avatarUrl){
     if(!sb||!user)return {ok:false,msg:'Non connecté.'};
     var row={id:user.id};
@@ -1971,8 +1974,9 @@ drawTRPF();
       try{const mr=await sb.from('moderators').select('id').eq('id',user.id).maybeSingle();isMod=!!(mr&&mr.data);}catch(e){isMod=false;}
       // pullAll + chargement public_notes : désormais déclenchés par
       // SHELL.annotations._init via SHELL.auth.onChange + chaque attach().
-      try{if(window.__dmRealtimeUp)window.__dmRealtimeUp();}catch(e){}
-    }else{profile=null;isMod=false;modView=false;try{if(window.__dmRealtimeDown)window.__dmRealtimeDown();}catch(e){}}
+      // Realtime (canal Supabase lm-<userid>) : SHELL.social s'abonne à
+      // SHELL.auth.onChange et (dé)branche le canal automatiquement.
+    }else{profile=null;isMod=false;modView=false;}
     renderAcct();
   }
 
@@ -2088,7 +2092,11 @@ drawTRPF();
       +'<div class="pc-body">'+pcEsc(pcTrunc(note.body,260))+'</div>'
       +'<div class="pc-foot2"><span class="pc-rc">'+rcTxt+'</span><span class="pc-go">ouvrir le passage \u2192</span></div>';
     card.addEventListener('click',function(e){if(e.target&&e.target.closest&&e.target.closest('[data-prof]'))return;if(opts&&opts.before)opts.before();pcJump(note);});
-    if(note.author_id){var nm=card.querySelector('[data-prof]');if(nm)nm.addEventListener('click',function(e){e.stopPropagation();if(opts&&opts.before)opts.before();openMemberProfilePage(note.author_id,u);});}
+    // Profil membre : openMemberProfilePage vivait dans le module social
+    // inline. En attendant 6d (retrait PLACE COMMUNE inline), on délègue
+    // SHELL.social.showContacts (sans focus profil) — meilleure UX dégradée
+    // que rien.
+    if(note.author_id){var nm=card.querySelector('[data-prof]');if(nm)nm.addEventListener('click',function(e){e.stopPropagation();if(opts&&opts.before)opts.before();if(window.SHELL&&window.SHELL.social&&window.SHELL.social.showContacts)window.SHELL.social.showContacts();});}
     return card;
   }
   async function pcRender(){
@@ -2204,376 +2212,11 @@ drawTRPF();
   try{if(typeof showHome==='function'){var _pcOrigHome=showHome;showHome=function(){var r=_pcOrigHome.apply(this,arguments);try{pcRender();}catch(e){}return r;};}}catch(e){}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(pcRender,200);});else setTimeout(pcRender,200);
 
-  /* ===================== SOCIAL — notifications (réponses + mentions) & messagerie ===================== */
-  var notifItems=[],notifPop=null,msgPop=null,dmChannel=null,rtNotifT=null,rtPubT=null;
-  var socContacts=[],socConvo=null,socMsgs=[],socUnreadBy={},socPoll=null,pageProfile=false,profileSolo=false,socProfData=null;
-  function socSeenKey(){return 'liremarx.notifseen.'+((user&&user.id)||'anon');}
-  function socGetSeen(){try{return +localStorage.getItem(socSeenKey())||0;}catch(e){return 0;}}
-  function socSetSeen(ts){try{localStorage.setItem(socSeenKey(),String(ts||Date.now()));}catch(e){}}
-  function socClosePops(except){document.querySelectorAll('.tb-pop').forEach(function(p){if(p!==except)p.hidden=true;});}
-  function socReady(){return !!(configured&&sb&&user&&profile&&profile.username);}
-
-  /* ---------- notifications ---------- */
-  async function refreshNotif(){
-    if(!socReady()){notifItems=[];updateNotifDot();return;}
-    try{
-      var uname=profile.username,items=[];
-      var mine=await sb.from('public_notes').select('id,section,quote,before,after')
-        .eq('work',WORK).eq('author_id',user.id).is('parent_id',null);
-      var myMap={},myIds=[];
-      (mine.data||[]).forEach(function(r){myMap[r.id]=r;myIds.push(r.id);});
-      if(myIds.length){
-        var rep=await sb.from('public_notes')
-          .select('id,section,body,created,parent_id,author_id,profiles(username)')
-          .eq('work',WORK).in('parent_id',myIds).neq('author_id',user.id).eq('hidden',false)
-          .order('created',{ascending:false}).limit(40);
-        (rep.data||[]).forEach(function(r){var p=myMap[r.parent_id]||{};
-          items.push({id:r.id,kind:'reply',section:r.section,who:(r.profiles&&r.profiles.username)||'quelqu\u2019un',
-            snip:r.body,created:+r.created,anchor:{quote:p.quote||'',before:p.before||'',after:p.after||''}});});
-      }
-      var men=await sb.from('public_notes')
-        .select('id,section,body,created,author_id,parent_id,quote,before,after,profiles(username)')
-        .eq('work',WORK).ilike('body','%@'+uname+'%').neq('author_id',user.id).eq('hidden',false)
-        .order('created',{ascending:false}).limit(40);
-      (men.data||[]).forEach(function(r){
-        items.push({id:r.id,kind:'mention',section:r.section,who:(r.profiles&&r.profiles.username)||'quelqu\u2019un',
-          snip:r.body,created:+r.created,anchor:{quote:r.quote||'',before:r.before||'',after:r.after||''}});});
-      items.sort(function(a,b){return b.created-a.created;});
-      var seen={},out=[];
-      items.forEach(function(it){if(seen[it.id])return;seen[it.id]=1;out.push(it);});
-      notifItems=out.slice(0,40);
-    }catch(e){}
-    updateNotifDot();
-    if(notifPop&&!notifPop.hidden)renderNotif();
-  }
-  function updateNotifDot(){
-    var d=document.getElementById('notifDot');if(!d)return;
-    var seen=socGetSeen(),n=0;notifItems.forEach(function(i){if(i.created>seen)n++;});
-    d.style.display=n>0?'block':'none';
-  }
-  function renderNotif(){
-    if(!notifPop)return;
-    if(!configured){notifPop.innerHTML='<div class="tb-pop-h">Notifications</div><div class="tb-pop-empty">Indisponible (compte non configuré).</div>';return;}
-    if(!user){notifPop.innerHTML='<div class="tb-pop-h">Notifications</div><div class="tb-pop-empty">Connecte-toi pour suivre les réponses et les mentions.</div><a class="tb-pop-cta" data-soc="login" href="#">Se connecter</a>';
-      var lb=notifPop.querySelector('[data-soc="login"]');if(lb)lb.onclick=function(e){e.preventDefault();socClosePops(null);openAcctModal();};return;}
-    var seen=socGetSeen();
-    var h='<div class="tb-pop-h">Notifications</div>';
-    if(!notifItems.length)h+='<div class="tb-pop-empty">Aucune réponse ni mention pour l\u2019instant.</div>';
-    else{
-      h+='<div class="nt-list">';
-      notifItems.forEach(function(it,i){
-        var kc=it.kind==='reply'?'nt-k-reply':'nt-k-mention',kl=it.kind==='reply'?'réponse':'mention';
-        h+='<button class="nt-item'+(it.created>seen?' unseen':'')+'" data-ni="'+i+'" type="button">'
-          +'<div class="nt-top"><span class="nt-who">'+escapeHtml(it.who)+'</span>'
-          +'<span class="nt-kind '+kc+'">'+kl+'</span><span class="nt-when">'+pcAgo(it.created)+'</span></div>'
-          +'<div class="nt-snip">'+escapeHtml(String(it.snip||'').slice(0,150))+(String(it.snip||'').length>150?'\u2026':'')+'</div></button>';
-      });
-      h+='</div>';
-    }
-    notifPop.innerHTML=h;
-    notifPop.querySelectorAll('[data-ni]').forEach(function(b){b.onclick=function(){
-      var it=notifItems[+b.dataset.ni];if(!it)return;socClosePops(null);
-      try{pcJump({section:it.section,quote:it.anchor.quote,before:it.anchor.before,after:it.anchor.after});}catch(e){}
-    };});
-  }
-
-  /* ---------- données messagerie ---------- */
-  async function loadContacts(){
-    if(!sb||!user){socContacts=[];return;}
-    try{
-      var ids={};
-      var c=await sb.from('contacts').select('contact_id').eq('user_id',user.id);
-      (c.data||[]).forEach(function(r){if(r.contact_id)ids[r.contact_id]=1;});
-      var dm=await sb.from('direct_messages').select('sender_id,recipient_id,body,created')
-        .or('sender_id.eq.'+user.id+',recipient_id.eq.'+user.id)
-        .order('created',{ascending:false}).limit(300);
-      var last={};
-      (dm.data||[]).forEach(function(m){var other=(m.sender_id===user.id)?m.recipient_id:m.sender_id;if(!other)return;ids[other]=1;if(!last[other])last[other]={body:m.body,created:+m.created};});
-      var idList=Object.keys(ids),names={},avas={};
-      if(idList.length){var pr=await sb.from('profiles').select('*').in('id',idList);(pr.data||[]).forEach(function(p){names[p.id]=p.username;avas[p.id]=p.avatar_url||'';});}
-      socContacts=idList.map(function(id){return {id:id,username:names[id]||'(compte supprimé)',avatar:avas[id]||'',last:last[id]||null};});
-      socContacts.sort(function(a,b){var ta=(a.last&&a.last.created)||0,tb=(b.last&&b.last.created)||0;return tb-ta||a.username.localeCompare(b.username);});
-    }catch(e){}
-  }
-  async function refreshDM(){
-    if(!sb||!user){socUnreadBy={};updateMsgDot();return;}
-    try{
-      var res=await sb.from('direct_messages').select('sender_id').eq('recipient_id',user.id).is('read_at',null);
-      socUnreadBy={};(res.data||[]).forEach(function(r){socUnreadBy[r.sender_id]=(socUnreadBy[r.sender_id]||0)+1;});
-    }catch(e){}
-    updateMsgDot();
-    if(msgPop&&!msgPop.hidden&&!socConvo)renderMsgPop();
-    if(pageVisible()&&!socConvo)renderContactsPage();
-  }
-  function updateMsgDot(){
-    var d=document.getElementById('msgDot');if(!d)return;
-    var n=0;Object.keys(socUnreadBy).forEach(function(k){n+=socUnreadBy[k];});
-    d.style.display=n>0?'block':'none';
-  }
-  async function addContact(name,surface){
-    if(!socReady()){toast('Choisis d\u2019abord un pseudo (Mon compte).');return;}
-    name=(name||'').trim();if(name.charAt(0)==='@')name=name.slice(1);if(!name)return;
-    if(name.toLowerCase()===String(profile.username||'').toLowerCase()){toast('C\u2019est toi !');return;}
-    try{
-      var pr=await sb.from('profiles').select('id,username').eq('username',name).maybeSingle();
-      if(pr.error||!pr.data){toast('Aucun membre nommé « '+name+' ».');return;}
-      var res=await sb.from('contacts').upsert({user_id:user.id,contact_id:pr.data.id});
-      if(res.error){toast('Contact : '+res.error.message);return;}
-      toast(pr.data.username+' ajouté à tes contacts.');
-      await loadContacts();
-      if(surface==='page')renderContactsPage();else renderMsgPop();
-    }catch(e){toast('Contact : '+(e.message||e));}
-  }
-  async function loadConvo(){
-    if(!sb||!user||!socConvo)return;
-    var me=user.id,them=socConvo.id;
-    try{
-      var res=await sb.from('direct_messages').select('*')
-        .or('and(sender_id.eq.'+me+',recipient_id.eq.'+them+'),and(sender_id.eq.'+them+',recipient_id.eq.'+me+')')
-        .order('created',{ascending:true}).limit(500);
-      socMsgs=res.data||[];
-      sb.from('direct_messages').update({read_at:Date.now()}).eq('recipient_id',me).eq('sender_id',them).is('read_at',null).then(function(){refreshDM();});
-    }catch(e){}
-  }
-  async function sendMsg(text,surface){
-    if(!sb||!user||!socConvo)return;
-    text=(text||'').trim();if(!text)return;
-    var row={id:uid(),sender_id:user.id,recipient_id:socConvo.id,body:text,created:Date.now(),read_at:null};
-    try{
-      var res=await sb.from('direct_messages').insert(row);
-      if(res.error){toast('Envoi : '+res.error.message);return;}
-      socMsgs.push(row);
-      if(surface==='page')renderContactsPage();else renderMsgPop();
-    }catch(e){toast('Envoi : '+(e.message||e));}
-  }
-  async function openConvo(id,uname,surface){
-    socConvo={id:id,username:uname};pageProfile=false;profileSolo=false;socMsgs=[];
-    if(surface==='page')renderContactsPage();else renderMsgPop();
-    await loadConvo();
-    if(surface==='page')renderContactsPage();else renderMsgPop();
-  }
-  function fmtWhen(v){try{var d=(typeof v==='number'||/^\d+$/.test(String(v)))?new Date(+v):new Date(v);return d.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});}catch(e){return '';}}
-  async function loadMemberProfile(id){
-    var out={count:null,since:null,sinceLabel:'',notes:[],bio:'',avatar:''};
-    try{var pr=await sb.from('profiles').select('*').eq('id',id).maybeSingle();
-      if(pr&&pr.data){out.bio=pr.data.bio||'';out.avatar=pr.data.avatar_url||'';
-        if(pr.data.created_at){out.since=pr.data.created_at;out.sinceLabel='Inscrit';}}}catch(e){}
-    try{var rn=await sb.from('public_notes').select('id,work,section,quote,before,after,created')
-      .eq('author_id',id).is('parent_id',null).eq('hidden',false).order('created',{ascending:false}).limit(6);
-      out.notes=(rn&&rn.data)||[];}catch(e){}
-    try{var ct=await sb.from('public_notes').select('id',{count:'exact',head:true})
-      .eq('author_id',id).is('parent_id',null).eq('hidden',false);out.count=ct.count;}catch(e){}
-    if(!out.since){try{var ea=await sb.from('public_notes').select('created').eq('author_id',id)
-      .order('created',{ascending:true}).limit(1).maybeSingle();
-      if(ea&&ea.data&&ea.data.created){out.since=+ea.data.created;out.sinceLabel='Première note';}}catch(e){}}
-    return out;
-  }
-
-  /* ---------- popover compact (icône enveloppe) ---------- */
-  function bubblesHtml(){
-    var me=user.id,h='';
-    if(!socMsgs.length)h+='<div class="msg-empty">Aucun message. Écris le premier !</div>';
-    else socMsgs.forEach(function(m){var mine=m.sender_id===me;
-      h+='<div class="msg-b '+(mine?'me':'them')+'">'+escapeHtml(m.body)+'<span class="msg-b-t">'+pcAgo(+m.created)+'</span></div>';});
-    return h;
-  }
-  function contactListHtml(activeId){
-    if(!socContacts.length)return '<div class="msg-empty">Aucune conversation. Ajoute un contact par son pseudo.</div>';
-    var h='';
-    socContacts.forEach(function(c,i){var ub=socUnreadBy[c.id]||0;
-      h+='<button class="msg-ct'+(activeId===c.id?' on':'')+'" data-ci="'+i+'" type="button"><span class="msg-ava">'+avaHtml(c.username,c.avatar)+'</span>'
-        +'<span class="msg-ct-main"><span class="msg-ct-name">'+escapeHtml(c.username)+'</span>'
-        +'<span class="msg-ct-prev">'+(c.last?escapeHtml(String(c.last.body||'').slice(0,60)):'Démarrer la conversation')+'</span></span>'
-        +(ub>0?'<span class="msg-badge">'+ub+'</span>':'')+'</button>';});
-    return h;
-  }
-  function renderMsgPop(){
-    if(!msgPop)return;
-    if(!configured){msgPop.innerHTML='<div class="tb-pop-h">Messages</div><div class="msg-state">Indisponible (compte non configuré).</div>';return;}
-    if(!user){msgPop.innerHTML='<div class="tb-pop-h">Messages</div><div class="msg-state">Connecte-toi pour échanger des messages privés.</div><a class="tb-pop-cta" data-soc="login" href="#">Se connecter</a>';
-      var lb=msgPop.querySelector('[data-soc="login"]');if(lb)lb.onclick=function(e){e.preventDefault();socClosePops(null);openAcctModal();};return;}
-    if(!(profile&&profile.username)){msgPop.innerHTML='<div class="tb-pop-h">Messages</div><div class="msg-state">Choisis un pseudo (Mon compte) pour la messagerie.</div>';return;}
-    var h;
-    if(socConvo){
-      h='<div class="msg-head"><button class="msg-back" data-back="1" type="button" aria-label="Retour">‹</button><h3>'+escapeHtml(socConvo.username)+'</h3></div>'
-        +'<div class="msg-thread" id="popThread">'+bubblesHtml()+'</div>'
-        +'<div class="msg-compose"><textarea id="popIn" placeholder="Ton message…"></textarea><button class="btn red" data-send="1" type="button">Envoyer</button></div>';
-    }else{
-      h='<div class="tb-pop-h">Messages</div>'
-        +'<div class="msg-add"><input id="popAddIn" type="text" autocomplete="off" placeholder="Ajouter (pseudo)…" /><button class="btn red" data-add="1" type="button">+</button></div>'
-        +'<div class="msg-list">'+contactListHtml(null)+'</div>'
-        +'<button class="msg-poplink" data-full="1" type="button">Ouvrir la page Contacts →</button>';
-    }
-    msgPop.innerHTML=h;
-    var th=msgPop.querySelector('#popThread');if(th)th.scrollTop=th.scrollHeight;
-    var back=msgPop.querySelector('[data-back]');if(back)back.onclick=function(){socConvo=null;loadContacts().then(renderMsgPop);renderMsgPop();};
-    var addIn=msgPop.querySelector('#popAddIn'),addB=msgPop.querySelector('[data-add]');
-    if(addB)addB.onclick=function(){addContact(addIn?addIn.value:'','pop');if(addIn)addIn.value='';};
-    if(addIn)addIn.onkeydown=function(e){if(e.key==='Enter'){e.preventDefault();addContact(addIn.value,'pop');addIn.value='';}};
-    msgPop.querySelectorAll('[data-ci]').forEach(function(b){b.onclick=function(){var c=socContacts[+b.dataset.ci];if(c)openConvo(c.id,c.username,'pop');};});
-    var ta=msgPop.querySelector('#popIn'),sd=msgPop.querySelector('[data-send]');
-    function go(){var v=ta?ta.value:'';if(ta)ta.value='';sendMsg(v,'pop');}
-    if(sd)sd.onclick=go;
-    if(ta)ta.onkeydown=function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();go();}};
-    var fl=msgPop.querySelector('[data-full]');if(fl)fl.onclick=function(){socClosePops(null);showContacts();};
-  }
-
-  /* ---------- page dédiée Contacts ---------- */
-  function profMetaNotes(){
-    var pd=socProfData,meta,notesHtml='';
-    if(pd===null){meta='<div class="cv-prof-meta">Chargement du profil\u2026</div>';}
-    else{var bits=[];
-      if(pd.since)bits.push((pd.sinceLabel==='Inscrit'?'Inscrit le ':'Première note le ')+fmtWhen(pd.since));
-      if(pd.count!=null)bits.push(pd.count+' note'+(pd.count>1?'s':'')+' publique'+(pd.count>1?'s':''));
-      meta='<div class="cv-prof-meta">'+(bits.length?escapeHtml(bits.join(' \u00b7 ')):'Membre de l\u2019atelier')+'</div>';
-      if(pd.notes&&pd.notes.length){notesHtml='<div class="cv-prof-sec">Notes publiques récentes</div><div class="cv-prof-notes">';
-        pd.notes.forEach(function(n,i){var qt=n.quote?('\u00ab '+String(n.quote).slice(0,80)+(String(n.quote).length>80?'\u2026':'')+' \u00bb'):'(sans citation)';
-          notesHtml+='<button class="cv-pnote" data-pnote="'+i+'" type="button"><span class="cv-pnote-q">'+escapeHtml(qt)+'</span><span class="cv-pnote-meta">'+escapeHtml(pcSecLabel(n.work,+n.section))+' \u00b7 '+pcAgo(+n.created)+'</span></button>';});
-        notesHtml+='</div>';}
-      else{notesHtml='<div class="cv-prof-empty">Aucune note publique pour l\u2019instant.</div>';}}
-    return {meta:meta,notesHtml:notesHtml,bio:(pd&&pd.bio)||''};
-  }
-  function renderProfileSolo(e){
-    var mn=profMetaNotes();var ownId=(user&&user.id)||null;
-    var canMsg=!!(configured&&user&&profile&&profile.username&&socConvo&&socConvo.id!==ownId);
-    var backLabel=profileSolo?'\u2039 Place publique':'\u2039 Retour';
-    var msgBtn='';
-    if(canMsg)msgBtn='<button class="btn red" data-openconvo="1" type="button">Envoyer un message</button>';
-    else if(configured&&!user)msgBtn='<button class="lk" data-soc="login" type="button">Connecte-toi pour lui écrire</button>';
-    e.innerHTML='<div class="cv-profpage"><button class="cv-back" data-back="1" type="button">'+backLabel+'</button>'
-      +'<div class="cv-pane"><div class="cv-prof"><span class="msg-ava">'+avaHtml(socConvo.username,(socProfData&&socProfData.avatar)||'')+'</span>'
-      +'<div class="cv-prof-name">'+escapeHtml(socConvo.username)+'</div>'+mn.meta
-      +(mn.bio?'<div class="cv-prof-bio">'+escapeHtml(mn.bio)+'</div>':'')
-      +msgBtn+'</div>'+mn.notesHtml+'</div></div>';
-    var bk=e.querySelector('[data-back]');if(bk)bk.onclick=function(){if(profileSolo){pageProfile=false;profileSolo=false;showCommons();}else{pageProfile=false;renderContactsPage();}};
-    var oc=e.querySelector('[data-openconvo]');if(oc)oc.onclick=function(){pageProfile=false;profileSolo=false;openConvo(socConvo.id,socConvo.username,'page');};
-    var lg=e.querySelector('[data-soc="login"]');if(lg)lg.onclick=function(){openAcctModal();};
-    e.querySelectorAll('[data-pnote]').forEach(function(b){b.onclick=function(){var n=socProfData&&socProfData.notes[+b.dataset.pnote];if(n)pcJump({section:n.section,quote:n.quote,before:n.before,after:n.after});};});
-  }
-  function openMemberProfilePage(id,username){
-    if(!id)return;var e=pageEl();if(!e)return;
-    try{document.getElementById('home').style.display='none';}catch(_){}
-    document.querySelectorAll('.work-view').forEach(function(w){w.style.display='none';});
-    var sw=document.getElementById('sbWork');if(sw)sw.hidden=true;
-    e.style.display='block';
-    socConvo={id:id,username:username||'membre'};pageProfile=true;profileSolo=true;socProfData=null;
-    renderContactsPage();
-    loadMemberProfile(id).then(function(d){socProfData=d;if(pageProfile)renderContactsPage();});
-    if(user)loadContacts();
-    window.scrollTo({top:0,behavior:'auto'});
-    if(window.innerWidth<=860)document.body.classList.remove('sb-open');
-  }
-  function pageEl(){return document.getElementById('contactsView');}
-  function pageVisible(){var e=pageEl();return !!(e&&e.style.display!=='none'&&e.offsetParent!==null);}
-  function showContacts(){
-    var e=pageEl();if(!e)return;
-    try{document.getElementById('home').style.display='none';}catch(_){}
-    document.querySelectorAll('.work-view').forEach(function(w){w.style.display='none';});
-    var sw=document.getElementById('sbWork');if(sw)sw.hidden=true;
-    e.style.display='block';
-    socConvo=null;pageProfile=false;profileSolo=false;
-    renderContactsPage();
-    loadContacts().then(function(){if(!socConvo)renderContactsPage();});
-    refreshDM();
-    window.scrollTo({top:0,behavior:'auto'});
-    if(window.innerWidth<=860)document.body.classList.remove('sb-open');
-  }
-  function renderContactsPage(){
-    var e=pageEl();if(!e)return;
-    if(pageProfile&&socConvo){renderProfileSolo(e);return;}
-    var head='<div class="cv-head">Contacts</div><div class="cv-sub">Tes conversations privées et les membres de l\u2019atelier.</div>';
-    if(!configured){e.innerHTML=head+'<div class="cv-pane"><div class="cv-ph">La messagerie sera disponible une fois la synchronisation des comptes activée (sur le site en ligne).</div></div>';return;}
-    if(!user){e.innerHTML=head+'<div class="cv-pane"><div class="cv-ph">Connecte-toi pour voir tes contacts et tes messages.<br><br><button class="btn red" data-soc="login" type="button">Se connecter</button></div></div>';
-      var lb=e.querySelector('[data-soc="login"]');if(lb)lb.onclick=function(){openAcctModal();};return;}
-    if(!(profile&&profile.username)){e.innerHTML=head+'<div class="cv-pane"><div class="cv-ph">Choisis un pseudo (Mon compte) pour utiliser la messagerie.</div></div>';return;}
-    var left='<div class="cv-pane cv-left"><div class="msg-add"><input id="cvAddIn" type="text" autocomplete="off" placeholder="Ajouter un contact (pseudo)…" /><button class="btn red" id="cvAddBtn" type="button">Ajouter</button></div>'
-      +'<div class="msg-list" id="cvList">'+contactListHtml(socConvo&&socConvo.id)+'</div></div>';
-    var right;
-    if(socConvo){
-      right='<div class="cv-pane cv-right"><div class="cv-rowbtns"><span class="msg-ava" style="width:30px;height:30px;font-size:.8rem">'+avaHtml(socConvo.username,avatarOf(socConvo.id))+'</span>'
-        +'<h3 style="margin:0;font-family:\'Fraunces\',serif;font-size:1.1rem;color:var(--ink)">'+escapeHtml(socConvo.username)+'</h3>'
-        +'<button class="lk" data-profile="1" type="button" style="margin-left:auto">Voir le profil</button></div>'
-        +'<div class="msg-thread" id="cvThread">'+bubblesHtml()+'</div>'
-        +'<div class="msg-compose"><textarea id="cvIn" placeholder="Ton message…"></textarea><button class="btn red" id="cvSend" type="button">Envoyer</button></div></div>';
-    }else{
-      right='<div class="cv-pane cv-right"><div class="cv-ph">Choisis une conversation à gauche, ou ajoute un contact pour commencer à discuter.</div></div>';
-    }
-    e.innerHTML=head+'<div class="cv-grid">'+left+right+'</div>';
-    var addIn=e.querySelector('#cvAddIn'),addB=e.querySelector('#cvAddBtn');
-    if(addB)addB.onclick=function(){addContact(addIn?addIn.value:'','page');if(addIn)addIn.value='';};
-    if(addIn)addIn.onkeydown=function(ev){if(ev.key==='Enter'){ev.preventDefault();addContact(addIn.value,'page');addIn.value='';}};
-    e.querySelectorAll('[data-ci]').forEach(function(b){b.onclick=function(){var c=socContacts[+b.dataset.ci];if(c)openConvo(c.id,c.username,'page');};});
-    var th=e.querySelector('#cvThread');if(th)th.scrollTop=th.scrollHeight;
-    var ta=e.querySelector('#cvIn'),sd=e.querySelector('#cvSend');
-    function go(){var v=ta?ta.value:'';if(ta)ta.value='';sendMsg(v,'page');}
-    if(sd)sd.onclick=go;
-    if(ta)ta.onkeydown=function(ev){if(ev.key==='Enter'&&!ev.shiftKey){ev.preventDefault();go();}};
-    var pb=e.querySelector('[data-profile]');if(pb)pb.onclick=function(){pageProfile=true;socProfData=null;renderContactsPage();loadMemberProfile(socConvo.id).then(function(d){socProfData=d;if(pageProfile)renderContactsPage();});};
-    e.querySelectorAll('[data-pnote]').forEach(function(b){b.onclick=function(){var n=socProfData&&socProfData.notes[+b.dataset.pnote];if(n)pcJump({section:n.section,quote:n.quote,before:n.before,after:n.after});};});
-    var oc=e.querySelector('[data-openconvo]');if(oc)oc.onclick=function(){pageProfile=false;openConvo(socConvo.id,socConvo.username,'page');};
-  }
-
-  function onIncomingDM(row){
-    if(!row||!user)return;
-    var fromOpen=socConvo&&row.sender_id===socConvo.id&&((msgPop&&!msgPop.hidden)||pageVisible());
-    if(fromOpen){
-      var dup=false;for(var i=0;i<socMsgs.length;i++){if(socMsgs[i].id===row.id){dup=true;break;}}
-      if(!dup)socMsgs.push(row);
-      try{sb.from('direct_messages').update({read_at:Date.now()}).eq('id',row.id).then(function(){refreshDM();});}catch(e){}
-      if(msgPop&&!msgPop.hidden)renderMsgPop();if(pageVisible())renderContactsPage();
-    }else{
-      var nm='';for(var j=0;j<socContacts.length;j++){if(socContacts[j].id===row.sender_id){nm=socContacts[j].username;break;}}
-      try{toast('Nouveau message'+(nm?(' de '+nm):'')+'.');}catch(e){}
-      loadContacts().then(function(){if((msgPop&&!msgPop.hidden)&&!socConvo)renderMsgPop();if(pageVisible()&&!socConvo)renderContactsPage();});
-      refreshDM();
-    }
-  }
-  function onPublicInsert(row){
-    if(!row||!user)return;
-    var uname=profile&&profile.username;
-    var isNotif=(row.author_id!==user.id)&&(!!row.parent_id||(uname&&String(row.body||'').toLowerCase().indexOf('@'+String(uname).toLowerCase())>=0));
-    if(isNotif){clearTimeout(rtNotifT);rtNotifT=setTimeout(function(){refreshNotif();},600);}
-    // Le panneau public est géré par SHELL.annotations (FAB flottant) ;
-    // SHELL.annotations.loadPublic est idempotente et rapide — on l'appelle
-    // dès que la section concernée est la section courante.
-    if(+row.section===+curN){clearTimeout(rtPubT);rtPubT=setTimeout(function(){try{if(window.SHELL&&window.SHELL.annotations&&window.SHELL.annotations.loadPublic)window.SHELL.annotations.loadPublic();}catch(e){}},500);}
-  }
-  function ensureRealtime(){
-    if(!sb||!user||dmChannel||!sb.channel)return;
-    try{
-      dmChannel=sb.channel('lm-'+user.id)
-        .on('postgres_changes',{event:'INSERT',schema:'public',table:'direct_messages',filter:'recipient_id=eq.'+user.id},function(payload){onIncomingDM(payload&&payload.new);})
-        .on('postgres_changes',{event:'INSERT',schema:'public',table:'public_notes',filter:'work=eq.'+WORK},function(payload){onPublicInsert(payload&&payload.new);})
-        .subscribe();
-    }catch(e){dmChannel=null;}
-  }
-  function teardownRealtime(){try{if(dmChannel&&sb&&sb.removeChannel)sb.removeChannel(dmChannel);}catch(e){}dmChannel=null;}
-  function initSocial(){
-    try{window.showContactsPage=showContacts;window.__dmRealtimeUp=ensureRealtime;window.__dmRealtimeDown=teardownRealtime;}catch(e){}
-    var nb=document.getElementById('notifBtn'),mb=document.getElementById('msgBtn');
-    if(nb&&!nb.dataset.soc){nb.dataset.soc='1';
-      var wrapN=nb.closest('.topbar-right')||nb.parentNode;
-      notifPop=document.createElement('div');notifPop.className='tb-pop';notifPop.hidden=true;wrapN.appendChild(notifPop);renderNotif();
-      nb.addEventListener('click',function(e){e.stopPropagation();var willOpen=notifPop.hidden;socClosePops(notifPop);
-        if(willOpen){renderNotif();notifPop.hidden=false;refreshNotif();socSetSeen(Date.now());setTimeout(updateNotifDot,30);}
-        else notifPop.hidden=true;});
-      notifPop.addEventListener('click',function(e){e.stopPropagation();});
-    }
-    if(mb&&!mb.dataset.soc){mb.dataset.soc='1';
-      var wrapM=mb.closest('.topbar-right')||mb.parentNode;
-      msgPop=document.createElement('div');msgPop.className='tb-pop msg-pop';msgPop.hidden=true;wrapM.appendChild(msgPop);renderMsgPop();
-      mb.addEventListener('click',function(e){e.stopPropagation();var willOpen=msgPop.hidden;socClosePops(msgPop);
-        if(willOpen){socConvo=null;renderMsgPop();msgPop.hidden=false;loadContacts().then(function(){if(!socConvo)renderMsgPop();});refreshDM();}
-        else msgPop.hidden=true;});
-      msgPop.addEventListener('click',function(e){e.stopPropagation();});
-    }
-    refreshNotif();refreshDM();ensureRealtime();
-    if(socPoll)clearInterval(socPoll);
-    socPoll=setInterval(function(){if(!sb||!user)return;ensureRealtime();refreshNotif();refreshDM();
-      if(socConvo&&((msgPop&&!msgPop.hidden)||pageVisible())){loadConvo().then(function(){
-        if(msgPop&&!msgPop.hidden)renderMsgPop();if(pageVisible())renderContactsPage();});}},15000);
-  }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initSocial);else initSocial();
+  // Messagerie privée, contacts et notifications : entièrement gérés par
+  // SHELL.social (oeuvres/shell-social.js). installShell() appelle
+  // SHELL.social._init() après SHELL.auth._bootstrap, donc le câblage de
+  // msgBtn/notifBtn/realtime/pastilles arrive APRÈS que le client Supabase
+  // soit prêt — plus de race avec le flag local `configured`.
 
 
   ;(function(){
@@ -3211,7 +2854,7 @@ try{if(window.Anno&&sel&&sel.value){const nn0=+sel.value.split('|')[0];if(nn0)wi
     var h = (location.hash || '').replace(/^#/, '');
     if(!h) return;
     if(h === 'commune' && typeof window.showPlacePublique === 'function'){ window.showPlacePublique(); }
-    else if(h === 'contacts' && typeof window.showContactsPage === 'function'){ window.showContactsPage(); }
+    else if(h === 'contacts'){ if(window.SHELL && window.SHELL.social && window.SHELL.social.showContacts) window.SHELL.social.showContacts(); }
     else if(h === 'cgu'){ var pm = document.getElementById('privacyModal'); if(pm) pm.hidden = false; }
   }
   if(document.readyState === 'loading'){
@@ -3252,6 +2895,11 @@ try{if(window.Anno&&sel&&sel.value){const nn0=+sel.value.split('|')[0];if(nn0)wi
   } else {
     applyDeepLinkIfAny();
   }
+  // Hashchange : clic sur une notif visant Capital alors qu'on est déjà
+  // sur Capital → location.href change le hash, mais pas l'URL. On
+  // relance manuellement l'aiguillage (SHELL.annotations re-parse le
+  // hash dans son propre listener avant que le nôtre tourne).
+  window.addEventListener('hashchange', applyDeepLinkIfAny);
 })();
 </script>
 <script>

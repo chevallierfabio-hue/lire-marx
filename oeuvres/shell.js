@@ -211,10 +211,19 @@
           }
           return;
         }
-        // Contacts = futur module messagerie privée (lourd, realtime),
-        // toujours hébergé par capital-1.html pour l'instant.
+        // Contacts = module messagerie privée (SHELL.social). Si shell-social.js
+        // est chargé (toutes les pages d'œuvre + la bibliothèque + Place publique),
+        // on ouvre la modale directement. Sinon (page minimaliste), on retombe
+        // sur gotoHost('#contacts') qui passera par Capital.
         if(act === 'contacts'){
-          gotoHost('#' + act);
+          if(window.matchMedia('(max-width:860px)').matches){
+            document.body.classList.remove('sb-open');
+          }
+          if(window.SHELL && window.SHELL.social && window.SHELL.social.showContacts){
+            window.SHELL.social.showContacts();
+          } else {
+            gotoHost('#' + act);
+          }
           return;
         }
       });

@@ -245,6 +245,10 @@
     byId('loadBtn').addEventListener('click',function(){loadPart(+sel.value||0);});
     preparePart(0);
     applyDeepLinkIfAny();
+    // Hashchange : clic sur une notif visant Manuscrits alors qu'on est
+    // déjà sur Manuscrits. SHELL.reader re-parse pendingDeepLink dans son
+    // propre listener hashchange ; on relance ensuite l'aiguillage local.
+    window.addEventListener('hashchange', applyDeepLinkIfAny);
   }
   // Contrat de deep-link au passage : si la page a été ouverte avec
   // #note=<id> (Place publique / notifications) ou #s=N&q=..., on

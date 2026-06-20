@@ -972,6 +972,17 @@
   // dès son init() pour savoir quelle section ouvrir.
   pendingDeepLink = parseDeepLink();
 
+  // Sur hashchange (clic sur une notification quand on est déjà sur la
+  // page d'œuvre cible), on re-parse le hash et réinitialise l'état de
+  // consommation pour qu'un nouveau resolveDeepLink + applyDeepLinkOnAttach
+  // fonctionne. La page d'œuvre est responsable de réécouter hashchange
+  // de son côté pour relancer son aiguillage (activer l'onglet "lire",
+  // sélectionner le chapitre, déclencher le chargement du texte).
+  window.addEventListener('hashchange', function(){
+    pendingDeepLink = parseDeepLink();
+    pendingDeepLinkConsumed = false;
+  });
+
   // ----- API exposée -----
   SHELL.annotations = {
     _init: _init,

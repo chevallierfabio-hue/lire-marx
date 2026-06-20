@@ -150,7 +150,22 @@
 .cv-conv-h{margin:0;font-family:'Fraunces',serif;font-size:1.1rem;color:var(--ink);}
 @media(max-width:760px){.cv-grid{grid-template-columns:1fr;}.cv-left,.cv-right{min-height:0;}.cv-right .msg-thread{min-height:260px;}.ct-modal{padding:2vh 8px 8px;}.ct-modal-box{padding:18px 14px 12px;}}
 
-/* Notifications (popover notifBtn) — extension du bloc .nt-* déjà chargé en tête. */
+/* Notifications (popover notifBtn) — rendu des éléments .nt-* (item, top,
+   who/kind/when, snippet, meta). Avant 6c, ce CSS vivait inline dans
+   capital-1.html ; il appartient désormais à shell.css puisque SHELL.social
+   le génère sur toutes les pages. */
+.nt-list{max-height:58vh;overflow:auto;margin:2px -6px -4px;}
+.nt-item{display:block;width:100%;text-align:left;background:transparent;border:0;border-top:1px solid var(--line-soft);padding:10px 8px;cursor:pointer;font-family:inherit;}
+.nt-item:first-child{border-top:0;}
+.nt-item:hover{background:var(--paper-2);}
+.nt-item.unseen{background:rgba(165,42,33,.06);}
+.nt-top{display:flex;gap:7px;align-items:baseline;}
+.nt-who{font-family:'Fraunces',serif;font-weight:600;font-size:.86rem;color:var(--ink);}
+.nt-kind{font-family:var(--f-ui);font-size:.62rem;letter-spacing:.04em;text-transform:uppercase;border-radius:999px;padding:1px 7px;}
+.nt-k-reply{background:rgba(57,89,107,.16);color:#2f4a59;}
+.nt-k-mention{background:rgba(165,42,33,.12);color:#7c1d16;}
+.nt-when{margin-left:auto;font-family:var(--f-ui);font-size:.68rem;color:var(--const);}
+.nt-snip{font-family:'Spectral',Georgia,serif;font-size:.84rem;color:var(--ink-soft);margin-top:3px;line-height:1.45;}
 .nt-meta{font-family:var(--f-ui);font-size:.7rem;letter-spacing:.02em;color:var(--gold-deep);margin-top:4px;}
 
 /* Toast flottant (créé par SHELL.social._toast). */
