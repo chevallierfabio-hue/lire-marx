@@ -461,40 +461,6 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
 <style id="socCss9">.cm-bar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin:0 0 16px;}.cm-sortgrp{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--card);}.cm-sort{background:transparent;border:0;border-right:1px solid var(--line-soft);font-family:var(--f-ui);font-size:.8rem;color:var(--ink-soft);padding:7px 13px;cursor:pointer;}.cm-sort:last-child{border-right:0;}.cm-sort:hover{background:var(--paper-2);color:var(--ink);}.cm-sort.on{background:var(--red);color:#f7f1e2;}.cm-sellab{font-family:var(--f-ui);font-size:.8rem;color:var(--ink-soft);display:inline-flex;align-items:center;}.cm-sel{font-family:var(--f-ui);font-size:.82rem;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:6px 9px;cursor:pointer;}</style>
 </head>
 <body>
-<header class="topbar"><div class="topbar-in">
-<button id="sbToggle" class="sb-toggle" type="button" aria-label="Ouvrir le menu">☰</button>
-<button class="brandmark" type="button" onclick="location.href='index.html'" aria-label="Lire Marx — revenir à la bibliothèque">Lire<span class="d">.</span>Marx</button>
-<div class="tb-search"><span class="tb-search-ic" aria-hidden="true">⌕</span><input id="tbSearch" type="text" autocomplete="off" spellcheck="false" placeholder="Rechercher un concept, une date, un chapitre…" aria-label="Rechercher" /><div id="tbResults" class="tb-results" role="listbox" hidden></div></div>
-<div class="topbar-right">
-<button id="supportBtn" class="tb-btn tb-support" type="button" aria-label="Nous soutenir"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 20.3l-1-1.4C5.9 14.3 3 11.7 3 8.4 3 5.9 4.9 4 7.4 4 9 4 10.4 4.8 11.2 6 12 4.8 13.4 4 15 4c2.5 0 4.4 1.9 4.4 4.4 0 3.3-2.9 5.9-8 10.5l-1 1.4z"/></svg><span class="tb-lbl">Nous soutenir</span></button>
-<button id="msgBtn" class="tb-btn tb-icon tb-msg" type="button" aria-label="Messages"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v12H7l-3 3z"/></svg><span class="tb-dot" id="msgDot"></span></button>
-<button id="notifBtn" class="tb-btn tb-icon tb-notif" type="button" aria-label="Notifications"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span class="tb-dot" id="notifDot"></span></button>
-<button id="acctChip" class="acct-chip" type="button" aria-haspopup="dialog" style="display:none">Se connecter</button>
-</div>
-</div></header>
-<div id="acctModal" class="acct-modal" hidden>
-  <div class="acct-modal-box" role="dialog" aria-modal="true" aria-label="Mon compte">
-    <button class="acct-modal-x" type="button" aria-label="Fermer">&times;</button>
-    <div id="acctView"></div>
-  </div>
-</div>
-<div id="privacyModal" class="acct-modal" hidden>
-  <div class="acct-modal-box" role="dialog" aria-modal="true" aria-label="Confidentialité">
-    <button class="acct-modal-x" type="button" aria-label="Fermer">&times;</button>
-    <div class="ac-card privacy-text">
-      <h3>Confidentialité &amp; données</h3>
-      <p class="pz-warn">Modèle de départ, à relire et compléter (les passages entre crochets) ; ce n'est pas un conseil juridique.</p>
-      <p><b>Responsable.</b> [À COMPLÉTER : nom ou structure, et qualité]. Contact : [À COMPLÉTER : adresse e-mail].</p>
-      <p><b>Données traitées.</b> Adresse e-mail (connexion uniquement, jamais affichée), pseudo (public), annotations privées, notes et réponses publiques, signalements. Aucune donnée n'est revendue ni utilisée à des fins publicitaires.</p>
-      <p><b>Finalités &amp; base légale.</b> Fournir la lecture annotée, la synchronisation entre appareils et les notes partagées modérées (exécution du service demandé) ; assurer la modération et la sécurité (intérêt légitime).</p>
-      <p><b>Hébergement.</b> Authentification et base de données via Supabase. [À COMPLÉTER : région d'hébergement, par ex. Union européenne].</p>
-      <p><b>Conservation.</b> Tes données sont conservées tant que ton compte existe, et supprimées à ta demande.</p>
-      <p><b>Tes droits (RGPD).</b> Accès, rectification, effacement, opposition. Tu peux supprimer toi-même ton compte et l'ensemble de tes données depuis « Mon compte » → <i>Supprimer mon compte</i> (effacement définitif et immédiat). Pour toute autre demande : [À COMPLÉTER : adresse e-mail].</p>
-      <p><b>Stockage local.</b> Le site conserve tes surlignages et ta session de connexion dans ton navigateur. C'est un stockage <i>fonctionnel</i> (nécessaire au service), sans pistage ni cookie publicitaire.</p>
-    </div>
-  </div>
-</div>
-<aside class="sidebar" id="sidebar" aria-label="Navigation de l'atelier"><button class="sb-item sb-disc" data-act="biblio" aria-expanded="false"><span class="sb-dot" style="background:var(--ink-soft)"></span>Bibliothèque<span class="sb-chev" aria-hidden="true">▸</span></button><div class="sb-sub" id="sbBiblio" hidden><button class="sb-item sb-subitem" data-act="open-capital"><span class="sb-dot" style="background:var(--gold)"></span>Le Capital — Livre I</button><button class="sb-item sb-soon sb-subitem" disabled><span class="sb-dot" style="background:var(--gold)"></span>7 en préparation<span class="sb-soon-tag">à venir</span></button></div><button class="sb-item" data-act="commune"><span class="sb-dot" style="background:var(--red)"></span>Place publique</button><button class="sb-item" data-act="contacts"><span class="sb-dot" style="background:var(--blue)"></span>Contacts</button><button class="sb-item sb-soon" data-act="soon" disabled><span class="sb-dot" style="background:var(--gold)"></span>Jeux<span class="sb-soon-tag">à venir</span></button><button class="sb-item sb-soon" data-act="soon" disabled><span class="sb-dot" style="background:var(--blue)"></span>À propos<span class="sb-soon-tag">à venir</span></button><button class="sb-item" data-act="cgu"><span class="sb-dot" style="background:var(--ink-soft)"></span>CGU &amp; règles</button><div class="sb-work" id="sbWork" hidden><div class="sb-h">Le Capital — Livre I</div><button class="sb-item" data-act="tab:accueil"><span class="sb-dot"></span>Accueil</button><button class="sb-item" data-act="tab:nav"><span class="sb-dot"></span>Parcourir</button><button class="sb-item" data-act="tab:lire"><span class="sb-dot"></span>Texte intégral</button><button class="sb-item" data-act="tab:deriv"><span class="sb-dot"></span>Cheminement</button><button class="sb-item" data-act="tab:labo"><span class="sb-dot"></span>Modèles</button><button class="sb-item" data-act="tab:explore"><span class="sb-dot"></span>Explorations</button><button class="sb-item" data-act="tab:chrono"><span class="sb-dot"></span>Chronologie</button></div></aside><div class="sb-backdrop" id="sbBackdrop"></div>
 <div class="wrap">
 
   <!-- ===================== ŒUVRE — LE CAPITAL ===================== -->
@@ -2076,102 +2042,21 @@ drawTRPF();
   /* ---------- vue de l onglet Mon compte ---------- */
   function noteCount(){let n=0;Object.keys(store).forEach(k=>{if(k.indexOf(WORK+'|')===0)n+=(store[k]||[]).length;});return n;}
   function field(el,id){const x=el.querySelector('#'+id);return x?x.value:'';}
-  function renderChip(){
-    const chip=document.getElementById('acctChip');if(!chip)return;
-    if(!configured){chip.style.display='none';return;}
-    chip.style.display='inline-flex';
-    if(user){const p=(profile&&profile.username)||user.email||'compte';
-      chip.className='acct-chip';
-      chip.innerHTML='<span class="chip-ava">'+avaHtml(p,(profile&&profile.avatar_url)||'')+'</span><span class="chip-name">'+escapeHtml(p)+'</span>';
-    }else{chip.className='acct-chip guest';chip.textContent='Se connecter';}
-  }
-  function openAcctModal(){const m=document.getElementById('acctModal');if(!m)return;renderAcct();m.hidden=false;document.body.style.overflow='hidden';}
-  function closeAcctModal(){const m=document.getElementById('acctModal');if(!m)return;m.hidden=true;document.body.style.overflow='';}
-  function openPrivacy(){const m=document.getElementById('privacyModal');if(!m)return;m.hidden=false;document.body.style.overflow='hidden';}
-  function closePrivacy(){const m=document.getElementById('privacyModal');if(!m)return;m.hidden=true;const am=document.getElementById('acctModal');document.body.style.overflow=(am&&!am.hidden)?'hidden':'';}
-  function wireAcctChrome(){
-    const chip=document.getElementById('acctChip');const m=document.getElementById('acctModal');
-    const pm=document.getElementById('privacyModal');const fp=document.getElementById('footPrivacy');
-    if(chip)chip.onclick=()=>{errMsg='';notice='';openAcctModal();};
-    if(m){m.addEventListener('click',e=>{if(e.target===m)closeAcctModal();});
-      const x=m.querySelector('.acct-modal-x');if(x)x.onclick=closeAcctModal;}
-    if(pm){pm.addEventListener('click',e=>{if(e.target===pm)closePrivacy();});
-      const x=pm.querySelector('.acct-modal-x');if(x)x.onclick=closePrivacy;}
-    if(fp)fp.onclick=()=>openPrivacy();
-    document.addEventListener('keydown',e=>{if(e.key==='Escape'){
-      const pp=document.getElementById('privacyModal');if(pp&&!pp.hidden){closePrivacy();return;}
-      const mm=document.getElementById('acctModal');if(mm&&!mm.hidden)closeAcctModal();}});
-  }
+  // Chip, modales et touche Échap : entièrement gérés par SHELL.auth
+  // (shell.js installe le DOM ; auth.js gère le rendu compte/RGPD). Le rendu
+  // Mon compte unifié de SHELL.auth couvre déjà pseudo + bio + avatar +
+  // suppression ; Capital ne fournit pas de loggedInRenderer (la 6a vise la
+  // parité avec les autres pages, pas une vue exclusive Capital).
   function renderAcct(){
-    renderChip();
-    const el=document.getElementById('acctView');if(!el)return;
-    const err=errMsg?'<div class="ac-err">'+escapeHtml(errMsg)+'</div>':'';
-    const ok=notice?'<div class="ac-ok">'+escapeHtml(notice)+'</div>':'';
-    let h='';
-    if(!configured){
-      h='<div class="ac-card"><h3>Compte non configuré</h3><p class="ac-p">La synchronisation par compte n’est pas encore branchée : il reste à renseigner les clés Supabase dans le fichier (bloc <code>CONFIG</code>, en haut du script). En attendant, tes annotations sont conservées localement sur cet appareil.</p></div>';
-    }else if(recovery){
-      h='<div class="ac-card"><h3>Choisir un nouveau mot de passe</h3>'+err+ok
-        +'<input type="password" id="acNew" placeholder="nouveau mot de passe (6 caractères min.)" autocomplete="new-password">'
-        +'<div class="ac-row"><button class="btn red" data-act="setpw" type="button"'+(busy?' disabled':'')+'>Enregistrer</button></div></div>';
-    }else if(user){
-      const pseudo=(profile&&profile.username)||'';
-      const initial=escapeHtml((pseudo||user.email||'?').slice(0,1).toUpperCase());
-      const nc=noteCount();const s=nc>1?'s':'';
-      h='<div class="ac-card"><h3>Mon compte</h3>'+err+ok
-        +'<div class="ac-id"><span class="ac-ava">'+avaHtml(pseudo||user.email,(profile&&profile.avatar_url)||'')+'</span><div><div class="ac-pseudo">'+(pseudo?escapeHtml(pseudo):'<i>sans pseudo</i>')+'</div><div class="ac-mail">'+escapeHtml(user.email||'')+'</div></div></div>'
-        +'<label class="ac-lab">Pseudo public</label>'
-        +'<div class="ac-row"><input type="text" id="acUser" value="'+escapeHtml(pseudo)+'" placeholder="ton-pseudo" maxlength="24"><button class="btn" data-act="saveuser" type="button">Enregistrer</button></div>'
-        +'<p class="ac-note">Ce pseudo apparaîtra à côté de tes notes publiques (à venir) ; ton e-mail, jamais.</p>'
-        +'<label class="ac-lab">Photo de profil</label>'
-        +'<div class="ac-avarow"><span class="ac-ava ac-ava-edit">'+avaHtml(pseudo||user.email,(profile&&profile.avatar_url)||'')+'</span>'
-        +'<div class="ac-avabtns"><input type="file" id="acAvaFile" accept="image/*" style="display:none">'
-        +'<button class="btn" data-act="ava-pick" type="button"'+(busy?' disabled':'')+'>Choisir une image\u2026</button>'
-        +((profile&&profile.avatar_url)?'<button class="lk" data-act="ava-clear" type="button">Retirer la photo</button>':'')+'</div></div>'
-        +'<label class="ac-lab">Description</label>'
-        +'<textarea id="acBio" class="ac-bio" maxlength="280" placeholder="Quelques mots sur toi (280 caractères max).">'+escapeHtml((profile&&profile.bio)||'')+'</textarea>'
-        +'<div class="ac-row"><button class="btn red" data-act="savemeta" type="button">Enregistrer le profil</button></div>'
-        +'<div class="ac-stat">'+nc+' annotation'+s+' reliée'+s+' à ce compte et synchronisée'+s+'.</div>'
-        +(eraseConfirm
-          ?'<div class="ac-danger"><b>Supprimer définitivement ton compte ?</b> Cela efface ton compte et toutes tes données — annotations privées, notes et réponses publiques, pseudo, signalements. Tu seras déconnecté et ne pourras plus te reconnecter. Action irréversible.<div class="ac-row" style="margin-top:8px"><button class="btn red" data-act="erase-yes" type="button"'+(busy?' disabled':'')+'>'+(busy?'Suppression…':'Oui, supprimer mon compte')+'</button><button class="lk" data-act="erase-no" type="button">Annuler</button></div></div>'
-          :'')
-        +'<div class="ac-row ac-end"><button class="lk" data-act="signout" type="button">Se déconnecter</button><button class="lk ac-del" data-act="erase" type="button">Supprimer mon compte</button></div>'
-        +'<div class="ac-foot"><button class="lk" data-act="privacy" type="button">Confidentialité &amp; données</button></div></div>';
-    }else{
-      const signup=authMode==='signup';
-      h='<div class="ac-card"><div class="ac-tabs">'
-        +'<button class="ac-t'+(signup?'':' on')+'" data-act="mode-signin" type="button">Se connecter</button>'
-        +'<button class="ac-t'+(signup?' on':'')+'" data-act="mode-signup" type="button">Créer un compte</button></div>'+err+ok
-        +'<input type="email" id="acEmail" placeholder="adresse e-mail" autocomplete="email">'
-        +(signup?'<input type="text" id="acUser" placeholder="pseudo public (2 à 24 caractères)" maxlength="24">':'')
-        +'<input type="password" id="acPw" placeholder="mot de passe" autocomplete="'+(signup?'new-password':'current-password')+'">'
-        +'<div class="ac-row"><button class="btn red" data-act="'+(signup?'do-signup':'do-signin')+'" type="button"'+(busy?' disabled':'')+'>'+(busy?'…':(signup?'Créer mon compte':'Se connecter'))+'</button>'
-        +(signup?'':'<button class="lk" data-act="reset" type="button">Mot de passe oublié ?</button>')+'</div>'
-        +'<p class="ac-note">'+(signup?'Tu choisis un pseudo public et un mot de passe ; ton adresse e-mail reste privée.':'Retrouve et synchronise tes annotations sur tous tes appareils.')+'</p><div class="ac-foot"><button class="lk" data-act="privacy" type="button">Confidentialité &amp; données</button></div></div>';
-    }
-    el.innerHTML=h;
-    el.querySelectorAll('[data-act]').forEach(b=>{
-      b.onclick=()=>{
-        const a=b.dataset.act;
-        if(a==='mode-signin'){authMode='signin';errMsg='';notice='';renderAcct();}
-        else if(a==='mode-signup'){authMode='signup';errMsg='';notice='';renderAcct();}
-        else if(a==='do-signin'){doSignIn(field(el,'acEmail').trim(),field(el,'acPw'));}
-        else if(a==='do-signup'){doSignUp(field(el,'acEmail').trim(),field(el,'acPw'),field(el,'acUser').trim());}
-        else if(a==='reset'){const em=field(el,'acEmail').trim();if(!em){errMsg='Indique d’abord ton adresse e-mail.';notice='';renderAcct();}else doReset(em);}
-        else if(a==='setpw'){setNewPassword(field(el,'acNew'));}
-        else if(a==='saveuser'){errMsg='';notice='';saveUsername(field(el,'acUser').trim()).then(r=>{if(r.ok)notice='Pseudo enregistré.';else errMsg=r.msg;renderAcct();});}
-        else if(a==='erase'){eraseConfirm=true;renderAcct();}
-        else if(a==='erase-no'){eraseConfirm=false;renderAcct();}
-        else if(a==='erase-yes'){eraseMyData();}
-        else if(a==='privacy'){openPrivacy();}
-        else if(a==='signout'){signOut();}
-        else if(a==='ava-pick'){var fi=el.querySelector('#acAvaFile');if(fi)fi.click();}
-        else if(a==='ava-clear'){saveProfileMeta(undefined,'').then(r=>{if(r.ok)notice='Photo retirée.';else errMsg=r.msg||'Échec.';renderAcct();refreshAcct();});}
-        else if(a==='savemeta'){errMsg='';notice='';saveProfileMeta(field(el,'acBio'),undefined).then(r=>{if(r.ok)notice='Profil enregistré.';else errMsg=r.msg||'Échec.';renderAcct();refreshAcct();});}
-      };
-    });
-    var _af=el.querySelector('#acAvaFile');if(_af)_af.onchange=function(){var f=_af.files&&_af.files[0];if(f)uploadAvatar(f);};
+    if(!window.SHELL||!window.SHELL.auth)return;
+    window.SHELL.auth.renderChip();
+    window.SHELL.auth.renderModal();
   }
+  // Stub : de nombreux call-sites internes (forum, messagerie, notifications,
+  // login gates) appellent encore openAcctModal() ; on les laisse marcher via
+  // SHELL.auth.openModal().
+  function openAcctModal(){ if(window.SHELL&&window.SHELL.auth)window.SHELL.auth.openModal(); }
+  function openPrivacy(){ if(window.SHELL&&window.SHELL.auth)window.SHELL.auth.openPrivacy(); }
 
   /* statut compact dans le panneau Mes notes */
   function acctHtml(){
@@ -2564,7 +2449,9 @@ drawTRPF();
   const pubToggle=document.getElementById('pubToggle'),pubPanelEl=document.getElementById('publicPanel');
   if(pubToggle&&pubPanelEl)pubToggle.addEventListener('click',()=>{pubPanelEl.hidden=!pubPanelEl.hidden;if(!pubPanelEl.hidden){if(panel)panel.hidden=true;renderPublic();}});
 
-  wireAcctChrome();
+  // Le câblage chip/modale est fait par installShell() (qui appelle
+  // SHELL.auth._wireChrome puis _bootstrap). On démarre juste l'init Supabase
+  // côté Capital, qui partage le même client singleton.
   initSync();
 
   function setChapter(n,container){
@@ -3745,49 +3632,11 @@ try{if(window.Anno&&sel&&sel.value){const nn0=+sel.value.split('|')[0];if(nn0)wi
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initSearch);else initSearch();
 })();
 
-/* ===== BARRE LATERALE (navigation) ===== */
-(function(){
-  function doAct(a){
-    try{
-      if(a==='home'){ if(typeof showHome==='function')showHome(); }
-      else if(a==='open-capital'){ if(typeof showWork==='function')showWork('work-capital'); }
-      else if(a.indexOf('tab:')===0){ var p=a.slice(4); if(typeof showWork==='function')showWork('work-capital'); if(typeof activateTab==='function')activateTab(p); }
-      else if(a==='commune'){ if(typeof window.showPlacePublique==='function')window.showPlacePublique(); else if(typeof showHome==='function')showHome(); }
-      else if(a==='contacts'){ if(window.showContactsPage)window.showContactsPage(); }
-      else if(a==='cgu'){ var fp=document.getElementById('footPrivacy'); if(fp){fp.click();} else {var pm=document.getElementById('privacyModal'); if(pm)pm.hidden=false;} }
-    }catch(e){}
-  }
-  function toggleBiblio(btn){
-    var sub=document.getElementById('sbBiblio'); if(!sub)return;
-    sub.hidden=false;
-    btn.setAttribute('aria-expanded','true');
-    document.querySelectorAll('.sb-item').forEach(function(x){x.classList.remove('on');});
-    btn.classList.add('on');
-    try{ if(typeof showHome==='function')showHome(); }catch(e){}
-    if(window.innerWidth<=860)document.body.classList.remove('sb-open');
-  }
-  function initSB(){
-    if(!window.__sbWrapped){window.__sbWrapped=1;
-      if(typeof showWork==='function'){var _ow=showWork;showWork=function(){var r=_ow.apply(this,arguments);var g=document.getElementById('sbWork');if(g)g.hidden=false;return r;};}
-      if(typeof showHome==='function'){var _oh=showHome;showHome=function(){var r=_oh.apply(this,arguments);var g=document.getElementById('sbWork');if(g)g.hidden=true;return r;};}
-    }
-    var items=document.querySelectorAll('.sb-item');
-    items.forEach(function(it){ if(it.dataset.w)return; it.dataset.w='1';
-      it.addEventListener('click',function(){
-        var act=it.getAttribute('data-act');
-        if(act==='biblio'){ toggleBiblio(it); return; }
-        items.forEach(function(x){x.classList.remove('on');}); it.classList.add('on');
-        doAct(act);
-        if(window.innerWidth<=860)document.body.classList.remove('sb-open');
-      });
-    });
-    var t=document.getElementById('sbToggle');
-    if(t&&!t.dataset.w){t.dataset.w='1';t.addEventListener('click',function(e){e.stopPropagation();if(window.innerWidth<=860){document.body.classList.toggle('sb-open');}else{document.body.classList.toggle('sb-collapsed');}});}
-    var bd=document.getElementById('sbBackdrop');
-    if(bd&&!bd.dataset.w){bd.dataset.w='1';bd.addEventListener('click',function(){document.body.classList.remove('sb-open');});}
-  }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initSB);else initSB();
-})();
+/* La barre latérale et la pastille sont désormais installées et câblées par
+   shell.js (installShell appelé en fin de body). Les sb-items commune/contacts
+   sont gérés par shell.js : commune → place-publique.html ; contacts →
+   gotoHost('#contacts') qui, sur Capital, fait juste un hash change → route()
+   ci-dessous appelle showContactsPage(). cgu → SHELL.auth.openPrivacy(). */
 
 /* ===== Routeur de hash : Manuscrits (et les futurs livres) renvoient ici
    via capital-1.html#commune / #contacts / #cgu tant que la coquille
@@ -3806,6 +3655,33 @@ try{if(window.Anno&&sel&&sel.value){const nn0=+sel.value.split('|')[0];if(nn0)wi
     route();
   }
   window.addEventListener('hashchange', route);
+})();
+</script>
+<script>
+installShell({
+  workId: 'capital-1',
+  workTitle: 'Le Capital — Livre I',
+  // Capital reste l'hôte des fonctionnalités qui ne sont pas encore extraites
+  // dans le shell (recherche, support, messagerie, notifications, contacts).
+  // On indique à shell.js de ne pas court-circuiter ces boutons avec gotoHost().
+  host: true,
+  tabs: [
+    {id:'accueil', label:'Accueil'},
+    {id:'nav',     label:'Parcourir'},
+    {id:'lire',    label:'Texte intégral'},
+    {id:'deriv',   label:'Cheminement'},
+    {id:'labo',    label:'Modèles'},
+    {id:'explore', label:'Explorations'},
+    {id:'chrono',  label:'Chronologie'}
+  ]
+});
+// Le bouton « Confidentialité & données » du pied de page ouvre la modale RGPD
+// fournie par SHELL.auth (shell.js).
+(function(){
+  var fp = document.getElementById('footPrivacy');
+  if(fp) fp.addEventListener('click', function(){
+    if(window.SHELL && window.SHELL.auth) window.SHELL.auth.openPrivacy();
+  });
 })();
 </script>
 </body>

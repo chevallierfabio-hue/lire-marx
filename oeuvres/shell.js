@@ -237,16 +237,21 @@
 
     // Boutons qui dépendent encore de la coquille hébergée par capital-1.html
     // (acctChip → SHELL.auth ; msgBtn + notifBtn → SHELL.social).
-    var hostBtns = ['supportBtn'];
-    hostBtns.forEach(function(id){
-      var b = document.getElementById(id);
-      if(b) b.addEventListener('click', function(){ gotoHost(); });
-    });
+    // Si la page courante EST la page hôte (cfg.host === true), elle câble
+    // déjà ces boutons et la recherche elle-même : on saute pour ne pas
+    // recharger en boucle via gotoHost() vers la page courante.
+    if(!cfg.host){
+      var hostBtns = ['supportBtn'];
+      hostBtns.forEach(function(id){
+        var b = document.getElementById(id);
+        if(b) b.addEventListener('click', function(){ gotoHost(); });
+      });
 
-    // Recherche : pour l'instant, l'index vit dans capital-1.html.
-    var search = document.getElementById('tbSearch');
-    if(search){
-      search.addEventListener('focus', function(){ gotoHost(); });
+      // Recherche : pour l'instant, l'index vit dans capital-1.html.
+      var search = document.getElementById('tbSearch');
+      if(search){
+        search.addEventListener('focus', function(){ gotoHost(); });
+      }
     }
   }
 
