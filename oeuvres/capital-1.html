@@ -371,9 +371,10 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
 .anno-pop-sw{display:flex;gap:8px;margin-bottom:10px;}
 .anno-pop-t{width:100%;min-height:78px;font-family:'Spectral',serif;font-size:.95rem;padding:9px 11px;border:1px solid var(--line);border-radius:7px;background:var(--paper);color:var(--ink);resize:vertical;}
 .anno-pop-act{display:flex;align-items:center;justify-content:space-between;margin-top:10px;}
-.notes-panel{margin-top:18px;border:1px solid var(--line);background:var(--card);border-radius:8px;padding:16px 18px;}
-.notes-panel:not([hidden]){position:fixed;right:18px;bottom:18px;top:auto;left:auto;margin:0;width:min(380px,calc(100vw - 32px));max-height:min(72vh,580px);overflow:auto;z-index:90;box-shadow:0 18px 50px -12px rgba(0,0,0,.45);}
-.notes-panel:not([hidden]) .np-head{position:sticky;top:-16px;background:var(--card);margin:-16px -18px 10px;padding:14px 18px 10px;z-index:1;}
+/* Les panneaux .notes-panel sont désormais entièrement stylés par shell.css
+   (SHELL.annotations / SHELL.reader). Les anciennes règles inlinées de
+   Capital sont retirées en 6b pour éviter la collision de z-index avec
+   les FAB. */
 .np-head{display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line-soft);padding-bottom:10px;margin-bottom:10px;}
 .np-head b{font-family:'Fraunces',serif;font-size:1.05rem;}
 .np-n{background:var(--ink);color:var(--paper);font-family:'Fraunces',serif;font-size:.74rem;padding:1px 9px;border-radius:20px;}
@@ -450,6 +451,7 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
 </style>
 <script src="../config.js"></script>
 <script src="shell.js"></script>
+<script src="shell-annotations.js"></script>
 <style id="socCss">#msgDot{position:absolute;top:5px;right:6px;width:6px;height:6px;border-radius:50%;background:var(--red);display:none;}.tb-msg{position:relative;}.nt-list{max-height:58vh;overflow:auto;margin:2px -6px -4px;}.nt-item{display:block;width:100%;text-align:left;background:transparent;border:0;border-top:1px solid var(--line-soft);padding:10px 8px;cursor:pointer;font-family:inherit;}.nt-item:first-child{border-top:0;}.nt-item:hover{background:var(--paper-2);}.nt-item.unseen{background:rgba(165,42,33,.06);}.nt-top{display:flex;gap:7px;align-items:baseline;}.nt-who{font-family:"Fraunces",serif;font-weight:600;font-size:.86rem;color:var(--ink);}.nt-kind{font-family:var(--f-ui);font-size:.62rem;letter-spacing:.04em;text-transform:uppercase;border-radius:999px;padding:1px 7px;}.nt-k-reply{background:rgba(57,89,107,.16);color:#2f4a59;}.nt-k-mention{background:rgba(165,42,33,.12);color:#7c1d16;}.nt-when{margin-left:auto;font-family:var(--f-ui);font-size:.68rem;color:var(--const);}.nt-snip{font-family:"Spectral",Georgia,serif;font-size:.84rem;color:var(--ink-soft);margin-top:3px;line-height:1.45;}.msg-wrap{display:flex;flex-direction:column;min-height:0;height:min(74vh,620px);}.msg-head{display:flex;align-items:center;gap:9px;margin-bottom:10px;}.msg-head h3{font-family:"Fraunces",serif;font-size:1.18rem;margin:0;color:var(--ink);}.msg-back{background:transparent;border:0;font-size:1.5rem;line-height:1;cursor:pointer;color:var(--ink);padding:0 6px;}.msg-add{display:flex;gap:7px;margin-bottom:12px;}.msg-add input{flex:1;min-width:0;height:34px;font-family:var(--f-ui);font-size:.85rem;padding:0 11px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);}.msg-list{flex:1;overflow:auto;margin:0 -4px;}.msg-ct{display:flex;align-items:center;gap:11px;width:100%;text-align:left;background:transparent;border:0;border-radius:9px;padding:10px;cursor:pointer;font-family:inherit;}.msg-ct:hover{background:var(--paper-2);}.msg-ava{flex:0 0 auto;width:34px;height:34px;border-radius:50%;background:var(--red);color:#f7f1e2;font-family:"Fraunces",serif;font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center;}.msg-ct-main{flex:1;min-width:0;display:flex;flex-direction:column;}.msg-ct-name{font-family:"Fraunces",serif;font-weight:600;font-size:.92rem;color:var(--ink);}.msg-ct-prev{font-family:"Spectral",Georgia,serif;font-size:.8rem;color:var(--const);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}.msg-badge{flex:0 0 auto;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:var(--red);color:#fff;font-family:var(--f-ui);font-size:.66rem;display:flex;align-items:center;justify-content:center;}.msg-thread{flex:1;overflow:auto;display:flex;flex-direction:column;gap:7px;padding:6px 2px;}.msg-b{max-width:78%;padding:7px 11px;border-radius:13px;font-family:"Spectral",Georgia,serif;font-size:.92rem;line-height:1.45;white-space:pre-wrap;word-wrap:break-word;}.msg-b.me{align-self:flex-end;background:var(--red);color:#f7f1e2;border-bottom-right-radius:4px;}.msg-b.them{align-self:flex-start;background:var(--paper-2);color:var(--ink);border-bottom-left-radius:4px;}.msg-b-t{display:block;font-size:.62rem;opacity:.7;margin-top:3px;font-family:var(--f-ui);}.msg-compose{display:flex;gap:7px;margin-top:10px;}.msg-compose textarea{flex:1;min-height:40px;max-height:130px;font-family:"Spectral",serif;font-size:.92rem;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:var(--paper);color:var(--ink);resize:vertical;}.msg-empty,.msg-state{font-family:var(--f-ui);font-size:.85rem;color:var(--const);padding:18px 8px;text-align:center;line-height:1.5;}</style>
 <style id="socCss2">.tb-pop.msg-pop{width:330px;max-width:86vw;padding:12px 14px;}.msg-pop .msg-list{max-height:300px;}.msg-pop .msg-thread{height:264px;}.msg-pop .msg-head{margin-bottom:8px;}.msg-pop .msg-add{margin-bottom:10px;}.msg-pop .msg-compose{margin-top:8px;}.msg-pop .msg-compose textarea{min-height:36px;}.msg-poplink{display:block;width:100%;text-align:center;margin-top:8px;font-family:"Fraunces",serif;font-weight:600;font-size:.8rem;color:var(--red-deep);background:transparent;border:0;border-top:1px solid var(--line-soft);padding-top:9px;cursor:pointer;}.msg-poplink:hover{color:var(--red);}.contacts-view{max-width:1000px;margin:0 auto;padding:14px 0 60px;}.cv-head{font-family:"Fraunces",serif;font-weight:900;font-size:1.8rem;color:var(--ink);margin:6px 0 2px;}.cv-sub{font-family:"Spectral",Georgia,serif;font-style:italic;color:var(--ink-soft);margin-bottom:18px;}.cv-grid{display:grid;grid-template-columns:300px 1fr;gap:18px;align-items:start;}.cv-pane{border:1px solid var(--line);border-radius:13px;background:var(--card);padding:14px;}.cv-left{min-height:62vh;}.cv-right{min-height:62vh;display:flex;flex-direction:column;}.cv-right .msg-thread{flex:1;min-height:340px;}.cv-ph{margin:auto;color:var(--const);font-family:var(--f-ui);font-size:.9rem;text-align:center;padding:48px 14px;line-height:1.6;}.cv-prof{text-align:center;padding:24px 8px;margin:auto;}.cv-prof .msg-ava{width:64px;height:64px;font-size:1.7rem;margin:0 auto 12px;}.cv-prof-name{font-family:"Fraunces",serif;font-weight:700;font-size:1.3rem;color:var(--ink);}.cv-prof-meta{font-family:var(--f-ui);font-size:.85rem;color:var(--const);margin:6px 0 18px;}.cv-ct.on,.msg-ct.on{background:var(--paper-2);}.cv-rowbtns{display:flex;gap:9px;align-items:center;margin-bottom:10px;}@media(max-width:760px){.cv-grid{grid-template-columns:1fr;}.cv-left,.cv-right{min-height:0;}.cv-right .msg-thread{min-height:300px;}}</style>
 <style id="socCss3">.commons-view{max-width:820px;margin:0 auto;padding:14px 0 60px;}.commons-body{display:flex;flex-direction:column;gap:12px;}.commons-body .pc-card{width:100%;}.commons-body .ca-sec{margin-top:8px;}</style>
@@ -567,13 +569,9 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
     <div class="reader-bar">
       <select id="chapSelect" aria-label="Choisir un chapitre"></select>
       <button id="loadBtn" class="btn red" type="button">Charger le texte intégral →</button>
-      <button id="notesToggle" class="btn" type="button">Mes notes</button>
-      <button id="pubToggle" class="btn" type="button">Notes partagées</button>
     </div>
-    <div class="anno-hint">Une fois le texte chargé : <b>sélectionne un passage</b> pour le surligner, puis <b>clique le surlignage</b> pour y attacher une note. Tout reste sur cet appareil (sauvegarde locale) ; tu peux aussi te connecter, depuis le panneau <b>« Mes notes »</b>, pour synchroniser tes annotations entre tes appareils.</div>
+    <div class="anno-hint">Une fois le texte chargé : <b>sélectionne un passage</b> pour le surligner, puis <b>clique le surlignage</b> pour y attacher une note. Tout reste sur cet appareil (sauvegarde locale) ; tu peux aussi te connecter pour synchroniser tes annotations entre tes appareils. Les boutons flottants « Mes notes » et « Notes partagées » apparaissent en bas à droite quand le texte est chargé.</div>
     <div id="readerOut"><div class="reader"><div class="placeholder"><div class="pi">📖</div><b>Choisis un chapitre ci-dessus, puis clique sur « Charger le texte intégral ».</b><br><span style="font-size:.9rem">Le texte complet du chapitre s'affichera ici.</span></div></div></div>
-    <div id="notesPanel" class="notes-panel" hidden></div>
-    <div id="publicPanel" class="notes-panel pub-panel" hidden></div>
   </section>
 
   <!-- LABORATOIRE -->
@@ -1810,16 +1808,16 @@ drawTRPF();
   const WORK='capital';
   const KEY='liremarx.anno.v1';
   const COLORS=[['gold','Or'],['red','Rouge'],['blue','Bleu'],['green','Vert']];
-  let box=null,curN=0,store={},persistOK=true,bar=null,pop=null,pendingJump=null;
-  const panel=document.getElementById('notesPanel');
-  const toggle=document.getElementById('notesToggle');
+  // box + curN sont conservés : utilisés par les modules sociaux/PLACE COMMUNE
+  // (filtrage realtime par section, etc.). Tout le reste (store, bar, pop,
+  // pendingJump, panel, toggle, notesPanel/notesToggle DOM) est désormais
+  // géré par SHELL.annotations / SHELL.reader.
+  let box=null,curN=0;
 
-  try{localStorage.setItem('liremarx.__t','1');localStorage.removeItem('liremarx.__t');}catch(e){persistOK=false;}
-  try{const r=localStorage.getItem(KEY);store=r?JSON.parse(r):{};}catch(e){store={};}
-  function persist(){try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){persistOK=false;}}
-  function keyOf(n){return WORK+'|'+n;}
-  function listFor(n){return store[keyOf(n)]||[];}
-  function findAnn(id){return listFor(curN).find(a=>a.id===id);}
+  // Le state des annotations privées (store/persist/keyOf/listFor/findAnn) est
+  // géré par SHELL.annotations (oeuvres/shell-annotations.js) ; même clef
+  // localStorage 'liremarx.anno.v1' et même schéma 'workId|section', donc les
+  // annotations existantes restent visibles sans migration.
   function uid(){try{if(window.crypto&&crypto.randomUUID)return crypto.randomUUID();}catch(e){}return 'a'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
   function escapeHtml(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 
@@ -1848,53 +1846,9 @@ drawTRPF();
     clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),4200);
   }
 
-  function normalizeRow(r){
-    return {id:r.id,work:r.work,section:Number(r.section),
-      before:r.before||'',quote:r.quote||'',after:r.after||'',
-      color:r.color||'gold',note:r.note||'',created:Number(r.created)||Date.now()};
-  }
-  function rowOf(an){
-    return {id:an.id,work:an.work,section:an.section,
-      before:an.before,quote:an.quote,after:an.after,
-      color:an.color,note:an.note,created:an.created};
-  }
-
-  function syncUpsert(an){
-    if(!sb||!user)return;
-    sb.from('annotations').upsert(rowOf(an)).then(res=>{if(res.error)toast('Synchro (ecriture) : '+res.error.message);});
-  }
-  function syncDelete(id){
-    if(!sb||!user)return;
-    sb.from('annotations').delete().eq('id',id).then(res=>{if(res.error)toast('Synchro (suppression) : '+res.error.message);});
-  }
-  function pushAll(){
-    if(!sb||!user)return;
-    Object.keys(store).forEach(k=>{if(k.indexOf(WORK+'|')!==0)return;(store[k]||[]).forEach(a=>syncUpsert(a));});
-  }
-
-  /* fusion: le distant fait foi pour les id connus ; les notes
-     purement locales sont conservees ET televersees (migration). */
-  function applyRemote(rows){
-    const remoteIds=new Set(rows.map(r=>r.id));
-    const localOnly=[];
-    Object.keys(store).forEach(k=>{if(k.indexOf(WORK+'|')!==0)return;
-      (store[k]||[]).forEach(a=>{if(!remoteIds.has(a.id))localOnly.push(a);});});
-    Object.keys(store).forEach(k=>{if(k.indexOf(WORK+'|')===0)delete store[k];});
-    rows.forEach(r=>{const a=normalizeRow(r);const k=WORK+'|'+a.section;(store[k]=store[k]||[]).push(a);});
-    localOnly.forEach(a=>{const k=keyOf(a.section);(store[k]=store[k]||[]).push(a);syncUpsert(a);});
-    persist();
-  }
-
-  async function pullAll(){
-    if(!sb||!user)return;
-    try{
-      const res=await sb.from('annotations').select('*').eq('work',WORK);
-      if(res.error)throw res.error;
-      applyRemote(res.data||[]);
-      if(box){clearMarks();renderHighlights();}
-      if(panel&&!panel.hidden)renderPanel();
-    }catch(e){toast('Lecture cloud impossible : '+(e.message||e));}
-  }
+  // Synchro Supabase des annotations privées (push/pull/upsert/delete) :
+  // déléguée à SHELL.annotations (pullAll est ré-exécutée à chaque
+  // SHELL.auth.onChange + à chaque attach() sur une œuvre pas encore tirée).
 
   /* ---------- profils (pseudo public) ---------- */
   const reUser=/^[A-Za-z0-9_\-]{2,24}$/;
@@ -1948,7 +1902,7 @@ drawTRPF();
       var r=await saveProfileMeta(undefined,url);if(!r.ok)throw new Error(r.msg||'enregistrement échoué');
       notice='Photo de profil mise à jour.';
     }catch(e){errMsg='Photo : '+((e&&e.message)||e)+' — le bucket Storage « avatars » est-il créé et public ?';}
-    busy=false;renderAcct();refreshAcct();
+    busy=false;renderAcct();
   }
   /* ---------- authentification e-mail + mot de passe ---------- */
   function redirectURL(){return location.origin+location.pathname;}
@@ -1997,8 +1951,7 @@ drawTRPF();
       const res=await sb.functions.invoke('delete-account');
       if(res.error)throw res.error;
       try{localStorage.removeItem(KEY);}catch(e){}
-      store={};profile=null;pubNotes=[];reports=[];eraseConfirm=false;
-      if(box)clearMarks();
+      profile=null;eraseConfirm=false;
       toast('Ton compte et toutes tes données ont été supprimés.');
       await signOut();
     }catch(e){errMsg='Suppression : '+((e&&e.message)||e)+' — la fonction « delete-account » est-elle déployée ?';}
@@ -2016,11 +1969,11 @@ drawTRPF();
         if(pu&&reUser.test(pu)&&!(await usernameTaken(pu))){const r=await saveUsername(pu);if(r.ok){try{localStorage.removeItem('liremarx.pendinguser');}catch(e){}}}
       }
       try{const mr=await sb.from('moderators').select('id').eq('id',user.id).maybeSingle();isMod=!!(mr&&mr.data);}catch(e){isMod=false;}
-      pullAll();
-      if(box)loadPublic();
+      // pullAll + chargement public_notes : désormais déclenchés par
+      // SHELL.annotations._init via SHELL.auth.onChange + chaque attach().
       try{if(window.__dmRealtimeUp)window.__dmRealtimeUp();}catch(e){}
     }else{profile=null;isMod=false;modView=false;try{if(window.__dmRealtimeDown)window.__dmRealtimeDown();}catch(e){}}
-    renderAcct();refreshAcct();
+    renderAcct();
   }
 
   async function initSync(){
@@ -2040,7 +1993,6 @@ drawTRPF();
   }
 
   /* ---------- vue de l onglet Mon compte ---------- */
-  function noteCount(){let n=0;Object.keys(store).forEach(k=>{if(k.indexOf(WORK+'|')===0)n+=(store[k]||[]).length;});return n;}
   function field(el,id){const x=el.querySelector('#'+id);return x?x.value:'';}
   // Chip, modales et touche Échap : entièrement gérés par SHELL.auth
   // (shell.js installe le DOM ; auth.js gère le rendu compte/RGPD). Le rendu
@@ -2058,409 +2010,21 @@ drawTRPF();
   function openAcctModal(){ if(window.SHELL&&window.SHELL.auth)window.SHELL.auth.openModal(); }
   function openPrivacy(){ if(window.SHELL&&window.SHELL.auth)window.SHELL.auth.openPrivacy(); }
 
-  /* statut compact dans le panneau Mes notes */
-  function acctHtml(){
-    if(!configured)return '<div class="np-acct"><span class="dot"></span>Notes locales (compte non configuré).</div>';
-    if(user){const p=(profile&&profile.username)||user.email||'compte';
-      return '<div class="np-acct on"><span class="dot"></span>Synchronisé &middot; <b>'+escapeHtml(p)+'</b><span style="margin-left:auto"></span><button class="lk" data-act="goacct" type="button">Mon compte</button></div>';}
-    return '<div class="np-acct"><span class="dot"></span>Non connecté — notes locales.<span style="margin-left:auto"></span><button class="lk" data-act="goacct" type="button">Se connecter</button></div>';
+  function capitalSectionLabel(n){
+    try{ var s = ROY_STRUCT[(+n)-1]; if(s) return 'Section '+s.rn+' \u00b7 '+s.t; }catch(e){}
+    return 'Section '+n;
   }
-  function wireAcct(){
-    if(!panel)return;const row=panel.querySelector('.np-acct');if(!row)return;
-    const g=row.querySelector('[data-act="goacct"]');
-    if(g)g.onclick=()=>openAcctModal();
-  }
-  function refreshAcct(){if(panel&&!panel.hidden)renderPanel();}
-
-
-  /* --- ancrage par citation (fonctions testées hors-ligne) --- */
-  function rangeOffsets(container,range){
-    if(range.startContainer.nodeType!==3||range.endContainer.nodeType!==3)return null;
-    const w=document.createTreeWalker(container,NodeFilter.SHOW_TEXT,null);
-    let pos=0,start=-1,end=-1,n;
-    while(n=w.nextNode()){
-      if(n===range.startContainer)start=pos+range.startOffset;
-      if(n===range.endContainer)end=pos+range.endOffset;
-      pos+=n.nodeValue.length;
-      if(start>=0&&end>=0)break;
-    }
-    if(start<0||end<0||end<=start)return null;
-    return {start,end};
-  }
-  function contextFor(full,start,end,pad){
-    pad=pad||40;
-    return {before:full.slice(Math.max(0,start-pad),start),quote:full.slice(start,end),after:full.slice(end,end+pad)};
-  }
-  function locate(full,a){
-    if(!a.quote)return null;
-    let i=full.indexOf(a.before+a.quote+a.after);
-    if(i>=0){const s=i+a.before.length;return {start:s,end:s+a.quote.length};}
-    i=full.indexOf(a.before+a.quote);
-    if(i>=0){const s=i+a.before.length;return {start:s,end:s+a.quote.length};}
-    i=full.indexOf(a.quote);
-    if(i>=0)return {start:i,end:i+a.quote.length};
-    return null;
-  }
-  function wrapByOffsets(container,start,end,cls,id){
-    const w=document.createTreeWalker(container,NodeFilter.SHOW_TEXT,null);
-    let pos=0,n;const snap=[];
-    while(n=w.nextNode()){snap.push({node:n,pos});pos+=n.nodeValue.length;}
-    for(const it of snap){
-      const len=it.node.nodeValue.length,a=it.pos,b=it.pos+len;
-      const s=Math.max(start,a)-a,e=Math.min(end,b)-a;
-      if(e<=s)continue;
-      let node=it.node;
-      if(s>0)node=node.splitText(s);
-      if(e-s<node.nodeValue.length)node.splitText(e-s);
-      const mark=document.createElement('mark');mark.className=cls;mark.dataset.anno=id;
-      node.parentNode.insertBefore(mark,node);mark.appendChild(node);
-    }
-  }
-
-  /* --- rendu des surlignages --- */
-  function renderHighlights(){
-    if(!box)return;
-    listFor(curN).forEach(an=>{try{
-      const loc=locate(box.textContent,an);
-      if(!loc)return;
-      wrapByOffsets(box,loc.start,loc.end,'anno c-'+an.color+(an.note?' has-note':''),an.id);
-    }catch(e){}});
-  }
-  function clearMarks(){if(!box)return;box.querySelectorAll('mark.anno').forEach(m=>{m.replaceWith(document.createTextNode(m.textContent));});box.normalize();}
-  function unwrap(id){if(!box)return;box.querySelectorAll('mark[data-anno="'+id+'"]').forEach(m=>{m.replaceWith(document.createTextNode(m.textContent));});box.normalize();}
-  function reclass(id,color,hasNote){if(!box)return;box.querySelectorAll('mark[data-anno="'+id+'"]').forEach(m=>{m.className='anno c-'+color+(hasNote?' has-note':'');});}
-
-  /* --- barre de sélection --- */
-  function ensureBar(){
-    if(bar)return bar;
-    bar=document.createElement('div');bar.className='anno-bar';
-    let h='<span class="anno-bar-l">Surligner</span>';
-    COLORS.forEach(c=>{h+='<button class="anno-sw c-'+c[0]+'" data-c="'+c[0]+'" title="'+c[1]+'"></button>';});
-    h+='<button class="share-btn" data-share="1" type="button">Partager</button>';
-    bar.innerHTML=h;
-    bar.addEventListener('mousedown',e=>e.preventDefault());
-    bar.addEventListener('click',e=>{const c=e.target.closest('[data-c]');if(c){addFromSelection(c.dataset.c);return;}const s=e.target.closest('[data-share]');if(s)shareFromSelection();});
-    document.body.appendChild(bar);
-    return bar;
-  }
-  function hideBar(){if(bar)bar.style.display='none';}
-  function selectionInBox(){
-    const s=window.getSelection();
-    if(!s||s.isCollapsed||s.rangeCount===0)return null;
-    const r=s.getRangeAt(0);
-    if(!box||!box.contains(r.commonAncestorContainer))return null;
-    if((r.toString()||'').trim().length<2)return null;
-    return r;
-  }
-  function onSelect(){
-    if(pop&&pop.style.display!=='none')return;
-    if(pubPop&&pubPop.style.display!=='none')return;
-    const r=selectionInBox();
-    if(!r){hideBar();return;}
-    ensureBar();
-    const rect=r.getBoundingClientRect();
-    bar.style.display='flex';
-    bar.style.top=Math.max(window.scrollY+4,window.scrollY+rect.top-bar.offsetHeight-8)+'px';
-    bar.style.left=Math.max(6,window.scrollX+rect.left+rect.width/2-bar.offsetWidth/2)+'px';
-  }
-  function addFromSelection(color){
-    const r=selectionInBox();if(!r)return;
-    const off=rangeOffsets(box,r);if(!off){hideBar();return;}
-    const ctx=contextFor(box.textContent,off.start,off.end);
-    const an={id:uid(),work:WORK,section:curN,before:ctx.before,quote:ctx.quote,after:ctx.after,color:color,note:'',created:Date.now()};
-    const k=keyOf(curN);(store[k]=store[k]||[]).push(an);persist();syncUpsert(an);
-    try{wrapByOffsets(box,off.start,off.end,'anno c-'+color,an.id);}catch(e){}
-    window.getSelection().removeAllRanges();hideBar();renderPanel();openPop(an.id);
-  }
-
-  /* --- popover note --- */
-  function openPop(id){
-    const an=findAnn(id);if(!an)return;
-    if(!pop){pop=document.createElement('div');pop.className='anno-pop';document.body.appendChild(pop);}
-    let sw='';COLORS.forEach(c=>{sw+='<button class="anno-sw c-'+c[0]+(c[0]===an.color?' on':'')+'" data-c="'+c[0]+'"></button>';});
-    pop.innerHTML='<div class="anno-pop-q">« '+escapeHtml(an.quote.slice(0,140))+(an.quote.length>140?'…':'')+' »</div>'
-      +'<div class="anno-pop-sw">'+sw+'</div>'
-      +'<textarea class="anno-pop-t" placeholder="Ta note…">'+escapeHtml(an.note||'')+'</textarea>'
-      +'<div class="anno-pop-act"><button class="btn red" data-act="save" type="button">Enregistrer</button><button class="lk" data-act="del" type="button">Supprimer</button></div>';
-    const first=box?box.querySelector('mark[data-anno="'+id+'"]'):null;
-    pop.style.display='block';
-    if(first){const rect=first.getBoundingClientRect();pop.style.top=(window.scrollY+rect.bottom+8)+'px';pop.style.left=Math.max(6,window.scrollX+rect.left)+'px';}
-    else{pop.style.top=(window.scrollY+100)+'px';pop.style.left=(window.scrollX+20)+'px';}
-    const ta=pop.querySelector('.anno-pop-t');ta.focus();
-    pop.querySelectorAll('[data-c]').forEach(b=>b.addEventListener('click',()=>{pop.querySelectorAll('.anno-sw').forEach(x=>x.classList.remove('on'));b.classList.add('on');}));
-    pop.querySelector('[data-act="save"]').onclick=()=>{
-      an.note=ta.value.trim();
-      const onSw=pop.querySelector('.anno-sw.on');if(onSw)an.color=onSw.dataset.c;
-      persist();syncUpsert(an);reclass(an.id,an.color,!!an.note);renderPanel();closePop();
-    };
-    pop.querySelector('[data-act="del"]').onclick=()=>{delAnn(an.id);closePop();};
-  }
-  function closePop(){if(pop)pop.style.display='none';}
-  function delAnn(id){const k=keyOf(curN);store[k]=(store[k]||[]).filter(a=>a.id!==id);persist();syncDelete(id);unwrap(id);renderPanel();}
-
-  /* --- panneau des notes --- */
-  function renderPanel(){
-    if(!panel)return;
-    const items=listFor(curN);
-    let h='<div class="np-head"><b>Mes notes</b> <span class="np-n">'+items.length+'</span>'
-      +'<span class="np-tools"><button class="lk" id="annoExport" type="button">Exporter</button><button class="lk" id="annoImport" type="button">Importer</button><button class="lk" id="annoClose" type="button">Fermer</button></span></div>'+acctHtml();
-    if(!persistOK)h+='<div class="np-warn">Sauvegarde locale indisponible ici (par ex. dans l’aperçu du chat) : les annotations ne seront pas conservées. Sur le site en ligne, elles le seront.</div>';
-    if(!items.length)h+='<div class="np-empty">Aucune note sur ce chapitre. Sélectionne un passage du texte pour commencer.</div>';
-    else{h+='<ul class="np-list">';items.forEach(an=>{
-      h+='<li><span class="np-dot c-'+an.color+'"></span><div class="np-body"><div class="np-q">'+escapeHtml(an.quote.slice(0,120))+(an.quote.length>120?'…':'')+'</div>'
-        +(an.note?'<div class="np-note">'+escapeHtml(an.note)+'</div>':'<div class="np-note np-empty2">— sans note —</div>')+'</div>'
-        +'<span class="np-act"><button class="lk" data-go="'+an.id+'" type="button">Aller</button><button class="lk" data-ed="'+an.id+'" type="button">Éditer</button></span></li>';
-    });h+='</ul>';}
-    panel.innerHTML=h;
-    wireAcct();
-    const cl=panel.querySelector('#annoClose');if(cl)cl.onclick=()=>{panel.hidden=true;};
-    panel.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>requestJumpPriv(b.dataset.go)));
-    panel.querySelectorAll('[data-ed]').forEach(b=>b.addEventListener('click',()=>openPop(b.dataset.ed)));
-    const ex=panel.querySelector('#annoExport');if(ex)ex.onclick=exportAll;
-    const im=panel.querySelector('#annoImport');if(im)im.onclick=importAll;
-  }
-  function gotoAnn(id){
-    const m=box&&box.querySelector('mark[data-anno="'+id+'"]');if(!m)return;
-    m.scrollIntoView({behavior:'smooth',block:'center'});
-    box.querySelectorAll('mark[data-anno="'+id+'"]').forEach(x=>x.classList.add('flashmk'));
-    setTimeout(()=>{if(box)box.querySelectorAll('mark[data-anno="'+id+'"]').forEach(x=>x.classList.remove('flashmk'));},1400);
-  }
-  function triggerLoad(){const lb=document.getElementById('loadBtn');if(lb){lb.click();return true;}return false;}
-  function requestJumpPriv(id){
-    if(box&&box.querySelector('mark[data-anno="'+id+'"]')){gotoAnn(id);return;}
-    pendingJump=function(){gotoAnn(id);};
-    if(!triggerLoad()){pendingJump=null;toast('Charge le texte du chapitre pour aller au passage.');}
-  }
-  function requestJumpPub(n){
-    if(box){flashAnchor(n);return;}
-    pendingJump=function(){flashAnchor(n);};
-    if(!triggerLoad()){pendingJump=null;toast('Charge le texte du chapitre pour aller au passage.');}
-  }
-  function exportAll(){
-    const blob=new Blob([JSON.stringify(store,null,2)],{type:'application/json'});
-    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='lire-marx-notes.json';a.click();
-    setTimeout(()=>URL.revokeObjectURL(a.href),2000);
-  }
-  function importAll(){
-    const inp=document.createElement('input');inp.type='file';inp.accept='application/json,.json';
-    inp.onchange=()=>{const f=inp.files&&inp.files[0];if(!f)return;const fr=new FileReader();
-      fr.onload=()=>{try{const data=JSON.parse(fr.result);if(data&&typeof data==='object'){store=data;persist();if(user)pushAll();if(box){clearMarks();renderHighlights();}renderPanel();}else alert('Format inattendu.');}catch(e){alert('Fichier illisible.');}};
-      fr.readAsText(f);};
-    inp.click();
-  }
-
-  /* ===== Notes partagées (forum public) ===== */
-  let pubNotes=[],pubPop=null,replyOpen=null,reportOpen=null,isMod=false,modView=false,reports=[];
-  function fmtDate(ms){try{return new Date(ms).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'});}catch(e){return '';}}
-  function ensurePosterSilent(){return !!(configured&&sb&&user&&profile&&profile.username);}
-  function ensurePoster(){
-    if(!configured||!sb){toast('Le compte n’est pas configuré.');return false;}
-    if(!user){openAcctModal();return false;}
-    if(!(profile&&profile.username)){toast('Choisis d’abord un pseudo (Mon compte).');openAcctModal();return false;}
-    return true;
-  }
-  async function loadPublic(){
-    pubNotes=[];
-    if(!sb){renderPublic();return;}
-    try{
-      const res=await sb.from('public_notes')
-        .select('id,author_id,section,before,quote,after,body,parent_id,hidden,created,profiles(username)')
-        .eq('work',WORK).eq('section',curN).order('created',{ascending:true});
-      if(res.error)throw res.error;
-      const rows=res.data||[],tops={},reps=[];
-      rows.forEach(r=>{r.author=(r.profiles&&r.profiles.username)||'(compte supprimé)';
-        if(r.parent_id){reps.push(r);}else{r.replies=[];tops[r.id]=r;}});
-      reps.forEach(r=>{if(tops[r.parent_id])tops[r.parent_id].replies.push(r);});
-      pubNotes=Object.keys(tops).map(k=>tops[k]).sort((a,b)=>a.created-b.created);
-    }catch(e){toast('Notes partagées : '+(e.message||e));}
-    if(isMod){await loadReports();}
-    renderPublic();
-  }
-  async function loadReports(){
-    reports=[];
-    if(!sb||!isMod)return;
-    try{
-      const res=await sb.from('reports')
-        .select('id,note_id,reason,created,resolved,public_notes(id,section,work,quote,body,hidden,parent_id,author_id,profiles(username))')
-        .eq('resolved',false).order('created',{ascending:true});
-      if(res.error)throw res.error;
-      reports=(res.data||[]).filter(r=>r.public_notes&&r.public_notes.work===WORK&&r.public_notes.section===curN);
-    }catch(e){}
-  }
-  function groupedReports(){
-    const m={},order=[];
-    reports.forEach(r=>{const n=r.public_notes;if(!n)return;
-      if(!m[n.id]){m[n.id]={note:n,count:0,reasons:[]};order.push(n.id);}
-      m[n.id].count++;if(r.reason)m[n.id].reasons.push(r.reason);});
-    return order.map(k=>m[k]);
-  }
-  async function reportNote(id,reason){
-    if(!ensurePoster())return;
-    const row={id:uid(),note_id:id,reporter_id:user.id,reason:(reason||'').trim()||null,created:Date.now()};
-    const res=await sb.from('reports').insert(row);
-    if(res.error){toast('Signalement : '+res.error.message);return;}
-    reportOpen=null;toast('Signalement envoyé. Merci.');renderPublic();
-  }
-  async function hideNote(id,hidden){
-    if(!sb||!isMod)return;
-    const res=await sb.from('public_notes').update({hidden:hidden}).eq('id',id);
-    if(res.error){toast('Masquage : '+res.error.message);return;}
-    await loadPublic();
-  }
-  async function resolveReports(noteId){
-    if(!sb||!isMod)return;
-    const res=await sb.from('reports').update({resolved:true}).eq('note_id',noteId).eq('resolved',false);
-    if(res.error){toast('Traitement : '+res.error.message);return;}
-    await loadPublic();
-  }
-  function reportBoxHtml(id){
-    if(reportOpen!==id)return '';
-    return '<div class="pub-replybox"><textarea class="pub-rpta" placeholder="Motif (facultatif)…"></textarea><div class="pub-compose-act"><button class="lk" data-reportcancel="1" type="button">Annuler</button><button class="btn red" data-sendreport="'+id+'" type="button">Signaler</button></div></div>';
-  }
-  function modBtns(n){
-    let h='';
-    if(user&&n.author_id!==user.id)h+='<button class="lk" data-report="'+n.id+'" type="button">Signaler</button>';
-    if(isMod)h+=n.hidden?'<button class="lk" data-show="'+n.id+'" type="button">Afficher</button>':'<button class="lk" data-hide="'+n.id+'" type="button">Masquer</button>';
-    return h;
-  }
-  async function addPublic(anchor,body){
-    if(!ensurePoster())return;
-    body=(body||'').trim();if(!body){toast('Écris ta note.');return;}
-    const row={id:uid(),author_id:user.id,work:WORK,section:curN,before:anchor.before,quote:anchor.quote,after:anchor.after,body:body,parent_id:null,created:Date.now()};
-    const res=await sb.from('public_notes').insert(row);
-    if(res.error){toast('Publication : '+res.error.message);return;}
-    closePubCompose();
-    const pp=document.getElementById('publicPanel');if(pp&&pp.hidden){pp.hidden=false;if(panel)panel.hidden=true;}
-    await loadPublic();
-  }
-  async function addReply(parentId,body){
-    if(!ensurePoster())return;
-    body=(body||'').trim();if(!body)return;
-    const row={id:uid(),author_id:user.id,work:WORK,section:curN,body:body,parent_id:parentId,created:Date.now()};
-    const res=await sb.from('public_notes').insert(row);
-    if(res.error){toast('Réponse : '+res.error.message);return;}
-    replyOpen=null;await loadPublic();
-  }
-  async function delPublic(id){
-    if(!sb||!user)return;
-    const res=await sb.from('public_notes').delete().eq('id',id);
-    if(res.error){toast('Suppression : '+res.error.message);return;}
-    await loadPublic();
-  }
-  function flashAnchor(an){
-    if(!box||!an.quote)return;
-    const probe=an.quote.replace(/\s+/g,' ').trim().slice(0,40);
-    const els=box.querySelectorAll('p,h2,h3,h4,h5,li,blockquote');let target=null;
-    for(let i=0;i<els.length;i++){if(els[i].textContent.replace(/\s+/g,' ').indexOf(probe)>=0){target=els[i];break;}}
-    if(!target&&probe.length>14){const short=probe.slice(0,16);for(let i=0;i<els.length;i++){if(els[i].textContent.replace(/\s+/g,' ').indexOf(short)>=0){target=els[i];break;}}}
-    if(target){target.scrollIntoView({behavior:'smooth',block:'center'});target.classList.add('pub-flash');setTimeout(()=>target.classList.remove('pub-flash'),1500);}
-    else toast('Passage introuvable dans ce chapitre.');
-  }
-  function shareFromSelection(){
-    const r=selectionInBox();if(!r){hideBar();return;}
-    const off=rangeOffsets(box,r);if(!off){hideBar();return;}
-    const ctx=contextFor(box.textContent,off.start,off.end);
-    let rect=null;try{rect=r.getBoundingClientRect();}catch(e){}
-    window.getSelection().removeAllRanges();hideBar();
-    if(!ensurePoster())return;
-    openPubCompose(ctx,rect);
-  }
-  function openPubCompose(anchor,rect){
-    if(!pubPop){pubPop=document.createElement('div');pubPop.className='pub-compose';document.body.appendChild(pubPop);}
-    pubPop.innerHTML='<div class="pub-q">« '+escapeHtml(anchor.quote.slice(0,160))+(anchor.quote.length>160?'…':'')+' »</div>'
-      +'<textarea class="pub-ta" placeholder="Ta note publique sur ce passage…"></textarea>'
-      +'<div class="pub-compose-act"><button class="lk" data-act="cancel" type="button">Annuler</button><button class="btn red" data-act="publish" type="button">Publier</button></div>';
-    let top=window.scrollY+120,left=window.scrollX+20;
-    if(rect){top=window.scrollY+rect.bottom+8;left=Math.max(8,window.scrollX+rect.left);}
-    pubPop.style.display='block';pubPop.style.top=top+'px';pubPop.style.left=left+'px';
-    const ta=pubPop.querySelector('.pub-ta');if(ta)ta.focus();
-    pubPop.querySelector('[data-act="cancel"]').onclick=closePubCompose;
-    pubPop.querySelector('[data-act="publish"]').onclick=()=>{addPublic(anchor,ta?ta.value:'');};
-  }
-  function closePubCompose(){if(pubPop)pubPop.style.display='none';}
-  function pubStatusHtml(){
-    if(!configured)return '<div class="np-acct"><span class="dot"></span>Notes partagées indisponibles (compte non configuré).</div>';
-    if(!user)return '<div class="np-acct"><span class="dot"></span>Connecte-toi pour participer.<span style="margin-left:auto"></span><button class="lk" data-pa="login" type="button">Se connecter</button></div>';
-    if(!(profile&&profile.username))return '<div class="np-acct"><span class="dot"></span>Choisis un pseudo pour publier.<span style="margin-left:auto"></span><button class="lk" data-pa="login" type="button">Mon compte</button></div>';
-    return '<div class="np-acct on"><span class="dot"></span>Tu participes en tant que <b>'+escapeHtml(profile.username)+'</b>.</div>';
-  }
-  function noteBlockHtml(n){
-    const mine=user&&n.author_id===user.id;
-    let h='<div class="pub-note'+(n.hidden?' pub-hidden':'')+'" data-id="'+n.id+'"><div class="pub-meta"><span class="pub-author">'+escapeHtml(n.author)+'</span><span class="pub-date">'+fmtDate(n.created)+'</span>'+(n.hidden?'<span class="pub-badge">masqué</span>':'')+'</div>';
-    if(n.quote)h+='<div class="pub-q" data-go="'+n.id+'">« '+escapeHtml(n.quote.slice(0,140))+(n.quote.length>140?'…':'')+' »</div>';
-    h+='<div class="pub-body">'+escapeHtml(n.body)+'</div>';
-    h+='<div class="pub-acts"><button class="lk" data-go="'+n.id+'" type="button">Aller au passage</button><button class="lk" data-reply="'+n.id+'" type="button">Répondre'+(n.replies&&n.replies.length?' ('+n.replies.length+')':'')+'</button>'+(mine?'<button class="lk" data-del="'+n.id+'" type="button">Supprimer</button>':'')+modBtns(n)+'</div>'+reportBoxHtml(n.id);
-    if(n.replies&&n.replies.length){h+='<div class="pub-replies">';
-      n.replies.forEach(r=>{const rm=user&&r.author_id===user.id;
-        h+='<div class="pub-reply'+(r.hidden?' pub-hidden':'')+'"><div class="pub-meta"><span class="pub-author">'+escapeHtml(r.author)+'</span><span class="pub-date">'+fmtDate(r.created)+'</span>'+(r.hidden?'<span class="pub-badge">masqué</span>':'')+'</div><div class="pub-body">'+escapeHtml(r.body)+'</div><div class="pub-acts">'+(rm?'<button class="lk" data-del="'+r.id+'" type="button">Supprimer</button>':'')+modBtns(r)+'</div>'+reportBoxHtml(r.id)+'</div>';});
-      h+='</div>';}
-    if(replyOpen===n.id)h+='<div class="pub-replybox"><textarea class="pub-rta" placeholder="Ta réponse…"></textarea><div class="pub-compose-act"><button class="lk" data-replycancel="1" type="button">Annuler</button><button class="btn red" data-sendreply="'+n.id+'" type="button">Répondre</button></div></div>';
-    h+='</div>';return h;
-  }
-  function renderPublic(){
-    const pp=document.getElementById('publicPanel');if(!pp)return;
-    const groups=isMod?groupedReports():[];
-    let h='<div class="np-head"><b>Notes partagées</b> <span class="np-n">'+pubNotes.length+'</span><span class="np-tools">'
-      +(isMod?'<button class="lk'+(modView?' on':'')+'" data-modview="1" type="button">Signalements ('+groups.length+')</button>':'')
-      +'<button class="lk" id="pubClose" type="button">Fermer</button></span></div>'+pubStatusHtml();
-    if(isMod&&modView){
-      if(!groups.length)h+='<div class="pub-empty">Aucun signalement en attente sur ce chapitre.</div>';
-      else groups.forEach(g=>{const n=g.note;
-        h+='<div class="pub-note'+(n.hidden?' pub-hidden':'')+'"><div class="pub-meta"><span class="pub-author">'+escapeHtml((n.profiles&&n.profiles.username)||'?')+'</span><span class="pub-badge red">'+g.count+' signalement'+(g.count>1?'s':'')+'</span>'+(n.hidden?'<span class="pub-badge">masqué</span>':'')+'</div>';
-        if(n.quote)h+='<div class="pub-q">« '+escapeHtml(n.quote.slice(0,120))+(n.quote.length>120?'…':'')+' »</div>';
-        h+='<div class="pub-body">'+escapeHtml((n.body||'').slice(0,300))+((n.body||'').length>300?'…':'')+'</div>';
-        if(g.reasons.length)h+='<div class="pub-reasons">Motifs : '+g.reasons.map(x=>escapeHtml(x)).join(' · ')+'</div>';
-        h+='<div class="pub-acts">'+(n.quote?'<button class="lk" data-goq="'+n.id+'" type="button">Aller</button>':'')
-          +(n.hidden?'<button class="lk" data-show="'+n.id+'" type="button">Afficher</button>':'<button class="lk" data-hide="'+n.id+'" type="button">Masquer</button>')
-          +'<button class="lk" data-resolve="'+n.id+'" type="button">Marquer traité</button>'
-          +'<button class="lk" data-del="'+n.id+'" type="button">Supprimer</button></div></div>';
-      });
-    }else{
-      if(ensurePosterSilent())h+='<div class="pub-hint">Sélectionne un passage du texte, puis « Partager » pour ouvrir une note publique.</div>';
-      if(!pubNotes.length)h+='<div class="pub-empty">Aucune note partagée sur ce chapitre pour l’instant.</div>';
-      else pubNotes.forEach(n=>{h+=noteBlockHtml(n);});
-    }
-    pp.innerHTML=h;
-    const cl=pp.querySelector('#pubClose');if(cl)cl.onclick=()=>{pp.hidden=true;};
-    pp.querySelectorAll('[data-modview]').forEach(b=>b.onclick=()=>{modView=!modView;renderPublic();});
-    pp.querySelectorAll('[data-pa="login"]').forEach(b=>b.onclick=()=>openAcctModal());
-    pp.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{const n=pubNotes.find(x=>x.id===b.dataset.go);if(n)requestJumpPub(n);});
-    pp.querySelectorAll('[data-goq]').forEach(b=>b.onclick=()=>{const g=groups.find(x=>x.note.id===b.dataset.goq);if(g)requestJumpPub(g.note);});
-    pp.querySelectorAll('[data-reply]').forEach(b=>b.onclick=()=>{replyOpen=(replyOpen===b.dataset.reply)?null:b.dataset.reply;reportOpen=null;renderPublic();const ta=pp.querySelector('.pub-rta');if(ta)ta.focus();});
-    pp.querySelectorAll('[data-replycancel]').forEach(b=>b.onclick=()=>{replyOpen=null;renderPublic();});
-    pp.querySelectorAll('[data-sendreply]').forEach(b=>b.onclick=()=>{const ta=pp.querySelector('.pub-rta');addReply(b.dataset.sendreply,ta?ta.value:'');});
-    pp.querySelectorAll('[data-report]').forEach(b=>b.onclick=()=>{reportOpen=(reportOpen===b.dataset.report)?null:b.dataset.report;replyOpen=null;renderPublic();const ta=pp.querySelector('.pub-rpta');if(ta)ta.focus();});
-    pp.querySelectorAll('[data-reportcancel]').forEach(b=>b.onclick=()=>{reportOpen=null;renderPublic();});
-    pp.querySelectorAll('[data-sendreport]').forEach(b=>b.onclick=()=>{const ta=pp.querySelector('.pub-rpta');reportNote(b.dataset.sendreport,ta?ta.value:'');});
-    pp.querySelectorAll('[data-hide]').forEach(b=>b.onclick=()=>hideNote(b.dataset.hide,true));
-    pp.querySelectorAll('[data-show]').forEach(b=>b.onclick=()=>hideNote(b.dataset.show,false));
-    pp.querySelectorAll('[data-resolve]').forEach(b=>b.onclick=()=>resolveReports(b.dataset.resolve));
-    pp.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{delPublic(b.dataset.del);});
-  }
-
-  /* --- écouteurs globaux --- */
-  document.addEventListener('mouseup',e=>{if(e.target.closest&&e.target.closest('.anno-bar,.anno-pop'))return;setTimeout(onSelect,0);});
-  document.addEventListener('mousedown',e=>{const t=e.target;
-    if(!(t.closest&&t.closest('.anno-bar,.anno-pop,mark.anno')))closePop();
-    if(!(t.closest&&t.closest('.anno-bar,.pub-compose')))closePubCompose();});
-  document.addEventListener('click',e=>{const m=e.target.closest&&e.target.closest('mark.anno');if(m&&box&&box.contains(m)){e.preventDefault();openPop(m.dataset.anno);}});
-  window.addEventListener('scroll',hideBar,{passive:true});
-  if(toggle&&panel)toggle.addEventListener('click',()=>{const pp=document.getElementById('publicPanel');panel.hidden=!panel.hidden;if(!panel.hidden){if(pp)pp.hidden=true;renderPanel();}});
-  const pubToggle=document.getElementById('pubToggle'),pubPanelEl=document.getElementById('publicPanel');
-  if(pubToggle&&pubPanelEl)pubToggle.addEventListener('click',()=>{pubPanelEl.hidden=!pubPanelEl.hidden;if(!pubPanelEl.hidden){if(panel)panel.hidden=true;renderPublic();}});
-
-  // Le câblage chip/modale est fait par installShell() (qui appelle
-  // SHELL.auth._wireChrome puis _bootstrap). On démarre juste l'init Supabase
-  // côté Capital, qui partage le même client singleton.
-  initSync();
-
   function setChapter(n,container){
-    closePop();closePubCompose();hideBar();
-    curN=n;box=container||null;replyOpen=null;reportOpen=null;
-    if(box)renderHighlights();
-    if(panel&&!panel.hidden)renderPanel();
-    loadPublic();
-    if(box&&pendingJump){const pj=pendingJump;pendingJump=null;setTimeout(pj,90);}
+    curN = n;
+    if(container) box = container;
+    if(window.SHELL && window.SHELL.reader && window.SHELL.reader.attach){
+      window.SHELL.reader.attach({
+        workId: 'capital',
+        section: n,
+        container: container || undefined,
+        sectionLabel: capitalSectionLabel(n)
+      });
+    }
   }
   /* ===== PLACE COMMUNE - flux des notes partagees sur l'accueil ===== */
   function pcEsc(t){return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
@@ -2504,7 +2068,7 @@ drawTRPF();
     if(sel){for(var i=0;i<sel.options.length;i++){var v=sel.options[i].value;if(v&&(+v.split('|')[0])===(+note.section)){opt=sel.options[i];break;}}}
     if(opt&&sel)sel.value=opt.value;
     Promise.resolve().then(function(){return (typeof showSelection==='function')?showSelection(true):null;}).then(function(){
-      setTimeout(function(){try{flashAnchor({quote:note.quote,before:note.before,after:note.after});}catch(e){}},420);
+      setTimeout(function(){try{if(window.SHELL&&window.SHELL.annotations&&window.SHELL.annotations.flashAnchor)window.SHELL.annotations.flashAnchor({quote:note.quote,before:note.before,after:note.after});}catch(e){}},420);
     });
   }
   function pcCard(note,counts,opts){
@@ -2969,9 +2533,10 @@ drawTRPF();
     var uname=profile&&profile.username;
     var isNotif=(row.author_id!==user.id)&&(!!row.parent_id||(uname&&String(row.body||'').toLowerCase().indexOf('@'+String(uname).toLowerCase())>=0));
     if(isNotif){clearTimeout(rtNotifT);rtNotifT=setTimeout(function(){refreshNotif();},600);}
-    var panel=document.getElementById('publicPanel');
-    var panelVisible=panel&&!panel.hidden&&panel.offsetParent!==null;
-    if(panelVisible&&(+row.section===+curN)){clearTimeout(rtPubT);rtPubT=setTimeout(function(){try{if(typeof loadPublic==='function')loadPublic();}catch(e){}},500);}
+    // Le panneau public est géré par SHELL.annotations (FAB flottant) ;
+    // SHELL.annotations.loadPublic est idempotente et rapide — on l'appelle
+    // dès que la section concernée est la section courante.
+    if(+row.section===+curN){clearTimeout(rtPubT);rtPubT=setTimeout(function(){try{if(window.SHELL&&window.SHELL.annotations&&window.SHELL.annotations.loadPublic)window.SHELL.annotations.loadPublic();}catch(e){}},500);}
   }
   function ensureRealtime(){
     if(!sb||!user||dmChannel||!sb.channel)return;
@@ -3655,6 +3220,38 @@ try{if(window.Anno&&sel&&sel.value){const nn0=+sel.value.split('|')[0];if(nn0)wi
     route();
   }
   window.addEventListener('hashchange', route);
+})();
+
+/* ===== Deep-link au passage (#note=<id> ou #s=N&q=...&b=...&a=...)
+   Contrat SHELL.reader.resolveDeepLink : la page d'œuvre fetch la cible,
+   active l'onglet "lire", sélectionne le chapitre, déclenche le chargement
+   du texte. Au prochain SHELL.reader.attach (déclenché par showSelection),
+   applyDeepLinkOnAttach fait le flashAnchor automatiquement. ===== */
+(function(){
+  async function applyDeepLinkIfAny(){
+    if(!(window.SHELL && window.SHELL.reader && window.SHELL.reader.resolveDeepLink)) return;
+    var dl;
+    try { dl = await window.SHELL.reader.resolveDeepLink('capital'); }
+    catch(e){ return; }
+    if(!dl || dl.section == null) return;
+    if(typeof activateTab === 'function') activateTab('lire');
+    var sel = document.getElementById('chapSelect');
+    if(sel){
+      for(var i=0; i<sel.options.length; i++){
+        var n = +sel.options[i].value.split('|')[0];
+        if(n === +dl.section){ sel.value = sel.options[i].value; break; }
+      }
+    }
+    setTimeout(function(){
+      var lb = document.getElementById('loadBtn');
+      if(lb) lb.click();
+    }, 50);
+  }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', applyDeepLinkIfAny);
+  } else {
+    applyDeepLinkIfAny();
+  }
 })();
 </script>
 <script>
