@@ -244,24 +244,139 @@
       });
     });
 
-    // Boutons qui dépendent encore de la coquille hébergée par capital-1.html
-    // (acctChip → SHELL.auth ; msgBtn + notifBtn → SHELL.social).
-    // Si la page courante EST la page hôte (cfg.host === true), elle câble
-    // déjà ces boutons et la recherche elle-même : on saute pour ne pas
-    // recharger en boucle via gotoHost() vers la page courante.
-    if(!cfg.host){
-      var hostBtns = ['supportBtn'];
-      hostBtns.forEach(function(id){
-        var b = document.getElementById(id);
-        if(b) b.addEventListener('click', function(){ gotoHost(); });
-      });
+    // Bouton « Nous soutenir » et recherche sont désormais autonomes côté
+    // shell — plus aucune redirection vers la page hôte. Voir
+    // wireSupportPopover() et wireSharedSearch() ci-dessous.
+    wireSupportPopover();
+    wireSharedSearch();
+  }
 
-      // Recherche : pour l'instant, l'index vit dans capital-1.html.
-      var search = document.getElementById('tbSearch');
-      if(search){
-        search.addEventListener('focus', function(){ gotoHost(); });
-      }
+  // ----- Popover « Soutenir le projet » -----
+  // Petit popover .tb-pop accroché à #supportBtn ; texte court + bouton
+  // externe « Faire un don ». Le href reste # tant que la cible n'est
+  // pas choisie — c'est juste un placeholder, à remplir plus tard.
+  function wireSupportPopover(){
+    var btn = document.getElementById('supportBtn');
+    if(!btn || btn.dataset.w) return;
+    btn.dataset.w = '1';
+    var wrap = btn.closest('.topbar-right') || btn.parentNode;
+    var pop = document.createElement('div');
+    pop.className = 'tb-pop';
+    pop.hidden = true;
+    pop.innerHTML = '<div class="tb-pop-h">Soutenir le projet</div>'
+      + '<div class="tb-pop-t">Lire.Marx est libre, gratuit et sans publicité. Pour aider à le faire vivre :</div>'
+      + '<a class="tb-pop-cta" href="#" target="_blank" rel="noopener">Faire un don</a>';
+    wrap.appendChild(pop);
+    btn.addEventListener('click', function(e){
+      e.stopPropagation();
+      // Ferme les autres popovers .tb-pop (sociaux notamment).
+      document.querySelectorAll('.tb-pop').forEach(function(p){ if(p !== pop) p.hidden = true; });
+      pop.hidden = !pop.hidden;
+    });
+    pop.addEventListener('click', function(e){ e.stopPropagation(); });
+    document.addEventListener('click', function(){ pop.hidden = true; });
+    document.addEventListener('keydown', function(e){ if(e.key === 'Escape') pop.hidden = true; });
+  }
+
+  // ----- Recherche partagée -----
+  // Index minimal construit depuis bibliotheque.json (œuvres + concepts).
+  // Pas encore d'index profond (chapitres / dates / sections) ; pour cela
+  // il faudra charger les manifests par œuvre. Mais déjà autonome : aucun
+  // gotoHost vers Capital, fonctionne identiquement sur toutes les pages.
+  function wireSharedSearch(){
+    var inp = document.getElementById('tbSearch');
+    var box = document.getElementById('tbResults');
+    if(!inp || !box || inp.dataset.w) return;
+    inp.dataset.w = '1';
+
+    function norm(s){
+      try { return (s == null ? '' : s).toString().normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); }
+      catch(e){ return (s == null ? '' : s).toString().toLowerCase(); }
     }
+
+    var INDEX = null;
+    var indexPending = null;
+
+    function buildIndex(){
+      if(INDEX) return Promise.resolve(INDEX);
+      if(indexPending) return indexPending;
+      indexPending = fetch('bibliotheque.json', { cache: 'no-cache' })
+        .then(function(r){ if(!r.ok) throw new Error('biblio HTTP ' + r.status); return r.json(); })
+        .then(function(json){
+          var ix = [];
+          (json.works || []).forEach(function(w){
+            if(!w || !w.id) return;
+            var path = String(w.path || '');
+            if(path.indexOf('oeuvres/') === 0) path = path.slice('oeuvres/'.length);
+            var available = w.status === 'available' && !!path;
+            var go = function(){ if(available) location.href = path; };
+            var subtitle = (w.author || '') + (w.year ? ' · ' + w.year : '');
+            var concepts = (w.concepts || []).join(' ');
+            var hay = norm([w.title, w.shortTitle, w.author, w.description, concepts].join(' '));
+            ix.push({
+              t: w.title || w.shortTitle || w.id,
+              s: subtitle,
+              cat: 'oeuvre',
+              lab: available ? 'Œuvre' : 'À venir',
+              act: go,
+              hay: hay
+            });
+            (w.concepts || []).forEach(function(c){
+              ix.push({
+                t: c,
+                s: w.shortTitle || w.title || '',
+                cat: 'concept',
+                lab: 'Concept',
+                act: go,
+                hay: norm(c)
+              });
+            });
+          });
+          INDEX = ix;
+          return ix;
+        })
+        .catch(function(){ INDEX = []; return INDEX; })
+        .then(function(ix){ indexPending = null; return ix; });
+      return indexPending;
+    }
+
+    function close(){ box.hidden = true; }
+
+    function render(q){
+      var nq = norm(q).trim();
+      if(!nq){ box.hidden = true; box.innerHTML = ''; return; }
+      buildIndex().then(function(ix){
+        var hits = [];
+        for(var i = 0; i < ix.length && hits.length < 12; i++){
+          if(ix[i].hay.indexOf(nq) >= 0) hits.push(ix[i]);
+        }
+        if(!hits.length){
+          box.innerHTML = '<div class="tb-empty">Aucun résultat pour « ' + esc(q) + ' »</div>';
+          box.hidden = false;
+          return;
+        }
+        box.innerHTML = '';
+        hits.forEach(function(e){
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'tb-res';
+          b.setAttribute('role', 'option');
+          b.innerHTML = '<span class="tb-res-main"><span class="tb-res-t">' + esc(e.t) + '</span><span class="tb-res-s">' + esc(e.s) + '</span></span><span class="tb-res-cat tb-cat-' + e.cat + '">' + esc(e.lab) + '</span>';
+          b.addEventListener('mousedown', function(ev){ ev.preventDefault(); });
+          b.addEventListener('click', function(){ inp.value = ''; close(); try { e.act(); } catch(x){} });
+          box.appendChild(b);
+        });
+        box.hidden = false;
+      });
+    }
+
+    inp.addEventListener('input', function(){ render(inp.value); });
+    inp.addEventListener('focus', function(){ if(inp.value) render(inp.value); });
+    inp.addEventListener('keydown', function(e){ if(e.key === 'Escape'){ close(); inp.blur(); } });
+    document.addEventListener('click', function(e){
+      var w = document.querySelector('.tb-search');
+      if(w && !w.contains(e.target)) close();
+    });
   }
 
   window.installShell = function(cfg){

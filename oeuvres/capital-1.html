@@ -2038,18 +2038,6 @@ drawTRPF();
   // soit prêt — plus de race avec le flag local `configured`.
 
 
-  ;(function(){
-    function closeAll(except){document.querySelectorAll('.tb-pop').forEach(function(p){if(p!==except)p.hidden=true;});}
-    function mkPop(btn,html){var wrap=btn.closest('.topbar-right')||btn.parentNode;var pop=document.createElement('div');pop.className='tb-pop';pop.hidden=true;pop.innerHTML=html;wrap.appendChild(pop);
-      btn.addEventListener('click',function(e){e.stopPropagation();var willOpen=pop.hidden;closeAll(pop);pop.hidden=!willOpen;});
-      pop.addEventListener('click',function(e){e.stopPropagation();});return pop;}
-    function initTB(){var nb=document.getElementById('notifBtn');var spb=document.getElementById('supportBtn');
-      /* notifications gérées par le module Social */
-      if(spb&&!spb.dataset.w){spb.dataset.w='1';mkPop(spb,'<div class="tb-pop-h">Soutenir le projet</div><div class="tb-pop-t">Lire.Marx est libre, gratuit et sans publicit\u00e9. Pour aider \u00e0 le faire vivre :</div><a class="tb-pop-cta" href="#" target="_blank" rel="noopener">Faire un don</a>');}
-      document.addEventListener('click',function(){closeAll(null);});
-      document.addEventListener('keydown',function(e){if(e.key==='Escape')closeAll(null);});}
-    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initTB);else initTB();
-  })();
 
   window.Anno={
     mount:function(n,container){setChapter(n,container);},
@@ -2577,85 +2565,6 @@ try{if(window.Anno&&sel&&sel.value){const nn0=+sel.value.split('|')[0];if(nn0)wi
   window.addEventListener('scroll',function(){ if(tip && !tip.hidden) hideTip(); },{passive:true});
 
   window.Reading={ mount:mountReader };
-})();
-
-/* ===== RECHERCHE (barre d'app) : concepts, dates, oeuvres, chapitres ===== */
-(function(){
-  var BOOK='Le Capital, Livre I';
-  function norm(s){try{return (s==null?'':s).toString().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();}catch(e){return (s==null?'':s).toString().toLowerCase();}}
-  function esc2(s){return (s==null?'':''+s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
-  function selEl(){return document.getElementById('chapSelect');}
-  function flashEl(el){if(!el)return;var o=el.style.boxShadow,b=el.style.transition;el.style.transition='box-shadow .25s ease';el.style.boxShadow='0 0 0 3px var(--gold)';setTimeout(function(){el.style.boxShadow=o;setTimeout(function(){el.style.transition=b;},320);},1100);}
-  function openWork(){try{if(typeof showWork==='function')showWork('work-capital');}catch(e){}}
-  function activate(tab){try{if(typeof activateTab==='function')activateTab(tab);}catch(e){}}
-  function jump(n,num,title){
-    openWork();activate('lire');
-    var s=selEl();
-    if(s){var want=n+'|'+(num||'')+'|'+(title||''),found=null;
-      for(var i=0;i<s.options.length;i++){var v=s.options[i].value;if(v===want){found=v;break;}if(!found&&(+v.split('|')[0])===n)found=v;}
-      if(found)s.value=found;}
-    try{if(typeof showSelection==='function')Promise.resolve().then(function(){return showSelection(true);});}catch(e){}
-  }
-  function goConcept(key,term){
-    openWork();
-    var el=document.getElementById(key);
-    var panel=(el&&el.closest)?el.closest('.panel'):null;
-    if(panel&&panel.id)activate(panel.id);
-    var subId=(key&&key.indexOf('cc-')===0)?('s-'+key.slice(3)):null;
-    if(subId&&typeof activateSub==='function'){try{activateSub(subId);}catch(e){}}
-    setTimeout(function(){
-      var c=document.getElementById(key);if(!c)return;
-      var card=null,cards=c.querySelectorAll('.ccard');
-      for(var i=0;i<cards.length;i++){var t=cards[i].querySelector('.cc-term');if(t&&norm(t.textContent)===norm(term)){card=cards[i];break;}}
-      var tgt=card||c;try{tgt.scrollIntoView({behavior:'smooth',block:'center'});}catch(e){}flashEl(card||c);
-    },180);
-  }
-  function goDate(idx){
-    openWork();activate('chrono');
-    setTimeout(function(){
-      var dot=document.querySelector('.chrono-dot[data-i="'+idx+'"]');
-      if(dot){try{dot.scrollIntoView({behavior:'smooth',block:'center'});}catch(e){}try{dot.click();}catch(e){}flashEl(dot);}
-    },170);
-  }
-  var INDEX=null;
-  function build(){
-    var ix=[];
-    ix.push({t:'Le Capital \u2014 Livre I',s:'Ouvrir l\u2019atelier',cat:'oeuvre',lab:'\u0152uvre',act:openWork});
-    if(typeof ROY_STRUCT!=='undefined'&&ROY_STRUCT){ROY_STRUCT.forEach(function(sec,i){var n=i+1;
-      ix.push({t:'Section '+sec.rn+' \u2014 '+sec.t,s:BOOK,cat:'chapitre',lab:'Section',act:(function(nn){return function(){jump(nn,'','');};})(n)});
-      (sec.chaps||[]).forEach(function(c){ix.push({t:'Chap. '+c[0]+' \u2014 '+c[1],s:BOOK+' \u00b7 Section '+sec.rn,cat:'chapitre',lab:'Chapitre',act:(function(nn,num,ti){return function(){jump(nn,num,ti);};})(n,c[0],c[1])});});
-    });}
-    if(typeof CONCEPTS!=='undefined'&&CONCEPTS){Object.keys(CONCEPTS).forEach(function(k){(CONCEPTS[k]||[]).forEach(function(x){if(x&&x.t)ix.push({t:x.t,s:BOOK+(x.d?' \u00b7 '+x.d:''),cat:'concept',lab:'Concept',act:(function(key,term){return function(){goConcept(key,term);};})(k,x.t)});});});}
-    if(typeof CHRONO!=='undefined'&&CHRONO){CHRONO.forEach(function(ev,i){if(ev&&ev.title)ix.push({t:ev.year+' \u2014 '+ev.title,s:BOOK+(ev.chap?' \u00b7 '+ev.chap:''),cat:'date',lab:'Date',act:(function(idx){return function(){goDate(idx);};})(i)});});}
-    return ix;
-  }
-  function close(){var box=document.getElementById('tbResults');if(box)box.hidden=true;}
-  function render(q){
-    var box=document.getElementById('tbResults');if(!box)return;
-    var nq=norm(q).trim();
-    if(!nq){box.hidden=true;box.innerHTML='';return;}
-    if(!INDEX)INDEX=build();
-    var hits=[];
-    for(var i=0;i<INDEX.length&&hits.length<12;i++){var e=INDEX[i];if(norm(e.t).indexOf(nq)>=0||norm(e.s).indexOf(nq)>=0)hits.push(e);}
-    if(!hits.length){box.innerHTML='<div class="tb-empty">Aucun r\u00e9sultat pour \u00ab '+esc2(q)+' \u00bb</div>';box.hidden=false;return;}
-    box.innerHTML='';
-    hits.forEach(function(e){
-      var b=document.createElement('button');b.type='button';b.className='tb-res';b.setAttribute('role','option');
-      b.innerHTML='<span class="tb-res-main"><span class="tb-res-t">'+esc2(e.t)+'</span><span class="tb-res-s">'+esc2(e.s)+'</span></span><span class="tb-res-cat tb-cat-'+e.cat+'">'+esc2(e.lab)+'</span>';
-      b.addEventListener('mousedown',function(ev){ev.preventDefault();});
-      b.addEventListener('click',function(){var inp=document.getElementById('tbSearch');close();if(inp)inp.value='';try{e.act();}catch(x){}});
-      box.appendChild(b);
-    });
-    box.hidden=false;
-  }
-  function initSearch(){
-    var inp=document.getElementById('tbSearch');if(!inp||inp.dataset.w)return;inp.dataset.w='1';
-    inp.addEventListener('input',function(){render(inp.value);});
-    inp.addEventListener('focus',function(){if(inp.value)render(inp.value);});
-    inp.addEventListener('keydown',function(e){if(e.key==='Escape'){close();inp.blur();}});
-    document.addEventListener('click',function(e){var w=document.querySelector('.tb-search');if(w&&!w.contains(e.target))close();});
-  }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initSearch);else initSearch();
 })();
 
 /* La barre latérale et la pastille sont désormais installées et câblées par
