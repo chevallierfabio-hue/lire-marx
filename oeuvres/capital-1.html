@@ -1239,6 +1239,35 @@ function scrollToAnchor(box,title){const norm=s=>(s||"").toLowerCase().normalize
   const want=norm(title);if(want.length<5)return;
   const hs=box.querySelectorAll('.ws-text h2,.ws-text h3,.ws-text h4,.ws-text p');
   for(const h of hs){if(norm(h.textContent).includes(want)){h.scrollIntoView({behavior:'smooth',block:'start'});return;}}}
+
+/* Glossaire du Capital (passé à window.Reading.mount via cfg.glossary). */
+const TERMS=[
+    {s:["valeur d'usage"],de:"Gebrauchswert",def:"L'utilité concrète d'une chose, sa capacité à satisfaire un besoin — face qualitative de la marchandise."},
+    {s:["valeur d'échange"],de:"Tauschwert",def:"La proportion dans laquelle une marchandise s'échange contre une autre ; forme d'apparition de la valeur."},
+    {s:["temps de travail socialement nécessaire"],de:"gesellschaftlich notwendige Arbeitszeit",def:"Le temps requis en moyenne, dans les conditions sociales données, pour produire une marchandise ; il mesure la grandeur de valeur."},
+    {s:["armée industrielle de réserve","armée de réserve"],de:"industrielle Reservearmee",def:"Surpopulation relative d'ouvriers disponibles, produite par l'accumulation, qui pèse sur les salaires et discipline les actifs."},
+    {s:["accumulation primitive"],de:"ursprüngliche Akkumulation",def:"Processus historique de séparation violente des producteurs d'avec leurs moyens de production, préalable à tout capital."},
+    {s:["composition organique"],de:"organische Zusammensetzung",def:"Rapport c/v : le poids des moyens de production rapporté au travail vivant."},
+    {s:["plus-value relative"],de:"relativer Mehrwert",def:"Plus-value obtenue en raccourcissant le travail nécessaire grâce à la productivité."},
+    {s:["plus-value absolue"],de:"absoluter Mehrwert",def:"Plus-value obtenue en allongeant la journée de travail, à productivité constante."},
+    {s:["taux de plus-value","taux de la plus-value"],de:"Rate des Mehrwerts",def:"Rapport pl/v ; il mesure le degré d'exploitation de la force de travail."},
+    {s:["force de travail"],de:"Arbeitskraft",def:"La capacité de travail que l'ouvrier vend ; marchandise singulière dont l'usage produit plus de valeur qu'elle n'en coûte."},
+    {s:["capital constant"],de:"konstantes Kapital",def:"Partie du capital avancée en moyens de production : elle transfère sa valeur au produit sans en créer."},
+    {s:["capital variable"],de:"variables Kapital",def:"Partie du capital avancée en force de travail : seule partie qui crée de la valeur nouvelle."},
+    {s:["travail nécessaire"],de:"notwendige Arbeit",def:"La part de la journée qui reproduit la valeur de la force de travail (le salaire)."},
+    {s:["travail abstrait"],de:"abstrakte Arbeit",def:"Le travail humain en général, simple dépense de force ; substance de la valeur."},
+    {s:["travail concret"],de:"konkrete Arbeit",def:"Le travail sous une forme utile déterminée (filer, tisser…) ; il crée la valeur d'usage."},
+    {s:["journée de travail"],de:"Arbeitstag",def:"Durée quotidienne du travail : un enjeu de lutte entre capital et travail, non une donnée naturelle."},
+    {s:["plus-value"],de:"Mehrwert",def:"Valeur créée par le travail au-delà de ce qu'il coûte ; non payée, elle est la source du profit."},
+    {s:["surtravail"],de:"Mehrarbeit",def:"La part de la journée travaillée au-delà du travail nécessaire ; gratuite, elle forme la plus-value."},
+    {s:["fétichisme","caractère fétiche"],de:"Fetischcharakter",def:"Apparence par laquelle les rapports sociaux entre producteurs revêtent la figure de rapports entre choses."},
+    {s:["accumulation"],de:"Akkumulation",def:"Reconversion d'une partie de la plus-value en capital additionnel (capitalisation)."},
+    {s:["reproduction"],de:"Reproduktion",def:"Renouvellement continu de la production : simple (échelle constante) ou élargie (avec accumulation)."},
+    {s:["coopération"],de:"Kooperation",def:"Travail de nombreux ouvriers réunis ; crée une force productive collective appropriée gratuitement par le capital."},
+    {s:["manufacture"],de:"Manufaktur",def:"Coopération fondée sur la division du travail, avant la machine ; elle produit l'ouvrier partiel."},
+    {s:["marchandise"],de:"Ware",def:"Produit du travail destiné à l'échange : unité d'une valeur d'usage et d'une valeur."}
+];
+
 async function showSelection(doScroll){
   const out=document.getElementById('readerOut');const parts=sel.value.split('|');const n=+parts[0];const num=parts[1]||"";const title=parts[2]||"";
   const sec=ROY_STRUCT[n-1];
@@ -1248,7 +1277,26 @@ async function showSelection(doScroll){
     out.innerHTML='<div class="reader"><div class="rkicker">Section '+sec.rn+' — '+sec.t+'</div><div class="rtitle">Chapitre '+num+'. '+title+'</div><div class="rsrc">Texte intégral — traduction Joseph Roy, domaine public (source Wikisource). La section entière est affichée ; Ctrl/Cmd+F pour y circuler.</div><div class="ws-text">'+html+'</div></div>';
     if(doScroll)scrollToAnchor(out,title);
     try{if(window.Anno)window.Anno.mount(n,out.querySelector('.ws-text'));}catch(e){}
-    try{if(window.Reading)window.Reading.mount(out,{n:n,num:num,title:title});}catch(e){}
+    try{
+      if(window.Reading){
+        const m=META[num]||{};
+        const sumHtml = m.s ? '<div class="rd-clear-body">'+m.s+'</div><div class="rd-note">Résumé argumenté repris du Navigateur — repère ici l’idée directrice avant ou pendant la lecture du texte intégral.</div>' : null;
+        const xref=[];
+        if(m.labo) xref.push({label:'Voir dans le Laboratoire →', go:function(){ try{goLabo(m.labo);}catch(e){} }});
+        if(m.d)    xref.push({label:'Suivre dans le Cheminement → marche '+m.d, go:function(){ try{goDeriv(+m.d);}catch(e){} }});
+        window.Reading.mount(out,{
+          ctx:{id:num, title:title},
+          textSel:'.ws-text',
+          summaryHtml:sumHtml,
+          nav:{
+            prev: sel.selectedIndex>0 ? function(){ sel.selectedIndex--; showSelection(true); } : null,
+            next: sel.selectedIndex<sel.options.length-1 ? function(){ sel.selectedIndex++; showSelection(true); } : null
+          },
+          glossary:TERMS,
+          xref:xref
+        });
+      }
+    }catch(e){}
   }catch(err){
     out.innerHTML='<div class="reader"><div class="placeholder"><div class="pi">⚠️</div><b>Le texte n’a pas pu être chargé.</b><br>Le chargement se fait en ligne depuis Wikisource : il faut une connexion internet, et il est le plus souvent bloqué dans l’aperçu intégré au chat. Ouvre le fichier <em>téléchargé</em> dans ton navigateur pour lire le texte intégral.<br><span style="font-size:.82rem">détail : '+(err&&err.message?err.message:err)+'</span></div></div>';
   }}

@@ -150,14 +150,6 @@
     return h+'</div>';
   }
 
-  /* ---- navigation chapitre ---- */
-  function navChap(delta){
-    var s=document.getElementById('chapSelect'); if(!s)return;
-    var i=s.selectedIndex+delta; if(i<0||i>=s.options.length)return;
-    s.selectedIndex=i; stopAudio();
-    try{ showSelection(true); }catch(e){}
-  }
-
   /* ---- popovers ---- */
   function togglePop(r,name){
     var opening=false;
@@ -231,17 +223,19 @@
   }
 
   /* ---- montage ---- */
-  function mountReader(out,ctx){
+  function mountReader(out,cfg){
+    cfg=cfg||{};
+    var ctx=cfg.ctx||{};
     stopAudio();
     var r=out.querySelector('.reader'); if(!r)return;
-    var ws=r.querySelector('.ws-text'); if(!ws)return;
-    cur={readerEl:r,ws:ws,num:ctx.num,n:ctx.n,title:ctx.title,paras:[]};
+    var prevTb=r.querySelector('.rd-toolbar'); if(prevTb) prevTb.remove();
+    var ws=r.querySelector(cfg.textSel||'.ws-text'); if(!ws)return;
+    cur={readerEl:r,ws:ws,id:ctx.id,title:ctx.title,paras:[],glossary:cfg.glossary||[]};
     applyTo(r);
     cur.paras=Array.prototype.filter.call(ws.querySelectorAll('p'),function(p){return (p.textContent||'').trim().length>1;});
     ensureHeadingIds(ws);
 
-    var m=(typeof META!=='undefined')?META[ctx.num]:null;
-    var clearHtml = (m&&m.s)?('<div class="rd-clear-body">'+m.s+'</div><div class="rd-note">Résumé argumenté repris du Navigateur — repère ici l’idée directrice avant ou pendant la lecture du texte intégral.</div>'):'<div class="rd-note">Pas de résumé disponible pour ce chapitre.</div>';
+    var clearHtml = cfg.summaryHtml || '<div class="rd-note">Pas de résumé disponible pour ce chapitre.</div>';
 
     var tb=document.createElement('div'); tb.className='rd-toolbar';
     tb.innerHTML=''
@@ -267,19 +261,25 @@
     r.insertBefore(tb, r.firstChild);
 
     // bornes préc/suiv
-    var s=document.getElementById('chapSelect');
-    if(s){ var pv=tb.querySelector('[data-rd="prev"]'), nx=tb.querySelector('[data-rd="next"]');
-      if(s.selectedIndex<=0)pv.disabled=true; if(s.selectedIndex>=s.options.length-1)nx.disabled=true; }
+    var navCfg=cfg.nav||{};
+    var pv=tb.querySelector('[data-rd="prev"]'), nx=tb.querySelector('[data-rd="next"]');
+    if(!navCfg.prev) pv.disabled=true;
+    if(!navCfg.next) nx.disabled=true;
 
     // renvois
-    var xref=tb.querySelector('.rd-xref'); var chips='';
-    if(m&&m.labo) chips+='<button class="rd-chip labo" data-labo="'+esc(m.labo)+'">Voir dans le Laboratoire →</button>';
-    if(m&&m.d)    chips+='<button class="rd-chip deriv" data-deriv="'+m.d+'">Suivre dans le Cheminement → marche '+m.d+'</button>';
-    xref.innerHTML=chips;
+    var xref=tb.querySelector('.rd-xref');
+    var xitems=cfg.xref||[];
+    if(xitems.length){
+      xref.hidden=false;
+      xref.innerHTML=xitems.map(function(x,i){ return '<button class="rd-chip" data-xi="'+i+'">'+esc(x.label)+'</button>'; }).join('');
+      xref.querySelectorAll('[data-xi]').forEach(function(b){
+        b.onclick=function(){ stopAudio(); try{ xitems[+b.getAttribute('data-xi')].go(); }catch(e){} };
+      });
+    } else { xref.hidden=true; xref.innerHTML=''; }
 
     // câblage
-    tb.querySelector('[data-rd="prev"]').onclick=function(){ navChap(-1); };
-    tb.querySelector('[data-rd="next"]').onclick=function(){ navChap(1); };
+    pv.onclick=function(){ if(navCfg.prev){ stopAudio(); navCfg.prev(); } };
+    nx.onclick=function(){ if(navCfg.next){ stopAudio(); navCfg.next(); } };
     tb.querySelector('[data-rd="toc"]').onclick=function(){ togglePop(r,'toc'); };
     tb.querySelector('[data-rd="clear"]').onclick=function(){ togglePop(r,'clear'); };
     tb.querySelector('[data-rd="set"]').onclick=function(){ renderSet(r); togglePop(r,'set'); };
@@ -299,8 +299,6 @@
       var el=document.getElementById(b.getAttribute('data-goto'));
       if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
     };});
-    var lb=xref.querySelector('[data-labo]'); if(lb)lb.onclick=function(){ stopAudio(); try{goLabo(lb.getAttribute('data-labo'));}catch(e){} };
-    var db=xref.querySelector('[data-deriv]'); if(db)db.onclick=function(){ stopAudio(); try{goDeriv(+db.getAttribute('data-deriv'));}catch(e){} };
 
     renderVoiceSelect();
     if(S.gloss) wrapGloss();
@@ -311,35 +309,6 @@
   document.querySelectorAll('nav.tabs .tab').forEach(function(t){ t.addEventListener('click',function(){ stopAudio(); }); });
   window.addEventListener('beforeunload',function(){ try{if(synth)synth.cancel();}catch(e){} });
 
-  /* ---- glossaire cliquable ---- */
-  var TERMS=[
-    {s:["valeur d'usage"],de:"Gebrauchswert",def:"L'utilité concrète d'une chose, sa capacité à satisfaire un besoin — face qualitative de la marchandise."},
-    {s:["valeur d'échange"],de:"Tauschwert",def:"La proportion dans laquelle une marchandise s'échange contre une autre ; forme d'apparition de la valeur."},
-    {s:["temps de travail socialement nécessaire"],de:"gesellschaftlich notwendige Arbeitszeit",def:"Le temps requis en moyenne, dans les conditions sociales données, pour produire une marchandise ; il mesure la grandeur de valeur."},
-    {s:["armée industrielle de réserve","armée de réserve"],de:"industrielle Reservearmee",def:"Surpopulation relative d'ouvriers disponibles, produite par l'accumulation, qui pèse sur les salaires et discipline les actifs."},
-    {s:["accumulation primitive"],de:"ursprüngliche Akkumulation",def:"Processus historique de séparation violente des producteurs d'avec leurs moyens de production, préalable à tout capital."},
-    {s:["composition organique"],de:"organische Zusammensetzung",def:"Rapport c/v : le poids des moyens de production rapporté au travail vivant."},
-    {s:["plus-value relative"],de:"relativer Mehrwert",def:"Plus-value obtenue en raccourcissant le travail nécessaire grâce à la productivité."},
-    {s:["plus-value absolue"],de:"absoluter Mehrwert",def:"Plus-value obtenue en allongeant la journée de travail, à productivité constante."},
-    {s:["taux de plus-value","taux de la plus-value"],de:"Rate des Mehrwerts",def:"Rapport pl/v ; il mesure le degré d'exploitation de la force de travail."},
-    {s:["force de travail"],de:"Arbeitskraft",def:"La capacité de travail que l'ouvrier vend ; marchandise singulière dont l'usage produit plus de valeur qu'elle n'en coûte."},
-    {s:["capital constant"],de:"konstantes Kapital",def:"Partie du capital avancée en moyens de production : elle transfère sa valeur au produit sans en créer."},
-    {s:["capital variable"],de:"variables Kapital",def:"Partie du capital avancée en force de travail : seule partie qui crée de la valeur nouvelle."},
-    {s:["travail nécessaire"],de:"notwendige Arbeit",def:"La part de la journée qui reproduit la valeur de la force de travail (le salaire)."},
-    {s:["travail abstrait"],de:"abstrakte Arbeit",def:"Le travail humain en général, simple dépense de force ; substance de la valeur."},
-    {s:["travail concret"],de:"konkrete Arbeit",def:"Le travail sous une forme utile déterminée (filer, tisser…) ; il crée la valeur d'usage."},
-    {s:["journée de travail"],de:"Arbeitstag",def:"Durée quotidienne du travail : un enjeu de lutte entre capital et travail, non une donnée naturelle."},
-    {s:["plus-value"],de:"Mehrwert",def:"Valeur créée par le travail au-delà de ce qu'il coûte ; non payée, elle est la source du profit."},
-    {s:["surtravail"],de:"Mehrarbeit",def:"La part de la journée travaillée au-delà du travail nécessaire ; gratuite, elle forme la plus-value."},
-    {s:["fétichisme","caractère fétiche"],de:"Fetischcharakter",def:"Apparence par laquelle les rapports sociaux entre producteurs revêtent la figure de rapports entre choses."},
-    {s:["accumulation"],de:"Akkumulation",def:"Reconversion d'une partie de la plus-value en capital additionnel (capitalisation)."},
-    {s:["reproduction"],de:"Reproduktion",def:"Renouvellement continu de la production : simple (échelle constante) ou élargie (avec accumulation)."},
-    {s:["coopération"],de:"Kooperation",def:"Travail de nombreux ouvriers réunis ; crée une force productive collective appropriée gratuitement par le capital."},
-    {s:["manufacture"],de:"Manufaktur",def:"Coopération fondée sur la division du travail, avant la machine ; elle produit l'ouvrier partiel."},
-    {s:["marchandise"],de:"Ware",def:"Produit du travail destiné à l'échange : unité d'une valeur d'usage et d'une valeur."}
-  ];
-  TERMS.forEach(function(t){ t.max=Math.max.apply(null,t.s.map(function(x){return x.length;})); });
-  TERMS.sort(function(a,b){ return b.max-a.max; });
 
   function glLetter(ch){ return !!ch && /[a-zàâäáéèêëíîïóôöùúûüçœæ]/i.test(ch); }
   function glNorm(s){ return s.toLowerCase().replace(/[\u2019\u2018\u02bc]/g,"'"); }
@@ -376,8 +345,11 @@
     mid.parentNode.insertBefore(span,mid); span.appendChild(mid);
   }
   function wrapGloss(){
-    if(!cur||!cur.ws)return;
-    TERMS.forEach(function(term){
+    if(!cur||!cur.ws||!cur.glossary)return;
+    var gl=cur.glossary.slice();
+    gl.forEach(function(t){ if(!t.max) t.max=Math.max.apply(null,t.s.map(function(x){return x.length;})); });
+    gl.sort(function(a,b){ return b.max-a.max; });
+    gl.forEach(function(term){
       for(var k=0;k<term.s.length;k++){
         var w=document.createTreeWalker(cur.ws,window.NodeFilter.SHOW_TEXT,null), n, nodes=[];
         while(n=w.nextNode())nodes.push(n);
