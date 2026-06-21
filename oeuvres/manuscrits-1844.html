@@ -101,9 +101,11 @@
 
   <section class="panel" id="nav">
     <h2 class="sec">Parcourir les Manuscrits</h2>
-    <p class="lead">Comme dans l'atelier du Capital, ce navigateur donne le plan avant l'entrée dans le texte intégral.</p>
+    <p class="lead">Le plan des trois manuscrits : chaque cahier donne son fil, chaque partie un résumé argumenté, et un clic mène au texte intégral.</p>
     <div class="edition-note"><b>Statut de l'édition.</b> La lecture locale est branchée sur l'archive XML/TEI du Marxists Internet Archive. Le bouton “Ouvrir la source” permet de comparer chaque partie avec la page source.</div>
-    <div class="chapter-grid" id="chapterGrid"></div>
+    <div class="search"><input type="text" id="filter" placeholder="Filtrer : aliénation, argent, Hegel, communisme…" aria-label="Filtrer les chapitres"></div>
+    <div class="nores" id="nores">Aucune partie ne correspond.</div>
+    <div id="navlist"></div>
   </section>
 
   <section class="panel" id="lire">
@@ -165,11 +167,30 @@
     {id:'second-manuscrit',title:'Second manuscrit',file:'second-manuscrit.html',remote:'km18440000_4.htm'},
     {id:'troisieme-manuscrit',title:'Troisième manuscrit',file:'troisieme-manuscrit.html',remote:'km18440000_5.htm'}
   ];
-  var chapters=[
-    ['Premier manuscrit','Salaire, profit du capital, rente foncière, travail aliéné.','Le point d’entrée conseillé reste le travail aliéné.'],
-    ['Second manuscrit','Opposition du capital et du travail ; propriété foncière et capital.','Fragment bref, mais charnière entre économie et propriété privée.'],
-    ['Troisième manuscrit','Communisme, besoins, argent, critique de Hegel.','Le laboratoire philosophique le plus dense de la page.']
+  var MAN_STRUCT=[
+   {rn:'I', t:'Premier manuscrit', part:2,
+    intro:"Marx suit d'abord l'économie politique sur son propre terrain — salaire, profit, rente — pour montrer qu'elle décrit la dépossession sans la comprendre ; puis il en livre la clé : le travail aliéné.",
+    chaps:[
+     ['Salaire',"Le salaire se fixe dans la lutte entre capitaliste et ouvrier, mais le rapport est structurellement inégal : l'ouvrier ne peut pas attendre. Même quand la richesse sociale croît, il reste réduit à la subsistance, traité comme une marchandise dont le prix tend vers le minimum vital. La société se scinde en deux classes."],
+     ['Profit du capital',"Le profit ne récompense aucun travail du capitaliste : il rémunère la seule propriété du capital, ce pouvoir de commander le travail d'autrui. La concurrence concentre les capitaux, écrase les petits propriétaires et pousse à l'accumulation et au monopole, creusant l'écart entre capital et travail."],
+     ['Rente foncière',"La rente naît elle aussi d'un rapport de force, entre propriétaire et fermier. Sous le capitalisme, la propriété foncière perd son enveloppe féodale de relations personnelles pour devenir un pur rapport d'argent : le propriétaire devient un capitaliste comme un autre, la terre une marchandise."],
+     ['Le travail aliéné',"Le sommet du premier manuscrit. Contre l'économie politique qui pose la propriété privée comme un fait, Marx en cherche la genèse dans le travail. Plus l'ouvrier produit, plus son produit lui devient un objet étranger et hostile. L'aliénation a quatre faces : envers le produit, envers l'acte de produire, envers l'être générique, envers les autres hommes. La propriété privée en est la conséquence, non la cause."]
+    ]},
+   {rn:'II', t:'Deuxième manuscrit', part:3,
+    intro:"Quelques pages rescapées, où le capital et le travail apparaissent comme les deux faces, objective et subjective, d'un même rapport poussé jusqu'à la contradiction.",
+    chaps:[
+     ['Le rapport de la propriété privée',"Du deuxième manuscrit ne subsistent que quelques feuillets. Marx y pense l'opposition du capital et du travail comme les deux pôles — actif et passif, subjectif et objectif — d'un même rapport, la propriété privée développée. L'antagonisme se pousse jusqu'à une contradiction qui appelle sa propre résolution."]
+    ]},
+   {rn:'III', t:'Troisième manuscrit', part:4,
+    intro:"Le versant positif et philosophique : la réappropriation communiste, la critique des besoins et de l'argent, et le règlement de comptes avec la dialectique de Hegel.",
+    chaps:[
+     ['Propriété privée et communisme',"Marx écarte le communisme grossier qui généralise la propriété au lieu de l'abolir. Le vrai communisme est l'abolition positive de la propriété privée, donc la réappropriation par l'homme de son essence sociale, où naturalisme et humanisme se rejoignent enfin. Non un état figé, mais le mouvement réel qui résout l'aliénation."],
+     ['Besoins, production et division du travail',"Sous la propriété privée, le besoin devient un levier d'asservissement : chacun spécule sur le besoin de l'autre. L'industrie multiplie les besoins en raffinant la misère ; et la division du travail, vantée comme source de richesse, n'est que l'expression aliénée de l'activité humaine devenue sociale à son insu."],
+     ["L'argent","En convoquant Goethe et Shakespeare, Marx déploie la puissance d'inversion de l'argent : il donne à l'individu ce qu'il n'est pas, achète la beauté au laid, le courage au lâche. Médiation universelle, il confond et retourne toutes les qualités humaines — la puissance aliénée de l'humanité faite chose."],
+     ['Critique de la dialectique et de la philosophie hégéliennes',"Le manuscrit le plus philosophique. Via Feuerbach, Marx règle ses comptes avec Hegel : il lui reconnaît d'avoir saisi le travail comme auto-production de l'homme et la dialectique de l'aliénation, mais lui reproche de l'enfermer dans la conscience. Pour Marx, l'aliénation est réelle et matérielle, et sa résolution passe par la pratique, non par la seule pensée."]
+    ]}
   ];
+  var CHARNIERE_TITLES=['Le travail aliéné','Propriété privée et communisme','Critique de la dialectique et de la philosophie hégéliennes'];
   var concepts=[
     ['Aliénation','Le produit, l’activité et le monde social deviennent étrangers au travailleur.'],
     ['Travail aliéné','Le travail n’est plus affirmation de soi, mais dépossession dans l’activité même.'],
@@ -265,14 +286,79 @@
   }
   function init(){
     document.querySelectorAll('.tab').forEach(function(t){t.addEventListener('click',function(){activateTop(t.dataset.top);window.scrollTo({top:0,behavior:'smooth'});});});
-    byId('chapterGrid').innerHTML=chapters.map(function(c,i){return '<article class="chapter"><small>Partie '+(i+1)+'</small><h3>'+esc(c[0])+'</h3><p>'+esc(c[1])+'</p><p>'+esc(c[2])+'</p><button class="btn red chapter-read" type="button" data-part="'+(i+2)+'">Lire cette partie</button></article>';}).join('');
+    var navlist=byId('navlist');
+    MAN_STRUCT.forEach(function(sec){
+      var secEl=document.createElement('div');secEl.className='section';
+      var chaps='';
+      sec.chaps.forEach(function(c){
+        var title=c[0],summary=c[1];
+        var ftext=(title+' '+summary).toLowerCase().replace(/<[^>]+>/g,'');
+        var links='<button class="lk read chapter-read" type="button" data-part="'+sec.part+'">Lire le texte →</button>';
+        if(CHARNIERE_TITLES.indexOf(title)>=0){
+          links+='<button class="lk deriv" type="button">Cheminement →</button>';
+        }
+        chaps+='<div class="chap" data-text="'+esc(ftext)+'">'+
+          '<button class="chap-head" type="button" aria-expanded="false">'+
+          '<span class="ct">'+esc(title)+'</span><span class="chev">›</span></button>'+
+          '<div class="chap-body"><div class="chap-inner">'+
+          '<div class="summary">'+esc(summary)+'</div>'+
+          '<div class="links">'+links+'</div>'+
+          '</div></div></div>';
+      });
+      secEl.innerHTML='<button class="sec-head" type="button" aria-expanded="false">'+
+        '<span class="rn">'+esc(sec.rn)+'</span>'+
+        '<span class="st">'+esc(sec.t)+'</span>'+
+        '<span class="chev">›</span></button>'+
+        '<div class="sec-body"><div class="sec-inner">'+
+        (sec.intro?'<div class="sec-intro">'+esc(sec.intro)+'</div>':'')+
+        chaps+'</div></div>';
+      navlist.appendChild(secEl);
+    });
     document.querySelectorAll('.chapter-read').forEach(function(b){
-      b.addEventListener('click',function(){
+      b.addEventListener('click',function(e){
+        e.stopPropagation();
         activateTab('lire');
         byId('partSelect').value=b.dataset.part;
         loadPart(+b.dataset.part||0);
       });
     });
+    function toggleAcc(h,sel){
+      var p=h.parentElement,b=p.querySelector(sel),o=p.classList.contains('open');
+      p.classList.toggle('open');
+      h.setAttribute('aria-expanded',String(!o));
+      b.style.maxHeight=o?null:b.scrollHeight+'px';
+      if(!o){var s=h.closest('.section');if(s&&s.classList.contains('open'))s.querySelector('.sec-body').style.maxHeight='none';}
+    }
+    document.querySelectorAll('#navlist .sec-head').forEach(function(h){h.addEventListener('click',function(){toggleAcc(h,'.sec-body');});});
+    document.querySelectorAll('#navlist .chap-head').forEach(function(h){h.addEventListener('click',function(){toggleAcc(h,'.chap-body');});});
+    document.querySelectorAll('#navlist .lk.deriv').forEach(function(b){b.addEventListener('click',function(e){e.stopPropagation();activateTab('deriv');});});
+    var navFilter=byId('filter');
+    if(navFilter){
+      navFilter.addEventListener('input',function(){
+        var q=navFilter.value.trim().toLowerCase();var any=false;
+        document.querySelectorAll('#navlist .section').forEach(function(sec){
+          var ac=false;
+          sec.querySelectorAll('.chap').forEach(function(ch){
+            var mm=!q||ch.dataset.text.indexOf(q)>=0;
+            ch.style.display=mm?'':'none';
+            if(mm)ac=true;
+          });
+          sec.style.display=ac?'':'none';
+          if(ac)any=true;
+          if(q&&ac){
+            sec.classList.add('open');
+            sec.querySelector('.sec-head').setAttribute('aria-expanded','true');
+            sec.querySelector('.sec-body').style.maxHeight='none';
+          }else if(!q){
+            sec.classList.remove('open');
+            sec.querySelector('.sec-head').setAttribute('aria-expanded','false');
+            sec.querySelector('.sec-body').style.maxHeight=null;
+            sec.querySelectorAll('.chap').forEach(function(c){c.classList.remove('open');var b=c.querySelector('.chap-body');if(b)b.style.maxHeight=null;});
+          }
+        });
+        byId('nores').style.display=any?'none':'block';
+      });
+    }
     byId('conceptCards').innerHTML=concepts.map(function(c){return '<article class="card"><small>Concept</small><h3>'+esc(c[0])+'</h3><p>'+esc(c[1])+'</p></article>';}).join('');
     byId('walk').innerHTML=walk.map(function(w){return '<article class="walk-step"><h3>'+esc(w[0])+'</h3><p>'+esc(w[1])+'</p></article>';}).join('');
     byId('timeline').innerHTML=timeline.map(function(e){return '<article class="event"><div class="year">'+esc(e[0])+'</div><div><h3>'+esc(e[1])+'</h3><p>'+esc(e[2])+'</p></div></article>';}).join('');
