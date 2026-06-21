@@ -118,6 +118,11 @@ h2.sec{font-family:'Fraunces',serif;font-weight:900;font-size:1.8rem;margin-bott
 .reader{border:1px solid var(--line);background:var(--card);border-radius:8px;padding:32px clamp(20px,5vw,54px);max-width:760px;margin:0 auto;}
 .placeholder{text-align:center;color:var(--ink-soft);padding:50px 20px;}
 .placeholder b{color:var(--ink);font-family:'Fraunces',serif;}
+/* Liseuse — habillage partagé (pastilles howto/placeholder + amorce annotations) */
+.howto .pin{flex:none;width:30px;height:30px;border-radius:50%;background:var(--ink);color:var(--paper);display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-style:italic;font-weight:700;}
+.placeholder .pi{font-size:2.4rem;margin-bottom:10px;}
+.anno-hint{font-family:var(--f-hand);font-size:1.12rem;color:var(--red-deep);margin:0 0 16px;line-height:1.35;}
+.anno-hint b{color:var(--ink);font-style:normal;}
 .chip{font-family:'Fraunces',serif;font-weight:600;font-size:.82rem;color:#fff;padding:3px 11px;border-radius:20px;display:inline-flex;}
 .walk{position:relative;margin:10px 0 6px;}
 .walk-step{display:grid;grid-template-columns:1fr 60px 1fr;align-items:center;position:relative;}

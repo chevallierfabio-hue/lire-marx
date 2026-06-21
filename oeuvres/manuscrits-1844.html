@@ -13,7 +13,7 @@
   <header class="work-head">
     <div class="kicker">Atelier de lecture &amp; de concepts</div>
     <h1>L'Atelier des <em>Manuscrits</em></h1>
-    <div class="sub">Manuscrits de 1844 — lecture complète locale, parcours et laboratoire du jeune Marx</div>
+    <div class="sub">Manuscrits de 1844 — lecture complète, parcours et laboratoire du jeune Marx</div>
     <div class="rule"></div>
   </header>
 
@@ -102,7 +102,7 @@
   <section class="panel" id="nav">
     <h2 class="sec">Parcourir les Manuscrits</h2>
     <p class="lead">Le plan des trois manuscrits : chaque cahier donne son fil, chaque partie un résumé argumenté, et un clic mène au texte intégral.</p>
-    <div class="edition-note"><b>Statut de l'édition.</b> La lecture locale est branchée sur l'archive XML/TEI du Marxists Internet Archive.</div>
+    <div class="edition-note"><b>Statut de l'édition.</b> Le texte provient de l'archive du Marxists Internet Archive.</div>
     <div class="search"><input type="text" id="filter" placeholder="Filtrer : aliénation, argent, Hegel, communisme…" aria-label="Filtrer les chapitres"></div>
     <div class="nores" id="nores">Aucune partie ne correspond.</div>
     <div id="navlist"></div>
@@ -110,18 +110,26 @@
 
   <section class="panel" id="lire">
     <h2 class="sec">Texte intégral</h2>
-    <p class="lead">Lecture complète des Manuscrits de 1844, section par section, depuis les fichiers locaux du dossier <code>textes/</code>.</p>
-    <div class="method-note"><b>À quoi sert cet onglet.</b> C'est la liseuse de l'atelier. Elle reprend le principe du Capital I : choisir une partie, charger le texte, puis lire dans la page. Le texte est servi localement pour éviter les blocages de connexion distante.</div>
-    <div class="reader-bar">
-      <select id="partSelect" aria-label="Choisir une partie"></select>
-      <button id="loadBtn" class="btn red" type="button">Charger le texte →</button>
-      <a id="readerOpen" class="btn" href="https://www.marxists.org/francais/marx/works/1844/00/km18440000/km18440000_1.htm" target="_blank" rel="noopener">Ouvrir la source</a>
+    <p class="lead">Lecture complète des trois manuscrits, section par section, directement dans la page.</p>
+
+    <div class="method-note"><b>À quoi sert cet onglet.</b> C'est la <b>liseuse</b> de l'atelier : on y lit le texte intégral des manuscrits. Le <i>Parcourir</i> en donne des résumés et le <i>Cheminement</i> en suit la logique ; ici, ce sont les mots mêmes de Marx qui s'affichent.</div>
+
+    <div class="howto">
+      <div class="pin">i</div>
+      <div>Choisis un manuscrit, puis clique sur <b>« Charger le texte »</b>. Le cahier s'affiche en entier dans la page — ensuite, <b>Ctrl/Cmd + F</b> permet d'y chercher un terme.</div>
     </div>
+
+    <div class="reader-bar">
+      <select id="partSelect" aria-label="Choisir un manuscrit"></select>
+      <button id="loadBtn" class="btn red" type="button">Charger le texte →</button>
+    </div>
+
+    <div class="anno-hint">Une fois le texte chargé : <b>sélectionne un passage</b> pour le surligner, puis <b>clique le surlignage</b> pour y attacher une note. Tout reste sur cet appareil ; connecte-toi pour synchroniser tes annotations entre tes appareils. Les boutons flottants « Mes notes » et « Notes partagées » apparaissent en bas à droite quand le texte est chargé.</div>
+
     <div class="reader">
       <div class="reader-head"><div class="reader-title" id="readerTitle">Note du traducteur</div></div>
-      <div class="placeholder" id="readerPlaceholder"><div><b>Choisis une partie, puis clique sur “Charger le texte”.</b><span>La partie sélectionnée sera chargée depuis <code>manuscrits-1844/textes/</code>.</span></div></div>
+      <div class="placeholder" id="readerPlaceholder"><div><div class="pi">📖</div><b>Choisis un manuscrit ci-dessus, puis clique sur « Charger le texte ».</b><br><span style="font-size:.9rem">Le manuscrit complet s'affichera ici.</span></div></div>
       <div class="reader-content" id="readerContent" hidden></div>
-      <p class="reader-note">La liseuse utilise les fichiers locaux du dépôt. Le bouton “Ouvrir la source” garde un accès de vérification à la source distante.</p>
     </div>
   </section>
 
@@ -153,7 +161,7 @@
     <div class="timeline" id="timeline"></div>
   </section>
 
-  <footer><b>L'Atelier des Manuscrits de 1844</b> — lecture locale importée depuis Marxists Internet Archive ; parcours, concepts et organisation éditoriale Lire Marx.</footer>
+  <footer><b>L'Atelier des Manuscrits de 1844</b> — texte établi d'après le Marxists Internet Archive ; parcours, concepts et organisation éditoriale Lire Marx.</footer>
 </main>
 
 <script>
@@ -236,9 +244,8 @@
   };
   window.activateTab=function(id){var t=panelTop(id);curPanel[t]=id;activateTop(t);window.scrollTo({top:0,behavior:'smooth'});};
   function preparePart(i){
-    var p=parts[i]||parts[0],remoteUrl=base+p.remote;
+    var p=parts[i]||parts[0];
     byId('readerTitle').textContent=p.title;
-    byId('readerOpen').href=remoteUrl;
     byId('partSelect').value=String(i);
     return textBase+p.file;
   }
@@ -254,7 +261,7 @@
     return main?main.innerHTML:'';
   }
   function showMissingLocal(path){
-    byId('readerContent').innerHTML='<div class="reader-error"><b>Texte local non encore intégré.</b><p>La liseuse cherche le fichier :</p><p><code>'+esc(path)+'</code></p><p>Ajoute ici une transcription française libre ou autorisée, puis recharge cette partie. Le bouton “Ouvrir la source” reste disponible pour vérifier la source distante.</p></div>';
+    byId('readerContent').innerHTML='<div class="reader-error"><b>Texte momentanément indisponible.</b><p>Cette partie n’a pas pu être chargée. Réessaie dans un instant.</p></div>';
     byId('readerContent').hidden=false;
     byId('readerPlaceholder').hidden=true;
   }
