@@ -85,18 +85,18 @@ lire-marx/
 par `oeuvres/bibliotheque.json`, source centrale de la liste des œuvres
 (disponibles ou à venir), pour éviter toute duplication entre pages.
 
-> **Note sur l'état actuel — Capital n'est plus l'hôte de l'accueil.**
-> La vue d'accueil avec étagère vit désormais dans `oeuvres/index.html`
-> (la bibliothèque), qui utilise le shell partagé comme tous les livres.
-> Capital, Manuscrits et la bibliothèque chargent `oeuvres/atelier.css` +
+> **Note sur l'état actuel — Capital est un livre comme un autre.**
+> Depuis la sous-mission `retrait-shell-host` (juin 2026), Capital n'est
+> plus l'hôte technique de la coquille : compte, Place publique, CGU,
+> messagerie, notifications, contacts, recherche et bouton « Nous
+> soutenir » vivent entièrement dans le shell partagé
+> (`shell.js` + `shell-social.js` + `shell-annotations.js`) et
+> fonctionnent **en place** sur n'importe quelle page. Capital,
+> Manuscrits et la bibliothèque chargent `oeuvres/atelier.css` +
 > `oeuvres/shell.css` + `oeuvres/shell.js`, et appellent
 > `installShell({workId, workTitle, tabs:[...]})` qui injecte topbar et
-> sidebar identiques partout. `capital-1.html` reste cependant le porteur
-> technique de la coquille applicative (auth Supabase, forum public,
-> modération, RGPD, recherche, messages, contacts) : tant que ce code
-> n'est pas extrait vers `shell.js`, les pages annexes redirigent vers
-> `capital-1.html#commune` / `#contacts` / `#cgu` via un routeur de hash
-> côté Capital. Voir la feuille de route plus bas.
+> sidebar identiques partout. Plus de `SHELL_HOST`, plus de
+> `gotoHost`, plus de routeur de hash.
 
 ---
 
@@ -187,8 +187,9 @@ Le site reste statique et compatible Cloudflare Pages (aucune compilation).
    - le manifest est valide ;
    - les textes s'affichent correctement ;
    - aucun lien cassé n'est exposé dans la bibliothèque ;
-   - la coquille partagée encore hébergée par `oeuvres/capital-1.html`
-     (auth Supabase, forum, modération, RGPD) reste intacte.
+   - la page consomme bien le shell partagé (`installShell` +
+     `SHELL.reader.attach` à chaque affichage de section), comme
+     `manuscrits-1844.html` ou `capital-1.html`.
 
 ---
 
@@ -198,12 +199,11 @@ Le site reste statique et compatible Cloudflare Pages (aucune compilation).
 - Ne jamais utiliser ni exposer la clé Supabase `service_role` côté client.
 - `config.js` ne doit contenir que les informations publiques nécessaires au
   client, comme l'URL du projet et la clé `anon` ou `Publishable`.
-- Ne pas casser la coquille partagée encore hébergée par
-  `oeuvres/capital-1.html` : la barre supérieure, la pastille « compte »
-  Supabase, les annotations, le forum (notes publiques), la modération et les
-  éléments RGPD y sont toujours portés (héritage). L'atelier du Capital
-  lui-même reste de même niveau que les autres ateliers ; c'est cette
-  coquille-là qui doit rester intacte tant qu'elle n'a pas été factorisée.
+- Ne pas casser le shell partagé (`oeuvres/shell.js` + `shell-auth`,
+  `shell-social.js`, `shell-annotations.js`, `shell.css`) : c'est la
+  brique commune à toutes les pages. Toute évolution doit respecter le
+  contrat `installShell({workId, workTitle, tabs})` + `SHELL.reader.attach`
+  pour les pages de livre.
 - Le projet reste statique : HTML, CSS et JavaScript simples, sans React, Vite,
   Next ou autre build obligatoire.
 
@@ -233,17 +233,20 @@ Le site reste statique et compatible Cloudflare Pages (aucune compilation).
   page. Capital n'a plus de vue #home propre ; il est devenu un livre comme
   un autre.
 
-- **Shell JS à factoriser entièrement (mission future)**
-  `oeuvres/capital-1.html` inline encore l'auth Supabase, le forum public
-  (Place publique), la modération, la RGPD, la recherche, les messages, les
-  contacts et un routeur de hash qui leur sert de point d'entrée depuis
-  les autres pages. Tant qu'elles ne sont pas extraites vers `shell.js`, le
-  shell partagé redirige vers `capital-1.html#commune` / `#contacts` /
-  `#cgu` lors d'un clic sur le sidebar Place publique / Contacts / CGU
-  depuis Manuscrits ou la bibliothèque. Prochaine étape architecturale :
-  sortir ce code de `capital-1.html`, le placer dans `shell.js`, et faire
-  que toutes les pages le consomment uniformément — sans plus avoir besoin
-  de `SHELL_HOST` ni du routeur de hash.
+- **Shell JS factorisé (juin 2026)**
+  Toute la coquille applicative est désormais dans `shell.js` (+ les
+  modules optionnels `shell-social.js` pour la messagerie/notifications
+  et `shell-annotations.js` pour les annotations privées et le forum
+  par passage). Capital ne porte plus rien de transversal ; ajouter un
+  livre = `installShell` + contrat liseuse, rien d'autre. Voir CLAUDE.md
+  pour la cartographie complète.
+
+  Améliorations possibles non bloquantes :
+  - Recherche : enrichir l'index `shell.js` en chargeant les manifests
+    par œuvre (sections + chapitres + concepts précis) ; pour l'instant
+    la recherche se limite aux titres / concepts de `bibliotheque.json`.
+  - Bouton « Faire un don » : remplacer le `href="#"` du popover Soutenir
+    par une vraie URL (Open Collective, Liberapay, etc.).
 
 - **Amélioration éditoriale**
   Compléter les guides de lecture, les notes de source, les concepts associés,

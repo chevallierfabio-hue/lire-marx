@@ -34,11 +34,6 @@
 // sidebar et le contenu propre au livre.
 
 (function(){
-  // Page principale qui héberge encore la coquille applicative complète :
-  // c'est là qu'on redirige pour les fonctionnalités pas encore extraites
-  // (compte, forum, recherche, etc.).
-  var SHELL_HOST = 'capital-1.html';
-
   function esc(s){
     return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
       return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
@@ -148,12 +143,6 @@
     );
   }
 
-  // Quelques boutons renvoient vers la page hôte tant que la coquille
-  // applicative (auth, forum, recherche, etc.) n'y est pas factorisée.
-  function gotoHost(hash){
-    location.href = SHELL_HOST + (hash || '');
-  }
-
   function wire(cfg){
     var sb = document.getElementById('sidebar');
     var bk = document.getElementById('sbBackdrop');
@@ -197,49 +186,38 @@
           location.href = 'place-publique.html';
           return;
         }
-        // CGU & règles / Confidentialité : modale locale (SHELL.auth.openPrivacy),
-        // texte complet embarqué dans le shell. Plus de redirection vers
-        // capital-1.html#cgu.
+        // CGU & règles / Confidentialité : modale RGPD de SHELL.auth.
         if(act === 'cgu'){
           if(window.matchMedia('(max-width:860px)').matches){
             document.body.classList.remove('sb-open');
           }
           if(window.SHELL && window.SHELL.auth && window.SHELL.auth.openPrivacy){
             window.SHELL.auth.openPrivacy();
-          } else {
-            gotoHost('#' + act);
           }
           return;
         }
-        // Contacts = module messagerie privée (SHELL.social). Si shell-social.js
-        // est chargé (toutes les pages d'œuvre + la bibliothèque + Place publique),
-        // on ouvre la modale directement. Sinon (page minimaliste), on retombe
-        // sur gotoHost('#contacts') qui passera par Capital.
+        // Contacts : modale messagerie de SHELL.social (shell-social.js).
         if(act === 'contacts'){
           if(window.matchMedia('(max-width:860px)').matches){
             document.body.classList.remove('sb-open');
           }
           if(window.SHELL && window.SHELL.social && window.SHELL.social.showContacts){
             window.SHELL.social.showContacts();
-          } else {
-            gotoHost('#' + act);
           }
           return;
         }
       });
     });
 
-    // sb-work : aiguillage vers les onglets de l'œuvre courante
+    // sb-work : aiguillage vers les onglets de l'œuvre courante via la
+    // fonction window.activateTab(id) que la page de livre doit fournir.
     sb.querySelectorAll('.sb-item[data-act^="tab:"]').forEach(function(b){
       b.addEventListener('click', function(){
         var id = b.dataset.act.slice(4);
-        if(typeof window.activateTab === 'function'){
-          window.activateTab(id);
-          if(window.matchMedia('(max-width:860px)').matches){
-            document.body.classList.remove('sb-open');
-          }
-        } else {
-          gotoHost();
+        if(typeof window.activateTab !== 'function') return;
+        window.activateTab(id);
+        if(window.matchMedia('(max-width:860px)').matches){
+          document.body.classList.remove('sb-open');
         }
       });
     });
@@ -281,8 +259,8 @@
   // ----- Recherche partagée -----
   // Index minimal construit depuis bibliotheque.json (œuvres + concepts).
   // Pas encore d'index profond (chapitres / dates / sections) ; pour cela
-  // il faudra charger les manifests par œuvre. Mais déjà autonome : aucun
-  // gotoHost vers Capital, fonctionne identiquement sur toutes les pages.
+  // il faudra charger les manifests par œuvre. Suffit déjà à une
+  // recherche autonome fonctionnant identiquement sur toutes les pages.
   function wireSharedSearch(){
     var inp = document.getElementById('tbSearch');
     var box = document.getElementById('tbResults');

@@ -177,38 +177,28 @@ exact.
 6. Ajouter l'entrée dans `oeuvres/bibliotheque.json` (`status:'planned'`
    au début, puis `'available'` quand la page fonctionne réellement).
 
-## `capital-1.html` = hôte de la coquille applicative (héritage)
+## `capital-1.html` = livre comme les autres
 
-Capital est **un livre comme un autre** côté UX : pas de #home, brandmark
-qui mène à la bibliothèque, utilise atelier.css + shell.css.
+Depuis la sous-mission `retrait-shell-host` (6f), Capital est **un livre
+comme un autre** côté UX *et* côté coquille : il consomme `installShell`
++ `SHELL.auth` + `SHELL.reader.attach` + `SHELL.annotations` +
+`SHELL.social` + `SHELL.commune` exactement comme `manuscrits-1844.html`.
+La recherche partagée (basée sur `bibliotheque.json`) et le bouton
+« Nous soutenir » vivent désormais entièrement dans `shell.js`.
 
-Mais il **inline encore** l'auth Supabase, le forum public, la modération,
-la recherche, et la messagerie privée (Contacts). Auth (Mon compte),
-Place publique (lecture seule) et CGU/Confidentialité sont désormais
-servis directement par le shell ; ne reste à extraire côté
-`capital-1.html` que ce qui est lourd ou stateful (forum riche avec
-composition/modération, recherche fédérée, messagerie). Tant que ce
-code n'est pas extrait, le shell partagé utilise `SHELL_HOST =
-'capital-1.html'` pour rediriger les clics sidebar restants (Contacts
-en particulier) vers Capital.
+**`SHELL_HOST`, `gotoHost` et le routeur de hash de Capital n'existent
+plus.** Plus aucun bouton du site ne redirige vers `capital-1.html`
+pour activer une fonctionnalité. Compte, Place publique, CGU,
+messagerie, notifications, contacts, recherche, soutien — tout
+fonctionne **en place**, sur la page courante, quelle qu'elle soit.
 
-**À propos de « Contacts ».** Ce n'est pas une page de contact statique
-mais le futur **module messagerie privée** (threads 1-à-1, marquage lu/
-non-lu, realtime via Supabase) : son extraction vers le shell est
-**lourde** et viendra avec celle des annotations privées. Tant que ce
-n'est pas fait, le bouton sidebar « Contacts » continue de rediriger
-vers `capital-1.html`.
+Ce qui reste inliné dans `capital-1.html` est **propre à Capital** : le
+contenu de l'atelier (intro, plan, modèles, parcours, chronologie,
+explorations, glossaire) et la liseuse qui charge le texte intégral
+chapitre par chapitre. C'est le rôle attendu d'une page de livre.
 
-**Règle pratique** : ne pas casser ce code dans capital-1.html. Si une
-intervention touche la coquille applicative, vérifier que l'auth, le
-forum, la modération et la RGPD fonctionnent toujours côté Capital. Pour
-l'atelier proprement dit (panneaux, liseuse, parcours, concepts), c'est
-un livre comme les autres.
-
-**Prochaine étape architecturale** : sortir cette coquille applicative
-de `capital-1.html` vers `shell.js` (avec d'éventuels modules dédiés),
-et faire disparaître `SHELL_HOST` ainsi que le routeur de hash. Capital
-deviendrait alors un livre vraiment comme les autres.
+**Pour ajouter un nouveau livre** : voir « Shell partagé », point
+« Pour ajouter un livre ». Capital n'est plus un cas spécial à étudier.
 
 ## Conventions de travail
 

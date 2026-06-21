@@ -2567,30 +2567,12 @@ try{if(window.Anno&&sel&&sel.value){const nn0=+sel.value.split('|')[0];if(nn0)wi
   window.Reading={ mount:mountReader };
 })();
 
-/* La barre latérale et la pastille sont désormais installées et câblées par
-   shell.js (installShell appelé en fin de body). Les sb-items commune/contacts
-   sont gérés par shell.js : commune → place-publique.html ; contacts →
-   gotoHost('#contacts') qui, sur Capital, fait juste un hash change → route()
-   ci-dessous appelle showContactsPage(). cgu → SHELL.auth.openPrivacy(). */
-
-/* ===== Routeur de hash : Manuscrits (et les futurs livres) renvoient ici
-   via capital-1.html#commune / #contacts / #cgu tant que la coquille
-   applicative complète vit dans ce fichier. ===== */
-(function(){
-  function route(){
-    var h = (location.hash || '').replace(/^#/, '');
-    if(!h) return;
-    if(h === 'commune'){ location.href = 'place-publique.html'; return; }
-    else if(h === 'contacts'){ if(window.SHELL && window.SHELL.social && window.SHELL.social.showContacts) window.SHELL.social.showContacts(); }
-    else if(h === 'cgu'){ var pm = document.getElementById('privacyModal'); if(pm) pm.hidden = false; }
-  }
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', route);
-  } else {
-    route();
-  }
-  window.addEventListener('hashchange', route);
-})();
+/* La barre latérale, la pastille et tous les boutons de la topbar sont
+   installés et câblés par shell.js (installShell appelé en fin de body).
+   Plus aucune redirection vers capital-1.html pour une fonctionnalité :
+   compte → SHELL.auth ; Place publique → place-publique.html ; Contacts
+   → SHELL.social ; CGU → SHELL.auth.openPrivacy ; recherche + soutien
+   → autonomes côté shell. Capital = livre comme les autres. */
 
 /* ===== Deep-link au passage (#note=<id> ou #s=N&q=...&b=...&a=...)
    Contrat SHELL.reader.resolveDeepLink : la page d'œuvre fetch la cible,
@@ -2633,10 +2615,6 @@ try{if(window.Anno&&sel&&sel.value){const nn0=+sel.value.split('|')[0];if(nn0)wi
 installShell({
   workId: 'capital-1',
   workTitle: 'Le Capital — Livre I',
-  // Capital reste l'hôte des fonctionnalités qui ne sont pas encore extraites
-  // dans le shell (recherche, support, messagerie, notifications, contacts).
-  // On indique à shell.js de ne pas court-circuiter ces boutons avec gotoHost().
-  host: true,
   tabs: [
     {id:'accueil', label:'Accueil'},
     {id:'nav',     label:'Parcourir'},

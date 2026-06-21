@@ -15,8 +15,8 @@
 // SHELL.auth._bootstrap(), sur le même motif que SHELL.auth.
 //
 // Notifications (réponses & mentions) + bouton notifBtn : ajoutés par
-// la sous-mission 4b dans ce même fichier — pour l'instant, notifBtn
-// reste géré par gotoHost() côté shell.js.
+// la sous-mission 4b dans ce même fichier. Depuis 6f le notifBtn est
+// entièrement géré par SHELL.social — plus de redirection.
 //
 // Profil membre cliquable + saut précis dans la liseuse : différés à
 // la mission annotations (contrat de deep-link commun avec
