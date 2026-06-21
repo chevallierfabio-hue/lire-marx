@@ -342,6 +342,30 @@ svg.x-scene{width:100%;height:auto;display:block;background:var(--card);border:1
 .chrono .ce{font-size:.98rem;color:var(--ink-soft);line-height:1.5;}
 .chrono .ce b{color:var(--ink);}
 
+/* Accueil — seuil de lecture (exergue, itinéraire, lexique) */
+.acc-exergue{margin:0 0 22px;padding:24px clamp(20px,4vw,32px);border:1px solid var(--line);background:var(--card);border-radius:8px;}
+.acc-exergue-q{font-family:'Fraunces',serif;font-style:italic;font-weight:500;font-size:clamp(1.15rem,2vw,1.45rem);line-height:1.5;color:var(--ink);border-left:3px solid var(--red);padding:4px 0 4px 20px;margin:0 0 12px;}
+.acc-exergue-src{font-size:.85rem;color:var(--ink-soft);font-style:italic;margin:0 0 18px;padding-left:23px;}
+.acc-exergue-th{font-size:1.02rem;line-height:1.72;color:var(--ink-soft);margin:0 0 18px;}
+.acc-exergue-th b{color:var(--ink);}
+.acc-itineraire{margin:0 0 28px;}
+.acc-itineraire-intro{font-size:1rem;color:var(--ink-soft);line-height:1.65;margin:0 0 14px;}
+.acc-portes{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;}
+.acc-porte{display:flex;flex-direction:column;gap:8px;border:1px solid var(--line);background:var(--paper-2);border-radius:8px;padding:16px 18px;}
+.acc-porte h4{font-family:'Fraunces',serif;font-weight:900;font-size:1.05rem;color:var(--ink);margin:0;letter-spacing:-.005em;}
+.acc-porte h4 .acc-porte-h-sub{font-family:'Spectral',serif;font-style:italic;font-weight:400;font-size:.82rem;color:var(--ink-soft);margin-left:6px;}
+.acc-porte p{font-size:.94rem;line-height:1.55;color:var(--ink-soft);margin:0;}
+.acc-porte .btn{align-self:flex-start;margin-top:auto;font-size:.8rem;padding:7px 12px;}
+.acc-lexique{margin:6px 0 0;border:1px solid var(--line);background:var(--paper-2);border-radius:8px;}
+.acc-lexique>summary{font-family:'Fraunces',serif;font-weight:600;font-size:1.05rem;color:var(--ink);padding:14px clamp(18px,4vw,26px);cursor:pointer;list-style:none;display:flex;align-items:center;gap:12px;}
+.acc-lexique>summary::-webkit-details-marker{display:none;}
+.acc-lexique>summary::before{content:'+';font-family:'Fraunces',serif;font-style:italic;font-weight:900;color:var(--red);font-size:1.2rem;line-height:1;width:14px;display:inline-block;text-align:center;}
+.acc-lexique[open]>summary::before{content:'–';}
+.acc-lex-list{list-style:none;margin:0;padding:4px clamp(18px,4vw,26px) 18px;}
+.acc-lex-list li{padding:10px 0;border-top:1px solid var(--line-soft);font-size:.96rem;line-height:1.55;color:var(--ink-soft);}
+.acc-lex-list li:first-child{border-top:none;}
+.acc-lex-list li b{color:var(--ink);font-family:'Fraunces',serif;font-weight:600;}
+
 /* Navigateur — extraits embarqués (passages abrégés, hors-ligne) */
 .extrait{margin-top:13px;border-top:1px solid var(--line-soft);padding-top:13px;}
 .lk.extr{color:var(--gold-deep);border-color:var(--gold);background:rgba(154,123,53,.1);}
@@ -483,6 +507,37 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
   <section class="panel active" id="accueil">
     <h2 class="sec">Le Capital, Livre I</h2>
     <p class="lead">Le grand œuvre de Marx — fruit de près de vingt années de travail dans l'exil londonien — et le seul des trois livres qu'il ait publié de son vivant.</p>
+
+    <div class="acc-exergue">
+      <blockquote class="acc-exergue-q">« La richesse des sociétés dans lesquelles règne le mode de production capitaliste s'annonce comme une immense accumulation de marchandises, et la marchandise isolée comme la forme élémentaire de cette richesse. »</blockquote>
+      <div class="acc-exergue-src"><i>Le Capital</i>, Livre I — première phrase (trad. J. Roy, 1872).</div>
+      <p class="acc-exergue-th">Tout part de cet objet trivial — la <b>marchandise</b> — et tout y revient. En la suivant pas à pas, Marx met au jour d'où vient réellement le profit : non d'une ruse de l'échange, mais du <b>travail non payé</b>. Le Livre I est la démonstration de ce secret.</p>
+      <div class="cta-row">
+        <button class="btn red" onclick="activateTab('lire');window.scrollTo({top:0,behavior:'smooth'});">Entrer dans le texte →</button>
+      </div>
+    </div>
+
+    <div class="acc-itineraire">
+      <p class="acc-itineraire-intro">Le <i>Capital</i> n'est pas un roman : on peut l'aborder par plusieurs portes. Marx lui-même prévenait que ses premières pages, les plus abstraites, rebutent souvent. Voici trois entrées possibles.</p>
+      <div class="acc-portes">
+        <div class="acc-porte">
+          <h4>Dans l'ordre</h4>
+          <p>De la marchandise (chap. I) vers le capital : l'ascension logique voulue par Marx, exigeante mais cohérente. La voie royale — à condition d'accepter l'aridité du début.</p>
+          <button class="btn" onclick="goLire(1,'I','La marchandise');">Commencer au chap. I →</button>
+        </div>
+        <div class="acc-porte">
+          <h4>Par le capital <span class="acc-porte-h-sub">(conseil d'Althusser)</span></h4>
+          <p>Laisser provisoirement de côté la première section sur la marchandise et la valeur, commencer à la transformation de l'argent en capital (Section II), puis revenir en arrière une fois la machine comprise.</p>
+          <button class="btn" onclick="goLire(2,'IV','Formule générale du capital');">Démarrer à la Section II →</button>
+        </div>
+        <div class="acc-porte">
+          <h4>Par le concret</h4>
+          <p>Entrer par les pages les plus vivantes — <i>La journée de travail</i> (chap. X) ou l'<i>Accumulation primitive</i> (Section VIII), récits saisissants de l'exploitation et de la violence qui a institué le capital — puis remonter vers l'abstrait qui les éclaire.</p>
+          <button class="btn" onclick="goLire(3,'X','La journée de travail');">Lire le chap. X →</button>
+        </div>
+      </div>
+    </div>
+
     <div class="method-note"><b>Avant d'entrer.</b> Cette page situe l'œuvre : le moment historique qui l'a rendue possible, l'homme qui l'a écrite, et ce que le Livre I cherche à démontrer. Les onglets suivants donnent le texte intégral, les modèles que l'on manipule et la marche logique de l'argument.</div>
 
     <div class="intro-grid">
@@ -539,6 +594,19 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
       </div>
 
     </div>
+
+    <details class="acc-lexique">
+      <summary>Sept mots pour entrer</summary>
+      <ul class="acc-lex-list">
+        <li><b>Valeur d'usage / valeur d'échange</b> — l'utilité d'une chose vs ce contre quoi elle s'échange ; toute marchandise a les deux faces.</li>
+        <li><b>Travail abstrait</b> — non le geste concret du tisserand, mais la pure dépense de force humaine, mesurée en temps, qui fait la valeur.</li>
+        <li><b>Force de travail</b> — la capacité de travailler, que l'ouvrier vend comme une marchandise ; sa valeur est le coût de sa reproduction.</li>
+        <li><b>Survaleur / plus-value</b> — la valeur produite au-delà de ce que coûte la force de travail : le surtravail non payé, source du profit.</li>
+        <li><b>Capital constant / variable</b> — la part en machines et matières (qui transmet seulement sa valeur) vs la part en salaires (seule à créer de la valeur nouvelle).</li>
+        <li><b>Fétichisme de la marchandise</b> — l'illusion par laquelle un rapport social entre les hommes prend l'apparence d'un rapport entre les choses.</li>
+        <li><b>Accumulation primitive</b> — la séparation historique et violente des producteurs d'avec leurs moyens de production : le présupposé du capital.</li>
+      </ul>
+    </details>
   </section>
 
   <!-- NAVIGATEUR -->
