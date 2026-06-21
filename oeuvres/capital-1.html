@@ -343,20 +343,22 @@ svg.x-scene{width:100%;height:auto;display:block;background:var(--card);border:1
 .chrono .ce b{color:var(--ink);}
 
 /* Accueil — seuil de lecture (exergue, itinéraire, lexique) */
-.acc-exergue{margin:0 0 22px;padding:24px clamp(20px,4vw,32px);border:1px solid var(--line);background:var(--card);border-radius:8px;}
-.acc-exergue-q{font-family:'Fraunces',serif;font-style:italic;font-weight:500;font-size:clamp(1.15rem,2vw,1.45rem);line-height:1.5;color:var(--ink);border-left:3px solid var(--red);padding:4px 0 4px 20px;margin:0 0 12px;}
-.acc-exergue-src{font-size:.85rem;color:var(--ink-soft);font-style:italic;margin:0 0 18px;padding-left:23px;}
+.acc-exergue{margin:0 0 22px;padding:22px clamp(20px,4vw,30px);border:1px solid var(--line);background:var(--card);border-radius:8px;}
+.acc-exergue-q{font-family:'Fraunces',serif;font-style:italic;font-weight:500;font-size:clamp(1.12rem,1.8vw,1.32rem);line-height:1.5;color:var(--ink);border-left:3px solid var(--red);padding:3px 0 3px 17px;margin:0 0 12px;}
+.acc-exergue-src{font-size:.85rem;color:var(--ink-soft);font-style:italic;margin:0 0 18px;padding-left:17px;}
 .acc-exergue-th{font-size:1.02rem;line-height:1.72;color:var(--ink-soft);margin:0 0 18px;}
 .acc-exergue-th b{color:var(--ink);}
 .acc-itineraire{margin:0 0 28px;}
+.acc-itineraire>h3{font-family:'Fraunces',serif;font-weight:900;font-size:1.22rem;letter-spacing:-.01em;margin-bottom:10px;display:flex;align-items:baseline;gap:10px;}
+.acc-itineraire>h3 .ib-n{color:var(--red);font-style:italic;font-weight:900;font-size:1.05em;}
 .acc-itineraire-intro{font-size:1rem;color:var(--ink-soft);line-height:1.65;margin:0 0 14px;}
 .acc-portes{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;}
-.acc-porte{display:flex;flex-direction:column;gap:8px;border:1px solid var(--line);background:var(--paper-2);border-radius:8px;padding:16px 18px;}
+.acc-porte{display:flex;flex-direction:column;gap:8px;border:1px solid var(--line);background:var(--card);border-radius:8px;padding:16px 18px;}
 .acc-porte h4{font-family:'Fraunces',serif;font-weight:900;font-size:1.05rem;color:var(--ink);margin:0;letter-spacing:-.005em;}
 .acc-porte h4 .acc-porte-h-sub{font-family:'Spectral',serif;font-style:italic;font-weight:400;font-size:.82rem;color:var(--ink-soft);margin-left:6px;}
 .acc-porte p{font-size:.94rem;line-height:1.55;color:var(--ink-soft);margin:0;}
 .acc-porte .btn{align-self:flex-start;margin-top:auto;font-size:.8rem;padding:7px 12px;}
-.acc-lexique{margin:6px 0 0;border:1px solid var(--line);background:var(--paper-2);border-radius:8px;}
+.acc-lexique{margin:6px 0 0;border:1px solid var(--line);background:var(--card);border-radius:8px;}
 .acc-lexique>summary{font-family:'Fraunces',serif;font-weight:600;font-size:1.05rem;color:var(--ink);padding:14px clamp(18px,4vw,26px);cursor:pointer;list-style:none;display:flex;align-items:center;gap:12px;}
 .acc-lexique>summary::-webkit-details-marker{display:none;}
 .acc-lexique>summary::before{content:'+';font-family:'Fraunces',serif;font-style:italic;font-weight:900;color:var(--red);font-size:1.2rem;line-height:1;width:14px;display:inline-block;text-align:center;}
@@ -508,6 +510,8 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
     <h2 class="sec">Le Capital, Livre I</h2>
     <p class="lead">Le grand œuvre de Marx — fruit de près de vingt années de travail dans l'exil londonien — et le seul des trois livres qu'il ait publié de son vivant.</p>
 
+    <div class="method-note"><b>Avant d'entrer.</b> Cette page situe l'œuvre : le moment historique qui l'a rendue possible, l'homme qui l'a écrite, et ce que le Livre I cherche à démontrer. Les onglets suivants donnent le texte intégral, les modèles que l'on manipule et la marche logique de l'argument.</div>
+
     <div class="acc-exergue">
       <blockquote class="acc-exergue-q">« La richesse des sociétés dans lesquelles règne le mode de production capitaliste s'annonce comme une immense accumulation de marchandises, et la marchandise isolée comme la forme élémentaire de cette richesse. »</blockquote>
       <div class="acc-exergue-src"><i>Le Capital</i>, Livre I — première phrase (trad. J. Roy, 1872).</div>
@@ -518,6 +522,7 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
     </div>
 
     <div class="acc-itineraire">
+      <h3><span class="ib-n">§</span> Par où entrer</h3>
       <p class="acc-itineraire-intro">Le <i>Capital</i> n'est pas un roman : on peut l'aborder par plusieurs portes. Marx lui-même prévenait que ses premières pages, les plus abstraites, rebutent souvent. Voici trois entrées possibles.</p>
       <div class="acc-portes">
         <div class="acc-porte">
@@ -537,8 +542,6 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
         </div>
       </div>
     </div>
-
-    <div class="method-note"><b>Avant d'entrer.</b> Cette page situe l'œuvre : le moment historique qui l'a rendue possible, l'homme qui l'a écrite, et ce que le Livre I cherche à démontrer. Les onglets suivants donnent le texte intégral, les modèles que l'on manipule et la marche logique de l'argument.</div>
 
     <div class="intro-grid">
 
