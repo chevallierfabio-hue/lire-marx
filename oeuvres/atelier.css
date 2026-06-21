@@ -49,6 +49,31 @@ h2.sec{font-family:'Fraunces',serif;font-weight:900;font-size:1.8rem;margin-bott
 .plan-list .pn{font-family:'Fraunces',serif;font-style:italic;font-weight:900;color:var(--red);min-width:34px;text-align:center;}
 .plan-list .pt{font-family:'Fraunces',serif;font-weight:600;color:var(--ink);line-height:1.25;}
 .plan-list .pt small{display:block;font-family:'Spectral',serif;font-weight:400;font-style:italic;color:var(--ink-soft);font-size:.86rem;margin-top:2px;}
+/* Accueil d'œuvre — seuil de lecture (exergue, itinéraire, lexique) — partagé */
+.acc-exergue{margin:0 0 22px;padding:22px clamp(20px,4vw,30px);border:1px solid var(--line);background:var(--card);border-radius:8px;}
+.acc-exergue-q{font-family:'Fraunces',serif;font-style:italic;font-weight:500;font-size:clamp(1.12rem,1.8vw,1.32rem);line-height:1.5;color:var(--ink);border-left:3px solid var(--red);padding:3px 0 3px 17px;margin:0 0 12px;}
+.acc-exergue-src{font-size:.85rem;color:var(--ink-soft);font-style:italic;margin:0 0 18px;padding-left:17px;}
+.acc-exergue-th{font-size:1.02rem;line-height:1.72;color:var(--ink-soft);margin:0 0 18px;}
+.acc-exergue-th b{color:var(--ink);}
+.acc-itineraire{margin:0 0 28px;}
+.acc-itineraire>h3{font-family:'Fraunces',serif;font-weight:900;font-size:1.22rem;letter-spacing:-.01em;margin-bottom:10px;display:flex;align-items:baseline;gap:10px;}
+.acc-itineraire>h3 .ib-n{color:var(--red);font-style:italic;font-weight:900;font-size:1.05em;}
+.acc-itineraire-intro{font-size:1rem;color:var(--ink-soft);line-height:1.65;margin:0 0 14px;}
+.acc-portes{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;}
+.acc-porte{display:flex;flex-direction:column;gap:8px;border:1px solid var(--line);background:var(--card);border-radius:8px;padding:16px 18px;}
+.acc-porte h4{font-family:'Fraunces',serif;font-weight:900;font-size:1.05rem;color:var(--ink);margin:0;letter-spacing:-.005em;}
+.acc-porte h4 .acc-porte-h-sub{font-family:'Spectral',serif;font-style:italic;font-weight:400;font-size:.82rem;color:var(--ink-soft);margin-left:6px;}
+.acc-porte p{font-size:.94rem;line-height:1.55;color:var(--ink-soft);margin:0;}
+.acc-porte .btn{align-self:flex-start;margin-top:auto;font-size:.8rem;padding:7px 12px;}
+.acc-lexique{margin:6px 0 0;border:1px solid var(--line);background:var(--card);border-radius:8px;}
+.acc-lexique>summary{font-family:'Fraunces',serif;font-weight:600;font-size:1.05rem;color:var(--ink);padding:14px clamp(18px,4vw,26px);cursor:pointer;list-style:none;display:flex;align-items:center;gap:12px;}
+.acc-lexique>summary::-webkit-details-marker{display:none;}
+.acc-lexique>summary::before{content:'+';font-family:'Fraunces',serif;font-style:italic;font-weight:900;color:var(--red);font-size:1.2rem;line-height:1;width:14px;display:inline-block;text-align:center;}
+.acc-lexique[open]>summary::before{content:'–';}
+.acc-lex-list{list-style:none;margin:0;padding:4px clamp(18px,4vw,26px) 18px;}
+.acc-lex-list li{padding:10px 0;border-top:1px solid var(--line-soft);font-size:.96rem;line-height:1.55;color:var(--ink-soft);}
+.acc-lex-list li:first-child{border-top:none;}
+.acc-lex-list li b{color:var(--ink);font-family:'Fraunces',serif;font-weight:600;}
 .cta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px;}
 .btn{font-family:var(--f-ui);font-weight:600;font-size:.85rem;cursor:pointer;border:1px solid var(--ink);background:none;color:var(--ink);padding:9px 16px;border-radius:4px;transition:all .18s;}
 .btn:hover{background:var(--ink);color:var(--paper);}
