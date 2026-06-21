@@ -6,6 +6,7 @@
 <title>L'Atelier des Manuscrits de 1844 - Lire Marx</title>
 <link rel="stylesheet" href="atelier.css">
 <link rel="stylesheet" href="shell.css">
+<link rel="stylesheet" href="reader-tools.css">
 <link rel="stylesheet" href="manuscrits-1844.css">
 </head>
 <body>
@@ -199,6 +200,16 @@
     ]}
   ];
   var CHARNIERE_TITLES=['Le travail aliéné','Propriété privée et communisme','Critique de la dialectique et de la philosophie hégéliennes'];
+  /* Glossaire des Manuscrits — passé à window.Reading.mount via cfg.glossary. */
+  var GLOSS_MAN=[
+   {s:["travail aliéné"],de:"entfremdete Arbeit",def:"Le travail qui, sous la propriété privée, se retourne contre l'ouvrier : produit, activité, espèce et autrui lui deviennent étrangers."},
+   {s:["aliénation"],de:"Entfremdung",def:"Mouvement par lequel l'activité humaine et ses produits se séparent de l'homme et le dominent comme une puissance étrangère."},
+   {s:["être générique","être d'espèce"],de:"Gattungswesen",def:"L'homme comme être qui se rapporte à l'espèce entière et se produit librement ; dimension que l'aliénation lui retire."},
+   {s:["objectivation"],de:"Vergegenständlichung",def:"Le travail se fixe dans un objet ; sous l'aliénation, cette objectivation devient perte de l'objet et asservissement à lui."},
+   {s:["propriété privée"],de:"Privateigentum",def:"Non la cause première mais le résultat du travail aliéné, qu'elle perpétue ensuite comme rapport social."},
+   {s:["communisme"],de:"Kommunismus",def:"Abolition positive de la propriété privée et réappropriation par l'homme de son essence sociale ; non un simple partage des biens."},
+   {s:["forces essentielles","force essentielle"],de:"Wesenskräfte",def:"Les puissances propres de l'homme — sens et facultés — qui s'épanouissent ou s'atrophient selon les rapports sociaux."}
+  ];
   var concepts=[
     ['Aliénation','Le produit, l’activité et le monde social deviennent étrangers au travailleur.'],
     ['Travail aliéné','Le travail n’est plus affirmation de soi, mais dépossession dans l’activité même.'],
@@ -288,6 +299,21 @@
       .then(function(html){
         byId('readerContent').innerHTML=cleanLocalHtml(html)||'<div class="reader-error"><b>Texte introuvable.</b><p>Le fichier local a été chargé, mais son contenu n’a pas pu être extrait.</p></div>';
         attachReader(i);
+        if(window.Reading){
+          var manIdx=(i>=2 && i<=4) ? (i-2) : -1;
+          var sumHtml=(manIdx>=0 && MAN_STRUCT[manIdx]) ? ('<div class="rd-clear-body">'+esc(MAN_STRUCT[manIdx].intro)+'</div>') : null;
+          window.Reading.mount(byId('lire'),{
+            ctx:{id:i, title:parts[i].title},
+            textSel:'.reader-content',
+            summaryHtml:sumHtml,
+            nav:{
+              prev: i>0 ? function(){ byId('partSelect').value=i-1; loadPart(i-1); } : null,
+              next: i<parts.length-1 ? function(){ byId('partSelect').value=i+1; loadPart(i+1); } : null
+            },
+            glossary:GLOSS_MAN,
+            xref:[{label:'Cheminement →', go:function(){ activateTab('deriv'); }}]
+          });
+        }
       })
       .catch(function(){showMissingLocal(path);});
   }
@@ -402,6 +428,7 @@
 <script src="shell.js"></script>
 <script src="shell-social.js"></script>
 <script src="shell-annotations.js"></script>
+<script src="reader-tools.js" defer></script>
 <script>
 installShell({
   workId: 'manuscrits-1844',
