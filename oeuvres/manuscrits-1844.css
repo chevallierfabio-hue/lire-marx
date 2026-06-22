@@ -139,3 +139,24 @@ header.work-head{text-align:center;margin:6px auto 26px;max-width:880px;}
 .dev-verdict.v-continuite{background:var(--ink);color:var(--paper);}
 .dev-verdict.v-transformation{background:var(--card);color:var(--ink-soft);border:1px solid var(--line);}
 @media(max-width:720px){.dev-debat{grid-template-columns:1fr;}.dev-trace{grid-template-columns:1fr;}.dev-arrow{transform:rotate(90deg);}}
+
+/* Atelier — instrument « Marx contre Hegel » (panel #labo, 5e onglet). */
+.hegel{margin-top:4px;}
+.heg-dette{background:var(--paper-2);border:1px solid var(--line);border-left:3px solid var(--ink);border-radius:6px;padding:14px 18px;margin-bottom:22px;}
+.heg-dette h4{font-family:'Fraunces',Georgia,serif;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);margin:0 0 8px;font-weight:700;}
+.heg-dette p{font-family:'Spectral',Georgia,serif;font-size:.96rem;color:var(--ink);line-height:1.6;margin:0;}
+.heg-pick{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;}
+.heg-pill{position:relative;font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:.9rem;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:18px;padding:7px 16px;cursor:pointer;transition:border-color .15s,background .15s;}
+.heg-pill:hover{border-color:var(--ink);}
+.heg-pill.active{border-color:var(--red);background:rgba(165,42,33,.06);}
+.heg-pill.is-key{border-style:dashed;}
+.heg-star{display:block;font-family:'Spectral',Georgia,serif;font-style:italic;font-weight:400;font-size:.72rem;color:var(--red-deep);}
+.heg-face{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;}
+.heg-col{background:var(--paper-2);border:1px solid var(--line);border-top:3px solid var(--line);border-radius:6px;padding:16px clamp(12px,1.6vw,20px);}
+.heg-col h5{font-family:'Fraunces',Georgia,serif;font-size:.95rem;font-weight:700;margin:0 0 10px;}
+.heg-col p{font-family:'Spectral',Georgia,serif;font-size:.96rem;color:var(--ink);line-height:1.6;margin:0;}
+.heg-hegel{border-top-color:var(--ink);}
+.heg-hegel h5{color:var(--ink);}
+.heg-marx{border-top-color:var(--red);}
+.heg-marx h5{color:var(--red-deep);}
+@media(max-width:720px){.heg-face{grid-template-columns:1fr;}}
