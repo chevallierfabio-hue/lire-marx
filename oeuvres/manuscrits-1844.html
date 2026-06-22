@@ -147,6 +147,7 @@
       <button class="lab-tab active" type="button" data-instr="ana">L'anatomie du travail aliéné</button>
       <button class="lab-tab" type="button" data-instr="carte">La carte des concepts</button>
       <button class="lab-tab" type="button" data-instr="sources">Marx &amp; ses sources</button>
+      <button class="lab-tab" type="button" data-instr="devenir">Le devenir des concepts</button>
     </div>
     <div class="instr" id="instr-ana">
       <div class="ana" id="ana">
@@ -165,6 +166,25 @@
       <div class="sources" id="sources">
         <div class="src-pick" id="srcPick"></div>
         <div class="src-body" id="srcBody"></div>
+      </div>
+    </div>
+    <div class="instr" id="instr-devenir" hidden>
+      <div class="devenir" id="devenir">
+        <div class="dev-debat">
+          <article class="dev-pos is-break">
+            <h4>La coupure — Althusser</h4>
+            <p>Vers 1845, une coupure épistémologique. Le jeune Marx des Manuscrits est encore idéologique — l'humanisme, l'aliénation, l'essence de l'homme hérités de Feuerbach et de Hegel. Le Marx scientifique du Capital rompt avec cette problématique : non plus un sujet-Homme, mais des rapports et des structures. Les Manuscrits seraient pré-marxistes.</p>
+          </article>
+          <article class="dev-pos is-cont">
+            <h4>La continuité — les lectures humanistes</h4>
+            <p>Les Manuscrits sont la matrice de toute l'œuvre. L'aliénation reste le fil conducteur — le fétichisme de la marchandise en est la forme mûrie — et l'exigence d'émancipation la traverse de bout en bout. Leur exhumation tardive, en 1932, a nourri cette relecture : le Marx de la maturité approfondit, il ne renie pas.</p>
+          </article>
+        </div>
+        <div class="dev-filiation">
+          <h3 class="dev-h">Le devenir, concept par concept</h3>
+          <div class="dev-pick" id="devPick"></div>
+          <div class="dev-body" id="devBody"></div>
+        </div>
       </div>
     </div>
   </section>
@@ -536,6 +556,43 @@
     draw();
   }
 
+  var FILIATION=[
+    {id:'alien', t:"L'aliénation", verdict:'continuite', verdictLabel:'Plutôt continuité',
+     en1844:"Le travail se retourne contre l'ouvrier : perte de l'objet, de l'activité, de l'espèce, d'autrui.",
+     devient:"Dans Le Capital, elle ne disparaît pas : elle mûrit en fétichisme de la marchandise — le rapport social entre les hommes prend la figure d'un rapport entre les choses."},
+    {id:'espece', t:"L'être générique", verdict:'coupure', verdictLabel:'Plutôt coupure',
+     en1844:"L'homme comme être d'espèce, qui produit librement et universellement.",
+     devient:"Dès la 6ᵉ Thèse sur Feuerbach, l'essence humaine n'est plus une abstraction mais « l'ensemble des rapports sociaux ». L'essence d'espèce cède la place aux rapports sociaux historiques."},
+    {id:'travail', t:'Le travail aliéné', verdict:'transformation', verdictLabel:'Transformation',
+     en1844:"L'aliénation pensée comme perte d'essence dans l'activité et son produit.",
+     devient:"Via la critique de l'économie politique, il devient l'analyse du travail salarié et de la survaleur : l'exploitation, rapport mesurable, prend le relais de la perte d'essence."},
+    {id:'communisme', t:'Le communisme', verdict:'transformation', verdictLabel:'Transformation',
+     en1844:"Abolition positive de la propriété privée, retour de l'homme à lui-même.",
+     devient:"La formule est historicisée : lutte des classes et conditions matérielles prennent le pas sur le thème du retour de l'homme à son essence."}
+  ];
+
+  function renderDevenir(){
+    var pick=byId('devPick'), body=byId('devBody'); if(!pick||!body) return;
+    var cur=FILIATION[0].id;
+    function draw(){
+      pick.innerHTML=FILIATION.map(function(f){
+        return '<button class="dev-pill'+(f.id===cur?' active':'')+'" type="button" data-dev="'+esc(f.id)+'">'+esc(f.t)+'</button>';
+      }).join('');
+      var f=FILIATION.filter(function(x){return x.id===cur;})[0];
+      body.innerHTML=
+        '<div class="dev-trace">'+
+          '<div class="dev-step"><h5>En 1844</h5><p>'+esc(f.en1844)+'</p></div>'+
+          '<div class="dev-arrow">→</div>'+
+          '<div class="dev-step"><h5>Ce qu’il devient</h5><p>'+esc(f.devient)+'</p></div>'+
+        '</div>'+
+        '<div class="dev-verdict v-'+esc(f.verdict)+'">'+esc(f.verdictLabel)+'</div>';
+      pick.querySelectorAll('.dev-pill').forEach(function(b){
+        b.onclick=function(){ cur=b.getAttribute('data-dev'); draw(); };
+      });
+    }
+    draw();
+  }
+
   function initLabTabs(){
     var bar=byId('labTabs'); if(!bar) return;
     bar.querySelectorAll('.lab-tab').forEach(function(b){
@@ -627,6 +684,7 @@
     renderAnatomie();
     renderCarte();
     renderSources();
+    renderDevenir();
     initLabTabs();
     byId('walk').innerHTML=walk.map(function(w){return '<article class="walk-step"><h3>'+esc(w[0])+'</h3><p>'+esc(w[1])+'</p></article>';}).join('');
     byId('timeline').innerHTML=timeline.map(function(e){return '<article class="event"><div class="year">'+esc(e[0])+'</div><div><h3>'+esc(e[1])+'</h3><p>'+esc(e[2])+'</p></div></article>';}).join('');
