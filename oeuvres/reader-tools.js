@@ -1,18 +1,23 @@
 (function(){
   if(window.Reading) return;
   var SKEY='liremarx.read.v1';
-  var DEF={theme:'paper',fs:1.04,lh:1.72,width:760,align:'justify',dys:false,focus:false,rate:1,voice:'',gloss:false};
+  var DEF={theme:'paper',fs:1.04,lh:1.72,width:760,align:'justify',font:'standard',focus:false,rate:1,voice:'',gloss:false};
   var S=loadS();
   function loadS(){try{var o=JSON.parse(localStorage.getItem(SKEY)||'{}');return Object.assign({},DEF,o);}catch(e){return Object.assign({},DEF);}}
   function saveS(){try{localStorage.setItem(SKEY,JSON.stringify(S));}catch(e){}}
   function esc(s){return (s||'').replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 
 
-  var fontInjected=false;
-  function ensureFont(){ if(fontInjected)return; fontInjected=true;
-    var l=document.createElement('link'); l.rel='stylesheet';
-    l.href='https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap';
-    document.head.appendChild(l); }
+  var fontsLoaded={};
+  function ensureFont(id){
+    if(!id||id==='standard'||fontsLoaded[id])return; fontsLoaded[id]=true;
+    var urls={
+      atkinson:'https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap',
+      lexend:'https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;700&display=swap',
+      opendyslexic:'https://cdn.jsdelivr.net/npm/@fontsource/opendyslexic@5/400.css'
+    };
+    var href=urls[id]; if(!href)return;
+    var l=document.createElement('link'); l.rel='stylesheet'; l.href=href; document.head.appendChild(l); }
 
   /* ---- état ---- */
   var cur=null;            // {readerEl, ws, num, n, title, paras:[]}
@@ -28,10 +33,10 @@
   function applyTo(r){
     if(!r)return;
     r.classList.add('rd-on');
-    r.classList.remove('theme-paper','theme-sepia','theme-dark','align-left','font-dys','focus-on');
+    r.classList.remove('theme-paper','theme-sepia','theme-dark','align-left','font-atkinson','font-lexend','font-opendyslexic','focus-on');
     r.classList.add('theme-'+S.theme);
     if(S.align==='left') r.classList.add('align-left');
-    if(S.dys){ ensureFont(); r.classList.add('font-dys'); }
+    if(S.font&&S.font!=='standard'){ ensureFont(S.font); r.classList.add('font-'+S.font); }
     if(S.focus) r.classList.add('focus-on');
     r.style.setProperty('--rd-fs', S.fs.toFixed(2)+'rem');
     r.style.setProperty('--rd-lh', S.lh.toFixed(2));
@@ -178,21 +183,21 @@
         +'<span class="rd-val">'+disp+'</span>'
         +'<button class="rd-mini" data-inc="'+name+'">+</button></span></div>';
     }
-    function stateVal(n){ return n==='theme'?S.theme : n==='align'?S.align : n==='dys'?(S.dys?1:0) : n==='focus'?(S.focus?1:0) : ''; }
+    function stateVal(n){ return n==='theme'?S.theme : n==='align'?S.align : n==='font'?S.font : n==='focus'?(S.focus?1:0) : ''; }
     var h='<h5>Réglages de lecture</h5>';
     h+='<div class="rd-setrow"><span class="lab">Thème</span>'+seg('theme',[['paper','Papier'],['sepia','Sépia'],['dark','Sombre']])+'</div>';
     h+=stepRow('Taille du texte','fs',Math.round(S.fs*100/1.04)+' %');
     h+=stepRow('Interligne','lh',S.lh.toFixed(2));
     h+=stepRow('Largeur','width',S.width+' px');
     h+='<div class="rd-setrow"><span class="lab">Alignement</span>'+seg('align',[['justify','Justifié'],['left','À gauche']])+'</div>';
-    h+='<div class="rd-setrow"><span class="lab">Police lisible</span>'+seg('dys',[['0','Standard'],['1','Atkinson']])+'</div>';
+    h+='<div class="rd-setrow"><span class="lab">Police</span>'+seg('font',[['standard','Standard'],['atkinson','Atkinson'],['lexend','Lexend'],['opendyslexic','Dyslexie']])+'</div>';
     h+='<div class="rd-setrow"><span class="lab">Mode focus</span>'+seg('focus',[['0','Off'],['1','On']])+'</div>';
     h+='<div class="rd-note">Le mode focus estompe tout sauf le paragraphe survolé (ou lu à voix haute). Réglages mémorisés sur cet appareil.</div>';
     box.innerHTML=h;
     box.querySelectorAll('[data-set]').forEach(function(b){ b.onclick=function(){
       var n=b.getAttribute('data-set'), v=b.getAttribute('data-v');
       if(n==='theme')S.theme=v; else if(n==='align')S.align=v;
-      else if(n==='dys')S.dys=(v==='1'); else if(n==='focus')S.focus=(v==='1');
+      else if(n==='font')S.font=v; else if(n==='focus')S.focus=(v==='1');
       saveS(); applyTo(r); renderSet(r);
     };});
     box.querySelectorAll('[data-dec],[data-inc]').forEach(function(b){ b.onclick=function(){
