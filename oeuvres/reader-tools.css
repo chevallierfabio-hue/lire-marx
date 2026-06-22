@@ -10,7 +10,9 @@
 .reader.theme-dark :is(.ws-text, .reader-content) h2,.reader.theme-dark :is(.ws-text, .reader-content) h3,.reader.theme-dark :is(.ws-text, .reader-content) h4{color:#e6b1a8;}
 .reader.theme-dark :is(.ws-text, .reader-content) dd{color:#b6aa94;}
 .reader.theme-dark p:first-of-type::first-letter{color:#e6b1a8;}
-.reader.font-dys :is(.ws-text, .reader-content),.reader.font-dys :is(.ws-text, .reader-content) p{font-family:'Atkinson Hyperlegible','Trebuchet MS',Verdana,sans-serif;letter-spacing:.012em;}
+.reader.font-atkinson :is(.ws-text, .reader-content),.reader.font-atkinson :is(.ws-text, .reader-content) p{font-family:'Atkinson Hyperlegible','Trebuchet MS',Verdana,sans-serif;letter-spacing:.012em;}
+.reader.font-lexend :is(.ws-text, .reader-content),.reader.font-lexend :is(.ws-text, .reader-content) p{font-family:'Lexend','Segoe UI',sans-serif;letter-spacing:.004em;}
+.reader.font-opendyslexic :is(.ws-text, .reader-content),.reader.font-opendyslexic :is(.ws-text, .reader-content) p{font-family:'OpenDyslexic','Comic Sans MS',sans-serif;letter-spacing:.01em;line-height:1.9;}
 .reader.focus-on :is(.ws-text, .reader-content) p{opacity:.32;transition:opacity .25s;}
 .reader.focus-on :is(.ws-text, .reader-content) p:hover,.reader.focus-on :is(.ws-text, .reader-content) p.rd-speak{opacity:1;}
 .reader :is(.ws-text, .reader-content) p.rd-speak{box-shadow:inset 3px 0 0 rgba(165,42,33,.35);border-radius:0 4px 4px 0;}
