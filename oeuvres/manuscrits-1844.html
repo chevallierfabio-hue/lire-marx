@@ -222,7 +222,7 @@
 
   <section class="panel" id="chrono">
     <h2 class="sec">La chronologie des Manuscrits</h2>
-    <p class="lead">Quelques repères pour situer le texte dans la trajectoire de Marx.</p>
+    <p class="lead">Le texte a deux âges : celui de son écriture, en 1844, et celui de sa découverte, près d'un siècle plus tard — quand son exhumation rouvre la lecture de tout Marx.</p>
     <div class="timeline" id="timeline"></div>
   </section>
 
@@ -339,11 +339,18 @@
      ressort:"Arrivé là, Marx doit régler ses comptes avec celui qui lui a tout appris du mouvement de l'aliénation — pour la ramener de la conscience au sol réel. Le texte s'achève sur ce face-à-face, et ouvre déjà sur la suite."}
   ];
   var timeline=[
-    ['1843','Départ et rupture politique','Après la Rheinische Zeitung, Marx quitte l’Allemagne.'],
-    ['1844','Paris et rédaction','Marx lit les économistes, rencontre les milieux socialistes, rédige les cahiers.'],
-    ['1845','Thèses sur Feuerbach','Le déplacement vers la pratique se précise.'],
-    ['1845-46',"L'Idéologie allemande",'Marx et Engels déplacent la critique vers les conditions historiques matérielles.'],
-    ['1932','Première publication','Les manuscrits sont publiés dans la MEGA.']
+    {section:"L'écriture", events:[
+      ['1843','Rupture et exil',"Après l'interdiction de la Rheinische Zeitung, Marx quitte la Prusse pour Paris, où il côtoie ouvriers, socialistes et économistes."],
+      ['1844','Les cahiers de Paris',"Au printemps et à l'été, il lit intensément les économistes (Smith, Ricardo, Say) et rédige trois cahiers de travail, ni publiés ni achevés — le deuxième est presque entièrement perdu."],
+      ['1844','Un chantier, pas un livre',"Le texte reste un manuscrit de travail : jamais de titre ni de forme définitive, et Marx passe bientôt à autre chose."]
+    ]},
+    {section:"La maturation", events:[
+      ['1845-46','Le déplacement',"Avec les Thèses sur Feuerbach puis L'Idéologie allemande, la critique glisse de l'essence de l'homme vers les rapports sociaux et l'histoire — ce qui nourrira le débat sur la coupure."]
+    ]},
+    {section:"La postérité", events:[
+      ['1932',"L'exhumation","Près de quatre-vingt-dix ans après leur rédaction, les manuscrits paraissent pour la première fois, dans la MEGA. On y découvre un Marx insoupçonné, philosophe de l'aliénation."],
+      ['après 1932',"L'onde de choc","Le « jeune Marx » bouleverse la lecture de l'œuvre : relectures humanistes et existentialistes, et en retour la thèse althussérienne de la coupure. Un texte de jeunesse devient un enjeu majeur du XXe siècle."]
+    ]}
   ];
   var GROUPS={
     accueil:{panels:['accueil'],labels:[]},
@@ -787,7 +794,7 @@
     renderLexique();
     initLabTabs();
     byId('walk').innerHTML=walk.map(function(w){return '<article class="walk-step"><div class="walk-cahier">Cahier '+esc(w.cahier)+'</div><h3>'+esc(w.titre)+'</h3><p>'+esc(w.ressort)+'</p></article>';}).join('');
-    byId('timeline').innerHTML=timeline.map(function(e){return '<article class="event"><div class="year">'+esc(e[0])+'</div><div><h3>'+esc(e[1])+'</h3><p>'+esc(e[2])+'</p></div></article>';}).join('');
+    byId('timeline').innerHTML=timeline.map(function(g){return '<div class="tl-section">'+esc(g.section)+'</div>'+g.events.map(function(e){return '<article class="event"><div class="year">'+esc(e[0])+'</div><div><h3>'+esc(e[1])+'</h3><p>'+esc(e[2])+'</p></div></article>';}).join('');}).join('');
     var sel=byId('partSelect');
     sel.innerHTML=parts.map(function(p,i){return '<option value="'+i+'">'+esc(p.title)+'</option>';}).join('');
     sel.addEventListener('change',function(){preparePart(+sel.value||0);});
