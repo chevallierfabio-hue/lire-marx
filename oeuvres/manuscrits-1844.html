@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="shell.css">
 <link rel="stylesheet" href="reader-tools.css">
 <link rel="stylesheet" href="manuscrits-1844.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&display=swap">
 </head>
 <body>
 <main class="wrap">
@@ -142,8 +143,12 @@
 
   <section class="panel" id="labo">
     <h2 class="sec">Le laboratoire des concepts</h2>
-    <p class="lead">Ici, pas de modèles quantitatifs comme dans le Capital I : des concepts à manipuler comme relations.</p>
-    <div class="cards" id="conceptCards"></div>
+    <p class="lead">Premier instrument : l'anatomie du travail aliéné. D'autres viendront s'ajouter ici.</p>
+    <div class="ana" id="ana">
+      <div class="ana-schema" id="anaSchema"></div>
+      <aside class="ana-detail" id="anaDetail"></aside>
+      <div class="ana-renv" id="anaRenv"></div>
+    </div>
   </section>
 
   <section class="panel" id="explore">
@@ -210,14 +215,29 @@
    {s:["communisme"],de:"Kommunismus",def:"Abolition positive de la propriété privée et réappropriation par l'homme de son essence sociale ; non un simple partage des biens."},
    {s:["forces essentielles","force essentielle"],de:"Wesenskräfte",def:"Les puissances propres de l'homme — sens et facultés — qui s'épanouissent ou s'atrophient selon les rapports sociaux."}
   ];
-  var concepts=[
-    ['Aliénation','Le produit, l’activité et le monde social deviennent étrangers au travailleur.'],
-    ['Travail aliéné','Le travail n’est plus affirmation de soi, mais dépossession dans l’activité même.'],
-    ['Propriété privée','Elle est à la fois résultat du travail aliéné et condition de sa reproduction.'],
-    ['Communisme','Non pas simple égalisation de la propriété, mais réappropriation humaine des forces sociales.'],
-    ['Argent','Puissance sociale inversée : il fait passer l’avoir avant l’être.'],
-    ['Hegel','Marx reprend la dialectique de l’aliénation en la ramenant à la pratique sensible.']
+  /* Anatomie du travail aliéné — données de l'instrument du panel #labo. */
+  var SEP=[
+    {id:'produit', pos:'haut', titre:'Le produit', de:'Entäußerung',
+     arrache:"l'objet qu'il fabrique",
+     meca:"Le produit du travail se dresse face à l'ouvrier comme une puissance étrangère. Plus il produit de richesse, plus il s'appauvrit : le monde des choses s'enrichit à mesure qu'il se dévalue. L'objectivation devient dépossession.",
+     formule:"Plus l'ouvrier crée, moins il possède : son œuvre le domine."},
+    {id:'acte', pos:'droite', titre:"L'acte de produire", de:'Selbstentfremdung',
+     arrache:"l'activité même, le travail vivant",
+     meca:"L'aliénation n'est pas que dans le résultat, elle est dans l'activité. Le travail est extérieur à l'ouvrier ; il ne s'y reconnaît pas, ne s'y épanouit pas mais s'y épuise. Ce n'est pas un besoin comblé mais un moyen de survivre — un travail forcé qu'on fuit dès que la contrainte cesse.",
+     formule:"Il ne se sent libre qu'en dehors du travail, et étranger à soi dedans."},
+    {id:'espece', pos:'bas', titre:"L'être générique", de:'Gattungswesen',
+     arrache:"son humanité même, sa vie d'espèce",
+     meca:"L'homme produit universellement, librement, même affranchi du besoin immédiat : c'est ce qui le distingue de l'animal. Le travail aliéné renverse cela et ravale la vie de l'espèce au rang de simple moyen de subsistance individuelle.",
+     formule:"Ce qui fait l'homme — produire en être libre — devient un gagne-pain."},
+    {id:'autrui', pos:'gauche', titre:'Autrui', de:'Entfremdung des Menschen vom Menschen',
+     arrache:"le lien aux autres hommes",
+     meca:"Conséquence des trois autres : étranger à son produit, à son acte, à son espèce, l'homme l'est aussi aux autres. Et ce qu'il perd, un autre le détient — le non-travailleur, le propriétaire.",
+     formule:"L'aliénation n'est pas un drame intérieur : c'est un rapport entre les hommes."}
   ];
+  var RENV={
+    titre:'Le renversement',
+    texte:"L'économie politique pose la propriété privée comme un fait premier qu'elle n'explique pas. Marx en cherche la genèse et la trouve dans le travail aliéné : c'est lui qui engendre la propriété privée — quitte à ce qu'ensuite les deux se renforcent mutuellement. Inverser ce sens de la causalité, c'est tout l'enjeu du Premier manuscrit."
+  };
   var walk=[
     ['Économie politique','Marx commence par les catégories économiques : salaire, profit, rente, propriété.'],
     ['Travail aliéné','Ces catégories conduisent au noyau : le travailleur se perd dans son propre produit.'],
@@ -317,6 +337,65 @@
       })
       .catch(function(){showMissingLocal(path);});
   }
+  function renderAnatomie(){
+    var schema=byId('anaSchema'), detail=byId('anaDetail'), renv=byId('anaRenv');
+    if(!schema||!detail||!renv) return;
+    var POS={ haut:{x:200,y:62}, droite:{x:336,y:200}, bas:{x:200,y:338}, gauche:{x:64,y:200} };
+    var lines='', nodes='';
+    SEP.forEach(function(s){
+      var p=POS[s.pos]; if(!p) return;
+      lines += '<line class="ana-line" data-sep="'+esc(s.id)+'" x1="200" y1="200" x2="'+p.x+'" y2="'+p.y+'" />';
+      nodes += '<g class="ana-node" data-sep="'+esc(s.id)+'" tabindex="0" role="button" aria-label="'+esc(s.titre)+'">'
+        +   '<rect x="'+(p.x-78)+'" y="'+(p.y-22)+'" width="156" height="44" rx="6" class="ana-node-box"/>'
+        +   '<text x="'+p.x+'" y="'+(p.y+5)+'" text-anchor="middle" class="ana-node-label">'+esc(s.titre)+'</text>'
+        + '</g>';
+    });
+    schema.innerHTML = '<svg viewBox="0 0 400 400" class="ana-svg" aria-label="Schéma des quatre séparations">'
+      + lines
+      + '<g class="ana-core">'
+      +   '<circle cx="200" cy="200" r="46" class="ana-core-box"/>'
+      +   '<text x="200" y="194" text-anchor="middle" class="ana-core-label">le</text>'
+      +   '<text x="200" y="214" text-anchor="middle" class="ana-core-label">travailleur</text>'
+      + '</g>'
+      + nodes
+      + '</svg>';
+    detail.innerHTML = '<div class="ana-empty">Touchez une séparation pour la déplier.</div>';
+    function activate(id){
+      var sep=SEP.filter(function(s){return s.id===id;})[0]; if(!sep) return;
+      schema.querySelectorAll('.ana-line').forEach(function(l){ l.classList.toggle('broken', l.getAttribute('data-sep')===id); });
+      schema.querySelectorAll('.ana-node').forEach(function(n){ n.classList.toggle('active', n.getAttribute('data-sep')===id); });
+      detail.innerHTML = '<div class="ana-de">'+esc(sep.de)+'</div>'
+        + '<h3 class="ana-titre">'+esc(sep.titre)+'</h3>'
+        + '<p class="ana-arr"><b>Ce qui est arraché : </b>'+esc(sep.arrache)+'.</p>'
+        + '<p class="ana-meca">'+esc(sep.meca)+'</p>'
+        + '<div class="ana-formule">'+esc(sep.formule)+'</div>';
+    }
+    schema.querySelectorAll('.ana-node').forEach(function(g){
+      g.addEventListener('click', function(){ activate(g.getAttribute('data-sep')); });
+      g.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); activate(g.getAttribute('data-sep')); } });
+    });
+    schema.querySelectorAll('.ana-line').forEach(function(l){
+      l.addEventListener('click', function(){ activate(l.getAttribute('data-sep')); });
+    });
+    renv.innerHTML = '<button class="ana-renv-btn" type="button" aria-expanded="false">Voir le renversement →</button>'
+      + '<div class="ana-renv-body" hidden>'
+      +   '<h3 class="ana-renv-titre">'+esc(RENV.titre)+'</h3>'
+      +   '<p class="ana-renv-text">'+esc(RENV.texte)+'</p>'
+      +   '<div class="ana-renv-cycle">'
+      +     '<span class="ana-renv-tag a">travail aliéné</span>'
+      +     '<span class="ana-renv-arrow">engendre →</span>'
+      +     '<span class="ana-renv-tag b">propriété privée</span>'
+      +     '<span class="ana-renv-back">↩ renforce en retour</span>'
+      +   '</div>'
+      + '</div>';
+    var btn=renv.querySelector('.ana-renv-btn'), body=renv.querySelector('.ana-renv-body');
+    btn.addEventListener('click', function(){
+      var open=body.hasAttribute('hidden');
+      if(open){ body.removeAttribute('hidden'); btn.textContent='Replier le renversement ↑'; btn.setAttribute('aria-expanded','true'); }
+      else    { body.setAttribute('hidden',''); btn.textContent='Voir le renversement →'; btn.setAttribute('aria-expanded','false'); }
+    });
+  }
+
   function init(){
     document.querySelectorAll('.tab').forEach(function(t){t.addEventListener('click',function(){activateTop(t.dataset.top);window.scrollTo({top:0,behavior:'smooth'});});});
     var navlist=byId('navlist');
@@ -392,7 +471,7 @@
         byId('nores').style.display=any?'none':'block';
       });
     }
-    byId('conceptCards').innerHTML=concepts.map(function(c){return '<article class="card"><small>Concept</small><h3>'+esc(c[0])+'</h3><p>'+esc(c[1])+'</p></article>';}).join('');
+    renderAnatomie();
     byId('walk').innerHTML=walk.map(function(w){return '<article class="walk-step"><h3>'+esc(w[0])+'</h3><p>'+esc(w[1])+'</p></article>';}).join('');
     byId('timeline').innerHTML=timeline.map(function(e){return '<article class="event"><div class="year">'+esc(e[0])+'</div><div><h3>'+esc(e[1])+'</h3><p>'+esc(e[2])+'</p></div></article>';}).join('');
     var sel=byId('partSelect');
