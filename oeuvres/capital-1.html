@@ -883,7 +883,7 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
         <div class="x-caption" id="mondeDesc" style="margin-top:14px;border-left-color:var(--blue);background:rgba(57,89,107,.07)"></div>
       </div>
       <div class="concepts-wrap"><h3>Comprendre les concepts</h3><div class="csub">La marchandise comme hiéroglyphe social.</div><div class="concept-cards" id="cc-feti"></div></div>
-      <a class="work-bridge" href="manuscrits-1844.html">
+      <a class="work-bridge" href="manuscrits-1844.html#anatomie">
         <div class="wb-eyebrow">Aux sources — 1844</div>
         <div class="wb-title">Le fétichisme, forme mûrie de l'aliénation</div>
         <p class="wb-text">Ce que Le Capital nomme ici fétichisme, le jeune Marx l'avait pressenti vingt ans plus tôt sous le nom d'aliénation : déjà, le produit du travail se dressait face à l'ouvrier comme une puissance étrangère, et le rapport social se dissimulait derrière le rapport entre les choses. Le même renversement, saisi cette fois par l'analyse de la valeur.</p>
@@ -2152,6 +2152,16 @@ try{if(window.Anno&&sel&&sel.value){const nn0=+sel.value.split('|')[0];if(nn0)wi
   // relance manuellement l'aiguillage (SHELL.annotations re-parse le
   // hash dans son propre listener avant que le nôtre tourne).
   window.addEventListener('hashchange', applyDeepLinkIfAny);
+
+  // Deep-link Atelier : #feti ouvre l'exploration du fétichisme.
+  function applyAtelierHash(){
+    var h=(location.hash||'').replace(/^#/,'');
+    if(h==='feti' && typeof goExplore==='function') goExplore('x-feti');
+  }
+  function bootAtelierHash(){ setTimeout(applyAtelierHash,0); }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', bootAtelierHash);
+  else bootAtelierHash();
+  window.addEventListener('hashchange', applyAtelierHash);
 })();
 </script>
 <script>
