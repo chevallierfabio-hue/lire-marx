@@ -431,6 +431,17 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
 .work-bridge .wb-text{font-family:'Spectral',Georgia,serif;font-size:.95rem;color:var(--ink-soft);line-height:1.6;margin:0 0 12px;}
 .work-bridge .wb-cta{font-family:'Fraunces',Georgia,serif;font-weight:700;font-size:.92rem;color:var(--gold-deep);}
 </style>
+<style id="resCss">
+.res-section{font-family:'Fraunces',Georgia,serif;font-weight:700;font-size:1.06rem;color:var(--ink);margin:28px 0 13px;padding-bottom:8px;border-bottom:2px solid var(--gold-deep);}
+.res-section:first-of-type{margin-top:10px;}
+.res-section small{font-family:var(--f-ui);font-weight:600;font-size:.72rem;color:var(--ink-soft);margin-left:9px;}
+.res-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(258px,1fr));gap:14px;margin-bottom:6px;}
+.res-card{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-left:3px solid var(--gold-deep);border-radius:8px;padding:15px 17px;text-decoration:none;color:inherit;transition:transform .15s,box-shadow .15s,border-color .15s;}
+.res-card:hover{transform:translateY(-2px);box-shadow:0 5px 16px rgba(0,0,0,.06);border-left-color:var(--red);}
+.res-kind{font-family:var(--f-ui);font-size:.64rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:7px;}
+.res-card h3{font-family:'Fraunces',Georgia,serif;font-size:1.04rem;line-height:1.22;margin:0 0 8px;color:var(--ink);}
+.res-meta{font-family:var(--f-ui);font-size:.8rem;color:var(--ink-soft);margin-top:auto;}
+</style>
 </head>
 <body>
 <div class="wrap">
@@ -448,6 +459,7 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
     <button class="tab active" data-top="accueil"><span class="num">I</span>Accueil</button>
     <button class="tab" data-top="lire"><span class="num">II</span>Lire le Capital</button>
     <button class="tab" data-top="atelier"><span class="num">III</span>Atelier</button>
+    <button class="tab" data-top="ressources"><span class="num">IV</span>Ressources</button>
   </nav>
   <nav class="subnav" id="subnav" style="display:none"></nav>
 
@@ -913,6 +925,35 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
     </div>
   </section>
 
+  <section class="panel" id="ressources">
+    <h2 class="sec">Ressources</h2>
+    <p class="lead">Pour prolonger la lecture : conférences, émissions et articles savants autour du Capital, de la valeur et du fétichisme. Tous ces liens ouvrent des sites externes.</p>
+
+    <div class="res-section">Vidéos <small>conférences</small></div>
+    <div class="res-grid">
+      <a class="res-card" href="https://www.youtube.com/watch?v=ASFB4m_SMQo" target="_blank" rel="noopener"><div class="res-kind">Conférence · Université Permanente</div><h3>S. Boussedra — « La marchandise » (Livre I, section 1)</h3><div class="res-meta">1 h 43</div></a>
+      <a class="res-card" href="https://www.youtube.com/watch?v=dr8pMiBueiY" target="_blank" rel="noopener"><div class="res-kind">Conférence · Université Permanente</div><h3>B. Vasseur — « Le fétichisme de la marchandise, du capital et de l'argent »</h3><div class="res-meta">2 h</div></a>
+      <a class="res-card" href="https://www.youtube.com/watch?v=Id5Wkndr2cA" target="_blank" rel="noopener"><div class="res-kind">Conférence · Université Permanente</div><h3>D. Durand — « La monnaie » (Livre I, section 1)</h3><div class="res-meta">1 h 47</div></a>
+      <a class="res-card" href="https://www.youtube.com/watch?v=GUIhf5oIvsM" target="_blank" rel="noopener"><div class="res-kind">Entretien · Le Média</div><h3>A. Bihr &amp; J. Théry — « Karl Marx et le vampire capitaliste »</h3><div class="res-meta">le travail mort qui suce le travail vivant</div></a>
+      <a class="res-card" href="https://www.youtube.com/watch?v=vbOomtzHQJA" target="_blank" rel="noopener"><div class="res-kind">Série · Café marxiste</div><h3>A. Vatan — « Le Capital de Marx » (1/5)</h3><div class="res-meta">série en cinq volets</div></a>
+      <a class="res-card" href="https://www.youtube.com/watch?v=AhUedta9ioI" target="_blank" rel="noopener"><div class="res-kind">Vidéo · Politikon</div><h3>« Marx — Le Capital, Livre I »</h3><div class="res-meta">De Dicto #21</div></a>
+      <a class="res-card" href="https://davidharvey.org/reading-capital/" target="_blank" rel="noopener"><div class="res-kind">Cours · en anglais</div><h3>D. Harvey — « Reading Marx's Capital, Volume I »</h3><div class="res-meta">le cours de référence, 12 séances</div></a>
+    </div>
+
+    <div class="res-section">Radio &amp; podcast <small>à écouter</small></div>
+    <div class="res-grid">
+      <a class="res-card" href="https://www.franceculture.fr/emissions/les-chemins-de-la-philosophie/le-capital-de-karl-marx-14-la-fabrique-de-la-plus-value" target="_blank" rel="noopener"><div class="res-kind">France Culture · Les Chemins de la philosophie</div><h3>« Le Capital de Karl Marx » (2017)</h3><div class="res-meta">série de 4 émissions · dès « La fabrique de la plus-value »</div></a>
+    </div>
+
+    <div class="res-section">Articles <small>Cairn &amp; revues</small></div>
+    <div class="res-grid">
+      <a class="res-card" href="https://shs.cairn.info/revue-la-pensee-2018-2-page-52?lang=fr" target="_blank" rel="noopener"><div class="res-kind">Cairn · La Pensée</div><h3>« Le fétichisme chez Marx : une mise en scène du capitalisme »</h3><div class="res-meta">2018 · valeur et travail abstrait · accès limité</div></a>
+      <a class="res-card" href="https://cairn.info/revue-actuel-marx-2003-2-page-11.htm" target="_blank" rel="noopener"><div class="res-kind">Cairn · Actuel Marx</div><h3>« Paradoxes marxiens de la marchandise »</h3><div class="res-meta">2003 · accès limité</div></a>
+      <a class="res-card" href="https://shs.cairn.info/revue-cahiers-d-economie-politique-1-2016-1-page-45" target="_blank" rel="noopener"><div class="res-kind">Cairn · Cahiers d'économie politique</div><h3>« Fétichisme de la marchandise et ontologie sociale chez Marx »</h3><div class="res-meta">2016 · Postone, Rubin · accès limité</div></a>
+      <a class="res-card" href="https://www.cairn.info/revue-savoirs-et-cliniques-2015-2-page-97.htm" target="_blank" rel="noopener"><div class="res-kind">Cairn · Savoirs et cliniques</div><h3>« Exploitation, aliénation et émancipation »</h3><div class="res-meta">2015 · le pont avec les Manuscrits · accès limité</div></a>
+    </div>
+  </section>
+
   <footer><b>L'Atelier du Capital</b> — texte intégral dans le domaine public (source Wikisource) ; explications, modèles et carte de la méthode originaux.<br><button id="footPrivacy" class="lk" type="button" style="margin-top:10px">Confidentialité &amp; données</button></footer>
   </div><!-- /work-capital -->
   <section id="contactsView" class="work-view contacts-view" style="display:none"></section>
@@ -925,9 +966,10 @@ const ICONS={box:'<svg viewBox="0 0 24 24"><rect x="4" y="7.5" width="16" height
 const GROUPS={
  accueil:{panels:['accueil'],labels:[]},
  lire:{panels:['nav','lire'],labels:['Parcourir','Texte intégral']},
- atelier:{panels:['deriv','labo','explore','chrono'],labels:['Cheminement','Modèles','Explorations','Chronologie']}
+ atelier:{panels:['deriv','labo','explore','chrono'],labels:['Cheminement','Modèles','Explorations','Chronologie']},
+ ressources:{panels:['ressources'],labels:[]}
 };
-const curPanel={accueil:'accueil',lire:'nav',atelier:'deriv'};
+const curPanel={accueil:'accueil',lire:'nav',atelier:'deriv',ressources:'ressources'};
 function panelTop(id){for(const t in GROUPS)if(GROUPS[t].panels.indexOf(id)>=0)return t;return 'accueil';}
 function activateTop(top){
   document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.top===top));
@@ -2175,7 +2217,8 @@ installShell({
     {id:'deriv',   label:'Cheminement'},
     {id:'labo',    label:'Modèles'},
     {id:'explore', label:'Explorations'},
-    {id:'chrono',  label:'Chronologie'}
+    {id:'chrono',  label:'Chronologie'},
+    {id:'ressources', label:'Ressources'}
   ]
 });
 // Le bouton « Confidentialité & données » du pied de page ouvre la modale RGPD
