@@ -160,3 +160,19 @@ header.work-head{text-align:center;margin:6px auto 26px;max-width:880px;}
 .heg-marx{border-top-color:var(--red);}
 .heg-marx h5{color:var(--red-deep);}
 @media(max-width:720px){.heg-face{grid-template-columns:1fr;}}
+
+/* Atelier — instrument « Lexique allemand » (panel #labo, 6e onglet). */
+.lexique{margin-top:4px;}
+.lex-pair{background:var(--paper-2);border:1px solid var(--line);border-left:3px solid var(--red);border-radius:6px;padding:14px 18px;margin-bottom:24px;}
+.lex-pair h4{font-family:'Fraunces',Georgia,serif;font-size:.95rem;font-weight:700;color:var(--red-deep);margin:0 0 8px;}
+.lex-pair p{font-family:'Spectral',Georgia,serif;font-size:.96rem;color:var(--ink);line-height:1.6;margin:0;}
+.lex-list{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.lex-entry{background:var(--paper-2);border:1px solid var(--line);border-radius:6px;padding:16px 18px;}
+.lex-head{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 12px;margin-bottom:12px;}
+.lex-de{font-family:'Fraunces',Georgia,serif;font-size:1.32rem;font-weight:700;color:var(--ink);}
+.lex-fr{font-family:'Spectral',Georgia,serif;font-style:italic;font-size:.95rem;color:var(--ink-soft);}
+.lex-bricks{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
+.lex-brick{font-family:'Spectral',Georgia,serif;font-size:.82rem;color:var(--ink-soft);background:var(--card);border:1px solid var(--line);border-radius:4px;padding:3px 9px;}
+.lex-brick b{font-family:'Fraunces',Georgia,serif;font-weight:700;color:var(--ink);}
+.lex-sens{font-family:'Spectral',Georgia,serif;font-size:.95rem;color:var(--ink);line-height:1.6;margin:0;}
+@media(max-width:720px){.lex-list{grid-template-columns:1fr;}}
