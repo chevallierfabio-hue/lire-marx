@@ -149,6 +149,7 @@
       <button class="lab-tab" type="button" data-instr="sources">Marx &amp; ses sources</button>
       <button class="lab-tab" type="button" data-instr="devenir">Le devenir des concepts</button>
       <button class="lab-tab" type="button" data-instr="hegel">Marx contre Hegel</button>
+      <button class="lab-tab" type="button" data-instr="lexique">Lexique allemand</button>
     </div>
     <div class="instr" id="instr-ana">
       <div class="ana" id="ana">
@@ -196,6 +197,15 @@
         </div>
         <div class="heg-pick" id="hegPick"></div>
         <div class="heg-body" id="hegBody"></div>
+      </div>
+    </div>
+    <div class="instr" id="instr-lexique" hidden>
+      <div class="lexique" id="lexique">
+        <div class="lex-pair">
+          <h4>La paire décisive — Entfremdung vs Entäußerung</h4>
+          <p>Marx emploie les deux, et les traducteurs les rendent parfois par le même mot, « aliénation », ce qui brouille tout. Entäußerung (extériorisation, dessaisissement) est le mouvement, en soi neutre voire nécessaire, par lequel on se porte au-dehors — le terme a même un sens juridique : céder un bien. Entfremdung est le résultat hostile : devenir étranger. On peut s'extérioriser sans s'aliéner ; c'est l'écart entre les deux que la propriété privée vient combler.</p>
+        </div>
+        <div class="lex-list" id="lexList"></div>
       </div>
     </div>
   </section>
@@ -639,6 +649,41 @@
     draw();
   }
 
+  var LEXIQUE=[
+    {de:'Entfremdung', fr:"l'aliénation",
+     bricks:[['ent-','séparation, « dé- »'],['fremd','étranger'],['-ung',"l'action"]],
+     sens:"« le devenir-étranger ». La forme renforcée Selbstentfremdung (selbst, soi-même) nomme l'aliénation dans l'acte : devenir étranger à soi."},
+    {de:'Entäußerung', fr:"l'extériorisation, le dessaisissement",
+     bricks:[['ent-','mouvement vers'],['äußer','extérieur (von außen, « dehors »)'],['-ung',"l'action"]],
+     sens:"« l'action de se porter au-dehors ». Connotation juridique : aliéner, céder un bien. Le mouvement, en soi neutre, par lequel on s'extériorise."},
+    {de:'Vergegenständlichung', fr:"l'objectivation",
+     bricks:[['ver-','accomplissement'],['Gegenstand',"l'objet (gegen « face à » + Stand « ce qui se tient »)"],['-lichung','le devenir']],
+     sens:"« se réaliser dans un objet ». En soi positive — l'acte humain par excellence."},
+    {de:'Gattungswesen', fr:"l'être générique",
+     bricks:[['Gattung',"l'espèce, le genre (de gatten, apparier)"],['Wesen',"l'être, l'essence"]],
+     sens:"« l'être-d'espèce » : l'homme rapporté à l'espèce entière. Hérité de Feuerbach."},
+    {de:'Wesenskräfte', fr:'les forces essentielles',
+     bricks:[['Wesen','essence'],['-s-','liaison'],['Kräfte','forces']],
+     sens:"« les puissances de l'essence » : les sens et facultés de l'homme, qui s'épanouissent ou s'atrophient selon les rapports sociaux."},
+    {de:'Privateigentum', fr:'la propriété privée',
+     bricks:[['Privat','privé'],['Eigen','propre, ce qui est à soi'],['-tum','état']],
+     sens:"« l'état de ce qui est tenu pour propre ». Résultat du travail aliéné, non sa cause."}
+  ];
+
+  function renderLexique(){
+    var list=byId('lexList'); if(!list) return;
+    list.innerHTML=LEXIQUE.map(function(e){
+      var bricks=e.bricks.map(function(b){
+        return '<span class="lex-brick"><b>'+esc(b[0])+'</b> '+esc(b[1])+'</span>';
+      }).join('');
+      return '<article class="lex-entry">'+
+        '<div class="lex-head"><span class="lex-de">'+esc(e.de)+'</span><span class="lex-fr">'+esc(e.fr)+'</span></div>'+
+        '<div class="lex-bricks">'+bricks+'</div>'+
+        '<p class="lex-sens">'+esc(e.sens)+'</p>'+
+      '</article>';
+    }).join('');
+  }
+
   function initLabTabs(){
     var bar=byId('labTabs'); if(!bar) return;
     bar.querySelectorAll('.lab-tab').forEach(function(b){
@@ -732,6 +777,7 @@
     renderSources();
     renderDevenir();
     renderHegel();
+    renderLexique();
     initLabTabs();
     byId('walk').innerHTML=walk.map(function(w){return '<article class="walk-step"><h3>'+esc(w[0])+'</h3><p>'+esc(w[1])+'</p></article>';}).join('');
     byId('timeline').innerHTML=timeline.map(function(e){return '<article class="event"><div class="year">'+esc(e[0])+'</div><div><h3>'+esc(e[1])+'</h3><p>'+esc(e[2])+'</p></div></article>';}).join('');
