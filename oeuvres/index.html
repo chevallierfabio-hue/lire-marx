@@ -165,6 +165,7 @@ html.revealed .feat:nth-child(4){transition-delay:.86s;}
 @keyframes gearSpin{to{transform:rotate(360deg);}}
 @media(max-width:680px){.bg-gear--ml{display:none;}.bg-gear{opacity:.035;}}
 @media(prefers-reduced-motion:reduce){.gspin{animation:none;}}
+.bg-dust{position:fixed;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none;}
 </style>
 </head>
 <body>
@@ -173,6 +174,8 @@ html.revealed .feat:nth-child(4){transition-delay:.86s;}
     <svg class="bg-gear bg-gear--bl" viewBox="-50 -50 100 100"><g class="gspin gspin--b"><circle r="38" fill="none" stroke-width="14" stroke-dasharray="9 10.9"/><circle r="30" fill="none" stroke-width="5"/><circle r="8" fill="none" stroke-width="5"/></g></svg>
     <svg class="bg-gear bg-gear--ml" viewBox="-50 -50 100 100"><g class="gspin gspin--c"><circle r="38" fill="none" stroke-width="14" stroke-dasharray="9 10.9"/><circle r="30" fill="none" stroke-width="5"/><circle r="8" fill="none" stroke-width="5"/></g></svg>
   </div>
+<canvas id="bgDust" class="bg-dust" aria-hidden="true"></canvas>
+
 <main class="wrap">
   <section class="home-intro">
     <div class="kicker home-eyebrow">Bibliothèque critique · accès libre</div>
@@ -415,6 +418,23 @@ if(window.SHELL && window.SHELL.commune){
   if(!('IntersectionObserver' in window)){els.forEach(function(e){e.classList.add('in');});return;}
   var io=new IntersectionObserver(function(ent){ent.forEach(function(x){if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target);}});},{threshold:.18});
   els.forEach(function(e){io.observe(e);});
+})();
+</script>
+<script>
+(function(){
+  var c=document.getElementById('bgDust'); if(!c||!c.getContext) return;
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  var ctx=c.getContext('2d'), W=0, H=0, dpr=Math.min(window.devicePixelRatio||1,2), motes=[], raf=null;
+  function size(){ W=c.clientWidth; H=c.clientHeight; c.width=W*dpr; c.height=H*dpr; ctx.setTransform(dpr,0,0,dpr,0,0); }
+  function reset(m,init){ m.x=Math.random()*W; m.y=init?Math.random()*H:H+8; m.r=.6+Math.random()*1.7; m.sp=.12+Math.random()*.38; m.dx=(Math.random()-.5)*.18; m.a=.14+Math.random()*.5; m.ph=Math.random()*6.28; m.tw=.004+Math.random()*.012; return m; }
+  function make(){ var n=Math.round(Math.min(46, W*H/26000)); motes=[]; for(var i=0;i<n;i++) motes.push(reset({},true)); }
+  function frame(){ ctx.clearRect(0,0,W,H); for(var i=0;i<motes.length;i++){ var m=motes[i]; m.y-=m.sp; m.x+=m.dx; m.ph+=m.tw; var tw=.6+.4*Math.sin(m.ph); if(m.y<-8||m.x<-8||m.x>W+8) reset(m,false); ctx.beginPath(); ctx.arc(m.x,m.y,m.r,0,6.2832); ctx.fillStyle='rgba(212,168,67,'+(m.a*tw).toFixed(3)+')'; ctx.fill(); } raf=requestAnimationFrame(frame); }
+  function start(){ if(!raf) frame(); }
+  function stop(){ if(raf){ cancelAnimationFrame(raf); raf=null; } }
+  size(); make();
+  if(reduce){ frame(); stop(); } else { start(); }
+  window.addEventListener('resize',function(){ size(); make(); if(reduce){ frame(); stop(); } });
+  document.addEventListener('visibilitychange',function(){ if(document.hidden) stop(); else if(!reduce) start(); });
 })();
 </script>
 </body>
