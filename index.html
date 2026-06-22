@@ -417,6 +417,7 @@ h1.big em{font-style:italic;font-weight:500;color:#e5392a;}
   canvas.addEventListener('click', enter);
   var sheet=document.getElementById('sheet'), cine=document.getElementById('cine');
   var app=document.getElementById('app');
+  var revealed=false;
 
   // Après l'animation, on entre dans la bibliothèque (l'accueil canonique
   // du site), pas directement dans un livre.
@@ -478,7 +479,8 @@ h1.big em{font-style:italic;font-weight:500;color:#e5392a;}
     var sv=smooth(0.45,0.96,p);
     sheet.style.opacity=sv; sheet.style.transform='scale('+(0.92+0.08*sv)+')';
     canvas.style.opacity=String(1-smooth(0.62,0.97,p));
-    if(p>0.6){ sheet.classList.add('show'); cine.classList.add('hide'); }
+    if(p>0.6){ sheet.classList.add('show'); cine.classList.add('hide');
+      if(!revealed){ revealed=true; try{ app.contentWindow.postMessage({lm:'reveal'},'*'); }catch(e){} } }
     else { sheet.classList.remove('show'); cine.classList.remove('hide'); }
 
     renderer.render(scene,camera);
