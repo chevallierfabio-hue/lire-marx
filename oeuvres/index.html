@@ -9,6 +9,16 @@
 <style>
 .wrap{max-width:1180px;padding:44px 22px 80px;}
 .hero{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(250px,.88fr);gap:36px;align-items:end;margin-bottom:28px;}
+.intro{margin-bottom:34px;padding-bottom:30px;border-bottom:1px solid var(--line);}
+.intro h1{font-family:'Fraunces',Georgia,serif;font-weight:900;font-size:clamp(2.1rem,5vw,3.3rem);line-height:1.02;letter-spacing:-.02em;color:var(--ink);margin:6px 0 16px;}
+.intro h1 em{font-style:italic;font-weight:500;color:var(--red);}
+.intro-body{max-width:64ch;}
+.intro-body p{font-family:'Spectral',Georgia,serif;font-size:1.06rem;line-height:1.66;color:var(--ink-soft);margin-bottom:12px;}
+.intro-body p em{font-style:italic;color:var(--ink);font-weight:500;}
+.intro-body p:last-child{margin-bottom:0;}
+.home-sec .ledger{display:flex;align-items:center;gap:20px;margin:0 0 18px;padding:11px 16px;box-shadow:none;}
+.home-sec .ledger .ledger-title{margin:0;font-size:.92rem;color:var(--ink-soft);}
+.home-sec .ledger .ledger-grid{display:flex;gap:22px;}
 .ledger{border:1px solid var(--line);background:rgba(248,241,223,.76);border-radius:8px;padding:18px 18px 16px;box-shadow:0 18px 45px -36px rgba(34,29,22,.7);}
 .ledger-title{font-family:'Fraunces',Georgia,serif;font-weight:700;font-size:1.15rem;margin-bottom:10px;}
 .ledger-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
@@ -77,26 +87,28 @@
 </head>
 <body>
 <main class="wrap">
-  <section class="hero">
-    <div>
-      <div class="kicker">Bibliothèque générale</div>
-      <h1>Les œuvres, <em>avant l’atelier</em></h1>
-      <p class="lead">Un inventaire unique des textes disponibles et des chantiers à préparer. Les œuvres non intégrées restent visibles, mais sans lien cassé.</p>
+  <section class="intro">
+    <div class="kicker">Le projet</div>
+    <h1>Lire Marx, <em>vraiment</em></h1>
+    <div class="intro-body">
+      <p><em>Lire Marx</em> est une bibliothèque pour entrer dans les œuvres elles-mêmes — non pas des résumés qui dispensent de les lire, mais les textes intégraux, en accès libre, dans une interface conçue comme un livre.</p>
+      <p>Chaque titre s’ouvre sur quelques gestes : <em>lire</em> le texte intégral dans une liseuse qu’on règle à sa main ; passer à l’<em>atelier</em>, où un laboratoire de concepts décompose, cartographie et met en mouvement les notions difficiles ; prolonger par des <em>ressources</em> choisies, et par la <em>place publique</em>, où les lectures se déposent et se répondent.</p>
+      <p>L’ambition est simple : que personne ne renonce à Marx faute d’une porte d’entrée. Le texte reste exigeant ; tout le reste est fait pour qu’on le tienne.</p>
     </div>
-    <aside class="ledger" aria-label="Compteur de la bibliothèque">
-      <div class="ledger-title">État du fonds</div>
-      <div class="ledger-grid">
-        <div class="metric"><b id="countAll">0</b><span>œuvres</span></div>
-        <div class="metric"><b id="countAvailable">0</b><span>disponibles</span></div>
-        <div class="metric"><b id="countPending">0</b><span>à préparer</span></div>
-      </div>
-    </aside>
   </section>
 
   <div class="home-grid">
     <div class="home-main">
       <section class="home-sec" aria-label="La bibliothèque">
         <div class="sec-head"><h2>La bibliothèque</h2><span class="count" id="shelfCount">…</span></div>
+        <aside class="ledger" aria-label="État du fonds">
+          <div class="ledger-title">État du fonds</div>
+          <div class="ledger-grid">
+            <div class="metric"><b id="countAll">0</b><span>œuvres</span></div>
+            <div class="metric"><b id="countAvailable">0</b><span>disponibles</span></div>
+            <div class="metric"><b id="countPending">0</b><span>à préparer</span></div>
+          </div>
+        </aside>
         <section class="tools" aria-label="Filtres de la bibliothèque">
           <input id="search" class="search" type="search" placeholder="Rechercher par titre, année, concept ou description…" aria-label="Rechercher dans la bibliothèque">
           <div class="filter-block">
