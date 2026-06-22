@@ -126,5 +126,15 @@ h2.sec{font-family:'Fraunces',serif;font-weight:900;font-size:1.8rem;margin-bott
 .chip{font-family:'Fraunces',serif;font-weight:600;font-size:.82rem;color:#fff;padding:3px 11px;border-radius:20px;display:inline-flex;}
 .walk{position:relative;margin:10px 0 6px;}
 .walk-step{display:grid;grid-template-columns:1fr 60px 1fr;align-items:center;position:relative;}
+/* Onglet « Ressources » — cartes de liens externes — partagé */
+.res-section{font-family:'Fraunces',Georgia,serif;font-weight:700;font-size:1.06rem;color:var(--ink);margin:28px 0 13px;padding-bottom:8px;border-bottom:2px solid var(--gold-deep);}
+.res-section:first-of-type{margin-top:10px;}
+.res-section small{font-family:var(--f-ui);font-weight:600;font-size:.72rem;color:var(--ink-soft);margin-left:9px;}
+.res-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(258px,1fr));gap:14px;margin-bottom:6px;}
+.res-card{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-left:3px solid var(--gold-deep);border-radius:8px;padding:15px 17px;text-decoration:none;color:inherit;transition:transform .15s,box-shadow .15s,border-color .15s;}
+.res-card:hover{transform:translateY(-2px);box-shadow:0 5px 16px rgba(0,0,0,.06);border-left-color:var(--red);}
+.res-kind{font-family:var(--f-ui);font-size:.64rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:7px;}
+.res-card h3{font-family:'Fraunces',Georgia,serif;font-size:1.04rem;line-height:1.22;margin:0 0 8px;color:var(--ink);}
+.res-meta{font-family:var(--f-ui);font-size:.8rem;color:var(--ink-soft);margin-top:auto;}
 footer{text-align:center;margin-top:54px;padding-top:22px;border-top:1px solid var(--line);color:var(--ink-soft);font-style:italic;font-size:.86rem;}
 footer b{font-family:'Fraunces',serif;font-style:normal;color:var(--ink);}
