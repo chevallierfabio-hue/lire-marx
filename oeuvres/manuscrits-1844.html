@@ -148,6 +148,7 @@
       <button class="lab-tab" type="button" data-instr="carte">La carte des concepts</button>
       <button class="lab-tab" type="button" data-instr="sources">Marx &amp; ses sources</button>
       <button class="lab-tab" type="button" data-instr="devenir">Le devenir des concepts</button>
+      <button class="lab-tab" type="button" data-instr="hegel">Marx contre Hegel</button>
     </div>
     <div class="instr" id="instr-ana">
       <div class="ana" id="ana">
@@ -185,6 +186,16 @@
           <div class="dev-pick" id="devPick"></div>
           <div class="dev-body" id="devBody"></div>
         </div>
+      </div>
+    </div>
+    <div class="instr" id="instr-hegel" hidden>
+      <div class="hegel" id="hegel">
+        <div class="heg-dette">
+          <h4>Ce que Marx reconnaît à Hegel</h4>
+          <p>La grandeur de la Phénoménologie : penser l'auto-engendrement de l'homme comme un processus, saisir le travail comme l'acte par lequel l'homme se produit, et faire de la négativité le moteur du mouvement. Marx ne jette pas Hegel — il le remet sur ses pieds.</p>
+        </div>
+        <div class="heg-pick" id="hegPick"></div>
+        <div class="heg-body" id="hegBody"></div>
       </div>
     </div>
   </section>
@@ -593,6 +604,41 @@
     draw();
   }
 
+  var HEGEL=[
+    {id:'sujet', t:'Le sujet',
+     hegel:"L'homme est conscience de soi ; ses objets sont des moments de l'esprit.",
+     marx:"L'homme est un être naturel, sensible, objectif : il lui faut des objets réels hors de lui, il pâtit et agit dans un monde matériel."},
+    {id:'travail', t:'Le travail',
+     hegel:"Il saisit le travail comme essence de l'homme, mais ne connaît que le travail abstrait, l'activité de l'esprit.",
+     marx:"Le travail est réel, sensible, matériel — c'est là que l'aliénation a lieu."},
+    {id:'objectivation', t:'Objectivation et aliénation', key:true,
+     hegel:"Il les confond : toute objectivité est aliénation de la conscience, à résorber.",
+     marx:"Il les distingue : l'objectivation — se réaliser dans des objets — est positive et indéracinable ; l'aliénation — être dominé par eux — est historique, liée à la propriété privée, donc abolissable."},
+    {id:'depassement', t:'Le dépassement',
+     hegel:"Il s'accomplit dans le savoir : le savoir absolu réabsorbe l'objet dans la conscience.",
+     marx:"Il s'accomplit dans la transformation réelle des rapports, non dans la pensée."}
+  ];
+
+  function renderHegel(){
+    var pick=byId('hegPick'), body=byId('hegBody'); if(!pick||!body) return;
+    var cur=HEGEL[0].id;
+    function draw(){
+      pick.innerHTML=HEGEL.map(function(h){
+        return '<button class="heg-pill'+(h.id===cur?' active':'')+(h.key?' is-key':'')+'" type="button" data-heg="'+esc(h.id)+'">'+esc(h.t)+(h.key?'<span class="heg-star">point décisif</span>':'')+'</button>';
+      }).join('');
+      var h=HEGEL.filter(function(x){return x.id===cur;})[0];
+      body.innerHTML=
+        '<div class="heg-face">'+
+          '<div class="heg-col heg-hegel"><h5>Hegel</h5><p>'+esc(h.hegel)+'</p></div>'+
+          '<div class="heg-col heg-marx"><h5>Marx</h5><p>'+esc(h.marx)+'</p></div>'+
+        '</div>';
+      pick.querySelectorAll('.heg-pill').forEach(function(b){
+        b.onclick=function(){ cur=b.getAttribute('data-heg'); draw(); };
+      });
+    }
+    draw();
+  }
+
   function initLabTabs(){
     var bar=byId('labTabs'); if(!bar) return;
     bar.querySelectorAll('.lab-tab').forEach(function(b){
@@ -685,6 +731,7 @@
     renderCarte();
     renderSources();
     renderDevenir();
+    renderHegel();
     initLabTabs();
     byId('walk').innerHTML=walk.map(function(w){return '<article class="walk-step"><h3>'+esc(w[0])+'</h3><p>'+esc(w[1])+'</p></article>';}).join('');
     byId('timeline').innerHTML=timeline.map(function(e){return '<article class="event"><div class="year">'+esc(e[0])+'</div><div><h3>'+esc(e[1])+'</h3><p>'+esc(e[2])+'</p></div></article>';}).join('');
