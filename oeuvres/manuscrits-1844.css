@@ -66,3 +66,35 @@ header.work-head{text-align:center;margin:6px auto 26px;max-width:880px;}
 .ana-renv-arrow{font-family:'Fraunces',Georgia,serif;font-size:1.02rem;color:var(--ink);}
 .ana-renv-back{flex-basis:100%;text-align:center;font-family:'Fraunces',Georgia,serif;font-style:italic;font-size:.96rem;color:var(--ink-soft);margin-top:2px;}
 @media(max-width:720px){.ana{grid-template-columns:1fr;}.ana-detail{min-height:0;}.ana-renv-back{flex-basis:auto;}}
+
+/* Atelier — barre de sous-onglets du laboratoire + instrument « carte des concepts ». */
+.lab-tabs{display:flex;flex-wrap:wrap;gap:0 18px;border-bottom:1px solid var(--line);margin:2px 0 20px;}
+.lab-tab{font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:.92rem;background:none;border:none;color:var(--ink-soft);padding:8px 2px;margin-bottom:-1px;cursor:pointer;border-bottom:2px solid transparent;transition:color .15s,border-color .15s;}
+.lab-tab:hover{color:var(--ink);}
+.lab-tab.active{color:var(--ink);border-bottom-color:var(--red);}
+.instr[hidden]{display:none;}
+.carte{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:22px;align-items:start;margin-top:8px;}
+.carte-schema{background:var(--paper-2);border:1px solid var(--line);border-radius:6px;padding:14px clamp(8px,2vw,18px);}
+.carte-svg{display:block;width:100%;height:auto;}
+.carte-link{stroke:var(--ink);stroke-width:1.1;fill:none;opacity:.55;transition:stroke .15s,opacity .15s,stroke-width .15s;}
+.carte-link.lit{stroke:var(--red);stroke-width:2;opacity:1;}
+.carte-link.dim{opacity:.12;}
+.carte-node{cursor:pointer;outline:none;transition:opacity .15s;}
+.carte-node:focus-visible .carte-node-box{stroke:var(--red);stroke-width:1.8;}
+.carte-node-box{fill:var(--card);stroke:var(--ink);stroke-width:1;transition:stroke .15s,stroke-width .15s;}
+.carte-node:hover .carte-node-box{stroke-width:1.6;}
+.carte-node.core .carte-node-box{fill:var(--ink);stroke:var(--ink);}
+.carte-node.active .carte-node-box{stroke:var(--red);stroke-width:2;}
+.carte-node.dim{opacity:.3;}
+.carte-node-label{font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:13px;fill:var(--ink);pointer-events:none;}
+.carte-node.core .carte-node-label{fill:var(--paper);}
+.carte-detail{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:18px clamp(14px,2.2vw,22px);min-height:280px;}
+.carte-empty{font-family:'Fraunces',Georgia,serif;font-style:italic;font-size:1.02rem;color:var(--ink-soft);text-align:center;padding:60px 8px;line-height:1.5;}
+.carte-de{font-family:'Fraunces',Georgia,serif;font-style:italic;font-size:.78rem;letter-spacing:.18em;text-transform:uppercase;color:var(--const,#6b6051);margin-bottom:4px;}
+.carte-titre{font-family:'Fraunces',Georgia,serif;font-weight:700;font-size:1.32rem;color:var(--ink);margin:0 0 14px;line-height:1.15;}
+.carte-def{font-family:'Spectral',Georgia,serif;font-size:.99rem;color:var(--ink);line-height:1.65;margin:0;}
+.carte-rel{list-style:none;margin:14px 0 0;padding:14px 0 0;border-top:1px dashed var(--line);}
+.carte-rel li{font-family:'Spectral',Georgia,serif;font-size:.95rem;color:var(--ink);line-height:1.5;margin:0 0 9px;}
+.carte-rel .ar{font-family:'Fraunces',Georgia,serif;font-weight:700;color:var(--red);margin-right:4px;}
+.carte-rel .to{font-family:'Fraunces',Georgia,serif;font-weight:600;}
+@media(max-width:720px){.carte{grid-template-columns:1fr;}.carte-detail{min-height:0;}}
