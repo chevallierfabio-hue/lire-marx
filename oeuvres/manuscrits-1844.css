@@ -114,3 +114,28 @@ header.work-head{text-align:center;margin:6px auto 26px;max-width:880px;}
 .src-col.is-break h4{color:var(--red-deep);}
 .src-col p{font-family:'Spectral',Georgia,serif;font-size:.96rem;color:var(--ink);line-height:1.6;margin:0;}
 @media(max-width:720px){.src-body{grid-template-columns:1fr;}}
+
+/* Atelier — instrument « Le devenir des concepts » (panel #labo, 4e onglet). */
+.devenir{margin-top:4px;}
+.dev-debat{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:26px;}
+.dev-pos{background:var(--paper-2);border:1px solid var(--line);border-top:3px solid var(--line);border-radius:6px;padding:16px clamp(12px,1.6vw,20px);}
+.dev-pos.is-break{border-top-color:var(--red);}
+.dev-pos.is-cont{border-top-color:var(--ink);}
+.dev-pos h4{font-family:'Fraunces',Georgia,serif;font-size:.95rem;font-weight:700;color:var(--ink);margin:0 0 10px;}
+.dev-pos.is-break h4{color:var(--red-deep);}
+.dev-pos p{font-family:'Spectral',Georgia,serif;font-size:.95rem;color:var(--ink);line-height:1.6;margin:0;}
+.dev-h{font-family:'Fraunces',Georgia,serif;font-size:1.05rem;font-weight:700;color:var(--ink);margin:0 0 12px;}
+.dev-pick{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
+.dev-pill{font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:.9rem;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:30px;padding:7px 14px;cursor:pointer;transition:border-color .15s,background .15s;}
+.dev-pill:hover{border-color:var(--ink);}
+.dev-pill.active{border-color:var(--red);background:rgba(165,42,33,.06);}
+.dev-trace{display:grid;grid-template-columns:1fr auto 1fr;gap:14px;align-items:center;}
+.dev-step{background:var(--paper-2);border:1px solid var(--line);border-radius:6px;padding:14px 16px;}
+.dev-step h5{font-family:'Fraunces',Georgia,serif;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);margin:0 0 8px;font-weight:700;}
+.dev-step p{font-family:'Spectral',Georgia,serif;font-size:.95rem;color:var(--ink);line-height:1.55;margin:0;}
+.dev-arrow{font-family:'Fraunces',Georgia,serif;font-size:1.5rem;color:var(--red);text-align:center;}
+.dev-verdict{display:inline-block;margin-top:16px;font-family:'Fraunces',Georgia,serif;font-weight:700;font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;padding:6px 14px;border-radius:4px;}
+.dev-verdict.v-coupure{background:rgba(165,42,33,.10);color:var(--red-deep);border:1px solid var(--red);}
+.dev-verdict.v-continuite{background:var(--ink);color:var(--paper);}
+.dev-verdict.v-transformation{background:var(--card);color:var(--ink-soft);border:1px solid var(--line);}
+@media(max-width:720px){.dev-debat{grid-template-columns:1fr;}.dev-trace{grid-template-columns:1fr;}.dev-arrow{transform:rotate(90deg);}}
