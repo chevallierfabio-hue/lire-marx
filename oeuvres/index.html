@@ -133,6 +133,25 @@ html.revealed .feat:nth-child(4){transition-delay:.86s;}
   .home-intro::before,.circuit-spark,.circuit-node--end::after{animation:none!important;}
   .circuit-spark{opacity:0;}
 }
+.game-card{position:relative;overflow:hidden;display:flex;flex-direction:column;gap:16px;background:#16110b;border:1px solid #3a2f1e;border-radius:14px;padding:22px 24px;color:#f1e7d2;}
+.game-card::after{content:"";position:absolute;top:-44%;right:-12%;width:300px;height:300px;background:radial-gradient(circle,rgba(212,168,67,.16),transparent 65%);pointer-events:none;}
+.game-circuit{position:relative;display:flex;justify-content:space-between;align-items:center;min-height:34px;padding:0 4px;}
+.gc-line{position:absolute;left:8px;right:8px;top:50%;height:1px;background:linear-gradient(90deg,transparent,rgba(212,168,67,.5),transparent);}
+.gc-node{position:relative;z-index:1;font-family:'Fraunces',Georgia,serif;font-weight:900;font-size:1rem;color:#e8d9b0;background:#16110b;padding:0 8px;}
+.gc-node--end{color:#d4a843;}
+.gc-spark{position:absolute;top:calc(50% - 5px);left:0;width:10px;height:10px;border-radius:50%;background:#ffe9a8;box-shadow:0 0 10px 4px rgba(212,168,67,.75);animation:gcRun 7s cubic-bezier(.6,0,.4,1) infinite;}
+@keyframes gcRun{0%{left:0;opacity:0}6%{opacity:1}46%{left:calc(100% - 10px);opacity:1}56%{opacity:0}100%{left:0;opacity:0}}
+.game-badge{display:inline-block;font-family:var(--f-ui,'Bricolage Grotesque',sans-serif);font-weight:700;font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:#16110b;background:#d4a843;padding:3px 10px;border-radius:999px;margin-bottom:10px;}
+.game-card h3{font-family:'Fraunces',Georgia,serif;font-weight:700;font-size:1.5rem;margin:0 0 8px;color:#fff;}
+.game-card p{font-family:'Spectral',Georgia,serif;font-size:.97rem;line-height:1.55;color:#cbbfa6;margin:0;max-width:60ch;}
+.about-quote{margin:0 0 16px;padding:4px 0 4px 24px;border-left:3px solid var(--red);}
+.about-quote blockquote{font-family:'Fraunces',Georgia,serif;font-style:italic;font-weight:500;font-size:clamp(1.2rem,2.4vw,1.7rem);line-height:1.32;color:var(--ink);margin:0 0 12px;}
+.about-quote figcaption{font-family:var(--f-ui,'Bricolage Grotesque',sans-serif);font-size:.8rem;color:var(--ink-soft);}
+.about-quote cite{font-style:italic;}
+.about-text{font-family:'Spectral',Georgia,serif;font-size:1.02rem;line-height:1.6;color:var(--ink-soft);max-width:64ch;margin:0;}
+.reveal-on-scroll{opacity:0;transform:translateY(20px);transition:opacity .8s ease,transform 1s cubic-bezier(.16,1,.3,1);}
+.reveal-on-scroll.in{opacity:1;transform:none;}
+@media(prefers-reduced-motion:reduce){.reveal-on-scroll{opacity:1!important;transform:none!important;}.gc-spark{display:none;}}
 </style>
 </head>
 <body>
@@ -188,12 +207,28 @@ html.revealed .feat:nth-child(4){transition-delay:.86s;}
 
       <section class="home-sec" id="sec-jeux">
         <div class="sec-head"><h2>Jeux</h2><span class="count">à venir</span></div>
-        <div class="home-ph">Des jeux et exercices pour éprouver les concepts en jouant — bientôt.</div>
+        <div class="game-card reveal-on-scroll">
+          <div class="game-circuit" aria-hidden="true">
+            <span class="gc-line"></span><span class="gc-spark"></span>
+            <span class="gc-node">A</span><span class="gc-node">M</span><span class="gc-node">P</span><span class="gc-node">M′</span><span class="gc-node gc-node--end">A′</span>
+          </div>
+          <div class="game-body">
+            <span class="game-badge">Bientôt jouable</span>
+            <h3>Le Circuit du Capital</h3>
+            <p>Un jeu en trois dimensions pour voir le capital se métamorphoser — de l'argent à la marchandise, de la production à la survaleur, puis retour à l'argent grossi. La lumière, c'est le capital.</p>
+          </div>
+        </div>
       </section>
 
       <section class="home-sec" id="sec-apropos">
         <div class="sec-head"><h2>À propos</h2><span class="count">à venir</span></div>
-        <div class="home-ph">Présentation du projet, méthode éditoriale et choix de sources — bientôt.</div>
+        <div class="reveal-on-scroll">
+          <figure class="about-quote">
+            <blockquote>« Il n'y a pas de route royale pour la science, et ceux-là seulement ont chance d'arriver à ses sommets lumineux qui ne craignent pas de se fatiguer à gravir ses sentiers escarpés. »</blockquote>
+            <figcaption>Karl Marx, <cite>Le Capital</cite> — avis au lecteur de l'édition française, 1872</figcaption>
+          </figure>
+          <p class="about-text">C'est tout l'esprit du site : ne pas aplanir le texte, mais donner de quoi gravir. Les œuvres sont intégrales et en accès libre ; la liseuse, l'atelier et la place publique sont les sentiers.</p>
+        </div>
       </section>
 
       <footer>Lire Marx — bibliothèque statique, alimentée par <code>oeuvres/bibliotheque.json</code>.</footer>
@@ -354,6 +389,14 @@ if(window.SHELL && window.SHELL.commune){
   if(window.self===window.top){ reveal(); }       /* accès direct, hors animation d'entrée */
   window.addEventListener('message',function(e){ if(e.data&&e.data.lm==='reveal') reveal(); });
   setTimeout(reveal,7000);                          /* filet de sécurité : jamais invisible */
+})();
+</script>
+<script>
+(function(){
+  var els=document.querySelectorAll('.reveal-on-scroll');
+  if(!('IntersectionObserver' in window)){els.forEach(function(e){e.classList.add('in');});return;}
+  var io=new IntersectionObserver(function(ent){ent.forEach(function(x){if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target);}});},{threshold:.18});
+  els.forEach(function(e){io.observe(e);});
 })();
 </script>
 </body>
