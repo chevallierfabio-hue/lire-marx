@@ -22,6 +22,7 @@
     <button class="tab active" type="button" data-top="accueil"><span class="num">I</span>Accueil</button>
     <button class="tab" type="button" data-top="lire"><span class="num">II</span>Lire les Manuscrits</button>
     <button class="tab" type="button" data-top="atelier"><span class="num">III</span>Atelier</button>
+    <button class="tab" type="button" data-top="ressources"><span class="num">IV</span>Ressources</button>
   </nav>
   <nav class="subnav" id="subnav" style="display:none"></nav>
 
@@ -226,6 +227,31 @@
     <div class="timeline" id="timeline"></div>
   </section>
 
+  <section class="panel" id="ressources">
+    <h2 class="sec">Ressources</h2>
+    <p class="lead">Pour prolonger la lecture des Manuscrits : conférences, émissions et articles savants autour de l'aliénation et du jeune Marx. Tous ces liens ouvrent des sites externes.</p>
+
+    <div class="res-section">Vidéos <small>conférences</small></div>
+    <div class="res-grid">
+      <a class="res-card" href="https://www.youtube.com/watch?v=mDvnEmgtk0Y" target="_blank" rel="noopener"><div class="res-kind">Conférence · YouTube</div><h3>Jean Salem — « Les Manuscrits de 1844 »</h3><div class="res-meta">présentation des cahiers de Paris</div></a>
+      <a class="res-card" href="https://www.youtube.com/watch?v=EN4C1uoQdao" target="_blank" rel="noopener"><div class="res-kind">Conférence · YouTube</div><h3>Christophe Dejours — « Le travail entre aliénation et émancipation »</h3><div class="res-meta">le pont avec la clinique du travail</div></a>
+      <a class="res-card" href="https://www.youtube.com/watch?v=a6KMzq144xE" target="_blank" rel="noopener"><div class="res-kind">Série · YouTube</div><h3>« Marx (1/5) : Rencontre avec Karl Marx »</h3><div class="res-meta">série en cinq volets</div></a>
+    </div>
+
+    <div class="res-section">Radio &amp; podcast <small>à écouter</small></div>
+    <div class="res-grid">
+      <a class="res-card" href="https://www.youtube.com/watch?v=vrc31nIeNYU" target="_blank" rel="noopener"><div class="res-kind">France Culture · Les Chemins de la philosophie</div><h3>« Marx et l'aliénation » (2012)</h3><div class="res-meta">avec Aymeric Monville · 59 min</div></a>
+      <a class="res-card" href="https://spectremedia.org/series/en-avant-marx/" target="_blank" rel="noopener"><div class="res-kind">Podcast · Spectre · accès libre</div><h3>« En avant Marx ! » — le jeune Marx</h3><div class="res-meta">entretiens avec I. Garo, M. Löwy</div></a>
+    </div>
+
+    <div class="res-section">Articles <small>en libre accès</small></div>
+    <div class="res-grid">
+      <a class="res-card" href="https://books.openedition.org/pusl/9743?lang=fr" target="_blank" rel="noopener"><div class="res-kind">OpenEdition · Presses univ. Saint-Louis</div><h3>« La pensée du jeune Marx » — l'aliénation</h3><div class="res-meta">livre en ligne · accès libre</div></a>
+      <a class="res-card" href="https://journals.openedition.org/philosophique/129" target="_blank" rel="noopener"><div class="res-kind">OpenEdition · revue Philosophique</div><h3>« La critique de l'argent, des Manuscrits au Capital »</h3><div class="res-meta">de l'aliénation à l'exploitation · accès libre</div></a>
+      <a class="res-card" href="https://marcellomusto.org/wp-content/uploads/2012/01/Revisiter-le-concept-dalienation-chez-Marx.pdf" target="_blank" rel="noopener"><div class="res-kind">PDF · accès libre</div><h3>M. Musto — « Revisiter le concept d'aliénation chez Marx »</h3><div class="res-meta">de 1844 au Capital</div></a>
+    </div>
+  </section>
+
   <footer><b>L'Atelier des Manuscrits de 1844</b> — texte établi d'après le Marxists Internet Archive ; parcours, concepts et organisation éditoriale Lire Marx.</footer>
 </main>
 
@@ -355,9 +381,10 @@
   var GROUPS={
     accueil:{panels:['accueil'],labels:[]},
     lire:{panels:['nav','lire'],labels:['Parcourir','Texte intégral']},
-    atelier:{panels:['deriv','labo','explore','chrono'],labels:['Cheminement','Concepts','Explorations','Chronologie']}
+    atelier:{panels:['deriv','labo','explore','chrono'],labels:['Cheminement','Concepts','Explorations','Chronologie']},
+    ressources:{panels:['ressources'],labels:[]}
   };
-  var curPanel={accueil:'accueil',lire:'nav',atelier:'deriv'};
+  var curPanel={accueil:'accueil',lire:'nav',atelier:'deriv',ressources:'ressources'};
   function byId(id){return document.getElementById(id);}
   function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
   function panelTop(id){for(var t in GROUPS){if(GROUPS[t].panels.indexOf(id)>=0)return t;}return 'accueil';}
@@ -852,7 +879,8 @@ installShell({
     {id:'deriv',   label:'Cheminement'},
     {id:'labo',    label:'Concepts'},
     {id:'explore', label:'Explorations'},
-    {id:'chrono',  label:'Chronologie'}
+    {id:'chrono',  label:'Chronologie'},
+    {id:'ressources', label:'Ressources'}
   ]
 });
 </script>
