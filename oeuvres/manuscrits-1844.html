@@ -142,11 +142,23 @@
 
   <section class="panel" id="labo">
     <h2 class="sec">Le laboratoire des concepts</h2>
-    <p class="lead">Premier instrument : l'anatomie du travail aliéné. D'autres viendront s'ajouter ici.</p>
-    <div class="ana" id="ana">
-      <div class="ana-schema" id="anaSchema"></div>
-      <aside class="ana-detail" id="anaDetail"></aside>
-      <div class="ana-renv" id="anaRenv"></div>
+    <p class="lead">Des instruments pour approcher les concepts non comme des définitions, mais comme des relations.</p>
+    <div class="lab-tabs" id="labTabs">
+      <button class="lab-tab active" type="button" data-instr="ana">L'anatomie du travail aliéné</button>
+      <button class="lab-tab" type="button" data-instr="carte">La carte des concepts</button>
+    </div>
+    <div class="instr" id="instr-ana">
+      <div class="ana" id="ana">
+        <div class="ana-schema" id="anaSchema"></div>
+        <aside class="ana-detail" id="anaDetail"></aside>
+        <div class="ana-renv" id="anaRenv"></div>
+      </div>
+    </div>
+    <div class="instr" id="instr-carte" hidden>
+      <div class="carte" id="carte">
+        <div class="carte-schema" id="carteSchema"></div>
+        <aside class="carte-detail" id="carteDetail"></aside>
+      </div>
     </div>
   </section>
 
@@ -237,6 +249,33 @@
     titre:'Le renversement',
     texte:"L'économie politique pose la propriété privée comme un fait premier qu'elle n'explique pas. Marx en cherche la genèse et la trouve dans le travail aliéné : c'est lui qui engendre la propriété privée — quitte à ce qu'ensuite les deux se renforcent mutuellement. Inverser ce sens de la causalité, c'est tout l'enjeu du Premier manuscrit."
   };
+  /* Carte des concepts — nœuds + relations de l'instrument du panel #labo. */
+  var CONCEPTS=[
+    {id:'objectivation', t:'Objectivation', de:'Vergegenständlichung', x:135, y:95,
+     def:"Le travail se réalise en se fixant dans un objet. En soi, l'acte humain par excellence ; mais sous la propriété privée, il se renverse en perte de l'objet et asservissement à lui."},
+    {id:'travail', t:'Travail aliéné', de:'entfremdete Arbeit', x:215, y:245, core:true,
+     def:"Le travail qui, sous la propriété privée, se retourne contre celui qui l'exerce : son produit, son activité, son espèce et les autres lui deviennent étrangers."},
+    {id:'espece', t:'Être générique', de:'Gattungswesen', x:415, y:75,
+     def:"L'homme comme être qui se rapporte à l'espèce entière et produit librement, universellement. Le travail aliéné ravale cette vie d'espèce au rang de moyen de subsister."},
+    {id:'propriete', t:'Propriété privée', de:'Privateigentum', x:445, y:245,
+     def:"Non la cause première, mais le résultat du travail aliéné, qu'elle perpétue ensuite comme rapport social et pouvoir d'un autre sur le produit."},
+    {id:'argent', t:'Argent', de:'Geld', x:610, y:180,
+     def:"La puissance aliénée accomplie : l'entremetteur universel qui confère des pouvoirs qu'on n'a pas en propre. L'avoir prend la place de l'être."},
+    {id:'besoins', t:'Besoins', de:'Bedürfnisse', x:610, y:350,
+     def:"Sous l'argent, le besoin se dégrade en appétits artificiels, là où le besoin humain riche serait l'épanouissement des sens et des facultés."},
+    {id:'communisme', t:'Communisme', de:'Kommunismus', x:335, y:405,
+     def:"Non un partage des biens, mais l'abolition positive de la propriété privée : la réappropriation par l'homme de ses forces essentielles et de son essence sociale."}
+  ];
+  var LINKS=[
+    {a:'objectivation', b:'travail', dir:'ab', sens:"sous la propriété privée, l'objectivation se renverse en dépossession"},
+    {a:'travail', b:'espece', dir:'ab', sens:"l'aliénation atteint jusqu'à la vie d'espèce, réduite à un moyen"},
+    {a:'travail', b:'propriete', dir:'both', sens:"le travail aliéné engendre la propriété privée — qui le perpétue en retour"},
+    {a:'propriete', b:'argent', dir:'ab', sens:"la propriété privée s'accomplit dans l'argent, sa puissance abstraite"},
+    {a:'argent', b:'besoins', dir:'ab', sens:"l'argent inverse les puissances et corrompt les besoins"},
+    {a:'besoins', b:'espece', dir:'both', sens:"le besoin humain riche serait l'épanouissement de l'être générique — son horizon perdu"},
+    {a:'communisme', b:'propriete', dir:'ab', sens:"le communisme est l'abolition positive de la propriété privée"},
+    {a:'communisme', b:'espece', dir:'ab', sens:"il rend à l'homme ses forces essentielles et son essence sociale"}
+  ];
   var walk=[
     ['Économie politique','Marx commence par les catégories économiques : salaire, profit, rente, propriété.'],
     ['Travail aliéné','Ces catégories conduisent au noyau : le travailleur se perd dans son propre produit.'],
@@ -395,6 +434,80 @@
     });
   }
 
+  function renderCarte(){
+    var schema=byId('carteSchema'), detail=byId('carteDetail');
+    if(!schema||!detail) return;
+    var byKey={}; CONCEPTS.forEach(function(c){ byKey[c.id]=c; });
+    var lines='', nodes='';
+    LINKS.forEach(function(L,i){
+      var A=byKey[L.a], B=byKey[L.b]; if(!A||!B) return;
+      lines += '<line class="carte-link" data-i="'+i+'" data-a="'+esc(L.a)+'" data-b="'+esc(L.b)+'" x1="'+A.x+'" y1="'+A.y+'" x2="'+B.x+'" y2="'+B.y+'" />';
+    });
+    CONCEPTS.forEach(function(c){
+      nodes += '<g class="carte-node'+(c.core?' core':'')+'" data-id="'+esc(c.id)+'" tabindex="0" role="button" aria-label="'+esc(c.t)+'">'
+        + '<rect x="'+(c.x-75)+'" y="'+(c.y-20)+'" width="150" height="40" rx="6" class="carte-node-box"/>'
+        + '<text x="'+c.x+'" y="'+(c.y+5)+'" text-anchor="middle" class="carte-node-label">'+esc(c.t)+'</text>'
+        + '</g>';
+    });
+    schema.innerHTML = '<svg viewBox="0 0 720 470" class="carte-svg" aria-label="Carte des concepts">'
+      + '<rect class="carte-bg" x="0" y="0" width="720" height="470" fill="transparent"/>'
+      + lines + nodes
+      + '</svg>';
+    function reset(){
+      detail.innerHTML='<div class="carte-empty">Touchez un concept pour suivre ses liens.</div>';
+      schema.querySelectorAll('.carte-node').forEach(function(n){ n.classList.remove('active','dim'); });
+      schema.querySelectorAll('.carte-link').forEach(function(l){ l.classList.remove('lit','dim'); });
+    }
+    function activate(id){
+      var c=byKey[id]; if(!c) return;
+      var actives=schema.querySelectorAll('.carte-node.active');
+      if(actives.length===1 && actives[0].getAttribute('data-id')===id){ reset(); return; }
+      var incident=LINKS.map(function(L,i){return {L:L,i:i};}).filter(function(o){return o.L.a===id||o.L.b===id;});
+      var nearIds={}; incident.forEach(function(o){ nearIds[o.L.a===id?o.L.b:o.L.a]=true; });
+      schema.querySelectorAll('.carte-node').forEach(function(n){
+        var nid=n.getAttribute('data-id');
+        n.classList.toggle('active', nid===id);
+        n.classList.toggle('dim', nid!==id && !nearIds[nid]);
+      });
+      var lit={}; incident.forEach(function(o){ lit[o.i]=true; });
+      schema.querySelectorAll('.carte-link').forEach(function(l){
+        var li=+l.getAttribute('data-i');
+        l.classList.toggle('lit', !!lit[li]);
+        l.classList.toggle('dim', !lit[li]);
+      });
+      var rels=incident.map(function(o){
+        var other=o.L.a===id?byKey[o.L.b]:byKey[o.L.a];
+        var arrow='↔';
+        if(o.L.dir==='ab') arrow = o.L.a===id ? '→' : '←';
+        return '<li><span class="ar">'+arrow+'</span> <span class="to">'+esc(other.t)+'</span> — '+esc(o.L.sens)+'.</li>';
+      }).join('');
+      detail.innerHTML = '<div class="carte-de">'+esc(c.de)+'</div>'
+        + '<h3 class="carte-titre">'+esc(c.t)+'</h3>'
+        + '<p class="carte-def">'+esc(c.def)+'</p>'
+        + (rels ? '<ul class="carte-rel">'+rels+'</ul>' : '');
+    }
+    schema.querySelectorAll('.carte-node').forEach(function(g){
+      g.addEventListener('click', function(e){ e.stopPropagation(); activate(g.getAttribute('data-id')); });
+      g.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); activate(g.getAttribute('data-id')); } });
+    });
+    var svg=schema.querySelector('svg.carte-svg');
+    if(svg) svg.addEventListener('click', function(e){ if(e.target===svg || e.target.classList.contains('carte-bg')) reset(); });
+    reset();
+  }
+
+  function initLabTabs(){
+    var bar=byId('labTabs'); if(!bar) return;
+    bar.querySelectorAll('.lab-tab').forEach(function(b){
+      b.addEventListener('click', function(){
+        var instr=b.getAttribute('data-instr');
+        bar.querySelectorAll('.lab-tab').forEach(function(x){ x.classList.toggle('active', x===b); });
+        document.querySelectorAll('.instr').forEach(function(p){
+          if(p.id==='instr-'+instr) p.removeAttribute('hidden'); else p.setAttribute('hidden','');
+        });
+      });
+    });
+  }
+
   function init(){
     document.querySelectorAll('.tab').forEach(function(t){t.addEventListener('click',function(){activateTop(t.dataset.top);window.scrollTo({top:0,behavior:'smooth'});});});
     var navlist=byId('navlist');
@@ -471,6 +584,8 @@
       });
     }
     renderAnatomie();
+    renderCarte();
+    initLabTabs();
     byId('walk').innerHTML=walk.map(function(w){return '<article class="walk-step"><h3>'+esc(w[0])+'</h3><p>'+esc(w[1])+'</p></article>';}).join('');
     byId('timeline').innerHTML=timeline.map(function(e){return '<article class="event"><div class="year">'+esc(e[0])+'</div><div><h3>'+esc(e[1])+'</h3><p>'+esc(e[2])+'</p></div></article>';}).join('');
     var sel=byId('partSelect');
