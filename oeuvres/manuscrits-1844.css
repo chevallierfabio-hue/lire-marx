@@ -20,6 +20,10 @@ header.work-head{text-align:center;margin:6px auto 26px;max-width:880px;}
 .reader-content .reader-error{max-width:720px;margin:40px auto;padding:22px;border:1px dashed var(--line);border-radius:8px;background:rgba(241,231,210,.72);font-family:var(--f-serif);color:var(--ink-soft);}
 .reader-content .reader-error b{display:block;color:var(--ink);font-family:'Fraunces',Georgia,serif;font-size:1.18rem;margin-bottom:8px;}
 .chapter-grid,.cards,.models,.explore-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:18px;}
+.explore-link{display:flex;flex-direction:column;text-decoration:none;color:inherit;border-left:3px solid var(--red);transition:transform .15s,box-shadow .15s;}
+.explore-link:hover{transform:translateY(-2px);box-shadow:0 5px 16px rgba(0,0,0,.07);}
+.explore-link small{color:var(--red-deep);background:rgba(165,42,33,.10);}
+.explore-cta{display:block;margin-top:12px;font-family:'Fraunces',Georgia,serif;font-weight:700;font-size:.92rem;color:var(--red-deep);}
 .chapter small,.card small,.model small,.explore-card small{display:inline-flex;font-family:var(--f-ui);font-size:.66rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--gold-deep);background:rgba(154,123,53,.14);border-radius:999px;padding:3px 8px;margin-bottom:9px;}
 .concepts{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px;}
 .walk{position:relative;max-width:760px;margin-top:8px;padding-left:32px;}
