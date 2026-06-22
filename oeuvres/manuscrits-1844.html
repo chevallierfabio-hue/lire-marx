@@ -136,7 +136,7 @@
 
   <section class="panel" id="deriv">
     <h2 class="sec">Le cheminement des Manuscrits</h2>
-    <p class="lead">Le texte avance moins comme une démonstration économique achevée que comme une série de déplacements : économie politique, aliénation, communisme, argent, Hegel.</p>
+    <p class="lead">Le texte n'avance pas comme une démonstration achevée, mais comme une série de déplacements. Voici le fil — non les concepts un à un, que dissèque le laboratoire, mais le ressort qui fait passer de l'un à l'autre, au long des trois cahiers.</p>
     <div class="walk" id="walk"></div>
   </section>
 
@@ -325,11 +325,18 @@
     {a:'communisme', b:'espece', dir:'ab', sens:"il rend à l'homme ses forces essentielles et son essence sociale"}
   ];
   var walk=[
-    ['Économie politique','Marx commence par les catégories économiques : salaire, profit, rente, propriété.'],
-    ['Travail aliéné','Ces catégories conduisent au noyau : le travailleur se perd dans son propre produit.'],
-    ['Propriété privée','La propriété privée apparaît comme forme sociale de cette séparation.'],
-    ['Communisme et besoins','La question devient celle d’une réappropriation humaine, sensible, sociale.'],
-    ['Argent et Hegel','Le texte finit par l’argent et par la critique de la dialectique spéculative.']
+    {cahier:'I', titre:"Le constat de l'économie politique",
+     ressort:"Marx part des catégories des économistes — salaire, profit, rente — et prend leurs lois au sérieux. Mais elles décrivent sans l'expliquer un fait scandaleux : plus l'ouvrier produit de richesse, plus il s'appauvrit."},
+    {cahier:'I', titre:"Du fait au travail aliéné",
+     ressort:"Pour expliquer ce que l'économie politique tient pour donné, Marx remonte en deçà d'elle, jusqu'à l'acte de travail lui-même — et y trouve les quatre séparations."},
+    {cahier:'I → II', titre:"Du travail aliéné à la propriété privée",
+     ressort:"Le renversement décisif : la propriété privée n'est pas la cause mais le résultat du travail aliéné — même si, une fois posée, elle le perpétue à son tour. Du cahier II, presque entièrement perdu, ne subsiste qu'un fragment sur le rapport de classe."},
+    {cahier:'III', titre:"De la propriété privée au communisme",
+     ressort:"Si la propriété privée est produite, elle peut être abolie. Mais Marx écarte le « communisme grossier » du simple partage : ce qu'il vise, c'est une réappropriation — l'homme qui recouvre ses forces essentielles."},
+    {cahier:'III', titre:"Du communisme aux besoins et à l'argent",
+     ressort:"Penser l'homme réapproprié oblige à penser ses sens et ses besoins — et, par contraste, l'argent, cette puissance étrangère qui inverse toutes les qualités et met l'avoir à la place de l'être."},
+    {cahier:'III', titre:"Le retour à Hegel",
+     ressort:"Arrivé là, Marx doit régler ses comptes avec celui qui lui a tout appris du mouvement de l'aliénation — pour la ramener de la conscience au sol réel. Le texte s'achève sur ce face-à-face, et ouvre déjà sur la suite."}
   ];
   var timeline=[
     ['1843','Départ et rupture politique','Après la Rheinische Zeitung, Marx quitte l’Allemagne.'],
@@ -779,7 +786,7 @@
     renderHegel();
     renderLexique();
     initLabTabs();
-    byId('walk').innerHTML=walk.map(function(w){return '<article class="walk-step"><h3>'+esc(w[0])+'</h3><p>'+esc(w[1])+'</p></article>';}).join('');
+    byId('walk').innerHTML=walk.map(function(w){return '<article class="walk-step"><div class="walk-cahier">Cahier '+esc(w.cahier)+'</div><h3>'+esc(w.titre)+'</h3><p>'+esc(w.ressort)+'</p></article>';}).join('');
     byId('timeline').innerHTML=timeline.map(function(e){return '<article class="event"><div class="year">'+esc(e[0])+'</div><div><h3>'+esc(e[1])+'</h3><p>'+esc(e[2])+'</p></div></article>';}).join('');
     var sel=byId('partSelect');
     sel.innerHTML=parts.map(function(p,i){return '<option value="'+i+'">'+esc(p.title)+'</option>';}).join('');
