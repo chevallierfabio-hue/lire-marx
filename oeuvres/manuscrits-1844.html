@@ -146,6 +146,7 @@
     <div class="lab-tabs" id="labTabs">
       <button class="lab-tab active" type="button" data-instr="ana">L'anatomie du travail aliéné</button>
       <button class="lab-tab" type="button" data-instr="carte">La carte des concepts</button>
+      <button class="lab-tab" type="button" data-instr="sources">Marx &amp; ses sources</button>
     </div>
     <div class="instr" id="instr-ana">
       <div class="ana" id="ana">
@@ -158,6 +159,12 @@
       <div class="carte" id="carte">
         <div class="carte-schema" id="carteSchema"></div>
         <aside class="carte-detail" id="carteDetail"></aside>
+      </div>
+    </div>
+    <div class="instr" id="instr-sources" hidden>
+      <div class="sources" id="sources">
+        <div class="src-pick" id="srcPick"></div>
+        <div class="src-body" id="srcBody"></div>
       </div>
     </div>
   </section>
@@ -495,6 +502,40 @@
     reset();
   }
 
+  var SOURCES=[
+    {id:'eco', t:'Économie politique classique', sub:'Smith · Ricardo · Say',
+     affirme:"Le travail est la source de la valeur ; elle décrit salaire, profit et rente, et tient la propriété privée, la division du travail et l'échange pour des faits de départ.",
+     retient:"La thèse même — le travail à l'origine de la richesse —, ses catégories, et son propre constat : l'ouvrier s'appauvrit à mesure qu'il produit. Marx part de leurs textes.",
+     depasse:"Elle pose la propriété privée sans l'expliquer et masque, sous ses « lois », un rapport de dépossession. Marx remonte à ce qu'elle tait : le travail aliéné."},
+    {id:'hegel', t:'Hegel', sub:'la dialectique',
+     affirme:"La dialectique : l'Esprit s'extériorise, s'aliène, puis se reprend ; le travail et la négativité sont moteurs. Mais l'aliénation est celle de la conscience, et se résout dans le savoir.",
+     retient:"Sa grandeur — penser l'homme comme produit de son propre travail, et saisir le mouvement de l'aliénation et de son dépassement.",
+     depasse:"Chez Hegel l'aliénation est spéculative et se règle dans la pensée ; Marx la ramène sur le sol réel — l'homme concret se dépossède dans un monde matériel, et le dépassement passe par la transformation des rapports, non par le savoir."},
+    {id:'feuerbach', t:'Feuerbach', sub:"l'aliénation religieuse",
+     affirme:"La religion comme aliénation : l'homme projette son essence dans un Dieu étranger et s'appauvrit d'autant ; il faut renverser sujet et prédicat. Matérialisme sensible, être générique.",
+     retient:"Le schéma même de l'aliénation et son renversement, la notion d'être générique, l'homme sensible — la matrice méthodologique des Manuscrits.",
+     depasse:"Feuerbach s'arrête à la religion et reste contemplatif ; Marx porte l'aliénation sur le terrain du travail et de la propriété privée — et prépare déjà la critique du matérialisme contemplatif au nom de la praxis."}
+  ];
+
+  function renderSources(){
+    var pick=byId('srcPick'), body=byId('srcBody'); if(!pick||!body) return;
+    var cur=SOURCES[0].id;
+    function draw(){
+      pick.innerHTML=SOURCES.map(function(s){
+        return '<button class="src-tab'+(s.id===cur?' active':'')+'" type="button" data-src="'+esc(s.id)+'">'+esc(s.t)+'<span class="src-sub">'+esc(s.sub)+'</span></button>';
+      }).join('');
+      var s=SOURCES.filter(function(x){return x.id===cur;})[0];
+      body.innerHTML=
+        '<div class="src-col"><h4>La source affirme</h4><p>'+esc(s.affirme)+'</p></div>'+
+        '<div class="src-col is-keep"><h4>Ce que Marx retient</h4><p>'+esc(s.retient)+'</p></div>'+
+        '<div class="src-col is-break"><h4>Ce qu’il dépasse</h4><p>'+esc(s.depasse)+'</p></div>';
+      pick.querySelectorAll('.src-tab').forEach(function(b){
+        b.onclick=function(){ cur=b.getAttribute('data-src'); draw(); };
+      });
+    }
+    draw();
+  }
+
   function initLabTabs(){
     var bar=byId('labTabs'); if(!bar) return;
     bar.querySelectorAll('.lab-tab').forEach(function(b){
@@ -585,6 +626,7 @@
     }
     renderAnatomie();
     renderCarte();
+    renderSources();
     initLabTabs();
     byId('walk').innerHTML=walk.map(function(w){return '<article class="walk-step"><h3>'+esc(w[0])+'</h3><p>'+esc(w[1])+'</p></article>';}).join('');
     byId('timeline').innerHTML=timeline.map(function(e){return '<article class="event"><div class="year">'+esc(e[0])+'</div><div><h3>'+esc(e[1])+'</h3><p>'+esc(e[2])+'</p></div></article>';}).join('');
