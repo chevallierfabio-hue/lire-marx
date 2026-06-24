@@ -169,6 +169,19 @@ html.revealed .feat:nth-child(4){transition-delay:.86s;}
 @media(max-width:680px){.bg-gear--ml{display:none;}.bg-gear{opacity:.035;}}
 @media(prefers-reduced-motion:reduce){.gspin{animation:none;}}
 .bg-dust{position:fixed;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none;}
+.egg-table{position:relative;cursor:help;color:var(--red);font-style:italic;border-bottom:1px dotted var(--red);outline:none;}
+.egg-table-svg{position:absolute;left:50%;bottom:100%;width:34px;height:30px;margin-left:-17px;opacity:0;transform-origin:50% 100%;pointer-events:none;}
+.egg-table .tt{stroke:var(--ink);stroke-width:2;stroke-linecap:round;}
+.egg-table:hover .egg-table-svg,.egg-table:focus .egg-table-svg{opacity:1;animation:tableDance 1.1s ease-in-out infinite;}
+@keyframes tableDance{0%,100%{transform:rotate(-7deg) translateY(0);}25%{transform:rotate(6deg) translateY(-2px);}50%{transform:rotate(-4deg) translateY(-3px);}75%{transform:rotate(8deg) translateY(-1px);}}
+
+.mole-yard{display:flex;align-items:center;gap:12px;height:46px;margin:18px 0 -6px;padding-left:8px;overflow:hidden;}
+.mole{width:54px;height:36px;transform:translateY(46px);animation:molePeek 9s ease-in-out 2s infinite;}
+.mole-word{font-family:'Caveat',cursive;font-size:1.3rem;color:var(--ink-soft);opacity:0;transform:translateX(-6px);transition:opacity .5s ease,transform .5s ease;}
+.mole-yard:hover .mole-word{opacity:1;transform:none;}
+.mole-yard:hover .mole{animation-play-state:paused;transform:translateY(2px);}
+@keyframes molePeek{0%,72%,100%{transform:translateY(46px);}78%{transform:translateY(-2px);}84%{transform:translateY(4px);}90%{transform:translateY(0);}}
+@media(prefers-reduced-motion:reduce){.mole{animation:none;transform:translateY(2px);}.egg-table:hover .egg-table-svg,.egg-table:focus .egg-table-svg{animation:none;}}
 </style>
 </head>
 <body>
@@ -251,10 +264,22 @@ html.revealed .feat:nth-child(4){transition-delay:.86s;}
             <blockquote>« Il n'y a pas de route royale pour la science, et ceux-là seulement ont chance d'arriver à ses sommets lumineux qui ne craignent pas de se fatiguer à gravir ses sentiers escarpés. »</blockquote>
             <figcaption>Karl Marx, <cite>Le Capital</cite> — avis au lecteur de l'édition française, 1872</figcaption>
           </figure>
-          <p class="about-text">C'est tout l'esprit du site : ne pas aplanir le texte, mais donner de quoi gravir. Les œuvres sont intégrales et en accès libre ; la liseuse, l'atelier et la place publique sont les sentiers.</p>
+          <p class="about-text">C'est tout l'esprit du site : ne pas aplanir le texte, mais donner de quoi gravir. Les œuvres sont intégrales et en accès libre ; la liseuse, l'atelier et la place publique sont les sentiers. Reste à se défaire du <span class="egg-table" tabindex="0" role="button" aria-label="le fétichisme de la marchandise">fétichisme<svg class="egg-table-svg" viewBox="0 0 40 34" aria-hidden="true"><line class="tt" x1="4" y1="9" x2="36" y2="9"/><line class="tt" x1="8" y1="9" x2="8" y2="30"/><line class="tt" x1="32" y1="9" x2="32" y2="30"/><line class="tt" x1="14" y1="9" x2="14" y2="26"/><line class="tt" x1="26" y1="9" x2="26" y2="26"/></svg></span> des marchandises.</p>
         </div>
       </section>
 
+      <div class="mole-yard" aria-hidden="true">
+        <svg class="mole" viewBox="0 0 60 40"><g class="mole-body">
+          <ellipse cx="30" cy="34" rx="17" ry="13" fill="#3a2c22"/>
+          <circle cx="30" cy="22" r="11" fill="#46362a"/>
+          <path d="M30 14 L26 6 L31 12 Z M30 14 L34 6 L33 12 Z" fill="#46362a"/>
+          <circle cx="26" cy="21" r="1.4" fill="#1a120c"/><circle cx="34" cy="21" r="1.4" fill="#1a120c"/>
+          <ellipse cx="30" cy="25" rx="2.6" ry="2" fill="#d98a8a"/>
+          <path d="M21 28 L12 26 M21 31 L12 31 M21 34 L13 36" stroke="#1a120c" stroke-width=".7"/>
+          <path d="M39 28 L48 26 M39 31 L48 31 M39 34 L47 36" stroke="#1a120c" stroke-width=".7"/>
+        </g></svg>
+        <span class="mole-word">« Bien fouillé, vieille taupe ! »</span>
+      </div>
       <footer>Lire Marx — bibliothèque statique, alimentée par <code>oeuvres/bibliotheque.json</code>.</footer>
     </div>
 
