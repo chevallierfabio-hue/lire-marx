@@ -8,10 +8,17 @@
 <link rel="stylesheet" href="shell.css">
 <link rel="stylesheet" href="reader-tools.css">
 <style>
-:root{--paper:#f1e7d2;--paper-2:#e9dec5;--card:#f7f1e2;--ink:#221d16;--ink-soft:#5d5346;
-  --red:#a52a21;--red-deep:#7c1d16;--bright:#e5392a;--gold:#9a7b35;--gold-deep:#7d6325;--blue:#39596b;--const:#6b6051;
-  --line:#cabb9d;--line-soft:#ddd1b6;--ok:#52742f;
-  --f-ui:'Bricolage Grotesque',system-ui,sans-serif;--f-hand:'Caveat',cursive;}
+:root{
+  /* Palette Rouge Internationale */
+  --bg:#F7F5F0;--surface:#FBF9F4;--text:#171614;--muted:#8B8577;--accent:#C41E3A;
+  /* Variables shell / atelier */
+  --paper:#F7F5F0;--paper-2:#EDE9E2;--card:#FBF9F4;
+  --ink:#171614;--ink-soft:#8B8577;
+  --red:#C41E3A;--red-deep:#9B1830;--bright:#C41E3A;
+  --gold:#9a7b35;--gold-deep:#7d6325;--blue:#39596b;--const:#8B8577;
+  --line:rgba(23,22,20,.12);--line-soft:rgba(23,22,20,.07);--ok:#52742f;
+  --f-ui:'Bricolage Grotesque',system-ui,sans-serif;--f-hand:'Caveat',cursive;
+}
 .wrap{max-width:1060px;padding:0 22px 90px;}
 :focus-visible{outline:3px solid var(--red);outline-offset:2px;border-radius:3px;}
 header{padding:38px 0 14px;text-align:center;}
@@ -411,6 +418,80 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
 .pub-badge.red{background:var(--red);}
 .pub-note.pub-hidden,.pub-reply.pub-hidden{opacity:.6;}
 .pub-reasons{font-size:.82rem;color:var(--ink-soft);font-style:italic;margin:2px 0 4px;}
+
+/* ── Atelier : liste des chapitres (panel #nav) ── */
+.atl-header{position:relative;overflow:hidden;margin:-22px -22px 28px;
+  background:linear-gradient(160deg,#2A2724 0%,#1F1C1A 50%,#171614 100%);
+  padding:clamp(36px,6vh,56px) clamp(24px,5vw,56px) clamp(32px,5vh,48px);}
+.atl-halo{position:absolute;top:30%;left:20%;width:480px;height:280px;pointer-events:none;
+  background:radial-gradient(ellipse at center,rgba(196,30,58,.12) 0%,transparent 65%);
+  transform:translate(-50%,-50%);filter:blur(4px);}
+.atl-kicker{font-family:'Bricolage Grotesque',system-ui,sans-serif;font-size:.7rem;
+  font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:var(--accent);margin-bottom:12px;}
+.atl-h1{font-family:'Fraunces',serif;font-weight:900;font-size:clamp(1.8rem,4vw,2.6rem);
+  letter-spacing:-.02em;color:#F7F5F0;line-height:1.05;margin-bottom:20px;}
+.atl-prog{display:flex;align-items:center;gap:14px;}
+.atl-bar-bg{flex:1;height:6px;border-radius:999px;background:rgba(255,255,255,.15);max-width:400px;}
+.atl-bar-fill{height:100%;border-radius:999px;background:var(--accent);
+  transition:width .5s cubic-bezier(.16,1,.3,1);width:0%;}
+.atl-count{font-size:.78rem;font-weight:600;color:rgba(247,245,240,.55);
+  font-family:'Bricolage Grotesque',system-ui,sans-serif;white-space:nowrap;}
+/* Search */
+.atl-search-wrap{margin-bottom:8px;}
+.atl-search{width:100%;max-width:520px;height:40px;border:1px solid var(--line);
+  border-radius:8px;background:var(--card);color:var(--ink);
+  font-family:'Bricolage Grotesque',system-ui,sans-serif;font-size:.88rem;
+  padding:0 14px;outline:none;}
+.atl-search:focus{border-color:var(--accent);}
+/* Section headers */
+.atl-sec-head{font-family:'Bricolage Grotesque',system-ui,sans-serif;font-size:.68rem;
+  font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);
+  padding:22px 0 8px;border-bottom:1px solid var(--line);margin-bottom:2px;}
+.atl-sec-head:first-child{padding-top:0;}
+/* Chapter rows */
+.atl-row{display:flex;align-items:center;gap:16px;padding:14px 16px;
+  border-radius:10px;margin:2px 0;transition:background .15s;position:relative;}
+.atl-row.atl-done,.atl-row.atl-current{cursor:pointer;}
+.atl-row.atl-done:hover{background:var(--surface);}
+.atl-row.atl-current{background:var(--surface);
+  box-shadow:0 1px 0 0 var(--line),0 -1px 0 0 var(--line);
+  border:1px solid var(--line);}
+.atl-row.atl-upcoming{opacity:.52;pointer-events:none;}
+/* Indicator circle */
+.atl-ind{flex:none;width:32px;height:32px;border-radius:50%;display:flex;
+  align-items:center;justify-content:center;font-family:'Fraunces',serif;
+  font-weight:700;font-size:.88rem;}
+.atl-row.atl-done .atl-ind{background:var(--accent);color:#fff;}
+.atl-row.atl-done .atl-ind svg{width:14px;height:14px;stroke:#fff;stroke-width:2.5;}
+.atl-row.atl-current .atl-ind{background:transparent;border:2px solid var(--accent);color:var(--accent);}
+.atl-row.atl-upcoming .atl-ind{background:transparent;border:1.5px solid var(--line);color:var(--muted);}
+/* Body */
+.atl-body{flex:1;min-width:0;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
+.atl-num{font-size:.74rem;font-weight:700;color:var(--muted);letter-spacing:.04em;
+  font-family:'Bricolage Grotesque',system-ui,sans-serif;white-space:nowrap;}
+.atl-title{font-family:'Fraunces',serif;font-weight:600;font-size:.98rem;
+  color:var(--ink);line-height:1.25;}
+.atl-done-label{font-size:.7rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--ok);font-family:'Bricolage Grotesque',system-ui,sans-serif;}
+/* Actions */
+.atl-actions{flex:none;display:flex;align-items:center;gap:8px;}
+.atl-continue{font-family:'Bricolage Grotesque',system-ui,sans-serif;font-size:.78rem;
+  font-weight:700;padding:7px 16px;border-radius:999px;border:none;
+  background:var(--accent);color:#fff;cursor:pointer;white-space:nowrap;
+  transition:opacity .15s;}
+.atl-continue:hover{opacity:.85;}
+.atl-done-toggle{font-family:'Bricolage Grotesque',system-ui,sans-serif;font-size:.72rem;
+  font-weight:600;padding:5px 12px;border-radius:999px;cursor:pointer;
+  background:transparent;border:1px solid var(--line);color:var(--muted);
+  transition:border-color .15s,color .15s;white-space:nowrap;}
+.atl-done-toggle:hover{border-color:var(--ok);color:var(--ok);}
+.atl-row.atl-done .atl-done-toggle{border-color:var(--ok);color:var(--ok);}
+.atl-row.atl-done .atl-done-toggle:hover{border-color:var(--muted);color:var(--muted);}
+@media(max-width:640px){
+  .atl-body{flex-direction:column;gap:2px;}
+  .atl-actions{flex-direction:column;gap:4px;}
+  .atl-done-toggle{display:none;}
+}
 </style>
 <script src="../config.js"></script>
 <script src="shell.js"></script>
@@ -553,10 +634,20 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
 
   <!-- NAVIGATEUR -->
   <section class="panel" id="nav">
-    <h2 class="sec">Parcourir le Capital</h2>
-    <p class="lead">Le texte intégral, en 8 sections et 33 chapitres, en lecture rapide : chaque section donne son fil, chaque chapitre un résumé argumenté. Les renvois t'envoient d'un clic au texte intégral, à la loi du Laboratoire ou à la marche logique correspondante.</p>
-    <div class="edition-note"><b>Texte intégral, libre de droits.</b> On s'appuie sur le texte intégral du domaine public — reproduit ici depuis Wikisource. Vocabulaire de cette édition : <b>plus-value</b>, <b>accumulation primitive</b>, <b>force de travail</b>.</div>
-    <div class="search"><input type="text" id="filter" placeholder="Filtrer : plus-value, journée, machinisme, accumulation…" aria-label="Filtrer les chapitres"></div>
+    <!-- En-tête sombre avec progression dynamique -->
+    <div class="atl-header">
+      <div class="atl-halo"></div>
+      <p class="atl-kicker">Atelier &middot; Le Capital &mdash; Livre I</p>
+      <h1 class="atl-h1">Le Capital — Livre I</h1>
+      <div class="atl-prog">
+        <div class="atl-bar-bg"><div class="atl-bar-fill" id="atlFill"></div></div>
+        <span class="atl-count" id="atlCount">0 / 33 chapitres</span>
+      </div>
+    </div>
+    <!-- Recherche -->
+    <div class="atl-search-wrap">
+      <input class="atl-search" type="text" id="filter" placeholder="Filtrer : plus-value, journée, machinisme…" aria-label="Filtrer les chapitres">
+    </div>
     <div class="nores" id="nores">Aucun chapitre ne correspond.</div>
     <div id="navlist"></div>
   </section>
@@ -1201,66 +1292,80 @@ const META={
 };
 
 /* ---- rendu Navigateur ---- */
-const navlist=document.getElementById('navlist');
-let gnum=0;
-ROY_STRUCT.forEach((sec,si)=>{
-  const secNum=si+1;
-  const secEl=document.createElement('div');secEl.className='section';
-  let chaps='';
-  sec.chaps.forEach(([num,title])=>{
-    gnum++;
-    const m=META[num]||{s:''};
-    const hasExtrait=CHAP_AVAIL.has(gnum);
-    const extrait=hasExtrait?`<div class="extrait" data-chap="${gnum}"><button class="lk extr extrait-toggle" type="button" aria-expanded="false">Extrait du texte ▾</button><div class="extrait-body"><div class="reader embed"></div><div class="extrait-note">Passages choisis (abrégés), lisibles après chargement. Pour le texte intégral, ouvre l'onglet « Lire le Capital ».</div></div></div>`:'';
-    let links=`<button class="lk read" data-sec="${secNum}" data-num="${num}" data-anchor="${title.replace(/"/g,'&quot;')}">Lire le texte →</button>`;
-    if(m.labo) links+=`<button class="lk labo" data-sub="${m.labo}">Laboratoire →</button>`;
-    if(m.d) links+=`<button class="lk deriv" data-step="${m.d}">Dérivation → marche ${m.d}</button>`;
-    const ftext=(title+' '+m.s).toLowerCase().replace(/<[^>]+>/g,'');
-    chaps+=`<div class="chap" data-text="${ftext}"><button class="chap-head" aria-expanded="false">
-      <span class="cn">Ch. ${num}</span><span class="ct">${title}</span><span class="chev">›</span></button>
-      <div class="chap-body"><div class="chap-inner"><div class="summary">${m.s}</div>
-      <div class="links">${links}</div>${extrait}</div></div></div>`;
-  });
-  secEl.innerHTML=`<button class="sec-head" aria-expanded="false"><span class="rn">${sec.rn}</span>
-    <span class="st">${sec.t}</span><span class="chev">›</span></button>
-    <div class="sec-body"><div class="sec-inner">${sec.intro?`<div class="sec-intro">${sec.intro}</div>`:''}${chaps}</div></div>`;
-  navlist.appendChild(secEl);
-});
-function toggleAcc(h,sel){const p=h.parentElement,b=p.querySelector(sel),o=p.classList.contains('open');
-  p.classList.toggle('open');h.setAttribute('aria-expanded',String(!o));b.style.maxHeight=o?null:b.scrollHeight+'px';
-  if(!o){const s=h.closest('.section');if(s&&s.classList.contains('open'))s.querySelector('.sec-body').style.maxHeight='none';}}
-document.querySelectorAll('.sec-head').forEach(h=>h.addEventListener('click',()=>toggleAcc(h,'.sec-body')));
-document.querySelectorAll('.chap-head').forEach(h=>h.addEventListener('click',()=>toggleAcc(h,'.chap-body')));
-  document.querySelectorAll('.extrait-toggle').forEach(btn=>btn.addEventListener('click',async e=>{
-    e.stopPropagation();
-    const wrap=btn.closest('.extrait');const body=wrap.querySelector('.extrait-body');
-    const open=!wrap.classList.contains('open');
-    if(open&&!wrap.dataset.loaded){
-      const n=wrap.dataset.chap;const host=wrap.querySelector('.reader.embed');
-      try{
-        let html=CHAP_CACHE[n];
-        if(html==null){const r=await fetch(CHAP_BASE+'ch'+n+'.html');if(!r.ok)throw new Error('HTTP '+r.status);html=await r.text();CHAP_CACHE[n]=html;}
-        host.innerHTML=html;wrap.dataset.loaded='1';
-      }catch(err){host.innerHTML='<div class="placeholder"><div class="pi">⚠️</div><b>Extrait indisponible.</b><br><span style="font-size:.9rem">Vérifie ta connexion, puis réessaie.</span></div>';}
+/* ── Progression de lecture (localStorage) ── */
+const READ_KEY='liremarx.read.capital-1';
+function getReadDone(){try{return new Set(JSON.parse(localStorage.getItem(READ_KEY)||'[]'));}catch(e){return new Set();}}
+function saveReadDone(s){try{localStorage.setItem(READ_KEY,JSON.stringify([...s]));}catch(e){}}
+window.toggleDone=function(gn){const d=getReadDone();if(d.has(gn))d.delete(gn);else d.add(gn);saveReadDone(d);renderAtlList();};
+
+/* Carte plate des chapitres [{secNum,sectionRn,sectionTitle,chapRn,chapTitle,gnum}] */
+const CHAP_FLAT=[];
+(function(){let g=0;ROY_STRUCT.forEach((sec,si)=>{sec.chaps.forEach(([num,title])=>{g++;CHAP_FLAT.push({secNum:si+1,sectionRn:sec.rn,sectionTitle:sec.t,chapRn:num,chapTitle:title,gnum:g});});});})();
+
+function renderAtlList(){
+  const done=getReadDone();
+  const current=(CHAP_FLAT.find(c=>!done.has(c.gnum))||{gnum:CHAP_FLAT.length+1}).gnum;
+  const doneCount=done.size;
+  const total=CHAP_FLAT.length;
+  // Progression
+  const pct=Math.round(doneCount/total*100);
+  const fill=document.getElementById('atlFill');
+  const cnt=document.getElementById('atlCount');
+  if(fill)fill.style.width=pct+'%';
+  if(cnt)cnt.textContent=doneCount+' / '+total+' chapitres';
+  // Liste
+  const nl=document.getElementById('navlist');
+  if(!nl)return;
+  let html='';let lastSec=-1;
+  CHAP_FLAT.forEach(c=>{
+    const isDone=done.has(c.gnum);
+    const isCurrent=c.gnum===current;
+    const isUpcoming=!isDone&&!isCurrent;
+    if(c.secNum!==lastSec){
+      html+=`<div class="atl-sec-head" data-sec="${c.secNum}">§ ${c.sectionRn} — ${c.sectionTitle}</div>`;
+      lastSec=c.secNum;
     }
-    wrap.classList.toggle('open',open);
-    btn.setAttribute('aria-expanded',String(open));
-    btn.textContent='Extrait du texte '+(open?'▴':'▾');
-    body.style.maxHeight=open?body.scrollHeight+'px':null;
-    if(open){const cb=btn.closest('.chap-body');if(cb)cb.style.maxHeight='none';const sb=btn.closest('.sec-body');if(sb)sb.style.maxHeight='none';}
-  }));
-document.querySelectorAll('.lk.read').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();goLire(+b.dataset.sec,b.dataset.num,b.dataset.anchor);}));
-document.querySelectorAll('.lk.labo').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();goLabo(b.dataset.sub);}));
-document.querySelectorAll('.lk.deriv').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();goDeriv(+b.dataset.step);}));
+    const state=isDone?'done':isCurrent?'current':'upcoming';
+    const ftext=(c.chapTitle+' '+(META[c.chapRn]&&META[c.chapRn].s||'')).toLowerCase().replace(/<[^>]+>/g,'');
+    const goFn=`goLire(${c.secNum},'${c.chapRn}','${c.chapTitle.replace(/'/g,'&#39;')}')`;
+    const indInner=isDone
+      ?`<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="2,9 6,13 14,3"/></svg>`
+      :`<span style="font-size:.8rem;font-weight:700">${c.gnum}</span>`;
+    const continueBtn=isCurrent?`<button class="atl-continue" type="button" onclick="event.stopPropagation();${goFn}">Continuer →</button>`:'';
+    const toggleBtn=!isUpcoming?`<button class="atl-done-toggle" type="button" onclick="event.stopPropagation();toggleDone(${c.gnum})">${isDone?'✓ Terminé':'Marquer terminé'}</button>`:'';
+    const clickAttr=!isUpcoming?` onclick="${goFn}" role="link" tabindex="0" onkeydown="if(event.key==='Enter')${goFn}"`:'';
+    html+=`<div class="atl-row atl-${state}" data-gnum="${c.gnum}" data-text="${ftext.replace(/"/g,'&quot;')}"${clickAttr}>
+      <div class="atl-ind">${indInner}</div>
+      <div class="atl-body">
+        <span class="atl-num">Ch. ${c.chapRn}</span>
+        <span class="atl-title">${c.chapTitle}</span>
+        ${isDone?'<span class="atl-done-label">Terminé</span>':''}
+      </div>
+      <div class="atl-actions">${continueBtn}${toggleBtn}</div>
+    </div>`;
+  });
+  nl.innerHTML=html;
+  const q=document.getElementById('filter')&&document.getElementById('filter').value.trim().toLowerCase();
+  if(q)applyAtlFilter(q);
+}
+
+function applyAtlFilter(q){
+  let any=false;
+  const rows=document.querySelectorAll('#navlist .atl-row');
+  const secHeads={};
+  rows.forEach(r=>{
+    const match=!q||r.dataset.text.includes(q);
+    r.style.display=match?'':'none';
+    if(match){any=true;const gn=+r.dataset.gnum;const c=CHAP_FLAT[gn-1];if(c)secHeads[c.secNum]=true;}
+  });
+  document.querySelectorAll('#navlist .atl-sec-head').forEach(h=>{
+    h.style.display=secHeads[+h.dataset.sec]?'':'none';});
+  document.getElementById('nores').style.display=any?'none':'block';
+}
+
+renderAtlList();
 const filter=document.getElementById('filter');
-filter.addEventListener('input',()=>{const q=filter.value.trim().toLowerCase();let any=false;
-  document.querySelectorAll('#navlist .section').forEach(sec=>{let ac=false;
-    sec.querySelectorAll('.chap').forEach(ch=>{const mm=!q||ch.dataset.text.includes(q);ch.style.display=mm?'':'none';if(mm)ac=true;});
-    sec.style.display=ac?'':'none';if(ac)any=true;
-    if(q&&ac){sec.classList.add('open');sec.querySelector('.sec-head').setAttribute('aria-expanded','true');sec.querySelector('.sec-body').style.maxHeight='none';}
-    else if(!q){sec.classList.remove('open');sec.querySelector('.sec-head').setAttribute('aria-expanded','false');sec.querySelector('.sec-body').style.maxHeight=null;
-      sec.querySelectorAll('.chap').forEach(c=>{c.classList.remove('open');const b=c.querySelector('.chap-body');if(b)b.style.maxHeight=null;});}});
-  document.getElementById('nores').style.display=any?'none':'block';});
+if(filter)filter.addEventListener('input',()=>applyAtlFilter(filter.value.trim().toLowerCase()));
 
 /* ---- Lire : chargement en direct depuis Wikisource (domaine public) ---- */
 const sel=document.getElementById('chapSelect');
