@@ -86,45 +86,49 @@ h1.big em{font-style:italic;font-weight:500;color:#e5392a;}
 </style>
 
 <style>
-/* ── Design tokens ── */
+/* ── Design tokens + variables shell remappées (thème sombre) ── */
 :root{
-  --bg:#0b0807;
-  --surface:#141210;
-  --surface-2:#1c1915;
-  --text:#efe6d6;
-  --text-muted:#8a7d68;
-  --accent:#e5392a;
-  --gold:#d4a843;
-  --border:rgba(239,230,214,.10);
+  /* tokens homepage */
+  --bg:#0b0807;--surface:#141210;--surface-2:#1c1915;
+  --text:#efe6d6;--text-muted:#8a7d68;--accent:#e5392a;
+  --gold:#d4a843;--border:rgba(239,230,214,.10);
+  /* shell.css variables → dark remap */
+  --paper:#0c0a09;--paper-2:#141210;--card:#1a1816;
+  --ink:#efe6d6;--ink-soft:#9a8e7e;
+  --red:#c0392b;--red-deep:#7c1d16;--bright:#e5392a;
+  --gold-deep:#b08830;--blue:#39596b;--const:#6b6051;
+  --line:rgba(239,230,214,.11);--line-soft:rgba(239,230,214,.07);--ok:#52742f;
+  --f-ui:'Inter',system-ui,sans-serif;--f-serif:'Spectral',Georgia,serif;--f-hand:'Caveat',cursive;
 }
+
+/* ── Shell : masqué pendant l'animation, révélé à l'ouverture ── */
+header.topbar,aside.sidebar,#sbBackdrop{display:none;}
+body.shell-active header.topbar{display:flex;}
+body.shell-active aside.sidebar{display:block;}
+/* Override shell : topbar fixe + fond sombre */
+header.topbar{position:fixed!important;top:0;left:0;right:0;z-index:140;
+  background:rgba(11,8,7,.94)!important;backdrop-filter:blur(14px);
+  border-bottom:1px solid rgba(239,230,214,.09)!important;}
+/* Override shell : sidebar sombre */
+aside.sidebar{background:#0d0b09!important;border-right:1px solid rgba(239,230,214,.08)!important;}
+/* Brandmark serif */
+.brandmark{font-family:'Fraunces',serif!important;font-weight:900!important;}
 
 /* ── Home wrapper ── */
 .hw{width:100%;height:100%;overflow-y:auto;overflow-x:hidden;
-  color:var(--text);font-family:'Inter',system-ui,sans-serif;background:var(--bg);}
+  color:var(--text);font-family:'Inter',system-ui,sans-serif;background:var(--bg);
+  box-sizing:border-box;padding-top:44px;padding-left:208px;}
 .hw::-webkit-scrollbar{width:5px;}
 .hw::-webkit-scrollbar-track{background:var(--bg);}
 .hw::-webkit-scrollbar-thumb{background:rgba(239,230,214,.14);border-radius:3px;}
-
-/* ── Nav ── */
-.hn{position:sticky;top:0;z-index:100;display:flex;align-items:center;
-  justify-content:space-between;padding:0 clamp(24px,5vw,80px);height:60px;
-  background:rgba(11,8,7,.88);backdrop-filter:blur(14px);
-  border-bottom:1px solid var(--border);}
-.hn-logo{font-family:'Fraunces',serif;font-weight:900;font-size:1.05rem;
-  color:var(--text);text-decoration:none;letter-spacing:-.02em;}
-.hn-links{display:flex;gap:30px;}
-.hn-links a{font-size:13px;color:var(--text-muted);text-decoration:none;
-  letter-spacing:.01em;transition:color .18s;}
-.hn-links a:hover{color:var(--text);}
-.hn-cta{font-size:13px;font-weight:600;color:var(--bg);background:var(--text);
-  text-decoration:none;padding:7px 18px;border-radius:999px;transition:opacity .18s;}
-.hn-cta:hover{opacity:.82;}
+body.sb-collapsed .hw{padding-left:0;}
+@media(max-width:860px){.hw{padding-left:0;}}
 
 /* ── Hero ── */
 .hs-hero{position:relative;display:grid;grid-template-columns:1fr 1fr;
   gap:clamp(40px,6vw,100px);align-items:center;
-  padding:clamp(72px,11vh,130px) clamp(24px,5vw,80px) clamp(56px,7vh,90px);
-  min-height:calc(100vh - 60px);}
+  padding:clamp(60px,9vh,110px) clamp(24px,5vw,80px) clamp(56px,7vh,90px);
+  min-height:calc(100vh - 44px);}
 .hs-halo{position:absolute;top:50%;left:32%;transform:translate(-50%,-50%);
   width:700px;height:420px;pointer-events:none;
   background:radial-gradient(ellipse at center,rgba(229,57,42,.10) 0%,transparent 68%);
@@ -192,16 +196,24 @@ h1.big em{font-style:italic;font-weight:500;color:#e5392a;}
   font-size:clamp(1.9rem,3.8vw,2.8rem);letter-spacing:-.03em;color:var(--text);}
 .hs-stat-l{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);}
 
+/* ── Catalogue : cartes cliquables ── */
+.hs-card{border-radius:20px;overflow:hidden;background:var(--surface);
+  border:1px solid var(--border);transition:transform .22s,border-color .22s;
+  text-decoration:none;display:block;color:inherit;}
+.hs-card:hover{transform:translateY(-5px);border-color:rgba(239,230,214,.2);}
+.hs-card.soon{cursor:default;}
+.hs-card.soon:hover{transform:none;border-color:var(--border);}
+
 /* ── Responsive ── */
 @media(max-width:720px){
   .hs-hero{grid-template-columns:1fr;min-height:auto;gap:36px;}
   .hs-right{order:-1;}
   .hs-portrait{max-width:280px;}
-  .hn-links{display:none;}
   .hs-catalogue{grid-template-columns:1fr;}
   .hs-stats{gap:28px;}
 }
 </style>
+<link rel="stylesheet" href="oeuvres/shell.css">
 </head>
 <body>
 <div class="loading" id="loading">Reliure de l'atelier…</div>
@@ -229,18 +241,7 @@ h1.big em{font-style:italic;font-weight:500;color:#e5392a;}
 
   <div class="hw">
 
-    <!-- ① Nav sticky -->
-    <nav class="hn">
-      <a class="hn-logo" href="#">Lire Marx</a>
-      <div class="hn-links">
-        <a href="#">Œuvres</a>
-        <a href="#">Simulations</a>
-        <a href="#">Place publique</a>
-      </div>
-      <a href="#" class="hn-cta">Commencer</a>
-    </nav>
-
-    <!-- ② Hero deux colonnes -->
+    <!-- ② Hero deux colonnes — nav fournie par shell.js (topbar + sidebar) -->
     <section class="hs-hero">
       <div class="hs-halo"></div>
       <div class="hs-left">
@@ -261,22 +262,22 @@ h1.big em{font-style:italic;font-weight:500;color:#e5392a;}
 
     <!-- ③ Catalogue -->
     <section class="hs-catalogue" id="catalogue">
-      <div class="hs-card">
+      <a class="hs-card" href="oeuvres/capital-1.html">
         <div class="hs-card-img"><span>Le Capital · Livre I · 1867</span></div>
         <div class="hs-card-body">
           <span class="hs-card-label">Texte guidé</span>
           <h3 class="hs-card-title">Le Capital</h3>
           <p class="hs-card-desc">33 chapitres annotés, avec simulations de la valeur, de la plus-value et de l'accumulation du capital.</p>
         </div>
-      </div>
-      <div class="hs-card">
+      </a>
+      <a class="hs-card" href="oeuvres/manuscrits-1844.html">
         <div class="hs-card-img"><span>Manuscrits · Archives · 1844</span></div>
         <div class="hs-card-body">
-          <span class="hs-card-label">À venir</span>
+          <span class="hs-card-label">En cours</span>
           <h3 class="hs-card-title">Manuscrits de 1844</h3>
           <p class="hs-card-desc">Les carnets de jeunesse de Marx, clés pour saisir le fondement philosophique du Capital.</p>
         </div>
-      </div>
+      </a>
     </section>
 
     <!-- ④ Barre de chiffres clés -->
@@ -667,6 +668,54 @@ h1.big em{font-style:italic;font-weight:500;color:#e5392a;}
   setTimeout(function(){document.getElementById('loading').classList.add('gone');document.body.classList.add('lit');},250);
   if(reduce){ coverPivot.rotation.z=Math.PI; camera.position.copy(camA); camera.lookAt(lookA); renderer.render(scene,camera); }
   else requestAnimationFrame(frame);
+})();
+</script>
+
+<!-- Shell de navigation (topbar + sidebar + auth + social) -->
+<script src="config.js"></script>
+<script src="oeuvres/shell.js"></script>
+<script src="oeuvres/shell-social.js"></script>
+<script>
+(function(){
+  // Révéler le shell dès que #sheet devient visible (fin d'animation)
+  var sheetEl = document.getElementById('sheet');
+  var obs = new MutationObserver(function(){
+    if(sheetEl.classList.contains('show')){
+      document.body.classList.add('shell-active');
+      obs.disconnect();
+    }
+  });
+  obs.observe(sheetEl, {attributes:true, attributeFilter:['class']});
+  // prefers-reduced-motion : feuille visible dès le départ
+  if(window.matchMedia('(prefers-reduced-motion:reduce)').matches){
+    document.body.classList.add('shell-active');
+  }
+
+  // Installer le shell (topbar + sidebar + auth)
+  installShell({ workTitle: 'Accueil', tabs: [] });
+
+  // Corriger les paths relatifs (on est à la racine, pas dans oeuvres/)
+  var sb = document.getElementById('sidebar');
+  var pathFix = {
+    'open-capital':         'oeuvres/capital-1.html',
+    'open-manuscrits-1844': 'oeuvres/manuscrits-1844.html',
+    'commune':              'oeuvres/place-publique.html'
+  };
+  Object.keys(pathFix).forEach(function(act){
+    var btn = sb && sb.querySelector('[data-act="' + act + '"]');
+    if(!btn) return;
+    var clone = btn.cloneNode(true);
+    btn.parentNode.replaceChild(clone, btn);
+    clone.addEventListener('click', function(){ location.href = pathFix[act]; });
+  });
+
+  // Brandmark → bibliothèque (à la racine, chemin correct)
+  var brand = document.getElementById('shellBrand');
+  if(brand){
+    var bc = brand.cloneNode(true);
+    brand.parentNode.replaceChild(bc, brand);
+    bc.addEventListener('click', function(){ location.href = 'oeuvres/index.html'; });
+  }
 })();
 </script>
 </body>
