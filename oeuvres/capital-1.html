@@ -530,6 +530,95 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
   .atl-prog-widget{text-align:left;min-width:0;width:100%;}
 }
 @media(max-width:480px){.atl-done-toggle{display:none;}}
+
+/* ── Hero de l'œuvre (Le Capital, Livre I) ── */
+.cap-hero{position:relative;overflow:hidden;display:grid;
+  grid-template-columns:1fr auto;gap:clamp(28px,5vw,56px);align-items:start;
+  padding:clamp(36px,5vh,52px) 0 clamp(28px,4vh,44px);}
+.cap-hero-halo{position:absolute;top:40%;left:32%;width:560px;height:340px;
+  pointer-events:none;
+  background:radial-gradient(ellipse at center,rgba(196,30,58,.07) 0%,transparent 64%);
+  transform:translate(-50%,-50%);}
+.cap-hero-left{position:relative;z-index:1;}
+.cap-breadcrumb{display:flex;align-items:center;gap:6px;font-size:.75rem;
+  color:var(--muted);margin-bottom:14px;
+  font-family:'Bricolage Grotesque',system-ui,sans-serif;}
+.cap-breadcrumb a{color:var(--muted);text-decoration:none;transition:color .15s;}
+.cap-breadcrumb a:hover{color:var(--ink);}
+.cap-badge{display:inline-flex;font-size:.7rem;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--accent);
+  background:rgba(196,30,58,.08);border:1px solid rgba(196,30,58,.18);
+  border-radius:999px;padding:4px 12px;margin-bottom:16px;}
+.cap-h1{font-family:'Fraunces',serif;font-weight:900;
+  font-size:clamp(2.1rem,4.6vw,3.1rem);letter-spacing:-.025em;
+  color:var(--ink);line-height:1.04;margin-bottom:14px;}
+.cap-desc{font-size:.96rem;line-height:1.7;color:var(--ink-soft);max-width:50ch;
+  font-family:'Spectral',Georgia,serif;}
+.cap-hero-right{position:relative;z-index:1;flex:none;}
+.cap-cover{width:210px;aspect-ratio:3/4;border-radius:18px;overflow:hidden;
+  background:linear-gradient(155deg,#2A2724 0%,#1a1410 55%,#0f0c0a 100%);
+  position:relative;}
+.cap-cover::before{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 40% 28%,rgba(196,30,58,.12) 0%,transparent 55%);}
+.cap-cover-caption{position:absolute;bottom:0;left:0;right:0;
+  padding:26px 12px 10px;font-size:10px;letter-spacing:.06em;text-transform:uppercase;
+  color:rgba(247,245,240,.52);
+  background:linear-gradient(to top,rgba(23,22,20,.65),transparent);
+  font-family:'Bricolage Grotesque',system-ui,sans-serif;}
+
+/* ── Tab bar redesignée ── */
+nav.tabs.cap-tabs-bar{position:static;background:transparent;border-top:none;
+  border-bottom:1px solid var(--line);padding:0;justify-content:flex-start;
+  display:flex;flex-wrap:wrap;margin:0 0 0;z-index:1;}
+nav.tabs.cap-tabs-bar .tab{font-family:'Bricolage Grotesque',system-ui,sans-serif;
+  font-size:.88rem;font-weight:600;color:var(--muted);background:transparent;
+  border:none;border-bottom:2px solid transparent;margin-bottom:-1px;
+  padding:11px 18px;cursor:pointer;transition:color .15s,border-color .15s;
+  position:static;}
+nav.tabs.cap-tabs-bar .tab:hover{color:var(--ink);}
+nav.tabs.cap-tabs-bar .tab::after{display:none;}/* remove old underline */
+nav.tabs.cap-tabs-bar .tab.active{color:var(--ink);border-bottom-color:var(--accent);}
+nav.tabs.cap-tabs-bar .tab .num{display:none;}
+/* Masquer le sous-nav quand "Commencer" (accueil) est actif */
+#subnav:has(button[data-panel="accueil"].active){display:none!important;}
+
+/* ── Onglet "Lire Le Capital" — 2 cartes ── */
+.cap-lire-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:28px;}
+.cap-card{background:var(--surface);border-radius:18px;padding:22px 22px 20px;
+  border:1px solid transparent;transition:transform .2s,box-shadow .2s;}
+.cap-card:hover{transform:translateY(-2px);
+  box-shadow:0 8px 24px -6px rgba(23,22,20,.10);}
+.cap-card-icon{width:38px;height:38px;border-radius:10px;
+  background:rgba(196,30,58,.08);display:flex;align-items:center;
+  justify-content:center;margin-bottom:14px;font-size:1rem;}
+.cap-card-title{font-family:'Fraunces',serif;font-weight:700;font-size:1.08rem;
+  color:var(--ink);margin-bottom:8px;letter-spacing:-.01em;line-height:1.2;}
+.cap-card-desc{font-size:.87rem;line-height:1.6;color:var(--ink-soft);
+  margin-bottom:18px;font-family:'Spectral',Georgia,serif;}
+.cap-prog-wrap{margin-bottom:14px;}
+.cap-prog-bg{height:4px;border-radius:999px;background:rgba(23,22,20,.10);margin-bottom:6px;}
+.cap-prog-fill{height:100%;border-radius:999px;background:var(--accent);
+  transition:width .55s cubic-bezier(.16,1,.3,1);}
+.cap-prog-txt{font-size:.74rem;color:var(--muted);
+  font-family:'Bricolage Grotesque',system-ui,sans-serif;}
+.cap-btn-dark{display:inline-flex;align-items:center;gap:5px;padding:8px 18px;
+  border-radius:999px;background:var(--ink);color:var(--paper);
+  font-size:.8rem;font-weight:700;border:none;cursor:pointer;
+  transition:opacity .15s;font-family:'Bricolage Grotesque',system-ui,sans-serif;}
+.cap-btn-dark:hover{opacity:.83;}
+.cap-btn-outline{display:inline-flex;align-items:center;gap:5px;padding:8px 18px;
+  border-radius:999px;background:transparent;color:var(--ink);
+  font-size:.8rem;font-weight:700;border:1px solid rgba(23,22,20,.22);cursor:pointer;
+  transition:border-color .15s,background .15s;
+  font-family:'Bricolage Grotesque',system-ui,sans-serif;}
+.cap-btn-outline:hover{border-color:rgba(23,22,20,.38);background:rgba(23,22,20,.04);}
+/* Responsive hero + cards */
+@media(max-width:740px){
+  .cap-hero{grid-template-columns:1fr;}
+  .cap-hero-right{order:-1;}
+  .cap-cover{width:130px;}
+  .cap-lire-grid{grid-template-columns:1fr;}
+}
 </style>
 <script src="../config.js"></script>
 <script src="shell.js"></script>
@@ -556,118 +645,57 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
 
   <!-- ===================== ŒUVRE — LE CAPITAL ===================== -->
   <div id="work-capital" class="work-view">
-  <div class="backlink-wrap"><a class="backlink" href="index.html"><span class="bk-mark">←</span> Lire Marx · la bibliothèque</a></div>
-  <header>
-    <div class="kicker">Atelier de lecture &amp; de modèles</div>
-    <h1>L'Atelier du <em>Capital</em></h1>
-    <div class="sub">Le Capital, Livre I — texte intégral, domaine public</div>
-    <div class="rule"></div>
-  </header>
-  <nav class="tabs">
-    <button class="tab active" data-top="accueil"><span class="num">I</span>Accueil</button>
-    <button class="tab" data-top="lire"><span class="num">II</span>Lire le Capital</button>
-    <button class="tab" data-top="atelier"><span class="num">III</span>Atelier</button>
-    <button class="tab" data-top="ressources"><span class="num">IV</span>Ressources</button>
+  <!-- Hero de l'œuvre -->
+  <section class="cap-hero">
+    <div class="cap-hero-halo"></div>
+    <div class="cap-hero-left">
+      <nav class="cap-breadcrumb" aria-label="Fil d'Ariane">
+        <a href="index.html">Œuvres</a>
+        <span aria-hidden="true">›</span>
+        <span>Le Capital</span>
+      </nav>
+      <span class="cap-badge">Livre premier · 1867</span>
+      <h1 class="cap-h1">Le procès de production<br>du capital</h1>
+      <p class="cap-desc">De la marchandise à l'accumulation primitive — l'analyse du mécanisme qui fonde la richesse capitaliste et son secret : le travail non payé.</p>
+    </div>
+    <div class="cap-hero-right">
+      <div class="cap-cover">
+        <div class="cap-cover-caption">Édition originale, 1867</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Barre d'onglets redesignée (logique JS préservée) -->
+  <nav class="tabs cap-tabs-bar">
+    <button class="tab active" data-top="lire">Lire Le Capital</button>
+    <button class="tab" data-top="atelier">Atelier</button>
+    <button class="tab" data-top="ressources">Ressources</button>
   </nav>
   <nav class="subnav" id="subnav" style="display:none"></nav>
 
-  <!-- ACCUEIL DE L'ŒUVRE -->
-  <section class="panel active" id="accueil">
-    <h2 class="sec">Le Capital, Livre I</h2>
-
-    <div class="acc-exergue">
-      <blockquote class="acc-exergue-q">« La richesse des sociétés dans lesquelles règne le mode de production capitaliste s'annonce comme une immense accumulation de marchandises, et la marchandise isolée comme la forme élémentaire de cette richesse. »</blockquote>
-      <div class="acc-exergue-src"><i>Le Capital</i>, Livre I — première phrase (trad. J. Roy, 1872).</div>
-      <p class="acc-exergue-th">Tout part de cet objet trivial — la <b>marchandise</b> — et tout y revient. En la suivant pas à pas, Marx met au jour d'où vient réellement le profit : non d'une ruse de l'échange, mais du <b>travail non payé</b>. Le Livre I est la démonstration de ce secret.</p>
-      <div class="cta-row">
-        <button class="btn red" onclick="activateTab('lire');window.scrollTo({top:0,behavior:'smooth'});">Entrer dans le texte →</button>
+  <!-- ACCUEIL — onglet "Lire Le Capital" (2 cartes de départ) -->
+  <section class="panel" id="accueil">
+    <div class="cap-lire-grid" id="capLireGrid">
+      <!-- Carte 1 : Commencer la lecture -->
+      <div class="cap-card">
+        <div class="cap-card-icon">📖</div>
+        <div class="cap-card-title">Commencer la lecture</div>
+        <div class="cap-card-desc">Le texte intégral du Livre I, en 33 chapitres — traduction Joseph Roy (1872), revue par Marx, domaine public.</div>
+        <button class="cap-btn-dark" onclick="goLire(1,'I','La marchandise');window.scrollTo({top:0,behavior:'smooth'});">Lire →</button>
+      </div>
+      <!-- Carte 2 : Ton parcours dans l'atelier -->
+      <div class="cap-card">
+        <div class="cap-card-icon">📊</div>
+        <div class="cap-card-title">Ton parcours</div>
+        <div class="cap-card-desc">Suis ta progression chapitre par chapitre dans l'atelier de lecture.</div>
+        <div class="cap-prog-wrap">
+          <div class="cap-prog-bg"><div class="cap-prog-fill" id="capProgFill"></div></div>
+          <div class="cap-prog-txt" id="capProgTxt">0 sur 33 chapitres</div>
+        </div>
+        <button class="cap-btn-outline" onclick="activateTab('nav');window.scrollTo({top:0,behavior:'smooth'});">Continuer l'atelier →</button>
       </div>
     </div>
-
-    <div class="acc-itineraire">
-      <h3><span class="ib-n">§</span> Par où entrer</h3>
-      <p class="acc-itineraire-intro">Le <i>Capital</i> n'est pas un roman : on peut l'aborder par plusieurs portes. Marx lui-même prévenait que ses premières pages, les plus abstraites, rebutent souvent. Voici trois entrées possibles.</p>
-      <div class="acc-portes">
-        <div class="acc-porte">
-          <h4>Dans l'ordre</h4>
-          <p>De la marchandise (chap. I) vers le capital : l'ascension logique voulue par Marx, exigeante mais cohérente. La voie royale — à condition d'accepter l'aridité du début.</p>
-          <button class="btn" onclick="goLire(1,'I','La marchandise');">Commencer au chap. I →</button>
-        </div>
-        <div class="acc-porte">
-          <h4>Par le capital <span class="acc-porte-h-sub">(conseil d'Althusser)</span></h4>
-          <p>Laisser provisoirement de côté la première section sur la marchandise et la valeur, commencer à la transformation de l'argent en capital (Section II), puis revenir en arrière une fois la machine comprise.</p>
-          <button class="btn" onclick="goLire(2,'IV','Formule générale du capital');">Démarrer à la Section II →</button>
-        </div>
-        <div class="acc-porte">
-          <h4>Par le concret</h4>
-          <p>Entrer par les pages les plus vivantes — <i>La journée de travail</i> (chap. X) ou l'<i>Accumulation primitive</i> (Section VIII), récits saisissants de l'exploitation et de la violence qui a institué le capital — puis remonter vers l'abstrait qui les éclaire.</p>
-          <button class="btn" onclick="goLire(3,'X','La journée de travail');">Lire le chap. X →</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="intro-grid">
-
-      <div class="intro-block">
-        <h3><span class="ib-n">§</span> Le moment historique</h3>
-        <p><i>Le Capital</i> paraît en <b>1867</b>, au plus fort de la révolution industrielle. L'Angleterre est alors « l'atelier du monde » : la machine à vapeur, le charbon, le chemin de fer et le système des fabriques ont fait surgir en quelques décennies une accumulation de richesse sans précédent — mais aussi des journées de travail démesurées, le travail des enfants et des villes ouvrières insalubres.</p>
-        <p>Marx prend l'Angleterre comme terrain d'observation privilégié, <b>lieu classique</b> du mode de production capitaliste, et s'appuie massivement sur les rapports officiels des inspecteurs de fabrique et les enquêtes parlementaires — les fameux <i>Blue Books</i>.</p>
-        <p class="pull">« De te fabula narratur » — c'est de toi que parle cette histoire, avertit-il le lecteur du continent qui se croirait à l'abri du sort anglais.</p>
-        <p>L'Europe sort à peine des révolutions de <b>1848</b> ; en 1864 s'est fondée à Londres l'<b>Association internationale des travailleurs</b>, dont Marx est l'une des têtes. La guerre de Sécession américaine et la « famine du coton » qui frappe alors le Lancashire rappellent que la production est désormais mondiale. Ce n'est donc pas un pamphlet de circonstance : Marx veut dégager les <b>lois de mouvement</b> d'un système, en prenant l'Angleterre non comme une exception mais comme le miroir de l'avenir industriel.</p>
-      </div>
-
-      <div class="intro-block">
-        <h3><span class="ib-n">§</span> L'homme et le livre</h3>
-        <p><b>Karl Marx</b> (1818–1883), né à Trèves en Rhénanie et formé à la philosophie hégélienne, devient journaliste puis se voit contraint à l'exil : Paris, Bruxelles, et enfin <b>Londres</b>, où il s'installe en 1849 et restera jusqu'à sa mort.</p>
-        <p>Ces années londoniennes sont marquées par une grande pauvreté — plusieurs de ses enfants meurent en bas âge — et par le soutien constant de <b>Friedrich Engels</b>, qui le fait vivre grâce à ses revenus d'industriel à Manchester. Marx passe des journées entières à la salle de lecture du <b>British Museum</b>, dépouillant les économistes et les statistiques officielles. Après de longs travaux préparatoires, il publie enfin le premier livre du <i>Capital</i>. Il en surveillera de près la traduction française, qu'il révise au point de lui reconnaître « une valeur scientifique propre ». Les Livres II et III resteront à l'état de manuscrits : c'est Engels qui les éditera après sa mort.</p>
-        <ul class="chrono">
-          <li><span class="cy">1818</span><span class="ce">Naissance à <b>Trèves</b> (Rhénanie prussienne).</span></li>
-          <li><span class="cy">1849</span><span class="ce">Installation définitive à <b>Londres</b>, après Paris et Bruxelles.</span></li>
-          <li><span class="cy">1859</span><span class="ce"><i>Contribution à la critique de l'économie politique</i> — la préface sur la méthode.</span></li>
-          <li><span class="cy">1864</span><span class="ce">Fondation de l'<b>Association internationale des travailleurs</b>.</span></li>
-          <li><span class="cy">1867</span><span class="ce">Publication du <b>Livre I</b> à Hambourg (éd. Otto Meissner).</span></li>
-          <li><span class="cy">1872–1875</span><span class="ce">Édition française, traduite par J. Roy et revue par Marx (Lachâtre).</span></li>
-          <li><span class="cy">1883</span><span class="ce">Mort à Londres.</span></li>
-          <li><span class="cy">1885 · 1894</span><span class="ce">Livres <b>II</b> et <b>III</b>, édités par Engels d'après les manuscrits.</span></li>
-        </ul>
-      </div>
-
-      <div class="intro-block">
-        <h3><span class="ib-n">§</span> Ce que démontre le Livre I</h3>
-        <p>Le Livre I porte un sous-titre : <i>le développement de la production capitaliste</i>. Son objet n'est pas la morale mais le <b>mécanisme</b> : comment fonctionne, et d'où tire sa richesse, le mode de production capitaliste. Marx part de l'élément le plus simple — la <b>marchandise</b> — parce que la richesse de ces sociétés s'y donne d'abord à voir comme une accumulation d'objets singuliers. De là il remonte à la valeur, puis à l'argent, puis au capital.</p>
-        <p>Le cœur du livre est une découverte : la <b>plus-value</b>. Le profit ne naît ni d'une tricherie sur les prix ni de la seule circulation, mais d'une marchandise très particulière que l'ouvrier vend — sa <b>force de travail</b>. Payée à sa valeur (de quoi la reproduire), elle a le pouvoir d'en produire davantage : le <b>surtravail non payé</b> est la source de la plus-value, donc du profit.</p>
-        <p>Tout le reste — journée de travail, machinisme, salaire, accumulation — déploie les conséquences de ce rapport, jusqu'à l'histoire violente qui l'a institué : l'<b>accumulation primitive</b>. La méthode procède de l'<b>abstrait au concret</b>, chaque catégorie révélant une contradiction qui appelle la suivante (c'est l'objet de l'onglet <i>Cheminement</i>).</p>
-      </div>
-
-      <div class="intro-block">
-        <h3><span class="ib-n">§</span> Le plan du Livre I</h3>
-        <p>Huit sections, trente-trois chapitres, une seule ascension : de la marchandise — la « cellule économique » de la société bourgeoise — jusqu'à la genèse historique du capital.</p>
-        <ol class="plan-list">
-          <li><span class="pn">I</span><span class="pt">Marchandise et monnaie<small>Valeur, fétichisme, naissance sociale de l'argent.</small></span></li>
-          <li><span class="pn">II</span><span class="pt">Transformation de l'argent en capital<small>La formule A — M — A′ et l'énigme du gain.</small></span></li>
-          <li><span class="pn">III</span><span class="pt">La production de la plus-value absolue<small>Allonger la journée de travail.</small></span></li>
-          <li><span class="pn">IV</span><span class="pt">La production de la plus-value relative<small>Coopération, manufacture, machinisme.</small></span></li>
-          <li><span class="pn">V</span><span class="pt">Recherches ultérieures sur la plus-value<small>Articulation des deux plus-values, formules du taux.</small></span></li>
-          <li><span class="pn">VI</span><span class="pt">Le salaire<small>La forme qui fait disparaître l'exploitation.</small></span></li>
-          <li><span class="pn">VII</span><span class="pt">L'accumulation du capital<small>Reproduction élargie et armée industrielle de réserve.</small></span></li>
-          <li><span class="pn">VIII</span><span class="pt">L'accumulation primitive<small>La genèse violente, présupposé enfin posé comme résultat.</small></span></li>
-        </ol>
-      </div>
-
-    </div>
-
-    <details class="acc-lexique">
-      <summary>Sept mots pour entrer</summary>
-      <ul class="acc-lex-list">
-        <li><b>Valeur d'usage / valeur d'échange</b> — l'utilité d'une chose vs ce contre quoi elle s'échange ; toute marchandise a les deux faces.</li>
-        <li><b>Travail abstrait</b> — non le geste concret du tisserand, mais la pure dépense de force humaine, mesurée en temps, qui fait la valeur.</li>
-        <li><b>Force de travail</b> — la capacité de travailler, que l'ouvrier vend comme une marchandise ; sa valeur est le coût de sa reproduction.</li>
-        <li><b>Survaleur / plus-value</b> — la valeur produite au-delà de ce que coûte la force de travail : le surtravail non payé, source du profit.</li>
-        <li><b>Capital constant / variable</b> — la part en machines et matières (qui transmet seulement sa valeur) vs la part en salaires (seule à créer de la valeur nouvelle).</li>
-        <li><b>Fétichisme de la marchandise</b> — l'illusion par laquelle un rapport social entre les hommes prend l'apparence d'un rapport entre les choses.</li>
-        <li><b>Accumulation primitive</b> — la séparation historique et violente des producteurs d'avec leurs moyens de production : le présupposé du capital.</li>
-      </ul>
-    </details>
+  </section>
   </section>
 
   <!-- NAVIGATEUR -->
@@ -1091,13 +1119,12 @@ const ICONS={box:'<svg viewBox="0 0 24 24"><rect x="4" y="7.5" width="16" height
 
 /* ---- navigation onglets ---- */
 const GROUPS={
- accueil:{panels:['accueil'],labels:[]},
- lire:{panels:['nav','lire'],labels:['Parcourir','Texte intégral']},
+ lire:{panels:['accueil','nav','lire'],labels:['Commencer','Parcourir','Texte intégral']},
  atelier:{panels:['deriv','labo','explore','chrono'],labels:['Cheminement','Modèles','Explorations','Chronologie']},
  ressources:{panels:['ressources'],labels:[]}
 };
-const curPanel={accueil:'accueil',lire:'nav',atelier:'deriv',ressources:'ressources'};
-function panelTop(id){for(const t in GROUPS)if(GROUPS[t].panels.indexOf(id)>=0)return t;return 'accueil';}
+const curPanel={lire:'accueil',atelier:'deriv',ressources:'ressources'};
+function panelTop(id){for(const t in GROUPS)if(GROUPS[t].panels.indexOf(id)>=0)return t;return 'lire';}
 function activateTop(top){
   document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.top===top));
   const g=GROUPS[top]||GROUPS.accueil,sn=document.getElementById('subnav');
@@ -1125,7 +1152,7 @@ function showWork(id){
   document.querySelectorAll('.work-view').forEach(w=>{w.style.display='none';});
   const w=document.getElementById(id);
   if(w){w.style.display='block';}
-  activateTab('accueil');
+  activateTop('lire');
   window.scrollTo({top:0,behavior:'auto'});
 }
 function showHome(){
@@ -1423,6 +1450,14 @@ function applyAtlFilter(q){
 }
 
 renderAtlList();
+// Synchronise aussi la progression de la carte "Ton parcours" (panel accueil)
+(function syncCapProg(){
+  var done=getReadDone();var total=33;var pct=Math.round(done.size/total*100);
+  var fill=document.getElementById('capProgFill');
+  var txt=document.getElementById('capProgTxt');
+  if(fill)fill.style.width=pct+'%';
+  if(txt)txt.textContent=done.size+' sur '+total+' chapitres — '+pct+'% complété';
+})();
 const filter=document.getElementById('filter');
 if(filter)filter.addEventListener('input',()=>applyAtlFilter(filter.value.trim().toLowerCase()));
 
