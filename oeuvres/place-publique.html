@@ -7,16 +7,170 @@
 <meta name="description" content="Place publique de Lire Marx : flux agrégé des notes partagées par la communauté, toutes œuvres confondues.">
 <link rel="stylesheet" href="atelier.css">
 <link rel="stylesheet" href="shell.css">
+<style>
+/* ── Variables Rouge Internationale (cohérence avec le reste du site) ── */
+:root{
+  --bg:#F7F5F0;--surface:#FBF9F4;--text:#171614;--muted:#8B8577;
+  --accent:#C41E3A;--border:rgba(23,22,20,.10);
+  --paper:#F7F5F0;--paper-2:#EDE9E2;--card:#FBF9F4;
+  --ink:#171614;--ink-soft:#8B8577;
+  --red:#C41E3A;--red-deep:#9B1830;--bright:#C41E3A;
+  --gold:#9a7b35;--const:#8B8577;
+  --line:rgba(23,22,20,.11);--line-soft:rgba(23,22,20,.07);
+  --f-ui:'Bricolage Grotesque',system-ui,sans-serif;
+}
+
+/* ── En-tête de page ── */
+.pp-hero{
+  position:relative;overflow:hidden;
+  padding:clamp(36px,5vh,52px) 0 clamp(24px,3vh,36px);
+  margin-bottom:20px;
+}
+.pp-hero-halo{
+  position:absolute;top:50%;left:40%;width:520px;height:300px;
+  transform:translate(-50%,-50%);pointer-events:none;
+  background:radial-gradient(ellipse at center,rgba(196,30,58,.07) 0%,transparent 64%);
+}
+.pp-hero-body{
+  display:flex;align-items:flex-start;justify-content:space-between;
+  gap:24px;position:relative;z-index:1;
+}
+.pp-hero-left{}
+.pp-label{
+  display:block;font-size:.68rem;font-weight:700;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:10px;
+  font-family:var(--f-ui);
+}
+.pp-title{
+  font-family:'Fraunces',serif;font-weight:900;
+  font-size:clamp(2.1rem,4.8vw,3.2rem);letter-spacing:-.025em;
+  color:var(--text);line-height:1.04;margin-bottom:10px;
+}
+.pp-sub{
+  font-size:.94rem;line-height:1.65;color:var(--muted);
+  max-width:52ch;font-family:'Spectral',Georgia,serif;
+}
+.pp-cta{
+  flex:none;display:inline-flex;align-items:center;gap:6px;
+  padding:10px 22px;border-radius:999px;border:none;
+  background:var(--text);color:var(--bg);
+  font-size:.82rem;font-weight:700;cursor:pointer;white-space:nowrap;
+  font-family:var(--f-ui);transition:opacity .15s;text-decoration:none;
+  align-self:flex-start;margin-top:4px;
+}
+.pp-cta:hover{opacity:.82;}
+
+/* ── Filtres par œuvre ── */
+.pp-filters{
+  display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;
+}
+.pp-filter{
+  font-family:var(--f-ui);font-size:.78rem;font-weight:600;
+  padding:6px 14px;border-radius:999px;cursor:pointer;
+  border:1px solid var(--border);background:transparent;
+  color:var(--muted);transition:border-color .15s,color .15s,background .15s;
+}
+.pp-filter:hover{border-color:rgba(23,22,20,.24);color:var(--text);}
+.pp-filter.active{border-color:var(--accent);color:var(--accent);
+  background:rgba(196,30,58,.07);}
+
+/* ── Flux de notes : override complet des .cm-* ── */
+#placeFull{
+  max-width:720px;margin:0;padding:0;
+  display:flex;flex-direction:column;gap:14px;
+}
+/* Cartes arrondies */
+.cm-card{
+  border:1px solid transparent;background:var(--surface);
+  border-radius:16px;padding:20px 22px 18px;
+  transition:transform .2s,box-shadow .2s,border-color .2s;
+}
+.cm-card:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 24px -6px rgba(23,22,20,.10);
+  border-color:rgba(23,22,20,.06);
+}
+.cm-card:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+.cm-card.cm-card-soon{cursor:default;opacity:.6;}
+.cm-card.cm-card-soon:hover{transform:none;box-shadow:none;border-color:transparent;}
+/* Avatar en accent */
+.cm-av{background:var(--accent);color:#fff;
+  width:30px;height:30px;border-radius:50%;
+  font-family:'Fraunces',serif;font-weight:700;font-size:.78rem;}
+/* Auteur */
+.cm-name{font-family:'Fraunces',serif;font-weight:600;
+  font-size:.92rem;color:var(--text);}
+/* Badge œuvre/section */
+.cm-tag{background:rgba(196,30,58,.08);color:var(--accent);
+  border-radius:999px;padding:2px 9px;
+  font-size:.63rem;letter-spacing:.06em;font-family:var(--f-ui);}
+/* Horodatage */
+.cm-when{color:var(--muted);font-size:.7rem;}
+/* Titre de l'œuvre */
+.cm-work{color:var(--muted);font-size:.73rem;margin:3px 0 7px;
+  font-family:var(--f-ui);letter-spacing:.02em;}
+/* Citation du passage */
+.cm-quote{
+  border-left:2px solid var(--accent);padding:2px 0 2px 12px;
+  font-family:'Spectral',Georgia,serif;font-style:italic;
+  font-size:.93rem;color:var(--text);line-height:1.5;
+  margin:5px 0 7px;
+}
+/* Corps de la note */
+.cm-body{font-family:'Spectral',Georgia,serif;font-size:.91rem;
+  color:var(--muted);line-height:1.55;margin-bottom:5px;}
+/* Pied de carte */
+.cm-foot{border-top:1px solid var(--line);padding-top:9px;margin-top:8px;
+  display:flex;align-items:baseline;gap:12px;}
+.cm-rc{color:var(--muted);font-size:.72rem;font-family:var(--f-ui);}
+.cm-go{color:var(--accent);font-family:'Fraunces',serif;
+  font-weight:600;font-size:.82rem;margin-left:auto;}
+.cm-card:hover .cm-go{color:var(--accent);opacity:.8;}
+.cm-go-soon{color:var(--muted);font-style:italic;font-weight:500;}
+/* État chargement / vide */
+.cm-state{color:var(--muted);font-family:var(--f-ui);font-size:.92rem;
+  text-align:center;padding:28px 16px;line-height:1.6;}
+.cm-retry{font-family:var(--f-ui);font-size:.82rem;font-weight:600;
+  color:var(--accent);background:transparent;
+  border:1px solid var(--accent);border-radius:6px;
+  padding:4px 12px;margin-left:6px;cursor:pointer;}
+.cm-retry:hover{background:var(--accent);color:#fff;}
+/* Lien "Voir toutes" en mode compact */
+.cm-all{color:var(--accent);font-family:'Fraunces',serif;
+  font-weight:600;font-size:.86rem;text-decoration:none;
+  border-bottom:1px solid transparent;transition:border-color .15s;}
+.cm-all:hover{border-bottom-color:var(--accent);}
+
+/* ── Responsive ── */
+@media(max-width:760px){
+  .pp-hero-body{flex-direction:column;gap:16px;}
+  .pp-cta{align-self:flex-start;}
+}
+</style>
 </head>
 <body>
 
 <main class="wrap">
-  <section class="pp-head">
-    <div class="kicker">Place publique</div>
-    <h1>Notes partagées</h1>
-    <p class="sub">Lecture seule. Pour répondre ou annoter un passage, ouvre la page de l’œuvre concernée.</p>
+
+  <!-- ── En-tête ── -->
+  <section class="pp-hero">
+    <div class="pp-hero-halo"></div>
+    <div class="pp-hero-body">
+      <div class="pp-hero-left">
+        <span class="pp-label">Lire Marx</span>
+        <h1 class="pp-title">Place publique</h1>
+        <p class="pp-sub">Discussions ouvertes entre lecteurs — annotations partagées, passages commentés, réponses aux notes des autres.</p>
+      </div>
+      <a class="pp-cta" href="capital-1.html">Ouvrir un atelier →</a>
+    </div>
   </section>
-  <section id="placeFull" class="pp-list" aria-live="polite"></section>
+
+  <!-- ── Filtres par œuvre (peuplés dynamiquement) ── -->
+  <div class="pp-filters" id="ppFilters" role="group" aria-label="Filtrer par œuvre" style="display:none"></div>
+
+  <!-- ── Flux de notes partagées ── -->
+  <section id="placeFull" aria-live="polite" aria-label="Notes partagées"></section>
+
 </main>
 
 <script src="../config.js"></script>
@@ -27,10 +181,75 @@ installShell({
   workTitle: 'Place publique',
   tabs: []
 });
-// Monte le flux complet (pas de limite, pas de mode compact).
+
+// Monte le flux complet.
+var placeFull = document.getElementById('placeFull');
 if(window.SHELL && window.SHELL.commune){
-  SHELL.commune.mount(document.getElementById('placeFull'), {});
+  SHELL.commune.mount(placeFull, {});
 }
+
+/* ── Filtres client-side par œuvre ── */
+(function(){
+  var filtersEl = document.getElementById('ppFilters');
+  var currentFilter = 'all';
+
+  function applyFilter(){
+    var cards = placeFull.querySelectorAll('.cm-card');
+    cards.forEach(function(card){
+      var work = card.querySelector('.cm-work');
+      var workText = work ? work.textContent.trim() : '';
+      card.style.display = (currentFilter === 'all' || workText.indexOf(currentFilter) !== -1) ? '' : 'none';
+    });
+  }
+
+  function buildFilters(){
+    var cards = placeFull.querySelectorAll('.cm-card');
+    if(!cards.length) return;
+    var works = {};
+    cards.forEach(function(card){
+      var work = card.querySelector('.cm-work');
+      if(work){
+        var t = work.textContent.trim();
+        if(t) works[t] = (works[t]||0)+1;
+      }
+    });
+    var keys = Object.keys(works);
+    if(keys.length < 2){ filtersEl.style.display = 'none'; return; }
+
+    filtersEl.innerHTML = '';
+    // Bouton "Tout"
+    var all = document.createElement('button');
+    all.className = 'pp-filter active';
+    all.textContent = 'Toutes';
+    all.setAttribute('data-work','all');
+    all.addEventListener('click', function(){ currentFilter='all'; updateActive(all); applyFilter(); });
+    filtersEl.appendChild(all);
+
+    keys.forEach(function(k){
+      var btn = document.createElement('button');
+      btn.className = 'pp-filter';
+      // Libellé court (ex: "Capital I" depuis "Le Capital — Livre I")
+      var label = k.replace('Le Capital — Livre ','Capital ').replace('Manuscrits de ','Manuscrits ');
+      btn.textContent = label + ' (' + works[k] + ')';
+      btn.setAttribute('data-work', k);
+      btn.addEventListener('click', function(){ currentFilter=k; updateActive(btn); applyFilter(); });
+      filtersEl.appendChild(btn);
+    });
+    filtersEl.style.display = 'flex';
+  }
+
+  function updateActive(activeBtn){
+    filtersEl.querySelectorAll('.pp-filter').forEach(function(b){ b.classList.remove('active'); });
+    activeBtn.classList.add('active');
+  }
+
+  // Surveille le rendu async de SHELL.commune
+  var obs = new MutationObserver(function(mutations){
+    var hasCards = placeFull.querySelector('.cm-card');
+    if(hasCards){ obs.disconnect(); buildFilters(); }
+  });
+  obs.observe(placeFull, {childList:true, subtree:true});
+})();
 </script>
 </body>
 </html>
