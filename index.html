@@ -6,7 +6,7 @@
 <title>Lire Marx — le livre-interface (prototype)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,900;1,9..144,500&family=Spectral:ital,wght@0,400;0,500;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,900;1,9..144,500&family=Spectral:ital,wght@0,400;0,500;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Caveat:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{height:100%;}
@@ -84,6 +84,124 @@ h1.big em{font-style:italic;font-weight:500;color:#e5392a;}
   font-size:.62rem;letter-spacing:.18em;color:#6a5f4a;opacity:.85;}
 @media(max-width:680px){.cine .center{max-width:100%;}.paper::before{display:none;}}
 </style>
+
+<style>
+/* ── Design tokens ── */
+:root{
+  --bg:#0b0807;
+  --surface:#141210;
+  --surface-2:#1c1915;
+  --text:#efe6d6;
+  --text-muted:#8a7d68;
+  --accent:#e5392a;
+  --gold:#d4a843;
+  --border:rgba(239,230,214,.10);
+}
+
+/* ── Home wrapper ── */
+.hw{width:100%;height:100%;overflow-y:auto;overflow-x:hidden;
+  color:var(--text);font-family:'Inter',system-ui,sans-serif;background:var(--bg);}
+.hw::-webkit-scrollbar{width:5px;}
+.hw::-webkit-scrollbar-track{background:var(--bg);}
+.hw::-webkit-scrollbar-thumb{background:rgba(239,230,214,.14);border-radius:3px;}
+
+/* ── Nav ── */
+.hn{position:sticky;top:0;z-index:100;display:flex;align-items:center;
+  justify-content:space-between;padding:0 clamp(24px,5vw,80px);height:60px;
+  background:rgba(11,8,7,.88);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border);}
+.hn-logo{font-family:'Fraunces',serif;font-weight:900;font-size:1.05rem;
+  color:var(--text);text-decoration:none;letter-spacing:-.02em;}
+.hn-links{display:flex;gap:30px;}
+.hn-links a{font-size:13px;color:var(--text-muted);text-decoration:none;
+  letter-spacing:.01em;transition:color .18s;}
+.hn-links a:hover{color:var(--text);}
+.hn-cta{font-size:13px;font-weight:600;color:var(--bg);background:var(--text);
+  text-decoration:none;padding:7px 18px;border-radius:999px;transition:opacity .18s;}
+.hn-cta:hover{opacity:.82;}
+
+/* ── Hero ── */
+.hs-hero{position:relative;display:grid;grid-template-columns:1fr 1fr;
+  gap:clamp(40px,6vw,100px);align-items:center;
+  padding:clamp(72px,11vh,130px) clamp(24px,5vw,80px) clamp(56px,7vh,90px);
+  min-height:calc(100vh - 60px);}
+.hs-halo{position:absolute;top:50%;left:32%;transform:translate(-50%,-50%);
+  width:700px;height:420px;pointer-events:none;
+  background:radial-gradient(ellipse at center,rgba(229,57,42,.10) 0%,transparent 68%);
+  z-index:0;}
+.hs-left{position:relative;z-index:1;display:flex;flex-direction:column;gap:22px;}
+.hs-badge{display:inline-flex;align-items:center;font-size:12px;font-weight:500;
+  color:var(--text-muted);background:rgba(239,230,214,.05);
+  border:1px solid var(--border);border-radius:999px;
+  padding:5px 14px;width:fit-content;letter-spacing:.02em;}
+.hs-h1{font-family:'Fraunces',serif;font-weight:900;
+  font-size:clamp(2.3rem,4.8vw,3.6rem);line-height:1.02;
+  letter-spacing:-.03em;color:var(--text);}
+.hs-h1 em{font-style:italic;font-weight:500;color:var(--accent);}
+.hs-desc{font-size:.97rem;line-height:1.72;color:var(--text-muted);max-width:44ch;}
+.hs-btns{display:flex;gap:11px;flex-wrap:wrap;margin-top:4px;}
+.btn-filled{display:inline-flex;align-items:center;padding:11px 24px;
+  border-radius:999px;background:var(--text);color:var(--bg);
+  font-size:14px;font-weight:600;text-decoration:none;transition:opacity .18s;}
+.btn-filled:hover{opacity:.84;}
+.btn-outline{display:inline-flex;align-items:center;padding:11px 24px;
+  border-radius:999px;background:transparent;
+  border:1px solid rgba(239,230,214,.22);color:var(--text);
+  font-size:14px;font-weight:500;text-decoration:none;
+  transition:border-color .18s,background .18s;}
+.btn-outline:hover{border-color:rgba(239,230,214,.42);background:rgba(239,230,214,.05);}
+
+/* Portrait */
+.hs-right{position:relative;z-index:1;display:flex;justify-content:center;}
+.hs-portrait{position:relative;width:100%;max-width:400px;aspect-ratio:4/5;
+  border-radius:20px;overflow:hidden;
+  background:linear-gradient(155deg,#2a1d12 0%,#1a1410 45%,#0f0c0a 100%);margin:0;}
+.hs-portrait::before{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 42% 28%,rgba(190,140,70,.16) 0%,transparent 52%),
+             radial-gradient(ellipse at 78% 76%,rgba(80,44,16,.28) 0%,transparent 42%);}
+.hs-portrait figcaption{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);
+  font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+  color:rgba(239,230,214,.38);white-space:nowrap;}
+
+/* ── Catalogue ── */
+.hs-catalogue{display:grid;grid-template-columns:1fr 1fr;gap:20px;
+  padding:0 clamp(24px,5vw,80px) clamp(56px,7vh,90px);}
+.hs-card{border-radius:20px;overflow:hidden;background:var(--surface);
+  border:1px solid var(--border);transition:transform .22s,border-color .22s;}
+.hs-card:hover{transform:translateY(-5px);border-color:rgba(239,230,214,.2);}
+.hs-card-img{height:230px;
+  background:linear-gradient(155deg,#2a1d12 0%,#1a1410 45%,#0f0c0a 100%);
+  display:flex;align-items:flex-end;padding:16px 20px;position:relative;}
+.hs-card-img::before{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 40% 30%,rgba(180,130,70,.13) 0%,transparent 55%);}
+.hs-card-img span{position:relative;font-size:11px;letter-spacing:.17em;
+  text-transform:uppercase;color:rgba(239,230,214,.38);}
+.hs-card-body{padding:22px 24px;display:flex;flex-direction:column;gap:7px;}
+.hs-card-label{font-size:11px;font-weight:600;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--gold);}
+.hs-card-title{font-family:'Fraunces',serif;font-weight:900;font-size:1.45rem;
+  letter-spacing:-.02em;color:var(--text);line-height:1.1;}
+.hs-card-desc{font-size:.88rem;line-height:1.62;color:var(--text-muted);}
+
+/* ── Stats bar ── */
+.hs-stats{display:flex;justify-content:center;gap:clamp(36px,7vw,110px);
+  padding:clamp(40px,5vh,56px) clamp(24px,5vw,80px);
+  border-top:1px solid var(--border);text-align:center;}
+.hs-stat{display:flex;flex-direction:column;gap:6px;}
+.hs-stat-n{font-family:'Fraunces',serif;font-weight:900;
+  font-size:clamp(1.9rem,3.8vw,2.8rem);letter-spacing:-.03em;color:var(--text);}
+.hs-stat-l{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);}
+
+/* ── Responsive ── */
+@media(max-width:720px){
+  .hs-hero{grid-template-columns:1fr;min-height:auto;gap:36px;}
+  .hs-right{order:-1;}
+  .hs-portrait{max-width:280px;}
+  .hn-links{display:none;}
+  .hs-catalogue{grid-template-columns:1fr;}
+  .hs-stats{gap:28px;}
+}
+</style>
 </head>
 <body>
 <div class="loading" id="loading">Reliure de l'atelier…</div>
@@ -106,21 +224,84 @@ h1.big em{font-style:italic;font-weight:500;color:#e5392a;}
 </div>
 
 <div class="sheet" id="sheet">
-  <iframe id="app" class="appframe" title="Lire Marx"></iframe>
+  <!-- iframe conservé pour compatibilité JS, masqué -->
+  <iframe id="app" style="display:none" title="Lire Marx"></iframe>
+
+  <div class="hw">
+
+    <!-- ① Nav sticky -->
+    <nav class="hn">
+      <a class="hn-logo" href="#">Lire Marx</a>
+      <div class="hn-links">
+        <a href="#">Œuvres</a>
+        <a href="#">Simulations</a>
+        <a href="#">Place publique</a>
+      </div>
+      <a href="#" class="hn-cta">Commencer</a>
+    </nav>
+
+    <!-- ② Hero deux colonnes -->
+    <section class="hs-hero">
+      <div class="hs-halo"></div>
+      <div class="hs-left">
+        <span class="hs-badge">Depuis 2024 · 1 200 lecteurs</span>
+        <h1 class="hs-h1">Lire <em>Le Capital</em>,<br>vraiment le comprendre</h1>
+        <p class="hs-desc">Un atelier de lecture guidé, chapitre par chapitre — annotations, simulations économiques et discussions entre lecteurs.</p>
+        <div class="hs-btns">
+          <a href="oeuvres/capital-1.html" class="btn-filled">Entrer dans l'atelier</a>
+          <a href="#catalogue" class="btn-outline">Voir le catalogue</a>
+        </div>
+      </div>
+      <div class="hs-right">
+        <figure class="hs-portrait">
+          <figcaption>Portrait · 1875</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ③ Catalogue -->
+    <section class="hs-catalogue" id="catalogue">
+      <div class="hs-card">
+        <div class="hs-card-img"><span>Le Capital · Livre I · 1867</span></div>
+        <div class="hs-card-body">
+          <span class="hs-card-label">Texte guidé</span>
+          <h3 class="hs-card-title">Le Capital</h3>
+          <p class="hs-card-desc">33 chapitres annotés, avec simulations de la valeur, de la plus-value et de l'accumulation du capital.</p>
+        </div>
+      </div>
+      <div class="hs-card">
+        <div class="hs-card-img"><span>Manuscrits · Archives · 1844</span></div>
+        <div class="hs-card-body">
+          <span class="hs-card-label">À venir</span>
+          <h3 class="hs-card-title">Manuscrits de 1844</h3>
+          <p class="hs-card-desc">Les carnets de jeunesse de Marx, clés pour saisir le fondement philosophique du Capital.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ④ Barre de chiffres clés -->
+    <div class="hs-stats">
+      <div class="hs-stat">
+        <span class="hs-stat-n">33</span>
+        <span class="hs-stat-l">chapitres guidés</span>
+      </div>
+      <div class="hs-stat">
+        <span class="hs-stat-n">1 200</span>
+        <span class="hs-stat-l">lecteurs actifs</span>
+      </div>
+      <div class="hs-stat">
+        <span class="hs-stat-n">12</span>
+        <span class="hs-stat-l">simulations</span>
+      </div>
+    </div>
+
+  </div>
 </div>
 
 <style>
   #sheet{position:fixed;inset:0;z-index:30;opacity:0;pointer-events:none;
-    transform:scale(.92);transform-origin:50% 46%;background:#0b0807;will-change:opacity,transform;}
+    transform:scale(.92);transform-origin:50% 46%;background:var(--bg);will-change:opacity,transform;}
   #sheet.show{pointer-events:auto;}
-  #app{width:100%;height:100%;border:0;display:block;background:#f3ecdd;}
-  #sheet .pg-back{position:fixed;top:14px;right:16px;z-index:40;
-    font-family:'Spectral',Georgia,serif;font-size:.82rem;letter-spacing:.02em;
-    color:#f3e6c0;background:rgba(20,14,11,.62);border:1px solid rgba(233,196,106,.5);
-    border-radius:999px;padding:8px 14px;cursor:pointer;backdrop-filter:blur(4px);
-    opacity:0;transition:opacity .4s ease .15s;}
-  #sheet.show .pg-back{opacity:1;}
-  #sheet .pg-back:hover{background:rgba(124,29,22,.8);}
 </style>
   <script src="vendor/three.min.js"></script>
 <script>
@@ -417,11 +598,8 @@ h1.big em{font-style:italic;font-weight:500;color:#e5392a;}
   canvas.addEventListener('click', enter);
   var sheet=document.getElementById('sheet'), cine=document.getElementById('cine');
   var app=document.getElementById('app');
-  var revealed=false;
 
-  // Après l'animation, on entre dans la bibliothèque (l'accueil canonique
-  // du site), pas directement dans un livre.
-  app.src='oeuvres/index.html';
+  app.src='oeuvres/capital-1.html';
 
   function resize(){var w=window.innerWidth,h=window.innerHeight;renderer.setSize(w,h,false);
     camera.aspect=w/h;camera.updateProjectionMatrix();}
@@ -479,8 +657,7 @@ h1.big em{font-style:italic;font-weight:500;color:#e5392a;}
     var sv=smooth(0.45,0.96,p);
     sheet.style.opacity=sv; sheet.style.transform='scale('+(0.92+0.08*sv)+')';
     canvas.style.opacity=String(1-smooth(0.62,0.97,p));
-    if(p>0.6){ sheet.classList.add('show'); cine.classList.add('hide');
-      if(!revealed){ revealed=true; try{ app.contentWindow.postMessage({lm:'reveal'},'*'); }catch(e){} } }
+    if(p>0.6){ sheet.classList.add('show'); cine.classList.add('hide'); }
     else { sheet.classList.remove('show'); cine.classList.remove('hide'); }
 
     renderer.render(scene,camera);
