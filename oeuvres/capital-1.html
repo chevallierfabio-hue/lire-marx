@@ -619,6 +619,72 @@ nav.tabs.cap-tabs-bar .tab .num{display:none;}
   .cap-cover{width:130px;}
   .cap-lire-grid{grid-template-columns:1fr;}
 }
+
+/* ── Image de couverture avec duotone ── */
+.cap-cover-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  filter:grayscale(1) contrast(1.05);display:block;}
+.cap-cover::after{content:'';position:absolute;inset:0;
+  background:rgba(196,30,58,.18);mix-blend-mode:multiply;pointer-events:none;}
+
+/* ── Section "Trois idées" ── */
+.cap-section-label{font-size:.68rem;font-weight:700;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:16px;
+  display:block;font-family:'Bricolage Grotesque',system-ui,sans-serif;}
+.cap-ideas-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:36px;}
+.cap-idea-card{background:var(--surface);border-radius:16px;overflow:hidden;
+  border:1px solid transparent;transition:transform .2s,box-shadow .2s;}
+.cap-idea-card:hover{transform:translateY(-3px);
+  box-shadow:0 10px 28px -6px rgba(23,22,20,.10);}
+.cap-idea-vignette{height:140px;position:relative;overflow:hidden;}
+.cap-idea-vignette img{width:100%;height:100%;object-fit:cover;
+  filter:grayscale(1) contrast(1.05);display:block;}
+.cap-idea-vignette::after{content:'';position:absolute;inset:0;
+  background:rgba(196,30,58,.16);mix-blend-mode:multiply;}
+.cap-idea-vignette-grad{height:140px;position:relative;background:linear-gradient(135deg,#2A2724 0%,#1a1410 55%,#0f0c0a 100%);}
+.cap-idea-vignette-grad::before{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 40% 30%,rgba(196,30,58,.18) 0%,transparent 60%);}
+.cap-idea-body{padding:18px 18px 16px;}
+.cap-idea-title{font-family:'Fraunces',serif;font-weight:700;font-size:1rem;
+  line-height:1.25;color:var(--ink);margin-bottom:7px;letter-spacing:-.01em;}
+.cap-idea-desc{font-size:.84rem;line-height:1.55;color:var(--ink-soft);
+  font-family:'Spectral',Georgia,serif;}
+
+/* ── Blocs d'action ── */
+.cap-actions-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:4px;}
+.cap-action{border-radius:18px;padding:26px 26px 24px;}
+.cap-action-dark{background:#171614;position:relative;overflow:hidden;}
+.cap-action-dark::before{content:'';position:absolute;top:40%;left:30%;
+  width:360px;height:220px;transform:translate(-50%,-50%);
+  background:radial-gradient(ellipse at center,rgba(196,30,58,.16) 0%,transparent 65%);
+  pointer-events:none;}
+.cap-action-light{background:var(--surface);border:1px solid var(--line);}
+.cap-action-eyebrow{font-size:.68rem;font-weight:700;letter-spacing:.2em;
+  text-transform:uppercase;margin-bottom:10px;display:block;
+  font-family:'Bricolage Grotesque',system-ui,sans-serif;}
+.cap-action-dark .cap-action-eyebrow{color:rgba(196,30,58,.8);}
+.cap-action-light .cap-action-eyebrow{color:var(--muted);}
+.cap-action-title{font-family:'Fraunces',serif;font-weight:700;font-size:1.18rem;
+  line-height:1.2;margin-bottom:6px;}
+.cap-action-dark .cap-action-title{color:#F7F5F0;}
+.cap-action-light .cap-action-title{color:var(--ink);}
+.cap-action-desc{font-size:.86rem;line-height:1.55;margin-bottom:20px;
+  font-family:'Spectral',Georgia,serif;}
+.cap-action-dark .cap-action-desc{color:rgba(247,245,240,.5);}
+.cap-action-light .cap-action-desc{color:var(--ink-soft);}
+.cap-btn-light{display:inline-flex;align-items:center;gap:5px;padding:9px 20px;
+  border-radius:999px;background:rgba(247,245,240,.14);color:#F7F5F0;
+  font-size:.82rem;font-weight:700;border:none;cursor:pointer;
+  transition:background .15s;font-family:'Bricolage Grotesque',system-ui,sans-serif;}
+.cap-btn-light:hover{background:rgba(247,245,240,.24);}
+
+/* Responsive nouvelles sections */
+@media(max-width:860px){
+  .cap-ideas-grid{grid-template-columns:1fr 1fr;}
+  .cap-actions-row{grid-template-columns:1fr;}
+}
+@media(max-width:580px){
+  .cap-ideas-grid{grid-template-columns:1fr;}
+}
 </style>
 <script src="../config.js"></script>
 <script src="shell.js"></script>
@@ -654,13 +720,15 @@ nav.tabs.cap-tabs-bar .tab .num{display:none;}
         <span aria-hidden="true">›</span>
         <span>Le Capital</span>
       </nav>
-      <span class="cap-badge">Livre premier · 1867</span>
-      <h1 class="cap-h1">Le procès de production<br>du capital</h1>
-      <p class="cap-desc">De la marchandise à l'accumulation primitive — l'analyse du mécanisme qui fonde la richesse capitaliste et son secret : le travail non payé.</p>
+      <span class="cap-badge">Pour commencer sans rien connaître</span>
+      <h1 class="cap-h1">Le livre qui explique<br>pourquoi le travail<br>ne paie jamais assez</h1>
+      <p class="cap-desc">Publié en 1867, <em>Le Capital</em> démontre une chose simple et radicale : le profit ne vient pas du talent des uns, mais du travail non payé des autres.</p>
+      <button class="cap-btn-dark" style="margin-top:20px" onclick="goLire(1,'I','La marchandise');window.scrollTo({top:0,behavior:'smooth'});">Commencer la lecture →</button>
     </div>
     <div class="cap-hero-right">
       <div class="cap-cover">
-        <div class="cap-cover-caption">Édition originale, 1867</div>
+        <img class="cap-cover-img" src="../assets/img/archive/capital-1867.JPG" alt="Das Kapital, édition originale 1867" loading="lazy">
+        <div class="cap-cover-caption">Das Kapital, 1867 · DHM, Wikimedia Commons (CC BY-SA 4.0)</div>
       </div>
     </div>
   </section>
@@ -675,15 +743,17 @@ nav.tabs.cap-tabs-bar .tab .num{display:none;}
 
   <!-- ACCUEIL — onglet "Lire Le Capital" (2 cartes de départ) -->
   <section class="panel" id="accueil">
-    <div class="cap-lire-grid" id="capLireGrid">
+
+    <!-- Deux cartes de démarrage rapide -->
+    <div class="cap-lire-grid" id="capLireGrid" style="margin-bottom:40px;">
       <!-- Carte 1 : Commencer la lecture -->
       <div class="cap-card">
         <div class="cap-card-icon">📖</div>
         <div class="cap-card-title">Commencer la lecture</div>
-        <div class="cap-card-desc">Le texte intégral du Livre I, en 33 chapitres — traduction Joseph Roy (1872), revue par Marx, domaine public.</div>
+        <div class="cap-card-desc">Le texte intégral du Livre I en 33 chapitres — traduction Joseph Roy (1872), revue par Marx, domaine public.</div>
         <button class="cap-btn-dark" onclick="goLire(1,'I','La marchandise');window.scrollTo({top:0,behavior:'smooth'});">Lire →</button>
       </div>
-      <!-- Carte 2 : Ton parcours dans l'atelier -->
+      <!-- Carte 2 : Ton parcours -->
       <div class="cap-card">
         <div class="cap-card-icon">📊</div>
         <div class="cap-card-title">Ton parcours</div>
@@ -695,7 +765,65 @@ nav.tabs.cap-tabs-bar .tab .num{display:none;}
         <button class="cap-btn-outline" onclick="activateTab('nav');window.scrollTo({top:0,behavior:'smooth'});">Continuer l'atelier →</button>
       </div>
     </div>
-  </section>
+
+    <!-- Trois idées pour entrer dans le livre -->
+    <span class="cap-section-label">Trois idées pour entrer dans le livre</span>
+    <div class="cap-ideas-grid">
+
+      <!-- Idée 1 -->
+      <article class="cap-idea-card">
+        <div class="cap-idea-vignette">
+          <img src="../assets/img/archive/manufacture.jpg" alt="Manufacture textile, XIXe siècle" loading="lazy">
+        </div>
+        <div class="cap-idea-body">
+          <div class="cap-idea-title">Le profit vient du travail — pas du talent des patrons</div>
+          <div class="cap-idea-desc">Chaque heure travaillée crée plus de valeur qu'elle ne coûte au patron. Cette différence, c'est la source de tout profit : Marx l'appelle la plus-value.</div>
+        </div>
+      </article>
+
+      <!-- Idée 2 -->
+      <article class="cap-idea-card">
+        <div class="cap-idea-vignette-grad"></div>
+        <div class="cap-idea-body">
+          <div class="cap-idea-title">Le prix d'un objet cache du temps de vie humain</div>
+          <div class="cap-idea-desc">Ce qui fait la valeur d'une marchandise, ce n'est pas son utilité ni son prix de marché — c'est le temps de travail social qu'il a fallu pour la produire.</div>
+        </div>
+      </article>
+
+      <!-- Idée 3 -->
+      <article class="cap-idea-card">
+        <div class="cap-idea-vignette">
+          <img src="../assets/img/archive/capital-1867.JPG" alt="Das Kapital, 1867" loading="lazy">
+        </div>
+        <div class="cap-idea-body">
+          <div class="cap-idea-title">Le salarié est libre — et c'est là le piège</div>
+          <div class="cap-idea-desc">Le travailleur vend librement sa force de travail, contrairement au serf ou à l'esclave. Mais il n'a que ça à vendre : sa liberté est aussi sa dépossession.</div>
+        </div>
+      </article>
+
+    </div>
+
+    <!-- Deux blocs d'action -->
+    <div class="cap-actions-row">
+
+      <!-- Bloc mis en avant : Lecture guidée -->
+      <div class="cap-action cap-action-dark">
+        <span class="cap-action-eyebrow">Lecture guidée</span>
+        <div class="cap-action-title">L'atelier, chapitre par chapitre</div>
+        <div class="cap-action-desc">Suis le texte section par section, marque ta progression, accède aux simulations économiques associées.</div>
+        <button class="cap-btn-light" onclick="activateTab('nav');window.scrollTo({top:0,behavior:'smooth'});">Rejoindre →</button>
+      </div>
+
+      <!-- Bloc secondaire : Aller plus loin -->
+      <div class="cap-action cap-action-light">
+        <span class="cap-action-eyebrow">Aller plus loin</span>
+        <div class="cap-action-title">Vidéos, conférences, ressources</div>
+        <div class="cap-action-desc">Cours de David Harvey, émissions, lectures complémentaires — pour approfondir avant ou après avoir lu le texte.</div>
+        <button class="cap-btn-outline" onclick="activateTab('ressources');window.scrollTo({top:0,behavior:'smooth'});">Voir →</button>
+      </div>
+
+    </div>
+
   </section>
 
   <!-- NAVIGATEUR -->
