@@ -749,6 +749,28 @@ nav.tabs.cap-tabs-bar .tab .num{display:none;}
 @media(max-width:580px){
   .cap-ideas-grid{grid-template-columns:1fr;}
 }
+
+/* ── Ressources : grille de cartes ── */
+.rss-section-label{font-size:.67rem;font-weight:700;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:14px;display:block;
+  font-family:'Bricolage Grotesque',system-ui,sans-serif;padding-top:4px;}
+.rss-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:36px;}
+.rss-card{display:flex;flex-direction:column;gap:8px;background:var(--surface);
+  border-radius:16px;padding:18px 20px;text-decoration:none;color:inherit;
+  border:1px solid transparent;transition:transform .2s,box-shadow .2s;position:relative;}
+.rss-card:hover{transform:translateY(-3px);
+  box-shadow:0 10px 28px -6px rgba(23,22,20,.10);
+  border-color:rgba(23,22,20,.06);}
+.rss-card-top{display:flex;align-items:center;justify-content:space-between;}
+.rss-badge{font-size:.67rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--accent);font-family:'Bricolage Grotesque',system-ui,sans-serif;}
+.rss-ext{color:var(--muted);opacity:.45;flex:none;}
+.rss-ext svg{width:13px;height:13px;display:block;}
+.rss-title{font-family:'Fraunces',serif;font-weight:700;font-size:.97rem;
+  line-height:1.28;color:var(--text);}
+.rss-meta{font-size:.79rem;color:var(--muted);
+  font-family:'Bricolage Grotesque',system-ui,sans-serif;line-height:1.4;}
+@media(max-width:640px){.rss-grid{grid-template-columns:1fr;}}
 </style>
 <script src="../config.js"></script>
 <script src="shell.js"></script>
@@ -1301,32 +1323,105 @@ nav.tabs.cap-tabs-bar .tab .num{display:none;}
   </section>
 
   <section class="panel" id="ressources">
-    <h2 class="sec">Ressources</h2>
-    <p class="lead">Pour prolonger la lecture : conférences, émissions et articles savants autour du Capital, de la valeur et du fétichisme. Tous ces liens ouvrent des sites externes.</p>
 
-    <div class="res-section">Vidéos <small>conférences</small></div>
-    <div class="res-grid">
-      <a class="res-card" href="https://www.youtube.com/watch?v=ASFB4m_SMQo" target="_blank" rel="noopener"><div class="res-kind">Conférence · Université Permanente</div><h3>S. Boussedra — « La marchandise » (Livre I, section 1)</h3><div class="res-meta">1 h 43</div></a>
-      <a class="res-card" href="https://www.youtube.com/watch?v=dr8pMiBueiY" target="_blank" rel="noopener"><div class="res-kind">Conférence · Université Permanente</div><h3>B. Vasseur — « Le fétichisme de la marchandise, du capital et de l'argent »</h3><div class="res-meta">2 h</div></a>
-      <a class="res-card" href="https://www.youtube.com/watch?v=Id5Wkndr2cA" target="_blank" rel="noopener"><div class="res-kind">Conférence · Université Permanente</div><h3>D. Durand — « La monnaie » (Livre I, section 1)</h3><div class="res-meta">1 h 47</div></a>
-      <a class="res-card" href="https://www.youtube.com/watch?v=GUIhf5oIvsM" target="_blank" rel="noopener"><div class="res-kind">Entretien · Le Média</div><h3>A. Bihr &amp; J. Théry — « Karl Marx et le vampire capitaliste »</h3><div class="res-meta">le travail mort qui suce le travail vivant</div></a>
-      <a class="res-card" href="https://www.youtube.com/watch?v=vbOomtzHQJA" target="_blank" rel="noopener"><div class="res-kind">Série · Café marxiste</div><h3>A. Vatan — « Le Capital de Marx » (1/5)</h3><div class="res-meta">série en cinq volets</div></a>
-      <a class="res-card" href="https://www.youtube.com/watch?v=AhUedta9ioI" target="_blank" rel="noopener"><div class="res-kind">Vidéo · Politikon</div><h3>« Marx — Le Capital, Livre I »</h3><div class="res-meta">De Dicto #21</div></a>
-      <a class="res-card" href="https://davidharvey.org/reading-capital/" target="_blank" rel="noopener"><div class="res-kind">Cours · en anglais</div><h3>D. Harvey — « Reading Marx's Capital, Volume I »</h3><div class="res-meta">le cours de référence, 12 séances</div></a>
+    <!-- VIDÉOS -->
+    <span class="rss-section-label">Vidéos</span>
+    <div class="rss-grid">
+
+      <a class="rss-card" href="https://www.youtube.com/watch?v=vbOomtzHQJA" target="_blank" rel="noopener">
+        <div class="rss-card-top"><span class="rss-badge">Vidéo</span><span class="rss-ext"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12L12 2M12 2H7.5M12 2V6.5"/></svg></span></div>
+        <div class="rss-title">« Le Capital de Marx » (1/5)</div>
+        <div class="rss-meta">A. Vatan · Série Café marxiste</div>
+      </a>
+
+      <a class="rss-card" href="https://www.youtube.com/watch?v=GUIhf5oIvsM" target="_blank" rel="noopener">
+        <div class="rss-card-top"><span class="rss-badge">Entretien</span><span class="rss-ext"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12L12 2M12 2H7.5M12 2V6.5"/></svg></span></div>
+        <div class="rss-title">« Karl Marx et le vampire capitaliste »</div>
+        <div class="rss-meta">A. Bihr &amp; J. Théry · Le Média</div>
+      </a>
+
+      <a class="rss-card" href="https://www.youtube.com/watch?v=AhUedta9ioI" target="_blank" rel="noopener">
+        <div class="rss-card-top"><span class="rss-badge">Vidéo</span><span class="rss-ext"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12L12 2M12 2H7.5M12 2V6.5"/></svg></span></div>
+        <div class="rss-title">« Marx — Le Capital, Livre I »</div>
+        <div class="rss-meta">De Dicto #21 · Politikon</div>
+      </a>
+
+      <a class="rss-card" href="https://davidharvey.org/reading-capital/" target="_blank" rel="noopener">
+        <div class="rss-card-top"><span class="rss-badge">Cours en ligne</span><span class="rss-ext"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12L12 2M12 2H7.5M12 2V6.5"/></svg></span></div>
+        <div class="rss-title">« Reading Marx's Capital, Volume I »</div>
+        <div class="rss-meta">David Harvey · 13 séances · en anglais</div>
+      </a>
+
     </div>
 
-    <div class="res-section">Radio &amp; podcast <small>à écouter</small></div>
-    <div class="res-grid">
-      <a class="res-card" href="https://www.franceculture.fr/emissions/les-chemins-de-la-philosophie/le-capital-de-karl-marx-14-la-fabrique-de-la-plus-value" target="_blank" rel="noopener"><div class="res-kind">France Culture · Les Chemins de la philosophie</div><h3>« Le Capital de Karl Marx » (2017)</h3><div class="res-meta">série de 4 émissions · dès « La fabrique de la plus-value »</div></a>
-      <a class="res-card" href="https://www.contretemps.eu/profondeurs-capital-exploitation-marx-podcast/" target="_blank" rel="noopener"><div class="res-kind">Podcast · Contretemps · accès libre</div><h3>« En avant Marx » — Dans les profondeurs du capital</h3><div class="res-meta">exploitation et Livre I · avec I. Garo, U. Lojkine</div></a>
+    <!-- ÉMISSIONS -->
+    <span class="rss-section-label">Émissions</span>
+    <div class="rss-grid">
+
+      <a class="rss-card" href="https://www.franceculture.fr/emissions/les-chemins-de-la-philosophie/le-capital-de-karl-marx-14-la-fabrique-de-la-plus-value" target="_blank" rel="noopener">
+        <div class="rss-card-top"><span class="rss-badge">Radio</span><span class="rss-ext"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12L12 2M12 2H7.5M12 2V6.5"/></svg></span></div>
+        <div class="rss-title">« Le Capital de Karl Marx »</div>
+        <div class="rss-meta">Les Chemins de la philosophie · France Culture · série de 4 émissions · 2017</div>
+      </a>
+
+      <a class="rss-card" href="https://www.contretemps.eu/profondeurs-capital-exploitation-marx-podcast/" target="_blank" rel="noopener">
+        <div class="rss-card-top"><span class="rss-badge">Podcast</span><span class="rss-ext"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12L12 2M12 2H7.5M12 2V6.5"/></svg></span></div>
+        <div class="rss-title">« En avant Marx — Dans les profondeurs du capital »</div>
+        <div class="rss-meta">I. Garo, U. Lojkine · Contretemps · accès libre</div>
+      </a>
+
     </div>
 
-    <div class="res-section">Articles <small>en libre accès</small></div>
-    <div class="res-grid">
-      <a class="res-card" href="https://surlimage.info/ecrits/fetichisation/GaroIsabelle-LeFetichismeDeLaMarchandise.pdf" target="_blank" rel="noopener"><div class="res-kind">PDF · accès libre</div><h3>Isabelle Garo — « Le fétichisme de la marchandise chez Marx »</h3><div class="res-meta">par une éditrice de Marx (GEME) · accès libre</div></a>
-      <a class="res-card" href="https://journals.openedition.org/philosophique/129" target="_blank" rel="noopener"><div class="res-kind">OpenEdition · revue Philosophique</div><h3>« La critique de l'argent au début du Livre I du Capital »</h3><div class="res-meta">des Manuscrits au Capital · accès libre</div></a>
-      <a class="res-card" href="https://www.palim-psao.fr/2017/06/le-fetichisme-de-la-marchandise-chez-marx-par-benoit-bohy-bunel.html" target="_blank" rel="noopener"><div class="res-kind">Article · Palim-psao · accès libre</div><h3>B. Bohy-Bunel — « Le fétichisme de la marchandise chez Marx »</h3><div class="res-meta">lecture du chap. 1, section 4 · accès libre</div></a>
+    <!-- CONFÉRENCES -->
+    <span class="rss-section-label">Conférences</span>
+    <div class="rss-grid">
+
+      <a class="rss-card" href="https://www.youtube.com/watch?v=ASFB4m_SMQo" target="_blank" rel="noopener">
+        <div class="rss-card-top"><span class="rss-badge">Conférence</span><span class="rss-ext"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12L12 2M12 2H7.5M12 2V6.5"/></svg></span></div>
+        <div class="rss-title">« La marchandise » — Livre I, section 1</div>
+        <div class="rss-meta">S. Boussedra · Université Permanente · 1 h 43</div>
+      </a>
+
+      <a class="rss-card" href="https://www.youtube.com/watch?v=dr8pMiBueiY" target="_blank" rel="noopener">
+        <div class="rss-card-top"><span class="rss-badge">Conférence</span><span class="rss-ext"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12L12 2M12 2H7.5M12 2V6.5"/></svg></span></div>
+        <div class="rss-title">« Le fétichisme de la marchandise, du capital et de l'argent »</div>
+        <div class="rss-meta">B. Vasseur · Université Permanente · 2 h</div>
+      </a>
+
+      <a class="rss-card" href="https://www.youtube.com/watch?v=Id5Wkndr2cA" target="_blank" rel="noopener">
+        <div class="rss-card-top"><span class="rss-badge">Conférence</span><span class="rss-ext"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12L12 2M12 2H7.5M12 2V6.5"/></svg></span></div>
+        <div class="rss-title">« La monnaie » — Livre I, section 1</div>
+        <div class="rss-meta">D. Durand · Université Permanente · 1 h 47</div>
+      </a>
+
     </div>
+
+    <!-- ARTICLES -->
+    <span class="rss-section-label">Articles</span>
+    <div class="rss-grid">
+
+      <a class="rss-card" href="https://surlimage.info/ecrits/fetichisation/GaroIsabelle-LeFetichismeDeLaMarchandise.pdf" target="_blank" rel="noopener">
+        <div class="rss-card-top"><span class="rss-badge">PDF</span><span class="rss-ext"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12L12 2M12 2H7.5M12 2V6.5"/></svg></span></div>
+        <div class="rss-title">« Le fétichisme de la marchandise chez Marx »</div>
+        <div class="rss-meta">Isabelle Garo · accès libre</div>
+      </a>
+
+      <a class="rss-card" href="https://journals.openedition.org/philosophique/129" target="_blank" rel="noopener">
+        <div class="rss-card-top"><span class="rss-badge">Article</span><span class="rss-ext"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12L12 2M12 2H7.5M12 2V6.5"/></svg></span></div>
+        <div class="rss-title">« La critique de l'argent au début du Livre I du Capital »</div>
+        <div class="rss-meta">Revue Philosophique · OpenEdition · accès libre</div>
+      </a>
+
+      <a class="rss-card" href="https://www.palim-psao.fr/2017/06/le-fetichisme-de-la-marchandise-chez-marx-par-benoit-bohy-bunel.html" target="_blank" rel="noopener">
+        <div class="rss-card-top"><span class="rss-badge">Article</span><span class="rss-ext"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12L12 2M12 2H7.5M12 2V6.5"/></svg></span></div>
+        <div class="rss-title">« Le fétichisme de la marchandise chez Marx »</div>
+        <div class="rss-meta">B. Bohy-Bunel · Palim-psao · accès libre</div>
+      </a>
+
+    </div>
+
+  </section>
+
   </section>
 
   <footer><b>L'Atelier du Capital</b> — texte intégral dans le domaine public (source Wikisource) ; explications, modèles et carte de la méthode originaux.<br><button id="footPrivacy" class="lk" type="button" style="margin-top:10px">Confidentialité &amp; données</button></footer>
