@@ -86,18 +86,18 @@ h1.big em{font-style:italic;font-weight:500;color:#e5392a;}
 </style>
 
 <style>
-/* ── Design tokens + variables shell remappées (thème sombre) ── */
+/* ── Palette Rouge Internationale + variables shell (thème clair) ── */
 :root{
   /* tokens homepage */
-  --bg:#0b0807;--surface:#141210;--surface-2:#1c1915;
-  --text:#efe6d6;--text-muted:#8a7d68;--accent:#e5392a;
-  --gold:#d4a843;--border:rgba(239,230,214,.10);
-  /* shell.css variables → dark remap */
-  --paper:#0c0a09;--paper-2:#141210;--card:#1a1816;
-  --ink:#efe6d6;--ink-soft:#9a8e7e;
-  --red:#c0392b;--red-deep:#7c1d16;--bright:#e5392a;
-  --gold-deep:#b08830;--blue:#39596b;--const:#6b6051;
-  --line:rgba(239,230,214,.11);--line-soft:rgba(239,230,214,.07);--ok:#52742f;
+  --bg:#F7F5F0;--surface:#FBF9F4;--text:#171614;
+  --muted:#8B8577;--accent:#C41E3A;--border:rgba(23,22,20,.10);
+
+  /* shell.css variables → palette lumineuse (alignée sur le thème natif du shell) */
+  --paper:#F7F5F0;--paper-2:#EDE9E2;--card:#FBF9F4;
+  --ink:#171614;--ink-soft:#8B8577;
+  --red:#C41E3A;--red-deep:#9B1830;--bright:#C41E3A;
+  --gold:#9a7b35;--gold-deep:#7d6325;--blue:#39596b;--const:#8B8577;
+  --line:rgba(23,22,20,.11);--line-soft:rgba(23,22,20,.07);--ok:#52742f;
   --f-ui:'Inter',system-ui,sans-serif;--f-serif:'Spectral',Georgia,serif;--f-hand:'Caveat',cursive;
 }
 
@@ -105,22 +105,18 @@ h1.big em{font-style:italic;font-weight:500;color:#e5392a;}
 header.topbar,aside.sidebar,#sbBackdrop{display:none;}
 body.shell-active header.topbar{display:flex;}
 body.shell-active aside.sidebar{display:block;}
-/* Override shell : topbar fixe + fond sombre */
-header.topbar{position:fixed!important;top:0;left:0;right:0;z-index:140;
-  background:rgba(11,8,7,.94)!important;backdrop-filter:blur(14px);
-  border-bottom:1px solid rgba(239,230,214,.09)!important;}
-/* Override shell : sidebar sombre */
-aside.sidebar{background:#0d0b09!important;border-right:1px solid rgba(239,230,214,.08)!important;}
-/* Brandmark serif */
+/* Topbar : position fixe (pas sticky, car body{overflow:hidden}) */
+header.topbar{position:fixed!important;top:0;left:0;right:0;z-index:140;}
+/* Brandmark en Fraunces */
 .brandmark{font-family:'Fraunces',serif!important;font-weight:900!important;}
 
-/* ── Home wrapper ── */
+/* ── Home wrapper (décalé de la sidebar + topbar fixées) ── */
 .hw{width:100%;height:100%;overflow-y:auto;overflow-x:hidden;
   color:var(--text);font-family:'Inter',system-ui,sans-serif;background:var(--bg);
   box-sizing:border-box;padding-top:44px;padding-left:208px;}
 .hw::-webkit-scrollbar{width:5px;}
 .hw::-webkit-scrollbar-track{background:var(--bg);}
-.hw::-webkit-scrollbar-thumb{background:rgba(239,230,214,.14);border-radius:3px;}
+.hw::-webkit-scrollbar-thumb{background:rgba(23,22,20,.15);border-radius:3px;}
 body.sb-collapsed .hw{padding-left:0;}
 @media(max-width:860px){.hw{padding-left:0;}}
 
@@ -131,61 +127,60 @@ body.sb-collapsed .hw{padding-left:0;}
   min-height:calc(100vh - 44px);}
 .hs-halo{position:absolute;top:50%;left:32%;transform:translate(-50%,-50%);
   width:700px;height:420px;pointer-events:none;
-  background:radial-gradient(ellipse at center,rgba(229,57,42,.10) 0%,transparent 68%);
+  background:radial-gradient(ellipse at center,rgba(196,30,58,.07) 0%,transparent 68%);
   z-index:0;}
 .hs-left{position:relative;z-index:1;display:flex;flex-direction:column;gap:22px;}
 .hs-badge{display:inline-flex;align-items:center;font-size:12px;font-weight:500;
-  color:var(--text-muted);background:rgba(239,230,214,.05);
+  color:var(--muted);background:rgba(23,22,20,.05);
   border:1px solid var(--border);border-radius:999px;
   padding:5px 14px;width:fit-content;letter-spacing:.02em;}
 .hs-h1{font-family:'Fraunces',serif;font-weight:900;
   font-size:clamp(2.3rem,4.8vw,3.6rem);line-height:1.02;
   letter-spacing:-.03em;color:var(--text);}
 .hs-h1 em{font-style:italic;font-weight:500;color:var(--accent);}
-.hs-desc{font-size:.97rem;line-height:1.72;color:var(--text-muted);max-width:44ch;}
+.hs-desc{font-size:.97rem;line-height:1.72;color:var(--muted);max-width:44ch;}
 .hs-btns{display:flex;gap:11px;flex-wrap:wrap;margin-top:4px;}
 .btn-filled{display:inline-flex;align-items:center;padding:11px 24px;
-  border-radius:999px;background:var(--text);color:var(--bg);
+  border-radius:999px;background:var(--accent);color:#fff;
   font-size:14px;font-weight:600;text-decoration:none;transition:opacity .18s;}
-.btn-filled:hover{opacity:.84;}
+.btn-filled:hover{opacity:.86;}
 .btn-outline{display:inline-flex;align-items:center;padding:11px 24px;
   border-radius:999px;background:transparent;
-  border:1px solid rgba(239,230,214,.22);color:var(--text);
+  border:1px solid rgba(23,22,20,.22);color:var(--text);
   font-size:14px;font-weight:500;text-decoration:none;
   transition:border-color .18s,background .18s;}
-.btn-outline:hover{border-color:rgba(239,230,214,.42);background:rgba(239,230,214,.05);}
+.btn-outline:hover{border-color:rgba(23,22,20,.4);background:rgba(23,22,20,.04);}
 
-/* Portrait */
+/* Portrait + images d'archive */
 .hs-right{position:relative;z-index:1;display:flex;justify-content:center;}
 .hs-portrait{position:relative;width:100%;max-width:400px;aspect-ratio:4/5;
   border-radius:20px;overflow:hidden;
-  background:linear-gradient(155deg,#2a1d12 0%,#1a1410 45%,#0f0c0a 100%);margin:0;}
-.hs-portrait::before{content:'';position:absolute;inset:0;
-  background:radial-gradient(ellipse at 42% 28%,rgba(190,140,70,.16) 0%,transparent 52%),
-             radial-gradient(ellipse at 78% 76%,rgba(80,44,16,.28) 0%,transparent 42%);}
-.hs-portrait figcaption{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);
-  font-size:11px;letter-spacing:.18em;text-transform:uppercase;
-  color:rgba(239,230,214,.38);white-space:nowrap;}
+  background:#1a1410;margin:0;}
+.hs-img-wrap{position:absolute;inset:0;}
+.hs-img-wrap img{width:100%;height:100%;object-fit:cover;
+  filter:grayscale(1) contrast(1.08);display:block;}
+.hs-img-wrap::after{content:'';position:absolute;inset:0;
+  background:rgba(196,30,58,.22);mix-blend-mode:multiply;pointer-events:none;}
+.hs-img-caption{position:absolute;bottom:0;left:0;right:0;
+  padding:28px 14px 10px;font-size:10px;letter-spacing:.05em;
+  color:rgba(251,249,244,.82);line-height:1.45;
+  background:linear-gradient(to top,rgba(23,22,20,.62),transparent);}
 
 /* ── Catalogue ── */
 .hs-catalogue{display:grid;grid-template-columns:1fr 1fr;gap:20px;
   padding:0 clamp(24px,5vw,80px) clamp(56px,7vh,90px);}
-.hs-card{border-radius:20px;overflow:hidden;background:var(--surface);
-  border:1px solid var(--border);transition:transform .22s,border-color .22s;}
-.hs-card:hover{transform:translateY(-5px);border-color:rgba(239,230,214,.2);}
-.hs-card-img{height:230px;
-  background:linear-gradient(155deg,#2a1d12 0%,#1a1410 45%,#0f0c0a 100%);
-  display:flex;align-items:flex-end;padding:16px 20px;position:relative;}
-.hs-card-img::before{content:'';position:absolute;inset:0;
-  background:radial-gradient(ellipse at 40% 30%,rgba(180,130,70,.13) 0%,transparent 55%);}
-.hs-card-img span{position:relative;font-size:11px;letter-spacing:.17em;
-  text-transform:uppercase;color:rgba(239,230,214,.38);}
-.hs-card-body{padding:22px 24px;display:flex;flex-direction:column;gap:7px;}
+.hs-card{border-radius:16px;overflow:hidden;background:var(--surface);
+  border:1px solid var(--border);transition:transform .22s,box-shadow .22s;
+  text-decoration:none;display:block;color:inherit;}
+.hs-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px -8px rgba(23,22,20,.14);}
+.hs-card-img{height:220px;position:relative;overflow:hidden;background:#1a1410;}
+.hs-card-img .hs-img-wrap{position:absolute;inset:0;}
+.hs-card-body{padding:20px 22px;display:flex;flex-direction:column;gap:6px;}
 .hs-card-label{font-size:11px;font-weight:600;letter-spacing:.14em;
-  text-transform:uppercase;color:var(--gold);}
-.hs-card-title{font-family:'Fraunces',serif;font-weight:900;font-size:1.45rem;
+  text-transform:uppercase;color:var(--accent);}
+.hs-card-title{font-family:'Fraunces',serif;font-weight:900;font-size:1.35rem;
   letter-spacing:-.02em;color:var(--text);line-height:1.1;}
-.hs-card-desc{font-size:.88rem;line-height:1.62;color:var(--text-muted);}
+.hs-card-desc{font-size:.88rem;line-height:1.62;color:var(--muted);}
 
 /* ── Stats bar ── */
 .hs-stats{display:flex;justify-content:center;gap:clamp(36px,7vw,110px);
@@ -194,15 +189,7 @@ body.sb-collapsed .hw{padding-left:0;}
 .hs-stat{display:flex;flex-direction:column;gap:6px;}
 .hs-stat-n{font-family:'Fraunces',serif;font-weight:900;
   font-size:clamp(1.9rem,3.8vw,2.8rem);letter-spacing:-.03em;color:var(--text);}
-.hs-stat-l{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);}
-
-/* ── Catalogue : cartes cliquables ── */
-.hs-card{border-radius:20px;overflow:hidden;background:var(--surface);
-  border:1px solid var(--border);transition:transform .22s,border-color .22s;
-  text-decoration:none;display:block;color:inherit;}
-.hs-card:hover{transform:translateY(-5px);border-color:rgba(239,230,214,.2);}
-.hs-card.soon{cursor:default;}
-.hs-card.soon:hover{transform:none;border-color:var(--border);}
+.hs-stat-l{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
 
 /* ── Responsive ── */
 @media(max-width:720px){
@@ -255,7 +242,10 @@ body.sb-collapsed .hw{padding-left:0;}
       </div>
       <div class="hs-right">
         <figure class="hs-portrait">
-          <figcaption>Portrait · 1875</figcaption>
+          <div class="hs-img-wrap">
+            <img src="assets/img/archive/marx-portrait.png" alt="Karl Marx, photographie de John Mayall, 1875">
+          </div>
+          <figcaption class="hs-img-caption">Portrait · John Mayall, 1875 · domaine public</figcaption>
         </figure>
       </div>
     </section>
@@ -263,7 +253,12 @@ body.sb-collapsed .hw{padding-left:0;}
     <!-- ③ Catalogue -->
     <section class="hs-catalogue" id="catalogue">
       <a class="hs-card" href="oeuvres/capital-1.html">
-        <div class="hs-card-img"><span>Le Capital · Livre I · 1867</span></div>
+        <div class="hs-card-img">
+          <div class="hs-img-wrap">
+            <img src="assets/img/archive/manufacture.jpg" alt="Manufacture textile, XIXe siècle">
+          </div>
+          <figcaption class="hs-img-caption">Manufacture textile · XIXᵉ s. · domaine public</figcaption>
+        </div>
         <div class="hs-card-body">
           <span class="hs-card-label">Texte guidé</span>
           <h3 class="hs-card-title">Le Capital</h3>
@@ -271,7 +266,12 @@ body.sb-collapsed .hw{padding-left:0;}
         </div>
       </a>
       <a class="hs-card" href="oeuvres/manuscrits-1844.html">
-        <div class="hs-card-img"><span>Manuscrits · Archives · 1844</span></div>
+        <div class="hs-card-img">
+          <div class="hs-img-wrap">
+            <img src="assets/img/archive/capital-1867.JPG" alt="Das Kapital, première édition, 1867">
+          </div>
+          <figcaption class="hs-img-caption">Das Kapital, 1867 · DHM, Wikimedia Commons (CC BY-SA 4.0)</figcaption>
+        </div>
         <div class="hs-card-body">
           <span class="hs-card-label">En cours</span>
           <h3 class="hs-card-title">Manuscrits de 1844</h3>
