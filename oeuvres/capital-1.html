@@ -1288,15 +1288,22 @@ function goLire(n,num,title){activateTab('lire');document.getElementById('chapSe
 document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{activateTop(t.dataset.top);window.scrollTo({top:0,behavior:'smooth'});}));
 document.querySelectorAll('.subtab').forEach(t=>t.addEventListener('click',()=>activateSub(t.dataset.sub)));
 
+/* ── Init synchrone : active l'onglet par défaut dès le chargement.
+   Permet aussi un override via hash URL (ex: #atelier, #ressources). ── */
+(function(){
+  var hash=(location.hash||'').replace(/^#/,'');
+  activateTop(hash in GROUPS ? hash : 'lire');
+})();
+
 /* ---- navigation accueil <-> œuvre ---- */
 function showWork(id){
-  document.getElementById('home').style.display='none';
+  /* #home n'existe plus (Capital est une page autonome) — null-guard obligatoire */
+  var home=document.getElementById('home');if(home)home.style.display='none';
   document.querySelectorAll('.work-view').forEach(w=>{w.style.display='none';});
   const w=document.getElementById(id);
   if(w){w.style.display='block';}
   activateTop('lire');
   window.scrollTo(0, 0);
-  /* Rattrape le décalage de 44px que body.prepend(topbar) peut causer */
   setTimeout(function(){ window.scrollTo(0, 0); }, 0);
 }
 function showHome(){
