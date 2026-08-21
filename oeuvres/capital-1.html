@@ -721,8 +721,8 @@ nav.tabs.cap-tabs-bar .tab .num{display:none;}
         <span>Le Capital</span>
       </nav>
       <span class="cap-badge">Pour commencer sans rien connaître</span>
-      <h1 class="cap-h1">Le livre qui explique<br>pourquoi le travail<br>ne paie jamais assez</h1>
-      <p class="cap-desc">Publié en 1867, <em>Le Capital</em> démontre une chose simple et radicale : le profit ne vient pas du talent des uns, mais du travail non payé des autres.</p>
+      <h1 class="cap-h1">Le livre qui a mis à nu<br>le capitalisme</h1>
+      <p class="cap-desc">Publié en 1867, <em>Le Capital</em> part d'un simple objet en vente pour reconstruire, étape par étape, toute la mécanique de l'exploitation.</p>
       <button class="cap-btn-dark" style="margin-top:20px" onclick="goLire(1,'I','La marchandise');window.scrollTo({top:0,behavior:'smooth'});">Commencer la lecture →</button>
     </div>
     <div class="cap-hero-right">
@@ -1243,6 +1243,11 @@ nav.tabs.cap-tabs-bar .tab .num{display:none;}
 </div>
 
 <script>
+/* ── Scroll fix : empêche la restauration navigateur + décalage DOM ── */
+if('scrollRestoration' in history) history.scrollRestoration = 'manual';
+window.scrollTo(0, 0);
+document.addEventListener('DOMContentLoaded', function(){ window.scrollTo(0, 0); }, {once:true});
+
 const ICONS={box:'<svg viewBox="0 0 24 24"><rect x="4" y="7.5" width="16" height="12.5" rx="1"/><path d="M4 7.5l8-4 8 4"/><path d="M12 3.5v16.5"/></svg>',worker:'<svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="3.2"/><path d="M5 20c0-4 3.5-6 7-6s7 2 7 6"/></svg>',coin:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v8M8 12h8"/></svg>',ratio:'<svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="1.5" fill="#fff" stroke="none"/><circle cx="12" cy="17" r="1.5" fill="#fff" stroke="none"/><path d="M6 12h12"/></svg>',layers:'<svg viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/></svg>',percent:'<svg viewBox="0 0 24 24"><circle cx="7.5" cy="7.5" r="2.4"/><circle cx="16.5" cy="16.5" r="2.4"/><path d="M6 18L18 6"/></svg>',clock:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.5 2"/></svg>',bolt:'<svg viewBox="0 0 24 24"><path d="M13 2L5 13h6l-1 9 8-12h-6l1-8z" fill="#fff" stroke="none"/></svg>',factory:'<svg viewBox="0 0 24 24"><path d="M3 21V11l5 3V11l5 3V8l6 3v9z"/><path d="M3 21h18"/></svg>',store:'<svg viewBox="0 0 24 24"><path d="M4 11l8-6 8 6"/><path d="M6 10v10h12V10"/><rect x="10" y="14.5" width="4" height="5.5"/></svg>',cycle:'<svg viewBox="0 0 24 24"><path d="M5 12a7 7 0 0 1 12-4.5"/><path d="M19 12a7 7 0 0 1-12 4.5"/><path d="M17 3.5V8h-4"/><path d="M7 20.5V16h4"/></svg>',scale:'<svg viewBox="0 0 24 24"><path d="M12 4v16M6 20h12"/><path d="M12 6l-6 2 6 2 6-2-6-2z"/></svg>'};
 
 /* ---- navigation onglets ---- */
@@ -1281,7 +1286,9 @@ function showWork(id){
   const w=document.getElementById(id);
   if(w){w.style.display='block';}
   activateTop('lire');
-  window.scrollTo({top:0,behavior:'auto'});
+  window.scrollTo(0, 0);
+  /* Rattrape le décalage de 44px que body.prepend(topbar) peut causer */
+  setTimeout(function(){ window.scrollTo(0, 0); }, 0);
 }
 function showHome(){
   // L'accueil du site vit dans oeuvres/index.html depuis que Capital est
@@ -2545,6 +2552,9 @@ installShell({
     if(window.SHELL && window.SHELL.auth) window.SHELL.auth.openPrivacy();
   });
 })();
+/* Dernier filet : après que installShell a injecté la topbar en body.prepend,
+   le navigateur peut avoir décalé le scroll de 44px. On repose à 0. */
+window.scrollTo(0, 0);
 </script>
 </body>
 </html>
