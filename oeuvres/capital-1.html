@@ -419,79 +419,117 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
 .pub-note.pub-hidden,.pub-reply.pub-hidden{opacity:.6;}
 .pub-reasons{font-size:.82rem;color:var(--ink-soft);font-style:italic;margin:2px 0 4px;}
 
-/* ── Atelier : liste des chapitres (panel #nav) ── */
-.atl-header{position:relative;overflow:hidden;margin:-22px -22px 28px;
-  background:linear-gradient(160deg,#2A2724 0%,#1F1C1A 50%,#171614 100%);
-  padding:clamp(36px,6vh,56px) clamp(24px,5vw,56px) clamp(32px,5vh,48px);}
-.atl-halo{position:absolute;top:30%;left:20%;width:480px;height:280px;pointer-events:none;
-  background:radial-gradient(ellipse at center,rgba(196,30,58,.12) 0%,transparent 65%);
-  transform:translate(-50%,-50%);filter:blur(4px);}
-.atl-kicker{font-family:'Bricolage Grotesque',system-ui,sans-serif;font-size:.7rem;
-  font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:var(--accent);margin-bottom:12px;}
-.atl-h1{font-family:'Fraunces',serif;font-weight:900;font-size:clamp(1.8rem,4vw,2.6rem);
-  letter-spacing:-.02em;color:#F7F5F0;line-height:1.05;margin-bottom:20px;}
-.atl-prog{display:flex;align-items:center;gap:14px;}
-.atl-bar-bg{flex:1;height:6px;border-radius:999px;background:rgba(255,255,255,.15);max-width:400px;}
+/* ── Atelier : grille de cartes (panel #nav) ── */
+/* En-tête clair */
+.atl-header{position:relative;overflow:hidden;padding:clamp(36px,5vh,54px) 0 clamp(28px,4vh,44px);margin-bottom:28px;}
+.atl-halo{position:absolute;top:50%;left:38%;width:560px;height:340px;pointer-events:none;
+  background:radial-gradient(ellipse at center,rgba(196,30,58,.07) 0%,transparent 62%);
+  transform:translate(-50%,-50%);}
+.atl-breadcrumb{display:flex;align-items:center;gap:6px;font-size:.75rem;
+  color:var(--muted);margin-bottom:14px;position:relative;z-index:1;}
+.atl-breadcrumb a{color:var(--muted);text-decoration:none;transition:color .15s;}
+.atl-breadcrumb a:hover{color:var(--text);}
+.atl-badge{display:inline-flex;align-items:center;font-size:.7rem;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--accent);
+  background:rgba(196,30,58,.08);border:1px solid rgba(196,30,58,.18);
+  border-radius:999px;padding:4px 12px;margin-bottom:16px;position:relative;z-index:1;}
+.atl-header-body{display:flex;align-items:flex-start;justify-content:space-between;
+  gap:40px;position:relative;z-index:1;}
+.atl-h1{font-family:'Fraunces',serif;font-weight:900;
+  font-size:clamp(2.2rem,5vw,3.4rem);letter-spacing:-.025em;
+  color:var(--text);line-height:1.02;}
+.atl-h1 em{font-style:italic;font-weight:500;color:var(--accent);}
+/* Widget progression */
+.atl-prog-widget{flex:none;text-align:right;min-width:180px;}
+.atl-pct{font-family:'Fraunces',serif;font-weight:900;font-size:3.2rem;
+  letter-spacing:-.04em;color:var(--text);line-height:1;}
+.atl-pct-label{font-size:.7rem;font-weight:600;color:var(--muted);
+  letter-spacing:.1em;text-transform:uppercase;margin-top:2px;}
+.atl-bar-bg{height:4px;border-radius:999px;background:rgba(23,22,20,.10);
+  margin:10px 0 6px;}
 .atl-bar-fill{height:100%;border-radius:999px;background:var(--accent);
-  transition:width .5s cubic-bezier(.16,1,.3,1);width:0%;}
-.atl-count{font-size:.78rem;font-weight:600;color:rgba(247,245,240,.55);
-  font-family:'Bricolage Grotesque',system-ui,sans-serif;white-space:nowrap;}
-/* Search */
-.atl-search-wrap{margin-bottom:8px;}
+  transition:width .55s cubic-bezier(.16,1,.3,1);width:0%;}
+.atl-count{font-size:.76rem;color:var(--muted);
+  font-family:'Bricolage Grotesque',system-ui,sans-serif;}
+/* Recherche */
+.atl-search-wrap{margin-bottom:24px;}
 .atl-search{width:100%;max-width:520px;height:40px;border:1px solid var(--line);
   border-radius:8px;background:var(--card);color:var(--ink);
   font-family:'Bricolage Grotesque',system-ui,sans-serif;font-size:.88rem;
-  padding:0 14px;outline:none;}
+  padding:0 14px;outline:none;transition:border-color .15s;}
 .atl-search:focus{border-color:var(--accent);}
-/* Section headers */
-.atl-sec-head{font-family:'Bricolage Grotesque',system-ui,sans-serif;font-size:.68rem;
-  font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);
-  padding:22px 0 8px;border-bottom:1px solid var(--line);margin-bottom:2px;}
-.atl-sec-head:first-child{padding-top:0;}
-/* Chapter rows */
-.atl-row{display:flex;align-items:center;gap:16px;padding:14px 16px;
-  border-radius:10px;margin:2px 0;transition:background .15s;position:relative;}
-.atl-row.atl-done,.atl-row.atl-current{cursor:pointer;}
-.atl-row.atl-done:hover{background:var(--surface);}
-.atl-row.atl-current{background:var(--surface);
-  box-shadow:0 1px 0 0 var(--line),0 -1px 0 0 var(--line);
-  border:1px solid var(--line);}
-.atl-row.atl-upcoming{opacity:.52;pointer-events:none;}
-/* Indicator circle */
-.atl-ind{flex:none;width:32px;height:32px;border-radius:50%;display:flex;
-  align-items:center;justify-content:center;font-family:'Fraunces',serif;
-  font-weight:700;font-size:.88rem;}
-.atl-row.atl-done .atl-ind{background:var(--accent);color:#fff;}
-.atl-row.atl-done .atl-ind svg{width:14px;height:14px;stroke:#fff;stroke-width:2.5;}
-.atl-row.atl-current .atl-ind{background:transparent;border:2px solid var(--accent);color:var(--accent);}
-.atl-row.atl-upcoming .atl-ind{background:transparent;border:1.5px solid var(--line);color:var(--muted);}
-/* Body */
-.atl-body{flex:1;min-width:0;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
-.atl-num{font-size:.74rem;font-weight:700;color:var(--muted);letter-spacing:.04em;
-  font-family:'Bricolage Grotesque',system-ui,sans-serif;white-space:nowrap;}
-.atl-title{font-family:'Fraunces',serif;font-weight:600;font-size:.98rem;
-  color:var(--ink);line-height:1.25;}
-.atl-done-label{font-size:.7rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
-  color:var(--ok);font-family:'Bricolage Grotesque',system-ui,sans-serif;}
-/* Actions */
-.atl-actions{flex:none;display:flex;align-items:center;gap:8px;}
-.atl-continue{font-family:'Bricolage Grotesque',system-ui,sans-serif;font-size:.78rem;
-  font-weight:700;padding:7px 16px;border-radius:999px;border:none;
-  background:var(--accent);color:#fff;cursor:pointer;white-space:nowrap;
-  transition:opacity .15s;}
-.atl-continue:hover{opacity:.85;}
-.atl-done-toggle{font-family:'Bricolage Grotesque',system-ui,sans-serif;font-size:.72rem;
-  font-weight:600;padding:5px 12px;border-radius:999px;cursor:pointer;
-  background:transparent;border:1px solid var(--line);color:var(--muted);
-  transition:border-color .15s,color .15s;white-space:nowrap;}
-.atl-done-toggle:hover{border-color:var(--ok);color:var(--ok);}
-.atl-row.atl-done .atl-done-toggle{border-color:var(--ok);color:var(--ok);}
-.atl-row.atl-done .atl-done-toggle:hover{border-color:var(--muted);color:var(--muted);}
-@media(max-width:640px){
-  .atl-body{flex-direction:column;gap:2px;}
-  .atl-actions{flex-direction:column;gap:4px;}
-  .atl-done-toggle{display:none;}
+/* Grille */
+#navlist{display:grid;grid-template-columns:1fr 1fr;gap:15px;align-items:start;}
+/* Séparateur de section (pleine largeur) */
+.atl-grid-sec{grid-column:1/3;font-size:.67rem;font-weight:700;
+  letter-spacing:.22em;text-transform:uppercase;color:var(--muted);
+  padding:16px 0 8px;border-bottom:1px solid var(--line);}
+/* Carte commune */
+.atl-card{border-radius:18px;padding:20px 20px 18px;position:relative;overflow:hidden;
+  transition:transform .2s,box-shadow .2s;}
+.atl-card.atl-done{background:var(--surface);cursor:pointer;border:1px solid transparent;}
+.atl-card.atl-done:hover{transform:translateY(-3px);
+  box-shadow:0 10px 28px -6px rgba(23,22,20,.10);}
+/* Carte en cours — pleine largeur + fond sombre */
+.atl-card.atl-current{grid-column:1/3;background:#171614;cursor:pointer;}
+.atl-card.atl-current:hover{transform:translateY(-2px);
+  box-shadow:0 12px 32px -8px rgba(0,0,0,.28);}
+/* Carte à venir */
+.atl-card.atl-upcoming{border:1px solid rgba(23,22,20,.10);opacity:.6;}
+/* Halo de la carte en cours */
+.atl-card-halo{position:absolute;top:40%;left:28%;width:440px;height:280px;
+  pointer-events:none;
+  background:radial-gradient(ellipse at center,rgba(196,30,58,.14) 0%,transparent 62%);
+  transform:translate(-50%,-50%);}
+/* Indicateur circulaire */
+.atl-card-ind{width:38px;height:38px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;margin-bottom:14px;}
+.atl-done .atl-card-ind{background:var(--accent);}
+.atl-done .atl-card-ind svg{width:15px;height:15px;
+  stroke:#fff;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;}
+.atl-current .atl-card-ind{border:2px solid var(--accent);}
+.atl-current .atl-card-ind span,.atl-upcoming .atl-card-ind span{
+  font-family:'Fraunces',serif;font-weight:700;font-size:.9rem;}
+.atl-current .atl-card-ind span{color:var(--accent);}
+.atl-upcoming .atl-card-ind{border:1.5px solid rgba(23,22,20,.18);}
+.atl-upcoming .atl-card-ind span{color:var(--muted);}
+/* Textes de la carte */
+.atl-card-chap{font-size:.7rem;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;margin-bottom:6px;}
+.atl-done .atl-card-chap,.atl-upcoming .atl-card-chap{color:var(--muted);}
+.atl-current .atl-card-chap{color:rgba(247,245,240,.42);}
+.atl-card-title{font-family:'Fraunces',serif;font-weight:700;
+  line-height:1.22;margin-bottom:8px;}
+.atl-done .atl-card-title,.atl-upcoming .atl-card-title{font-size:1rem;color:var(--text);}
+.atl-current .atl-card-title{font-size:1.28rem;color:#F7F5F0;}
+.atl-card-status{font-size:.7rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;}
+.atl-done .atl-card-status{color:var(--ok);}
+.atl-current .atl-card-status{color:rgba(196,30,58,.7);}
+/* Pied de la carte en cours */
+.atl-card-foot{display:flex;align-items:center;justify-content:space-between;
+  margin-top:18px;gap:12px;}
+.atl-card-sim{font-size:.76rem;font-style:italic;color:rgba(247,245,240,.35);}
+.atl-continue{font-family:'Bricolage Grotesque',system-ui,sans-serif;font-size:.8rem;
+  font-weight:700;padding:8px 20px;border-radius:999px;border:none;
+  background:rgba(247,245,240,.13);color:#F7F5F0;cursor:pointer;
+  transition:background .15s;white-space:nowrap;}
+.atl-continue:hover{background:rgba(247,245,240,.22);}
+/* Toggle marquer terminé */
+.atl-done-toggle{display:inline-flex;align-items:center;gap:4px;font-size:.7rem;
+  font-weight:600;background:transparent;border:none;cursor:pointer;
+  padding:4px 0;margin-top:6px;transition:color .15s;
+  font-family:'Bricolage Grotesque',system-ui,sans-serif;}
+.atl-done .atl-done-toggle{color:var(--ok);}
+.atl-done .atl-done-toggle:hover{color:var(--muted);}
+.atl-upcoming .atl-done-toggle{display:none;}
+/* Responsive */
+@media(max-width:740px){
+  #navlist{grid-template-columns:1fr;}
+  .atl-grid-sec,.atl-card.atl-current{grid-column:1;}
+  .atl-header-body{flex-direction:column;gap:20px;}
+  .atl-prog-widget{text-align:left;min-width:0;width:100%;}
 }
+@media(max-width:480px){.atl-done-toggle{display:none;}}
 </style>
 <script src="../config.js"></script>
 <script src="shell.js"></script>
@@ -634,19 +672,28 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
 
   <!-- NAVIGATEUR -->
   <section class="panel" id="nav">
-    <!-- En-tête sombre avec progression dynamique -->
+    <!-- En-tête clair avec progression dynamique -->
     <div class="atl-header">
       <div class="atl-halo"></div>
-      <p class="atl-kicker">Atelier &middot; Le Capital &mdash; Livre I</p>
-      <h1 class="atl-h1">Le Capital — Livre I</h1>
-      <div class="atl-prog">
-        <div class="atl-bar-bg"><div class="atl-bar-fill" id="atlFill"></div></div>
-        <span class="atl-count" id="atlCount">0 / 33 chapitres</span>
+      <nav class="atl-breadcrumb" aria-label="Fil d'Ariane">
+        <a href="index.html">Œuvres</a>
+        <span aria-hidden="true">›</span>
+        <span>Le Capital — Livre I</span>
+      </nav>
+      <span class="atl-badge">Atelier de lecture</span>
+      <div class="atl-header-body">
+        <h1 class="atl-h1">Le Capital<br><em>Livre I</em></h1>
+        <div class="atl-prog-widget">
+          <div class="atl-pct" id="atlPct">0%</div>
+          <div class="atl-pct-label">complété</div>
+          <div class="atl-bar-bg"><div class="atl-bar-fill" id="atlFill"></div></div>
+          <div class="atl-count" id="atlCount">0 sur 33 chapitres</div>
+        </div>
       </div>
     </div>
     <!-- Recherche -->
     <div class="atl-search-wrap">
-      <input class="atl-search" type="text" id="filter" placeholder="Filtrer : plus-value, journée, machinisme…" aria-label="Filtrer les chapitres">
+      <input class="atl-search" type="text" id="filter" placeholder="Filtrer les chapitres…" aria-label="Filtrer les chapitres">
     </div>
     <div class="nores" id="nores">Aucun chapitre ne correspond.</div>
     <div id="navlist"></div>
@@ -1291,29 +1338,33 @@ const META={
  'XXXIII':{s:"La <b>théorie moderne de la colonisation</b> (Wakefield). Dans les colonies où la terre est libre, le travailleur peut devenir indépendant : le capital n'y « prend » pas, faute de salariés disponibles. Wakefield veut donc rendre la terre artificiellement chère pour fabriquer des prolétaires. En cherchant à reproduire le rapport capitaliste, il en révèle malgré lui le <b>secret</b> : le capital exige d'abord l'expropriation du producteur.",d:12}
 };
 
-/* ---- rendu Navigateur ---- */
+/* ---- rendu Navigateur — grille de cartes ---- */
 /* ── Progression de lecture (localStorage) ── */
 const READ_KEY='liremarx.read.capital-1';
 function getReadDone(){try{return new Set(JSON.parse(localStorage.getItem(READ_KEY)||'[]'));}catch(e){return new Set();}}
 function saveReadDone(s){try{localStorage.setItem(READ_KEY,JSON.stringify([...s]));}catch(e){}}
 window.toggleDone=function(gn){const d=getReadDone();if(d.has(gn))d.delete(gn);else d.add(gn);saveReadDone(d);renderAtlList();};
 
-/* Carte plate des chapitres [{secNum,sectionRn,sectionTitle,chapRn,chapTitle,gnum}] */
+/* Table des chapitres [{secNum,sectionRn,sectionTitle,chapRn,chapTitle,gnum}] */
 const CHAP_FLAT=[];
 (function(){let g=0;ROY_STRUCT.forEach((sec,si)=>{sec.chaps.forEach(([num,title])=>{g++;CHAP_FLAT.push({secNum:si+1,sectionRn:sec.rn,sectionTitle:sec.t,chapRn:num,chapTitle:title,gnum:g});});});})();
+
+const LABO_LABELS={'s-taux':'Modèle taux de plus-value','s-jour':'Modèle journée de travail',
+  's-trpf':'Modèle TRPF','s-repro':'Modèle reproduction','s-forme':'Modèle forme valeur',
+  's-circuit':'Modèle circuit du capital','s-accum':'Modèle accumulation'};
+const CHECK_SVG=`<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><polyline points="2,9 6,13 14,3" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
 function renderAtlList(){
   const done=getReadDone();
   const current=(CHAP_FLAT.find(c=>!done.has(c.gnum))||{gnum:CHAP_FLAT.length+1}).gnum;
-  const doneCount=done.size;
-  const total=CHAP_FLAT.length;
-  // Progression
+  const doneCount=done.size;const total=CHAP_FLAT.length;
   const pct=Math.round(doneCount/total*100);
-  const fill=document.getElementById('atlFill');
-  const cnt=document.getElementById('atlCount');
-  if(fill)fill.style.width=pct+'%';
-  if(cnt)cnt.textContent=doneCount+' / '+total+' chapitres';
-  // Liste
+  const fillEl=document.getElementById('atlFill');
+  const pctEl=document.getElementById('atlPct');
+  const cntEl=document.getElementById('atlCount');
+  if(fillEl)fillEl.style.width=pct+'%';
+  if(pctEl)pctEl.textContent=pct+'%';
+  if(cntEl)cntEl.textContent=doneCount+' sur '+total+' chapitres';
   const nl=document.getElementById('navlist');
   if(!nl)return;
   let html='';let lastSec=-1;
@@ -1322,27 +1373,35 @@ function renderAtlList(){
     const isCurrent=c.gnum===current;
     const isUpcoming=!isDone&&!isCurrent;
     if(c.secNum!==lastSec){
-      html+=`<div class="atl-sec-head" data-sec="${c.secNum}">§ ${c.sectionRn} — ${c.sectionTitle}</div>`;
+      html+=`<div class="atl-grid-sec" data-sec="${c.secNum}">§ ${c.sectionRn} — ${c.sectionTitle}</div>`;
       lastSec=c.secNum;
     }
     const state=isDone?'done':isCurrent?'current':'upcoming';
     const ftext=(c.chapTitle+' '+(META[c.chapRn]&&META[c.chapRn].s||'')).toLowerCase().replace(/<[^>]+>/g,'');
-    const goFn=`goLire(${c.secNum},'${c.chapRn}','${c.chapTitle.replace(/'/g,'&#39;')}')`;
-    const indInner=isDone
-      ?`<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="2,9 6,13 14,3"/></svg>`
-      :`<span style="font-size:.8rem;font-weight:700">${c.gnum}</span>`;
-    const continueBtn=isCurrent?`<button class="atl-continue" type="button" onclick="event.stopPropagation();${goFn}">Continuer →</button>`:'';
-    const toggleBtn=!isUpcoming?`<button class="atl-done-toggle" type="button" onclick="event.stopPropagation();toggleDone(${c.gnum})">${isDone?'✓ Terminé':'Marquer terminé'}</button>`:'';
-    const clickAttr=!isUpcoming?` onclick="${goFn}" role="link" tabindex="0" onkeydown="if(event.key==='Enter')${goFn}"`:'';
-    html+=`<div class="atl-row atl-${state}" data-gnum="${c.gnum}" data-text="${ftext.replace(/"/g,'&quot;')}"${clickAttr}>
-      <div class="atl-ind">${indInner}</div>
-      <div class="atl-body">
-        <span class="atl-num">Ch. ${c.chapRn}</span>
-        <span class="atl-title">${c.chapTitle}</span>
-        ${isDone?'<span class="atl-done-label">Terminé</span>':''}
-      </div>
-      <div class="atl-actions">${continueBtn}${toggleBtn}</div>
-    </div>`;
+    const goFn=`goLire(${c.secNum},'${c.chapRn}','${c.chapTitle.replace(/'/g,"&#39;")}')`;
+    const clickAttr=!isUpcoming?` onclick="${goFn}" role="link" tabindex="0" onkeydown="if(event.key==='Enter')${goFn}"`: '';
+    let inner='';
+    if(isCurrent){
+      const m=META[c.chapRn]||{};
+      const simLabel=m.labo&&LABO_LABELS[m.labo]?`<span class="atl-card-sim">${LABO_LABELS[m.labo]}</span>`:'<span></span>';
+      inner=`<div class="atl-card-halo"></div>
+        <div class="atl-card-ind"><span>${c.gnum}</span></div>
+        <div class="atl-card-chap">Ch. ${c.chapRn}</div>
+        <div class="atl-card-title">${c.chapTitle}</div>
+        <div class="atl-card-status">En cours</div>
+        <div class="atl-card-foot">${simLabel}<button class="atl-continue" type="button" onclick="event.stopPropagation();${goFn}">Continuer →</button></div>`;
+    } else if(isDone){
+      inner=`<div class="atl-card-ind">${CHECK_SVG}</div>
+        <div class="atl-card-chap">Ch. ${c.chapRn}</div>
+        <div class="atl-card-title">${c.chapTitle}</div>
+        <div class="atl-card-status">Terminé</div>
+        <button class="atl-done-toggle" type="button" onclick="event.stopPropagation();toggleDone(${c.gnum})">✓ Terminé</button>`;
+    } else {
+      inner=`<div class="atl-card-ind"><span>${c.gnum}</span></div>
+        <div class="atl-card-chap">Ch. ${c.chapRn}</div>
+        <div class="atl-card-title">${c.chapTitle}</div>`;
+    }
+    html+=`<div class="atl-card atl-${state}" data-gnum="${c.gnum}" data-text="${ftext.replace(/"/g,'&quot;')}"${clickAttr}>${inner}</div>`;
   });
   nl.innerHTML=html;
   const q=document.getElementById('filter')&&document.getElementById('filter').value.trim().toLowerCase();
@@ -1351,15 +1410,15 @@ function renderAtlList(){
 
 function applyAtlFilter(q){
   let any=false;
-  const rows=document.querySelectorAll('#navlist .atl-row');
-  const secHeads={};
-  rows.forEach(r=>{
+  const cards=document.querySelectorAll('#navlist .atl-card');
+  const secVis={};
+  cards.forEach(r=>{
     const match=!q||r.dataset.text.includes(q);
     r.style.display=match?'':'none';
-    if(match){any=true;const gn=+r.dataset.gnum;const c=CHAP_FLAT[gn-1];if(c)secHeads[c.secNum]=true;}
+    if(match){any=true;const gn=+r.dataset.gnum;const c=CHAP_FLAT[gn-1];if(c)secVis[c.secNum]=true;}
   });
-  document.querySelectorAll('#navlist .atl-sec-head').forEach(h=>{
-    h.style.display=secHeads[+h.dataset.sec]?'':'none';});
+  document.querySelectorAll('#navlist .atl-grid-sec').forEach(h=>{
+    h.style.display=secVis[+h.dataset.sec]?'':'none';});
   document.getElementById('nores').style.display=any?'none':'block';
 }
 
