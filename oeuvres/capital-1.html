@@ -540,7 +540,7 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
   float:left;line-height:.72;padding:4px 12px 0 0;color:var(--accent);}
 
 /* Bandeau de titre sombre */
-.rdr-header{position:relative;overflow:hidden;background:#171614;
+.rdr-header{position:relative;overflow:hidden;background:var(--text);
   margin:0 -22px 0;padding:clamp(28px,5vh,46px) clamp(24px,5vw,48px);
   display:flex;align-items:flex-start;justify-content:space-between;gap:24px;}
 .rdr-halo{position:absolute;top:50%;left:30%;width:420px;height:260px;pointer-events:none;
@@ -550,7 +550,7 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
   text-transform:uppercase;color:var(--accent);margin-bottom:10px;position:relative;}
 .rdr-title{font-family:'Fraunces',serif;font-weight:900;
   font-size:clamp(1.7rem,3.8vw,2.6rem);letter-spacing:-.02em;
-  color:#F7F5F0;line-height:1.06;position:relative;}
+  color:var(--bg);line-height:1.06;position:relative;}
 .rdr-counter{flex:none;text-align:right;position:relative;white-space:nowrap;
   font-family:'Fraunces',serif;font-weight:900;font-size:.88rem;
   color:rgba(247,245,240,.28);padding-top:4px;line-height:1.3;}
@@ -560,43 +560,14 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
 .rdr-main{border-top:1px solid var(--line);
   padding:clamp(24px,4vh,40px) 0;
   max-width:720px;}
+/* Corps de lecture thème papier : texte explicite --text, ne touche pas aux thèmes reader-tools */
+.reader.theme-paper .ws-text p,.reader.theme-paper .ws-text dd{color:var(--text);}
 
 /* Responsive */
 @media(max-width:800px){
   .rdr-header{flex-direction:column;gap:12px;}
   .rdr-counter{text-align:left;}
 }
-
-/* ── Panel "Texte intégral" — version compacte ── */
-.lire-intro{font-size:.84rem;color:var(--muted);margin-bottom:14px;
-  font-family:'Bricolage Grotesque',system-ui,sans-serif;line-height:1.5;}
-/* Bouton pilule sombre (remplace .btn.red) */
-.lire-load-btn{display:inline-flex;align-items:center;padding:9px 22px;
-  border-radius:999px;background:var(--text);color:var(--bg);
-  font-size:.82rem;font-weight:700;border:none;cursor:pointer;
-  transition:opacity .15s;white-space:nowrap;
-  font-family:'Bricolage Grotesque',system-ui,sans-serif;}
-.lire-load-btn:hover{opacity:.84;}
-/* Select chapitre dans le design system */
-#lire .reader-bar select{
-  border:1px solid var(--border,rgba(23,22,20,.10));border-radius:8px;
-  background:var(--surface);color:var(--text);
-  font-family:'Bricolage Grotesque',system-ui,sans-serif;
-  font-size:.88rem;padding:9px 12px;}
-/* Reader : fond transparent en thème papier uniquement — sombre/sépia conservent leur fond */
-.reader:not(.theme-dark):not(.theme-sepia){background:transparent;border:none;border-radius:0;padding:0;}
-.reader.theme-dark,.reader.theme-sepia{border:none;border-radius:0;padding:0;}
-/* Titres Wikisource : --text en thème papier (rouge → neutre) ; thèmes alternatifs gardent leurs propres couleurs */
-.reader:not(.theme-dark):not(.theme-sepia) .ws-text h2,
-.reader:not(.theme-dark):not(.theme-sepia) .ws-text h3,
-.reader:not(.theme-dark):not(.theme-sepia) .ws-text h4{color:var(--text);}
-/* Toolbar reader-tools : boutons discrets en thème papier ; thème sombre garde son apparence propre */
-.reader:not(.theme-dark) .rd-btn{
-  background:var(--surface);color:var(--text);
-  border-color:var(--border,rgba(23,22,20,.10));}
-.reader:not(.theme-dark) .rd-btn:hover{
-  background:var(--bg);border-color:rgba(23,22,20,.18);color:var(--text);}
-.rd-btn.on{background:var(--accent)!important;color:#fff!important;border-color:var(--accent)!important;}
 
 /* ── Hero de l'œuvre (Le Capital, Livre I) ── */
 .cap-hero{position:relative;overflow:hidden;display:grid;
@@ -955,13 +926,15 @@ nav.tabs.cap-tabs-bar .tab .num{display:none;}
 
   <!-- LIRE -->
   <section class="panel" id="lire">
-    <p class="lire-intro">Traduction Joseph Roy (1872, revue par Marx) — texte intégral du domaine public, chargé depuis Wikisource. Connexion internet requise.</p>
+    <p class="lead" style="margin-bottom:18px;">Traduction Joseph Roy (1872, revue par Marx) — texte intégral, domaine public, chargé depuis Wikisource. Choisir un chapitre puis cliquer sur « Charger le texte intégral ». <b>Connexion internet requise.</b></p>
     <div class="reader-bar">
       <select id="chapSelect" aria-label="Choisir un chapitre"></select>
-      <button id="loadBtn" class="lire-load-btn" type="button">Charger le texte intégral →</button>
+      <button id="loadBtn" class="btn red" type="button">Charger le texte intégral →</button>
     </div>
-    <div id="readerOut"><div class="reader"><div class="placeholder"><div class="pi">📖</div><b>Sélectionne un chapitre et charge le texte.</b></div></div></div>
+    <div class="anno-hint">Une fois le texte chargé : <b>sélectionne un passage</b> pour le surligner, puis <b>clique le surlignage</b> pour y attacher une note. Tout reste sur cet appareil (sauvegarde locale) ; tu peux aussi te connecter pour synchroniser tes annotations entre tes appareils. Les boutons flottants « Mes notes » et « Notes partagées » apparaissent en bas à droite quand le texte est chargé.</div>
+    <div id="readerOut"><div class="reader"><div class="placeholder"><div class="pi">📖</div><b>Choisis un chapitre ci-dessus, puis clique sur « Charger le texte intégral ».</b><br><span style="font-size:.9rem">Le texte complet du chapitre s'affichera ici.</span></div></div></div>
   </section>
+
   <!-- LABORATOIRE -->
   <section class="panel" id="labo">
     <h2 class="sec">Le laboratoire des lois</h2>
