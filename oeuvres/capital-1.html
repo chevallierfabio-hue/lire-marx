@@ -567,6 +567,37 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
   .rdr-counter{text-align:left;}
 }
 
+/* ── Panel "Texte intégral" — version compacte ── */
+.lire-intro{font-size:.84rem;color:var(--muted);margin-bottom:14px;
+  font-family:'Bricolage Grotesque',system-ui,sans-serif;line-height:1.5;}
+/* Bouton pilule sombre (remplace .btn.red) */
+.lire-load-btn{display:inline-flex;align-items:center;padding:9px 22px;
+  border-radius:999px;background:var(--text);color:var(--bg);
+  font-size:.82rem;font-weight:700;border:none;cursor:pointer;
+  transition:opacity .15s;white-space:nowrap;
+  font-family:'Bricolage Grotesque',system-ui,sans-serif;}
+.lire-load-btn:hover{opacity:.84;}
+/* Select chapitre dans le design system */
+#lire .reader-bar select{
+  border:1px solid var(--border,rgba(23,22,20,.10));border-radius:8px;
+  background:var(--surface);color:var(--text);
+  font-family:'Bricolage Grotesque',system-ui,sans-serif;
+  font-size:.88rem;padding:9px 12px;}
+/* Reader : conteneur transparent (fond fourni par la page) */
+.reader{background:transparent!important;border:none!important;
+  border-radius:0!important;padding:0!important;}
+/* Titres de section Wikisource : --text, pas rouge décoratif */
+.ws-text h2,.ws-text h3,.ws-text h4{color:var(--text)!important;}
+/* Toolbar reader-tools : boutons discrets sur --surface */
+.rd-toolbar .rd-btn,.rd-btn{
+  background:var(--surface)!important;color:var(--text)!important;
+  border-color:var(--border,rgba(23,22,20,.10))!important;}
+.rd-toolbar .rd-btn:hover,.rd-btn:hover{
+  background:var(--bg)!important;
+  border-color:rgba(23,22,20,.18)!important;color:var(--text)!important;}
+.rd-btn.on{background:var(--accent)!important;color:#fff!important;
+  border-color:var(--accent)!important;}
+
 /* ── Hero de l'œuvre (Le Capital, Livre I) ── */
 .cap-hero{position:relative;overflow:hidden;display:grid;
   grid-template-columns:1fr auto;gap:clamp(28px,5vw,56px);align-items:start;
@@ -924,25 +955,13 @@ nav.tabs.cap-tabs-bar .tab .num{display:none;}
 
   <!-- LIRE -->
   <section class="panel" id="lire">
-    <h2 class="sec">Texte intégral</h2>
-    <p class="lead">Le texte intégral du Livre I, dans la traduction Joseph Roy (1872, revue par Marx) — domaine public.</p>
-
-    <div class="method-note"><b>À quoi sert cet onglet.</b> C'est la <b>liseuse</b> de l'atelier : on y lit le texte original de Marx, en entier. Le <i>Navigateur</i> en donne des résumés et le <i>Cheminement</i> en suit la logique ; ici, ce sont les mots mêmes du <i>Capital</i> qui s'affichent.</div>
-
-    <div class="howto">
-      <div class="pin">i</div>
-      <div>Choisis un chapitre, puis clique sur <b>« Charger le texte intégral »</b>. La section entière est récupérée <b>en direct depuis Wikisource</b> (édition Roy, libre de droits) et la lecture défile jusqu'au chapitre voulu — ensuite, <b>Ctrl/Cmd + F</b> permet d'y chercher un terme.</div>
-    </div>
-    <div class="edition-note"><b>Important.</b> Le texte étant chargé en ligne, il faut une <b>connexion internet</b>, et cela fonctionne surtout dans le fichier <b>téléchargé</b> ouvert dans ton navigateur. Dans l'aperçu intégré au chat, les requêtes externes sont souvent bloquées — le texte ne s'affichera alors pas ici.</div>
-
+    <p class="lire-intro">Traduction Joseph Roy (1872, revue par Marx) — texte intégral du domaine public, chargé depuis Wikisource. Connexion internet requise.</p>
     <div class="reader-bar">
       <select id="chapSelect" aria-label="Choisir un chapitre"></select>
-      <button id="loadBtn" class="btn red" type="button">Charger le texte intégral →</button>
+      <button id="loadBtn" class="lire-load-btn" type="button">Charger le texte intégral →</button>
     </div>
-    <div class="anno-hint">Une fois le texte chargé : <b>sélectionne un passage</b> pour le surligner, puis <b>clique le surlignage</b> pour y attacher une note. Tout reste sur cet appareil (sauvegarde locale) ; tu peux aussi te connecter pour synchroniser tes annotations entre tes appareils. Les boutons flottants « Mes notes » et « Notes partagées » apparaissent en bas à droite quand le texte est chargé.</div>
-    <div id="readerOut"><div class="reader"><div class="placeholder"><div class="pi">📖</div><b>Choisis un chapitre ci-dessus, puis clique sur « Charger le texte intégral ».</b><br><span style="font-size:.9rem">Le texte complet du chapitre s'affichera ici.</span></div></div></div>
+    <div id="readerOut"><div class="reader"><div class="placeholder"><div class="pi">📖</div><b>Sélectionne un chapitre et charge le texte.</b></div></div></div>
   </section>
-
   <!-- LABORATOIRE -->
   <section class="panel" id="labo">
     <h2 class="sec">Le laboratoire des lois</h2>
