@@ -8,97 +8,329 @@
 <link rel="stylesheet" href="shell.css">
 <link rel="stylesheet" href="reader-tools.css">
 <link rel="stylesheet" href="manuscrits-1844.css">
+<style>
+:root{
+  --bg:#F7F5F0;--surface:#FBF9F4;--text:#171614;--muted:#8B8577;--accent:#C41E3A;
+  --paper:#F7F5F0;--paper-2:#EDE9E2;--card:#FBF9F4;
+  --ink:#171614;--ink-soft:#8B8577;
+  --red:#C41E3A;--red-deep:#9B1830;--bright:#C41E3A;
+  --gold:#9a7b35;--gold-deep:#7d6325;--blue:#39596b;--const:#8B8577;
+  --line:rgba(23,22,20,.12);--line-soft:rgba(23,22,20,.07);--ok:#52742f;
+  --f-ui:'Bricolage Grotesque',system-ui,sans-serif;--f-hand:'Caveat',cursive;
+}
+.wrap{max-width:1060px;padding:0 22px 90px;}
+/* ── Hero ── */
+.cap-hero{position:relative;overflow:hidden;display:grid;
+  grid-template-columns:1fr auto;gap:clamp(28px,5vw,56px);align-items:start;
+  padding:clamp(36px,5vh,52px) 0 clamp(28px,4vh,44px);}
+.cap-hero-halo{position:absolute;top:40%;left:32%;width:560px;height:340px;pointer-events:none;
+  background:radial-gradient(ellipse at center,rgba(196,30,58,.07) 0%,transparent 64%);
+  transform:translate(-50%,-50%);}
+.cap-hero-left{position:relative;z-index:1;}
+.cap-breadcrumb{display:flex;align-items:center;gap:6px;font-size:.75rem;color:var(--muted);
+  margin-bottom:14px;font-family:'Bricolage Grotesque',system-ui,sans-serif;}
+.cap-breadcrumb a{color:var(--muted);text-decoration:none;transition:color .15s;}
+.cap-breadcrumb a:hover{color:var(--ink);}
+.cap-badge{display:inline-flex;font-size:.7rem;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--accent);background:rgba(196,30,58,.08);
+  border:1px solid rgba(196,30,58,.18);border-radius:999px;padding:4px 12px;margin-bottom:16px;}
+.cap-h1{font-family:'Fraunces',serif;font-weight:900;
+  font-size:clamp(2.1rem,4.6vw,3.1rem);letter-spacing:-.025em;
+  color:var(--ink);line-height:1.04;margin-bottom:14px;}
+.cap-desc{font-size:.96rem;line-height:1.7;color:var(--ink-soft);max-width:50ch;
+  font-family:'Spectral',Georgia,serif;}
+.cap-hero-right{position:relative;z-index:1;flex:none;}
+.cap-cover{width:210px;aspect-ratio:3/4;border-radius:18px;overflow:hidden;
+  background:linear-gradient(155deg,#2A2724 0%,#1a1410 55%,#0f0c0a 100%);position:relative;}
+.cap-cover::before{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 40% 28%,rgba(196,30,58,.12) 0%,transparent 55%);}
+.cap-cover-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  filter:grayscale(1) contrast(1.05);display:block;}
+.cap-cover::after{content:'';position:absolute;inset:0;
+  background:rgba(196,30,58,.18);mix-blend-mode:multiply;pointer-events:none;}
+.cap-cover-caption{position:absolute;bottom:0;left:0;right:0;
+  padding:26px 12px 10px;font-size:10px;letter-spacing:.06em;text-transform:uppercase;
+  color:rgba(247,245,240,.52);
+  background:linear-gradient(to top,rgba(23,22,20,.65),transparent);
+  font-family:'Bricolage Grotesque',system-ui,sans-serif;}
+/* ── Tab bar ── */
+nav.tabs.cap-tabs-bar{position:static;background:transparent;border-top:none;
+  border-bottom:1px solid var(--line);padding:0;justify-content:flex-start;
+  display:flex;flex-wrap:wrap;margin:0;z-index:1;}
+nav.tabs.cap-tabs-bar .tab{font-family:'Bricolage Grotesque',system-ui,sans-serif;
+  font-size:.88rem;font-weight:600;color:var(--muted);background:transparent;
+  border:none;border-bottom:2px solid transparent;margin-bottom:-1px;
+  padding:11px 18px;cursor:pointer;transition:color .15s,border-color .15s;position:static;}
+nav.tabs.cap-tabs-bar .tab:hover{color:var(--ink);}
+nav.tabs.cap-tabs-bar .tab::after{display:none;}
+nav.tabs.cap-tabs-bar .tab.active{color:var(--ink);border-bottom-color:var(--accent);}
+nav.tabs.cap-tabs-bar .tab .num{display:none;}
+#subnav:has(button[data-panel="accueil"].active){display:none!important;}
+/* ── Cartes démarrage ── */
+.cap-lire-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:28px;}
+.cap-card{background:var(--surface);border-radius:18px;padding:22px 22px 20px;
+  border:1px solid transparent;transition:transform .2s,box-shadow .2s;}
+.cap-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px -6px rgba(23,22,20,.10);}
+.cap-card-icon{width:38px;height:38px;border-radius:10px;background:rgba(196,30,58,.08);
+  display:flex;align-items:center;justify-content:center;margin-bottom:14px;font-size:1rem;}
+.cap-card-title{font-family:'Fraunces',serif;font-weight:700;font-size:1.08rem;
+  color:var(--ink);margin-bottom:8px;letter-spacing:-.01em;line-height:1.2;}
+.cap-card-desc{font-size:.87rem;line-height:1.6;color:var(--ink-soft);
+  margin-bottom:18px;font-family:'Spectral',Georgia,serif;}
+.cap-prog-wrap{margin-bottom:14px;}
+.cap-prog-bg{height:4px;border-radius:999px;background:rgba(23,22,20,.10);margin-bottom:6px;}
+.cap-prog-fill{height:100%;border-radius:999px;background:var(--accent);
+  transition:width .55s cubic-bezier(.16,1,.3,1);}
+.cap-prog-txt{font-size:.74rem;color:var(--muted);font-family:'Bricolage Grotesque',system-ui,sans-serif;}
+.cap-btn-dark{display:inline-flex;align-items:center;gap:5px;padding:8px 18px;
+  border-radius:999px;background:var(--ink);color:var(--paper);font-size:.8rem;font-weight:700;
+  border:none;cursor:pointer;transition:opacity .15s;font-family:'Bricolage Grotesque',system-ui,sans-serif;}
+.cap-btn-dark:hover{opacity:.83;}
+.cap-btn-outline{display:inline-flex;align-items:center;gap:5px;padding:8px 18px;
+  border-radius:999px;background:transparent;color:var(--ink);font-size:.8rem;font-weight:700;
+  border:1px solid rgba(23,22,20,.22);cursor:pointer;transition:border-color .15s,background .15s;
+  font-family:'Bricolage Grotesque',system-ui,sans-serif;}
+.cap-btn-outline:hover{border-color:rgba(23,22,20,.38);background:rgba(23,22,20,.04);}
+/* ── Trois idées ── */
+.cap-section-label{font-size:.68rem;font-weight:700;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:16px;
+  display:block;font-family:'Bricolage Grotesque',system-ui,sans-serif;}
+.cap-ideas-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:36px;}
+.cap-idea-card{background:var(--surface);border-radius:16px;overflow:hidden;
+  border:1px solid transparent;transition:transform .2s,box-shadow .2s;}
+.cap-idea-card:hover{transform:translateY(-3px);box-shadow:0 10px 28px -6px rgba(23,22,20,.10);}
+.cap-idea-vignette{height:140px;position:relative;overflow:hidden;}
+.cap-idea-vignette img{width:100%;height:100%;object-fit:cover;filter:grayscale(1) contrast(1.05);display:block;}
+.cap-idea-vignette::after{content:'';position:absolute;inset:0;
+  background:rgba(196,30,58,.16);mix-blend-mode:multiply;pointer-events:none;}
+.cap-idea-vignette-grad{height:140px;position:relative;background:linear-gradient(135deg,#2A2724 0%,#1a1410 55%,#0f0c0a 100%);}
+.cap-idea-vignette-grad::before{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 40% 30%,rgba(196,30,58,.18) 0%,transparent 60%);}
+.cap-idea-body{padding:18px 18px 16px;}
+.cap-idea-title{font-family:'Fraunces',serif;font-weight:700;font-size:1rem;
+  line-height:1.25;color:var(--ink);margin-bottom:7px;letter-spacing:-.01em;}
+.cap-idea-desc{font-size:.84rem;line-height:1.55;color:var(--ink-soft);font-family:'Spectral',Georgia,serif;}
+/* ── Blocs d'action ── */
+.cap-actions-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:4px;}
+.cap-action{border-radius:18px;padding:26px 26px 24px;}
+.cap-action-dark{background:#171614;position:relative;overflow:hidden;}
+.cap-action-dark::before{content:'';position:absolute;top:40%;left:30%;width:360px;height:220px;
+  transform:translate(-50%,-50%);
+  background:radial-gradient(ellipse at center,rgba(196,30,58,.16) 0%,transparent 65%);pointer-events:none;}
+.cap-action-light{background:var(--surface);border:1px solid var(--line);}
+.cap-action-eyebrow{font-size:.68rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;
+  margin-bottom:10px;display:block;font-family:'Bricolage Grotesque',system-ui,sans-serif;}
+.cap-action-dark .cap-action-eyebrow{color:rgba(196,30,58,.8);}
+.cap-action-light .cap-action-eyebrow{color:var(--muted);}
+.cap-action-title{font-family:'Fraunces',serif;font-weight:700;font-size:1.18rem;line-height:1.2;margin-bottom:6px;}
+.cap-action-dark .cap-action-title{color:#F7F5F0;}
+.cap-action-light .cap-action-title{color:var(--ink);}
+.cap-action-desc{font-size:.86rem;line-height:1.55;margin-bottom:20px;font-family:'Spectral',Georgia,serif;}
+.cap-action-dark .cap-action-desc{color:rgba(247,245,240,.5);}
+.cap-action-light .cap-action-desc{color:var(--ink-soft);}
+.cap-btn-light{display:inline-flex;align-items:center;gap:5px;padding:9px 20px;
+  border-radius:999px;background:rgba(247,245,240,.14);color:#F7F5F0;font-size:.82rem;font-weight:700;
+  border:none;cursor:pointer;transition:background .15s;font-family:'Bricolage Grotesque',system-ui,sans-serif;}
+.cap-btn-light:hover{background:rgba(247,245,240,.24);}
+/* ── Atelier : cartes sections ── */
+.atl-header{position:relative;overflow:hidden;padding:clamp(36px,5vh,54px) 0 clamp(28px,4vh,44px);margin-bottom:28px;}
+.atl-halo{position:absolute;top:50%;left:38%;width:560px;height:340px;pointer-events:none;
+  background:radial-gradient(ellipse at center,rgba(196,30,58,.07) 0%,transparent 62%);
+  transform:translate(-50%,-50%);}
+.atl-header-body{display:flex;align-items:flex-start;justify-content:space-between;gap:40px;position:relative;z-index:1;}
+.atl-h1{font-family:'Fraunces',serif;font-weight:900;font-size:clamp(2.2rem,5vw,3.4rem);
+  letter-spacing:-.025em;color:var(--text);line-height:1.02;}
+.atl-h1 em{font-style:italic;font-weight:500;color:var(--accent);}
+.atl-prog-widget{flex:none;text-align:right;min-width:180px;}
+.atl-pct{font-family:'Fraunces',serif;font-weight:900;font-size:3.2rem;
+  letter-spacing:-.04em;color:var(--text);line-height:1;}
+.atl-pct-label{font-size:.7rem;font-weight:600;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-top:2px;}
+.atl-bar-bg{height:4px;border-radius:999px;background:rgba(23,22,20,.10);margin:10px 0 6px;}
+.atl-bar-fill{height:100%;border-radius:999px;background:var(--accent);transition:width .55s cubic-bezier(.16,1,.3,1);width:0%;}
+.atl-count{font-size:.76rem;color:var(--muted);font-family:'Bricolage Grotesque',system-ui,sans-serif;}
+#man-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;align-items:start;}
+.atl-grid-sec{grid-column:1/3;font-size:.67rem;font-weight:700;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--muted);padding:16px 0 8px;border-bottom:1px solid var(--line);}
+.atl-card{border-radius:18px;padding:20px 20px 18px;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s;}
+.atl-card.atl-done{background:var(--surface);cursor:pointer;border:1px solid transparent;}
+.atl-card.atl-done:hover{transform:translateY(-3px);box-shadow:0 10px 28px -6px rgba(23,22,20,.10);}
+.atl-card.atl-current{grid-column:1/3;background:#171614;cursor:pointer;}
+.atl-card.atl-current:hover{transform:translateY(-2px);box-shadow:0 12px 32px -8px rgba(0,0,0,.28);}
+.atl-card.atl-upcoming{border:1px solid rgba(23,22,20,.10);opacity:.6;}
+.atl-card-halo{position:absolute;top:40%;left:28%;width:440px;height:280px;pointer-events:none;
+  background:radial-gradient(ellipse at center,rgba(196,30,58,.14) 0%,transparent 62%);transform:translate(-50%,-50%);}
+.atl-card-ind{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:14px;}
+.atl-done .atl-card-ind{background:var(--accent);}
+.atl-done .atl-card-ind svg{width:15px;height:15px;stroke:#fff;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;}
+.atl-current .atl-card-ind{border:2px solid var(--accent);}
+.atl-current .atl-card-ind span,.atl-upcoming .atl-card-ind span{font-family:'Fraunces',serif;font-weight:700;font-size:.9rem;}
+.atl-current .atl-card-ind span{color:var(--accent);}
+.atl-upcoming .atl-card-ind{border:1.5px solid rgba(23,22,20,.18);}
+.atl-upcoming .atl-card-ind span{color:var(--muted);}
+.atl-card-chap{font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;}
+.atl-done .atl-card-chap,.atl-upcoming .atl-card-chap{color:var(--muted);}
+.atl-current .atl-card-chap{color:rgba(247,245,240,.42);}
+.atl-card-title{font-family:'Fraunces',serif;font-weight:700;line-height:1.22;margin-bottom:8px;}
+.atl-done .atl-card-title,.atl-upcoming .atl-card-title{font-size:1rem;color:var(--text);}
+.atl-current .atl-card-title{font-size:1.28rem;color:#F7F5F0;}
+.atl-card-status{font-size:.7rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;}
+.atl-done .atl-card-status{color:var(--ok);}
+.atl-current .atl-card-status{color:rgba(196,30,58,.7);}
+.atl-card-foot{display:flex;align-items:center;justify-content:space-between;margin-top:18px;gap:12px;}
+.atl-card-sim{font-size:.76rem;font-style:italic;color:rgba(247,245,240,.35);}
+.atl-continue{font-family:'Bricolage Grotesque',system-ui,sans-serif;font-size:.8rem;font-weight:700;
+  padding:8px 20px;border-radius:999px;border:none;background:rgba(247,245,240,.13);color:#F7F5F0;
+  cursor:pointer;transition:background .15s;white-space:nowrap;}
+.atl-continue:hover{background:rgba(247,245,240,.22);}
+.atl-done-toggle{display:inline-flex;align-items:center;gap:4px;font-size:.7rem;font-weight:600;
+  background:transparent;border:none;cursor:pointer;padding:4px 0;margin-top:6px;
+  transition:color .15s;font-family:'Bricolage Grotesque',system-ui,sans-serif;}
+.atl-done .atl-done-toggle{color:var(--ok);}
+.atl-done .atl-done-toggle:hover{color:var(--muted);}
+.atl-upcoming .atl-done-toggle{display:none;}
+/* ── Ressources ── */
+.rss-section-label{font-size:.67rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:14px;display:block;font-family:'Bricolage Grotesque',system-ui,sans-serif;padding-top:4px;}
+.rss-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:36px;}
+.rss-card{display:flex;flex-direction:column;gap:8px;background:var(--surface);border-radius:16px;
+  padding:18px 20px;text-decoration:none;color:inherit;border:1px solid transparent;
+  transition:transform .2s,box-shadow .2s;position:relative;}
+.rss-card:hover{transform:translateY(-3px);box-shadow:0 10px 28px -6px rgba(23,22,20,.10);border-color:rgba(23,22,20,.06);}
+.rss-badge{font-size:.67rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--accent);font-family:'Bricolage Grotesque',system-ui,sans-serif;}
+.rss-title{font-family:'Fraunces',serif;font-weight:700;font-size:.97rem;line-height:1.28;color:var(--text);}
+.rss-meta{font-size:.79rem;color:var(--muted);font-family:'Bricolage Grotesque',system-ui,sans-serif;line-height:1.4;}
+/* ── Overrides ── */
+.anno-hint{font-family:var(--f-ui);font-size:.84rem;color:var(--muted);line-height:1.55;margin-bottom:14px;font-style:normal;}
+.anno-hint b{color:var(--text);font-style:normal;font-weight:600;}
+.reader.theme-dark .rd-btn.on{background:var(--accent);color:var(--bg);border-color:var(--accent);}
+.reader.theme-dark .rd-seg button.on{background:var(--accent);color:var(--bg);}
+/* Reader body paper theme */
+.reader.theme-paper .ws-text p,.reader.theme-paper .ws-text dd{color:var(--text);}
+/* ── Responsive ── */
+@media(max-width:740px){
+  .cap-hero{grid-template-columns:1fr;}
+  .cap-hero-right{order:-1;}
+  .cap-cover{width:130px;}
+  .cap-lire-grid{grid-template-columns:1fr;}
+  #man-grid{grid-template-columns:1fr;}
+  .atl-grid-sec,.atl-card.atl-current{grid-column:1;}
+  .atl-header-body{flex-direction:column;gap:20px;}
+  .atl-prog-widget{text-align:left;min-width:0;width:100%;}
+}
+@media(max-width:860px){.cap-ideas-grid{grid-template-columns:1fr 1fr;}.cap-actions-row{grid-template-columns:1fr;}}
+@media(max-width:580px){.cap-ideas-grid{grid-template-columns:1fr;}}
+@media(max-width:640px){.rss-grid{grid-template-columns:1fr;}}
+</style>
 </head>
 <body>
 <main class="wrap">
-  <header class="work-head">
-    <div class="kicker">Atelier de lecture &amp; de concepts</div>
-    <h1>L'Atelier des <em>Manuscrits</em></h1>
-    <div class="sub">Manuscrits de 1844 — lecture complète, parcours et laboratoire du jeune Marx</div>
-    <div class="rule"></div>
-  </header>
 
-  <nav class="tabs" aria-label="Onglets principaux">
-    <button class="tab active" type="button" data-top="accueil"><span class="num">I</span>Accueil</button>
-    <button class="tab" type="button" data-top="lire"><span class="num">II</span>Lire les Manuscrits</button>
-    <button class="tab" type="button" data-top="atelier"><span class="num">III</span>Atelier</button>
-    <button class="tab" type="button" data-top="ressources"><span class="num">IV</span>Ressources</button>
+  <!-- Hero -->
+  <section class="cap-hero">
+    <div class="cap-hero-halo"></div>
+    <div class="cap-hero-left">
+      <nav class="cap-breadcrumb" aria-label="Fil d'Ariane">
+        <a href="index.html">Œuvres</a>
+        <span aria-hidden="true">›</span>
+        <span>Manuscrits de 1844</span>
+      </nav>
+      <span class="cap-badge">Pour commencer sans rien connaître</span>
+      <h1 class="cap-h1">Les cahiers où l'homme découvre qu'il travaille contre lui-même</h1>
+      <p class="cap-desc">Rédigés à Paris en 1844 par un Marx de vingt-six ans, publiés à titre posthume seulement en 1932 — les <em>Manuscrits</em> forgent le concept d'aliénation : le travail qui devrait exprimer l'homme se retourne contre lui.</p>
+      <button class="cap-btn-dark" style="margin-top:20px" onclick="activateTab('lire');document.getElementById('partSelect').value='2';loadPart(2);window.scrollTo({top:0,behavior:'smooth'});">Commencer la lecture →</button>
+    </div>
+    <div class="cap-hero-right">
+      <div class="cap-cover">
+        <img class="cap-cover-img" src="../assets/img/archive/marx-jeune.jpg" alt="Karl Marx jeune, vers 1843" loading="lazy">
+        <div class="cap-cover-caption">Karl Marx vers 1843 · domaine public</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Barre d'onglets (Lire / Atelier / Ressources) -->
+  <nav class="tabs cap-tabs-bar" aria-label="Onglets principaux">
+    <button class="tab active" data-top="lire">Lire les Manuscrits</button>
+    <button class="tab" data-top="atelier">Atelier</button>
+    <button class="tab" data-top="ressources">Ressources</button>
   </nav>
   <nav class="subnav" id="subnav" style="display:none"></nav>
 
+  <!-- ACCUEIL — onglet "Lire les Manuscrits" (2 cartes de départ) -->
   <section class="panel active" id="accueil">
-    <h2 class="sec">Manuscrits de 1844</h2>
 
-    <div class="acc-exergue">
-      <p class="acc-exergue-st">Vous n'allez pas lire un livre.</p>
-      <p class="acc-exergue-th">Trois cahiers rédigés à Paris au printemps-été <b>1844</b> par un Marx de vingt-six ans, jamais publiés de son vivant — et dont le deuxième ne nous est parvenu qu'en lambeaux. Le tout n'est exhumé qu'en <b>1932</b>, dans l'édition MEGA, sous un titre — <i>Manuscrits économico-philosophiques</i> — que Marx n'a jamais donné. C'est cet inachèvement, ce penseur en train de se trouver, qui fait leur prix.</p>
-      <p class="acc-exergue-th">Au centre : le <b>travail aliéné</b>. Plus l'ouvrier produit de richesse, plus il s'appauvrit et se vide. Le travail qui devrait l'exprimer lui devient étranger — étranger à son produit, à son activité, à son espèce, aux autres hommes.</p>
-      <div class="cta-row">
-        <button class="btn red" type="button" onclick="activateTab('lire')">Entrer dans le texte →</button>
+    <!-- Deux cartes de démarrage rapide -->
+    <div class="cap-lire-grid" style="margin-bottom:40px;">
+      <div class="cap-card">
+        <div class="cap-card-icon">📖</div>
+        <div class="cap-card-title">Commencer la lecture</div>
+        <div class="cap-card-desc">Le texte intégral des trois manuscrits — traduction J.-M. Palmier, domaine public.</div>
+        <button class="cap-btn-dark" onclick="activateTab('lire');document.getElementById('partSelect').value='2';loadPart(2);window.scrollTo({top:0,behavior:'smooth'});">Lire →</button>
+      </div>
+      <div class="cap-card">
+        <div class="cap-card-icon">📊</div>
+        <div class="cap-card-title">Ton parcours</div>
+        <div class="cap-card-desc">Suis ta progression manuscrit par manuscrit dans l'atelier de lecture.</div>
+        <div class="cap-prog-wrap">
+          <div class="cap-prog-bg"><div class="cap-prog-fill" id="manProgFill"></div></div>
+          <div class="cap-prog-txt" id="manProgTxt">0 sur 3 manuscrits</div>
+        </div>
+        <button class="cap-btn-outline" onclick="activateTab('atelier-accueil');window.scrollTo({top:0,behavior:'smooth'});">Voir l'atelier →</button>
       </div>
     </div>
 
-    <div class="acc-itineraire">
-      <h3><span class="ib-n">§</span> Par où entrer</h3>
-      <p class="acc-itineraire-intro">Les Manuscrits ne sont pas un livre composé mais trois cahiers. On peut les suivre dans l'ordre — ou viser d'emblée leur sommet : le travail aliéné, dans le premier.</p>
-      <div class="acc-portes">
-        <div class="acc-porte">
-          <h4>Premier manuscrit <span class="acc-porte-h-sub">(porte recommandée)</span></h4>
-          <p>La scène de l'aliénation. Du salaire, du profit et de la rente jusqu'à la découverte du travail aliéné, matrice de tout le reste.</p>
-          <button class="btn chapter-read" type="button" data-part="2">Commencer ici →</button>
+    <!-- Trois idées pour entrer dans les Manuscrits -->
+    <span class="cap-section-label">Trois idées pour entrer dans les Manuscrits</span>
+    <div class="cap-ideas-grid">
+
+      <article class="cap-idea-card">
+        <div class="cap-idea-vignette">
+          <img src="../assets/img/archive/sortie-usine.jpg" alt="La Sortie de l'usine Lumière à Lyon, 1895" loading="lazy">
         </div>
-        <div class="acc-porte">
-          <h4>Deuxième manuscrit</h4>
-          <p>Le fragment. Le peu qui subsiste : la propriété privée comme rapport social. Court, mutilé — l'état réel du texte, touché du doigt.</p>
-          <button class="btn chapter-read" type="button" data-part="3">Lire le fragment →</button>
+        <div class="cap-idea-body">
+          <div class="cap-idea-title">Ce que tu produis te domine — c'est l'aliénation</div>
+          <div class="cap-idea-desc">Plus l'ouvrier produit de richesse, plus son produit lui échappe et le domine comme une puissance étrangère. Son propre travail se retourne contre lui.</div>
         </div>
-        <div class="acc-porte">
-          <h4>Troisième manuscrit</h4>
-          <p>Réappropriation et règlement de comptes avec Hegel. Communisme, besoins, argent, puis la dialectique hégélienne qui referme l'ensemble.</p>
-          <button class="btn chapter-read" type="button" data-part="4">Aller au troisième →</button>
+      </article>
+
+      <article class="cap-idea-card">
+        <div class="cap-idea-vignette">
+          <img src="../assets/img/archive/manufacture.jpg" alt="Manufactures et travail collectif au XIXe siècle" loading="lazy">
         </div>
+        <div class="cap-idea-body">
+          <div class="cap-idea-title">La propriété privée n'est pas la cause — c'est la conséquence</div>
+          <div class="cap-idea-desc">Les économistes posent la propriété comme un fait premier. Marx l'inverse : c'est le travail aliéné qui l'engendre, dont elle n'est que la forme consolidée.</div>
+        </div>
+      </article>
+
+      <article class="cap-idea-card">
+        <div class="cap-idea-vignette">
+          <img src="../assets/img/archive/halles-paris.jpg" alt="Les Halles de Paris, carte postale ancienne" loading="lazy">
+        </div>
+        <div class="cap-idea-body">
+          <div class="cap-idea-title">Récupérer son humanité n'est pas une utopie</div>
+          <div class="cap-idea-desc">Le communisme des Manuscrits n'est pas un partage des richesses : c'est l'abolition de l'aliénation et la réappropriation par l'homme de ses puissances propres.</div>
+        </div>
+      </article>
+
+    </div>
+
+    <!-- Deux blocs d'action -->
+    <div class="cap-actions-row">
+      <div class="cap-action cap-action-dark">
+        <span class="cap-action-eyebrow">Lecture guidée</span>
+        <div class="cap-action-title">L'atelier, manuscrit par manuscrit</div>
+        <div class="cap-action-desc">Suis les trois cahiers section par section, marque ta progression, explore les instruments du laboratoire.</div>
+        <button class="cap-btn-light" onclick="activateTab('atelier-accueil');window.scrollTo({top:0,behavior:'smooth'});">Rejoindre →</button>
+      </div>
+      <div class="cap-action cap-action-light">
+        <span class="cap-action-eyebrow">Aller plus loin</span>
+        <div class="cap-action-title">Conférences, podcasts, articles</div>
+        <div class="cap-action-desc">Jean Salem, Christophe Dejours, France Culture, articles en libre accès — pour approfondir avant ou après la lecture.</div>
+        <button class="cap-btn-outline" onclick="activateTab('ressources');window.scrollTo({top:0,behavior:'smooth'});">Voir →</button>
       </div>
     </div>
 
-    <div class="intro-grid">
-      <div class="intro-block">
-        <h3><span class="ib-n">§</span> Le moment historique</h3>
-        <p>En 1844, Marx vit à Paris. Il découvre de près les milieux ouvriers et socialistes, lit les économistes anglais et français, et travaille encore dans un horizon fortement marqué par Hegel et Feuerbach.</p>
-        <p>Les Manuscrits ne sont pas un livre publié par Marx : ce sont des cahiers de travail, fragmentaires, où s'élabore une critique philosophique de l'économie politique.</p>
-        <p class="pull">Une seule question traverse ces cahiers : comment le travail, propre de l'homme, peut-il lui devenir étranger ?</p>
-      </div>
-      <div class="intro-block">
-        <h3><span class="ib-n">§</span> L'homme et le manuscrit</h3>
-        <p>Marx a vingt-six ans. Il n'a pas encore écrit <i>Le Capital</i>, mais il cherche déjà le point où l'économie, la politique et la vie humaine se nouent.</p>
-        <p>Le texte ne paraîtra qu'en 1932, dans la MEGA. Cette publication tardive explique son rôle particulier dans l'histoire du marxisme : elle a nourri les lectures humanistes, philosophiques et critiques du jeune Marx.</p>
-      </div>
-      <div class="intro-block">
-        <h3><span class="ib-n">§</span> Ce que cherche le texte</h3>
-        <p>Les Manuscrits ne démontrent pas encore la plus-value comme le fera <i>Le Capital</i>. Ils cherchent plutôt à penser le capitalisme comme dépossession : le travail produit un monde qui se retourne contre le travailleur.</p>
-        <p>Le concept d'aliénation relie alors le produit, l'activité, l'espèce humaine, les rapports entre humains, l'argent et la critique de Hegel.</p>
-      </div>
-      <div class="intro-block">
-        <h3><span class="ib-n">§</span> Le plan de lecture</h3>
-        <ol class="plan-list">
-          <li><span class="pn">I</span><span class="pt">Premier manuscrit<small>Salaire, profit, rente, puis travail aliéné.</small></span></li>
-          <li><span class="pn">II</span><span class="pt">Second manuscrit<small>Opposition du capital et du travail, propriété privée.</small></span></li>
-          <li><span class="pn">III</span><span class="pt">Troisième manuscrit<small>Communisme, besoins, argent, critique de Hegel.</small></span></li>
-        </ol>
-      </div>
-    </div>
-
-    <details class="acc-lexique">
-      <summary>Sept mots pour entrer</summary>
-      <ul class="acc-lex-list">
-        <li><b>Aliénation (Entfremdung)</b> — le mouvement par lequel l'activité de l'homme se retourne contre lui et lui devient étrangère.</li>
-        <li><b>Travail aliéné</b> — quatre séparations : d'avec le produit, d'avec l'acte de produire, d'avec l'espèce humaine, d'avec les autres hommes.</li>
-        <li><b>Être générique (Gattungswesen)</b> — l'homme comme être d'espèce, qui se rapporte à l'humanité entière et se produit librement ; ce que l'aliénation lui retire.</li>
-        <li><b>Propriété privée</b> — non la cause première mais le résultat du travail aliéné, qu'elle perpétue en retour.</li>
-        <li><b>Communisme</b> — non un simple partage des biens, mais la réappropriation par l'homme de son essence : « naturalisme = humanisme ».</li>
-        <li><b>Argent</b> — la puissance inversée : il confère à l'individu ce qu'il n'est pas ; l'avoir prend la place de l'être.</li>
-        <li><b>Hegel / Feuerbach</b> — l'arrière-plan : Marx reprend la dialectique de l'aliénation mais la ramène du ciel de la conscience au sol du travail.</li>
-      </ul>
-    </details>
   </section>
 
   <section class="panel" id="nav">
@@ -133,6 +365,23 @@
       <div class="placeholder" id="readerPlaceholder"><div><div class="pi">📖</div><b>Choisis un manuscrit ci-dessus, puis clique sur « Charger le texte ».</b><br><span style="font-size:.9rem">Le manuscrit complet s'affichera ici.</span></div></div>
       <div class="reader-content" id="readerContent" hidden></div>
     </div>
+  </section>
+
+  <!-- ATELIER-ACCUEIL — grille de sections -->
+  <section class="panel" id="atelier-accueil">
+    <div class="atl-header">
+      <div class="atl-halo"></div>
+      <div class="atl-header-body">
+        <h1 class="atl-h1">Manuscrits<br><em>de 1844</em></h1>
+        <div class="atl-prog-widget">
+          <div class="atl-pct" id="manAtlPct">0 %</div>
+          <div class="atl-pct-label">complété</div>
+          <div class="atl-bar-bg"><div class="atl-bar-fill" id="manAtlFill"></div></div>
+          <div class="atl-count" id="manAtlCount">0 sur 3 manuscrits</div>
+        </div>
+      </div>
+    </div>
+    <div id="man-grid"></div>
   </section>
 
   <section class="panel" id="deriv">
@@ -228,27 +477,56 @@
   </section>
 
   <section class="panel" id="ressources">
-    <h2 class="sec">Ressources</h2>
-    <p class="lead">Pour prolonger la lecture des Manuscrits : conférences, émissions et articles savants autour de l'aliénation et du jeune Marx. Tous ces liens ouvrent des sites externes.</p>
-
-    <div class="res-section">Vidéos <small>conférences</small></div>
-    <div class="res-grid">
-      <a class="res-card" href="https://www.youtube.com/watch?v=mDvnEmgtk0Y" target="_blank" rel="noopener"><div class="res-kind">Conférence · YouTube</div><h3>Jean Salem — « Les Manuscrits de 1844 »</h3><div class="res-meta">présentation des cahiers de Paris</div></a>
-      <a class="res-card" href="https://www.youtube.com/watch?v=EN4C1uoQdao" target="_blank" rel="noopener"><div class="res-kind">Conférence · YouTube</div><h3>Christophe Dejours — « Le travail entre aliénation et émancipation »</h3><div class="res-meta">le pont avec la clinique du travail</div></a>
-      <a class="res-card" href="https://www.youtube.com/watch?v=a6KMzq144xE" target="_blank" rel="noopener"><div class="res-kind">Série · YouTube</div><h3>« Marx (1/5) : Rencontre avec Karl Marx »</h3><div class="res-meta">série en cinq volets</div></a>
+    <span class="rss-section-label">Vidéos &amp; conférences</span>
+    <div class="rss-grid">
+      <a class="rss-card" href="https://www.youtube.com/watch?v=mDvnEmgtk0Y" target="_blank" rel="noopener">
+        <div class="rss-badge">Conférence · YouTube</div>
+        <div class="rss-title">Jean Salem — « Les Manuscrits de 1844 »</div>
+        <div class="rss-meta">présentation des cahiers de Paris</div>
+      </a>
+      <a class="rss-card" href="https://www.youtube.com/watch?v=EN4C1uoQdao" target="_blank" rel="noopener">
+        <div class="rss-badge">Conférence · YouTube</div>
+        <div class="rss-title">Christophe Dejours — « Le travail entre aliénation et émancipation »</div>
+        <div class="rss-meta">le pont avec la clinique du travail</div>
+      </a>
+      <a class="rss-card" href="https://www.youtube.com/watch?v=a6KMzq144xE" target="_blank" rel="noopener">
+        <div class="rss-badge">Série · YouTube</div>
+        <div class="rss-title">« Marx (1/5) : Rencontre avec Karl Marx »</div>
+        <div class="rss-meta">série en cinq volets</div>
+      </a>
     </div>
 
-    <div class="res-section">Radio &amp; podcast <small>à écouter</small></div>
-    <div class="res-grid">
-      <a class="res-card" href="https://www.youtube.com/watch?v=vrc31nIeNYU" target="_blank" rel="noopener"><div class="res-kind">France Culture · Les Chemins de la philosophie</div><h3>« Marx et l'aliénation » (2012)</h3><div class="res-meta">avec Aymeric Monville · 59 min</div></a>
-      <a class="res-card" href="https://spectremedia.org/en-avant-marx/" target="_blank" rel="noopener"><div class="res-kind">Podcast · Spectre · accès libre</div><h3>« En avant Marx ! » — le jeune Marx</h3><div class="res-meta">entretiens avec I. Garo, M. Löwy</div></a>
+    <span class="rss-section-label">Radio &amp; podcast</span>
+    <div class="rss-grid">
+      <a class="rss-card" href="https://www.youtube.com/watch?v=vrc31nIeNYU" target="_blank" rel="noopener">
+        <div class="rss-badge">France Culture · Les Chemins de la philosophie</div>
+        <div class="rss-title">« Marx et l'aliénation » (2012)</div>
+        <div class="rss-meta">avec Aymeric Monville · 59 min</div>
+      </a>
+      <a class="rss-card" href="https://spectremedia.org/en-avant-marx/" target="_blank" rel="noopener">
+        <div class="rss-badge">Podcast · Spectre · accès libre</div>
+        <div class="rss-title">« En avant Marx ! » — le jeune Marx</div>
+        <div class="rss-meta">entretiens avec I. Garo, M. Löwy</div>
+      </a>
     </div>
 
-    <div class="res-section">Articles <small>en libre accès</small></div>
-    <div class="res-grid">
-      <a class="res-card" href="https://books.openedition.org/pusl/9743?lang=fr" target="_blank" rel="noopener"><div class="res-kind">OpenEdition · Presses univ. Saint-Louis</div><h3>« La pensée du jeune Marx » — l'aliénation</h3><div class="res-meta">livre en ligne · accès libre</div></a>
-      <a class="res-card" href="https://journals.openedition.org/philosophique/129" target="_blank" rel="noopener"><div class="res-kind">OpenEdition · revue Philosophique</div><h3>« La critique de l'argent, des Manuscrits au Capital »</h3><div class="res-meta">de l'aliénation à l'exploitation · accès libre</div></a>
-      <a class="res-card" href="https://marcellomusto.org/wp-content/uploads/2012/01/Revisiter-le-concept-dalienation-chez-Marx.pdf" target="_blank" rel="noopener"><div class="res-kind">PDF · accès libre</div><h3>M. Musto — « Revisiter le concept d'aliénation chez Marx »</h3><div class="res-meta">de 1844 au Capital</div></a>
+    <span class="rss-section-label">Articles en libre accès</span>
+    <div class="rss-grid">
+      <a class="rss-card" href="https://books.openedition.org/pusl/9743?lang=fr" target="_blank" rel="noopener">
+        <div class="rss-badge">OpenEdition · Presses univ. Saint-Louis</div>
+        <div class="rss-title">« La pensée du jeune Marx » — l'aliénation</div>
+        <div class="rss-meta">livre en ligne · accès libre</div>
+      </a>
+      <a class="rss-card" href="https://journals.openedition.org/philosophique/129" target="_blank" rel="noopener">
+        <div class="rss-badge">OpenEdition · revue Philosophique</div>
+        <div class="rss-title">« La critique de l'argent, des Manuscrits au Capital »</div>
+        <div class="rss-meta">de l'aliénation à l'exploitation · accès libre</div>
+      </a>
+      <a class="rss-card" href="https://marcellomusto.org/wp-content/uploads/2012/01/Revisiter-le-concept-dalienation-chez-Marx.pdf" target="_blank" rel="noopener">
+        <div class="rss-badge">PDF · accès libre</div>
+        <div class="rss-title">M. Musto — « Revisiter le concept d'aliénation chez Marx »</div>
+        <div class="rss-meta">de 1844 au Capital</div>
+      </a>
     </div>
   </section>
 
@@ -379,15 +657,14 @@
     ]}
   ];
   var GROUPS={
-    accueil:{panels:['accueil'],labels:[]},
-    lire:{panels:['nav','lire'],labels:['Parcourir','Texte intégral']},
-    atelier:{panels:['deriv','labo','explore','chrono'],labels:['Cheminement','Concepts','Explorations','Chronologie']},
+    lire:{panels:['accueil','nav','lire'],labels:['Commencer','Parcourir','Texte intégral']},
+    atelier:{panels:['atelier-accueil','deriv','labo','explore','chrono'],labels:['Sections','Cheminement','Concepts','Explorations','Chronologie']},
     ressources:{panels:['ressources'],labels:[]}
   };
-  var curPanel={accueil:'accueil',lire:'nav',atelier:'deriv',ressources:'ressources'};
+  var curPanel={lire:'accueil',atelier:'atelier-accueil',ressources:'ressources'};
   function byId(id){return document.getElementById(id);}
   function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
-  function panelTop(id){for(var t in GROUPS){if(GROUPS[t].panels.indexOf(id)>=0)return t;}return 'accueil';}
+  function panelTop(id){for(var t in GROUPS){if(GROUPS[t].panels.indexOf(id)>=0)return t;}return 'lire';}
   window.activateTop=function(top){
     document.querySelectorAll('.tab').forEach(function(b){b.classList.toggle('active',b.dataset.top===top);});
     var g=GROUPS[top]||GROUPS.accueil,sn=byId('subnav');
@@ -828,12 +1105,8 @@
     byId('loadBtn').addEventListener('click',function(){loadPart(+sel.value||0);});
     preparePart(0);
     applyDeepLinkIfAny();
-    // Hashchange : clic sur une notif visant Manuscrits alors qu'on est
-    // déjà sur Manuscrits. SHELL.reader re-parse pendingDeepLink dans son
-    // propre listener hashchange ; on relance ensuite l'aiguillage local.
     window.addEventListener('hashchange', applyDeepLinkIfAny);
 
-    // Deep-link Atelier : #anatomie ouvre l'instrument « anatomie du travail aliéné ».
     function applyAtelierHash(){
       var h=(location.hash||'').replace(/^#/,'');
       if(h==='anatomie'){
@@ -844,6 +1117,92 @@
     }
     setTimeout(applyAtelierHash,0);
     window.addEventListener('hashchange', applyAtelierHash);
+
+    /* ── Atelier-accueil : grille des 3 manuscrits ── */
+    var MAN_READ_KEY='liremarx.read.manuscrits-1844';
+    var MAN_SECTIONS=[
+      {rn:'I', t:'Premier manuscrit', part:2, chaps:4,
+       desc:'Salaire, profit, rente — et la découverte du travail aliéné.'},
+      {rn:'II', t:'Deuxième manuscrit', part:3, chaps:1,
+       desc:'Le fragment : la propriété privée comme rapport social.'},
+      {rn:'III', t:'Troisième manuscrit', part:4, chaps:4,
+       desc:'Communisme, besoins, argent, critique de Hegel.'}
+    ];
+    function loadManRead(){try{return JSON.parse(localStorage.getItem(MAN_READ_KEY)||'{}');}catch(e){return {};}}
+    function saveManRead(r){try{localStorage.setItem(MAN_READ_KEY,JSON.stringify(r));}catch(e){}}
+    function renderAtlGrid(){
+      var r=loadManRead();
+      var done=0; MAN_SECTIONS.forEach(function(s){if(r[s.part])done++;});
+      var pct=Math.round(done/MAN_SECTIONS.length*100);
+      var pctEl=byId('manAtlPct'),fillEl=byId('manAtlFill'),countEl=byId('manAtlCount');
+      if(pctEl)pctEl.textContent=pct+' %';
+      if(fillEl)fillEl.style.width=pct+'%';
+      if(countEl)countEl.textContent=done+' sur '+MAN_SECTIONS.length+' manuscrits';
+      /* progress card */
+      var progFill=byId('manProgFill'),progTxt=byId('manProgTxt');
+      if(progFill)progFill.style.width=pct+'%';
+      if(progTxt)progTxt.textContent=done+' sur '+MAN_SECTIONS.length+' manuscrits';
+      var grid=byId('man-grid'); if(!grid)return;
+      var firstActive=-1;
+      MAN_SECTIONS.forEach(function(s,i){if(!r[s.part]&&firstActive<0)firstActive=i;});
+      var html='';
+      MAN_SECTIONS.forEach(function(s,i){
+        var isDone=!!r[s.part]; var isCur=!isDone&&i===firstActive;
+        var cls='atl-card '+(isDone?'atl-done':isCur?'atl-current':'atl-upcoming');
+        if(isCur){
+          html+='<div class="'+cls+'" data-part="'+s.part+'">'
+            +'<div class="atl-card-halo"></div>'
+            +'<div class="atl-card-ind"><span>'+esc(s.rn)+'</span></div>'
+            +'<div class="atl-card-chap">Manuscrit '+esc(s.rn)+'</div>'
+            +'<div class="atl-card-title">'+esc(s.t)+'</div>'
+            +'<div class="atl-card-status">▶ En cours · '+s.chaps+' partie'+(s.chaps>1?'s':'')+'</div>'
+            +'<div class="atl-card-foot">'
+            +'<span class="atl-card-sim">'+esc(s.desc)+'</span>'
+            +'<button class="atl-continue" data-part="'+s.part+'">Commencer →</button>'
+            +'</div></div>';
+        } else {
+          var indHtml=isDone
+            ?'<svg viewBox="0 0 24 24" fill="none"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.6" stroke="#fff" d="M5 13l4 4L19 7"/></svg>'
+            :'<span>'+esc(s.rn)+'</span>';
+          html+='<div class="'+cls+'" data-part="'+s.part+'">'
+            +'<div class="atl-card-ind">'+indHtml+'</div>'
+            +'<div class="atl-card-chap">Manuscrit '+esc(s.rn)+'</div>'
+            +'<div class="atl-card-title">'+esc(s.t)+'</div>'
+            +(isDone?'<div class="atl-card-status">✓ Lu</div>':'')
+            +'<button class="atl-done-toggle" data-part="'+s.part+'">'
+            +(isDone?'✓ Marquer non lu':'○ Marquer comme lu')
+            +'</button></div>';
+        }
+      });
+      grid.innerHTML=html;
+      grid.querySelectorAll('.atl-continue,.atl-card.atl-current').forEach(function(el){
+        el.addEventListener('click',function(e){
+          var part=+(el.getAttribute('data-part')||el.closest('[data-part]').getAttribute('data-part'));
+          activateTab('lire');byId('partSelect').value=String(part-2+2);
+          loadPart(part-2+2);window.scrollTo({top:0,behavior:'smooth'});
+        });
+      });
+      grid.querySelectorAll('.atl-done .atl-card,[class*="atl-upcoming"]').forEach(function(card){
+        card.addEventListener('click',function(e){
+          if(e.target.classList.contains('atl-done-toggle'))return;
+          var part=+card.getAttribute('data-part');
+          activateTab('lire');byId('partSelect').value=String(part);
+          loadPart(part);window.scrollTo({top:0,behavior:'smooth'});
+        });
+      });
+      grid.querySelectorAll('.atl-done-toggle').forEach(function(btn){
+        btn.addEventListener('click',function(e){
+          e.stopPropagation();
+          var r2=loadManRead();var p=+btn.getAttribute('data-part');
+          if(r2[p])delete r2[p];else r2[p]=1;
+          saveManRead(r2);renderAtlGrid();
+        });
+      });
+    }
+    renderAtlGrid();
+
+    /* ── Init navigation synchrone (hash) ── */
+    (function(){var h=(location.hash||'').replace(/^#/,''); activateTop(h in GROUPS?h:'lire');})();
   }
   // Contrat de deep-link au passage : si la page a été ouverte avec
   // #note=<id> (Place publique / notifications) ou #s=N&q=..., on
@@ -873,14 +1232,15 @@ installShell({
   workId: 'manuscrits-1844',
   workTitle: 'Manuscrits de 1844',
   tabs: [
-    {id:'accueil', label:'Accueil'},
-    {id:'nav',     label:'Parcourir'},
-    {id:'lire',    label:'Texte intégral'},
-    {id:'deriv',   label:'Cheminement'},
-    {id:'labo',    label:'Concepts'},
-    {id:'explore', label:'Explorations'},
-    {id:'chrono',  label:'Chronologie'},
-    {id:'ressources', label:'Ressources'}
+    {id:'accueil',         label:'Commencer'},
+    {id:'nav',             label:'Parcourir'},
+    {id:'lire',            label:'Texte intégral'},
+    {id:'atelier-accueil', label:'Sections'},
+    {id:'deriv',           label:'Cheminement'},
+    {id:'labo',            label:'Concepts'},
+    {id:'explore',         label:'Explorations'},
+    {id:'chrono',          label:'Chronologie'},
+    {id:'ressources',      label:'Ressources'}
   ]
 });
 </script>
