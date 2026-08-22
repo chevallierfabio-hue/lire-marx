@@ -86,12 +86,7 @@
       : '';
     return el(
       '<aside class="sidebar" id="sidebar" aria-label="Navigation de l\'atelier">' +
-        '<button class="sb-item sb-disc" type="button" data-act="biblio" aria-expanded="false"><span class="sb-dot" style="background:var(--ink-soft)"></span>Bibliothèque<span class="sb-chev" aria-hidden="true">▸</span></button>' +
-        '<div class="sb-sub" id="sbBiblio" hidden>' +
-          '<button class="sb-item sb-subitem" type="button" data-act="open-capital"><span class="sb-dot" style="background:var(--gold)"></span>Le Capital — Livre I</button>' +
-          '<button class="sb-item sb-subitem" type="button" data-act="open-manuscrits-1844"><span class="sb-dot" style="background:var(--gold)"></span>Manuscrits de 1844</button>' +
-          '<button class="sb-item sb-soon sb-subitem" disabled><span class="sb-dot" style="background:var(--gold)"></span>6 en préparation<span class="sb-soon-tag">à venir</span></button>' +
-        '</div>' +
+        '<button class="sb-item" type="button" data-act="biblio"><span class="sb-dot" style="background:var(--ink-soft)"></span>Bibliothèque</button>' +
         '<button class="sb-item" type="button" data-act="commune"><span class="sb-dot" style="background:var(--red)"></span>Place publique</button>' +
         '<button class="sb-item" type="button" data-act="contacts"><span class="sb-dot" style="background:var(--blue)"></span>Contacts</button>' +
         '<button class="sb-item sb-soon" type="button" disabled><span class="sb-dot" style="background:var(--gold)"></span>Jeux<span class="sb-soon-tag">à venir</span></button>' +
@@ -158,17 +153,12 @@
     });
     bk.addEventListener('click', function(){ document.body.classList.remove('sb-open'); });
 
-    // Brandmark → page d'accueil principale (index.html à la racine du site)
-    document.getElementById('shellBrand').addEventListener('click', function(){ location.href = '../index.html'; });
+    // Brandmark → page d'accueil (oeuvres/index.html, chemin relatif depuis n'importe quelle page oeuvres/)
+    document.getElementById('shellBrand').addEventListener('click', function(){ location.href = 'index.html'; });
 
-    // Bibliothèque : ouvre / ferme le sous-menu
+    // Bibliothèque : navigue vers la page d'accueil
     var bib = sb.querySelector('[data-act="biblio"]');
-    var bibSub = document.getElementById('sbBiblio');
-    bib.addEventListener('click', function(){
-      var open = bib.getAttribute('aria-expanded') === 'true';
-      bib.setAttribute('aria-expanded', open ? 'false' : 'true');
-      bibSub.hidden = open;
-    });
+    bib.addEventListener('click', function(){ location.href = 'index.html'; });
 
     // Items de navigation inter-pages
     sb.querySelectorAll('.sb-item[data-act]').forEach(function(b){
