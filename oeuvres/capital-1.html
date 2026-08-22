@@ -569,6 +569,15 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
   .rdr-counter{text-align:left;}
 }
 
+/* ── Overrides locaux (capital-1.html) ── */
+/* anno-hint : texte secondaire discret, cohérent avec les autres instructions du site */
+.anno-hint{font-family:var(--f-ui);font-size:.84rem;color:var(--muted);
+  line-height:1.55;margin-bottom:14px;font-style:normal;}
+.anno-hint b{color:var(--text);font-style:normal;font-weight:600;}
+/* Boutons actifs en thème sombre : fond --accent + texte --bg pour contraste net */
+.reader.theme-dark .rd-btn.on{background:var(--accent);color:var(--bg);border-color:var(--accent);}
+.reader.theme-dark .rd-seg button.on{background:var(--accent);color:var(--bg);}
+
 /* ── Hero de l'œuvre (Le Capital, Livre I) ── */
 .cap-hero{position:relative;overflow:hidden;display:grid;
   grid-template-columns:1fr auto;gap:clamp(28px,5vw,56px);align-items:start;
