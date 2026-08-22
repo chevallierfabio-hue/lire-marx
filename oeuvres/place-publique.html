@@ -20,9 +20,13 @@
   --f-ui:'Bricolage Grotesque',system-ui,sans-serif;
 }
 
+/* ── Conteneur principal (centré dans l'espace disponible à droite de la sidebar) ── */
+.wrap{max-width:1060px;padding:0 clamp(24px,4vw,64px) 80px;}
+
 /* ── En-tête de page ── */
 .pp-hero{
   position:relative;overflow:hidden;
+  max-width:800px;margin:0 auto;
   padding:clamp(36px,5vh,52px) 0 clamp(24px,3vh,36px);
   margin-bottom:20px;
 }
@@ -63,6 +67,7 @@
 /* ── Filtres par œuvre ── */
 .pp-filters{
   display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;
+  max-width:800px;margin-left:auto;margin-right:auto;
 }
 .pp-filter{
   font-family:var(--f-ui);font-size:.78rem;font-weight:600;
@@ -76,7 +81,7 @@
 
 /* ── Flux de notes : override complet des .cm-* ── */
 #placeFull{
-  max-width:720px;margin:0;padding:0;
+  max-width:720px;margin:0 auto;padding:0;
   display:flex;flex-direction:column;gap:14px;
 }
 /* Cartes arrondies */

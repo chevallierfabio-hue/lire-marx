@@ -48,12 +48,92 @@ L'accueil du site est `oeuvres/index.html` (la bibliothèque), pilotée par
   {limit:6, compact:true})`) — avec un lien « Voir toutes les notes → »
   qui pointe vers `place-publique.html`.
 
+## Direction artistique — refonte « Rouge Internationale »
+
+Une refonte visuelle complète du site est en cours depuis août 2026.
+Toute nouvelle page ou tout nouveau composant doit suivre ces règles ;
+toute page pas encore migrée doit être alignée dessus dès qu'elle est
+retouchée.
+
+**Palette (tokens CSS, custom properties sur `:root`)** :
+```
+--bg:      #F7F5F0   /* fond principal, blanc cassé */
+--text:    #171614   /* texte principal, noir-brun encre */
+--accent:  #C41E3A   /* rouge drapeau, saturé et assumé — accent unique */
+--muted:   #8B8577   /* gris papier, texte secondaire/métadonnées */
+--surface: #FBF9F4   /* fond de carte, légèrement plus clair que --bg */
+--border:  #E9E5D8   /* bordures fines, séparateurs */
+```
+
+**Typographies** : `--font-display` = Fraunces (poids 500/600), réservée
+aux titres — jamais au corps de texte ni à la navigation.
+`--font-body` = Inter, pour tout le reste (nav, corps de texte, boutons,
+métadonnées). Ne jamais réintroduire de police système par défaut ni de
+serif ornementale/gothique — c'était le défaut de l'ancienne DA
+(« lumière = capital ») qu'on abandonne.
+
+**Composants récurrents** : bouton pilule plein (fond `--text`, texte
+`--bg`, `border-radius: 100px`), bouton pilule outline (`border:
+1px solid var(--border)`), carte arrondie (`border-radius: 16-18px`,
+fond `--surface`), badge pilule (fond `--accent` à 8% d'opacité, texte
+`--accent`), halo radial discret en fond de hero/bandeau
+(`radial-gradient` de `--accent` à faible opacité, jamais dominant).
+
+**Photographie d'archive** : portraits/scènes XIXe en traitement duotone
+(désaturation + léger calque `--accent` ou `--text`), toujours avec une
+légende overlay discrète en bas de l'image (source, date, mention de
+licence si CC BY-SA). Fichiers dans `assets/img/archive/`. Images déjà
+en place : `marx-portrait.jpg` (Mayall 1875, domaine public),
+`marx-jeune.jpg` (période parisienne, domaine public — utilisée pour
+les Manuscrits de 1844), `das-kapital-titre-1867.jpg` (page de titre
+originale, Zentralbibliothek Zürich — a remplacé l'ancienne
+`capital-1867.jpg`), `manufacture.jpg`, `filature.jpg`,
+`sortie-usine.jpg`, `halles-paris.jpg` (à vérifier : licence à
+confirmer avant usage définitif).
+
+**Bug récurrent à surveiller** : plusieurs onglets (Lire Le Capital /
+Atelier / Ressources, et probablement leurs équivalents sur
+`manuscrits-1844`) ont eu un bug où le contenu de l'onglet actif par
+défaut ne s'affichait qu'après un clic manuel sur l'onglet, jamais au
+chargement direct de la page. Cause : la fonction de rendu du contenu
+d'onglet n'était appelée que dans le handler `click`, jamais au
+chargement initial pour l'onglet par défaut. **Toute nouvelle logique
+d'onglet doit appeler explicitement le rendu de l'onglet actif au
+chargement**, pas seulement au clic.
+
+**Statut de la refonte par page** (à mettre à jour à chaque page migrée) :
+- ✅ Accueil général du site (`oeuvres/index.html`)
+- ✅ Accueil de l'œuvre Le Capital (hero + onglets Lire/Atelier/Ressources)
+- ✅ Page de lecture d'un chapitre (Le Capital) — bandeau + lettrine
+  rubriquée + colonne de notes en marge retirée (redondante avec
+  Notes partagées/Mes notes)
+- ✅ « Texte intégral » (Le Capital) — attention : cette page a connu
+  une régression fonctionnelle (lecteur cassé, contraste texte
+  illisible, réglages de lecture non opérationnels) après une
+  première tentative de restylage ; vérifier que la restauration +
+  réapplication progressive s'est bien terminée avant de reconstruire
+  dessus.
+- ✅ Place publique
+- ✅ Barre latérale générale + barre horizontale du haut
+- 🔲 Accueil de l'œuvre Manuscrits de 1844 (mission en cours — même
+  structure que Le Capital, contenu à adapter : aliénation du
+  travail, propriété privée, dépassement communiste)
+- 🔲 Onglets Parcourir / Cheminement / Modèles / Explorations /
+  Chronologie : **jugés satisfaisants tels quels, ne pas retoucher**
+  sans demande explicite.
+- 🔲 Page Bibliothèque à part : **abandonnée** — le menu déroulant de
+  la sidebar suffit, ne pas la recréer.
+
 ## Shell partagé : atelier.css + shell.css + shell.js (+ shell-social.js)
 
 Toutes les pages (bibliothèque comme livres) partagent :
 
 - `oeuvres/atelier.css` — système visuel (variables `:root`, polices,
   composants éditoriaux : tabs, panel, intro-block, plan-list, btn, etc.).
+  **C'est ici que vivent les tokens de la refonte Rouge Internationale**
+  décrits ci-dessus — toute nouvelle valeur de couleur/police doit passer
+  par une variable de ce fichier, jamais une valeur codée en dur dans une
+  page individuelle.
 - `oeuvres/shell.css` — coquille visuelle (topbar 44 px sticky avec
   brandmark/recherche/compte, sidebar 208 px avec Bibliothèque/Place
   publique/Contacts/CGU/sb-work, modales compte/RGPD/Place
@@ -219,6 +299,9 @@ chapitre par chapitre. C'est le rôle attendu d'une page de livre.
   (`python3 -m http.server` à la racine) et tester réellement les chemins
   critiques (onglets, liseuse, fetch local, console sans erreur).
   Demander une confirmation utilisateur entre sous-étapes risquées.
+  **Pour toute page dotée d'onglets, tester explicitement le
+  chargement direct sur chaque onglet (pas seulement après un clic)**
+  — voir le bug récurrent documenté plus haut.
 - **Garde-fous permanents** :
   - rester statique (pas de build, pas de dépendances obligatoires) ;
   - ne pas casser la coquille applicative encore inlined dans
