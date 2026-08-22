@@ -583,20 +583,20 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
   background:var(--surface);color:var(--text);
   font-family:'Bricolage Grotesque',system-ui,sans-serif;
   font-size:.88rem;padding:9px 12px;}
-/* Reader : conteneur transparent (fond fourni par la page) */
-.reader{background:transparent!important;border:none!important;
-  border-radius:0!important;padding:0!important;}
-/* Titres de section Wikisource : --text, pas rouge décoratif */
-.ws-text h2,.ws-text h3,.ws-text h4{color:var(--text)!important;}
-/* Toolbar reader-tools : boutons discrets sur --surface */
-.rd-toolbar .rd-btn,.rd-btn{
-  background:var(--surface)!important;color:var(--text)!important;
-  border-color:var(--border,rgba(23,22,20,.10))!important;}
-.rd-toolbar .rd-btn:hover,.rd-btn:hover{
-  background:var(--bg)!important;
-  border-color:rgba(23,22,20,.18)!important;color:var(--text)!important;}
-.rd-btn.on{background:var(--accent)!important;color:#fff!important;
-  border-color:var(--accent)!important;}
+/* Reader : fond transparent en thème papier uniquement — sombre/sépia conservent leur fond */
+.reader:not(.theme-dark):not(.theme-sepia){background:transparent;border:none;border-radius:0;padding:0;}
+.reader.theme-dark,.reader.theme-sepia{border:none;border-radius:0;padding:0;}
+/* Titres Wikisource : --text en thème papier (rouge → neutre) ; thèmes alternatifs gardent leurs propres couleurs */
+.reader:not(.theme-dark):not(.theme-sepia) .ws-text h2,
+.reader:not(.theme-dark):not(.theme-sepia) .ws-text h3,
+.reader:not(.theme-dark):not(.theme-sepia) .ws-text h4{color:var(--text);}
+/* Toolbar reader-tools : boutons discrets en thème papier ; thème sombre garde son apparence propre */
+.reader:not(.theme-dark) .rd-btn{
+  background:var(--surface);color:var(--text);
+  border-color:var(--border,rgba(23,22,20,.10));}
+.reader:not(.theme-dark) .rd-btn:hover{
+  background:var(--bg);border-color:rgba(23,22,20,.18);color:var(--text);}
+.rd-btn.on{background:var(--accent)!important;color:#fff!important;border-color:var(--accent)!important;}
 
 /* ── Hero de l'œuvre (Le Capital, Livre I) ── */
 .cap-hero{position:relative;overflow:hidden;display:grid;
