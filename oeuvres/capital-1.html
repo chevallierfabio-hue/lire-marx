@@ -813,7 +813,7 @@ nav.tabs.cap-tabs-bar .tab .num{display:none;}
     <div class="cap-hero-halo"></div>
     <div class="cap-hero-left">
       <nav class="cap-breadcrumb" aria-label="Fil d'Ariane">
-        <a href="index.html">Œuvres</a>
+        <a href="/?skip-anim">Œuvres</a>
         <span aria-hidden="true">›</span>
         <span>Le Capital</span>
       </nav>
@@ -934,7 +934,7 @@ nav.tabs.cap-tabs-bar .tab .num{display:none;}
     <div class="atl-header">
       <div class="atl-halo"></div>
       <nav class="atl-breadcrumb" aria-label="Fil d'Ariane">
-        <a href="index.html">Œuvres</a>
+        <a href="/?skip-anim">Œuvres</a>
         <span aria-hidden="true">›</span>
         <span>Le Capital — Livre I</span>
       </nav>
@@ -1486,10 +1486,7 @@ function showWork(id){
   setTimeout(function(){ window.scrollTo(0, 0); }, 0);
 }
 function showHome(){
-  // L'accueil du site vit dans oeuvres/index.html depuis que Capital est
-  // devenu un livre comme un autre. On y navigue plutôt que d'afficher
-  // une #home locale (qui n'existe plus).
-  location.href = 'index.html';
+  location.href = '/?skip-anim';
 }
 const fmt=(x,d=2)=>x.toLocaleString('fr-FR',{minimumFractionDigits:d,maximumFractionDigits:d});const pct=x=>Math.round(x)+' %';
 
