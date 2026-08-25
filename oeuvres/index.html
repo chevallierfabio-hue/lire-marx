@@ -15,7 +15,8 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,900;1,9..144,500&family=Spectral:ital,wght@0,400;0,500;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Caveat:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,900;1,9..144,500&family=Spectral:ital,wght@0,400;0,500;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Caveat:wght@500;700&family=Inter:wght@400;500;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,900;1,9..144,500&family=Spectral:ital,wght@0,400;0,500;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Caveat:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"></noscript>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{height:100%;}
@@ -208,7 +209,8 @@ body.sb-collapsed .hw{padding-left:0;}
   .hs-stats{gap:28px;}
 }
 </style>
-<link rel="stylesheet" href="shell.css">
+<link rel="preload" href="shell.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="shell.css"></noscript>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -261,7 +263,10 @@ body.sb-collapsed .hw{padding-left:0;}
       <div class="hs-right">
         <figure class="hs-portrait">
           <div class="hs-img-wrap">
-            <img src="../assets/img/archive/marx-portrait.png" alt="Karl Marx, photographie de John Mayall, 1875" fetchpriority="high">
+            <picture>
+              <source srcset="../assets/img/archive/marx-portrait.webp" type="image/webp">
+              <img src="../assets/img/archive/marx-portrait.png" alt="Karl Marx, photographie de John Mayall, 1875" fetchpriority="high">
+            </picture>
           </div>
           <figcaption class="hs-img-caption">Portrait · John Mayall, 1875 · domaine public</figcaption>
         </figure>
@@ -273,7 +278,10 @@ body.sb-collapsed .hw{padding-left:0;}
       <a class="hs-card" href="capital-1.html">
         <div class="hs-card-img">
           <div class="hs-img-wrap">
-            <img src="../assets/img/archive/manufacture.jpg" alt="Manufacture textile, XIXe siècle" loading="lazy">
+            <picture>
+              <source srcset="../assets/img/archive/manufacture.webp" type="image/webp">
+              <img src="../assets/img/archive/manufacture.jpg" alt="Manufacture textile, XIXe siècle" loading="lazy">
+            </picture>
           </div>
           <figcaption class="hs-img-caption">Manufacture textile · XIXᵉ s. · domaine public</figcaption>
         </div>
@@ -286,7 +294,10 @@ body.sb-collapsed .hw{padding-left:0;}
       <a class="hs-card" href="manuscrits-1844.html">
         <div class="hs-card-img">
           <div class="hs-img-wrap">
-            <img src="../assets/img/archive/marx-jeune.jpg" alt="Marx jeune, portrait de la période parisienne" loading="lazy">
+            <picture>
+              <source srcset="../assets/img/archive/marx-jeune.webp" type="image/webp">
+              <img src="../assets/img/archive/marx-jeune.jpg" alt="Marx jeune, portrait de la période parisienne" loading="lazy">
+            </picture>
           </div>
           <figcaption class="hs-img-caption">Marx jeune, période parisienne · domaine public</figcaption>
         </div>
