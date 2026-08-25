@@ -124,14 +124,14 @@
     if(biblioPromise) return biblioPromise;
     biblioPromise = (async function(){
       try {
-        var r = await fetch('bibliotheque.json', { cache: 'no-cache' });
+        var r = await fetch('/oeuvres/bibliotheque.json', { cache: 'no-cache' });
         if(!r.ok) throw new Error('biblio HTTP ' + r.status);
         var json = await r.json();
         var map = {};
         (json.works || []).forEach(function(w){
           if(!w || !w.id) return;
           var path = String(w.path || '');
-          if(path.indexOf('oeuvres/') === 0) path = path.slice('oeuvres/'.length);
+          if(path && path.indexOf('/') !== 0) path = '/' + path;
           map[w.id] = {
             title: w.shortTitle || w.title || 'Œuvre',
             path: path,

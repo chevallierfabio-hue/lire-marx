@@ -153,27 +153,27 @@
     });
     bk.addEventListener('click', function(){ document.body.classList.remove('sb-open'); });
 
-    // Brandmark → page d'accueil (oeuvres/index.html, chemin relatif depuis n'importe quelle page oeuvres/)
-    document.getElementById('shellBrand').addEventListener('click', function(){ location.href = 'index.html'; });
+    // Brandmark → accueil (/) avec skip-anim pour éviter l'animation d'entrée
+    document.getElementById('shellBrand').addEventListener('click', function(){ location.href = '/?skip-anim'; });
 
-    // Bibliothèque : navigue vers la page d'accueil
+    // Bibliothèque : navigue vers l'accueil sans rejouer l'animation
     var bib = sb.querySelector('[data-act="biblio"]');
-    bib.addEventListener('click', function(){ location.href = 'index.html'; });
+    bib.addEventListener('click', function(){ location.href = '/?skip-anim'; });
 
     // Items de navigation inter-pages
     sb.querySelectorAll('.sb-item[data-act]').forEach(function(b){
       var act = b.dataset.act;
       if(act === 'biblio' || (act && act.indexOf('tab:') === 0)) return; // déjà gérés
       b.addEventListener('click', function(){
-        if(act === 'open-capital'){ location.href = 'capital-1.html'; return; }
-        if(act === 'open-manuscrits-1844'){ location.href = 'manuscrits-1844.html'; return; }
+        if(act === 'open-capital'){ location.href = '/oeuvres/capital-1.html'; return; }
+        if(act === 'open-manuscrits-1844'){ location.href = '/oeuvres/manuscrits-1844.html'; return; }
         // Place publique : page dédiée (oeuvres/place-publique.html).
         // Plus de modale ni de redirection vers capital-1.html.
         if(act === 'commune'){
           if(window.matchMedia('(max-width:860px)').matches){
             document.body.classList.remove('sb-open');
           }
-          location.href = 'place-publique.html';
+          location.href = '/oeuvres/place-publique.html';
           return;
         }
         // CGU & règles / Confidentialité : modale RGPD de SHELL.auth.
@@ -268,14 +268,14 @@
     function buildIndex(){
       if(INDEX) return Promise.resolve(INDEX);
       if(indexPending) return indexPending;
-      indexPending = fetch('bibliotheque.json', { cache: 'no-cache' })
+      indexPending = fetch('/oeuvres/bibliotheque.json', { cache: 'no-cache' })
         .then(function(r){ if(!r.ok) throw new Error('biblio HTTP ' + r.status); return r.json(); })
         .then(function(json){
           var ix = [];
           (json.works || []).forEach(function(w){
             if(!w || !w.id) return;
             var path = String(w.path || '');
-            if(path.indexOf('oeuvres/') === 0) path = path.slice('oeuvres/'.length);
+            if(path && path.indexOf('/') !== 0) path = '/' + path;
             var available = w.status === 'available' && !!path;
             var go = function(){ if(available) location.href = path; };
             var subtitle = (w.author || '') + (w.year ? ' · ' + w.year : '');
@@ -985,17 +985,14 @@
     if(biblioPromise) return biblioPromise;
     biblioPromise = (async function(){
       try {
-        var r = await fetch('bibliotheque.json', { cache: 'no-cache' });
+        var r = await fetch('/oeuvres/bibliotheque.json', { cache: 'no-cache' });
         if(!r.ok) throw new Error('biblio HTTP ' + r.status);
         var json = await r.json();
         var map = {};
         (json.works || []).forEach(function(w){
           if(!w || !w.id) return;
-          // Les pages d'œuvres vivent dans /oeuvres/ ; on retire le
-          // préfixe 'oeuvres/' pour pouvoir naviguer relativement
-          // depuis n'importe quelle page du dossier.
           var path = String(w.path || '');
-          if(path.indexOf('oeuvres/') === 0) path = path.slice('oeuvres/'.length);
+          if(path && path.indexOf('/') !== 0) path = '/' + path;
           map[w.id] = {
             title: w.shortTitle || w.title || 'Œuvre',
             path: path,
@@ -1124,7 +1121,7 @@
     var tops = opts.limit ? data.tops.slice(0, opts.limit) : data.tops;
     var html = tops.map(function(n){ return cardHtml(n, data.counts, biblio); }).join('');
     if(opts.compact && data.tops.length > tops.length){
-      html += '<a class="cm-all" href="place-publique.html">Voir toutes les notes →</a>';
+      html += '<a class="cm-all" href="/oeuvres/place-publique.html">Voir toutes les notes →</a>';
     }
     container.innerHTML = html;
     wireCards(container);
