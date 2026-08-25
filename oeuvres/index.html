@@ -176,6 +176,10 @@ body.sb-collapsed .hw{padding-left:0;}
 /* ── Catalogue ── */
 .hs-catalogue{display:grid;grid-template-columns:1fr 1fr;gap:20px;
   padding:0 clamp(24px,5vw,80px) clamp(56px,7vh,90px);}
+.hs-catalogue-h{grid-column:1/-1;font-family:'Inter',system-ui,sans-serif;font-size:.78rem;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
+.hs-community{grid-column:1/-1;padding:10px 0 0;font-size:.92rem;color:var(--muted);}
+.hs-community a{color:var(--accent);text-decoration:none;font-weight:500;}
+.hs-community a:hover{text-decoration:underline;}
 .hs-card{border-radius:16px;overflow:hidden;background:var(--surface);
   border:1px solid var(--border);transition:transform .22s,box-shadow .22s;
   text-decoration:none;display:block;color:inherit;}
@@ -231,10 +235,10 @@ body.sb-collapsed .hw{padding-left:0;}
   </div>
   <div class="center">
     <div class="kicker">Atelier de lecture</div>
-    <h1 class="big">
+    <p class="big">
       <span class="ln ln1"><span class="w">Lire</span></span>
       <span class="ln ln2"><span class="w"><em>Marx</em></span></span>
-    </h1>
+    </p>
   </div>
   <div class="bottom">
     <div class="hint"><span class="dot"></span>Cliquez (ou faites défiler) pour ouvrir la page</div>
@@ -274,6 +278,7 @@ body.sb-collapsed .hw{padding-left:0;}
 
     <!-- ③ Catalogue -->
     <section class="hs-catalogue" id="catalogue">
+      <h2 class="hs-catalogue-h">Les ateliers de lecture</h2>
       <a class="hs-card" href="capital-1.html">
         <div class="hs-card-img">
           <div class="hs-img-wrap">
@@ -306,6 +311,7 @@ body.sb-collapsed .hw{padding-left:0;}
           <p class="hs-card-desc">Les carnets de jeunesse de Marx, clés pour saisir le fondement philosophique du Capital.</p>
         </div>
       </a>
+      <p class="hs-community">Des questions sur votre lecture ? <a href="place-publique.html">Rejoignez la Place publique</a> — discussions ouvertes entre lecteurs du Capital et des Manuscrits.</p>
     </section>
 
     <!-- ④ Barre de chiffres clés -->
