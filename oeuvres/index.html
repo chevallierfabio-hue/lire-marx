@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>if(window.innerWidth<768||window.matchMedia('(prefers-reduced-motion:reduce)').matches)document.documentElement.classList.add('no-anim');</script>
 <title>Lire Marx — Lecture guidée du Capital et des Manuscrits</title>
 <meta name="description" content="Lisez Marx sérieusement, sans prérequis. Ateliers de lecture guidés, simulations économiques et espace d'échange entre lecteurs — Le Capital et les Manuscrits de 1844 en accès libre.">
 <meta property="og:title" content="Lire Marx — Lecture guidée du Capital et des Manuscrits">
@@ -260,7 +261,7 @@ body.sb-collapsed .hw{padding-left:0;}
       <div class="hs-right">
         <figure class="hs-portrait">
           <div class="hs-img-wrap">
-            <img src="../assets/img/archive/marx-portrait.png" alt="Karl Marx, photographie de John Mayall, 1875">
+            <img src="../assets/img/archive/marx-portrait.png" alt="Karl Marx, photographie de John Mayall, 1875" fetchpriority="high">
           </div>
           <figcaption class="hs-img-caption">Portrait · John Mayall, 1875 · domaine public</figcaption>
         </figure>
@@ -272,7 +273,7 @@ body.sb-collapsed .hw{padding-left:0;}
       <a class="hs-card" href="capital-1.html">
         <div class="hs-card-img">
           <div class="hs-img-wrap">
-            <img src="../assets/img/archive/manufacture.jpg" alt="Manufacture textile, XIXe siècle">
+            <img src="../assets/img/archive/manufacture.jpg" alt="Manufacture textile, XIXe siècle" loading="lazy">
           </div>
           <figcaption class="hs-img-caption">Manufacture textile · XIXᵉ s. · domaine public</figcaption>
         </div>
@@ -285,7 +286,7 @@ body.sb-collapsed .hw{padding-left:0;}
       <a class="hs-card" href="manuscrits-1844.html">
         <div class="hs-card-img">
           <div class="hs-img-wrap">
-            <img src="../assets/img/archive/marx-jeune.jpg" alt="Marx jeune, portrait de la période parisienne">
+            <img src="../assets/img/archive/marx-jeune.jpg" alt="Marx jeune, portrait de la période parisienne" loading="lazy">
           </div>
           <figcaption class="hs-img-caption">Marx jeune, période parisienne · domaine public</figcaption>
         </div>
@@ -320,9 +321,14 @@ body.sb-collapsed .hw{padding-left:0;}
   #sheet{position:fixed;inset:0;z-index:30;opacity:0;pointer-events:none;
     transform:scale(.92);transform-origin:50% 46%;background:var(--bg);will-change:opacity,transform;}
   #sheet.show{pointer-events:auto;}
+  /* Mobile / prefers-reduced-motion : contenu immédiatement visible, animation ignorée */
+  .no-anim #sheet{opacity:1!important;transform:none!important;pointer-events:auto!important;position:relative!important;z-index:1!important;}
+  .no-anim #scene,.no-anim #cine,.no-anim .loading{display:none!important;}
 </style>
-  <script src="../vendor/three.min.js"></script>
+  <script src="../vendor/three.min.js" defer></script>
 <script>
+document.addEventListener('DOMContentLoaded',function(){
+if(document.documentElement.classList.contains('no-anim'))return;
 (function(){
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var canvas = document.getElementById('scene');
@@ -615,9 +621,7 @@ body.sb-collapsed .hw{padding-left:0;}
   window.addEventListener('wheel',function(e){ acc+=e.deltaY; if(acc>120) enter(); if(acc<-150 && p<0.15){ leave(); acc=0; } },{passive:true});
   canvas.addEventListener('click', enter);
   var sheet=document.getElementById('sheet'), cine=document.getElementById('cine');
-  var app=document.getElementById('app');
-
-  app.src='oeuvres/capital-1.html';
+  var app=document.getElementById('app'); // conservé pour compatibilité, non chargé
 
   function resize(){var w=window.innerWidth,h=window.innerHeight;renderer.setSize(w,h,false);
     camera.aspect=w/h;camera.updateProjectionMatrix();}
@@ -686,6 +690,7 @@ body.sb-collapsed .hw{padding-left:0;}
   if(reduce){ coverPivot.rotation.z=Math.PI; camera.position.copy(camA); camera.lookAt(lookA); renderer.render(scene,camera); }
   else requestAnimationFrame(frame);
 })();
+});
 </script>
 
 <!-- Shell de navigation (topbar + sidebar + auth + social) -->
