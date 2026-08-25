@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# Les modales compte/auth sont des composants JS inlinés, pas des pages séparées.
+# Aucune route à interdire côté serveur — tout le site est public.
+
+Sitemap: https://liremarx.com/sitemap.xml

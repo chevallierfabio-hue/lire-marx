@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <!-- Bibliothèque (accueil du site) -->
+  <url>
+    <loc>https://liremarx.com/oeuvres/</loc>
+    <lastmod>2026-08-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- Le Capital, Livre I -->
+  <url>
+    <loc>https://liremarx.com/oeuvres/capital-1.html</loc>
+    <lastmod>2026-08-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Manuscrits économico-philosophiques de 1844 -->
+  <url>
+    <loc>https://liremarx.com/oeuvres/manuscrits-1844.html</loc>
+    <lastmod>2026-08-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Place publique (forum ouvert) -->
+  <url>
+    <loc>https://liremarx.com/oeuvres/place-publique.html</loc>
+    <lastmod>2026-08-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+</urlset>
