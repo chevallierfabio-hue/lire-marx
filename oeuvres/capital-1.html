@@ -771,6 +771,7 @@ nav.tabs.cap-tabs-bar .tab .num{display:none;}
 <script src="shell.js"></script>
 <script src="shell-social.js"></script>
 <script src="shell-annotations.js"></script>
+<script src="shell-progress.js"></script>
 <script src="reader-tools.js" defer></script>
 <style id="socCss">#msgDot{position:absolute;top:5px;right:6px;width:6px;height:6px;border-radius:50%;background:var(--red);display:none;}.tb-msg{position:relative;}.nt-list{max-height:58vh;overflow:auto;margin:2px -6px -4px;}.nt-item{display:block;width:100%;text-align:left;background:transparent;border:0;border-top:1px solid var(--line-soft);padding:10px 8px;cursor:pointer;font-family:inherit;}.nt-item:first-child{border-top:0;}.nt-item:hover{background:var(--paper-2);}.nt-item.unseen{background:rgba(165,42,33,.06);}.nt-top{display:flex;gap:7px;align-items:baseline;}.nt-who{font-family:"Fraunces",serif;font-weight:600;font-size:.86rem;color:var(--ink);}.nt-kind{font-family:var(--f-ui);font-size:.62rem;letter-spacing:.04em;text-transform:uppercase;border-radius:999px;padding:1px 7px;}.nt-k-reply{background:rgba(57,89,107,.16);color:#2f4a59;}.nt-k-mention{background:rgba(165,42,33,.12);color:#7c1d16;}.nt-when{margin-left:auto;font-family:var(--f-ui);font-size:.68rem;color:var(--const);}.nt-snip{font-family:"Spectral",Georgia,serif;font-size:.84rem;color:var(--ink-soft);margin-top:3px;line-height:1.45;}.msg-wrap{display:flex;flex-direction:column;min-height:0;height:min(74vh,620px);}.msg-head{display:flex;align-items:center;gap:9px;margin-bottom:10px;}.msg-head h3{font-family:"Fraunces",serif;font-size:1.18rem;margin:0;color:var(--ink);}.msg-back{background:transparent;border:0;font-size:1.5rem;line-height:1;cursor:pointer;color:var(--ink);padding:0 6px;}.msg-add{display:flex;gap:7px;margin-bottom:12px;}.msg-add input{flex:1;min-width:0;height:34px;font-family:var(--f-ui);font-size:.85rem;padding:0 11px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);}.msg-list{flex:1;overflow:auto;margin:0 -4px;}.msg-ct{display:flex;align-items:center;gap:11px;width:100%;text-align:left;background:transparent;border:0;border-radius:9px;padding:10px;cursor:pointer;font-family:inherit;}.msg-ct:hover{background:var(--paper-2);}.msg-ava{flex:0 0 auto;width:34px;height:34px;border-radius:50%;background:var(--red);color:#f7f1e2;font-family:"Fraunces",serif;font-weight:700;font-size:.9rem;display:flex;align-items:center;justify-content:center;}.msg-ct-main{flex:1;min-width:0;display:flex;flex-direction:column;}.msg-ct-name{font-family:"Fraunces",serif;font-weight:600;font-size:.92rem;color:var(--ink);}.msg-ct-prev{font-family:"Spectral",Georgia,serif;font-size:.8rem;color:var(--const);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}.msg-badge{flex:0 0 auto;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:var(--red);color:#fff;font-family:var(--f-ui);font-size:.66rem;display:flex;align-items:center;justify-content:center;}.msg-thread{flex:1;overflow:auto;display:flex;flex-direction:column;gap:7px;padding:6px 2px;}.msg-b{max-width:78%;padding:7px 11px;border-radius:13px;font-family:"Spectral",Georgia,serif;font-size:.92rem;line-height:1.45;white-space:pre-wrap;word-wrap:break-word;}.msg-b.me{align-self:flex-end;background:var(--red);color:#f7f1e2;border-bottom-right-radius:4px;}.msg-b.them{align-self:flex-start;background:var(--paper-2);color:var(--ink);border-bottom-left-radius:4px;}.msg-b-t{display:block;font-size:.62rem;opacity:.7;margin-top:3px;font-family:var(--f-ui);}.msg-compose{display:flex;gap:7px;margin-top:10px;}.msg-compose textarea{flex:1;min-height:40px;max-height:130px;font-family:"Spectral",serif;font-size:.92rem;padding:9px 11px;border:1px solid var(--line);border-radius:9px;background:var(--paper);color:var(--ink);resize:vertical;}.msg-empty,.msg-state{font-family:var(--f-ui);font-size:.85rem;color:var(--const);padding:18px 8px;text-align:center;line-height:1.5;}</style>
 <style id="socCss2">.tb-pop.msg-pop{width:330px;max-width:86vw;padding:12px 14px;}.msg-pop .msg-list{max-height:300px;}.msg-pop .msg-thread{height:264px;}.msg-pop .msg-head{margin-bottom:8px;}.msg-pop .msg-add{margin-bottom:10px;}.msg-pop .msg-compose{margin-top:8px;}.msg-pop .msg-compose textarea{min-height:36px;}.msg-poplink{display:block;width:100%;text-align:center;margin-top:8px;font-family:"Fraunces",serif;font-weight:600;font-size:.8rem;color:var(--red-deep);background:transparent;border:0;border-top:1px solid var(--line-soft);padding-top:9px;cursor:pointer;}.msg-poplink:hover{color:var(--red);}.contacts-view{max-width:1000px;margin:0 auto;padding:14px 0 60px;}.cv-head{font-family:"Fraunces",serif;font-weight:900;font-size:1.8rem;color:var(--ink);margin:6px 0 2px;}.cv-sub{font-family:"Spectral",Georgia,serif;font-style:italic;color:var(--ink-soft);margin-bottom:18px;}.cv-grid{display:grid;grid-template-columns:300px 1fr;gap:18px;align-items:start;}.cv-pane{border:1px solid var(--line);border-radius:13px;background:var(--card);padding:14px;}.cv-left{min-height:62vh;}.cv-right{min-height:62vh;display:flex;flex-direction:column;}.cv-right .msg-thread{flex:1;min-height:340px;}.cv-ph{margin:auto;color:var(--const);font-family:var(--f-ui);font-size:.9rem;text-align:center;padding:48px 14px;line-height:1.6;}.cv-prof{text-align:center;padding:24px 8px;margin:auto;}.cv-prof .msg-ava{width:64px;height:64px;font-size:1.7rem;margin:0 auto 12px;}.cv-prof-name{font-family:"Fraunces",serif;font-weight:700;font-size:1.3rem;color:var(--ink);}.cv-prof-meta{font-family:var(--f-ui);font-size:.85rem;color:var(--const);margin:6px 0 18px;}.cv-ct.on,.msg-ct.on{background:var(--paper-2);}.cv-rowbtns{display:flex;gap:9px;align-items:center;margin-bottom:10px;}@media(max-width:760px){.cv-grid{grid-template-columns:1fr;}.cv-left,.cv-right{min-height:0;}.cv-right .msg-thread{min-height:300px;}}</style>
@@ -854,12 +855,7 @@ nav.tabs.cap-tabs-bar .tab .num{display:none;}
       <div class="cap-card">
         <div class="cap-card-icon">📊</div>
         <div class="cap-card-title">Ton parcours</div>
-        <div class="cap-card-desc">Suis ta progression chapitre par chapitre dans l'atelier de lecture.</div>
-        <div class="cap-prog-wrap">
-          <div class="cap-prog-bg"><div class="cap-prog-fill" id="capProgFill"></div></div>
-          <div class="cap-prog-txt" id="capProgTxt">0 sur 33 chapitres</div>
-        </div>
-        <button class="cap-btn-outline" onclick="activateTab('nav');window.scrollTo({top:0,behavior:'smooth'});">Continuer l'atelier →</button>
+        <div id="capProgCard"><!-- rempli dynamiquement par syncProgUI() --></div>
       </div>
     </div>
 
@@ -1192,11 +1188,17 @@ nav.tabs.cap-tabs-bar .tab .num{display:none;}
       <span class="atl-badge">Atelier de lecture</span>
       <div class="atl-header-body">
         <h2 class="atl-h1">Le procès de production<br><em>du capital</em></h2>
-        <div class="atl-prog-widget">
-          <div class="atl-pct" id="atlPct2">0%</div>
-          <div class="atl-pct-label">complété</div>
-          <div class="atl-bar-bg"><div class="atl-bar-fill" id="atlFill2"></div></div>
-          <div class="atl-count" id="atlCount2">0 sur 33 chapitres</div>
+        <div class="atl-prog-widget" id="atlProgWidget2">
+          <div id="atlProg2" style="display:none">
+            <div class="atl-pct" id="atlPct2">0%</div>
+            <div class="atl-pct-label">complété</div>
+            <div class="atl-bar-bg"><div class="atl-bar-fill" id="atlFill2"></div></div>
+            <div class="atl-count" id="atlCount2">0 sur 33 chapitres</div>
+          </div>
+          <div id="atlProgNA2" class="prog-no-auth">
+            <span>Connecte-toi pour suivre ta progression</span>
+            <button class="prog-no-auth-btn" type="button" onclick="window.SHELL&&window.SHELL.auth&&window.SHELL.auth.openModal()">Se connecter</button>
+          </div>
         </div>
       </div>
     </div>
@@ -1693,11 +1695,12 @@ const META={
 };
 
 /* ---- rendu Navigateur — grille de cartes ---- */
-/* ── Progression de lecture (localStorage) ── */
-const READ_KEY='liremarx.read.capital-1';
-function getReadDone(){try{return new Set(JSON.parse(localStorage.getItem(READ_KEY)||'[]'));}catch(e){return new Set();}}
-function saveReadDone(s){try{localStorage.setItem(READ_KEY,JSON.stringify([...s]));}catch(e){}}
-window.toggleDone=function(gn){const d=getReadDone();if(d.has(gn))d.delete(gn);else d.add(gn);saveReadDone(d);renderAtlList();};
+/* ── Progression de lecture (SHELL.progress → Supabase reading_progress) ── */
+window.toggleDone=function(gn){
+  var p=window.SHELL&&window.SHELL.progress;
+  if(!p||!p.isLoggedIn()){if(p)p.promptLogin();return;}
+  p.toggle(gn); // renderAtlList + syncProgUI appelés via onChange
+};
 
 /* Table des chapitres [{secNum,sectionRn,sectionTitle,chapRn,chapTitle,gnum}] */
 const CHAP_FLAT=[];
@@ -1709,16 +1712,19 @@ const LABO_LABELS={'s-taux':'Modèle taux de plus-value','s-jour':'Modèle journ
 const CHECK_SVG=`<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><polyline points="2,9 6,13 14,3" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
 function renderAtlList(){
-  const done=getReadDone();
+  const done=(window.SHELL&&window.SHELL.progress)?window.SHELL.progress.getSet():new Set();
   const current=(CHAP_FLAT.find(c=>!done.has(c.gnum))||{gnum:CHAP_FLAT.length+1}).gnum;
   const doneCount=done.size;const total=CHAP_FLAT.length;
   const pct=Math.round(doneCount/total*100);
+  const loggedIn=!!(window.SHELL&&window.SHELL.progress&&window.SHELL.progress.isLoggedIn());
   const fillEl=document.getElementById('atlFill');
   const pctEl=document.getElementById('atlPct');
   const cntEl=document.getElementById('atlCount');
-  if(fillEl)fillEl.style.width=pct+'%';
-  if(pctEl)pctEl.textContent=pct+'%';
-  if(cntEl)cntEl.textContent=doneCount+' sur '+total+' chapitres';
+  if(loggedIn){
+    if(fillEl)fillEl.style.width=pct+'%';
+    if(pctEl)pctEl.textContent=pct+'%';
+    if(cntEl)cntEl.textContent=doneCount+' sur '+total+' chapitres';
+  }
   const nl=document.getElementById('navlist');
   if(!nl)return;
   let html='';let lastSec=-1;
@@ -1760,13 +1766,9 @@ function renderAtlList(){
   nl.innerHTML=html;
   const q=document.getElementById('filter')&&document.getElementById('filter').value.trim().toLowerCase();
   if(q)applyAtlFilter(q);
-  /* Synchronise aussi le panel #atelier-accueil (mêmes données, IDs différents) */
+  /* Synchronise aussi le panel #atelier-accueil (même HTML de cartes) */
   var nl2=document.getElementById('atlNavlist');
   if(nl2)nl2.innerHTML=html;
-  var f2=document.getElementById('atlFill2'),p2=document.getElementById('atlPct2'),c2=document.getElementById('atlCount2');
-  if(f2)f2.style.width=pct+'%';
-  if(p2)p2.textContent=pct+'%';
-  if(c2)c2.textContent=doneCount+' sur '+total+' chapitres';
 }
 
 function applyAtlFilter(q){
@@ -1783,15 +1785,108 @@ function applyAtlFilter(q){
   document.getElementById('nores').style.display=any?'none':'block';
 }
 
+/* ── syncProgUI : met à jour toutes les zones de progression selon l'état auth ── */
+function syncProgUI(){
+  var p=window.SHELL&&window.SHELL.progress;
+  var loggedIn=!!(p&&p.isLoggedIn());
+  var done=p?p.getSet():new Set();
+  var total=33;var cnt=loggedIn?done.size:0;var pct=total?Math.round(cnt/total*100):0;
+
+  /* Carte "Ton parcours" */
+  var pc=document.getElementById('capProgCard');
+  if(pc){
+    if(loggedIn){
+      pc.innerHTML='<div class="cap-card-desc">Suis ta progression chapitre par chapitre dans l\'atelier de lecture.</div>'
+        +'<div class="cap-prog-wrap"><div class="cap-prog-bg"><div class="cap-prog-fill" style="width:'+pct+'%"></div></div>'
+        +'<div class="cap-prog-txt">'+cnt+' sur '+total+' chapitres'+(pct?' — '+pct+'% complété':'')+'</div></div>'
+        +'<button class="cap-btn-outline" onclick="activateTab(\'nav\');window.scrollTo({top:0,behavior:\'smooth\'});">Continuer l\'atelier →</button>';
+    } else {
+      pc.innerHTML='<div class="cap-card-desc">Connecte-toi pour suivre ta progression de lecture chapitre par chapitre.</div>'
+        +'<button class="cap-btn-dark" style="margin-top:8px" type="button" '
+        +'onclick="window.SHELL&&window.SHELL.auth&&window.SHELL.auth.openModal()">Se connecter →</button>';
+    }
+  }
+
+  /* Widget de progression de l'onglet Atelier-accueil */
+  var na2=document.getElementById('atlProgNA2');
+  var pr2=document.getElementById('atlProg2');
+  if(na2)na2.style.display=loggedIn?'none':'flex';
+  if(pr2)pr2.style.display=loggedIn?'':'none';
+  if(loggedIn){
+    var pctEl=document.getElementById('atlPct2');
+    var fillEl=document.getElementById('atlFill2');
+    var cntEl=document.getElementById('atlCount2');
+    if(pctEl)pctEl.textContent=pct+'%';
+    if(fillEl)fillEl.style.width=pct+'%';
+    if(cntEl)cntEl.textContent=cnt+' sur '+total+' chapitres';
+  }
+}
+
+/* ── Bandeau invite discret (non connecté, scroll à 90%) ── */
+function showProgressInvite(){
+  if(sessionStorage.getItem('liremarx.prog.inv')) return;
+  sessionStorage.setItem('liremarx.prog.inv','1');
+  var el=document.createElement('div');
+  el.id='progInvite';
+  el.innerHTML='<span>Crée un compte pour suivre ta progression de lecture</span>'
+    +'<button class="pi-btn" onclick="window.SHELL&&window.SHELL.auth&&window.SHELL.auth.openModal()">Se connecter</button>'
+    +'<button class="pi-close" onclick="document.getElementById(\'progInvite\').remove()" aria-label="Fermer">×</button>';
+  document.body.appendChild(el);
+  requestAnimationFrame(function(){
+    requestAnimationFrame(function(){ el.classList.add('pi-visible'); });
+  });
+  setTimeout(function(){ el.classList.remove('pi-visible'); setTimeout(function(){ if(el.parentNode)el.remove(); },450); },7000);
+}
+
+/* ── Suivi scroll 90 % dans la liseuse ── */
+var _capCurrentGnum=0;
+var _capScrollTracked={};
+function installCapScrollTracker(container,gnum){
+  if(_capScrollTracked[gnum]) return;
+  function onScroll(){
+    var h=container.offsetHeight; if(h<100) return;
+    if(window.scrollY+window.innerHeight>=container.offsetTop+h*0.9){
+      _capScrollTracked[gnum]=true;
+      window.removeEventListener('scroll',onScroll);
+      var p=window.SHELL&&window.SHELL.progress;
+      if(p&&p.isLoggedIn()){ p.markDone(gnum); }
+      else { showProgressInvite(); }
+    }
+  }
+  window.addEventListener('scroll',onScroll,{passive:true});
+  onScroll();
+}
+
+/* ── Bouton "Marquer comme lu" dans la liseuse ── */
+function updateCapMarkDone(gnum){
+  var wrap=document.getElementById('capMarkDoneWrap');
+  if(!wrap) return;
+  var p=window.SHELL&&window.SHELL.progress;
+  var loggedIn=!!(p&&p.isLoggedIn());
+  var isDone=loggedIn&&p.has(gnum);
+  var btn=wrap.querySelector('.rdr-mark-btn');
+  if(!btn){ btn=document.createElement('button'); btn.type='button'; wrap.innerHTML=''; wrap.appendChild(btn); }
+  if(loggedIn){
+    btn.textContent=isDone?'✓ Terminé':'○ Marquer comme lu';
+    btn.className='rdr-mark-btn '+(isDone?'rdr-mark-btn-on':'rdr-mark-btn-off');
+    btn.onclick=function(){ var pg=window.SHELL&&window.SHELL.progress; if(pg)pg.toggle(gnum); };
+  } else {
+    btn.textContent='○ Marquer comme lu';
+    btn.className='rdr-mark-btn rdr-mark-btn-off';
+    btn.onclick=function(){ var pg=window.SHELL&&window.SHELL.progress; if(pg)pg.promptLogin(); };
+  }
+}
+
 renderAtlList();
-// Synchronise aussi la progression de la carte "Ton parcours" (panel accueil)
-(function syncCapProg(){
-  var done=getReadDone();var total=33;var pct=Math.round(done.size/total*100);
-  var fill=document.getElementById('capProgFill');
-  var txt=document.getElementById('capProgTxt');
-  if(fill)fill.style.width=pct+'%';
-  if(txt)txt.textContent=done.size+' sur '+total+' chapitres — '+pct+'% complété';
-})();
+syncProgUI();
+/* Initialisation du suivi de progression */
+if(window.SHELL&&window.SHELL.progress){
+  window.SHELL.progress.init('capital-1',function(){
+    renderAtlList();
+    syncProgUI();
+    if(_capCurrentGnum) updateCapMarkDone(_capCurrentGnum);
+  });
+}
 const filter=document.getElementById('filter');
 if(filter)filter.addEventListener('input',()=>applyAtlFilter(filter.value.trim().toLowerCase()));
 
@@ -1849,6 +1944,9 @@ const TERMS=[
 async function showSelection(doScroll){
   const out=document.getElementById('readerOut');const parts=sel.value.split('|');const n=+parts[0];const num=parts[1]||"";const title=parts[2]||"";
   const sec=ROY_STRUCT[n-1];
+  // gnum = indice global du chapitre (1-indexé, correspond à CHAP_FLAT[selectedIndex])
+  const gnum=sel.selectedIndex+1;
+  _capCurrentGnum=gnum;
   out.innerHTML='<div class="reader"><div class="placeholder"><div class="spinner"></div><b>Chargement du texte intégral…</b><br>Section '+sec.rn+' — '+sec.t+'<br><span style="font-size:.85rem">depuis Wikisource — domaine public</span></div></div>';
   try{
     const html=await loadSection(n);
@@ -1859,7 +1957,10 @@ async function showSelection(doScroll){
         +'<div class="rdr-counter"><em>'+num+'</em>'+sec.rn+'</div>'
       +'</div>'
       +'<div class="rdr-main"><div class="ws-text">'+html+'</div></div>'
+      +'<div class="rdr-mark-done-wrap" id="capMarkDoneWrap"></div>'
     +'</div>';
+    updateCapMarkDone(gnum);
+    installCapScrollTracker(out,gnum);
     if(doScroll)scrollToAnchor(out,title);
     try{if(window.Anno)window.Anno.mount(n,out.querySelector('.ws-text'));}catch(e){}
     try{

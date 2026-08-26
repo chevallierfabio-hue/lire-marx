@@ -294,12 +294,7 @@ nav.tabs.cap-tabs-bar .tab .num{display:none;}
       <div class="cap-card">
         <div class="cap-card-icon">📊</div>
         <div class="cap-card-title">Ton parcours</div>
-        <div class="cap-card-desc">Suis ta progression manuscrit par manuscrit dans l'atelier de lecture.</div>
-        <div class="cap-prog-wrap">
-          <div class="cap-prog-bg"><div class="cap-prog-fill" id="manProgFill"></div></div>
-          <div class="cap-prog-txt" id="manProgTxt">0 sur 3 manuscrits</div>
-        </div>
-        <button class="cap-btn-outline" onclick="activateTab('atelier-accueil');window.scrollTo({top:0,behavior:'smooth'});">Voir l'atelier →</button>
+        <div id="manProgCard"><!-- rempli dynamiquement par syncManProgUI() --></div>
       </div>
     </div>
 
@@ -397,11 +392,17 @@ nav.tabs.cap-tabs-bar .tab .num{display:none;}
       <div class="atl-halo"></div>
       <div class="atl-header-body">
         <h2 class="atl-h1">Manuscrits<br><em>de 1844</em></h2>
-        <div class="atl-prog-widget">
-          <div class="atl-pct" id="manAtlPct">0 %</div>
-          <div class="atl-pct-label">complété</div>
-          <div class="atl-bar-bg"><div class="atl-bar-fill" id="manAtlFill"></div></div>
-          <div class="atl-count" id="manAtlCount">0 sur 3 manuscrits</div>
+        <div class="atl-prog-widget" id="manAtlProgWidget">
+          <div id="manAtlProg" style="display:none">
+            <div class="atl-pct" id="manAtlPct">0 %</div>
+            <div class="atl-pct-label">complété</div>
+            <div class="atl-bar-bg"><div class="atl-bar-fill" id="manAtlFill"></div></div>
+            <div class="atl-count" id="manAtlCount">0 sur 3 manuscrits</div>
+          </div>
+          <div id="manAtlProgNA" class="prog-no-auth">
+            <span>Connecte-toi pour suivre ta progression</span>
+            <button class="prog-no-auth-btn" type="button" onclick="window.SHELL&&window.SHELL.auth&&window.SHELL.auth.openModal()">Se connecter</button>
+          </div>
         </div>
       </div>
     </div>
@@ -737,15 +738,77 @@ nav.tabs.cap-tabs-bar .tab .num{display:none;}
       sectionLabel: p.title
     });
   }
+  /* ── Suivi de progression manuscrits — variables IIFE scope ── */
+  var _manCurrentPart=0;
+  var _manScrollTracked={};
+  function showManProgressInvite(){
+    if(sessionStorage.getItem('liremarx.prog.inv')) return;
+    sessionStorage.setItem('liremarx.prog.inv','1');
+    var el=document.createElement('div');
+    el.id='progInvite';
+    el.innerHTML='<span>Crée un compte pour suivre ta progression de lecture</span>'
+      +'<button class="pi-btn" onclick="window.SHELL&&window.SHELL.auth&&window.SHELL.auth.openModal()">Se connecter</button>'
+      +'<button class="pi-close" onclick="document.getElementById(\'progInvite\').remove()" aria-label="Fermer">×</button>';
+    document.body.appendChild(el);
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){ el.classList.add('pi-visible'); }); });
+    setTimeout(function(){ el.classList.remove('pi-visible'); setTimeout(function(){ if(el.parentNode)el.remove(); },450); },7000);
+  }
+  function installManScrollTracker(container,part){
+    if(!part||part<2||_manScrollTracked[part]) return;
+    function onScroll(){
+      var h=container.offsetHeight; if(h<100) return;
+      if(window.scrollY+window.innerHeight>=container.offsetTop+h*0.9){
+        _manScrollTracked[part]=true;
+        window.removeEventListener('scroll',onScroll);
+        var pg=window.SHELL&&window.SHELL.progress;
+        if(pg&&pg.isLoggedIn()){ pg.markDone(part); }
+        else { showManProgressInvite(); }
+      }
+    }
+    window.addEventListener('scroll',onScroll,{passive:true});
+    onScroll();
+  }
+  function updateManMarkDone(part){
+    var wrap=document.getElementById('manMarkDoneWrap');
+    if(!wrap||!part||part<2) return;
+    var p=window.SHELL&&window.SHELL.progress;
+    var loggedIn=!!(p&&p.isLoggedIn());
+    var isDone=loggedIn&&p.has(part);
+    var btn=wrap.querySelector('.rdr-mark-btn');
+    if(!btn){ btn=document.createElement('button'); btn.type='button'; wrap.innerHTML=''; wrap.appendChild(btn); }
+    if(loggedIn){
+      btn.textContent=isDone?'✓ Terminé':'○ Marquer comme lu';
+      btn.className='rdr-mark-btn '+(isDone?'rdr-mark-btn-on':'rdr-mark-btn-off');
+      btn.onclick=function(){ var pg=window.SHELL&&window.SHELL.progress; if(pg)pg.toggle(part); };
+    } else {
+      btn.textContent='○ Marquer comme lu';
+      btn.className='rdr-mark-btn rdr-mark-btn-off';
+      btn.onclick=function(){ var pg=window.SHELL&&window.SHELL.progress; if(pg)pg.promptLogin(); };
+    }
+  }
+
   function loadPart(i){
+    _manCurrentPart=i;
     var path=preparePart(i);
     byId('readerPlaceholder').hidden=true;
     byId('readerContent').hidden=false;
+    // Réinitialiser le bouton mark-done
+    var existWrap=document.getElementById('manMarkDoneWrap');
+    if(existWrap)existWrap.remove();
     byId('readerContent').innerHTML='<div class="placeholder"><div><b>Chargement du texte...</b><span>Lecture du fichier local.</span></div></div>';
     fetch(path,{cache:'no-cache'})
       .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.text();})
       .then(function(html){
         byId('readerContent').innerHTML=cleanLocalHtml(html)||'<div class="reader-error"><b>Texte introuvable.</b><p>Le fichier local a été chargé, mais son contenu n’a pas pu être extrait.</p></div>';
+        // Injecter le bouton mark-done (manuscrits 2-4 seulement)
+        if(i>=2 && i<=4){
+          var wrap=document.createElement('div');
+          wrap.id='manMarkDoneWrap';
+          wrap.className='rdr-mark-done-wrap';
+          byId('readerContent').appendChild(wrap);
+          updateManMarkDone(i);
+          installManScrollTracker(byId('readerContent'),i);
+        }
         attachReader(i);
         if(window.Reading){
           var manIdx=(i>=2 && i<=4) ? (i-2) : -1;
@@ -1143,7 +1206,6 @@ nav.tabs.cap-tabs-bar .tab .num{display:none;}
     window.addEventListener('hashchange', applyAtelierHash);
 
     /* ── Atelier-accueil : grille des 3 manuscrits ── */
-    var MAN_READ_KEY='liremarx.read.manuscrits-1844';
     var MAN_SECTIONS=[
       {rn:'I', t:'Premier manuscrit', part:2, chaps:4,
        desc:'Salaire, profit, rente — et la découverte du travail aliéné.'},
@@ -1152,26 +1214,49 @@ nav.tabs.cap-tabs-bar .tab .num{display:none;}
       {rn:'III', t:'Troisième manuscrit', part:4, chaps:4,
        desc:'Communisme, besoins, argent, critique de Hegel.'}
     ];
-    function loadManRead(){try{return JSON.parse(localStorage.getItem(MAN_READ_KEY)||'{}');}catch(e){return {};}}
-    function saveManRead(r){try{localStorage.setItem(MAN_READ_KEY,JSON.stringify(r));}catch(e){}}
+    var _manTotal=MAN_SECTIONS.length;
+
+    function syncManProgUI(){
+      var p=window.SHELL&&window.SHELL.progress;
+      var loggedIn=!!(p&&p.isLoggedIn());
+      var doneSet=p?p.getSet():new Set();
+      var cnt=loggedIn?MAN_SECTIONS.filter(function(s){return doneSet.has(s.part);}).length:0;
+      var pct=_manTotal?Math.round(cnt/_manTotal*100):0;
+      /* Carte "Ton parcours" */
+      var pc=byId('manProgCard');
+      if(pc){
+        if(loggedIn){
+          pc.innerHTML='<div class="cap-card-desc">Suis ta progression manuscrit par manuscrit dans l\'atelier de lecture.</div>'
+            +'<div class="cap-prog-wrap"><div class="cap-prog-bg"><div class="cap-prog-fill" style="width:'+pct+'%"></div></div>'
+            +'<div class="cap-prog-txt">'+cnt+' sur '+_manTotal+' manuscrits'+(pct?' — '+pct+'% complété':'')+'</div></div>'
+            +'<button class="cap-btn-outline" onclick="activateTab(\'atelier-accueil\');window.scrollTo({top:0,behavior:\'smooth\'});">Voir l\'atelier →</button>';
+        } else {
+          pc.innerHTML='<div class="cap-card-desc">Connecte-toi pour suivre ta progression de lecture manuscrit par manuscrit.</div>'
+            +'<button class="cap-btn-dark" style="margin-top:8px" type="button" '
+            +'onclick="window.SHELL&&window.SHELL.auth&&window.SHELL.auth.openModal()">Se connecter →</button>';
+        }
+      }
+      /* Widget de progression de l'onglet Atelier-accueil */
+      var na=byId('manAtlProgNA'),pr=byId('manAtlProg');
+      if(na)na.style.display=loggedIn?'none':'flex';
+      if(pr)pr.style.display=loggedIn?'':'none';
+      if(loggedIn){
+        var pctEl=byId('manAtlPct'),fillEl=byId('manAtlFill'),countEl=byId('manAtlCount');
+        if(pctEl)pctEl.textContent=pct+' %';
+        if(fillEl)fillEl.style.width=pct+'%';
+        if(countEl)countEl.textContent=cnt+' sur '+_manTotal+' manuscrits';
+      }
+    }
+
     function renderAtlGrid(){
-      var r=loadManRead();
-      var done=0; MAN_SECTIONS.forEach(function(s){if(r[s.part])done++;});
-      var pct=Math.round(done/MAN_SECTIONS.length*100);
-      var pctEl=byId('manAtlPct'),fillEl=byId('manAtlFill'),countEl=byId('manAtlCount');
-      if(pctEl)pctEl.textContent=pct+' %';
-      if(fillEl)fillEl.style.width=pct+'%';
-      if(countEl)countEl.textContent=done+' sur '+MAN_SECTIONS.length+' manuscrits';
-      /* progress card */
-      var progFill=byId('manProgFill'),progTxt=byId('manProgTxt');
-      if(progFill)progFill.style.width=pct+'%';
-      if(progTxt)progTxt.textContent=done+' sur '+MAN_SECTIONS.length+' manuscrits';
+      var p=window.SHELL&&window.SHELL.progress;
+      var doneSet=p?p.getSet():new Set();
       var grid=byId('man-grid'); if(!grid)return;
       var firstActive=-1;
-      MAN_SECTIONS.forEach(function(s,i){if(!r[s.part]&&firstActive<0)firstActive=i;});
+      MAN_SECTIONS.forEach(function(s,i){if(!doneSet.has(s.part)&&firstActive<0)firstActive=i;});
       var html='';
       MAN_SECTIONS.forEach(function(s,i){
-        var isDone=!!r[s.part]; var isCur=!isDone&&i===firstActive;
+        var isDone=doneSet.has(s.part); var isCur=!isDone&&i===firstActive;
         var cls='atl-card '+(isDone?'atl-done':isCur?'atl-current':'atl-upcoming');
         if(isCur){
           html+='<div class="'+cls+'" data-part="'+s.part+'">'
@@ -1202,8 +1287,8 @@ nav.tabs.cap-tabs-bar .tab .num{display:none;}
       grid.querySelectorAll('.atl-continue,.atl-card.atl-current').forEach(function(el){
         el.addEventListener('click',function(e){
           var part=+(el.getAttribute('data-part')||el.closest('[data-part]').getAttribute('data-part'));
-          activateTab('lire');byId('partSelect').value=String(part-2+2);
-          loadPart(part-2+2);window.scrollTo({top:0,behavior:'smooth'});
+          activateTab('lire');byId('partSelect').value=String(part);
+          loadPart(part);window.scrollTo({top:0,behavior:'smooth'});
         });
       });
       grid.querySelectorAll('.atl-done .atl-card,[class*="atl-upcoming"]').forEach(function(card){
@@ -1217,13 +1302,23 @@ nav.tabs.cap-tabs-bar .tab .num{display:none;}
       grid.querySelectorAll('.atl-done-toggle').forEach(function(btn){
         btn.addEventListener('click',function(e){
           e.stopPropagation();
-          var r2=loadManRead();var p=+btn.getAttribute('data-part');
-          if(r2[p])delete r2[p];else r2[p]=1;
-          saveManRead(r2);renderAtlGrid();
+          var pg=window.SHELL&&window.SHELL.progress;
+          if(!pg||!pg.isLoggedIn()){ if(pg)pg.promptLogin(); return; }
+          pg.toggle(+btn.getAttribute('data-part'));
         });
       });
     }
+
+    syncManProgUI();
     renderAtlGrid();
+    /* Initialisation du suivi de progression */
+    if(window.SHELL&&window.SHELL.progress){
+      window.SHELL.progress.init('manuscrits-1844',function(){
+        syncManProgUI();
+        renderAtlGrid();
+        if(_manCurrentPart) updateManMarkDone(_manCurrentPart);
+      });
+    }
 
     /* ── Init navigation synchrone (hash) ── */
     (function(){var h=(location.hash||'').replace(/^#/,''); activateTop(h in GROUPS?h:'lire');})();
@@ -1250,6 +1345,7 @@ nav.tabs.cap-tabs-bar .tab .num{display:none;}
 <script src="shell.js"></script>
 <script src="shell-social.js"></script>
 <script src="shell-annotations.js"></script>
+<script src="shell-progress.js"></script>
 <script src="reader-tools.js" defer></script>
 <script>
 installShell({

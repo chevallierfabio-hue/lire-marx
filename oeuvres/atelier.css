@@ -138,3 +138,21 @@ h2.sec{font-family:'Fraunces',serif;font-weight:900;font-size:1.8rem;margin-bott
 .res-meta{font-family:var(--f-ui);font-size:.8rem;color:var(--ink-soft);margin-top:auto;}
 footer{text-align:center;margin-top:54px;padding-top:22px;border-top:1px solid var(--line);color:var(--ink-soft);font-style:italic;font-size:.86rem;}
 footer b{font-family:'Fraunces',serif;font-style:normal;color:var(--ink);}
+
+/* ── Suivi de progression de lecture ── */
+/* Bouton "Marquer comme lu" dans la liseuse */
+.rdr-mark-done-wrap{display:flex;justify-content:center;padding:20px 0 6px;}
+.rdr-mark-btn{font-family:'Bricolage Grotesque',system-ui,sans-serif;font-size:.85rem;font-weight:600;padding:8px 22px;border-radius:100px;cursor:pointer;transition:all .18s;line-height:1;}
+.rdr-mark-btn-on{background:var(--ok);color:#fff;border:1px solid var(--ok);}
+.rdr-mark-btn-on:hover{opacity:.85;}
+.rdr-mark-btn-off{background:transparent;color:var(--ink-soft);border:1px solid var(--line);}
+.rdr-mark-btn-off:hover{border-color:var(--ink);color:var(--ink);}
+/* État "non connecté" dans les widgets de progression */
+.prog-no-auth{display:flex;flex-direction:column;gap:8px;align-items:flex-start;font-family:'Bricolage Grotesque',system-ui,sans-serif;font-size:.82rem;color:var(--ink-soft);}
+.prog-no-auth-btn{background:var(--accent,#C41E3A);color:#fff;border:none;padding:6px 16px;border-radius:100px;font-family:'Bricolage Grotesque',system-ui,sans-serif;font-size:.82rem;font-weight:600;cursor:pointer;white-space:nowrap;}
+.prog-no-auth-btn:hover{opacity:.87;}
+/* Bandeau invite fixe en bas d'écran (scroll à 90%) */
+#progInvite{position:fixed;bottom:72px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--text,#171614);color:var(--bg,#F7F5F0);padding:10px 14px 10px 18px;border-radius:100px;font-family:'Bricolage Grotesque',system-ui,sans-serif;font-size:.875rem;z-index:9999;box-shadow:0 4px 22px rgba(0,0,0,.32);display:flex;align-items:center;gap:10px;white-space:nowrap;opacity:0;transition:opacity .4s,transform .4s;pointer-events:none;}
+#progInvite.pi-visible{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto;}
+.pi-btn{background:var(--accent,#C41E3A);color:#fff;border:none;padding:5px 14px;border-radius:100px;font-family:'Bricolage Grotesque',system-ui,sans-serif;font-size:.82rem;font-weight:600;cursor:pointer;}
+.pi-close{background:transparent;color:rgba(247,245,240,.6);border:none;font-size:1.1rem;cursor:pointer;padding:0 2px;line-height:1;flex:none;}
