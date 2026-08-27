@@ -149,16 +149,37 @@ marchandises → argent). Un voile radial (`.circuit-veil`) garde le texte
 lisible par-dessus.
 
 Le trajet n'est **pas** une translation rectiligne : `pathAt(t)` décrit une
-courbe en profondeur (`Z_WAVE` creuse le milieu du parcours — le chariot
-s'éloigne et se dilue dans la brume derrière le bloc de texte ; `Z_GAIN` le
-ramène vers nous, il sort plus grand qu'il n'est entré : le circuit revient
-grossi). Le cap suit la tangente `atan2(dx, dz)` et le roulis suit la
-courbure, bridé à ~4°. `scene.fog` est réglé sur la couleur exacte de
-`--surface`, donc le lointain disparaît vraiment. **Trois réglages sont
-solidaires du cadrage — ne pas en toucher un seul isolément** : les
-amplitudes `Z_*`, le point visé `0.232 * d` dans `resize()` et l'échelle
-`0.78` du rig. Ils sont calés ensemble pour que le passage le plus
-rapproché reste sous le texte sans sortir par le bas du canvas.
+**diagonale courbe**, du fond haut-gauche vers le premier plan bas-droite.
+Trois composantes : X traverse ; `Y_TOP → 0` (exposant `Y_EASE`) fait la
+DESCENTE — il plonge vite puis roule au ras du bas, ce qui le fait passer
+sous le bloc de texte au milieu du parcours ; `Z_FAR → Z_NEAR` l'amène vers
+nous (il sort plus grand qu'il n'est entré : le circuit revient grossi) et
+`Z_TURN` y superpose deux virages. Le cap suit la tangente `atan2(dx, dz)`
+et le roulis suit la courbure, bridé à ~4°. `scene.fog` est réglé sur la
+couleur exacte de `--surface`, donc le lointain disparaît vraiment.
+
+**Piège** : le « haut → bas » doit venir de Y, PAS de la profondeur. La
+perspective écrase les lointains — un grand écart de Z ne déplace le
+chariot que d'une soixantaine de pixels tout en le forçant à entrer de
+face et en imposant une caméra plongeante peu flatteuse. Ne pas refaire
+cet essai.
+
+**Réglages solidaires — ne pas en toucher un seul isolément** : `Y_TOP` /
+`Y_EASE` / `Z_*`, les coefficients de caméra `0.296 * d` et `0.270 * d`
+dans `resize()`, l'échelle `0.78` du rig, et le `padding-bottom` de
+`.js-circuit .circuit-band` (qui remonte le bloc de texte pour dégager la
+bande basse). Ils sont calés ensemble pour que la diagonale reste entière
+dans le cadre et ne heurte pas le texte.
+
+**Fenêtre de défilement propre au chariot.** `circuitScrub` lui passe
+`raw` (position brute de l'épinglage, négative avant / > 1 après), pas
+`cp` ; `progress()` y ajoute `LEAD` et `TAIL` de 0.30. Le chariot roule
+donc **avant** que la section ne se fige et finit **après** qu'elle s'est
+libérée — plus de démarrage sec au moment de l'épinglage. Trois mesures
+anti-à-coups vont avec, à conserver : `renderer.compile()` au chargement
+(sinon la compilation des shaders tombe pile à l'arrivée de la section),
+`setPixelRatio` plafonné à **1.5** (décor de fond à 62 % d'opacité), et
+l'arrêt de la boucle dès que `q` sort de `]0,1[` (drapeau `settled`).
 
 `assets/chariot.json` = `Vehicle.group` du projet **circuit-du-capital**
 (dépôt séparé, `~/Desktop/circuit-du-capital`) sérialisé par
