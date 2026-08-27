@@ -243,6 +243,14 @@ document même pour un événement qui ne remonte pas). Pas de boucle pour
 autant : réécrire la même valeur ne déclenche rien, et on n'écrit qu'au-delà
 d'un demi-pixel d'écart.
 
+**`scroll-snap-type` doit sauter pendant le pilotage** (classe `.scrubbed`).
+La piste porte `scroll-snap-type: x proximity` pour le geste manuel ; laissé
+actif, il fait retomber chaque écriture de `scrollLeft` sur la carte la plus
+proche et la frise avance **par paliers** — un séquençage, pas un
+défilement. Le symptôme est net à la mesure : `scrollLeft` ne prend que des
+multiples exacts du pas des cartes (236 px ici). La classe est retirée dès
+qu'on rend la main au lecteur, pour qu'il retrouve le magnétisme.
+
 **Les œuvres disponibles sont triées par année DÉCROISSANTE** (`b.year -
 a.year`) : Le Capital ouvre la bibliothèque, les Manuscrits suivent. La
 frise « en préparation », elle, reste chronologique croissante — c'est une
