@@ -204,33 +204,29 @@ cinématique, aux mêmes couleurs : bougeoir laiton `#9a7b30`, cire crème
 `#e9ddc2`, flamme `#ffd27a`, halo orangé `#ff9c3a`, et jusqu'au filet de
 fumée. **Tout est en CSS** — un troisième contexte WebGL sur la page (il y a
 déjà `#hero-bg` et `#circuit-bg`, plus celui de l'intro) pour un décor de
-130 px ne se justifiait pas. Elle se tient **à droite, près du feuillet**,
-qu'elle éclaire : à gauche elle tombait derrière le bouton. `--candle-r`
-tient la bougie ET le halo sur le même axe — c'est la flamme qui est la
-source, le halo n'est que ce qu'elle éclaire ; les déplacer séparément
-casserait la lumière.
+130 px ne se justifiait pas.
 
-C'est le **défilement qui la relève et l'allume**, en deux temps, dans
-l'ordre où on ferait le geste : `--up` la redresse (elle arrive **couchée**,
-pivotant sur son pied grâce à `transform-origin:50% 100%`), puis `--flame`
-allume la flamme, sa lueur proche et la fumée. « La bougie prend » devient
-littéral.
+Elle se tient **en haut, vers le milieu** (`--candle-x` / `--candle-y`, qui
+tiennent la bougie ET son halo sur le même point : c'est la flamme qui est
+la source). 66 % et non 50 % — au milieu exact elle tombait sur la phrase ;
+et `z-index:1`, sous `.hs-closer-inner` (2), pour que le texte passe devant
+si elle le mord. Sur petit écran elle remonte dans la marge haute, à 84 %.
 
-**Piège de mesure — la bougie ne se chronomètre PAS comme la bande.** Elle
-est posée au **bas** de la bande, et la bande est la **dernière section de
-la page** : son bas ne remonte jamais au-dessus du pli, puisque rien ne
-défile au-delà. Mesurée sur le haut de la bande (comme `--lum`), elle se
-relevait et s'allumait pendant qu'elle était encore **sous le pli** — on
-n'en voyait jamais que le résultat. `--up` et `--flame` se calculent donc
-sur `d = rect.bottom - vh`, ce qui reste du bas de la bande sous le pli :
-`d` vaut 0 au bas de page, la bougie se relève sur les 320 derniers pixels
-et s'allume sur les 130 derniers. Le geste tient entier dans la fenêtre où
-on la voit. `--lum`, lui, reste calé sur le haut : le texte doit être
-lisible tôt. Deux animations
-distinctes une fois `.alight` posée : `lm-flame` tord la flamme (3,1 s) et
-`lm-candle` fait respirer le halo (8,4 s) — deux périodes **non
-multiples**, sinon l'œil les resynchronise et la flamme se met à battre la
-mesure.
+Elle **TOURBILLONNE en s'allumant** : `--up` la fait tourner de deux tours
+et demi (`-900deg`) autour de **son propre centre** — `transform-origin` au
+milieu, pas au pied : un pivot au pied donne une bougie qui *se relève*, ce
+qui a été essayé et écarté. `--flame` allume la flamme, sa lueur, la fumée
+et le halo **pendant qu'elle tourne encore**, et finit de s'établir quand
+elle s'immobilise. Elle grandit aussi un peu en se posant
+(`scale(.72 → 1)`).
+
+**Ancien piège, aujourd'hui sans objet mais à connaître** : quand la bougie
+était posée en **bas** de la bande, elle ne pouvait pas être chronométrée
+sur le haut de la bande. La bande est la **dernière section de la page** :
+son bas ne remonte jamais au-dessus du pli, puisque rien ne défile au-delà —
+la bougie jouait donc tout son geste sous le pli. Il avait fallu la caler
+sur `rect.bottom - vh`. En haut de bande, elle est visible dès l'entrée et
+le haut suffit. Si on la redescend un jour, ce piège revient.
 
 **Bande finale — la bougie prend (`closerCandle()`).** C'était la seule
 section de la page sans la moindre animation (pas même un `.reveal`), et son

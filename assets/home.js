@@ -1195,22 +1195,18 @@
 
     addScrollSub(function (y, vh) {
       var r = band.getBoundingClientRect();
-      /* La bande s'éclaire sur la position de son HAUT — c'est elle qui
-         entre en premier, et le texte doit être lisible tôt. */
-      band.style.setProperty('--lum',
-        ease(cl01((vh * 0.98 - r.top) / (vh * 0.46))).toFixed(4));
-
-      /* La bougie, elle, se cale sur son PROPRE moment. Elle est posée au
-         bas de la bande : mesurée sur le haut, elle se relevait et
-         s'allumait pendant qu'elle était encore sous le pli, et on ne
-         voyait jamais que le résultat. `d` est ce qui reste du bas de la
-         bande sous le pli — il vaut 0 au bas de page, puisque c'est la
-         dernière section et que rien ne défile au-delà. Elle se relève sur
-         les 320 derniers pixels, s'allume sur les 130 derniers : le geste
-         tient entier dans la fenêtre où on la voit. */
-      var d = r.bottom - vh;
-      band.style.setProperty('--up', ease(cl01(1 - d / 320)).toFixed(4));
-      band.style.setProperty('--flame', ease(cl01(1 - d / 130)).toFixed(4));
+      /* Tout se joue sur la position du HAUT de la bande : la bougie est
+         maintenant en haut au milieu, donc visible dès l'entrée — plus
+         besoin de la chronométrer à part comme quand elle était posée en
+         bas (elle s'y relevait sous le pli, cf. CLAUDE.md).
+           · --lum  : la bande s'éclaire, le texte devient lisible ;
+           · --up   : le tourbillon, tôt et long ;
+           · --flame: la mèche prend PENDANT qu'elle tourne encore, et finit
+                      de s'établir quand elle s'immobilise. */
+      var e = ease(cl01((vh * 0.98 - r.top) / (vh * 0.46)));
+      band.style.setProperty('--lum', e.toFixed(4));
+      band.style.setProperty('--up', ease(cl01((e - 0.08) / 0.56)).toFixed(4));
+      band.style.setProperty('--flame', ease(cl01((e - 0.34) / 0.5)).toFixed(4));
       return true;
     });
 
