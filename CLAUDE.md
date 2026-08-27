@@ -197,6 +197,33 @@ passeraient derrière le texte crème.
 que la liasse au repos ne touche ni les boutons du héros ni le portrait, et
 que le couloir soit vide à la fin de la course.
 
+**Section « Place publique » de l'accueil — elle change de sol
+(`communeScrub()`).** La section n'était séparée de rien : même fond que la
+bibliothèque au-dessus, aucun filet — elle se fondait dans la précédente.
+Elle est maintenant une **bande** : `.hs-commune` = aplat `--surface` +
+`border-top`, le vocabulaire que le site emploie déjà pour « on change de
+registre » (bande circuit, bande CTA). **Sans trame quadrillée**, et c'est
+volontaire : les deux bandes texturées sont le carnet ; ici on est dehors.
+Pas de `border-bottom` non plus — `.hs-stats` qui suit apporte déjà son
+filet, deux traits feraient un doublon. Conséquence obligatoire : les
+`.cm-card` passent sur `var(--card)`, sinon leur `--paper` (= `--bg`) les
+creuse en trous plus sombres que leur propre sol.
+
+Animation : chaque note se dépose décalée (`--pin`, poussée de 16 px à
+gauche et 12 px vers le bas), puis le filet rouge de sa citation **se trace
+de haut en bas** derrière elle (`--trait`, un `background-size` en hauteur
+sur `background-origin:border-box`, la `border-left` d'origine passant en
+transparent). Réversible.
+
+**Piège propre à cette section : les notes n'existent pas au chargement.**
+Elles sont montées par `SHELL.commune.mount()` après un aller-retour
+Supabase, et le flux peut aussi ne rendre qu'un message d'état (chargement,
+hors ligne, aucune note). `communeScrub()` ne s'abonne donc qu'une fois des
+`.cm-card` réellement présentes, via un `MutationObserver` sur
+`#homeCommune` (débranché après 20 s), puis rappelle `onScrollDriver` comme
+la bibliothèque. Sans `js-place`, tout retombe sur les valeurs par défaut
+(`--pin:1`, `--trait:100%`) : les notes s'affichent normalement.
+
 **Section « La bibliothèque » — elle se constitue au défilement
 (`libraryScrub()`).** Une idée pour les deux moitiés : ce qui existe se
 développe, ce qui vient s'écrit. En haut, le « révélateur » des photos

@@ -26,6 +26,8 @@
    - libraryScrub()   : la bibliothèque se constitue — les photos d'archive
                         se développent au scroll, la frise « en préparation »
                         s'écrit année après année
+   - communeScrub()   : Place publique — les notes se déposent une à une,
+                        leur filet de citation se trace derrière elles
    - magneticButtons(): CTA principaux attirés vers le curseur
    - timelineStrip()  : « en préparation » = frise chronologique horizontale
                         (défilement natif + glisser souris + flèches clavier)
@@ -918,6 +920,56 @@
     }
   }
 
+  /* — 2 bis. Place publique : les notes se déposent —
+       La seule partie vivante de la page (données réelles, gens réels).
+       Chacune arrive décalée, poussée de quelques pixels, et le filet rouge
+       de sa citation se trace de haut en bas juste après, comme un trait de
+       plume qu'on vient de poser. Les notes sont montées par
+       SHELL.commune.mount() de façon asynchrone : on attend qu'elles
+       existent (MutationObserver) avant de s'abonner au défilement. — */
+  function communeScrub() {
+    if (REDUCE || window.innerWidth < 768) return;
+    var host = document.getElementById('homeCommune');
+    if (!host) return;
+    var armed = false, mo = null;
+
+    function cl01(v) { return v < 0 ? 0 : (v > 1 ? 1 : v); }
+    function ease(v) { return v * v * (3 - 2 * v); }
+
+    function arm() {
+      if (armed) return;
+      var cards = [].slice.call(host.querySelectorAll('.cm-card'));
+      if (!cards.length) return;          /* encore en chargement, ou flux vide */
+      armed = true;
+      if (mo) { mo.disconnect(); mo = null; }
+      document.documentElement.classList.add('js-place');
+
+      addScrollSub(function (y, vh) {
+        var r = host.getBoundingClientRect();
+        var q = cl01((vh * 0.92 - r.top) / (vh * 0.50));
+        for (var i = 0; i < cards.length; i++) {
+          var e = ease(cl01((q - i * 0.11) / 0.62));
+          cards[i].style.setProperty('--pin', e.toFixed(4));
+          /* le trait vient après la pose : d'abord la note, puis la plume */
+          cards[i].style.setProperty('--trait',
+            (ease(cl01((e - 0.4) / 0.6)) * 100).toFixed(1) + '%');
+        }
+        return true;
+      });
+      /* les notes viennent d'apparaître : la mise en page a bougé */
+      requestAnimationFrame(onScrollDriver);
+      setTimeout(onScrollDriver, 400);
+    }
+
+    arm();
+    if (!armed && 'MutationObserver' in window) {
+      mo = new MutationObserver(arm);
+      mo.observe(host, { childList: true, subtree: true });
+      /* le flux peut ne jamais rien rendre (hors ligne, aucune note) */
+      setTimeout(function () { if (mo) { mo.disconnect(); mo = null; } }, 20000);
+    }
+  }
+
   /* — 3. Boutons d'action magnétiques — attirés vers le curseur — */
   function magneticButtons() {
     if (REDUCE) return;
@@ -1145,6 +1197,7 @@
     try { heroParallax(); } catch (e) { /* non bloquant */ }
     try { doCards(); } catch (e) { /* non bloquant */ }
     try { magneticButtons(); } catch (e) { /* non bloquant */ }
+    try { communeScrub(); } catch (e) { /* non bloquant */ }
     /* timelineStrip() et libraryScrub() sont appelés par catalogue(),
        une fois les cartes du catalogue réellement rendues */
   }
