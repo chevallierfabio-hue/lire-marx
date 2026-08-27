@@ -510,6 +510,34 @@ html:not(.no-anim) .hs-hero .hs-right{
 .hs-do-grid.poses .hs-do-n{opacity:calc(.15 * var(--ink,0));
   transform:translateY(calc((1 - var(--ink,0)) * 7px));}
 
+/* H. Bande finale — la bougie prend.
+   La page s'ouvre sur une bougie posée sur un bureau : elle se referme
+   dessus. La bande arrive presque noire et s'éclaire au défilement (--lum),
+   la lueur montant de DERRIÈRE le bouton — une bougie éclaire d'en bas, pas
+   du plafond. Puis un vacillement très lent persiste : c'est la seule chose
+   de la page qui continue de vivre une fois qu'on a cessé de défiler, ce
+   qui convient à une invitation. Le vacillement ne tourne que tant que la
+   bande est à l'écran (.alight), sinon on repeindrait un grand dégradé
+   pour personne. html.js-candle posée par home.js (closerCandle). */
+.hs-closer-halo{top:auto;bottom:-150px;width:min(880px,120vw);height:460px;
+  background:radial-gradient(ellipse at center,
+    rgba(216,173,76,.20) 0%,rgba(213,64,47,.10) 42%,transparent 72%);}
+.js-candle .hs-closer-halo{opacity:var(--lum,1);
+  transform:translateX(-50%) translateY(calc((1 - var(--lum,1)) * 46px));}
+.js-candle .hs-closer.alight .hs-closer-halo{
+  animation:lm-candle 8.4s ease-in-out infinite;}
+/* stops irréguliers : une flamme ne bat pas la mesure */
+@keyframes lm-candle{
+  0%{filter:brightness(1);}    9%{filter:brightness(.87);}
+  17%{filter:brightness(1.07);} 31%{filter:brightness(.93);}
+  44%{filter:brightness(1.02);} 52%{filter:brightness(.84);}
+  63%{filter:brightness(1.06);} 78%{filter:brightness(.92);}
+  90%{filter:brightness(1.04);} 100%{filter:brightness(1);}}
+.js-candle .hs-closer p{opacity:calc(.08 + .92 * var(--lum,1));
+  transform:translateY(calc((1 - var(--lum,1)) * 14px));}
+.js-candle .hs-closer .btn-filled{opacity:calc(.18 + .82 * var(--lum,1));
+  filter:drop-shadow(0 0 calc(var(--lum,1) * 22px) rgba(216,173,76,.30));}
+
 /* G. Place publique — les notes se déposent une à une, et le filet de
    leur citation se trace de haut en bas comme un trait de plume qu'on
    vient de poser. html.js-place + --pin par note (home.js : communeScrub). */

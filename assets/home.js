@@ -28,6 +28,8 @@
                         s'écrit année après année
    - communeScrub()   : Place publique — les notes se déposent une à une,
                         leur filet de citation se trace derrière elles
+   - closerCandle()   : bande finale — la bougie prend au défilement,
+                        puis vacille tant que la bande est à l'écran
    - magneticButtons(): CTA principaux attirés vers le curseur
    - timelineStrip()  : « en préparation » = frise chronologique horizontale
                         (défilement natif + glisser souris + flèches clavier)
@@ -970,6 +972,33 @@
     }
   }
 
+  /* — 2 ter. Bande finale : la bougie prend —
+       La page s'ouvre sur une bougie ; elle se referme dessus. --lum monte
+       au défilement (la lueur vient de sous le bouton), puis .alight laisse
+       vaciller la flamme tant que la bande est à l'écran. — */
+  function closerCandle() {
+    if (REDUCE || window.innerWidth < 768) return;
+    var band = document.querySelector('.hs-closer');
+    if (!band) return;
+    document.documentElement.classList.add('js-candle');
+
+    addScrollSub(function (y, vh) {
+      var r = band.getBoundingClientRect();
+      var q = (vh * 0.98 - r.top) / (vh * 0.46);
+      q = q < 0 ? 0 : (q > 1 ? 1 : q);
+      band.style.setProperty('--lum', (q * q * (3 - 2 * q)).toFixed(4));
+      return true;
+    });
+
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (ents) {
+        band.classList.toggle('alight', ents[0].isIntersecting);
+      }, { threshold: 0.05 }).observe(band);
+    } else {
+      band.classList.add('alight');
+    }
+  }
+
   /* — 3. Boutons d'action magnétiques — attirés vers le curseur — */
   function magneticButtons() {
     if (REDUCE) return;
@@ -1198,6 +1227,7 @@
     try { doCards(); } catch (e) { /* non bloquant */ }
     try { magneticButtons(); } catch (e) { /* non bloquant */ }
     try { communeScrub(); } catch (e) { /* non bloquant */ }
+    try { closerCandle(); } catch (e) { /* non bloquant */ }
     /* timelineStrip() et libraryScrub() sont appelés par catalogue(),
        une fois les cartes du catalogue réellement rendues */
   }
