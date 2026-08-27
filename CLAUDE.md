@@ -137,6 +137,28 @@ du tout — mobile étroit ou reduced-motion). CSS de l'accueil = **inline**
 (critique LCP) ; JS = **externe + `defer`**. Ne pas réintroduire de
 Three.js bloquant. `SHELL.commune` vient de `shell.js` (déjà chargé).
 
+**Section « Le circuit du capital » (le jeu) — habillage.** Sur la ligne
+A–M–P–M′–A′, ce qui circule est un **curseur lumineux** (`.circuit-spark`,
+CSS pur : tête + traînée de comète, or puis rouge après P). Il n'y a plus
+de petit chariot SVG — ne pas le réintroduire. Le décor, lui, est le
+**vrai chariot du jeu** : `circuitChariot()` dans `home.js` charge
+`assets/chariot.json` et le fait rouler de gauche à droite dans le fond de
+la section pendant le défilement (roues qui tournent, trépidation,
+lanterne qui vacille, **cargaison qui change avec le palier** — argent →
+moyens de production → marchandises → argent). Un voile radial
+(`.circuit-veil`) garde le texte lisible par-dessus.
+
+`assets/chariot.json` = `Vehicle.group` du projet **circuit-du-capital**
+(dépôt séparé, `~/Desktop/circuit-du-capital`) sérialisé par
+`Object3D.toJSON()`. Géométries paramétriques → ~23 Ko gzippés, relu par
+`THREE.ObjectLoader` **sans loader supplémentaire** (vendor/three.min.js
+est en r137, il n'y a pas de GLTFLoader — ne pas en ajouter un). Pour le
+regénérer quand le chariot change dans le jeu : `tools/export-chariot.mjs`
+(mode d'emploi en tête du fichier). Ce script n'est **pas** une étape de
+build : le site reste statique et lit le JSON tel quel. Les noms
+`cargo-*`, `wheel-0..3`, `lamp`, `lantern`, `driver` sont le contrat entre
+l'export et `circuitChariot()`.
+
 **Statut de la refonte par page** (à mettre à jour à chaque page migrée) :
 - ✅ Accueil général du site (`/index.html`) — enrichi + animé (voir ci-dessus)
 - ✅ Accueil de l'œuvre Le Capital (hero + onglets Lire/Atelier/Ressources)

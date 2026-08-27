@@ -13,6 +13,9 @@
    - scrubReveal()    : titres révélés mot à mot au défilement
    - circuitScrub()   : « circuit du capital » — le scroll déplie
                         A→M→P→M′→A′ (barre + nœuds + paliers de texte)
+   - circuitChariot() : le VRAI chariot du jeu (assets/chariot.json, exporté
+                        depuis le projet circuit-du-capital) traverse le fond
+                        de cette section au défilement, cargaison comprise
    - countUp()        : comptage animé des chiffres clés à l'entrée en vue
    - cardFx()         : inclinaison + lueur des cartes sous le curseur
    - heroParallax()   : parallaxe fine du portrait du héros
@@ -435,7 +438,7 @@
     if (!band) return;
     var nodes = [].slice.call(band.querySelectorAll('.circuit-node'));
     var steps = [].slice.call(band.querySelectorAll('.circuit-step'));
-    var cargo = band.querySelector('.circuit-cargo');
+    var spark = band.querySelector('.circuit-spark');
     var nS = steps.length || 1;
 
     function stat() {
@@ -447,6 +450,8 @@
     document.documentElement.classList.add('js-circuit');
     /* si le viewport est trop court, le CSS dépingle : on rend statique. */
     if (window.innerHeight <= 640) { stat(); return; }
+
+    try { circuitChariot(); } catch (e) { /* non bloquant */ }
 
     addScrollSub(function (y, vh) {
       var r = pin.getBoundingClientRect();
@@ -469,10 +474,182 @@
       band.style.setProperty('--cp', cp.toFixed(4));
       nodes.forEach(function (n, i) { n.classList.toggle('lit', i <= idx); });
       steps.forEach(function (s, i) { s.classList.toggle('on', i === idx); });
-      /* après la production (P), la marchandise transportée sort grossie */
-      if (cargo) cargo.classList.toggle('grown', idx >= 3);
+      /* après la production (P), ce qui circule porte la plus-value */
+      if (spark) spark.classList.toggle('grown', idx >= 3);
+      if (_chariot) _chariot(cp, idx);
       return true;
     });
+  }
+
+  /* — B/1 bis. Le VRAI chariot du jeu traverse le fond de la section.
+     `assets/chariot.json` est l'objet Three.js exporté tel quel depuis
+     ~/Desktop/circuit-du-capital (Vehicle.group sérialisé par toJSON) :
+     géométries paramétriques + matériaux, ~28 Ko gzippés, relu par
+     THREE.ObjectLoader — aucun loader supplémentaire à vendoriser.
+     Le défilement le fait rouler de gauche à droite ; la cargaison qu'il
+     transporte change avec le palier du circuit (argent → moyens de
+     production → marchandises → argent grossi), exactement comme en jeu.
+     Coupé sous no-motion / < 768 px / viewport court / sans WebGL. — */
+  var _chariot = null;
+  function circuitChariot() {
+    var canvas = document.getElementById('circuit-bg');
+    if (!canvas || typeof THREE === 'undefined' || !THREE.ObjectLoader) return;
+    if (!canvas.getContext ||
+        !(canvas.getContext('webgl') || canvas.getContext('experimental-webgl'))) return;
+
+    var renderer, scene, camera, rig = null, wheels = [], cargos = {}, lamp = null;
+    var raf = null, running = false, onScreen = false;
+    var cp = 0, idx = 0, lastX = null, spin = 0;
+
+    try {
+      renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+    } catch (e) { return; }
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setClearColor(0x1e1710, 0);
+
+    scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(30, 1, 0.5, 160);
+
+    /* lumière d'atelier à la bougie : clé chaude, contre-jour rouge drapeau */
+    scene.add(new THREE.AmbientLight(0x3d2c1b, 0.95));
+    var key = new THREE.DirectionalLight(0xffb765, 1.45); key.position.set(7, 9, 8);
+    scene.add(key);
+    var rim = new THREE.DirectionalLight(0xd5402f, 0.75); rim.position.set(-8, 3.5, -6);
+    scene.add(rim);
+    var gold = new THREE.PointLight(0xd8ad4c, 1.25, 22, 2); gold.position.set(0, 4.5, 4);
+    scene.add(gold);
+
+    /* ombre portée douce : une tache radiale au sol, le chariot ne flotte pas */
+    var shadow = null;
+    (function () {
+      var S = 128, cv = document.createElement('canvas'); cv.width = cv.height = S;
+      var g = cv.getContext('2d');
+      var gr = g.createRadialGradient(S / 2, S / 2, 2, S / 2, S / 2, S / 2);
+      gr.addColorStop(0, 'rgba(0,0,0,0.55)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+      g.fillStyle = gr; g.fillRect(0, 0, S, S);
+      var t = new THREE.CanvasTexture(cv);
+      shadow = new THREE.Mesh(new THREE.PlaneGeometry(9, 6.4),
+        new THREE.MeshBasicMaterial({ map: t, transparent: true, opacity: 0.85, depthWrite: false }));
+      shadow.rotation.x = -Math.PI / 2; shadow.position.y = 0.02;
+      shadow.visible = false; scene.add(shadow);
+    })();
+
+    /* Cadrage : recul choisi pour que le chariot occupe ~15 % de la largeur
+       quel que soit l'écran ; hauteur de caméra et point visé restent
+       proportionnels au recul, donc l'angle de vue et la position basse dans
+       l'image (essieux vers 90 % de la hauteur) ne bougent pas. */
+    function resize() {
+      var w = canvas.clientWidth || 1, h = canvas.clientHeight || 1;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      var d = 57 / camera.aspect;
+      d = d < 26 ? 26 : d > 46 ? 46 : d;
+      camera.position.set(0, 0.265 * d, d);
+      camera.lookAt(0, 0.212 * d, 0);
+      camera.updateProjectionMatrix();
+    }
+
+    /* demi-course : de quoi entrer et sortir complètement du cadre */
+    function reach() {
+      var halfW = Math.tan(camera.fov * Math.PI / 360) * camera.position.z * camera.aspect;
+      return halfW + 5;
+    }
+
+    function place(now) {
+      if (!rig) return;
+      var R = reach();
+      var x = (cp * 2 - 1) * R;
+      /* première frame : pas de « saut » de roues depuis un x fictif */
+      var dx = (lastX === null) ? 0 : x - lastX;
+      lastX = x;
+      rig.position.x = x;
+      /* trépidation des pavés + roulis, comme dans le jeu */
+      var v = Math.min(1, Math.abs(dx) * 6);
+      rig.position.y = Math.sin(now * 0.013) * 0.05 * (0.35 + v);
+      rig.rotation.z = Math.sin(now * 0.0021) * 0.012;
+      if (shadow) { shadow.position.x = x; shadow.visible = true; }
+      /* les roues tournent avec la distance parcourue (r arrière .8, avant .54) */
+      spin += dx;
+      for (var i = 0; i < wheels.length; i++) {
+        wheels[i].obj.rotation.x = -spin / wheels[i].r;
+      }
+      if (lamp && lamp.material) {
+        lamp.material.emissiveIntensity = 1.5 + Math.sin(now * 0.006) * 0.35;
+      }
+    }
+
+    function frame(now) {
+      place(now);
+      renderer.render(scene, camera);
+      if (running) raf = requestAnimationFrame(frame);
+    }
+    function start() {
+      if (running || !rig || !onScreen) return;
+      running = true; raf = requestAnimationFrame(frame);
+    }
+    function stop() {
+      running = false;
+      if (raf) { cancelAnimationFrame(raf); raf = null; }
+    }
+
+    /* la cargaison suit le palier : A argent · M/P moyens · M′ marchandises
+       · A′ argent (revenu grossi). */
+    var CARGO = ['argent', 'moyens', 'moyens', 'marchandises', 'argent'];
+    function setCargo(i) {
+      var want = CARGO[i] || 'argent';
+      for (var k in cargos) if (cargos[k]) cargos[k].visible = (k === want);
+    }
+
+    _chariot = function (v, i) {
+      cp = v;
+      if (i !== idx) { idx = i; setCargo(idx); }
+      canvas.classList.toggle('on', cp > 0.01);
+      if (!running && rig && onScreen) start();
+    };
+
+    fetch('assets/chariot.json').then(function (r) {
+      if (!r.ok) throw new Error('chariot ' + r.status);
+      return r.json();
+    }).then(function (json) {
+      new THREE.ObjectLoader().parse(json, function (obj) {
+        rig = obj;
+        /* le jeu fait avancer le chariot vers son +Z local : on l'oriente
+           vers la droite de l'écran, de trois quarts avant. */
+        rig.rotation.y = Math.PI / 2 + 0.32;
+        rig.scale.setScalar(0.85);
+        rig.traverse(function (o) {
+          if (!o.name) return;
+          if (o.name.indexOf('wheel-') === 0) {
+            /* wheel-0/1 = grandes roues arrière (r .8), 2/3 = avant (r .54) */
+            wheels.push({ obj: o, r: (+o.name.slice(6) < 2) ? 0.8 : 0.54 });
+          } else if (o.name.indexOf('cargo-') === 0) {
+            cargos[o.name.slice(6)] = o;
+          } else if (o.name === 'lamp') {
+            lamp = o;
+          }
+        });
+        setCargo(idx);
+        scene.add(rig);
+        resize();
+        place(performance.now());
+        renderer.render(scene, camera);
+        start();
+      });
+    })['catch'](function () { /* pas de chariot : la section reste complète */ });
+
+    window.addEventListener('resize', function () {
+      resize(); if (!running && rig) { place(performance.now()); renderer.render(scene, camera); }
+    });
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) stop(); else start();
+    });
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (ents) {
+        onScreen = ents[0].isIntersecting;
+        if (onScreen) start(); else stop();
+      }, { root: scrollRoot(), threshold: 0.01 }).observe(canvas);
+    } else { onScreen = true; }
+    resize();
   }
 
   /* — 2. Photos d'archive : « développement » (balayage) à l'entrée en vue — */
