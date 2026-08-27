@@ -222,8 +222,10 @@
       return t2;
     }
 
-    /* Un fac-similé RÉEL parmi les feuillets dessinés : la page montrée dans
-       le cadre du héros est aussi l'une de celles qui s'envolent. On réutilise
+    /* Le fac-similé RÉEL, sur tous les feuillets : la liasse est faite de
+       cette page et de rien d'autre. L'écriture dessinée ci-dessus ne sert
+       plus que de texture d'attente, le temps que l'image arrive — et de
+       repli définitif si elle n'arrive jamais. On réutilise
        le fichier déjà chargé par le <img fetchpriority="high"> du héros — zéro
        requête de plus, il sort du cache. Redessiné dans un canvas de 512 px de
        large : la texture n'a pas besoin de mieux à cette taille à l'écran, et
@@ -259,12 +261,26 @@
 
     /* La liasse : k=0 est le feuillet du dessus (part le premier, le plus
        opaque), k=COUNT-1 le fond de pile (part le dernier, noyé de brume).
-       REAL = les rangs qui porteront le fac-similé — le feuillet du dessus,
-       celui qu'on voit le mieux et qui décolle le premier, et un du milieu de
-       pile. Deux sur treize : la liasse contient de vraies pages, elle n'est
-       pas une pile de photocopies. */
-    var REAL = [0, 6], realMats = [], realMeshes = [];
-    var geo = new THREE.PlaneGeometry(2.4, 3.1, 1, 1);
+       TOUS portent le fac-similé : la liasse n'est faite que de cette page.
+       Ce qui les distingue, c'est le cadrage (voir sheetGeo) et la taille. */
+    var realMats = [], realMeshes = [];
+
+    /* Chaque feuillet reçoit sa propre géométrie pour pouvoir cadrer une
+       PORTION différente de la page : la liasse n'est faite que de ce
+       manuscrit, mais treize fois la même image ferait une pile de
+       photocopies. Le dessus de la pile montre la page entière, les autres
+       s'en approchent de plus ou moins près. */
+    function sheetGeo(zoom) {
+      var g = new THREE.PlaneGeometry(2.4, 3.1, 1, 1);
+      if (zoom >= 0.999) return g;
+      var uv = g.attributes.uv;
+      var u0 = Math.random() * (1 - zoom), v0 = Math.random() * (1 - zoom);
+      for (var i = 0; i < uv.count; i++) {
+        uv.setXY(i, u0 + uv.getX(i) * zoom, v0 + uv.getY(i) * zoom);
+      }
+      uv.needsUpdate = true;
+      return g;
+    }
     var COUNT = window.innerWidth < 1100 ? 9 : 13;
     for (var k = 0; k < COUNT; k++) {
       var a = COUNT > 1 ? k / (COUNT - 1) : 0;
@@ -275,8 +291,9 @@
         transparent: true, opacity: op,
         depthWrite: false, side: THREE.DoubleSide
       });
-      var m = new THREE.Mesh(geo, mat);
-      if (REAL.indexOf(k) >= 0) { realMats.push(mat); realMeshes.push(m); }
+      /* les deux du dessus montrent la page entière, les suivantes un détail */
+      var m = new THREE.Mesh(sheetGeo(k < 2 ? 1 : (0.58 + Math.random() * 0.3)), mat);
+      realMats.push(mat); realMeshes.push(m);
       /* fuite : vers le haut, vers la droite, et vers nous pour le dessus */
       var dir = new THREE.Vector3(
         0.10 + Math.sin(ang) * 0.30 + (Math.random() - 0.5) * 0.22,
@@ -300,10 +317,8 @@
         phase: Math.random() * 6.28
       };
       m.userData = u;
-      /* les feuillets qui portent le fac-similé sont plus grands : c'est
-         la vraie page, c'est elle qu'on doit voir et pouvoir viser */
-      m.scale.setScalar(REAL.indexOf(k) >= 0 ? (1.34 + Math.random() * 0.14)
-                                             : (0.80 + Math.random() * 0.28));
+      /* dégradé de taille du dessus vers le fond : une pile, pas un tas */
+      m.scale.setScalar(1.32 - a * 0.34 + Math.random() * 0.12);
       m.position.set(u.hx, u.hy, u.hz);
       m.rotation.set(u.rx, u.ry, u.rz);
       sheets.push(m); scene.add(m);
