@@ -433,7 +433,10 @@ l'export et `circuitChariot()`.
 
 **Le chariot se conduit — « Prendre les rênes » (`chariotDrive`, dans
 `circuitChariot()`).** Pendant que le chariot traverse la bande, une fiche
-se propose en bas à droite (`.circuit-reins`, `#chariotReins`). Aux rênes,
+se propose en haut à droite de la bande (`.circuit-reins`,
+`#chariotReins`) — son `top` doit rester sous la topbar, qui est en
+`position:fixed` à 44 px et en z-index 140 : la fiche, à z-index 5 dans la
+bande, passerait dessous. Aux rênes,
 le canvas **quitte sa bande** : il est déplacé dans `document.body` et passe
 en `position:fixed` plein écran (`#circuit-bg.driving`, z-index 100 — sous
 la sidebar à 120 et la topbar à 140, qui restent utilisables), avec un voile
