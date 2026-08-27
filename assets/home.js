@@ -732,6 +732,7 @@
     var renderer, scene, camera, rig = null, wheels = [], cargos = {}, lamp = null;
     var raf = null, running = false, onScreen = false;
     var q = 0, idx = 0, last = null, spin = 0, settled = false, pitch = 0;
+    var driving = false;             /* rênes prises (cf. « PRENDRE LES RÊNES ») */
 
     /* Fenêtre de défilement PROPRE au chariot, plus large que celle du
        circuit. `raw` vaut 0 quand la section s'épingle et 1 quand elle se
@@ -848,23 +849,47 @@
        plan) vers 96 %, tout en bas sans jamais sortir du cadre. C'est la
        DESCENTE qui fournit l'essentiel de ces 34 points, pas la caméra —
        d'où un angle de vue resté modéré, de trois quarts, et non plongeant. */
+    var camD = 40;
     function resize() {
       var w = canvas.clientWidth || 1, h = canvas.clientHeight || 1;
       renderer.setSize(w, h, false);
       camera.aspect = w / h;
       var d = 57 / camera.aspect;
       d = d < 26 ? 26 : d > 46 ? 46 : d;
-      /* La caméra surplombe la route et regarde un peu plus bas qu'elle :
-         c'est ce qui fait exister le sol. Les deux fractions sont solidaires
-         — les rapprocher aplatit la vue jusqu'à ce que la route ne se lise
-         plus, les écarter donne une plongée d'hélicoptère. */
-      camera.position.set(0, 0.155 * d, d);
-      camera.lookAt(0, 0.129 * d, 0);
-      camera.updateProjectionMatrix();
-      /* la brume s'ouvre du départ lointain (bien estompé) à l'arrivée
-         rapprochée (nette) — c'est elle qui fait « émerger » le chariot */
-      if (scene.fog) { scene.fog.near = d - 6; scene.fog.far = d + 22; }
+      camD = d;
+      applyCam();
       last = null;                 /* le recul change : on ne compare plus */
+    }
+
+    /* DEUX PLANS, un seul objectif.
+       · Le plan ROUTE est celui de la traversée au défilement : la caméra
+         surplombe la route et regarde un peu plus bas qu'elle, c'est ce qui
+         fait exister le sol. Ses deux fractions sont solidaires — les
+         rapprocher aplatit la vue jusqu'à ce que la route ne se lise plus,
+         les écarter donne une plongée d'hélicoptère. NE PAS Y TOUCHER.
+       · Le plan CONDUITE est franchement plus plongeant, et c'est une
+         nécessité, pas un goût : aux rênes, c'est la HAUTEUR À L'ÉCRAN du
+         chariot qui commande le défilement de la page. Sous le plan route,
+         la perspective écrase les lointains et la profondeur ne le
+         déplacerait que d'une soixantaine de pixels verticalement (le piège
+         documenté dans pathAt) — « monter » ne voudrait rien dire. */
+    var DCAM = { h: 0.95, back: 1.05, aim: -0.30,   /* plan conduite */
+                 near: 1.35, far: 4.5,             /* brume, en parts de camD */
+                 start: -0.16 };                   /* où l'on entre sur le sol */
+    function applyCam() {
+      var d = camD;
+      if (driving) {
+        camera.position.set(0, DCAM.h * d, DCAM.back * d);
+        camera.lookAt(0, 0, DCAM.aim * d);
+        if (scene.fog) { scene.fog.near = DCAM.near * d; scene.fog.far = DCAM.far * d; }
+      } else {
+        camera.position.set(0, 0.155 * d, d);
+        camera.lookAt(0, 0.129 * d, 0);
+        /* la brume s'ouvre du départ lointain (bien estompé) à l'arrivée
+           rapprochée (nette) — c'est elle qui fait « émerger » le chariot */
+        if (scene.fog) { scene.fog.near = d - 6; scene.fog.far = d + 22; }
+      }
+      camera.updateProjectionMatrix();
     }
 
     /* demi-course : de quoi entrer et sortir complètement du cadre */
@@ -934,6 +959,7 @@
     }
 
     function frame(now) {
+      if (driving) { running = false; raf = null; return; }
       place(now);
       renderer.render(scene, camera);
       /* hors course (chariot sorti du cadre des deux côtés) : on rend une
@@ -943,7 +969,7 @@
       if (running) raf = requestAnimationFrame(frame);
     }
     function start() {
-      if (running || !rig || !onScreen) return;
+      if (running || !rig || !onScreen || driving) return;
       settled = false;
       running = true; raf = requestAnimationFrame(frame);
     }
@@ -963,9 +989,301 @@
     _chariot = function (raw, i) {
       q = progress(raw);
       if (i !== idx) { idx = i; setCargo(idx); }
+      /* la fiche ne se propose que pendant que le chariot est réellement
+         sur sa course : c'est aussi la seule fenêtre où ZQSD prend la main */
+      offerReins(rig && q > 0.05 && q < 0.98);
+      if (driving) return;
       canvas.classList.toggle('on', q > 0.01 && q < 0.995);
       if (!running && rig && onScreen && !(settled && (q <= 0 || q >= 1))) start();
     };
+
+    /* ═══ PRENDRE LES RÊNES ═══════════════════════════════════════════
+       Le chariot du décor se conduit. Une fiche se propose pendant qu'il
+       traverse ; aux rênes, le canvas quitte sa bande pour le plein écran
+       (au niveau du body : un ancêtre transformé ferait du position:fixed
+       un position:absolute) et le chariot roule par-dessus toute la page.
+       Sa HAUTEUR À L'ÉCRAN commande alors le défilement — trop haut, la
+       page remonte ; trop bas, elle descend. C'est le véhicule qui navigue
+       dans le site.
+
+       Deux règles tenues fermement, et pour de bonnes raisons :
+
+       · LES FLÈCHES NE PRENNENT JAMAIS LA MAIN. Ce sont les touches avec
+         lesquelles un lecteur au clavier fait défiler une page ; les
+         capturer d'office enfermerait dans un jeu quelqu'un qui voulait
+         seulement lire. On propose la main sur les LETTRES, lues par
+         POSITION physique (`e.code` : KeyW/A/S/D, soit ZQSD en AZERTY et
+         WASD en QWERTY, sans rien avoir à détecter), et seulement pendant
+         que la fiche est offerte. Les flèches ne conduisent qu'UNE FOIS
+         aux rênes — c'est là tout leur intérêt, et c'est sans danger
+         puisqu'on y est entré exprès.
+
+       · ON REND TOUJOURS LA MAIN : Échap, le bouton du bandeau, la perte
+         de focus de la fenêtre, l'onglet masqué, l'ouverture d'une modale,
+         ou dix secondes sans une seule touche. Personne ne doit pouvoir
+         rester coincé au volant. */
+    var reins   = document.getElementById('chariotReins');
+    var reinsGo = document.getElementById('chariotReinsGo');
+    var reinsX  = document.getElementById('chariotReinsX');
+    var hudOff  = document.getElementById('chariotHudOff');
+    var offered = false, refused = false, swapping = false;
+    var driveRaf = null, driveT = 0, idleMs = 0, driveTick = 0;
+    var driveHost = null, driveNext = null;
+    var keys = {}, proj = new THREE.Vector3(), ndcX = 0, ndcY = 0;
+    var D = { x: 0, z: 0, hd: Math.PI, v: 0, a: 0, lean: 0 };
+
+    /* Allure d'un CHARIOT, pas d'une voiture : il prend son élan, il freine
+       long, et il ne braque que s'il roule — l'attelage suit les roues. */
+    var SPD = 9.5, ACC = 13, DRAG = 2.0, TURN = 1.75;
+    /* bandes haute et basse au-delà desquelles le chariot pousse la page */
+    var TOP_BAND = 0.36, BOT_BAND = 0.66, SCROLL_RATE = 1750;
+
+    function offerReins(on) {
+      on = !!on && !driving && !refused;
+      if (on === offered) return;
+      offered = on;
+      if (reins) reins.classList.toggle('on', on);
+    }
+
+    function takeReins() {
+      if (driving || swapping || !rig) return;
+      swapping = true;
+      offerReins(false);
+      canvas.classList.add('shifting');   /* le chariot change de place hors du regard */
+      setTimeout(function () {
+        swapping = false;
+        driving = true;
+        stop();
+        document.body.classList.add('lm-driving');
+        driveHost = canvas.parentNode; driveNext = canvas.nextSibling;
+        document.body.appendChild(canvas);
+        canvas.classList.remove('on');
+        canvas.classList.add('driving');
+        resize();                          /* → applyCam() en plan conduite */
+        /* On entre attelé vers le FOND. « Avancer » monte donc à l'écran,
+           et faire monter le chariot fait remonter la page : le geste et
+           son effet vont dans le même sens. */
+        D.x = 0; D.z = camD * DCAM.start; D.hd = Math.PI;
+        D.v = 0; D.a = 0; D.lean = 0;
+        spin = 0; pitch = 0; last = null;
+        placeDrive(performance.now(), 0);
+        renderer.render(scene, camera);
+        canvas.classList.remove('shifting');
+        driveT = 0; idleMs = 0;
+        driveRaf = requestAnimationFrame(driveLoop);
+      }, 190);
+    }
+
+    function dropReins() {
+      if (!driving || swapping) return;
+      swapping = true;
+      keys = {};
+      canvas.classList.add('shifting');
+      if (driveRaf) { cancelAnimationFrame(driveRaf); driveRaf = null; }
+      setTimeout(function () {
+        swapping = false;
+        driving = false;
+        document.body.classList.remove('lm-driving');
+        canvas.classList.remove('driving');
+        if (driveHost) driveHost.insertBefore(canvas, driveNext);
+        resize();                          /* → applyCam() en plan route */
+        last = null; pitch = 0;
+        /* le chariot a emmené la page ailleurs : on recale sa course sur le
+           défilement réel avant de lui rendre la route. */
+        runScrollSubs();
+        place(performance.now());
+        renderer.render(scene, camera);
+        canvas.classList.remove('shifting');
+        start();
+      }, 190);
+    }
+
+    /* projection du chariot à l'écran : c'est elle qui décide du défilement
+       ET des bornes du cadre. ndcY vaut +1 en haut, −1 en bas. */
+    function projectCart() {
+      proj.set(D.x, 0.75, D.z);
+      proj.project(camera);
+      ndcX = proj.x; ndcY = proj.y;
+      return isFinite(ndcX) && isFinite(ndcY);
+    }
+    function inFrame() {
+      return projectCart() &&
+        Math.abs(ndcX) <= 0.94 && ndcY <= 0.94 && ndcY >= -0.96;
+    }
+
+    function placeDrive(now, dt, mvd) {
+      if (!rig) return;
+      var sp = Math.abs(D.v) / SPD;
+      /* houle du pavé : ici elle dépend de l'ENDROIT, pas d'une abscisse de
+         course — le sol est fixe, c'est le chariot qui passe dessus. */
+      var ry = Y_ROAD + Y_BUMP * 0.30 * Math.sin(D.z * 0.85 + D.x * 0.45);
+      rig.position.x = D.x;
+      rig.position.z = D.z;
+      rig.position.y = ry + Math.sin(now * 0.013) * 0.05 * (0.35 + sp);
+      rig.rotation.y = D.hd;
+      /* assiette : il se cabre en accélérant, pique au freinage — borné,
+         un chariot ne décolle pas. */
+      var want = -D.a * 0.011;
+      if (want > PITCH_MAX) want = PITCH_MAX;
+      else if (want < -PITCH_MAX) want = -PITCH_MAX;
+      pitch += (want - pitch) * 0.12;
+      rig.rotation.x = pitch;
+      rig.rotation.z = D.lean + Math.sin(now * 0.0021) * 0.012;
+      if (shadow) { shadow.position.set(D.x, ry + 0.02, D.z); shadow.visible = true; }
+      /* les roues tournent avec la distance RÉELLEMENT parcourue : arc-bouté
+         contre le bord du cadre, le chariot pousse mais ne patine pas. */
+      spin += (mvd === undefined ? D.v * dt : mvd);
+      for (var i = 0; i < wheels.length; i++) {
+        wheels[i].obj.rotation.x = -spin / wheels[i].r;
+      }
+      if (lamp && lamp.material) {
+        lamp.material.emissiveIntensity = 1.0 + Math.sin(now * 0.006) * 0.28;
+      }
+    }
+
+    function driveLoop(now) {
+      if (!driving) { driveRaf = null; return; }
+      var dt = driveT ? (now - driveT) / 1000 : 0.016;
+      driveT = now;
+      if (dt > 0.05) dt = 0.05;          /* onglet revenu au premier plan */
+      idleMs += dt * 1000;
+
+      var fwd = (keys.ArrowUp    || keys.KeyW) ? 1 : 0;
+      var bwd = (keys.ArrowDown  || keys.KeyS) ? 1 : 0;
+      var lf  = (keys.ArrowLeft  || keys.KeyA) ? 1 : 0;
+      var rt  = (keys.ArrowRight || keys.KeyD) ? 1 : 0;
+
+      D.a = fwd ? ACC : (bwd ? -ACC * 0.72 : 0);
+      if (D.a) D.v += D.a * dt;
+      else {
+        D.v -= D.v * DRAG * dt;
+        if (Math.abs(D.v) < 0.02) D.v = 0;
+      }
+      if (D.v > SPD) D.v = SPD;
+      else if (D.v < -SPD * 0.45) D.v = -SPD * 0.45;
+
+      /* le braquage n'a de prise qu'avec de la vitesse, et s'inverse en
+         marche arrière : c'est un attelage, il pivote sur ses roues. */
+      var grip = Math.min(1, Math.abs(D.v) / (SPD * 0.4));
+      var steer = (lf - rt) * grip * (D.v < 0 ? -1 : 1);
+      D.hd += steer * TURN * dt;
+      D.lean += (-steer * 0.075 - D.lean) * 0.14;
+
+      var px = D.x, pz = D.z;
+      var nx = px + Math.sin(D.hd) * D.v * dt;
+      var nz = pz + Math.cos(D.hd) * D.v * dt;
+      /* garde-fou en coordonnées monde AVANT la projection : elle part en
+         vrille si le chariot passe derrière la caméra. */
+      if (nz >  camD * 0.52) nz =  camD * 0.52;
+      if (nz < -camD * 1.70) nz = -camD * 1.70;
+
+      /* BORNES DU CADRE — le chariot ne sort pas de l'écran. Il GLISSE le
+         long du bord : on essaie le pas entier, puis chaque axe séparément.
+         Annuler le pas entier (ce qu'on faisait d'abord) enfermait le
+         chariot dans le coin pour de bon — et amortir sa vitesse à chaque
+         refus l'y scellait, puisque le braquage n'a de prise qu'avec de la
+         vitesse : plus moyen d'en repartir, jamais. La vitesse n'est donc
+         PAS touchée ici ; on la garde pour que les roues puissent se
+         rebraquer, et pour que le chariot continue de pousser la page comme
+         on pousse un décor contre un mur. */
+      D.x = nx; D.z = nz;
+      if (!inFrame()) {
+        D.x = nx; D.z = pz;                       /* X seul */
+        if (!inFrame()) {
+          D.x = px; D.z = nz;                     /* Z seul */
+          if (!inFrame()) { D.x = px; D.z = pz; } /* arc-bouté */
+        }
+      }
+
+      /* ── LE CHARIOT MÈNE LA PAGE ────────────────────────────────────
+         sa hauteur à l'écran, et non son déplacement : on peut donc rester
+         appuyé contre le haut du cadre et faire remonter la page sans fin,
+         exactement comme on pousserait le décor. */
+      var sy = (1 - ndcY) / 2;             /* 0 en haut de l'écran, 1 en bas */
+      var push = 0;
+      if (sy < TOP_BAND) push = -(TOP_BAND - sy) / TOP_BAND;
+      else if (sy > BOT_BAND) push = (sy - BOT_BAND) / (1 - BOT_BAND);
+      if (push) {
+        push *= Math.abs(push);            /* rampe douce à l'entrée de la bande */
+        /* ET IL FAUT QUE LE CHARIOT ROULE. Sur la seule position, un chariot
+           garé en haut du cadre tirait la page indéfiniment : on lâchait les
+           touches et la page continuait de remonter jusqu'en haut, sans
+           moyen de l'arrêter autrement qu'en redescendant. C'est l'attelage
+           qui entraîne la page — à l'arrêt, elle s'immobilise avec lui. */
+        push *= Math.min(1, Math.abs(D.v) / (SPD * 0.25));
+        var root = scrollRoot();
+        var by = push * SCROLL_RATE * dt;
+        if (root) root.scrollTop += by; else window.scrollBy(0, by);
+      }
+
+      placeDrive(now, dt, Math.sqrt((D.x - px) * (D.x - px) + (D.z - pz) * (D.z - pz))
+                          * (D.v < 0 ? -1 : 1));
+      renderer.render(scene, camera);
+
+      /* une modale s'est ouverte pendant qu'on conduisait : on lui rend la
+         main (une image sur vingt — c'est un calcul de mise en page). */
+      if ((++driveTick % 20) === 0 && dialogOpen()) { dropReins(); return; }
+      /* dix secondes sans une touche, chariot à l'arrêt : on rend la main
+         plutôt que de laisser quelqu'un coincé au volant. */
+      if (idleMs > 10000 && !D.v) { dropReins(); return; }
+      driveRaf = requestAnimationFrame(driveLoop);
+    }
+
+    /* — commandes — */
+    var DRIVE_KEY = { ArrowUp: 1, ArrowDown: 1, ArrowLeft: 1, ArrowRight: 1,
+                      KeyW: 1, KeyA: 1, KeyS: 1, KeyD: 1 };
+    var TAKE_KEY  = { KeyW: 1, KeyA: 1, KeyS: 1, KeyD: 1 };
+    function editable(t) {
+      if (!t || !t.nodeName) return false;
+      var n = t.nodeName;
+      return n === 'INPUT' || n === 'TEXTAREA' || n === 'SELECT' || t.isContentEditable;
+    }
+    /* Une modale ouverte reprend les rênes. ATTENTION : le shell laisse en
+       permanence des [role="dialog"] dans le DOM (ce sont leurs CONTENEURS
+       qui portent `hidden`), donc l'attribut ne dit rien — il faut demander
+       si l'élément est réellement rendu. getClientRects() est vide dès qu'un
+       ancêtre est en display:none, contrairement à offsetParent qui ment sur
+       le position:fixed. C'est un calcul de mise en page : on l'appelle
+       depuis la boucle, une image sur vingt, et jamais sur keydown — la
+       répétition automatique d'une touche maintenue le déclencherait des
+       dizaines de fois par seconde. */
+    function dialogOpen() {
+      var ds = document.querySelectorAll('[role="dialog"]');
+      for (var i = 0; i < ds.length; i++) {
+        if (!ds[i].hasAttribute('hidden') && ds[i].getClientRects().length) return true;
+      }
+      return false;
+    }
+    document.addEventListener('keydown', function (e) {
+      var c = e.code;
+      if (!c || e.ctrlKey || e.metaKey || e.altKey) return;
+      /* le lecteur s'est mis à écrire quelque part : le clavier n'est plus
+         à nous. */
+      if (editable(e.target)) { dropReins(); return; }
+      if (!driving) {
+        /* dialogOpen() en DERNIER : c'est un calcul de mise en page, et la
+           répétition automatique d'une flèche maintenue pour faire défiler
+           la page le déclencherait des dizaines de fois par seconde. */
+        if (offered && TAKE_KEY[c] && !dialogOpen()) {
+          e.preventDefault(); keys[c] = 1; idleMs = 0; takeReins();
+        }
+        return;
+      }
+      if (c === 'Escape') { e.preventDefault(); dropReins(); return; }
+      /* Tab : on rend la main SANS l'intercepter — quelqu'un qui parcourt la
+         page au clavier reprend son chemin là où il l'a laissé. */
+      if (c === 'Tab') { dropReins(); return; }
+      if (DRIVE_KEY[c]) { e.preventDefault(); keys[c] = 1; idleMs = 0; }
+    });
+    document.addEventListener('keyup', function (e) {
+      if (e.code) delete keys[e.code];
+    });
+    window.addEventListener('blur', function () { keys = {}; dropReins(); });
+    if (reinsGo) reinsGo.addEventListener('click', function () { takeReins(); });
+    if (reinsX)  reinsX.addEventListener('click', function () {
+      refused = true; offerReins(false);
+    });
+    if (hudOff)  hudOff.addEventListener('click', function () { dropReins(); });
 
     fetch('assets/chariot.json').then(function (r) {
       if (!r.ok) throw new Error('chariot ' + r.status);
@@ -1005,10 +1323,12 @@
     })['catch'](function () { /* pas de chariot : la section reste complète */ });
 
     window.addEventListener('resize', function () {
-      resize(); if (!running && rig) { place(performance.now()); renderer.render(scene, camera); }
+      resize();
+      if (driving) { placeDrive(performance.now(), 0); renderer.render(scene, camera); return; }
+      if (!running && rig) { place(performance.now()); renderer.render(scene, camera); }
     });
     document.addEventListener('visibilitychange', function () {
-      if (document.hidden) stop(); else start();
+      if (document.hidden) { dropReins(); stop(); } else start();
     });
     if ('IntersectionObserver' in window) {
       /* marge généreuse : la boucle est déjà armée bien avant que la section

@@ -428,6 +428,69 @@ html:not(.no-anim) .hs-hero.lit .hs-right{opacity:1;transform:none;transition-de
 .circuit-veil{position:absolute;inset:0;z-index:2;pointer-events:none;
   background:radial-gradient(ellipse 62% 52% at 50% 42%,
     rgba(30,23,16,.82) 0%,rgba(30,23,16,.56) 46%,rgba(30,23,16,0) 78%);}
+/* — « Prendre les rênes ». Le chariot du décor devient conduisible : une
+   fiche se propose pendant qu'il passe, et le mode conduite sort le canvas
+   de sa bande pour le poser en plein écran (home.js : chariotDrive).
+   Les FLÈCHES ne prennent jamais les rênes — c'est ainsi qu'un lecteur au
+   clavier fait défiler une page. Seules les lettres (ZQSD / WASD, lues par
+   position physique) proposent la main ; les flèches ne conduisent qu'une
+   fois aux rênes. — */
+.circuit-reins{position:absolute;z-index:5;right:clamp(16px,3vw,44px);
+  bottom:clamp(16px,4vh,48px);width:min(272px,72vw);text-align:left;
+  padding:15px 17px 14px;border-radius:15px;
+  background:rgba(30,23,16,.93);border:1px solid var(--border);
+  box-shadow:0 20px 46px -16px rgba(0,0,0,.72);
+  opacity:0;visibility:hidden;transform:translateY(16px);
+  transition:opacity .55s ease,transform .55s cubic-bezier(.16,1,.3,1),visibility .55s;}
+.circuit-reins.on{opacity:1;visibility:visible;transform:none;}
+.circuit-reins-h{font-family:'Fraunces',serif;font-weight:600;font-size:1rem;
+  line-height:1.25;color:var(--text);margin:0 0 6px;}
+.circuit-reins-p{font-family:'Inter',system-ui,sans-serif;font-size:.755rem;
+  line-height:1.6;color:var(--muted);margin:0 0 11px;}
+.circuit-keys{display:flex;align-items:center;gap:5px;margin:0 0 12px;
+  font-family:'Inter',system-ui,sans-serif;font-size:.66rem;color:var(--muted);}
+.kc{display:inline-flex;align-items:center;justify-content:center;
+  min-width:19px;height:19px;padding:0 4px;border-radius:5px;
+  border:1px solid var(--border);background:rgba(243,233,212,.06);
+  font-size:.64rem;font-weight:600;color:var(--text);line-height:1;}
+.circuit-reins-go{display:inline-flex;align-items:center;gap:7px;
+  font-family:'Inter',system-ui,sans-serif;font-weight:600;font-size:.78rem;
+  color:var(--bg);background:var(--gold);border:0;border-radius:100px;
+  padding:8px 15px;cursor:pointer;transition:filter .16s,transform .16s;}
+.circuit-reins-go:hover{filter:brightness(1.12);transform:translateY(-1px);}
+.circuit-reins-x{position:absolute;top:6px;right:8px;width:24px;height:24px;
+  border:0;background:transparent;color:var(--muted);font-size:1.15rem;
+  line-height:1;cursor:pointer;border-radius:50%;}
+.circuit-reins-x:hover{color:var(--text);background:rgba(243,233,212,.07);}
+
+/* mode conduite : le canvas quitte sa bande et prend tout l'écran, sous la
+   topbar (140) et la sidebar (120), qui restent utilisables. */
+#circuit-bg.driving{position:fixed;inset:0;width:100vw;height:100vh;
+  z-index:100;opacity:.97;transition:opacity .3s ease;}
+/* fondu court pendant la bascule d'un mode à l'autre : le chariot change
+   de place et de cadrage hors du regard, sans saut visible. */
+#circuit-bg.shifting{opacity:0;transition:opacity .19s ease;}
+body.lm-driving .circuit-veil{opacity:0;transition:opacity .4s ease;}
+.lm-drive-scrim{position:fixed;inset:0;z-index:99;pointer-events:none;opacity:0;
+  transition:opacity .45s ease;
+  background:radial-gradient(ellipse 74% 64% at 50% 56%,
+    rgba(21,16,11,0) 0%,rgba(21,16,11,.28) 62%,rgba(21,16,11,.5) 100%);}
+body.lm-driving .lm-drive-scrim{opacity:1;}
+.lm-drive-hud{position:fixed;left:50%;bottom:22px;z-index:150;
+  display:flex;align-items:center;gap:12px;
+  padding:9px 10px 9px 16px;border-radius:100px;
+  background:rgba(30,23,16,.94);border:1px solid var(--border);
+  box-shadow:0 16px 40px -14px rgba(0,0,0,.7);
+  font-family:'Inter',system-ui,sans-serif;font-size:.74rem;color:var(--muted);
+  opacity:0;visibility:hidden;transform:translate(-50%,12px);
+  transition:opacity .35s ease,transform .35s cubic-bezier(.16,1,.3,1),visibility .35s;}
+body.lm-driving .lm-drive-hud{opacity:1;visibility:visible;transform:translate(-50%,0);}
+.lm-drive-hud b{color:var(--text);font-weight:600;}
+.lm-drive-off{font-family:inherit;font-size:.72rem;font-weight:600;
+  color:var(--text);background:rgba(243,233,212,.08);
+  border:1px solid var(--border);border-radius:100px;padding:6px 13px;cursor:pointer;}
+.lm-drive-off:hover{background:rgba(243,233,212,.15);}
+@media(max-width:767px){.circuit-reins,.lm-drive-hud,.lm-drive-scrim{display:none;}}
 .circuit-inner{position:relative;z-index:3;max-width:680px;margin:0 auto;text-align:center;}
 .circuit-inner .hs-sec-h{margin-bottom:14px;}
 .circuit-intro{font-size:.95rem;line-height:1.72;color:var(--muted);max-width:52ch;margin:0 auto;}
@@ -980,6 +1043,17 @@ html.no-motion header.topbar,html.no-motion header.topbar .topbar-in{transition:
     <section class="circuit-band" aria-label="Le circuit du capital — le jeu">
       <canvas id="circuit-bg" aria-hidden="true"></canvas>
       <span class="circuit-veil" aria-hidden="true"></span>
+      <div class="circuit-reins" id="chariotReins" role="group"
+           aria-label="Conduire le chariot">
+        <button type="button" class="circuit-reins-x" id="chariotReinsX"
+                aria-label="Masquer la proposition">&times;</button>
+        <p class="circuit-reins-h">Prenez les r&ecirc;nes</p>
+        <p class="circuit-reins-p">Ce chariot se conduit. Il m&egrave;ne la page&nbsp;:
+          montez, elle remonte&nbsp;; descendez, elle descend.</p>
+        <p class="circuit-keys"><span class="kc">Z</span><span class="kc">Q</span><span
+          class="kc">S</span><span class="kc">D</span> <span>pour prendre les r&ecirc;nes</span></p>
+        <button type="button" class="circuit-reins-go" id="chariotReinsGo">Prendre les r&ecirc;nes</button>
+      </div>
       <div class="circuit-inner">
         <p class="hs-sec-label">Le jeu · bientôt</p>
         <h2 class="hs-sec-h">Le circuit du capital</h2>
@@ -1123,6 +1197,15 @@ html.no-motion header.topbar,html.no-motion header.topbar .topbar-in{transition:
          target="_blank" rel="noopener">Voir l'original en haute définition →</a>
     </div>
   </div>
+</div>
+
+<!-- Mode conduite du chariot (home.js : chariotDrive). Au niveau du body,
+     jamais dans .hw : un ancêtre transformé ferait du position:fixed un
+     position:absolute — le piège déjà rencontré avec #msModal. -->
+<div class="lm-drive-scrim" aria-hidden="true"></div>
+<div class="lm-drive-hud" id="chariotHud" role="status">
+  <span><b>ZQSD</b> ou les fl&egrave;ches pour conduire</span>
+  <button type="button" class="lm-drive-off" id="chariotHudOff">L&acirc;cher les r&ecirc;nes &middot; &Eacute;chap</button>
 </div>
 
 
