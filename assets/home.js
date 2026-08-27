@@ -745,74 +745,51 @@
       return v < 0 ? 0 : v > 1 ? 1 : v;
     }
 
-    /* — Le chemin. Une DIAGONALE courbe : le chariot entre au fond en haut
-       à gauche, passe par le centre, et sort au premier plan en bas à
-       droite.
+    /* — LA ROUTE. Le chariot ne monte ni ne descend : il roule sur un sol
+       plat, et c'est la PROFONDEUR qui fait tout le relief à l'écran. La
+       version précédente le faisait littéralement s'élever puis redescendre
+       en Y — il ne roulait plus, il lévitait, et la remontée était brutale
+       parce qu'aucun objet ne monte comme ça.
 
-       Trois composantes, chacune pour une raison :
-         · X, la traversée, de gauche à droite ;
-         · Y, le RELIEF : une descente puis une remontée. C'est lui qui fait
-           le « haut → bas → haut ». La seule profondeur ne suffisait pas :
-           la perspective écrase les lointains, un grand écart de Z ne
-           déplaçait le chariot que d'une soixantaine de pixels tout en le
-           forçant à rentrer de face. Ici il dévale franchement la pente, et
-           Z reste libre de rester modéré (cap sain, croissance mesurée).
-           Le creux est à T_LOW (mi-course) : l'exposant Y_EASE (> 1) creuse
-           la descente au début et l'aplanit à l'approche du creux — le
-           chariot plonge vite depuis le haut, passe au plus bas sous le
-           bloc de texte, puis Y_RISE le fait REMONTER sur toute la seconde
-           moitié, doucement d'abord puis franchement. Il ressort donc haut
-           et proche, pas au ras du bord bas. `Y_LOW` tient ce creux
-           au-dessus du bord bas du canvas ;
-         · Z_FAR → Z_NEAR, l'approche : il grossit en venant vers nous —
-           le circuit revient grossi, et c'est le chariot qui le dit —, et
-           Z_TURN y superpose UN virage (une seule arche, `sin(π t)`) : le
-           chariot entre braqué vers nous puis se redresse et file vers la
-           droite. Un seul virage franc se lit ; deux se lisaient comme un
-           frétillement. */
-    var Y_TOP = 9.5, Y_LOW = 3.9, Y_END = 8.2;
-    var T_LOW = 0.5;                 /* le creux : à mi-course */
-    /* Y_EASE > 1 : la descente plonge puis s'aplanit avant le creux.
-       La remontée est en `1 - (1-u)^Y_RISE` : elle s'enlève TOUT DE SUITE
-       après le creux — indispensable, le chariot quitte le cadre par la
-       droite vers t ≈ 0,82 et une remontée en douceur serait à peine
-       commencée qu'il serait déjà sorti — mais avec une pente FINIE au
-       creux. Un simple `u^0.75` montait aussi vite mais partait d'une pente
-       infinie : le chariot se cabrait d'un coup à la verticale au moment de
-       prendre la côte. */
-    var Y_EASE = 1.9, Y_RISE = 2.2;
-    var PITCH_MAX = 0.20;            /* assiette bornée à ~11° */
-    function yAt(t) {
-      if (t <= T_LOW) {
-        return Y_LOW + (Y_TOP - Y_LOW) * Math.pow(1 - t / T_LOW, Y_EASE);
-      }
-      var u = (t - T_LOW) / (1 - T_LOW);
-      return Y_LOW + (Y_END - Y_LOW) * (1 - Math.pow(1 - u, Y_RISE));
-    }
-    /* pente de la course — c'est elle qui donne l'assiette du chariot */
-    function dyAt(t) {
-      if (t <= T_LOW) {
-        return -(Y_TOP - Y_LOW) * Y_EASE *
-               Math.pow(1 - t / T_LOW, Y_EASE - 1) / T_LOW;
-      }
-      var u = (t - T_LOW) / (1 - T_LOW);
-      return (Y_END - Y_LOW) * Y_RISE *
-             Math.pow(1 - u, Y_RISE - 1) / (1 - T_LOW);
-    }
-    var Z_FAR = -9, Z_NEAR = 3, Z_TURN = 6;
+       Trois composantes :
+         · X, la traversée, de gauche à droite, pleine largeur ;
+         · Z, LA ROUTE : elle part du fond (`Z_FAR`), s'incurve franchement
+           vers nous jusqu'au premier plan à mi-course (`Z_BEND`), puis
+           repart vers le fond sans y retourner tout à fait (`Z_END` reste
+           en deçà de `Z_FAR` : le circuit revient grossi, et c'est le
+           chariot qui le dit). C'est ce virage-là qui donne le relief : le
+           chariot grossit en approchant, décroît en s'éloignant, et son cap
+           tourne d'une trentaine de degrés — il entre braqué vers nous, se
+           met de profil au plus près, et ressort braqué vers le fond ;
+         · Y reste au sol, à l'ondulation du pavé près (`Y_BUMP`) : une
+           houle lente qui suffit à faire hocher la caisse — c'est elle qui
+           alimente l'assiette, sinon nulle.
+
+       ATTENTION — le piège inverse est documenté et reste vrai : la
+       perspective écrase les lointains, la profondeur seule ne déplace le
+       chariot que d'une soixantaine de pixels VERTICALEMENT. Ce n'est pas
+       un défaut ici, c'est le but : une route se traverse, elle ne se
+       gravit pas. Le relief se lit à la TAILLE et au CAP, pas à la hauteur.
+       Ce qui compte alors, c'est le cadrage : la caméra doit surplomber
+       assez le sol pour qu'on voie la route (cf. `resize()`). */
+    var Y_ROAD = 0, Y_BUMP = 0.30, BUMPS = 3.4;
+    var Z_FAR = -11, Z_END = -3, Z_BEND = 11.5;
     /* part de dz retenue pour le cap (cf. « CAP » dans place()) */
     var HEAD_DAMP = 0.42;
+    var PITCH_MAX = 0.20;            /* assiette bornée à ~11° */
+    function yAt(t)  { return Y_ROAD + Y_BUMP * Math.sin(BUMPS * Math.PI * t); }
+    function dyAt(t) { return Y_BUMP * BUMPS * Math.PI * Math.cos(BUMPS * Math.PI * t); }
     function pathAt(t) {
       var R = reach(), pi = Math.PI;
       return {
         x:  (t * 2 - 1) * R,
         y:  yAt(t),
-        z:  Z_FAR + (Z_NEAR - Z_FAR) * t + Z_TURN * Math.sin(pi * t),
+        z:  Z_FAR + (Z_END - Z_FAR) * t + Z_BEND * Math.sin(pi * t),
         dx: 2 * R,
         dy: dyAt(t),
-        dz: (Z_NEAR - Z_FAR) + pi * Z_TURN * Math.cos(pi * t),
+        dz: (Z_END - Z_FAR) + pi * Z_BEND * Math.cos(pi * t),
         /* dérivée seconde ≈ courbure : sert au roulis dans le virage */
-        cz: -pi * pi * Z_TURN * Math.sin(pi * t)
+        cz: -pi * pi * Z_BEND * Math.sin(pi * t)
       };
     }
 
@@ -874,8 +851,12 @@
       camera.aspect = w / h;
       var d = 57 / camera.aspect;
       d = d < 26 ? 26 : d > 46 ? 46 : d;
-      camera.position.set(0, 0.296 * d, d);
-      camera.lookAt(0, 0.270 * d, 0);
+      /* La caméra surplombe la route et regarde un peu plus bas qu'elle :
+         c'est ce qui fait exister le sol. Les deux fractions sont solidaires
+         — les rapprocher aplatit la vue jusqu'à ce que la route ne se lise
+         plus, les écarter donne une plongée d'hélicoptère. */
+      camera.position.set(0, 0.155 * d, d);
+      camera.lookAt(0, 0.129 * d, 0);
       camera.updateProjectionMatrix();
       /* la brume s'ouvre du départ lointain (bien estompé) à l'arrivée
          rapprochée (nette) — c'est elle qui fait « émerger » le chariot */
