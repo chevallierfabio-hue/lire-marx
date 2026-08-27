@@ -126,8 +126,9 @@ Le mouvement vit dans **`assets/home.js`** (chargé
 `defer`) : révélations au scroll (`IntersectionObserver`, classes
 `.reveal` / `.reveal-stagger` / `.in` ; racine = `.hw` si elle défile,
 sinon viewport), duplication du marquee, et **fond WebGL discret**
-(`#hero-bg`, feuillets pâles) — **coupé si `prefers-reduced-motion` ou
-largeur < 768**, ne démarre qu'une fois `body.shell-active`. Le script
+(`#hero-bg`, la liasse de feuillets — voir ci-dessous) — **coupé si
+`prefers-reduced-motion` ou largeur < 768**, ne démarre qu'une fois
+`body.shell-active`. Le script
 inline en bas de page pose `.lit` sur `.hs-hero` (entrée orchestrée) et
 `shell-active` dès que `#sheet` s'ouvre **ou** immédiatement si
 `skip-anim` / reduced-motion / **largeur < 768** (ce dernier corrige un
@@ -136,6 +137,42 @@ sur `<html>` : `no-anim` (pas d'intro) et `no-motion` (pas d'animations
 du tout — mobile étroit ou reduced-motion). CSS de l'accueil = **inline**
 (critique LCP) ; JS = **externe + `defer`**. Ne pas réintroduire de
 Three.js bloquant. `SHELL.commune` vient de `shell.js` (déjà chargé).
+
+**Héros de l'accueil — « la liasse » (`heroBg()` dans `home.js`).** Les
+feuillets d'archive ne dérivent plus en boucle : au repos ils sont
+**rassemblés en éventail** au bas du couloir vide qui sépare le titre du
+portrait, à demi sortis du cadre par le bas — ils ne font que respirer
+(oscillation ×`(1-e)²`, éteinte dès qu'ils décollent). Le **défilement est
+le souffle** : chaque feuillet a son `t0` (le dessus de la liasse part le
+premier, le fond de pile en dernier) et vole sur `SPAN` de course, en
+montant droit dans le couloir puis hors cadre par le haut, en tonneaux,
+l'opacité s'éteignant sur les 28 % finaux de son vol. Tout est fonction de
+la **position** de scroll → **strictement réversible** : on remonte, la
+liasse se range. Par-dessus, un **coup de vent** — impulsion amortie sur la
+*vitesse* de molette (`gustTarget`, décroissance `0.05^dt`) — qui soulève et
+incline la liasse au repos comme en vol. La course vient du pilote de
+défilement commun (`addScrollSub`), pas d'un écouteur local ; la boucle rAF
+s'arrête d'elle-même quand la liasse est sortie et que la rafale est
+retombée, et repart au premier scroll (`start()` dans l'abonné).
+
+**Le piège de la place disponible.** Le héros n'a que trois zones où un
+feuillet est réellement visible : le couloir vertical entre le texte et le
+portrait, la marge droite, et la bande sous le portrait. Le portrait est en
+`z-index:1` **au-dessus** du canvas : rien ne peut voler devant lui, et une
+liasse posée derrière lui est tout simplement invisible (essayé : `CX 7.8`
+puis `9.2` — le vol se réduisait à un coin de marge droite). D'où le choix
+du couloir central, qui a imposé d'**ouvrir le masque** de `#hero-bg` dans
+`index.html` : le dégradé passe de `transparent 22% → #000 52%` à
+`transparent 20% → #000 42%`, juste au-delà du bord droit de la colonne de
+texte (~36 % de la largeur du canvas). Ne pas resserrer ce masque sans
+redéplacer la liasse, et ne pas l'ouvrir davantage : les feuillets pâles
+passeraient derrière le texte crème.
+
+**Réglages solidaires de la liasse — ne pas en toucher un seul isolément** :
+`CX`/`CY`/`CZ`, `FAN`, `LEAD`, `SPAN`, `FLY`, l'échelle des feuillets
+(`0.60 + rnd*0.26`) et le masque de `#hero-bg`. Ils sont calés ensemble pour
+que la liasse au repos ne touche ni les boutons du héros ni le portrait, et
+que le couloir soit vide à la fin de la course.
 
 **Section « Le circuit du capital » (le jeu) — habillage.** Sur la ligne
 A–M–P–M′–A′, ce qui circule est un **curseur lumineux** (`.circuit-spark`,

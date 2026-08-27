@@ -5,7 +5,9 @@
 
    - reveal()        : IntersectionObserver (root = .hw) → classe .in
    - marquee()       : duplique le bandeau de concepts pour une boucle nette
-   - heroBg()        : fond WebGL discret — feuillets pâles qui dérivent
+   - heroBg()        : fond WebGL discret — la liasse de feuillets pâles,
+                       rassemblée en éventail au repos, que le défilement
+                       dénoue feuillet par feuillet (réversible, + rafale)
                        (coupé si reduced-motion ou < 768px ; pause hors-écran)
 
    « Plus vivant » (inspiration zonixlab.com) — un seul pilote de
@@ -87,7 +89,15 @@
   }
 
   /* --------------------------------------------------------------------- */
-  /* Fond WebGL : feuillets d'archive pâles qui dérivent derrière le héros. */
+  /* Fond WebGL du héros : LA LIASSE.
+     Au repos, les feuillets d'archive sont rassemblés en éventail à droite du
+     titre — quasi immobiles, ils respirent. Le défilement est le souffle qui
+     dénoue la liasse : feuillet par feuillet, du dessus vers le fond, ils
+     s'échappent vers le haut et vers nous, tournoient et sortent du cadre.
+     Tout est fonction de la POSITION de scroll → strictement réversible : on
+     remonte, la liasse se range. Par-dessus, un « coup de vent » — impulsion
+     amortie sur la vitesse de molette — qui secoue la liasse au repos comme
+     en vol. Coupé sous reduced-motion ou < 768 px ; en pause hors-écran. */
   function heroBg() {
     if (REDUCE || window.innerWidth < 768) return;
     var canvas = document.getElementById('hero-bg');
@@ -98,7 +108,21 @@
     var BG = 0x0d0a07;
     var renderer, scene, camera, sheets = [], raf = null;
     var running = false, onScreen = true, active = false;
-    var mx = 0, my = 0, tmx = 0, tmy = 0, scrollK = 0;
+    var mx = 0, my = 0, tmx = 0, tmy = 0;
+    var t = 0, tTarget = 0;              /* course dans le héros, 0 → 1 */
+    var gust = 0, gustTarget = 0, lastY = null;
+
+    /* — Réglages solidaires de la liasse. Ne pas en toucher un seul
+         isolément : centre, éventail et dénouement sont calés ensemble pour
+         que la liasse tienne à droite du texte, déborde du portrait juste ce
+         qu'il faut, et soit entièrement sortie à la fin du héros. — */
+    var CX = 1.4, CY = -5.2, CZ = 0.4;  /* centre : bas du couloir, entre titre et portrait */
+    var FAN  = 2.2;                      /* largeur de l'éventail au repos */
+    var LEAD = 0.34;                     /* étalement des départs : le dernier part à t=LEAD */
+    var SPAN = 0.60;                     /* durée du vol d'un feuillet (fraction de course) */
+    var FLY  = 15;                       /* distance de sortie */
+
+    function cl01(v) { return v < 0 ? 0 : (v > 1 ? 1 : v); }
 
     try {
       renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
@@ -141,33 +165,54 @@
         g.stroke();
         y += 13 + (Math.random() < 0.14 ? 9 : 0);
       }
-      var t = new THREE.CanvasTexture(cv);
-      t.generateMipmaps = false;
-      if (THREE.LinearFilter) t.minFilter = THREE.LinearFilter;
-      if (THREE.ClampToEdgeWrapping) t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping;
-      t.anisotropy = 2;
-      return t;
+      var t2 = new THREE.CanvasTexture(cv);
+      t2.generateMipmaps = false;
+      if (THREE.LinearFilter) t2.minFilter = THREE.LinearFilter;
+      if (THREE.ClampToEdgeWrapping) t2.wrapS = t2.wrapT = THREE.ClampToEdgeWrapping;
+      t2.anisotropy = 2;
+      return t2;
     }
 
+    /* La liasse : k=0 est le feuillet du dessus (part le premier, le plus
+       opaque), k=COUNT-1 le fond de pile (part le dernier, noyé de brume). */
     var geo = new THREE.PlaneGeometry(2.4, 3.1, 1, 1);
     var COUNT = window.innerWidth < 1100 ? 9 : 13;
     for (var k = 0; k < COUNT; k++) {
+      var a = COUNT > 1 ? k / (COUNT - 1) : 0;
+      var ang = (a - 0.5) * 1.3;                   /* ouverture de l'éventail */
+      var op = 0.86 - a * 0.18;
       var mat = new THREE.MeshBasicMaterial({
         map: sheetTexture(k * 17),
-        transparent: true, opacity: 0.82,
+        transparent: true, opacity: op,
         depthWrite: false, side: THREE.DoubleSide
       });
       var m = new THREE.Mesh(geo, mat);
-      /* biais vers la droite : le texte du héros est à gauche */
-      m.position.set(1 + Math.random() * 18, (Math.random() - 0.5) * 15, 2 - Math.random() * 20);
-      m.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, (Math.random() - 0.5) * 0.8);
-      m.userData = {
-        rot: (Math.random() - 0.5) * 0.09,
-        rotY: (Math.random() - 0.5) * 0.08,
-        drift: 0.10 + Math.random() * 0.18,
-        sway: 0.3 + Math.random() * 0.7,
+      /* fuite : vers le haut, vers la droite, et vers nous pour le dessus */
+      var dir = new THREE.Vector3(
+        0.10 + Math.sin(ang) * 0.30 + (Math.random() - 0.5) * 0.22,
+        0.95 + Math.random() * 0.30,
+        0.05 + Math.random() * 0.25 - a * 0.22
+      ).normalize();
+      var u = {
+        a: a, op: op,
+        hx: CX + Math.sin(ang) * FAN + (Math.random() - 0.5) * 0.55,
+        hy: CY + Math.cos(ang) * FAN * 0.26 + (Math.random() - 0.5) * 0.40,
+        hz: CZ - a * 2.9 + (Math.random() - 0.5) * 0.5,
+        rx: (Math.random() - 0.5) * 0.22,
+        ry: (Math.random() - 0.5) * 0.30,
+        rz: ang * 0.95 + (Math.random() - 0.5) * 0.14,
+        dx: dir.x, dy: dir.y, dz: dir.z,
+        dist: FLY * (0.85 + Math.random() * 0.45),
+        sx: (Math.random() - 0.5) * 3.4,           /* tonneaux en vol */
+        sy: (Math.random() - 0.5) * 3.8,
+        sz: (Math.random() < 0.5 ? -1 : 1) * (1.6 + Math.random() * 2.6),
+        t0: 0.015 + a * LEAD,                      /* décalage des départs */
         phase: Math.random() * 6.28
       };
+      m.userData = u;
+      m.scale.setScalar(0.60 + Math.random() * 0.26);
+      m.position.set(u.hx, u.hy, u.hz);
+      m.rotation.set(u.rx, u.ry, u.rz);
       sheets.push(m); scene.add(m);
     }
 
@@ -183,18 +228,35 @@
     function frame(now) {
       var dt = Math.min((now - last) / 1000, 0.05); last = now;
       mx += (tmx - mx) * 0.04; my += (tmy - my) * 0.04;
+      t += (tTarget - t) * Math.min(1, dt * 9);
+      gustTarget *= Math.pow(0.05, dt);            /* la rafale retombe en ~1 s */
+      gust += (gustTarget - gust) * Math.min(1, dt * 9);
+
       for (var i = 0; i < sheets.length; i++) {
         var s = sheets[i], u = s.userData;
-        s.position.y += u.drift * dt;
-        s.position.x += Math.sin(now * 0.0002 + u.phase) * u.sway * dt;
-        s.rotation.z += u.rot * dt;
-        s.rotation.y += u.rotY * dt;
-        if (s.position.y > 9.5) { s.position.y = -9.5; s.position.x = 1 + Math.random() * 18; }
+        var p = cl01((t - u.t0) / SPAN);
+        var e = p * p * (3 - 2 * p);               /* décollage mou, sortie franche */
+        var br = (1 - e) * (1 - e);                /* la respiration s'éteint en vol */
+        var g = gust * (0.35 + u.a * 0.9);         /* le fond de pile encaisse plus */
+        var adv = u.dist * e + g * 1.7;
+        var w = now * 0.00055 + u.phase;
+
+        s.position.x = u.hx + u.dx * adv + Math.cos(w * 0.8) * 0.09 * br;
+        s.position.y = u.hy + u.dy * adv + Math.sin(w) * 0.12 * br;
+        s.position.z = u.hz + u.dz * adv;
+        s.rotation.x = u.rx + u.sx * e;
+        s.rotation.y = u.ry + u.sy * e + Math.sin(w * 0.6) * 0.05 * br;
+        s.rotation.z = u.rz + u.sz * e + Math.sin(w * 0.7) * 0.04 * br + g * 0.45;
+        s.material.opacity = u.op * (1 - cl01((p - 0.72) / 0.28));
       }
-      camera.position.x += (mx * 1.2 - camera.position.x) * 0.05;
-      camera.position.y += ((-my * 0.8) - scrollK * 2.4 - camera.position.y) * 0.05;
-      camera.lookAt(0, scrollK * -1, 0);
+
+      camera.position.x += (mx * 1.1 - camera.position.x) * 0.05;
+      camera.position.y += ((-my * 0.7) - t * 1.1 - camera.position.y) * 0.05;
+      camera.lookAt(0, t * -0.5, 0);
       renderer.render(scene, camera);
+
+      /* liasse entièrement sortie et plus rien qui bouge : on rend la main */
+      if (t > 0.995 && tTarget > 0.995 && Math.abs(gust) < 0.003) { stop(); return; }
       if (running) raf = requestAnimationFrame(frame);
     }
 
@@ -213,13 +275,25 @@
     window.addEventListener('mousemove', function (e) {
       tmx = (e.clientX / window.innerWidth - 0.5) * 2;
       tmy = (e.clientY / window.innerHeight - 0.5) * 2;
+      start();
     });
-    function onScroll() {
-      var hero = document.querySelector('.hs-hero');
-      var span = hero ? hero.offsetHeight : 700;
-      scrollK = Math.min(scrollPos() / span, 1);
-    }
-    (scrollRoot() || window).addEventListener('scroll', onScroll, { passive: true });
+
+    /* Course + rafale : on passe par le pilote de défilement commun, qui
+       attrape aussi bien le scroll de .hw que celui du viewport. */
+    var heroEl = document.querySelector('.hs-hero');
+    addScrollSub(function (y, vh) {
+      var span = (heroEl && heroEl.offsetHeight) || vh;
+      tTarget = cl01(y / span);
+      if (lastY !== null) {
+        gustTarget += ((y - lastY) / (vh || 1)) * 1.15;
+        if (gustTarget > 1) gustTarget = 1;
+        if (gustTarget < -1) gustTarget = -1;
+      }
+      lastY = y;
+      start();
+      return true;
+    });
+
     document.addEventListener('visibilitychange', function () {
       if (document.hidden) stop(); else start();
     });
