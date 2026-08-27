@@ -355,14 +355,15 @@ html:not(.no-anim) .hs-hero .hs-right{
   .hs-p-cat{display:none;}
 }
 
-/* — bande « circuit du capital » — */
-.circuit-band{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.2fr);
-  gap:clamp(28px,5vw,64px);align-items:center;
-  padding:clamp(44px,6vh,76px) clamp(24px,5vw,80px);
+/* — bande « circuit du capital » — colonne centrée, le défilement déplie
+   A→M→P→M′→A′ palier par palier (home.js : circuitScrub) — */
+.circuit-band{padding:clamp(56px,10vh,120px) clamp(24px,5vw,80px);
   border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--surface);}
-.circuit-txt .hs-sec-h{margin-bottom:14px;}
-.circuit-txt p{font-size:.95rem;line-height:1.72;color:var(--muted);max-width:44ch;}
-.circuit{position:relative;display:flex;justify-content:space-between;align-items:center;min-height:54px;}
+.circuit-inner{max-width:680px;margin:0 auto;text-align:center;}
+.circuit-inner .hs-sec-h{margin-bottom:14px;}
+.circuit-intro{font-size:.95rem;line-height:1.72;color:var(--muted);max-width:52ch;margin:0 auto;}
+.circuit{position:relative;display:flex;justify-content:space-between;align-items:center;
+  min-height:54px;margin:clamp(30px,5vh,52px) 0 clamp(22px,3vh,34px);}
 .circuit-line{position:absolute;left:8px;right:8px;top:16px;height:2px;border-radius:2px;
   background:linear-gradient(90deg,var(--border),var(--accent) 50%,var(--border));}
 .circuit-node{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:5px;}
@@ -473,6 +474,50 @@ header.topbar.tb-solid .topbar-in{max-width:1180px;margin:0 auto;height:46px;
   header.topbar.tb-solid .topbar-in{max-width:none;margin:0 6px;}
 }
 
+/* ── PASSE 2 — inspiration zonixlab.com (suite) ─────────────────────── */
+
+/* 1. Circuit du capital : les paliers de texte s'enchaînent au défilement.
+   Sans html.js-circuit (posée par home.js hors reduced-motion) tous les
+   paliers restent empilés — mini-glossaire lisible. */
+.circuit-steps{margin-top:16px;}
+.circuit-step{margin:0 auto 12px;max-width:52ch;
+  font-size:.98rem;line-height:1.72;color:var(--muted);}
+.circuit-step b{color:var(--text);font-weight:600;}
+.circuit-node.lit b{transform:scale(1.08);}
+.circuit-node b{transition:color .35s ease,text-shadow .35s ease,transform .35s ease;}
+.js-circuit .circuit-steps{position:relative;min-height:8.5em;}
+.js-circuit .circuit-step{position:absolute;left:0;right:0;top:0;
+  opacity:0;visibility:hidden;transform:translateY(12px);}
+.js-circuit .circuit-step.on{opacity:1;visibility:visible;transform:none;
+  transition:opacity .45s ease,transform .55s cubic-bezier(.16,1,.3,1);}
+@media(max-width:720px){
+  .js-circuit .circuit-node.lit b{transform:none;}
+  .js-circuit .circuit-steps{position:static;min-height:0;}
+  .js-circuit .circuit-step{position:static;opacity:1;visibility:visible;transform:none;}
+}
+
+/* 2. Photos d'archive du catalogue : « développement » — balayage clip-path
+   + barre de révélateur dorée, à l'entrée en vue. html.js-dev posée par
+   home.js. Le portrait du héros garde son entrée orchestrée propre. */
+.js-dev .hs-w-img{clip-path:inset(0 100% 0 0);
+  transition:clip-path 1.05s cubic-bezier(.62,0,.34,1);}
+.js-dev .hs-w-img.dev{clip-path:inset(0 0 0 0);}
+.js-dev .hs-w-img.dev::before{
+  content:"";position:absolute;top:0;bottom:0;width:2px;z-index:5;pointer-events:none;
+  background:linear-gradient(transparent,var(--gold) 28%,var(--gold) 72%,transparent);
+  box-shadow:0 0 18px 5px rgba(216,173,76,.5);
+  animation:lm-develop-bar 1.05s cubic-bezier(.62,0,.34,1) forwards;}
+@keyframes lm-develop-bar{
+  0%{left:-2px;opacity:0;}12%{opacity:1;}86%{opacity:1;}100%{left:100%;opacity:0;}}
+
+/* 3. Boutons d'action magnétiques (+ flèche qui décolle) */
+.btn-ar{display:inline-block;margin-left:.5em;
+  transition:transform .3s cubic-bezier(.16,1,.3,1);}
+.btn-filled:hover .btn-ar{transform:translateX(4px);}
+.btn-filled.btn-mag{will-change:transform;
+  transition:transform .5s cubic-bezier(.34,1.4,.64,1),opacity .18s,box-shadow .25s ease;}
+.btn-filled.btn-mag.pulling{transition:transform .13s ease-out;}
+
 /* — responsive — */
 @media(max-width:720px){
   .circuit-band{grid-template-columns:1fr;gap:26px;}
@@ -501,6 +546,10 @@ html.no-motion header.topbar,html.no-motion header.topbar .topbar-in{transition:
   .hs-do-card,.hs-w-card{transform:none!important;}
   .hs-sec-h .rw{opacity:1!important;filter:none!important;transform:none!important;}
   header.topbar,header.topbar .topbar-in{transition:none!important;}
+  .circuit-step{position:static!important;opacity:1!important;visibility:visible!important;transform:none!important;}
+  .circuit-node.lit b{transform:none!important;}
+  .hs-w-img{clip-path:none!important;animation:none!important;}
+  .btn-mag{transition:none!important;}
 }
 </style>
 <link rel="preload" href="oeuvres/shell.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
@@ -551,7 +600,7 @@ html.no-motion header.topbar,html.no-motion header.topbar .topbar-in{transition:
         <h1 class="hs-h1">Lire Marx,<br>vraiment le comprendre</h1>
         <p class="hs-desc">Des ateliers de lecture guidés, des simulations économiques et un espace d'échange — pour lire Marx sérieusement, sans prérequis.</p>
         <div class="hs-btns">
-          <a href="oeuvres/capital-1.html" class="btn-filled">Entrer dans l'atelier</a>
+          <a href="oeuvres/capital-1.html" class="btn-filled">Entrer dans l'atelier<span class="btn-ar" aria-hidden="true">→</span></a>
           <a href="#catalogue" class="btn-outline">Voir le catalogue</a>
         </div>
       </div>
@@ -609,24 +658,40 @@ html.no-motion header.topbar,html.no-motion header.topbar .topbar-in{transition:
       </div>
     </section>
 
-    <!-- Le circuit du capital -->
+    <!-- Le circuit du capital — le défilement déplie A→M→P→M′→A′, palier par palier -->
     <section class="circuit-band" aria-label="Le circuit du capital">
-      <div class="circuit-txt">
+      <div class="circuit-inner">
         <p class="hs-sec-label">Le fil conducteur</p>
         <h2 class="hs-sec-h">Le circuit du capital</h2>
-        <p>Tout <em>Le Capital</em> tient dans ce mouvement : de l'argent qui,
-          en traversant la marchandise et la production, revient augmenté.
-          Les ateliers de lecture le déplient, pas à pas.</p>
-      </div>
-      <div class="circuit">
-        <span class="circuit-line" aria-hidden="true"></span>
-        <span class="circuit-line-fill" aria-hidden="true"></span>
-        <span class="circuit-spark" aria-hidden="true"></span>
-        <span class="circuit-node" data-at="0"><b>A</b><i>argent</i></span>
-        <span class="circuit-node" data-at="0.25"><b>M</b><i>marchandise</i></span>
-        <span class="circuit-node" data-at="0.5"><b>P</b><i>production</i></span>
-        <span class="circuit-node" data-at="0.75"><b>M′</b><i>marchandise+</i></span>
-        <span class="circuit-node circuit-node--end" data-at="1"><b>A′</b><i>argent + plus-value</i></span>
+        <p class="circuit-intro">Tout <em>Le Capital</em> tient dans ce mouvement : de l'argent
+          qui, en traversant la marchandise et la production, revient augmenté.</p>
+        <div class="circuit">
+          <span class="circuit-line" aria-hidden="true"></span>
+          <span class="circuit-line-fill" aria-hidden="true"></span>
+          <span class="circuit-spark" aria-hidden="true"></span>
+          <span class="circuit-node" data-at="0"><b>A</b><i>argent</i></span>
+          <span class="circuit-node" data-at="0.25"><b>M</b><i>marchandise</i></span>
+          <span class="circuit-node" data-at="0.5"><b>P</b><i>production</i></span>
+          <span class="circuit-node" data-at="0.75"><b>M′</b><i>marchandise+</i></span>
+          <span class="circuit-node circuit-node--end" data-at="1"><b>A′</b><i>argent + plus-value</i></span>
+        </div>
+        <div class="circuit-steps">
+          <p class="circuit-step" data-s="0"><b>A — l'argent avancé.</b> Le capitaliste ne
+            dépense pas pour consommer : il jette une somme dans la circulation pour qu'elle
+            lui revienne grossie.</p>
+          <p class="circuit-step" data-s="1"><b>M — les deux marchandises.</b> Cet argent
+            achète des moyens de production et de la force de travail — les deux facteurs
+            du procès.</p>
+          <p class="circuit-step" data-s="2"><b>P — la production.</b> Hors du marché, dans
+            l'atelier : le travail vivant conserve la valeur des moyens de production et en
+            ajoute de la nouvelle.</p>
+          <p class="circuit-step" data-s="3"><b>M′ — la marchandise grossie.</b> Le produit
+            vaut plus que la somme des éléments consommés : il contient du surtravail non
+            payé.</p>
+          <p class="circuit-step" data-s="4"><b>A′ — l'argent et la plus-value.</b> La vente
+            réalise ce surplus en argent. Le circuit recommence, sur une échelle élargie :
+            c'est l'accumulation.</p>
+        </div>
       </div>
     </section>
 
@@ -679,7 +744,7 @@ html.no-motion header.topbar,html.no-motion header.topbar .topbar-in{transition:
     <section class="hs-closer">
       <div class="hs-closer-halo" aria-hidden="true"></div>
       <p>Le plus court chemin dans Marx, c'est <em>de le lire</em>.</p>
-      <a href="oeuvres/capital-1.html" class="btn-filled">Commencer par le chapitre premier</a>
+      <a href="oeuvres/capital-1.html" class="btn-filled">Commencer par le chapitre premier<span class="btn-ar" aria-hidden="true">→</span></a>
     </section>
 
   </div>
