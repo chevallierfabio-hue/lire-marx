@@ -199,6 +199,25 @@ image qui réclame le regard — la page s'ouvre sur une liasse de manuscrits
 et se referme sur un feuillet de la même main. Le halo a suivi le bouton à
 gauche.
 
+**Il y a une vraie bougie.** `.hs-closer-candle` reprend celle de l'intro
+cinématique, aux mêmes couleurs : bougeoir laiton `#9a7b30`, cire crème
+`#e9ddc2`, flamme `#ffd27a`, halo orangé `#ff9c3a`, et jusqu'au filet de
+fumée. **Tout est en CSS** — un troisième contexte WebGL sur la page (il y a
+déjà `#hero-bg` et `#circuit-bg`, plus celui de l'intro) pour un décor de
+130 px ne se justifiait pas. Elle se tient **à droite, près du feuillet**,
+qu'elle éclaire : à gauche elle tombait derrière le bouton. `--candle-r`
+tient la bougie ET le halo sur le même axe — c'est la flamme qui est la
+source, le halo n'est que ce qu'elle éclaire ; les déplacer séparément
+casserait la lumière.
+
+C'est le **défilement qui l'allume** : `--lum` pilote l'opacité de la
+flamme, de sa lueur proche et de la fumée. La bande arrive donc sur une
+bougie éteinte, et « la bougie prend » devient littéral. Deux animations
+distinctes une fois `.alight` posée : `lm-flame` tord la flamme (3,1 s) et
+`lm-candle` fait respirer le halo (8,4 s) — deux périodes **non
+multiples**, sinon l'œil les resynchronise et la flamme se met à battre la
+mesure.
+
 **Bande finale — la bougie prend (`closerCandle()`).** C'était la seule
 section de la page sans la moindre animation (pas même un `.reveal`), et son
 halo était resté sur le rouge de l'ancienne DA claire. La page s'ouvre sur
