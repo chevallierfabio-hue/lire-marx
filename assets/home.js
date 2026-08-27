@@ -1309,12 +1309,10 @@
   /* — F. « Ce que vous pouvez faire » : les trois feuillets se posent —
        Prolongement direct de la liasse du héros : ce qui s'envole en haut
        redescend ici en trois feuillets qu'on peut lire. Chaque bloc arrive
-       plus haut et de biais, puis se pose à plat ; le balayage révèle sa
-       réglure (le même geste que les photos du catalogue) et le chiffre de
-       chapitre prend l'encre une fois le feuillet posé. Piloté par la
+       plus haut et de biais, puis se pose à plat, et le chiffre de chapitre
+       prend l'encre une fois le feuillet posé. Piloté par la
        position de scroll → réversible. Sous no-motion / < 768 px la fonction
-       sort et `.reveal-stagger` reprend la main (fondu simple, réglure
-       fixe). */
+       sort et `.reveal-stagger` reprend la main (fondu simple). */
   function doCards() {
     if (REDUCE || window.innerWidth < 768) return;
     var grid = document.querySelector('.hs-do-cols');
@@ -1343,7 +1341,6 @@
         c.style.opacity = (0.05 + 0.95 * e).toFixed(3);
         c.style.setProperty('--drop', ((1 - e) * 30).toFixed(1) + 'px');
         c.style.setProperty('--tilt', ((1 - e) * TILT[i % 3]).toFixed(2) + 'deg');
-        c.style.setProperty('--sweep', (e * 132).toFixed(1) + 'px');
         c.style.setProperty('--ink', ink.toFixed(3));
       }
       return true;

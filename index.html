@@ -325,7 +325,6 @@ html:not(.no-anim) .hs-hero.lit .hs-right{opacity:1;transform:none;transition-de
   font-size:clamp(1.12rem,1.8vw,1.36rem);line-height:1.12;letter-spacing:-.02em;
   color:var(--text);}
 .hs-do-item p{font-size:.89rem;line-height:1.66;color:var(--muted);}
-.hs-do-n,.hs-do-item h3,.hs-do-item p{position:relative;z-index:2;}
 @media(max-width:820px){
   .hs-do-cols{grid-template-columns:1fr;}
 }
@@ -578,21 +577,12 @@ html.no-motion .hs-ms-cartel{display:none;}
   .hs-ms-fig img{height:100%;object-fit:cover;object-position:50% 0;}
 }
 
-/* F. « Ce que vous pouvez faire » — les trois feuillets se posent.
-   La réglure est là en permanence (un feuillet, pas une carte) ; sans JS
-   elle est entièrement révélée, et .poses la fait balayer au défilement. */
-.hs-do-item::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
-  border-radius:inherit;opacity:.6;
-  background-image:repeating-linear-gradient(to bottom,
-    var(--border) 0 1px,transparent 1px 15px);
-  background-repeat:no-repeat;background-size:100% 104px;
-  -webkit-mask-image:linear-gradient(to bottom,#000 0,#000 var(--sweep,999px),
-    transparent calc(var(--sweep,999px) + 42px));
-  mask-image:linear-gradient(to bottom,#000 0,#000 var(--sweep,999px),
-    transparent calc(var(--sweep,999px) + 42px));}
+/* F. « Ce que vous pouvez faire » — les trois blocs se posent.
+   (Pas de réglure : les lignes horizontales dans les boîtes ont été
+   retirées — le bloc se pose, c'est tout.) */
 .hs-do-item{--drop:0px;--tilt:0deg;
   transform:translateY(var(--drop)) rotate(var(--tilt));}
-.hs-do-cols.poses .hs-do-item{--sweep:0px;opacity:0;will-change:transform,opacity;}
+.hs-do-cols.poses .hs-do-item{opacity:0;will-change:transform,opacity;}
 .hs-do-cols.poses .hs-do-n{opacity:var(--ink,1);
   transform:translateY(calc((1 - var(--ink,1)) * 7px));}
 
