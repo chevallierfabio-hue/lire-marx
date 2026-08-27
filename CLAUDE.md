@@ -98,6 +98,22 @@ originale, Zentralbibliothek Zürich — a remplacé l'ancienne
 `sortie-usine.jpg`, `halles-paris.jpg` (à vérifier : licence à
 confirmer avant usage définitif).
 
+**`manuscrit-ideologie-1846.webp` / `.jpg`** — page du manuscrit de
+*L'Idéologie allemande* (déc. 1845 – avr. 1846) : l'écriture de Marx à
+gauche, les profils griffonnés par Engels à droite. **C'est l'image du
+héros de l'accueil**, à la place du portrait Mayall — qui disait le
+contraire du site (l'icône barbue plutôt que le texte) et était le seul
+élément hors du vocabulaire matériel de la page. Source : fonds Karl
+Marx-Friedrich Engels de l'IISG Amsterdam, cote A.11 p.23, via Wikimedia
+Commons (`File:IISG. Karl Marx-Friedrich Engels Papers. A.11. P.23.jpg`),
+**Public Domain Mark 1.0**. Original 2437×3864 ; recadré en 4/5 sur le haut
+de la page (crop 2290×2862 à partir de +70,+40, pour éliminer le montage
+gris du scan et le bord bas déchiré), réduit à 900×1125. **Traitement
+propre** (`.hs-img-ms`) et non le duotone des photographies : le duotone
+rouge, pensé pour du noir et blanc, virait ce papier chaud au mauve. Le
+portrait Mayall reste utilisé par `oeuvres/place-publique.html` — ne pas
+supprimer ses fichiers.
+
 **Bug récurrent à surveiller** : plusieurs onglets (Lire Le Capital /
 Atelier / Ressources, et probablement leurs équivalents sur
 `manuscrits-1844`) ont eu un bug où le contenu de l'onglet actif par
