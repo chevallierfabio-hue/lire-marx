@@ -185,6 +185,39 @@ défilement commun (`addScrollSub`), pas d'un écouteur local ; la boucle rAF
 s'arrête d'elle-même quand la liasse est sortie et que la rafale est
 retombée, et repart au premier scroll (`start()` dans l'abonné).
 
+**Bande finale — « la dernière page ».** Elle était désaccordée du reste :
+centrée quand tout le reste de la page est aligné à gauche (et juste après
+les chiffres clés, eux aussi centrés — deux blocs centrés d'affilée), sans
+label ni titre de section alors que toutes les autres s'ouvrent ainsi, sans
+aucune matière, et parlant en slogan là où le site décrit et cite. Elle a
+donc pris la **structure commune** : `.hs-sec-label` (« Pour commencer »),
+la phrase dans `.hs-closer-line` à l'échelle d'un `hs-sec-h`, le bouton, le
+tout aligné à gauche dans `.hs-closer-inner`. Et sa **matière** : le
+fac-similé revient en fond à droite (`.hs-closer-sheet`), très assombri
+(`brightness(.30)`) et masqué en dégradé, pour rester une texture et non une
+image qui réclame le regard — la page s'ouvre sur une liasse de manuscrits
+et se referme sur un feuillet de la même main. Le halo a suivi le bouton à
+gauche.
+
+**Bande finale — la bougie prend (`closerCandle()`).** C'était la seule
+section de la page sans la moindre animation (pas même un `.reveal`), et son
+halo était resté sur le rouge de l'ancienne DA claire. La page s'ouvre sur
+une bougie posée sur un bureau : elle se referme dessus. La bande arrive
+presque noire et s'éclaire au défilement (`--lum` sur `.hs-closer` → opacité
+et montée du halo, opacité de `.hs-closer-inner`, `drop-shadow` du bouton,
+et apparition du feuillet), la lueur venant de **sous** le bouton — une
+bougie éclaire d'en bas, pas du plafond. Puis un **vacillement**
+(`@keyframes lm-candle`, stops volontairement irréguliers — une flamme ne
+bat pas la mesure) persiste : c'est la seule chose de la page qui continue
+de vivre une fois qu'on a cessé de défiler.
+
+Deux points à garder : le vacillement joue sur `filter:brightness()` et
+**jamais sur l'opacité ni le transform** du halo, que le scrub occupe déjà —
+sinon les deux se battent ; et il ne tourne que sous `.alight`, posée par un
+IntersectionObserver, sinon on repeindrait en boucle un grand dégradé pour
+personne. Sans `js-candle` (mobile, reduced-motion), le halo garde son
+opacité naturelle et la bande s'affiche telle quelle, éclairée.
+
 **Section « Ce que vous pouvez faire » — trois blocs (`doCards()`).**
 `.hs-do-cols` > `.hs-do-item`. Historique utile pour ne pas tourner en rond :
 la boîte a été retirée (essai sans contour), puis un essai en **sommaire
