@@ -431,6 +431,78 @@ build : le site reste statique et lit le JSON tel quel. Les noms
 `cargo-*`, `wheel-0..3`, `lamp`, `lantern`, `driver` sont le contrat entre
 l'export et `circuitChariot()`.
 
+**Le chariot se conduit — « Prendre les rênes » (`chariotDrive`, dans
+`circuitChariot()`).** Pendant que le chariot traverse la bande, une fiche
+se propose en bas à droite (`.circuit-reins`, `#chariotReins`). Aux rênes,
+le canvas **quitte sa bande** : il est déplacé dans `document.body` et passe
+en `position:fixed` plein écran (`#circuit-bg.driving`, z-index 100 — sous
+la sidebar à 120 et la topbar à 140, qui restent utilisables), avec un voile
+de vignette (`.lm-drive-scrim`) et un bandeau de commandes
+(`.lm-drive-hud`). Le déplacement dans le DOM n'est pas une coquetterie :
+un ancêtre transformé ferait d'un `position:fixed` un `position:absolute`
+(le piège déjà signalé pour `#msModal`). Au lâcher, le canvas retourne
+exactement à sa place (`insertBefore(canvas, driveNext)`), `resize()`
+rebascule le plan caméra et `runScrollSubs()` recale la course sur le
+défilement réel. Les deux bascules se font derrière un fondu de 190 ms
+(`.shifting`) : le chariot change de place et de cadrage hors du regard.
+
+**C'est le chariot qui navigue dans le site.** Sa **hauteur à l'écran** —
+et non son déplacement — commande le défilement : au-dessus de `TOP_BAND`
+la page remonte, sous `BOT_BAND` elle descend, d'autant plus vite qu'il est
+loin dans la bande (rampe au carré, `SCROLL_RATE`). Le défilement passe par
+`scrollRoot()`, donc il pilote `.hw` dans le chemin immersif comme le
+viewport en `no-anim` — vérifié dans les deux.
+
+**Trois pièges déjà rencontrés, à ne pas refaire :**
+
+1. **Les FLÈCHES ne prennent jamais les rênes.** Ce sont les touches avec
+   lesquelles un lecteur au clavier fait défiler une page ; les capturer
+   d'office enfermerait dans un jeu quelqu'un qui voulait lire. On propose
+   la main sur les LETTRES, lues par **position physique** (`e.code` :
+   `KeyW/A/S/D` = ZQSD en AZERTY et WASD en QWERTY, sans rien détecter), et
+   seulement pendant que la fiche est offerte. Les flèches ne conduisent
+   qu'**une fois** aux rênes. On rend toujours la main : Échap, le bouton,
+   `Tab` (sans l'intercepter), un champ de saisie, une modale, la perte de
+   focus, l'onglet masqué, ou dix secondes sans une touche.
+
+2. **`[role="dialog"]:not([hidden])` ne dit RIEN sur ce site.** Le shell
+   laisse en permanence des `.acct-modal-box` dans le DOM : ce sont leurs
+   CONTENEURS qui portent `hidden`. La garde « une modale est ouverte »
+   était donc vraie en permanence et lâchait les rênes à la première
+   touche. Il faut demander si l'élément est **réellement rendu** —
+   `getClientRects().length`, vide dès qu'un ancêtre est en `display:none`,
+   là où `offsetParent` ment sur le `position:fixed`. Et comme c'est un
+   calcul de mise en page, on ne l'appelle jamais sur une touche
+   susceptible d'être maintenue.
+
+3. **Ne jamais amortir la vitesse quand le chariot bute sur le bord du
+   cadre.** Le braquage n'a de prise qu'avec de la vitesse (`grip`) : tuer
+   la vitesse à chaque pas refusé scellait le chariot dans le coin **pour
+   de bon**, plus moyen d'en repartir. Il **glisse** le long du bord (on
+   essaie le pas entier, puis chaque axe séparément) et garde sa vitesse.
+   Corollaire : les roues tournent avec la distance **réellement**
+   parcourue, sinon il patine sur place.
+
+4. **Le défilement exige que le chariot ROULE** (`push *= min(1, |v| /
+   (SPD·0.25))`). Sur la seule position, un chariot garé en haut du cadre
+   tirait la page indéfiniment : on lâchait les touches et elle continuait
+   de remonter jusqu'en haut, sans moyen de l'arrêter.
+
+**Le plan caméra de conduite est SÉPARÉ de celui de la route**
+(`applyCam()`, `DCAM`). Les deux fractions de la route (`0.155` / `0.129`)
+ne bougent pas ; la conduite a les siennes, franchement plus plongeantes, et
+c'est une nécessité et non un goût : sous le plan route, la perspective
+écrase les lointains et la profondeur ne déplacerait le chariot que d'une
+soixantaine de pixels verticalement — « monter » ne voudrait rien dire, or
+c'est la hauteur qui commande la page. `DCAM.h/back/aim` sont solidaires
+entre eux et de `DCAM.start` (l'endroit où l'on entre sur le sol, calé pour
+que le chariot arrive au repos hors des deux bandes).
+
+Coupé partout où le chariot l'est déjà : `circuitChariot()` n'est appelé
+que par `circuitScrub()` après ses gardes (reduced-motion, < 768 px,
+viewport < 640 px, pas de WebGL), donc **aucun écouteur clavier n'existe**
+dans ces cas — et le CSS masque fiche, bandeau et voile sous 768 px.
+
 **Statut de la refonte par page** (à mettre à jour à chaque page migrée) :
 - ✅ Accueil général du site (`/index.html`) — enrichi + animé (voir ci-dessus)
 - ✅ Accueil de l'œuvre Le Capital (hero + onglets Lire/Atelier/Ressources)
