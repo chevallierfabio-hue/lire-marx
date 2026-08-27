@@ -486,7 +486,10 @@
      ~/Desktop/circuit-du-capital (Vehicle.group sérialisé par toJSON) :
      géométries paramétriques + matériaux, ~28 Ko gzippés, relu par
      THREE.ObjectLoader — aucun loader supplémentaire à vendoriser.
-     Le défilement le fait rouler de gauche à droite ; la cargaison qu'il
+     Le défilement le fait rouler le long d'une COURBE en profondeur : il
+     s'éloigne derrière le texte au milieu du parcours, puis revient vers
+     nous et sort plus grand qu'il n'est entré (cap sur la tangente, roulis
+     dans le virage, brume qui l'efface au loin). La cargaison qu'il
      transporte change avec le palier du circuit (argent → moyens de
      production → marchandises → argent grossi), exactement comme en jeu.
      Coupé sous no-motion / < 768 px / viewport court / sans WebGL. — */
@@ -499,7 +502,30 @@
 
     var renderer, scene, camera, rig = null, wheels = [], cargos = {}, lamp = null;
     var raf = null, running = false, onScreen = false;
-    var cp = 0, idx = 0, lastX = null, spin = 0;
+    var cp = 0, idx = 0, last = null, spin = 0;
+
+    /* — Le chemin. Pas une translation : une courbe en profondeur, dessinée
+       autant pour le sens que pour la composition.
+         · une ondulation (Z_WAVE) creuse le milieu du parcours : au moment
+           où le texte du palier est le plus long, le chariot s'ÉLOIGNE —
+           plus petit, mangé par la brume, il passe derrière la lecture ;
+         · une dérive (Z_GAIN) le ramène vers nous sur toute la course : il
+           sort plus près, plus grand qu'il n'est entré. Le circuit revient
+           grossi, et c'est le chariot lui-même qui le dit.
+       Le cap suit la tangente et il s'incline dans le virage : il pilote,
+       il ne glisse pas. */
+    var Z_BASE = -4.2, Z_WAVE = 3.0, Z_GAIN = 5.2;
+    function pathAt(t) {
+      var R = reach(), tau = Math.PI * 2;
+      return {
+        x:  (t * 2 - 1) * R,
+        z:  Z_BASE + Z_WAVE * Math.cos(tau * t) + Z_GAIN * t,
+        dx: 2 * R,
+        dz: -tau * Z_WAVE * Math.sin(tau * t) + Z_GAIN,
+        /* dérivée seconde ≈ courbure : sert au roulis dans le virage */
+        cz: -tau * tau * Z_WAVE * Math.cos(tau * t)
+      };
+    }
 
     try {
       renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
@@ -509,6 +535,12 @@
 
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera(30, 1, 0.5, 160);
+    /* Brume à la couleur exacte de la section : ce qui est loin se fond
+       dans le fond (canvas translucide sur --surface ⇒ disparition nette).
+       Combinée à la courbe en profondeur, elle fait émerger le chariot de
+       l'obscurité à l'entrée et l'y renvoie à la sortie. Bornes recalées
+       sur le recul de caméra dans resize(). */
+    if (THREE.Fog) scene.fog = new THREE.Fog(0x1e1710, 26, 49);
 
     /* lumière d'atelier à la bougie : clé chaude, contre-jour rouge drapeau */
     scene.add(new THREE.AmbientLight(0x3d2c1b, 0.95));
@@ -536,8 +568,10 @@
 
     /* Cadrage : recul choisi pour que le chariot occupe ~15 % de la largeur
        quel que soit l'écran ; hauteur de caméra et point visé restent
-       proportionnels au recul, donc l'angle de vue et la position basse dans
-       l'image (essieux vers 90 % de la hauteur) ne bougent pas. */
+       proportionnels au recul, donc l'angle de vue et la bande basse où
+       roule le chariot ne bougent pas. Le point visé (0.232) est calé pour
+       que le passage le plus rapproché de la courbe reste sous le bloc de
+       texte sans jamais sortir par le bas. */
     function resize() {
       var w = canvas.clientWidth || 1, h = canvas.clientHeight || 1;
       renderer.setSize(w, h, false);
@@ -545,8 +579,10 @@
       var d = 57 / camera.aspect;
       d = d < 26 ? 26 : d > 46 ? 46 : d;
       camera.position.set(0, 0.265 * d, d);
-      camera.lookAt(0, 0.212 * d, 0);
+      camera.lookAt(0, 0.232 * d, 0);
       camera.updateProjectionMatrix();
+      if (scene.fog) { scene.fog.near = d - 9; scene.fog.far = d + 15; }
+      last = null;                 /* le recul change : on ne compare plus */
     }
 
     /* demi-course : de quoi entrer et sortir complètement du cadre */
@@ -557,19 +593,38 @@
 
     function place(now) {
       if (!rig) return;
-      var R = reach();
-      var x = (cp * 2 - 1) * R;
-      /* première frame : pas de « saut » de roues depuis un x fictif */
-      var dx = (lastX === null) ? 0 : x - lastX;
-      lastX = x;
-      rig.position.x = x;
-      /* trépidation des pavés + roulis, comme dans le jeu */
-      var v = Math.min(1, Math.abs(dx) * 6);
+      var p = pathAt(cp);
+      /* première frame : pas de « saut » de roues depuis une position fictive */
+      var mx = (last === null) ? 0 : p.x - last.x;
+      var mz = (last === null) ? 0 : p.z - last.z;
+      last = p;
+      var moved = Math.sqrt(mx * mx + mz * mz);   /* longueur d'arc parcourue */
+
+      rig.position.x = p.x;
+      rig.position.z = p.z;
+      /* trépidation des pavés, proportionnelle à l'allure */
+      var v = Math.min(1, moved * 6);
       rig.position.y = Math.sin(now * 0.013) * 0.05 * (0.35 + v);
-      rig.rotation.z = Math.sin(now * 0.0021) * 0.012;
-      if (shadow) { shadow.position.x = x; shadow.visible = true; }
+
+      /* CAP : le chariot regarde là où il va. Le jeu le fait avancer vers
+         son +Z local, et rotation.y = θ envoie ce +Z sur (sinθ, cosθ) — le
+         cap est donc exactement atan2(dx, dz). Le léger biais garde une vue
+         de trois quarts au milieu du parcours, où la tangente est un profil
+         strict (et le profil strict est l'angle le moins flatteur). */
+      rig.rotation.y = Math.atan2(p.dx, p.dz) + 0.26;
+      /* ROULIS : il s'incline dans la courbe, comme dans le jeu. Borné à
+         ~4° — la courbure brute penche jusqu'à 11° aux extrémités, ce qui
+         donne un chariot couché, pas un chariot qui vire. */
+      var lean = p.cz * 0.0007;
+      if (lean > 0.07) lean = 0.07; else if (lean < -0.07) lean = -0.07;
+      rig.rotation.z = lean + Math.sin(now * 0.0021) * 0.012;
+
+      if (shadow) {
+        shadow.position.x = p.x; shadow.position.z = p.z;
+        shadow.visible = true;
+      }
       /* les roues tournent avec la distance parcourue (r arrière .8, avant .54) */
-      spin += dx;
+      spin += moved * (mx < 0 ? -1 : 1);
       for (var i = 0; i < wheels.length; i++) {
         wheels[i].obj.rotation.x = -spin / wheels[i].r;
       }
@@ -613,10 +668,7 @@
     }).then(function (json) {
       new THREE.ObjectLoader().parse(json, function (obj) {
         rig = obj;
-        /* le jeu fait avancer le chariot vers son +Z local : on l'oriente
-           vers la droite de l'écran, de trois quarts avant. */
-        rig.rotation.y = Math.PI / 2 + 0.32;
-        rig.scale.setScalar(0.85);
+        rig.scale.setScalar(0.78);   /* le cap est posé à chaque frame par place() */
         rig.traverse(function (o) {
           if (!o.name) return;
           if (o.name.indexOf('wheel-') === 0) {
