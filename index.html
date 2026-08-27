@@ -473,8 +473,9 @@ html:not(.no-anim) .hs-hero .hs-right{
   will-change:opacity,filter,transform;}
 
 /* D. Cartes — inclinaison qui suit le curseur + lueur de bougie */
-.hs-do-card,.hs-w-card{--rx:0deg;--ry:0deg;--lift:0px;
-  transform:perspective(950px) rotateX(var(--rx)) rotateY(var(--ry)) translateY(var(--lift));}
+.hs-do-card,.hs-w-card{--rx:0deg;--ry:0deg;--lift:0px;--drop:0px;--tilt:0deg;
+  transform:perspective(950px) translateY(var(--drop)) rotate(var(--tilt))
+    rotateX(var(--rx)) rotateY(var(--ry)) translateY(var(--lift));}
 .hs-do-card:hover,.hs-w-card:hover{--lift:-4px;}
 .hs-do-card.tilting,.hs-w-card.tilting{transition:box-shadow .22s,border-color .22s;}
 .hs-do-card::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
@@ -483,6 +484,22 @@ html:not(.no-anim) .hs-hero .hs-right{
     rgba(216,173,76,.18),transparent 62%);}
 .hs-do-card.glow::after{opacity:1;}
 .hs-do-card h3,.hs-do-card p,.hs-do-n{position:relative;z-index:2;}
+
+/* F. « Ce que vous pouvez faire » — les trois feuillets se posent.
+   La réglure est là en permanence (un feuillet, pas une carte) ; sans JS
+   elle est entièrement révélée, et .poses la fait balayer au défilement. */
+.hs-do-card::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  border-radius:inherit;opacity:.6;
+  background-image:repeating-linear-gradient(to bottom,
+    var(--border) 0 1px,transparent 1px 15px);
+  background-repeat:no-repeat;background-size:100% 104px;
+  -webkit-mask-image:linear-gradient(to bottom,#000 0,#000 var(--sweep,999px),
+    transparent calc(var(--sweep,999px) + 42px));
+  mask-image:linear-gradient(to bottom,#000 0,#000 var(--sweep,999px),
+    transparent calc(var(--sweep,999px) + 42px));}
+.hs-do-grid.poses .hs-do-card{--sweep:0px;opacity:0;will-change:transform,opacity;}
+.hs-do-grid.poses .hs-do-n{opacity:calc(.15 * var(--ink,0));
+  transform:translateY(calc((1 - var(--ink,0)) * 7px));}
 
 /* E. Hero — halo « projecteur » depuis la bougie, derrière le portrait */
 .hs-right{will-change:transform;}
