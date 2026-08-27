@@ -18,6 +18,8 @@
    - heroParallax()   : parallaxe fine du portrait du héros
    - developImages()  : photos d'archive du catalogue révélées par balayage
    - magneticButtons(): CTA principaux attirés vers le curseur
+   - timelineStrip()  : « en préparation » = frise chronologique horizontale
+                        (défilement natif + glisser souris + flèches clavier)
 
    La révélation orchestrée du héros (classe .lit sur .hs-hero) est pilotée
    par le script inline en bas de index.html (fiable, non différé).
@@ -304,11 +306,11 @@
         '</div></a>';
     }
     function planRow(w) {
-      return '<li class="hs-p-row">' +
-        '<span class="hs-p-year">' + esc(w.year) + '</span>' +
-        '<span class="hs-p-title">' + esc(w.title) + '</span>' +
-        '<span class="hs-p-cat">' + esc(catLabel(w.category)) + '</span>' +
-      '</li>';
+      return '<div class="hs-tl-card" role="listitem">' +
+        '<span class="hs-tl-year">' + esc(w.year) + '</span>' +
+        '<span class="hs-tl-title">' + esc(w.title) + '</span>' +
+        '<span class="hs-tl-cat">' + esc(catLabel(w.category)) + '</span>' +
+      '</div>';
     }
 
     function render(works) {
@@ -317,7 +319,7 @@
       var plan = works.filter(function (w) { return w.status !== 'available'; })
                       .sort(function (a, b) { return a.year - b.year; });
       if (availEl) { availEl.innerHTML = avail.map(availCard).join(''); try { armDev(availEl); } catch (e) {} }
-      if (planEl) planEl.innerHTML = plan.map(planRow).join('');
+      if (planEl) { planEl.innerHTML = plan.map(planRow).join(''); try { timelineStrip(); } catch (e) {} }
       if (countEl) {
         countEl.textContent = avail.length + (avail.length > 1 ? ' œuvres disponibles' : ' œuvre disponible') +
           ' · ' + plan.length + ' en préparation';
@@ -517,6 +519,51 @@
     }, { passive: true });
   }
 
+  /* — 4. Frise chronologique du corpus : défilement horizontal natif
+     (trackpad / molette↔ / barre) + glisser à la souris + flèches clavier.
+     Aucun scroll-hijack : la molette verticale laisse la page défiler. — */
+  function timelineStrip() {
+    var track = document.getElementById('lib-planned');
+    if (!track || track.dataset.tl) return;
+    if (!track.classList.contains('hs-timeline-track')) return;
+    track.dataset.tl = '1';
+
+    /* glisser à la souris (le tactile garde le défilement natif) */
+    var down = false, startX = 0, startLeft = 0, moved = 0;
+    track.addEventListener('pointerdown', function (e) {
+      if (e.pointerType !== 'mouse' || (e.button && e.button !== 0)) return;
+      down = true; moved = 0; startX = e.clientX; startLeft = track.scrollLeft;
+      track.classList.add('dragging');
+      try { track.setPointerCapture(e.pointerId); } catch (x) {}
+    });
+    track.addEventListener('pointermove', function (e) {
+      if (!down) return;
+      var dx = e.clientX - startX;
+      if (Math.abs(dx) > moved) moved = Math.abs(dx);
+      track.scrollLeft = startLeft - dx;
+    });
+    function endDrag() {
+      if (!down) return;
+      down = false;
+      track.classList.remove('dragging');
+    }
+    track.addEventListener('pointerup', endDrag);
+    track.addEventListener('pointercancel', endDrag);
+    track.addEventListener('click', function (e) {
+      if (moved > 6) { e.preventDefault(); e.stopPropagation(); }
+    }, true);
+
+    /* clavier quand la frise a le focus */
+    track.addEventListener('keydown', function (e) {
+      var beh = REDUCE ? 'auto' : 'smooth';
+      var step = Math.max(200, track.clientWidth * 0.85);
+      if (e.key === 'ArrowRight') { track.scrollBy({ left: step, behavior: beh }); e.preventDefault(); }
+      else if (e.key === 'ArrowLeft') { track.scrollBy({ left: -step, behavior: beh }); e.preventDefault(); }
+      else if (e.key === 'Home') { track.scrollTo({ left: 0, behavior: beh }); e.preventDefault(); }
+      else if (e.key === 'End') { track.scrollTo({ left: track.scrollWidth, behavior: beh }); e.preventDefault(); }
+    });
+  }
+
   /* — C. Chiffres clés : comptage animé à l'entrée en vue — */
   function countUp() {
     var stats = document.querySelector('.hs-stats');
@@ -622,6 +669,7 @@
     try { heroParallax(); } catch (e) { /* non bloquant */ }
     try { developImages(); } catch (e) { /* non bloquant */ }
     try { magneticButtons(); } catch (e) { /* non bloquant */ }
+    /* timelineStrip() est appelé par catalogue() une fois les cartes rendues */
   }
   function fallbackReveal() {
     var els = document.querySelectorAll('.reveal, .reveal-stagger, .circuit-band');
