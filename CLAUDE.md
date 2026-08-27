@@ -260,57 +260,60 @@ le défilement (roues qui tournent, trépidation, lanterne qui vacille,
 marchandises → argent). Un voile radial (`.circuit-veil`) garde le texte
 lisible par-dessus.
 
-Le trajet n'est **pas** une translation rectiligne : `pathAt(t)` décrit une
-**courbe en cuvette**, du fond en haut à gauche vers le premier plan en haut
-à droite, en passant par un creux au milieu. Trois composantes : X traverse ;
-`yAt(t)` fait le RELIEF — descente de `Y_TOP` vers `Y_LOW` jusqu'à `T_LOW`
-(mi-course, exposant `Y_EASE` > 1 : il plonge vite puis s'aplanit), puis
-REMONTÉE vers `Y_END` sur toute la seconde moitié (exposant `Y_RISE` < 1 :
-elle s'enlève tout de suite). Il passe donc au plus bas sous le bloc de texte
-à mi-parcours, et ressort haut et proche ; `Z_FAR → Z_NEAR` l'amène vers
-nous (il sort plus grand qu'il n'est entré : le circuit revient grossi) et
-`Z_TURN` y superpose **un seul** virage (`sin(π t)`) : il entre braqué
-vers nous, se redresse, et ressort braqué de l'autre côté. Deux virages se
-lisaient comme un frétillement. Le roulis suit la courbure, bridé à ~4°.
+Le trajet est **une route**, pas une trajectoire aérienne. Le chariot roule
+sur un sol plat (`Y_ROAD`, à l'ondulation du pavé près) et c'est la
+**profondeur** qui fait tout le relief à l'écran : `Z` part du fond
+(`Z_FAR`), s'incurve franchement vers le premier plan à mi-course
+(`Z_BEND`), puis repart vers le fond sans y retourner tout à fait (`Z_END`
+reste en deçà de `Z_FAR` — le circuit revient grossi, et c'est le chariot
+qui le dit). Il grossit en approchant, décroît en s'éloignant, et son cap
+tourne d'une trentaine de degrés : il entre braqué vers nous, se met de
+profil au plus près, ressort braqué vers le fond. `X` traverse pleine
+largeur. `scene.fog` est réglé sur la couleur exacte de `--surface`, donc le
+lointain disparaît vraiment. Le roulis suit la courbure, bridé à ~4° ;
+l'assiette suit la pente du pavé, bridée à ~11°.
 
-**L'assiette suit la pente** (`rig.rotation.x`, bornée à `PITCH_MAX` ≈ 11°,
-lissée d'une image à l'autre). Sans elle, le chariot montait la côte **à
-plat** : il ne roulait pas, il glissait. Deux points de mécanique :
-`rig.rotation.order` est passé à **`'YXZ'`** — en `'XYZ'` (défaut),
-`rotation.x` tourne autour du X du MONDE et le chariot pique de travers dès
-qu'il est braqué ; et la pente est prise sur le déplacement **visible**
-(`dy / hypot(dx, dz·HEAD_DAMP)`), pour la même raison que le cap. La
-remontée est en `1 - (1-u)^Y_RISE` et non `u^0.75` : les deux montent aussi
-vite, mais la seconde part d'une pente **infinie** au creux — le chariot s'y
-cabrait à la verticale d'un coup.
-`scene.fog` est réglé sur la couleur exacte de `--surface`, donc le
-lointain disparaît vraiment.
+**Historique — trois formes essayées, ne pas revenir en arrière :**
+1. Diagonale descendante en Y jusqu'au bord bas. Trop basse.
+2. Cuvette en Y : descente puis remontée. **Rejetée** — le chariot
+   s'élevait littéralement, il ne roulait plus, il lévitait, et la remontée
+   était brutale parce qu'aucun véhicule ne monte comme ça.
+3. **La route** (actuelle) : Y au sol, tout le relief par la profondeur.
 
-**Deux pièges déjà rencontrés — ne pas les refaire :**
-- Le « haut → bas » doit venir de Y, PAS de la profondeur. La perspective
-  écrase les lointains : un grand écart de Z ne déplace le chariot que
-  d'une soixantaine de pixels tout en le forçant à entrer de face et en
-  imposant une caméra plongeante peu flatteuse.
-- Le cap ne doit PAS être la tangente 3D exacte. `atan2(dx, dz)` brut
-  donne un chariot qui **dérape** : la perspective écrase le déplacement
-  en profondeur, si bien qu'une caisse braquée de 30° vers nous se déplace
-  à l'écran presque à l'horizontale. D'où `HEAD_DAMP` — on ne retient que
-  la part *visible* de `dz`, la caisse se recale sur sa trajectoire
-  apparente, et le virage se lit quand même par la variation du cap.
+**Le piège de la profondeur, revisité.** Il reste vrai que la perspective
+écrase les lointains : la profondeur seule ne déplace le chariot que d'une
+soixantaine de pixels VERTICALEMENT. Ce n'était un problème que tant qu'on
+cherchait un « haut → bas ». Sur une route, c'est le but : elle se traverse,
+elle ne se gravit pas — le relief se lit à la **taille** et au **cap**, pas
+à la hauteur. Ce qui devient critique, en revanche, c'est le **cadrage** :
+les deux fractions de `resize()` (`0.155 * d` pour la caméra, `0.129 * d`
+pour le point visé) décident à quelle hauteur la route traverse l'image.
+Les rapprocher aplatit la vue jusqu'à ce que la route ne se lise plus ; les
+écarter donne une plongée d'hélicoptère. Le propriétaire a tranché que le
+chariot **peut passer devant le texte** — le voile suffit à garder la
+lecture — donc ne pas re-sacrifier le cadrage pour l'éviter.
 
-**Réglages solidaires — ne pas en toucher un seul isolément** : `Y_TOP` /
-`Y_LOW` / `Y_END` / `T_LOW` / `Y_EASE` / `Y_RISE` / `Z_*` / `HEAD_DAMP`, les
-coefficients de caméra `0.296 * d` et `0.270 * d` dans `resize()`, l'échelle
-`0.78` du rig, et le `padding-bottom` de `.js-circuit .circuit-band` (qui
-remonte le bloc de texte). Ils sont calés ensemble pour que la course reste
-entière dans le cadre — `Y_LOW` tient le creux au-dessus du bord bas.
+**Le cap ne doit PAS être la tangente 3D exacte.** `atan2(dx, dz)` brut
+donne un chariot qui **dérape** : la perspective écrase le déplacement en
+profondeur, si bien qu'une caisse braquée de 30° vers nous se déplace à
+l'écran presque à l'horizontale. D'où `HEAD_DAMP` — on ne retient que la
+part *visible* de `dz`. Même correction pour l'assiette, qui prend la pente
+sur `dy / hypot(dx, dz·HEAD_DAMP)`. Et `rig.rotation.order = 'YXZ'` : en
+`'XYZ'` (défaut) `rotation.x` tourne autour du X du MONDE, le chariot
+piquerait de travers dès qu'il est braqué.
+
+**Réglages solidaires — ne pas en toucher un seul isolément** : `Y_ROAD` /
+`Y_BUMP` / `BUMPS` / `Z_FAR` / `Z_END` / `Z_BEND` / `HEAD_DAMP` /
+`PITCH_MAX`, les deux fractions de caméra dans `resize()`, l'échelle `0.78`
+du rig, et le `padding-bottom` de `.js-circuit .circuit-band`.
 
 **Le chariot sort du cadre par la droite vers t ≈ 0,82**, pas à t = 1 : `x`
 dépasse `reach()` avant la fin de la course. Toute mise en forme de la
-seconde moitié doit donc se jouer **avant** ce seuil — c'est pourquoi
-`Y_RISE` vaut 0,75 et non 1,5 : avec un exposant > 1 la remontée était à
-peine amorcée que le chariot avait déjà quitté l'image. Vérifier une
-modification de `yAt` en figeant `q` à 0,5 / 0,7 / 0,8, pas à 0,9.
+seconde moitié doit se jouer **avant** ce seuil. Pour vérifier une
+modification du chemin, poser une sonde temporaire qui fige `q` (0,12 / 0,5 /
+0,82) et rend une image — mais attention, un `scrollIntoView` qui se stabilise
+écrase la sonde une fraction de seconde plus tard : appeler la sonde et
+capturer l'écran **sans rien faire défiler entre les deux**.
 
 **Fenêtre de défilement propre au chariot.** `circuitScrub` lui passe
 `raw` (position brute de l'épinglage, négative avant / > 1 après), pas
