@@ -204,36 +204,34 @@ cinématique, aux mêmes couleurs : bougeoir laiton `#9a7b30`, cire crème
 `#e9ddc2`, flamme `#ffd27a`, halo orangé `#ff9c3a`, et jusqu'au filet de
 fumée. **Tout est en CSS** — un troisième contexte WebGL sur la page (il y a
 déjà `#hero-bg` et `#circuit-bg`, plus celui de l'intro) pour un décor de
-130 px ne se justifiait pas.
+130 px ne se justifiait pas. Elle se tient **à droite, près du feuillet**,
+qu'elle éclaire : à gauche elle tombait derrière le bouton. `--candle-r`
+tient la bougie ET le halo sur le même axe — c'est la flamme qui est la
+source, le halo n'est que ce qu'elle éclaire ; les déplacer séparément
+casserait la lumière.
 
-Elle se tient **en haut, vers le milieu** (`--candle-x` / `--candle-y`, qui
-tiennent la bougie ET son halo sur le même point : c'est la flamme qui est
-la source). 66 % et non 50 % — au milieu exact elle tombait sur la phrase ;
-et `z-index:1`, sous `.hs-closer-inner` (2), pour que le texte passe devant
-si elle le mord. Sur petit écran elle remonte dans la marge haute, à 84 %.
+C'est le **défilement qui l'allume** : `--lum` pilote l'opacité de la
+flamme, de sa lueur proche et de la fumée. La bande arrive donc sur une
+bougie éteinte, et « la bougie prend » devient littéral.
 
-Elle **TOURNOIE SUR SA LONGUEUR en s'allumant**, comme une toupie :
-`--up` la fait tourner de trois tours en **`rotateY`** — autour de son axe
-vertical, avec une `perspective(700px)` pour que ça se lise en volume, la
-cire s'affinant jusqu'au fil puis s'élargissant à chaque quart de tour. Et
-elle **grossit** en tournant, de `.55` à sa taille pleine. `--flame` allume
-la flamme, sa lueur, la fumée et le halo **pendant qu'elle tourne encore**,
-et finit de s'établir quand elle s'immobilise.
+**Elle ne bouge pas — trois mises en mouvement ont été essayées et toutes
+abandonnées.** Ne pas les reproposer : (1) pivot au pied, elle *se relève*
+depuis le sol ; (2) `rotate()` 2D autour du centre, elle *culbute* dans le
+plan ; (3) `rotateY()` avec perspective, elle *tournoie sur sa longueur*
+comme une toupie. Le propriétaire a tranché pour une bougie **posée en bas
+de bande, immobile**, qui se contente de s'allumer. Un déplacement en haut
+de bande avait accompagné les essais (2) et (3) : lui aussi est annulé.
 
-**Trois rotations ont été essayées — ne pas revenir aux deux premières :**
-1. Pivot au pied (`transform-origin` en bas, `rotate` 2D) : la bougie *se
-   relève* depuis le sol. Écarté.
-2. `rotate()` 2D autour du centre : elle *culbute* dans le plan. Écarté.
-3. **`rotateY()` avec perspective** : elle tournoie sur sa longueur.
-   C'est celle-ci.
-
-**Ancien piège, aujourd'hui sans objet mais à connaître** : quand la bougie
-était posée en **bas** de la bande, elle ne pouvait pas être chronométrée
-sur le haut de la bande. La bande est la **dernière section de la page** :
-son bas ne remonte jamais au-dessus du pli, puisque rien ne défile au-delà —
-la bougie jouait donc tout son geste sous le pli. Il avait fallu la caler
-sur `rect.bottom - vh`. En haut de bande, elle est visible dès l'entrée et
-le haut suffit. Si on la redescend un jour, ce piège revient.
+Au passage, un piège qui redeviendrait vrai si on la remettait en mouvement :
+posée au **bas** de la bande, elle ne peut pas être chronométrée sur le haut
+de celle-ci. La bande est la **dernière section de la page**, son bas ne
+remonte jamais au-dessus du pli puisque rien ne défile au-delà — un geste
+mesuré sur le haut se jouerait entièrement sous le pli. Il faudrait le caler
+sur `rect.bottom - vh`. Deux animations
+distinctes une fois `.alight` posée : `lm-flame` tord la flamme (3,1 s) et
+`lm-candle` fait respirer le halo (8,4 s) — deux périodes **non
+multiples**, sinon l'œil les resynchronise et la flamme se met à battre la
+mesure.
 
 **Bande finale — la bougie prend (`closerCandle()`).** C'était la seule
 section de la page sans la moindre animation (pas même un `.reveal`), et son

@@ -1190,23 +1190,11 @@
     if (!band) return;
     document.documentElement.classList.add('js-candle');
 
-    function cl01(v) { return v < 0 ? 0 : (v > 1 ? 1 : v); }
-    function ease(v) { return v * v * (3 - 2 * v); }
-
     addScrollSub(function (y, vh) {
       var r = band.getBoundingClientRect();
-      /* Tout se joue sur la position du HAUT de la bande : la bougie est
-         maintenant en haut au milieu, donc visible dès l'entrée — plus
-         besoin de la chronométrer à part comme quand elle était posée en
-         bas (elle s'y relevait sous le pli, cf. CLAUDE.md).
-           · --lum  : la bande s'éclaire, le texte devient lisible ;
-           · --up   : le tourbillon, tôt et long ;
-           · --flame: la mèche prend PENDANT qu'elle tourne encore, et finit
-                      de s'établir quand elle s'immobilise. */
-      var e = ease(cl01((vh * 0.98 - r.top) / (vh * 0.46)));
-      band.style.setProperty('--lum', e.toFixed(4));
-      band.style.setProperty('--up', ease(cl01((e - 0.08) / 0.56)).toFixed(4));
-      band.style.setProperty('--flame', ease(cl01((e - 0.34) / 0.5)).toFixed(4));
+      var q = (vh * 0.98 - r.top) / (vh * 0.46);
+      q = q < 0 ? 0 : (q > 1 ? 1 : q);
+      band.style.setProperty('--lum', (q * q * (3 - 2 * q)).toFixed(4));
       return true;
     });
 
