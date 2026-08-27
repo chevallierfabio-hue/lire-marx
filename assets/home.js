@@ -424,32 +424,43 @@
     }, 7000);
   }
 
-  /* — B/1. Le circuit du capital : le défilement déplie A→M→P→M′→A′ — la
-     barre coule en continu, les nœuds et les paliers de texte s'enchaînent
-     par cran. Statique (tous les paliers empilés) sous reduced-motion ou
-     < 768 px. — */
+  /* — B/1. « Le jeu » : section épinglée, le défilement déplie la boucle
+     A→M→P→M′→A′. Le palier A tient le premier tiers du parcours (temps de
+     lire avant que ça avance) ; barre et nœuds se calent sur le palier
+     courant. Statique (tout empilé) sous reduced-motion, < 768 px, ou
+     viewport trop court. — */
   function circuitScrub() {
+    var pin = document.querySelector('.circuit-pin');
     var band = document.querySelector('.circuit-band');
     if (!band) return;
     var nodes = [].slice.call(band.querySelectorAll('.circuit-node'));
     var steps = [].slice.call(band.querySelectorAll('.circuit-step'));
+    var nS = steps.length || 1;
 
-    if (REDUCE || window.innerWidth < 768) {
+    function stat() {
       band.style.setProperty('--cp', '1');
       nodes.forEach(function (n) { n.classList.add('lit'); });
-      return;
     }
+    if (REDUCE || window.innerWidth < 768 || !pin) { stat(); return; }
 
     document.documentElement.classList.add('js-circuit');
-    var nS = steps.length || 1;
+    /* si le viewport est trop court, le CSS dépingle : on rend statique. */
+    if (window.innerHeight <= 640) { stat(); return; }
+
     addScrollSub(function (y, vh) {
-      var r = band.getBoundingClientRect();
-      /* 0 quand le haut de la bande atteint 80 % de l'écran, 1 après
-         l'avoir remontée d'un peu plus d'un écran */
-      var p = (vh * 0.8 - r.top) / (r.height + vh * 0.15);
+      var r = pin.getBoundingClientRect();
+      var span = r.height - vh;
+      var raw = span > 0 ? (-r.top) / span : 0;
+      /* marge en tête (la bande se pose) et en queue (A′ reste lisible) */
+      var p = (raw - 0.08) / 0.82;
       p = p < 0 ? 0 : p > 1 ? 1 : p;
-      band.style.setProperty('--cp', p.toFixed(4));       /* barre + étincelle : continu */
-      var idx = Math.min(nS - 1, Math.floor(p * nS));     /* nœuds + texte : par cran */
+
+      /* A occupe le premier tiers ; M, P, M′, A′ se partagent le reste. */
+      var idx;
+      if (p < 0.34 || nS <= 1) { idx = 0; }
+      else { idx = Math.min(nS - 1, 1 + Math.floor((p - 0.34) / (0.66 / (nS - 1)))); }
+
+      band.style.setProperty('--cp', (idx / (nS - 1)).toFixed(4));
       nodes.forEach(function (n, i) { n.classList.toggle('lit', i <= idx); });
       steps.forEach(function (s, i) { s.classList.toggle('on', i === idx); });
       return true;
