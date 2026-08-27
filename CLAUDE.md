@@ -261,10 +261,13 @@ marchandises → argent). Un voile radial (`.circuit-veil`) garde le texte
 lisible par-dessus.
 
 Le trajet n'est **pas** une translation rectiligne : `pathAt(t)` décrit une
-**diagonale courbe**, du fond haut-gauche vers le premier plan bas-droite.
-Trois composantes : X traverse ; `Y_TOP → 0` (exposant `Y_EASE`) fait la
-DESCENTE — il plonge vite puis roule au ras du bas, ce qui le fait passer
-sous le bloc de texte au milieu du parcours ; `Z_FAR → Z_NEAR` l'amène vers
+**courbe en cuvette**, du fond en haut à gauche vers le premier plan en haut
+à droite, en passant par un creux au milieu. Trois composantes : X traverse ;
+`yAt(t)` fait le RELIEF — descente de `Y_TOP` vers `Y_LOW` jusqu'à `T_LOW`
+(mi-course, exposant `Y_EASE` > 1 : il plonge vite puis s'aplanit), puis
+REMONTÉE vers `Y_END` sur toute la seconde moitié (exposant `Y_RISE` < 1 :
+elle s'enlève tout de suite). Il passe donc au plus bas sous le bloc de texte
+à mi-parcours, et ressort haut et proche ; `Z_FAR → Z_NEAR` l'amène vers
 nous (il sort plus grand qu'il n'est entré : le circuit revient grossi) et
 `Z_TURN` y superpose **un seul** virage (`sin(π t)`) : il entre braqué
 vers nous, se redresse, et ressort braqué de l'autre côté. Deux virages se
@@ -285,13 +288,18 @@ lointain disparaît vraiment.
   apparente, et le virage se lit quand même par la variation du cap.
 
 **Réglages solidaires — ne pas en toucher un seul isolément** : `Y_TOP` /
-`Y_FLOOR` / `Y_EASE` / `Z_*` / `HEAD_DAMP`, les coefficients de caméra
-`0.296 * d` et `0.270 * d` dans `resize()`, l'échelle `0.78` du rig, et le
-`padding-bottom` de `.js-circuit .circuit-band` (qui remonte le bloc de
-texte pour dégager la bande basse). Ils sont calés ensemble pour que la
-diagonale reste entière dans le cadre — `Y_FLOOR` en particulier retient
-la fin de course au-dessus du bord bas, là où le virage l'amène au plus
-près de nous.
+`Y_LOW` / `Y_END` / `T_LOW` / `Y_EASE` / `Y_RISE` / `Z_*` / `HEAD_DAMP`, les
+coefficients de caméra `0.296 * d` et `0.270 * d` dans `resize()`, l'échelle
+`0.78` du rig, et le `padding-bottom` de `.js-circuit .circuit-band` (qui
+remonte le bloc de texte). Ils sont calés ensemble pour que la course reste
+entière dans le cadre — `Y_LOW` tient le creux au-dessus du bord bas.
+
+**Le chariot sort du cadre par la droite vers t ≈ 0,82**, pas à t = 1 : `x`
+dépasse `reach()` avant la fin de la course. Toute mise en forme de la
+seconde moitié doit donc se jouer **avant** ce seuil — c'est pourquoi
+`Y_RISE` vaut 0,75 et non 1,5 : avec un exposant > 1 la remontée était à
+peine amorcée que le chariot avait déjà quitté l'image. Vérifier une
+modification de `yAt` en figeant `q` à 0,5 / 0,7 / 0,8, pas à 0,9.
 
 **Fenêtre de défilement propre au chariot.** `circuitScrub` lui passe
 `raw` (position brute de l'épinglage, négative avant / > 1 après), pas

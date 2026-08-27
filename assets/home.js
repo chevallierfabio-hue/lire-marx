@@ -751,25 +751,39 @@
 
        Trois composantes, chacune pour une raison :
          · X, la traversée, de gauche à droite ;
-         · Y_TOP → 0, la DESCENTE. C'est elle qui fait le « haut → bas ».
-           La seule profondeur ne suffisait pas : la perspective écrase les
-           lointains, un grand écart de Z ne déplaçait le chariot que d'une
-           soixantaine de pixels tout en le forçant à rentrer de face. Ici
-           il dévale franchement la pente, et Z reste libre de rester
-           modéré (cap sain, croissance mesurée). L'exposant Y_EASE
-           (> 1) creuse la pente au début et l'aplanit ensuite : le chariot
-           plonge vite depuis le haut, puis roule au ras du bas de la
-           section. C'est ce qui le fait passer sous le bloc de texte au
-           milieu du parcours. `Y_FLOOR` empêche la fin de course de
-           descendre sous le bord bas du canvas, où le virage l'amène au
-           plus près de nous ;
+         · Y, le RELIEF : une descente puis une remontée. C'est lui qui fait
+           le « haut → bas → haut ». La seule profondeur ne suffisait pas :
+           la perspective écrase les lointains, un grand écart de Z ne
+           déplaçait le chariot que d'une soixantaine de pixels tout en le
+           forçant à rentrer de face. Ici il dévale franchement la pente, et
+           Z reste libre de rester modéré (cap sain, croissance mesurée).
+           Le creux est à T_LOW (mi-course) : l'exposant Y_EASE (> 1) creuse
+           la descente au début et l'aplanit à l'approche du creux — le
+           chariot plonge vite depuis le haut, passe au plus bas sous le
+           bloc de texte, puis Y_RISE le fait REMONTER sur toute la seconde
+           moitié, doucement d'abord puis franchement. Il ressort donc haut
+           et proche, pas au ras du bord bas. `Y_LOW` tient ce creux
+           au-dessus du bord bas du canvas ;
          · Z_FAR → Z_NEAR, l'approche : il grossit en venant vers nous —
            le circuit revient grossi, et c'est le chariot qui le dit —, et
            Z_TURN y superpose UN virage (une seule arche, `sin(π t)`) : le
            chariot entre braqué vers nous puis se redresse et file vers la
            droite. Un seul virage franc se lit ; deux se lisaient comme un
            frétillement. */
-    var Y_TOP = 9, Y_FLOOR = 1.2, Y_EASE = 1.9;
+    var Y_TOP = 9.5, Y_LOW = 3.9, Y_END = 8.2;
+    var T_LOW = 0.5;                 /* le creux : à mi-course */
+    /* Y_EASE > 1 : la descente plonge puis s'aplanit avant le creux.
+       Y_RISE < 1 : la remontée s'enlève TOUT DE SUITE après le creux — et
+       c'est indispensable, parce que le chariot quitte le cadre par la droite
+       vers t ≈ 0,82 : une remontée en douceur (exposant > 1) serait à peine
+       commencée qu'il serait déjà sorti. */
+    var Y_EASE = 1.9, Y_RISE = 0.75;
+    function yAt(t) {
+      if (t <= T_LOW) {
+        return Y_LOW + (Y_TOP - Y_LOW) * Math.pow(1 - t / T_LOW, Y_EASE);
+      }
+      return Y_LOW + (Y_END - Y_LOW) * Math.pow((t - T_LOW) / (1 - T_LOW), Y_RISE);
+    }
     var Z_FAR = -9, Z_NEAR = 3, Z_TURN = 6;
     /* part de dz retenue pour le cap (cf. « CAP » dans place()) */
     var HEAD_DAMP = 0.42;
@@ -777,7 +791,7 @@
       var R = reach(), pi = Math.PI;
       return {
         x:  (t * 2 - 1) * R,
-        y:  Y_FLOOR + (Y_TOP - Y_FLOOR) * Math.pow(1 - t, Y_EASE),
+        y:  yAt(t),
         z:  Z_FAR + (Z_NEAR - Z_FAR) * t + Z_TURN * Math.sin(pi * t),
         dx: 2 * R,
         dz: (Z_NEAR - Z_FAR) + pi * Z_TURN * Math.cos(pi * t),
