@@ -538,8 +538,11 @@
     }
 
     function render(works) {
+      /* Disponibles : la plus tardive d'abord — Le Capital ouvre la
+         bibliothèque, les Manuscrits suivent. (La frise « en préparation »,
+         elle, reste chronologique : c'est une trajectoire.) */
       var avail = works.filter(function (w) { return w.status === 'available'; })
-                       .sort(function (a, b) { return a.year - b.year; });
+                       .sort(function (a, b) { return b.year - a.year; });
       var plan = works.filter(function (w) { return w.status !== 'available'; })
                       .sort(function (a, b) { return a.year - b.year; });
       if (availEl) { availEl.innerHTML = avail.map(availCard).join(''); }
@@ -1036,6 +1039,20 @@
     var rows = track ? [].slice.call(track.querySelectorAll('.hs-tl-card')) : [];
     if (!cards.length && !rows.length) return;
     var root = document.documentElement;
+    /* Le défilement horizontal de la frise s'efface devant le lecteur : dès
+       qu'il la saisit (glisser, tactile, clavier, molette HORIZONTALE), on
+       cesse de la piloter. Une molette verticale ne compte pas — c'est le
+       geste de faire défiler la page, curseur posé n'importe où. */
+    var hManual = false;
+    if (track) {
+      var give = function () { hManual = true; };
+      track.addEventListener('pointerdown', give, { passive: true });
+      track.addEventListener('touchstart', give, { passive: true });
+      track.addEventListener('keydown', give);
+      track.addEventListener('wheel', function (e) {
+        if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) hManual = true;
+      }, { passive: true });
+    }
     /* le développement possède la révélation des cartes : sans ça, le fondu
        .reveal-stagger (déclenché plus tard que la course) les ferait apparaître
        d'un coup en plein milieu du tirage. */
@@ -1062,16 +1079,33 @@
           c.style.setProperty('--txt', ease(cl01((e - 0.35) / 0.5)).toFixed(4));
         }
       }
-      /* — la frise s'écrit — */
+      /* — la frise s'écrit ET défile — */
       if (rows.length) {
         var br = band.getBoundingClientRect();
         var d = cl01((vh * 0.92 - br.top) / (vh * 0.42));
         band.style.setProperty('--draw', d.toFixed(4));
+
+        /* La frise défile horizontalement pendant que la page défile
+           verticalement : la trajectoire se parcourt au lieu d'attendre
+           qu'on la traîne. Fenêtre plus longue que celle du filet — toute
+           la traversée de la bande dans le viewport —, sinon la frise
+           serait arrivée au bout avant qu'on ait eu le temps de la lire.
+           On lâche prise dès que le lecteur s'en empare lui-même. */
+        var maxS = track.scrollWidth - track.clientWidth;
+        if (!hManual && maxS > 4) {
+          var target = cl01((vh - br.top) / (vh + br.height)) * maxS;
+          if (Math.abs(track.scrollLeft - target) > 0.5) track.scrollLeft = target;
+        }
+
+        /* Chaque année s'allume quand le filet la dépasse. `f` n'est PAS
+           borné : une œuvre encore hors champ à droite a f > 1 et reste
+           éteinte — c'est ce qui fait que l'animation continue pendant que
+           la frise défile, chacune s'allumant à son entrée. */
         var W = track.clientWidth || 1, sx = track.scrollLeft || 0;
         for (i = 0; i < rows.length; i++) {
           var r = rows[i];
           var f = (r.offsetLeft - sx + r.offsetWidth * 0.3) / W;
-          if (f > 0.95) f = 0.95; if (f < 0) f = 0;
+          if (f < 0) f = 0;
           r.style.setProperty('--lit', cl01((d - f) / 0.05).toFixed(3));
         }
       }
