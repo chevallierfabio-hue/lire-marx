@@ -1,13 +1,20 @@
 /* =========================================================================
    home.js — mouvement de la page d'accueil (/index.html)
-   DA « Rouge Internationale » (fond clair). Chargé en `defer`, après
+   DA « sombre-chaude » (atelier à la bougie). Chargé en `defer`, après
    vendor/three.min.js.
 
    - reveal()        : IntersectionObserver (root = .hw) → classe .in
-                       (couvre aussi .circuit-band → déclenche l'étincelle)
    - marquee()       : duplique le bandeau de concepts pour une boucle nette
    - heroBg()        : fond WebGL discret — feuillets pâles qui dérivent
                        (coupé si reduced-motion ou < 768px ; pause hors-écran)
+
+   « Plus vivant » (inspiration zonixlab.com) — un seul pilote de
+   défilement (rAF + abonnés), tout se coupe sous no-motion / < 768 px :
+   - scrubReveal()   : titres révélés mot à mot au défilement
+   - circuitScrub()  : le scroll fait circuler le capital (A→M→P→M′→A′)
+   - countUp()       : comptage animé des chiffres clés à l'entrée en vue
+   - cardFx()        : inclinaison + lueur des cartes sous le curseur
+   - heroParallax()  : parallaxe fine du portrait du héros
 
    La révélation orchestrée du héros (classe .lit sur .hs-hero) est pilotée
    par le script inline en bas de index.html (fiable, non différé).
@@ -320,6 +327,210 @@
       .catch(function () { render(FALLBACK.works); });
   }
 
+  /* ═══════════════════════════════════════════════════════════════════════
+     « PLUS VIVANT » — inspiration zonixlab.com, transposée à l'atelier.
+     Un seul pilote de défilement (rAF, plusieurs abonnés). Tout se coupe
+     proprement sous prefers-reduced-motion ou en dessous de 768 px.
+     ═══════════════════════════════════════════════════════════════════════ */
+
+  var scrollSubs = [], scrollQueued = false, driverWired = false;
+  function runScrollSubs() {
+    scrollQueued = false;
+    var y = scrollPos(), vh = window.innerHeight || 1;
+    for (var i = scrollSubs.length - 1; i >= 0; i--) {
+      var keep = true;
+      try { keep = scrollSubs[i](y, vh); } catch (e) {}
+      if (keep === false) scrollSubs.splice(i, 1);
+    }
+  }
+  function onScrollDriver() {
+    if (scrollQueued) return;
+    scrollQueued = true;
+    requestAnimationFrame(runScrollSubs);
+  }
+  function addScrollSub(fn) {
+    scrollSubs.push(fn);
+    if (!driverWired) {
+      driverWired = true;
+      /* capture : attrape le scroll de .hw comme celui du viewport,
+         quel que soit le scroller réel du moment. */
+      document.addEventListener('scroll', onScrollDriver, { passive: true, capture: true });
+      window.addEventListener('resize', onScrollDriver);
+    }
+    try { fn(scrollPos(), window.innerHeight || 1); } catch (e) {}
+  }
+
+  /* — A. Titres révélés mot à mot au défilement — « l'encre qui prend » — */
+  function scrubReveal() {
+    if (REDUCE || window.innerWidth < 768) return;
+    var heads = [].slice.call(document.querySelectorAll('.hs-sec-h'));
+    if (!heads.length) return;
+    document.documentElement.classList.add('js-viv');
+
+    var INLINE = { EM: 1, I: 1, B: 1, STRONG: 1, SPAN: 1 };
+    var items = heads.map(function (h) {
+      h.classList.remove('reveal');
+      h.classList.add('in');
+      var words = [];
+      [].slice.call(h.childNodes).forEach(function (node) {
+        if (node.nodeType === 3) {
+          var parts = node.textContent.split(/(\s+)/);
+          var frag = document.createDocumentFragment();
+          parts.forEach(function (p) {
+            if (!p) return;
+            if (/^\s+$/.test(p)) { frag.appendChild(document.createTextNode(p)); return; }
+            var s = document.createElement('span');
+            s.className = 'rw'; s.textContent = p;
+            frag.appendChild(s); words.push(s);
+          });
+          h.replaceChild(frag, node);
+        } else if (node.nodeType === 1 && INLINE[node.tagName]) {
+          node.classList.add('rw'); words.push(node);
+        }
+      });
+      return { el: h, words: words, done: false };
+    });
+
+    function fill(it, v) {
+      for (var i = 0; i < it.words.length; i++) it.words[i].style.setProperty('--wp', v);
+    }
+
+    addScrollSub(function (y, vh) {
+      var pending = false;
+      items.forEach(function (it) {
+        if (it.done) return;
+        pending = true;
+        var top = it.el.getBoundingClientRect().top;
+        var a = vh * 0.92, b = vh * 0.5;
+        var p = (a - top) / (a - b);
+        p = p < 0 ? 0 : p > 1 ? 1 : p;
+        var n = it.words.length || 1;
+        for (var i = 0; i < it.words.length; i++) {
+          var wp = (p - (i / n) * 0.55) / 0.45;
+          it.words[i].style.setProperty('--wp', wp < 0 ? 0 : wp > 1 ? 1 : wp);
+        }
+        if (p >= 1) { fill(it, 1); it.done = true; }
+      });
+      return pending;
+    });
+
+    setTimeout(function () {
+      items.forEach(function (it) { if (!it.done) { fill(it, 1); it.done = true; } });
+    }, 7000);
+  }
+
+  /* — B. Le circuit du capital : le défilement fait circuler la valeur — */
+  function circuitScrub() {
+    var band = document.querySelector('.circuit-band');
+    if (!band) return;
+    var nodes = [].slice.call(band.querySelectorAll('.circuit-node'));
+    if (REDUCE || window.innerWidth < 768) {
+      band.style.setProperty('--cp', '1');
+      nodes.forEach(function (n) { n.classList.add('lit'); });
+      return;
+    }
+    addScrollSub(function (y, vh) {
+      var r = band.getBoundingClientRect();
+      var p = (vh * 0.85 - r.top) / (r.height + vh * 0.5);
+      p = p < 0 ? 0 : p > 1 ? 1 : p;
+      band.style.setProperty('--cp', p.toFixed(4));
+      nodes.forEach(function (n) {
+        var at = parseFloat(n.getAttribute('data-at') || '0');
+        n.classList.toggle('lit', p >= at - 0.001);
+      });
+      return true;
+    });
+  }
+
+  /* — C. Chiffres clés : comptage animé à l'entrée en vue — */
+  function countUp() {
+    var stats = document.querySelector('.hs-stats');
+    if (!stats) return;
+    var nums = [].slice.call(stats.querySelectorAll('.hs-stat-n'));
+    var targets = nums.map(function (el) {
+      var m = (el.textContent || '').match(/\d+/);
+      return m ? parseInt(m[0], 10) : null;
+    });
+    if (REDUCE || !('IntersectionObserver' in window)) return;
+    function finish() {
+      nums.forEach(function (el, i) { if (targets[i] != null) el.textContent = String(targets[i]); });
+    }
+    nums.forEach(function (el, i) { if (targets[i] != null) el.textContent = '0'; });
+    var fallback = setTimeout(finish, 6000);
+    var io = new IntersectionObserver(function (ents) {
+      if (!ents[0].isIntersecting) return;
+      io.disconnect(); clearTimeout(fallback);
+      var t0 = performance.now(), D = 850;
+      requestAnimationFrame(function step(now) {
+        var k = Math.min((now - t0) / D, 1), e = 1 - Math.pow(1 - k, 3);
+        nums.forEach(function (el, i) {
+          if (targets[i] != null) el.textContent = String(Math.round(targets[i] * e));
+        });
+        if (k < 1) requestAnimationFrame(step);
+      });
+    }, { threshold: 0.4 });
+    io.observe(stats);
+  }
+
+  /* — D. Cartes : inclinaison qui suit le curseur + lueur de bougie — */
+  function cardFx() {
+    if (REDUCE) return;
+    if (!(window.matchMedia &&
+          window.matchMedia('(hover:hover) and (pointer:fine)').matches)) return;
+    var host = document.querySelector('.hw') || document;
+    var cur = null, queued = false, lastE = null;
+    function clear(card) {
+      card.classList.remove('glow', 'tilting');
+      card.style.setProperty('--rx', '0deg');
+      card.style.setProperty('--ry', '0deg');
+    }
+    function apply() {
+      queued = false;
+      var e = lastE; if (!e) return;
+      var card = e.target.closest && e.target.closest('.hs-do-card,.hs-w-card');
+      if (card !== cur) {
+        if (cur) clear(cur);
+        cur = card;
+        if (card) card.classList.add('glow', 'tilting');
+      }
+      if (!card) return;
+      var r = card.getBoundingClientRect();
+      var px = (e.clientX - r.left) / (r.width || 1);
+      var py = (e.clientY - r.top) / (r.height || 1);
+      card.style.setProperty('--mx', (px * 100).toFixed(1) + '%');
+      card.style.setProperty('--my', (py * 100).toFixed(1) + '%');
+      card.style.setProperty('--ry', ((px - 0.5) * 5).toFixed(2) + 'deg');
+      card.style.setProperty('--rx', ((0.5 - py) * 5).toFixed(2) + 'deg');
+    }
+    host.addEventListener('mousemove', function (e) {
+      lastE = e;
+      if (!queued) { queued = true; requestAnimationFrame(apply); }
+    }, { passive: true });
+    host.addEventListener('mouseleave', function () {
+      if (cur) { clear(cur); cur = null; }
+    }, true);
+  }
+
+  /* — E. Hero : parallaxe fine du portrait au défilement — */
+  function heroParallax() {
+    if (REDUCE || window.innerWidth < 768) return;
+    var hero = document.querySelector('.hs-hero');
+    var right = hero && hero.querySelector('.hs-right');
+    if (!right) return;
+    var armed = false;
+    addScrollSub(function (y, vh) {
+      var h = hero.offsetHeight || vh;
+      var k = y / h; if (k < 0) k = 0;
+      if (!armed) {
+        if (k < 0.004) { right.style.transform = ''; return true; }
+        right.style.transition = 'transform .12s linear';
+        armed = true;
+      }
+      right.style.transform = 'translateY(' + (Math.min(k, 1.1) * -26).toFixed(1) + 'px)';
+      return true;
+    });
+  }
+
   /* --------------------------------------------------------------------- */
   function init() {
     window.__homeReady = true;   // désarme le filet inline de index.html
@@ -329,6 +540,11 @@
     try { topbarSolid(); } catch (e) { /* non bloquant */ }
     try { catalogue(); } catch (e) { /* non bloquant */ }
     try { heroBg(); } catch (e) { /* non bloquant */ }
+    try { scrubReveal(); } catch (e) { fallbackReveal(); }
+    try { circuitScrub(); } catch (e) { /* non bloquant */ }
+    try { countUp(); } catch (e) { /* non bloquant */ }
+    try { cardFx(); } catch (e) { /* non bloquant */ }
+    try { heroParallax(); } catch (e) { /* non bloquant */ }
   }
   function fallbackReveal() {
     var els = document.querySelectorAll('.reveal, .reveal-stagger, .circuit-band');

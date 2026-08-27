@@ -292,8 +292,8 @@ html:not(.no-anim) .hs-hero .hs-right{
 .hs-do-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px;}
 .hs-do-card{position:relative;overflow:hidden;background:var(--surface);
   border:1px solid var(--border);border-radius:16px;padding:26px 24px;
-  transition:transform .22s,box-shadow .22s;}
-.hs-do-card:hover{transform:translateY(-4px);box-shadow:0 14px 34px -10px rgba(23,22,20,.13);}
+  transition:transform .4s cubic-bezier(.16,1,.3,1),box-shadow .22s;}
+.hs-do-card:hover{box-shadow:0 14px 34px -10px rgba(23,22,20,.13);}
 .hs-do-n{position:absolute;top:10px;right:16px;font-family:'Fraunces',serif;font-weight:900;
   font-size:2.6rem;line-height:1;color:var(--accent);opacity:.15;}
 .hs-do-card h3{font-family:'Fraunces',serif;font-weight:900;font-size:1.18rem;
@@ -314,8 +314,8 @@ html:not(.no-anim) .hs-hero .hs-right{
 .hs-w-loading{color:var(--muted);font-size:.9rem;padding:8px 0;}
 .hs-w-card{display:flex;flex-direction:column;border:1px solid var(--line);
   border-radius:16px;overflow:hidden;background:var(--surface);color:inherit;
-  text-decoration:none;transition:transform .22s,box-shadow .22s,border-color .22s;}
-.hs-w-card:hover{transform:translateY(-4px);border-color:var(--gold);
+  text-decoration:none;transition:transform .4s cubic-bezier(.16,1,.3,1),box-shadow .22s,border-color .22s;}
+.hs-w-card:hover{border-color:var(--gold);
   box-shadow:0 22px 48px -20px rgba(0,0,0,.7);}
 .hs-w-img{height:186px;overflow:hidden;position:relative;background:#0d0a07;}
 .hs-w-img img{width:100%;height:100%;object-fit:cover;
@@ -371,11 +371,20 @@ html:not(.no-anim) .hs-hero .hs-right{
 .circuit-node i{font-family:'Inter',system-ui,sans-serif;font-style:normal;font-size:.56rem;
   letter-spacing:.07em;text-transform:uppercase;color:var(--muted);}
 .circuit-node--end b{color:var(--accent);}
-.circuit-spark{position:absolute;top:9px;left:0;width:14px;height:14px;border-radius:50%;
-  background:var(--accent);box-shadow:0 0 14px 5px rgba(196,30,58,.38),0 0 5px 1px rgba(196,30,58,.7);opacity:0;}
-.circuit-band.in .circuit-spark{animation:hs-spark 3.6s cubic-bezier(.6,0,.4,1) .25s 2;}
-@keyframes hs-spark{0%{left:0;opacity:0;}7%{opacity:1;}
-  90%{left:calc(100% - 14px);opacity:1;}100%{left:calc(100% - 14px);opacity:0;}}
+/* — B. le défilement fait circuler la valeur : --cp (0→1) posé par home.js — */
+.circuit-band{--cp:0;}
+.circuit-line-fill{position:absolute;left:8px;top:16px;height:2px;border-radius:2px;pointer-events:none;
+  width:calc(var(--cp) * (100% - 16px));
+  background:linear-gradient(90deg,var(--gold-deep),var(--accent));
+  box-shadow:0 0 12px rgba(216,173,76,.45);transition:width .12s linear;}
+.circuit-spark{position:absolute;top:9px;left:calc(var(--cp) * (100% - 14px));
+  width:14px;height:14px;border-radius:50%;background:var(--accent);
+  box-shadow:0 0 14px 5px rgba(213,64,47,.4),0 0 5px 1px rgba(213,64,47,.75);
+  opacity:0;transition:left .12s linear,opacity .3s ease;}
+.circuit-band.in .circuit-spark{opacity:1;}
+.circuit-node b{transition:color .35s ease,text-shadow .35s ease;}
+.circuit-node.lit b{color:var(--gold);text-shadow:0 0 16px rgba(216,173,76,.5);}
+.circuit-node--end.lit b{color:var(--accent);text-shadow:0 0 20px rgba(213,64,47,.55);}
 
 /* — aperçu Place publique — */
 .hs-commune-head{display:flex;align-items:baseline;justify-content:space-between;
@@ -399,6 +408,71 @@ html:not(.no-anim) .hs-hero .hs-right{
 .hs-closer p em{font-style:italic;font-weight:500;color:var(--accent);}
 .hs-closer .btn-filled{position:relative;z-index:1;}
 
+/* ══════════════════════════════════════════════════════════════════════
+   « PLUS VIVANT » — inspiration zonixlab.com, transposée à l'atelier.
+   Piloté par assets/home.js (scrubReveal, circuitScrub, countUp, cardFx,
+   heroParallax). Les effets « scrub » ne s'arment que sous html.js-viv,
+   posée par home.js hors no-motion → dégradation propre sans JS.
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* A. Titres révélés mot à mot au défilement — « l'encre qui prend » */
+.js-viv .hs-sec-h .rw{display:inline-block;white-space:pre;
+  opacity:calc(.16 + .84 * var(--wp,0));
+  filter:blur(calc((1 - var(--wp,0)) * 5px));
+  transform:translateY(calc((1 - var(--wp,0)) * .2em));
+  transition:opacity .12s linear,filter .12s linear,transform .12s linear;
+  will-change:opacity,filter,transform;}
+
+/* D. Cartes — inclinaison qui suit le curseur + lueur de bougie */
+.hs-do-card,.hs-w-card{--rx:0deg;--ry:0deg;--lift:0px;
+  transform:perspective(950px) rotateX(var(--rx)) rotateY(var(--ry)) translateY(var(--lift));}
+.hs-do-card:hover,.hs-w-card:hover{--lift:-4px;}
+.hs-do-card.tilting,.hs-w-card.tilting{transition:box-shadow .22s,border-color .22s;}
+.hs-do-card::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+  border-radius:inherit;opacity:0;transition:opacity .3s ease;
+  background:radial-gradient(240px circle at var(--mx,50%) var(--my,0%),
+    rgba(216,173,76,.18),transparent 62%);}
+.hs-do-card.glow::after{opacity:1;}
+.hs-do-card h3,.hs-do-card p,.hs-do-n{position:relative;z-index:2;}
+
+/* E. Hero — halo « projecteur » depuis la bougie, derrière le portrait */
+.hs-right{will-change:transform;}
+.hs-right::before{content:"";position:absolute;top:-10%;left:50%;width:150%;height:150%;
+  transform:translateX(-50%);pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse 42% 38% at 40% 20%,rgba(216,173,76,.16),transparent 60%);}
+.hs-portrait{position:relative;z-index:1;}
+
+/* C. Chiffres clés — fond « carnet quadrillé » + chiffres tabulaires */
+.hs-stats{position:relative;}
+.hs-stats::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.6;
+  -webkit-mask-image:radial-gradient(ellipse at center,#000 26%,transparent 76%);
+  mask-image:radial-gradient(ellipse at center,#000 26%,transparent 76%);
+  background-image:linear-gradient(var(--border) 1px,transparent 1px),
+    linear-gradient(90deg,var(--border) 1px,transparent 1px);
+  background-size:36px 36px;}
+.hs-stat{position:relative;z-index:1;}
+.hs-stat-n{font-variant-numeric:tabular-nums;}
+
+/* F. Marquee — les concepts réagissent au survol */
+.hs-marquee .marquee-item{transition:color .2s ease,transform .2s ease;}
+.hs-marquee:hover .marquee-item:hover{color:var(--accent);transform:scale(1.09);}
+
+/* G. Topbar « pilule flottante » au défilement (accueil uniquement) */
+header.topbar{transition:padding .35s ease,background .3s ease,
+  border-color .3s ease,box-shadow .3s ease;}
+header.topbar .topbar-in{border:1px solid transparent;
+  transition:max-width .4s cubic-bezier(.16,1,.3,1),border-radius .4s ease,
+    background .3s ease,padding .3s ease,box-shadow .3s ease,border-color .3s ease;}
+header.topbar.tb-solid{height:auto;background:transparent;border-bottom-color:transparent;
+  box-shadow:none;padding:9px clamp(12px,3vw,28px);}
+header.topbar.tb-solid .topbar-in{max-width:1180px;margin:0 auto;height:46px;
+  padding:0 8px 0 16px;border-radius:999px;border-color:var(--line);
+  background:rgba(21,16,11,.82);-webkit-backdrop-filter:blur(11px);backdrop-filter:blur(11px);
+  box-shadow:0 14px 38px -18px rgba(0,0,0,.92);}
+@media(max-width:860px){
+  header.topbar.tb-solid .topbar-in{max-width:none;margin:0 6px;}
+}
+
 /* — responsive — */
 @media(max-width:720px){
   .circuit-band{grid-template-columns:1fr;gap:26px;}
@@ -413,14 +487,20 @@ html.no-motion .hs-hero .hs-left>*,
 html.no-motion .hs-hero .hs-right{
   opacity:1!important;transform:none!important;transition:none!important;}
 html.no-motion .marquee-track{animation:none!important;}
-html.no-motion .circuit-band .circuit-spark{animation:none!important;opacity:0!important;}
+html.no-motion .circuit-band{--cp:1;}
+html.no-motion .circuit-band .circuit-spark{opacity:0!important;}
 html.no-motion #hero-bg{display:none!important;}
+html.no-motion .hs-do-card,html.no-motion .hs-w-card{transform:none!important;}
+html.no-motion header.topbar,html.no-motion header.topbar .topbar-in{transition:none!important;}
 
 @media(prefers-reduced-motion:reduce){
   .marquee-track{animation:none!important;}
-  .circuit-band.in .circuit-spark{animation:none!important;}
-  .circuit-spark{opacity:0!important;}
+  .circuit-band{--cp:1;}
+  .circuit-band.in .circuit-spark{opacity:0!important;}
   #hero-bg{display:none!important;}
+  .hs-do-card,.hs-w-card{transform:none!important;}
+  .hs-sec-h .rw{opacity:1!important;filter:none!important;transform:none!important;}
+  header.topbar,header.topbar .topbar-in{transition:none!important;}
 }
 </style>
 <link rel="preload" href="oeuvres/shell.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
@@ -540,12 +620,13 @@ html.no-motion #hero-bg{display:none!important;}
       </div>
       <div class="circuit">
         <span class="circuit-line" aria-hidden="true"></span>
+        <span class="circuit-line-fill" aria-hidden="true"></span>
         <span class="circuit-spark" aria-hidden="true"></span>
-        <span class="circuit-node"><b>A</b><i>argent</i></span>
-        <span class="circuit-node"><b>M</b><i>marchandise</i></span>
-        <span class="circuit-node"><b>P</b><i>production</i></span>
-        <span class="circuit-node"><b>M′</b><i>marchandise+</i></span>
-        <span class="circuit-node circuit-node--end"><b>A′</b><i>argent + plus-value</i></span>
+        <span class="circuit-node" data-at="0"><b>A</b><i>argent</i></span>
+        <span class="circuit-node" data-at="0.25"><b>M</b><i>marchandise</i></span>
+        <span class="circuit-node" data-at="0.5"><b>P</b><i>production</i></span>
+        <span class="circuit-node" data-at="0.75"><b>M′</b><i>marchandise+</i></span>
+        <span class="circuit-node circuit-node--end" data-at="1"><b>A′</b><i>argent + plus-value</i></span>
       </div>
     </section>
 
@@ -611,6 +692,11 @@ html.no-motion #hero-bg{display:none!important;}
   /* Mobile / prefers-reduced-motion : contenu immédiatement visible, animation ignorée */
   .no-anim #sheet{opacity:1!important;transform:none!important;pointer-events:auto!important;position:relative!important;z-index:1!important;}
   .no-anim #scene,.no-anim #cine,.no-anim .loading{display:none!important;}
+  /* Sans intro cinématique, plus rien à « contenir » : on rend le défilement
+     au viewport. Sinon body{overflow:hidden} (posé pour l'intro) verrouille
+     la page au tactile — l'accueil restait bloqué sur le héros sur mobile. */
+  .no-anim body{overflow:visible!important;}
+  .no-anim .hw{height:auto!important;overflow:visible!important;}
 </style>
   <script src="vendor/three.min.js" defer></script>
 <script>
