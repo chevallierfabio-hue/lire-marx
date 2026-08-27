@@ -237,20 +237,26 @@ hauteur entière du document et le `focus()` de fermeture faisait sauter la
 page de 2 000 px. Toute future modale de l'accueil doit être posée au niveau
 de `<body>`, comme celles de `shell.js`.
 
-**Deux feuillets portent le vrai manuscrit.** Les rangs `REAL = [0, 6]` de
-la liasse (le feuillet du dessus — le mieux vu, le premier à décoller — et un
-du milieu de pile) reçoivent le **fac-similé** de `manuscrit-ideologie-1846.webp`
-à la place de l'écriture dessinée : la page montrée dans le cadre du héros
-est aussi l'une de celles qui s'envolent. Deux sur treize, pas plus — la
-liasse doit contenir de vraies pages, pas être une pile de photocopies.
+**La liasse n'est faite que de cette page.** Tous les feuillets portent le
+fac-similé de `manuscrit-ideologie-1846.webp` — l'écriture dessinée par
+`sheetTexture()` ne sert plus que de **texture d'attente** le temps que
+l'image arrive, et de repli définitif si elle n'arrive jamais. Treize fois
+la même image ferait une pile de photocopies : chaque feuillet a donc sa
+propre géométrie et **cadre une portion différente** de la page
+(`sheetGeo(zoom)` décale les UV ; les deux du dessus gardent la page
+entière, les autres s'en approchent). Une seule texture, donc un seul envoi
+GPU. La taille suit un dégradé du dessus vers le fond (`1.32 - a*0.34`) :
+une pile, pas un tas. Le raycast porte du coup sur **tous** les feuillets —
+toute la liasse ouvre la référence.
+
 C'est **le même fichier que le `<img fetchpriority="high">` du héros**, donc
 **zéro requête de plus** (vérifié au panneau réseau : une seule requête pour
-deux consommateurs) ; il est redessiné dans un canvas de 512 px avec un voile
-chaud en `soft-light` — sans lui, le fac-similé, plus brun, tranche en gris
-au milieu des feuillets crème. Chargement asynchrone : les matériaux naissent
-avec la texture dessinée et sont échangés à l'arrivée de l'image
-(`mat.needsUpdate`), avec un rendu de rattrapage si la boucle dort déjà. Si
-l'image échoue, rien ne change.
+tous les consommateurs, panneau de référence compris) ; il est redessiné
+dans un canvas de 512 px avec un voile chaud en `soft-light` — sans lui, le
+fac-similé, plus brun, tranche en gris. Chargement asynchrone : les
+matériaux naissent avec la texture dessinée et sont échangés à l'arrivée de
+l'image (`mat.needsUpdate`), avec un rendu de rattrapage si la boucle dort
+déjà.
 
 **Le piège de la place disponible.** Le héros n'a que trois zones où un
 feuillet est réellement visible : le couloir vertical entre le texte et le
