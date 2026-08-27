@@ -1093,8 +1093,14 @@
            On lâche prise dès que le lecteur s'en empare lui-même. */
         var maxS = track.scrollWidth - track.clientWidth;
         if (!hManual && maxS > 4) {
+          /* .scrubbed coupe le scroll-snap : sans ça la piste retombe sur
+             chaque carte à chaque écriture de scrollLeft, et la frise avance
+             par paliers au lieu de glisser. */
+          track.classList.add('scrubbed');
           var target = cl01((vh - br.top) / (vh + br.height)) * maxS;
           if (Math.abs(track.scrollLeft - target) > 0.5) track.scrollLeft = target;
+        } else if (hManual) {
+          track.classList.remove('scrubbed');   /* le magnétisme revient */
         }
 
         /* Chaque année s'allume quand le filet la dépasse. `f` n'est PAS

@@ -384,6 +384,10 @@ html:not(.no-anim) .hs-hero.lit .hs-right{opacity:1;transform:none;transition-de
   overscroll-behavior-x:contain;}
 .hs-timeline-track:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:4px;}
 .hs-timeline-track.dragging{cursor:grabbing;scroll-snap-type:none;user-select:none;}
+/* Piloté par le défilement de la page : l'accrochage doit sauter, sinon la
+   piste retombe sur chaque carte et la frise avance par à-coups — un
+   séquençage, pas un défilement. Le magnétisme reste pour le geste manuel. */
+.hs-timeline-track.scrubbed{scroll-snap-type:none;}
 .hs-timeline-track::-webkit-scrollbar{height:5px;}
 .hs-timeline-track::-webkit-scrollbar-track{background:transparent;}
 .hs-timeline-track::-webkit-scrollbar-thumb{background:rgba(216,173,76,.45);border-radius:3px;}
