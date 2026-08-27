@@ -728,7 +728,7 @@
 
     var renderer, scene, camera, rig = null, wheels = [], cargos = {}, lamp = null;
     var raf = null, running = false, onScreen = false;
-    var q = 0, idx = 0, last = null, spin = 0, settled = false;
+    var q = 0, idx = 0, last = null, spin = 0, settled = false, pitch = 0;
 
     /* Fenêtre de défilement PROPRE au chariot, plus large que celle du
        circuit. `raw` vaut 0 quand la section s'épingle et 1 quand elle se
@@ -773,16 +773,31 @@
     var Y_TOP = 9.5, Y_LOW = 3.9, Y_END = 8.2;
     var T_LOW = 0.5;                 /* le creux : à mi-course */
     /* Y_EASE > 1 : la descente plonge puis s'aplanit avant le creux.
-       Y_RISE < 1 : la remontée s'enlève TOUT DE SUITE après le creux — et
-       c'est indispensable, parce que le chariot quitte le cadre par la droite
-       vers t ≈ 0,82 : une remontée en douceur (exposant > 1) serait à peine
-       commencée qu'il serait déjà sorti. */
-    var Y_EASE = 1.9, Y_RISE = 0.75;
+       La remontée est en `1 - (1-u)^Y_RISE` : elle s'enlève TOUT DE SUITE
+       après le creux — indispensable, le chariot quitte le cadre par la
+       droite vers t ≈ 0,82 et une remontée en douceur serait à peine
+       commencée qu'il serait déjà sorti — mais avec une pente FINIE au
+       creux. Un simple `u^0.75` montait aussi vite mais partait d'une pente
+       infinie : le chariot se cabrait d'un coup à la verticale au moment de
+       prendre la côte. */
+    var Y_EASE = 1.9, Y_RISE = 2.2;
+    var PITCH_MAX = 0.20;            /* assiette bornée à ~11° */
     function yAt(t) {
       if (t <= T_LOW) {
         return Y_LOW + (Y_TOP - Y_LOW) * Math.pow(1 - t / T_LOW, Y_EASE);
       }
-      return Y_LOW + (Y_END - Y_LOW) * Math.pow((t - T_LOW) / (1 - T_LOW), Y_RISE);
+      var u = (t - T_LOW) / (1 - T_LOW);
+      return Y_LOW + (Y_END - Y_LOW) * (1 - Math.pow(1 - u, Y_RISE));
+    }
+    /* pente de la course — c'est elle qui donne l'assiette du chariot */
+    function dyAt(t) {
+      if (t <= T_LOW) {
+        return -(Y_TOP - Y_LOW) * Y_EASE *
+               Math.pow(1 - t / T_LOW, Y_EASE - 1) / T_LOW;
+      }
+      var u = (t - T_LOW) / (1 - T_LOW);
+      return (Y_END - Y_LOW) * Y_RISE *
+             Math.pow(1 - u, Y_RISE - 1) / (1 - T_LOW);
     }
     var Z_FAR = -9, Z_NEAR = 3, Z_TURN = 6;
     /* part de dz retenue pour le cap (cf. « CAP » dans place()) */
@@ -794,6 +809,7 @@
         y:  yAt(t),
         z:  Z_FAR + (Z_NEAR - Z_FAR) * t + Z_TURN * Math.sin(pi * t),
         dx: 2 * R,
+        dy: dyAt(t),
         dz: (Z_NEAR - Z_FAR) + pi * Z_TURN * Math.cos(pi * t),
         /* dérivée seconde ≈ courbure : sert au roulis dans le virage */
         cz: -pi * pi * Z_TURN * Math.sin(pi * t)
@@ -877,8 +893,9 @@
       if (!rig) return;
       var p = pathAt(q);
       /* première frame : pas de « saut » de roues depuis une position fictive */
-      var mx = (last === null) ? 0 : p.x - last.x;
-      var mz = (last === null) ? 0 : p.z - last.z;
+      var first = (last === null);
+      var mx = first ? 0 : p.x - last.x;
+      var mz = first ? 0 : p.z - last.z;
       last = p;
       var moved = Math.sqrt(mx * mx + mz * mz);   /* longueur d'arc parcourue */
 
@@ -898,6 +915,18 @@
          recale la caisse sur sa trajectoire apparente — il roule droit, et
          le virage se lit quand même parce qu'il fait varier le cap. */
       rig.rotation.y = Math.atan2(p.dx, p.dz * HEAD_DAMP);
+      /* ASSIETTE : sans elle, le chariot remontait la côte à plat — il ne
+         roulait pas, il glissait. La pente est prise sur le déplacement
+         VISIBLE (même amortissement de dz que le cap, sinon la profondeur
+         écrasée par la perspective fausserait l'angle), bornée à PITCH_MAX
+         (un chariot se cabre, il ne décolle pas) et lissée d'une image à
+         l'autre pour que le passage du creux ne soit pas un à-coup. */
+      var horiz = Math.sqrt(p.dx * p.dx + p.dz * HEAD_DAMP * p.dz * HEAD_DAMP);
+      var slope = Math.atan2(p.dy, horiz);
+      if (slope > PITCH_MAX) slope = PITCH_MAX;
+      else if (slope < -PITCH_MAX) slope = -PITCH_MAX;
+      pitch = (first) ? -slope : pitch + (-slope - pitch) * 0.12;
+      rig.rotation.x = pitch;
       /* ROULIS : il s'incline dans le virage, comme dans le jeu. Borné à
          ~4° — la courbure brute penche jusqu'à 11°, ce qui donne un
          chariot couché, pas un chariot qui vire. */
@@ -961,6 +990,11 @@
       new THREE.ObjectLoader().parse(json, function (obj) {
         rig = obj;
         rig.scale.setScalar(0.78);   /* le cap est posé à chaque frame par place() */
+        /* Ordre aviation : lacet (y) d'abord, puis ASSIETTE (x) autour de
+           l'axe latéral DU CHARIOT, puis roulis (z) autour de son axe
+           d'avancement. En 'XYZ' (défaut), rotation.x tournerait autour du X
+           du MONDE — le chariot piquerait de travers dès qu'il est braqué. */
+        rig.rotation.order = 'YXZ';
         rig.traverse(function (o) {
           if (!o.name) return;
           if (o.name.indexOf('wheel-') === 0) {
