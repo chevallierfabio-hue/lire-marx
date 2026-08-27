@@ -197,6 +197,26 @@ passeraient derrière le texte crème.
 que la liasse au repos ne touche ni les boutons du héros ni le portrait, et
 que le couloir soit vide à la fin de la course.
 
+**Bande finale — la bougie prend (`closerCandle()`).** C'était la seule
+section de la page sans la moindre animation (pas même un `.reveal`), et son
+halo était resté sur le rouge de l'ancienne DA claire. La page s'ouvre sur
+une bougie posée sur un bureau : elle se referme dessus. La bande arrive
+presque noire et s'éclaire au défilement (`--lum` sur `.hs-closer` → opacité
+et montée du halo, opacité de la phrase, `drop-shadow` du bouton), la lueur
+venant de **sous** le bouton — une bougie éclaire d'en bas, pas du plafond
+(`.hs-closer-halo` est passé de `top:-40px` à `bottom:-150px`, et du rouge
+clair à un dégradé or → rouge). Puis un **vacillement** (`@keyframes
+lm-candle`, stops volontairement irréguliers — une flamme ne bat pas la
+mesure) persiste : c'est la seule chose de la page qui continue de vivre une
+fois qu'on a cessé de défiler.
+
+Deux points à garder : le vacillement joue sur `filter:brightness()` et
+**jamais sur l'opacité ni le transform** du halo, que le scrub occupe déjà —
+sinon les deux se battent ; et il ne tourne que sous `.alight`, posée par un
+IntersectionObserver, sinon on repeindrait en boucle un dégradé de 880 px
+pour personne. Sans `js-candle` (mobile, reduced-motion), le halo garde son
+opacité naturelle et la bande s'affiche telle quelle, éclairée.
+
 **Section « Place publique » de l'accueil — elle change de sol
 (`communeScrub()`).** La section n'était séparée de rien : même fond que la
 bibliothèque au-dessus, aucun filet — elle se fondait dans la précédente.
