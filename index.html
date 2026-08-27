@@ -487,17 +487,33 @@ html:not(.no-anim) .hs-hero.lit .hs-right{opacity:1;transform:none;transition-de
 #homeCommune{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px;}
 
 /* — bande CTA finale — */
-.hs-closer{position:relative;overflow:hidden;text-align:center;
+.hs-closer{position:relative;overflow:hidden;
   padding:clamp(64px,10vh,120px) clamp(24px,5vw,80px);
   border-top:1px solid var(--border);background:var(--surface);}
-.hs-closer-halo{position:absolute;top:-40px;left:50%;transform:translateX(-50%);
-  width:640px;height:380px;pointer-events:none;
-  background:radial-gradient(ellipse at center,rgba(196,30,58,.09),transparent 66%);}
-.hs-closer p{position:relative;z-index:1;font-family:'Fraunces',serif;font-weight:900;
-  font-size:clamp(1.6rem,3.6vw,2.6rem);letter-spacing:-.03em;line-height:1.14;
-  color:var(--text);max-width:22ch;margin:0 auto 26px;}
-.hs-closer p em{font-style:italic;font-weight:500;color:var(--accent);}
-.hs-closer .btn-filled{position:relative;z-index:1;}
+.hs-closer-inner{position:relative;z-index:2;max-width:min(620px,60%);}
+.hs-closer-line{font-family:'Fraunces',serif;font-weight:900;
+  font-size:clamp(1.7rem,3.4vw,2.5rem);letter-spacing:-.03em;line-height:1.06;
+  color:var(--text);margin-bottom:26px;}
+.hs-closer-line em{font-style:italic;font-weight:500;color:var(--accent);}
+/* le dernier feuillet, posé à droite — assez sombre pour rester une
+   matière et non une image qui réclame le regard */
+.hs-closer-sheet{position:absolute;top:0;bottom:0;right:0;width:min(52%,720px);
+  z-index:0;pointer-events:none;opacity:.42;
+  background:url('assets/img/archive/manuscrit-ideologie-1846.webp')
+    center right / cover no-repeat;
+  filter:sepia(.42) saturate(.9) brightness(.30) contrast(1.12);
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 46%,#000 88%,transparent);
+  mask-image:linear-gradient(90deg,transparent,#000 46%,#000 88%,transparent);}
+/* la bougie éclaire depuis sous le bouton, qui est passé à gauche */
+.hs-closer-halo{position:absolute;top:auto;bottom:-150px;
+  left:clamp(24px,5vw,80px);transform:none;
+  width:min(760px,80vw);height:420px;pointer-events:none;z-index:1;
+  background:radial-gradient(ellipse at center,
+    rgba(216,173,76,.20) 0%,rgba(213,64,47,.10) 42%,transparent 72%);}
+@media(max-width:820px){
+  .hs-closer-inner{max-width:none;}
+  .hs-closer-sheet{width:78%;opacity:.22;}
+}
 
 /* ══════════════════════════════════════════════════════════════════════
    « PLUS VIVANT » — inspiration zonixlab.com, transposée à l'atelier.
@@ -599,11 +615,10 @@ html.no-motion .hs-ms-cartel{display:none;}
    qui convient à une invitation. Le vacillement ne tourne que tant que la
    bande est à l'écran (.alight), sinon on repeindrait un grand dégradé
    pour personne. html.js-candle posée par home.js (closerCandle). */
-.hs-closer-halo{top:auto;bottom:-150px;width:min(880px,120vw);height:460px;
-  background:radial-gradient(ellipse at center,
-    rgba(216,173,76,.20) 0%,rgba(213,64,47,.10) 42%,transparent 72%);}
 .js-candle .hs-closer-halo{opacity:var(--lum,1);
-  transform:translateX(-50%) translateY(calc((1 - var(--lum,1)) * 46px));}
+  transform:translateY(calc((1 - var(--lum,1)) * 46px));}
+/* le feuillet émerge avec la lumière, comme le reste de la bande */
+.js-candle .hs-closer-sheet{opacity:calc(.06 + .36 * var(--lum,1));}
 .js-candle .hs-closer.alight .hs-closer-halo{
   animation:lm-candle 8.4s ease-in-out infinite;}
 /* stops irréguliers : une flamme ne bat pas la mesure */
@@ -613,7 +628,7 @@ html.no-motion .hs-ms-cartel{display:none;}
   44%{filter:brightness(1.02);} 52%{filter:brightness(.84);}
   63%{filter:brightness(1.06);} 78%{filter:brightness(.92);}
   90%{filter:brightness(1.04);} 100%{filter:brightness(1);}}
-.js-candle .hs-closer p{opacity:calc(.08 + .92 * var(--lum,1));
+.js-candle .hs-closer-inner{opacity:calc(.08 + .92 * var(--lum,1));
   transform:translateY(calc((1 - var(--lum,1)) * 14px));}
 .js-candle .hs-closer .btn-filled{opacity:calc(.18 + .82 * var(--lum,1));
   filter:drop-shadow(0 0 calc(var(--lum,1) * 22px) rgba(216,173,76,.30));}
@@ -988,11 +1003,19 @@ html.no-motion header.topbar,html.no-motion header.topbar .topbar-in{transition:
       </div>
     </div>
 
-    <!-- Bande CTA finale -->
+    <!-- Bande finale : la dernière page. Même structure que toutes les
+         autres sections — label, titre, aligné à gauche — et sa matière :
+         un dernier feuillet du manuscrit, en fond à droite. La page s'ouvre
+         sur une liasse et se referme sur un feuillet de la même main. -->
     <section class="hs-closer">
+      <div class="hs-closer-sheet" aria-hidden="true"></div>
       <div class="hs-closer-halo" aria-hidden="true"></div>
-      <p>Le plus court chemin dans Marx, c'est <em>de le lire</em>.</p>
-      <a href="oeuvres/capital-1.html" class="btn-filled">Commencer par le chapitre premier<span class="btn-ar" aria-hidden="true">→</span></a>
+      <div class="hs-closer-inner">
+        <p class="hs-sec-label">Pour commencer</p>
+        <p class="hs-closer-line">Le plus court chemin dans Marx,
+          c'est <em>de le lire</em>.</p>
+        <a href="oeuvres/capital-1.html" class="btn-filled">Commencer par le chapitre premier<span class="btn-ar" aria-hidden="true">→</span></a>
+      </div>
     </section>
 
   </div>
