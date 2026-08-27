@@ -208,6 +208,35 @@ pas écrire `style.transform` en JS, ça casserait l'inclinaison au curseur de
 par défaut) : sans JS, sous no-motion ou en dessous de 768 px, les cartes
 gardent leur réglure et leur fondu simple.
 
+**Plus de photo encadrée dans le héros.** `.hs-right` est en `display:none`
+et ne reparaît que sous `html.no-motion` — mobile étroit et reduced-motion,
+c'est-à-dire exactement là où la liasse ne peut pas tourner : le héros n'y
+serait sinon sans aucune image, et sa `figcaption` y porte la référence. Sur
+le chemin animé, la grille garde ses deux colonnes (la seconde vide) pour
+que le texte reste dans la moitié gauche et que la liasse ait la droite.
+
+**La page réelle est cliquable.** `#hero-bg` est repassé en
+`pointer-events:auto` — il est en `z-index:0`, sous le texte et les boutons,
+donc il n'intercepte que le vide (vérifié : `elementFromPoint` rend bien le
+bouton et le titre). `heroBg()` lance un raycast sur les **seuls** meshes
+`realMeshes`, et **seulement tant que `t < 0.25`** : une fois la liasse
+envolée les meshes existent toujours, éteints et hors cadre, mais restent
+touchables par un rayon. Viser pose `.aiming` sur le canvas (curseur) et
+`.aim` sur le cartel ; le clic appelle `_msOpen`.
+
+Le **cartel** `#msCartel` (bouton du DOM, en bas à droite du héros) est le
+chemin **accessible** : le clic sur le feuillet 3D n'en est que le raccourci
+à la souris, et `msPanel()` fonctionne sans WebGL. Le panneau `#msModal` rend
+la référence complète (fonds, cote, institution, licence) et lie l'original
+Commons.
+
+**Le panneau vit HORS de `#sheet`, à dessein.** `#sheet` porte
+`will-change:opacity,transform`, ce qui en fait le **bloc conteneur de tout
+`position:fixed` descendant** : placé dedans, le panneau se centrait sur la
+hauteur entière du document et le `focus()` de fermeture faisait sauter la
+page de 2 000 px. Toute future modale de l'accueil doit être posée au niveau
+de `<body>`, comme celles de `shell.js`.
+
 **Deux feuillets portent le vrai manuscrit.** Les rangs `REAL = [0, 6]` de
 la liasse (le feuillet du dessus — le mieux vu, le premier à décoller — et un
 du milieu de pile) reçoivent le **fac-similé** de `manuscrit-ideologie-1846.webp`

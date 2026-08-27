@@ -5,6 +5,7 @@
 
    - reveal()        : IntersectionObserver (root = .hw) → classe .in
    - marquee()       : duplique le bandeau de concepts pour une boucle nette
+   - msPanel()       : cartel + panneau de référence de la page réelle
    - heroBg()        : fond WebGL discret — la liasse de feuillets pâles,
                        rassemblée en éventail au repos, que le défilement
                        dénoue feuillet par feuillet (réversible, + rafale)
@@ -56,6 +57,10 @@
     return r ? r.scrollTop : (window.scrollY || window.pageYOffset || 0);
   }
 
+  /* Ouverture du panneau « page réelle », partagée entre le cartel (chemin
+     accessible, toujours là) et le clic sur le feuillet 3D (raccourci). */
+  var _msOpen = null;
+
   /* --------------------------------------------------------------------- */
   function reveal() {
     var els = document.querySelectorAll('.reveal, .reveal-stagger, .circuit-band');
@@ -96,6 +101,42 @@
     track.setAttribute('aria-hidden', 'true');
   }
 
+  /* — Page réelle : cartel + panneau de référence —
+       Le cartel est un vrai bouton du DOM : c'est lui le chemin accessible,
+       le clic sur le feuillet 3D n'en est que le raccourci à la souris. Tout
+       marche sans WebGL. — */
+  function msPanel() {
+    var cartel = document.getElementById('msCartel');
+    var modal = document.getElementById('msModal');
+    if (!cartel || !modal) return;
+    var closeBtn = modal.querySelector('.hs-ms-x');
+    var lastFocus = null;
+
+    function open() {
+      if (!modal.hidden) return;
+      /* ouvert depuis le feuillet 3D, l'élément actif est <body> : on rendra
+         le focus au cartel plutôt qu'au néant */
+      var a = document.activeElement;
+      lastFocus = (a && a !== document.body) ? a : cartel;
+      modal.hidden = false;
+      if (closeBtn) closeBtn.focus();
+      document.addEventListener('keydown', onKey);
+    }
+    function close() {
+      if (modal.hidden) return;
+      modal.hidden = true;
+      document.removeEventListener('keydown', onKey);
+      if (lastFocus && lastFocus.focus) lastFocus.focus();
+    }
+    function onKey(e) { if (e.key === 'Escape' || e.keyCode === 27) close(); }
+
+    cartel.addEventListener('click', open);
+    [].forEach.call(modal.querySelectorAll('[data-ms-close]'), function (el) {
+      el.addEventListener('click', close);
+    });
+    _msOpen = open;
+  }
+
   /* --------------------------------------------------------------------- */
   /* Fond WebGL du héros : LA LIASSE.
      Au repos, les feuillets d'archive sont rassemblés en éventail à droite du
@@ -124,8 +165,8 @@
          isolément : centre, éventail et dénouement sont calés ensemble pour
          que la liasse tienne à droite du texte, déborde du portrait juste ce
          qu'il faut, et soit entièrement sortie à la fin du héros. — */
-    var CX = 1.4, CY = -5.2, CZ = 0.4;  /* centre : bas du couloir, entre titre et portrait */
-    var FAN  = 2.2;                      /* largeur de l'éventail au repos */
+    var CX = 5.5, CY = -2.3, CZ = 0.4;  /* centre : la moitié droite, libérée du cadre */
+    var FAN  = 3.7;                      /* largeur de l'éventail au repos */
     var LEAD = 0.34;                     /* étalement des départs : le dernier part à t=LEAD */
     var SPAN = 0.60;                     /* durée du vol d'un feuillet (fraction de course) */
     var FLY  = 15;                       /* distance de sortie */
@@ -222,7 +263,7 @@
        celui qu'on voit le mieux et qui décolle le premier, et un du milieu de
        pile. Deux sur treize : la liasse contient de vraies pages, elle n'est
        pas une pile de photocopies. */
-    var REAL = [0, 6], realMats = [];
+    var REAL = [0, 6], realMats = [], realMeshes = [];
     var geo = new THREE.PlaneGeometry(2.4, 3.1, 1, 1);
     var COUNT = window.innerWidth < 1100 ? 9 : 13;
     for (var k = 0; k < COUNT; k++) {
@@ -234,8 +275,8 @@
         transparent: true, opacity: op,
         depthWrite: false, side: THREE.DoubleSide
       });
-      if (REAL.indexOf(k) >= 0) realMats.push(mat);
       var m = new THREE.Mesh(geo, mat);
+      if (REAL.indexOf(k) >= 0) { realMats.push(mat); realMeshes.push(m); }
       /* fuite : vers le haut, vers la droite, et vers nous pour le dessus */
       var dir = new THREE.Vector3(
         0.10 + Math.sin(ang) * 0.30 + (Math.random() - 0.5) * 0.22,
@@ -259,7 +300,10 @@
         phase: Math.random() * 6.28
       };
       m.userData = u;
-      m.scale.setScalar(0.60 + Math.random() * 0.26);
+      /* les feuillets qui portent le fac-similé sont plus grands : c'est
+         la vraie page, c'est elle qu'on doit voir et pouvoir viser */
+      m.scale.setScalar(REAL.indexOf(k) >= 0 ? (1.34 + Math.random() * 0.14)
+                                             : (0.80 + Math.random() * 0.28));
       m.position.set(u.hx, u.hy, u.hz);
       m.rotation.set(u.rx, u.ry, u.rz);
       sheets.push(m); scene.add(m);
@@ -331,9 +375,38 @@
     window.addEventListener('resize', function () {
       resize(); if (!running) renderer.render(scene, camera);
     });
+    /* — viser la page réelle — Le raycast ne porte que sur les deux feuillets
+         qui portent le fac-similé, et seulement tant que la liasse est encore
+         au repos : une fois qu'elle s'envole, il n'y a plus rien à viser même
+         si les meshes existent toujours (ils sont juste sortis et éteints). */
+    var ray = null, ndc = null, aiming = false;
+    var cartelEl = document.getElementById('msCartel');
+    function setAim(on) {
+      if (on === aiming) return;
+      aiming = on;
+      canvas.classList.toggle('aiming', on);
+      if (cartelEl) cartelEl.classList.toggle('aim', on);
+    }
+    function pick(e) {
+      if (!realMeshes.length) return;
+      if (t > 0.25) { setAim(false); return; }
+      var r = canvas.getBoundingClientRect();
+      if (!r.width || !r.height) { setAim(false); return; }
+      if (!ray) { ray = new THREE.Raycaster(); ndc = new THREE.Vector2(); }
+      ndc.x = ((e.clientX - r.left) / r.width) * 2 - 1;
+      ndc.y = -((e.clientY - r.top) / r.height) * 2 + 1;
+      if (ndc.x < -1 || ndc.x > 1 || ndc.y < -1 || ndc.y > 1) { setAim(false); return; }
+      ray.setFromCamera(ndc, camera);
+      setAim(ray.intersectObjects(realMeshes, false).length > 0);
+    }
+    canvas.addEventListener('click', function () {
+      if (aiming && _msOpen) _msOpen();
+    });
+
     window.addEventListener('mousemove', function (e) {
       tmx = (e.clientX / window.innerWidth - 0.5) * 2;
       tmy = (e.clientY / window.innerHeight - 0.5) * 2;
+      try { pick(e); } catch (err) { /* jamais bloquer la parallaxe */ }
       start();
     });
 
@@ -1203,7 +1276,7 @@
     if (REDUCE || window.innerWidth < 768) return;
     var hero = document.querySelector('.hs-hero');
     var right = hero && hero.querySelector('.hs-right');
-    if (!right) return;
+    if (!right || !right.offsetParent) return;   /* cadre masqué : rien à décaler */
     var armed = false;
     addScrollSub(function (y, vh) {
       var h = hero.offsetHeight || vh;
@@ -1269,6 +1342,7 @@
     try { marquee(); } catch (e) { /* non bloquant */ }
     try { topbarSolid(); } catch (e) { /* non bloquant */ }
     try { catalogue(); } catch (e) { /* non bloquant */ }
+    try { msPanel(); } catch (e) { /* non bloquant */ }
     try { heroBg(); } catch (e) { /* non bloquant */ }
     try { scrubReveal(); } catch (e) { fallbackReveal(); }
     try { circuitScrub(); } catch (e) { /* non bloquant */ }

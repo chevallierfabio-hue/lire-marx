@@ -247,6 +247,13 @@ body.sb-collapsed .hw{padding-left:0;}
 
 /* — héros : fond WebGL + orchestration d'entrée — */
 .hs-hero{overflow:hidden;}
+/* Plus de photo encadrée : la vraie page est dans la liasse, qui occupe
+   maintenant la moitié droite. Le cadre ne subsiste que là où la liasse ne
+   peut pas tourner — no-motion, c'est-à-dire mobile étroit et
+   prefers-reduced-motion — pour que le héros n'y soit pas sans image. */
+.hs-right{display:none;}
+html.no-motion .hs-right{display:flex;}
+html:not(.no-motion) .hs-hero{grid-template-columns:minmax(0,1fr) minmax(0,.9fr);}
 #hero-bg{position:absolute;inset:0;z-index:0;width:100%;height:100%;display:block;
   pointer-events:none;opacity:0;transition:opacity 1.6s ease;
   -webkit-mask-image:linear-gradient(90deg,transparent 0%,transparent 20%,#000 42%,#000 100%);
@@ -506,6 +513,64 @@ html:not(.no-anim) .hs-hero.lit .hs-right{opacity:1;transform:none;transition-de
     rgba(216,173,76,.18),transparent 62%);}
 .hs-do-card.glow::after{opacity:1;}
 .hs-do-card h3,.hs-do-card p,.hs-do-n{position:relative;z-index:2;}
+
+/* E bis. La page réelle : cartel + panneau de référence.
+   Le canvas redevient cliquable (il est en z-index 0, sous le texte et les
+   boutons : il n'intercepte que le vide). home.js vise les feuillets qui
+   portent le fac-similé et pose .aim sur le cartel. */
+#hero-bg{pointer-events:auto;}
+#hero-bg.aiming{cursor:pointer;}
+.hs-ms-cartel{position:absolute;right:clamp(24px,5vw,80px);bottom:clamp(28px,5vh,54px);
+  z-index:2;display:inline-flex;align-items:center;gap:9px;
+  max-width:min(340px,46vw);padding:9px 15px 9px 12px;text-align:left;
+  background:rgba(30,23,16,.72);border:1px solid var(--border);border-radius:999px;
+  color:var(--muted);font-family:'Inter',system-ui,sans-serif;font-size:12px;
+  line-height:1.35;cursor:pointer;
+  transition:color .2s,border-color .2s,background .2s,transform .25s cubic-bezier(.16,1,.3,1);}
+.hs-ms-cartel em{font-style:italic;color:var(--text);}
+.hs-ms-dot{flex:0 0 auto;width:6px;height:6px;border-radius:50%;background:var(--gold);
+  box-shadow:0 0 0 0 rgba(216,173,76,.5);transition:box-shadow .3s;}
+.hs-ms-cartel:hover,.hs-ms-cartel.aim,.hs-ms-cartel:focus-visible{
+  color:var(--text);border-color:var(--gold);background:rgba(30,23,16,.92);
+  transform:translateY(-2px);}
+.hs-ms-cartel.aim .hs-ms-dot,.hs-ms-cartel:hover .hs-ms-dot{
+  box-shadow:0 0 0 5px rgba(216,173,76,.16);}
+html.no-motion .hs-ms-cartel{display:none;}
+
+.hs-ms-modal[hidden]{display:none;}
+.hs-ms-modal{position:fixed;inset:0;z-index:200;display:flex;align-items:center;
+  justify-content:center;padding:clamp(16px,4vw,48px);}
+.hs-ms-back{position:absolute;inset:0;background:rgba(9,6,4,.82);
+  -webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);}
+.hs-ms-box{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);
+  gap:clamp(18px,3vw,34px);align-items:center;
+  width:min(980px,100%);max-height:92vh;overflow:auto;
+  padding:clamp(20px,3vw,34px);border-radius:18px;
+  background:var(--surface);border:1px solid var(--border);
+  box-shadow:0 40px 90px -30px rgba(0,0,0,.8);}
+.hs-ms-fig{border-radius:12px;overflow:hidden;background:#0d0a07;}
+.hs-ms-fig img{display:block;width:100%;height:auto;
+  filter:sepia(.30) saturate(1.02) brightness(.94) contrast(1.06);}
+.hs-ms-txt h3{font-family:'Fraunces',serif;font-weight:900;
+  font-size:clamp(1.3rem,2.4vw,1.8rem);letter-spacing:-.02em;color:var(--text);
+  line-height:1.1;margin-bottom:12px;}
+.hs-ms-txt p{font-size:.92rem;line-height:1.68;color:var(--muted);margin-bottom:12px;}
+.hs-ms-txt em{font-style:italic;color:var(--text);}
+.hs-ms-src{font-size:.76rem!important;line-height:1.55!important;color:var(--muted);
+  opacity:.8;border-top:1px solid var(--border);padding-top:12px;}
+.hs-ms-link{display:inline-block;font-size:.86rem;font-weight:600;
+  color:var(--gold);text-decoration:none;}
+.hs-ms-link:hover{text-decoration:underline;}
+.hs-ms-x{position:absolute;top:10px;right:12px;z-index:1;
+  width:32px;height:32px;border-radius:50%;border:1px solid var(--border);
+  background:rgba(13,10,7,.6);color:var(--text);font-size:19px;line-height:1;
+  cursor:pointer;transition:border-color .18s,background .18s;}
+.hs-ms-x:hover{border-color:var(--gold);background:rgba(13,10,7,.9);}
+@media(max-width:760px){
+  .hs-ms-box{grid-template-columns:1fr;}
+  .hs-ms-fig{max-height:38vh;}
+  .hs-ms-fig img{height:100%;object-fit:cover;object-position:50% 0;}
+}
 
 /* F. « Ce que vous pouvez faire » — les trois feuillets se posent.
    La réglure est là en permanence (un feuillet, pas une carte) ; sans JS
@@ -782,6 +847,14 @@ html.no-motion header.topbar,html.no-motion header.topbar .topbar-in{transition:
           <figcaption class="hs-img-caption">Manuscrit de <em>L'Idéologie allemande</em>, 1845-46 · main de Marx, griffonnages d'Engels · IISG Amsterdam, domaine public</figcaption>
         </figure>
       </div>
+
+      <!-- Cartel de la page réelle : c'est aussi le chemin accessible vers la
+           référence, le clic sur le feuillet 3D n'en est que le raccourci. -->
+      <button type="button" class="hs-ms-cartel" id="msCartel" aria-haspopup="dialog">
+        <span class="hs-ms-dot" aria-hidden="true"></span>
+        <span class="hs-ms-lab">Page réelle du manuscrit —
+          <em>L'Idéologie allemande</em>, 1845-46</span>
+      </button>
     </section>
 
     <!-- Marquee de concepts -->
@@ -922,6 +995,41 @@ html.no-motion header.topbar,html.no-motion header.topbar .topbar-in{transition:
 
   </div>
 </div>
+
+<!-- Référence de la page réelle. HORS de #sheet à dessein : #sheet porte
+     will-change:transform, ce qui en ferait le bloc conteneur de tout
+     position:fixed descendant — le panneau se centrerait alors sur la hauteur
+     entière du document et le focus ferait sauter la page. -->
+<div class="hs-ms-modal" id="msModal" role="dialog" aria-modal="true"
+     aria-labelledby="msModalTitle" hidden>
+  <div class="hs-ms-back" data-ms-close></div>
+  <div class="hs-ms-box">
+    <button type="button" class="hs-ms-x" data-ms-close aria-label="Fermer">×</button>
+    <div class="hs-ms-fig">
+      <!-- même fichier que le héros : il sort du cache, l'ouverture est
+           instantanée et il n'y a pas de saut de mise en page -->
+      <picture>
+        <source srcset="assets/img/archive/manuscrit-ideologie-1846.webp" type="image/webp">
+        <img src="assets/img/archive/manuscrit-ideologie-1846.jpg"
+             alt="Page du manuscrit de L'Idéologie allemande : l'écriture de Marx à gauche, les profils griffonnés par Engels à droite">
+      </picture>
+    </div>
+    <div class="hs-ms-txt">
+      <p class="hs-sec-label">Ce n'est pas une illustration</p>
+      <h3 id="msModalTitle">Une page réelle du manuscrit</h3>
+      <p>Feuillet de <em>L'Idéologie allemande</em>, écrit entre décembre 1845
+        et avril 1846. À gauche, l'écriture de Marx ; à droite, les dizaines de
+        profils qu'Engels a griffonnés dans la marge pendant qu'ils
+        travaillaient. C'est cette page que vous voyez passer dans la liasse.</p>
+      <p class="hs-ms-src">Fonds Karl Marx – Friedrich Engels, cote A.11 p. 23 ·
+        Institut international d'histoire sociale (IISG), Amsterdam ·
+        domaine public, Public Domain Mark 1.0</p>
+      <a class="hs-ms-link" href="https://commons.wikimedia.org/wiki/File:IISG._Karl_Marx-Friedrich_Engels_Papers._A.11._P.23.jpg"
+         target="_blank" rel="noopener">Voir l'original en haute définition →</a>
+    </div>
+  </div>
+</div>
+
 
 <style>
   #sheet{position:fixed;inset:0;z-index:30;opacity:0;pointer-events:none;
