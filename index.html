@@ -197,6 +197,13 @@ body.sb-collapsed .hw{padding-left:0;}
   filter:grayscale(1) contrast(1.08);display:block;}
 .hs-img-wrap::after{content:'';position:absolute;inset:0;
   background:rgba(196,30,58,.22);mix-blend-mode:multiply;pointer-events:none;}
+/* Le fac-similé n'est pas une photographie : sa matière est déjà celle de la
+   DA (papier chaud, encre brune). Le duotone rouge des photos d'archive, pensé
+   pour du noir et blanc, le virait au mauve. On garde son ton propre, juste
+   assombri et contrasté pour qu'il tienne dans la nuit de la page. */
+.hs-img-ms img{filter:sepia(.46) saturate(1.02) brightness(.74) contrast(1.13);}
+.hs-img-ms::after{background:linear-gradient(155deg,
+  rgba(213,64,47,.10),rgba(13,10,7,.34) 70%);mix-blend-mode:multiply;}
 .hs-img-caption{position:absolute;bottom:0;left:0;right:0;
   padding:28px 14px 10px;font-size:10px;letter-spacing:.05em;
   color:rgba(251,249,244,.82);line-height:1.45;
@@ -766,13 +773,13 @@ html.no-motion header.topbar,html.no-motion header.topbar .topbar-in{transition:
       </div>
       <div class="hs-right">
         <figure class="hs-portrait">
-          <div class="hs-img-wrap">
+          <div class="hs-img-wrap hs-img-ms">
             <picture>
-              <source srcset="assets/img/archive/marx-portrait.webp" type="image/webp">
-              <img src="assets/img/archive/marx-portrait.png" alt="Karl Marx, photographie de John Mayall, 1875" fetchpriority="high">
+              <source srcset="assets/img/archive/manuscrit-ideologie-1846.webp" type="image/webp">
+              <img src="assets/img/archive/manuscrit-ideologie-1846.jpg" alt="Page du manuscrit de L'Idéologie allemande : l'écriture de Marx à gauche, les profils griffonnés par Engels à droite" fetchpriority="high">
             </picture>
           </div>
-          <figcaption class="hs-img-caption">Portrait · John Mayall, 1875 · domaine public</figcaption>
+          <figcaption class="hs-img-caption">Manuscrit de <em>L'Idéologie allemande</em>, 1845-46 · main de Marx, griffonnages d'Engels · IISG Amsterdam, domaine public</figcaption>
         </figure>
       </div>
     </section>
