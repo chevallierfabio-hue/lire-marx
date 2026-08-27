@@ -308,28 +308,26 @@ html:not(.no-anim) .hs-hero.lit .hs-right{opacity:1;transform:none;transition-de
   font-size:clamp(1.7rem,3.4vw,2.5rem);letter-spacing:-.03em;color:var(--text);
   line-height:1.06;margin-bottom:34px;}
 
-/* — « Ce que vous pouvez faire » : trois colonnes, sans la boîte —
-   Les cartes d'origine étaient le seul endroit de la page à retomber dans le
-   gabarit générique : fond plein, bordure, angles arrondis, gros chiffre pâle
-   dans un coin. On garde la disposition en trois colonnes — c'est la bonne —
-   et on change ce qui les habille : un filet en tête de colonne, le numéro de
-   chapitre en Fraunces italique doré (le traitement des années de la frise :
-   c'est la rime qui tient la page), le titre, le texte. Rien d'autre. */
+/* — « Ce que vous pouvez faire » : trois blocs —
+   La boîte est de retour (contour complet, fond, angles), mais la typographie
+   reste celle du sommaire : numéro de chapitre en Fraunces italique doré —
+   le traitement des années de la frise, c'est la rime qui tient la page —
+   au lieu du gros chiffre pâle jeté dans un coin. */
 .hs-do-cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:clamp(20px,3.6vw,54px);}
-.hs-do-item{position:relative;display:flex;flex-direction:column;
-  gap:9px;padding-top:clamp(16px,2.2vh,24px);}
-.hs-do-item::before{content:"";position:absolute;top:0;left:0;height:1px;
-  width:var(--rule,100%);background:var(--border);}
+  gap:clamp(14px,1.6vw,20px);}
+.hs-do-item{position:relative;overflow:hidden;
+  display:flex;flex-direction:column;gap:9px;
+  background:var(--surface);border:1px solid var(--border);border-radius:16px;
+  padding:22px 22px 26px;}
 .hs-do-n{font-family:'Fraunces',serif;font-style:italic;font-weight:900;
   font-size:1.06rem;line-height:1;letter-spacing:.02em;color:var(--gold);}
 .hs-do-item h3{font-family:'Fraunces',serif;font-weight:900;
-  font-size:clamp(1.14rem,1.9vw,1.42rem);line-height:1.12;letter-spacing:-.02em;
+  font-size:clamp(1.12rem,1.8vw,1.36rem);line-height:1.12;letter-spacing:-.02em;
   color:var(--text);}
-.hs-do-item p{font-size:.9rem;line-height:1.7;color:var(--muted);}
+.hs-do-item p{font-size:.89rem;line-height:1.66;color:var(--muted);}
+.hs-do-n,.hs-do-item h3,.hs-do-item p{position:relative;z-index:2;}
 @media(max-width:820px){
-  .hs-do-cols{grid-template-columns:1fr;gap:0;}
-  .hs-do-item{padding:22px 0 24px;}
+  .hs-do-cols{grid-template-columns:1fr;}
 }
 
 /* — LA BIBLIOTHÈQUE (catalogue piloté par oeuvres/bibliotheque.json) — */
@@ -580,16 +578,23 @@ html.no-motion .hs-ms-cartel{display:none;}
   .hs-ms-fig img{height:100%;object-fit:cover;object-position:50% 0;}
 }
 
-/* F. « Ce que vous pouvez faire » — la colonne s'écrit au défilement :
-   le filet se tire d'abord, l'entrée arrive derrière lui, et le numéro de
-   chapitre prend l'encre en dernier. Sans JS (.poses absente), tout est déjà
-   écrit — filets pleine largeur, texte et numéros à leur opacité. */
-.hs-do-cols.poses .hs-do-item{--rule:0%;}
+/* F. « Ce que vous pouvez faire » — les trois feuillets se posent.
+   La réglure est là en permanence (un feuillet, pas une carte) ; sans JS
+   elle est entièrement révélée, et .poses la fait balayer au défilement. */
+.hs-do-item::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  border-radius:inherit;opacity:.6;
+  background-image:repeating-linear-gradient(to bottom,
+    var(--border) 0 1px,transparent 1px 15px);
+  background-repeat:no-repeat;background-size:100% 104px;
+  -webkit-mask-image:linear-gradient(to bottom,#000 0,#000 var(--sweep,999px),
+    transparent calc(var(--sweep,999px) + 42px));
+  mask-image:linear-gradient(to bottom,#000 0,#000 var(--sweep,999px),
+    transparent calc(var(--sweep,999px) + 42px));}
+.hs-do-item{--drop:0px;--tilt:0deg;
+  transform:translateY(var(--drop)) rotate(var(--tilt));}
+.hs-do-cols.poses .hs-do-item{--sweep:0px;opacity:0;will-change:transform,opacity;}
 .hs-do-cols.poses .hs-do-n{opacity:var(--ink,1);
   transform:translateY(calc((1 - var(--ink,1)) * 7px));}
-.hs-do-cols.poses .hs-do-item h3,
-.hs-do-cols.poses .hs-do-item p{opacity:calc(.05 + .95 * var(--pin,1));
-  transform:translateY(calc((1 - var(--pin,1)) * 13px));}
 
 /* H. Bande finale — la bougie prend.
    La page s'ouvre sur une bougie posée sur un bureau : elle se referme
@@ -888,7 +893,7 @@ html.no-motion header.topbar,html.no-motion header.topbar .topbar-in{transition:
         </article>
         <article class="hs-do-item">
           <span class="hs-do-n" aria-hidden="true">II</span>
-          <h3>L'atelier &amp; les simulations</h3>
+          <h3>L'atelier et les simulations</h3>
           <p>Chaque chapitre déplié : anatomie des concepts, cartes, chronologie,
             et des modèles animés qui font tourner la valeur et la plus-value.</p>
         </article>

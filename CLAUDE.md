@@ -185,30 +185,32 @@ défilement commun (`addScrollSub`), pas d'un écouteur local ; la boucle rAF
 s'arrête d'elle-même quand la liasse est sortie et que la rafale est
 retombée, et repart au premier scroll (`start()` dans l'abonné).
 
-**Section « Ce que vous pouvez faire » — trois colonnes, sans la boîte
-(`doCards()`).** Les cartes d'origine étaient le seul endroit de la page à
-retomber dans le gabarit générique : fond plein, bordure, angles arrondis,
-gros chiffre pâle dans un coin, et l'élément le plus lourd de l'accueil pour
-le contenu le plus simple. La **disposition en trois colonnes est la bonne**
-(un essai en sommaire pleine largeur a été écarté) ; c'est l'habillage qui a
-changé. `.hs-do-cols` > `.hs-do-item` : un filet en tête de colonne
-(`::before`, largeur pilotée par `--rule`), le numéro de chapitre en
-**Fraunces italique `--gold`, exactement le traitement des années de la
-frise** — c'est la rime qui tient la page ensemble — puis le titre et le
-texte. Rien d'autre : aucun fond, aucune bordure, aucun rayon. Sous 820 px,
-les colonnes s'empilent et chacune garde son filet.
+**Section « Ce que vous pouvez faire » — trois blocs (`doCards()`).**
+`.hs-do-cols` > `.hs-do-item`. Historique utile pour ne pas tourner en rond :
+la boîte a été retirée (essai sans contour), puis un essai en **sommaire
+pleine largeur** a été tenté — les deux ont été écartés. **Le propriétaire a
+tranché : contour complet, fond, angles arrondis, et l'animation de pose.**
+Ce qui a été gardé des essais, c'est la **typographie** : le numéro de
+chapitre en Fraunces italique `--gold` — le traitement des années de la frise,
+c'est la rime qui tient la page — au lieu du gros chiffre `--accent` pâle
+jeté dans le coin, et « L'atelier **et** les simulations » (l'esperluette de
+Fraunces ne plaisait pas). Ne pas reproposer de retirer la boîte.
 
-L'animation suit l'ordre dans lequel on écrirait la colonne à la main : le
-**filet se tire** d'abord (`--rule` 0 → 100 %), l'entrée arrive derrière lui
-(`--pin`), le numéro **prend l'encre** en dernier (`--ink`), décalé d'une
-colonne à l'autre. Réversible. Comme ailleurs, `doCards()` **retire
-`.reveal-stagger`** et pose `.poses` ; sans JS, sous no-motion ou en dessous
-de 768 px, tout est simplement déjà écrit.
+Animation : chaque bloc arrive 30 px plus haut et de biais (`--drop`,
+`--tilt`, angles −2,6° / +1,9° / −1,5°), puis se pose à plat, décalé d'un
+bloc au suivant ; le balayage `--sweep` révèle la **réglure** du feuillet
+(bande de lignes limitée aux 104 px du haut — essayée pleine hauteur, elle
+faisait du moiré avec les lignes de texte) et le numéro **prend l'encre**
+(`--ink`) une fois le feuillet posé. Piloté par la position de scroll →
+réversible. `doCards()` **retire `.reveal-stagger`** et pose `.poses` ; la
+réglure est permanente (`--sweep:999px` par défaut), donc sans JS, sous
+no-motion ou en dessous de 768 px, les blocs gardent réglure et fondu simple.
 
-Conséquence à ne pas oublier : `.hs-do-card` **n'existe plus**. Le `transform`
-partagé à variables (`--rx`/`--ry`/`--lift`/`--drop`/`--tilt`) et l'inclinaison
-au curseur de `cardFx()` ne concernent plus que `.hs-w-card`, les cartes du
-catalogue.
+Conséquence à ne pas oublier : `.hs-do-card` **n'existe plus** (c'est
+`.hs-do-item`). Le `transform` partagé à variables `--rx`/`--ry`/`--lift` et
+l'inclinaison au curseur de `cardFx()` ne concernent plus que `.hs-w-card`,
+les cartes du catalogue ; `.hs-do-item` a son propre `transform`, réduit à
+`--drop` et `--tilt`.
 
 **Section « La bibliothèque » — elle se constitue au défilement
 (`libraryScrub()`).** Une idée pour les deux moitiés : ce qui existe se
