@@ -22,8 +22,8 @@
    - countUp()        : comptage animé des chiffres clés à l'entrée en vue
    - cardFx()         : inclinaison + lueur des cartes sous le curseur
    - heroParallax()   : parallaxe fine du portrait du héros
-   - doCards()        : « Ce que vous pouvez faire » — le sommaire s'écrit
-                        au défilement (filet, entrée, numéro)
+   - doCards()        : « Ce que vous pouvez faire » — chaque colonne
+                        s'écrit au défilement (filet, entrée, numéro)
    - libraryScrub()   : la bibliothèque se constitue — les photos d'archive
                         se développent au scroll, la frise « en préparation »
                         s'écrit année après année
@@ -1306,18 +1306,17 @@
     });
   }
 
-  /* — F. « Ce que vous pouvez faire » : le sommaire s'écrit —
-       Ce n'est plus une grille de cartes mais un sommaire de livre. Chaque
-       entrée s'écrit dans l'ordre où on l'écrirait à la main : le filet se
-       tire d'abord, l'entrée arrive derrière lui, le numéro de chapitre prend
-       l'encre en dernier. Piloté par la position de scroll → réversible. Sous
+  /* — F. « Ce que vous pouvez faire » : la colonne s'écrit —
+       Trois colonnes, mais plus de cartes : chacune s'écrit dans l'ordre où
+       on l'écrirait à la main : le filet se tire d'abord, l'entrée arrive
+       derrière lui, le numéro de chapitre prend l'encre en dernier. Piloté par la position de scroll → réversible. Sous
        no-motion / < 768 px la fonction sort et `.reveal-stagger` reprend la
-       main (fondu simple, sommaire déjà écrit). */
+       main (fondu simple, colonnes déjà écrites). */
   function doCards() {
     if (REDUCE || window.innerWidth < 768) return;
-    var list = document.querySelector('.hs-do-list');
+    var list = document.querySelector('.hs-do-cols');
     if (!list) return;
-    var rows = [].slice.call(list.querySelectorAll('.hs-do-row'));
+    var rows = [].slice.call(list.querySelectorAll('.hs-do-item'));
     if (!rows.length) return;
     list.classList.remove('reveal-stagger');   /* le scrub prend la main */
     list.classList.add('poses');

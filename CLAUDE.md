@@ -185,25 +185,25 @@ défilement commun (`addScrollSub`), pas d'un écouteur local ; la boucle rAF
 s'arrête d'elle-même quand la liasse est sortie et que la rafale est
 retombée, et repart au premier scroll (`start()` dans l'abonné).
 
-**Section « Ce que vous pouvez faire » — le sommaire (`doCards()`).** Ce
-n'étaient plus des cartes assez tôt : trois boîtes arrondies identiques, fond
-plein, bordure, gros chiffre pâle dans le coin — le seul endroit de la page
-qui retombait dans le gabarit générique, et l'élément le plus lourd de
-l'accueil pour le contenu le plus simple. C'est maintenant un **sommaire de
-livre** : `.hs-do-list` > `.hs-do-row`, une entrée par ligne, pleine largeur.
-Un filet en travers (`::before`, largeur pilotée par `--rule`), le numéro de
-chapitre dans la marge — **Fraunces italique en `--gold`, exactement le
-traitement des années de la frise**, c'est la rime qui tient la page
-ensemble — le titre en gros, et le texte dans une colonne mesurée à droite
-(`54ch`). Sous 860 px, le numéro reste en marge et le texte s'indente sous le
-titre.
+**Section « Ce que vous pouvez faire » — trois colonnes, sans la boîte
+(`doCards()`).** Les cartes d'origine étaient le seul endroit de la page à
+retomber dans le gabarit générique : fond plein, bordure, angles arrondis,
+gros chiffre pâle dans un coin, et l'élément le plus lourd de l'accueil pour
+le contenu le plus simple. La **disposition en trois colonnes est la bonne**
+(un essai en sommaire pleine largeur a été écarté) ; c'est l'habillage qui a
+changé. `.hs-do-cols` > `.hs-do-item` : un filet en tête de colonne
+(`::before`, largeur pilotée par `--rule`), le numéro de chapitre en
+**Fraunces italique `--gold`, exactement le traitement des années de la
+frise** — c'est la rime qui tient la page ensemble — puis le titre et le
+texte. Rien d'autre : aucun fond, aucune bordure, aucun rayon. Sous 820 px,
+les colonnes s'empilent et chacune garde son filet.
 
-L'animation suit l'ordre dans lequel on écrirait la ligne à la main : le
+L'animation suit l'ordre dans lequel on écrirait la colonne à la main : le
 **filet se tire** d'abord (`--rule` 0 → 100 %), l'entrée arrive derrière lui
-(`--pin`), le numéro **prend l'encre** en dernier (`--ink`), le tout décalé
-d'une entrée à l'autre. Piloté par la position de scroll → réversible. Comme
-ailleurs, `doCards()` **retire `.reveal-stagger`** et pose `.poses` ; sans JS,
-sous no-motion ou en dessous de 768 px, le sommaire est simplement déjà écrit.
+(`--pin`), le numéro **prend l'encre** en dernier (`--ink`), décalé d'une
+colonne à l'autre. Réversible. Comme ailleurs, `doCards()` **retire
+`.reveal-stagger`** et pose `.poses` ; sans JS, sous no-motion ou en dessous
+de 768 px, tout est simplement déjà écrit.
 
 Conséquence à ne pas oublier : `.hs-do-card` **n'existe plus**. Le `transform`
 partagé à variables (`--rx`/`--ry`/`--lift`/`--drop`/`--tilt`) et l'inclinaison
