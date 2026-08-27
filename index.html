@@ -535,8 +535,11 @@ header.topbar.tb-solid .topbar-in{max-width:1180px;margin:0 auto;height:46px;
 
 /* — épinglage (desktop, hors reduced-motion) — */
 .js-circuit .circuit-pin{height:230vh;}
+/* le padding bas décentre le bloc de texte vers le haut : la bande basse
+   reste libre pour le passage du chariot (home.js : circuitChariot). */
 .js-circuit .circuit-band{position:sticky;top:0;min-height:100vh;
-  display:flex;flex-direction:column;justify-content:center;}
+  display:flex;flex-direction:column;justify-content:center;
+  padding-bottom:clamp(140px,24vh,280px);}
 .js-circuit .circuit-inner{max-width:720px;}
 .js-circuit .circuit-inner .hs-sec-h{font-size:clamp(2.1rem,4.2vw,3.1rem);}
 .js-circuit .circuit-node b{font-size:1.5rem;}
@@ -550,7 +553,8 @@ header.topbar.tb-solid .topbar-in{max-width:1180px;margin:0 auto;height:46px;
    dépingle et on empile tout. circuitScrub() détecte le même cas. */
 @media(max-height:640px){
   .js-circuit .circuit-pin{height:auto;}
-  .js-circuit .circuit-band{position:static;min-height:0;display:block;}
+  .js-circuit .circuit-band{position:static;min-height:0;display:block;
+    padding-bottom:clamp(56px,10vh,120px);}   /* plus de chariot : plus de bande basse à dégager */
   .js-circuit .circuit-steps{position:static;min-height:0;}
   .js-circuit .circuit-step{position:static;opacity:1;visibility:visible;transform:none;}
 }
@@ -607,7 +611,8 @@ html.no-motion header.topbar,html.no-motion header.topbar .topbar-in{transition:
   .hs-sec-h .rw{opacity:1!important;filter:none!important;transform:none!important;}
   header.topbar,header.topbar .topbar-in{transition:none!important;}
   .circuit-pin{height:auto!important;}
-  .circuit-band{position:static!important;min-height:0!important;}
+  .circuit-band{position:static!important;min-height:0!important;
+    padding-bottom:clamp(56px,10vh,120px)!important;}
   .circuit-step{position:static!important;opacity:1!important;visibility:visible!important;transform:none!important;}
   .circuit-node.lit b{transform:none!important;}
   .hs-w-img{clip-path:none!important;animation:none!important;}
