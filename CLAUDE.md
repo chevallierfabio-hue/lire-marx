@@ -272,6 +272,17 @@ nous (il sort plus grand qu'il n'est entré : le circuit revient grossi) et
 `Z_TURN` y superpose **un seul** virage (`sin(π t)`) : il entre braqué
 vers nous, se redresse, et ressort braqué de l'autre côté. Deux virages se
 lisaient comme un frétillement. Le roulis suit la courbure, bridé à ~4°.
+
+**L'assiette suit la pente** (`rig.rotation.x`, bornée à `PITCH_MAX` ≈ 11°,
+lissée d'une image à l'autre). Sans elle, le chariot montait la côte **à
+plat** : il ne roulait pas, il glissait. Deux points de mécanique :
+`rig.rotation.order` est passé à **`'YXZ'`** — en `'XYZ'` (défaut),
+`rotation.x` tourne autour du X du MONDE et le chariot pique de travers dès
+qu'il est braqué ; et la pente est prise sur le déplacement **visible**
+(`dy / hypot(dx, dz·HEAD_DAMP)`), pour la même raison que le cap. La
+remontée est en `1 - (1-u)^Y_RISE` et non `u^0.75` : les deux montent aussi
+vite, mais la seconde part d'une pente **infinie** au creux — le chariot s'y
+cabrait à la verticale d'un coup.
 `scene.fog` est réglé sur la couleur exacte de `--surface`, donc le
 lointain disparaît vraiment.
 
