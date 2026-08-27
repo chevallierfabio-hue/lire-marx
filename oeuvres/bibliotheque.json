@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-06-19",
+  "updated": "2026-08-27",
   "works": [
     {
       "id": "capital-1",
@@ -12,7 +12,7 @@
       "category": "critique-economie-politique",
       "path": "oeuvres/capital-1.html",
       "manifest": "oeuvres/capital-1/manifest.json",
-      "description": "Le developpement de la production capitaliste : marchandise, monnaie, plus-value, journee de travail, machinisme, salaire, accumulation et accumulation primitive.",
+      "description": "Le développement de la production capitaliste : marchandise, monnaie, plus-value, journée de travail, machinisme, salaire, accumulation et accumulation primitive.",
       "concepts": [
         "marchandise",
         "valeur",
@@ -20,11 +20,11 @@
         "capital",
         "plus-value",
         "force de travail",
-        "journee de travail",
+        "journée de travail",
         "accumulation primitive"
       ],
-      "readingGuide": "Commencer par le chapitre I avec patience, puis utiliser le parcours par sections pour suivre la progression de la marchandise jusqu'a l'accumulation primitive.",
-      "sourceNote": "Texte du domaine public, traduction Joseph Roy revue par Marx. La page existante charge le texte integral depuis Wikisource et utilise aussi des fichiers locaux dans oeuvres/capital-1/textes/."
+      "readingGuide": "Commencer par le chapitre I avec patience, puis utiliser le parcours par sections pour suivre la progression de la marchandise jusqu'à l'accumulation primitive.",
+      "sourceNote": "Texte du domaine public, traduction Joseph Roy revue par Marx. La page existante charge le texte intégral depuis Wikisource et utilise aussi des fichiers locaux dans oeuvres/capital-1/textes/."
     },
     {
       "id": "capital-2",
@@ -36,17 +36,17 @@
       "category": "critique-economie-politique",
       "path": "oeuvres/capital-2.html",
       "manifest": "oeuvres/capital-2/manifest.json",
-      "description": "Le proces de circulation du capital : metamorphoses, rotation, temps de circulation et reproduction du capital social.",
+      "description": "Le procès de circulation du capital : métamorphoses, rotation, temps de circulation et reproduction du capital social.",
       "concepts": [
         "circulation",
         "rotation du capital",
         "capital fixe",
         "capital circulant",
         "reproduction simple",
-        "reproduction elargie"
+        "reproduction élargie"
       ],
-      "readingGuide": "A lire apres le Livre I pour comprendre comment le capital se reproduit dans le temps et dans l'ensemble social.",
-      "sourceNote": "Edition posthume etablie par Friedrich Engels en 1885. Texte a integrer depuis une source du domaine public."
+      "readingGuide": "À lire après le Livre I pour comprendre comment le capital se reproduit dans le temps et dans l'ensemble social.",
+      "sourceNote": "Édition posthume établie par Friedrich Engels en 1885. Texte à intégrer depuis une source du domaine public."
     },
     {
       "id": "capital-3",
@@ -58,22 +58,22 @@
       "category": "critique-economie-politique",
       "path": "oeuvres/capital-3.html",
       "manifest": "oeuvres/capital-3/manifest.json",
-      "description": "Le proces d'ensemble de la production capitaliste : profit, prix de production, interet, rente fonciere et formule trinitaire.",
+      "description": "Le procès d'ensemble de la production capitaliste : profit, prix de production, intérêt, rente foncière et formule trinitaire.",
       "concepts": [
         "profit",
         "prix de production",
         "taux de profit",
-        "interet",
+        "intérêt",
         "rente",
         "capital fictif",
         "formule trinitaire"
       ],
-      "readingGuide": "A aborder apres les Livres I et II : le texte montre les formes apparentes que prend la plus-value dans la concurrence.",
-      "sourceNote": "Edition posthume etablie par Friedrich Engels en 1894. Texte a integrer depuis une source du domaine public."
+      "readingGuide": "À aborder après les Livres I et II : le texte montre les formes apparentes que prend la plus-value dans la concurrence.",
+      "sourceNote": "Édition posthume établie par Friedrich Engels en 1894. Texte à intégrer depuis une source du domaine public."
     },
     {
       "id": "contribution-critique-economie-politique",
-      "title": "Contribution a la critique de l'economie politique",
+      "title": "Contribution à la critique de l'économie politique",
       "shortTitle": "Contribution",
       "author": "Karl Marx",
       "year": 1859,
@@ -81,17 +81,17 @@
       "category": "critique-economie-politique",
       "path": "oeuvres/contribution-1859.html",
       "manifest": "oeuvres/contribution-1859/manifest.json",
-      "description": "Premiere mise en forme publiee de la critique de l'economie politique, avec la celebre preface sur la methode materialiste.",
+      "description": "Première mise en forme publiée de la critique de l'économie politique, avec la célèbre préface sur la méthode matérialiste.",
       "concepts": [
         "marchandise",
         "argent",
-        "methode",
+        "méthode",
         "production",
         "rapports sociaux",
         "base et superstructure"
       ],
-      "readingGuide": "Lire la preface avant le corps du texte : elle donne un point d'entree utile sur la methode historique de Marx.",
-      "sourceNote": "Texte du domaine public a integrer depuis une edition fiable."
+      "readingGuide": "Lire la préface avant le corps du texte : elle donne un point d'entrée utile sur la méthode historique de Marx.",
+      "sourceNote": "Texte du domaine public à intégrer depuis une édition fiable."
     },
     {
       "id": "manuscrits-1844",
@@ -103,39 +103,39 @@
       "category": "philosophie",
       "path": "oeuvres/manuscrits-1844.html",
       "manifest": "oeuvres/manuscrits-1844/manifest.json",
-      "description": "Lecture des Manuscrits economico-philosophiques : travail aliene, propriete privee, communisme, besoins, argent et critique de Hegel.",
+      "description": "Lecture des Manuscrits économico-philosophiques : travail aliéné, propriété privée, communisme, besoins, argent et critique de Hegel.",
       "concepts": [
-        "alienation",
-        "travail aliene",
-        "propriete privee",
+        "aliénation",
+        "travail aliéné",
+        "propriété privée",
         "argent",
         "humanisme",
-        "emancipation"
+        "émancipation"
       ],
-      "readingGuide": "Commencer par le travail aliene, puis lire les passages sur la propriete privee, le communisme et l'argent comme un laboratoire du jeune Marx.",
-      "sourceNote": "Manuscrits rediges en 1844 et publies pour la premiere fois en 1932. Texte local importe depuis l'archive XML/TEI du Marxists Internet Archive, avec liens de verification vers la source."
+      "readingGuide": "Commencer par le travail aliéné, puis lire les passages sur la propriété privée, le communisme et l'argent comme un laboratoire du jeune Marx.",
+      "sourceNote": "Manuscrits rédigés en 1844 et publiés pour la première fois en 1932. Texte local importé depuis l'archive XML/TEI du Marxists Internet Archive, avec liens de vérification vers la source."
     },
     {
       "id": "ideologie-allemande",
-      "title": "L'Ideologie allemande",
-      "shortTitle": "Ideologie allemande",
+      "title": "L'Idéologie allemande",
+      "shortTitle": "Idéologie allemande",
       "author": "Karl Marx et Friedrich Engels",
       "year": 1846,
       "status": "planned",
       "category": "philosophie-histoire",
       "path": "oeuvres/ideologie-allemande.html",
       "manifest": "oeuvres/ideologie-allemande/manifest.json",
-      "description": "Critique de la philosophie allemande post-hegelienne et formulation decisive de la conception materialiste de l'histoire.",
+      "description": "Critique de la philosophie allemande post-hégélienne et formulation décisive de la conception matérialiste de l'histoire.",
       "concepts": [
-        "ideologie",
-        "materialisme historique",
+        "idéologie",
+        "matérialisme historique",
         "division du travail",
         "production",
         "conscience",
         "classe"
       ],
-      "readingGuide": "Commencer par la partie sur Feuerbach pour saisir la rupture avec l'idealisme et le role central de la production sociale.",
-      "sourceNote": "Manuscrit de 1845-1846 publie apres la mort des auteurs. Texte a integrer depuis une edition fiable."
+      "readingGuide": "Commencer par la partie sur Feuerbach pour saisir la rupture avec l'idéalisme et le rôle central de la production sociale.",
+      "sourceNote": "Manuscrit de 1845-1846 publié après la mort des auteurs. Texte à intégrer depuis une édition fiable."
     },
     {
       "id": "manifeste-parti-communiste",
@@ -147,17 +147,17 @@
       "category": "politique",
       "path": "oeuvres/manifeste.html",
       "manifest": "oeuvres/manifeste/manifest.json",
-      "description": "Texte politique majeur sur la bourgeoisie, le proletariat, la lutte des classes et le mouvement communiste.",
+      "description": "Texte politique majeur sur la bourgeoisie, le prolétariat, la lutte des classes et le mouvement communiste.",
       "concepts": [
         "lutte des classes",
         "bourgeoisie",
-        "proletariat",
-        "revolution",
+        "prolétariat",
+        "révolution",
         "internationalisme",
         "communisme"
       ],
       "readingGuide": "Lecture courte mais dense : suivre les quatre parties et distinguer l'analyse historique du programme politique.",
-      "sourceNote": "Texte publie en 1848 avec Friedrich Engels, domaine public."
+      "sourceNote": "Texte publié en 1848 avec Friedrich Engels, domaine public."
     },
     {
       "id": "dix-huit-brumaire",
@@ -169,17 +169,17 @@
       "category": "histoire-politique",
       "path": "oeuvres/18-brumaire.html",
       "manifest": "oeuvres/18-brumaire/manifest.json",
-      "description": "Analyse du coup d'Etat de Louis Bonaparte, des classes sociales, de la representation politique et des formes de l'Etat.",
+      "description": "Analyse du coup d'État de Louis Bonaparte, des classes sociales, de la représentation politique et des formes de l'État.",
       "concepts": [
         "classe",
-        "Etat",
+        "État",
         "bonapartisme",
-        "representation",
+        "représentation",
         "paysannerie",
         "lutte politique"
       ],
-      "readingGuide": "A lire avec une chronologie de la Deuxieme Republique francaise pour suivre les alliances et renversements de classes.",
-      "sourceNote": "Texte du domaine public a integrer depuis une edition fiable."
+      "readingGuide": "À lire avec une chronologie de la Deuxième République française pour suivre les alliances et renversements de classes.",
+      "sourceNote": "Texte du domaine public à intégrer depuis une édition fiable."
     },
     {
       "id": "critique-programme-gotha",
@@ -191,17 +191,17 @@
       "category": "politique",
       "path": "oeuvres/critique-programme-gotha.html",
       "manifest": "oeuvres/critique-programme-gotha/manifest.json",
-      "description": "Critique du programme socialiste allemand de Gotha, avec des remarques centrales sur l'Etat, le droit et la transition communiste.",
+      "description": "Critique du programme socialiste allemand de Gotha, avec des remarques centrales sur l'État, le droit et la transition communiste.",
       "concepts": [
         "programme",
-        "Etat",
+        "État",
         "droit",
         "transition",
         "distribution",
         "communisme"
       ],
-      "readingGuide": "Texte bref a lire ligne a ligne, en tenant compte du contexte du mouvement ouvrier allemand.",
-      "sourceNote": "Texte redige en 1875 et publie plus tard par Engels. Domaine public."
+      "readingGuide": "Texte bref à lire ligne à ligne, en tenant compte du contexte du mouvement ouvrier allemand.",
+      "sourceNote": "Texte rédigé en 1875 et publié plus tard par Engels. Domaine public."
     },
     {
       "id": "grundrisse",
@@ -213,7 +213,7 @@
       "category": "manuscrits-economie",
       "path": "oeuvres/grundrisse.html",
       "manifest": "oeuvres/grundrisse/manifest.json",
-      "description": "Manuscrits preparatoires de 1857-1858 : argent, capital, circulation, machines, temps de travail et methode.",
+      "description": "Manuscrits préparatoires de 1857-1858 : argent, capital, circulation, machines, temps de travail et méthode.",
       "concepts": [
         "argent",
         "capital",
@@ -221,10 +221,10 @@
         "machines",
         "temps de travail",
         "general intellect",
-        "methode"
+        "méthode"
       ],
-      "readingGuide": "A lire comme carnet de recherche : privilegier des parcours thematiques plutot qu'une lecture lineaire immediate.",
-      "sourceNote": "Manuscrits publies apres la mort de Marx. Texte a integrer depuis une edition du domaine public ou autorisee."
+      "readingGuide": "À lire comme carnet de recherche : privilégier des parcours thématiques plutôt qu'une lecture linéaire immédiate.",
+      "sourceNote": "Manuscrits publiés après la mort de Marx. Texte à intégrer depuis une édition du domaine public ou autorisée."
     },
     {
       "id": "salaire-prix-profit",
@@ -236,7 +236,7 @@
       "category": "critique-economie-politique",
       "path": "oeuvres/salaire-prix-profit.html",
       "manifest": "oeuvres/salaire-prix-profit/manifest.json",
-      "description": "Expose polemique sur les salaires, les prix, la valeur, le profit et le role des luttes salariales.",
+      "description": "Exposé polémique sur les salaires, les prix, la valeur, le profit et le rôle des luttes salariales.",
       "concepts": [
         "salaire",
         "prix",
@@ -245,30 +245,30 @@
         "force de travail",
         "lutte salariale"
       ],
-      "readingGuide": "Bonne porte d'entree pedagogique vers la theorie de la valeur et de la plus-value avant ou pendant le Livre I du Capital.",
-      "sourceNote": "Expose de 1865 publie ensuite sous forme de brochure. Texte du domaine public."
+      "readingGuide": "Bonne porte d'entrée pédagogique vers la théorie de la valeur et de la plus-value avant ou pendant le Livre I du Capital.",
+      "sourceNote": "Exposé de 1865 publié ensuite sous forme de brochure. Texte du domaine public."
     },
     {
       "id": "travail-salarie-capital",
-      "title": "Travail salarie et capital",
-      "shortTitle": "Travail salarie",
+      "title": "Travail salarié et capital",
+      "shortTitle": "Travail salarié",
       "author": "Karl Marx",
       "year": 1849,
       "status": "planned",
       "category": "critique-economie-politique",
       "path": "oeuvres/travail-salarie-capital.html",
       "manifest": "oeuvres/travail-salarie-capital/manifest.json",
-      "description": "Expose accessible sur le salaire, la force de travail, le capital et les rapports entre travail salarie et accumulation.",
+      "description": "Exposé accessible sur le salaire, la force de travail, le capital et les rapports entre travail salarié et accumulation.",
       "concepts": [
         "salaire",
-        "travail salarie",
+        "travail salarié",
         "capital",
         "force de travail",
         "accumulation",
         "concurrence"
       ],
       "readingGuide": "Texte court et introductif, utile avant Le Capital pour poser les rapports fondamentaux entre salaire et capital.",
-      "sourceNote": "Texte issu de conferences publiees en 1849. Domaine public."
+      "sourceNote": "Texte issu de conférences publiées en 1849. Domaine public."
     }
   ]
 }
