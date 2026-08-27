@@ -523,15 +523,19 @@ html:not(.no-anim) .hs-hero.lit .hs-right{opacity:1;transform:none;transition-de
   width:min(760px,80vw);height:440px;pointer-events:none;z-index:1;
   background:radial-gradient(ellipse at center,
     rgba(216,173,76,.20) 0%,rgba(213,64,47,.10) 42%,transparent 72%);}
-/* Elle TOURBILLONNE : deux tours et demi, autour de son propre centre
-   (`transform-origin` au milieu, pas au pied — un pivot au pied donnerait
-   une bougie qui se relève, pas une bougie qui tourbillonne). */
+/* Elle TOURNOIE SUR SA LONGUEUR, comme une toupie : `rotateY`, autour de
+   son axe vertical, avec une `perspective()` pour que ça se lise en volume
+   — la cire s'affine puis s'élargit à chaque quart de tour. Trois tours.
+   (Une rotation 2D `rotate()` la ferait culbuter dans le plan, et un pivot
+   au pied la ferait se relever : les deux ont été essayés et écartés.)
+   Elle GROSSIT en tournant, de .55 à sa taille pleine. */
 .hs-closer-candle{position:absolute;z-index:1;pointer-events:none;
   left:var(--candle-x);top:var(--candle-y);
   width:52px;height:132px;--cd-scale:1;
   transform-origin:50% 50%;
-  transform:translateX(-50%) rotate(calc((1 - var(--up,1)) * -900deg))
-            scale(calc(var(--cd-scale) * (.72 + .28 * var(--up,1))));}
+  transform:translateX(-50%) perspective(700px)
+            rotateY(calc((1 - var(--up,1)) * -1080deg))
+            scale(calc(var(--cd-scale) * (.55 + .45 * var(--up,1))));}
 .hs-closer-candle span{position:absolute;left:50%;transform:translateX(-50%);}
 .cd-holder{bottom:0;width:52px;height:12px;border-radius:50%;
   background:radial-gradient(ellipse at 50% 28%,#c9a86a 0%,#9a7b30 55%,#6d5620 100%);}
