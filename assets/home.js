@@ -23,7 +23,9 @@
    - heroParallax()   : parallaxe fine du portrait du héros
    - doCards()        : « Ce que vous pouvez faire » — les trois cartes se
                         posent comme des feuillets au défilement
-   - developImages()  : photos d'archive du catalogue révélées par balayage
+   - libraryScrub()   : la bibliothèque se constitue — les photos d'archive
+                        se développent au scroll, la frise « en préparation »
+                        s'écrit année après année
    - magneticButtons(): CTA principaux attirés vers le curseur
    - timelineStrip()  : « en préparation » = frise chronologique horizontale
                         (défilement natif + glisser souris + flèches clavier)
@@ -397,8 +399,9 @@
                        .sort(function (a, b) { return a.year - b.year; });
       var plan = works.filter(function (w) { return w.status !== 'available'; })
                       .sort(function (a, b) { return a.year - b.year; });
-      if (availEl) { availEl.innerHTML = avail.map(availCard).join(''); try { armDev(availEl); } catch (e) {} }
+      if (availEl) { availEl.innerHTML = avail.map(availCard).join(''); }
       if (planEl) { planEl.innerHTML = plan.map(planRow).join(''); try { timelineStrip(); } catch (e) {} }
+      try { libraryScrub(); } catch (e) { /* non bloquant */ }
       if (countEl) {
         countEl.textContent = avail.length + (avail.length > 1 ? ' œuvres disponibles' : ' œuvre disponible') +
           ' · ' + plan.length + ' en préparation';
@@ -844,33 +847,75 @@
     resize();
   }
 
-  /* — 2. Photos d'archive : « développement » (balayage) à l'entrée en vue — */
-  var _devIO = null;
-  function armDev(scope) {
-    if (!_devIO) return;
-    var els = (scope || document).querySelectorAll('.hs-w-img');
-    for (var i = 0; i < els.length; i++) {
-      if (!els[i].dataset.devArmed) { els[i].dataset.devArmed = '1'; _devIO.observe(els[i]); }
+  /* — 2. La bibliothèque se constitue au défilement —
+       Deux moitiés, une seule idée : ce qui existe se développe, ce qui vient
+       s'écrit. En haut, le révélateur des photos d'archive suit le scroll
+       (clip-path + barre dorée tenue à la limite exacte du tirage), le corps
+       de la carte arrivant derrière la barre, avec un décalage d'une œuvre à
+       l'autre. En bas, le filet de la frise se trace et chaque année s'allume
+       à son passage. Appelé par catalogue() une fois les cartes rendues —
+       jamais avant, le catalogue est peuplé par fetch. — */
+  function libraryScrub() {
+    if (REDUCE || window.innerWidth < 768) return;
+    var grid = document.getElementById('lib-available');
+    var cards = grid ? [].slice.call(grid.querySelectorAll('.hs-w-card')) : [];
+    var band = document.querySelector('.hs-timeline');
+    var track = band && band.querySelector('.hs-timeline-track');
+    var rows = track ? [].slice.call(track.querySelectorAll('.hs-tl-card')) : [];
+    if (!cards.length && !rows.length) return;
+    var root = document.documentElement;
+    /* le développement possède la révélation des cartes : sans ça, le fondu
+       .reveal-stagger (déclenché plus tard que la course) les ferait apparaître
+       d'un coup en plein milieu du tirage. */
+    if (cards.length) { grid.classList.remove('reveal-stagger'); root.classList.add('js-devscrub'); }
+    if (rows.length) root.classList.add('js-frise');
+
+    function cl01(v) { return v < 0 ? 0 : (v > 1 ? 1 : v); }
+    function ease(v) { return v * v * (3 - 2 * v); }
+
+    addScrollSub(function (y, vh) {
+      var i;
+      /* — les tirages se développent — */
+      if (cards.length) {
+        var gr = grid.getBoundingClientRect();
+        var q = cl01((vh * 0.90 - gr.top) / (vh * 0.52));
+        for (i = 0; i < cards.length; i++) {
+          var c = cards[i];
+          var e = ease(cl01((q - i * 0.14) / 0.72));
+          c.style.setProperty('--dev', e.toFixed(4));
+          /* la barre n'existe que pendant le développement */
+          c.style.setProperty('--bar',
+            (e <= 0.001 || e >= 0.999) ? '0' : Math.min(1, 4 * e * (1 - e) * 1.9).toFixed(3));
+          c.style.setProperty('--in', ease(cl01(e / 0.18)).toFixed(4));
+          c.style.setProperty('--txt', ease(cl01((e - 0.35) / 0.5)).toFixed(4));
+        }
+      }
+      /* — la frise s'écrit — */
+      if (rows.length) {
+        var br = band.getBoundingClientRect();
+        var d = cl01((vh * 0.92 - br.top) / (vh * 0.42));
+        band.style.setProperty('--draw', d.toFixed(4));
+        var W = track.clientWidth || 1, sx = track.scrollLeft || 0;
+        for (i = 0; i < rows.length; i++) {
+          var r = rows[i];
+          var f = (r.offsetLeft - sx + r.offsetWidth * 0.3) / W;
+          if (f > 0.95) f = 0.95; if (f < 0) f = 0;
+          r.style.setProperty('--lit', cl01((d - f) / 0.05).toFixed(3));
+        }
+      }
+      return true;
+    });
+
+    /* La mise en page vient de bouger sous nos pieds : les cartes viennent
+       d'être injectées par fetch, et le navigateur a pu sauter sur l'ancre
+       #catalogue entre-temps. Sans ce rappel, la première (et seule) mesure
+       laisserait la section figée en plein développement tant que le lecteur
+       ne défile pas. */
+    requestAnimationFrame(onScrollDriver);
+    setTimeout(onScrollDriver, 400);
+    if (document.readyState !== 'complete') {
+      window.addEventListener('load', onScrollDriver, { once: true });
     }
-  }
-  function developImages() {
-    if (REDUCE || window.innerWidth < 768 || !('IntersectionObserver' in window)) return;
-    document.documentElement.classList.add('js-dev');
-    _devIO = new IntersectionObserver(function (ents) {
-      ents.forEach(function (x) {
-        if (!x.isIntersecting) return;
-        _devIO.unobserve(x.target);
-        var t = x.target;   /* 2 frames : l'état clippé de base est bien pris avant la transition */
-        requestAnimationFrame(function () {
-          requestAnimationFrame(function () { t.classList.add('dev'); });
-        });
-      });
-    }, { threshold: 0.2, rootMargin: '0px 0px -5% 0px' });
-    armDev(document);
-    setTimeout(function () {
-      [].forEach.call(document.querySelectorAll('.js-dev .hs-w-img:not(.dev)'),
-        function (el) { el.classList.add('dev'); });
-    }, 6000);
   }
 
   /* — 3. Boutons d'action magnétiques — attirés vers le curseur — */
@@ -1099,9 +1144,9 @@
     try { cardFx(); } catch (e) { /* non bloquant */ }
     try { heroParallax(); } catch (e) { /* non bloquant */ }
     try { doCards(); } catch (e) { /* non bloquant */ }
-    try { developImages(); } catch (e) { /* non bloquant */ }
     try { magneticButtons(); } catch (e) { /* non bloquant */ }
-    /* timelineStrip() est appelé par catalogue() une fois les cartes rendues */
+    /* timelineStrip() et libraryScrub() sont appelés par catalogue(),
+       une fois les cartes du catalogue réellement rendues */
   }
   function fallbackReveal() {
     var els = document.querySelectorAll('.reveal, .reveal-stagger, .circuit-band');
