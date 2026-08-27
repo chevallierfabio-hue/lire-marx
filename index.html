@@ -504,12 +504,50 @@ html:not(.no-anim) .hs-hero.lit .hs-right{opacity:1;transform:none;transition-de
   filter:sepia(.42) saturate(.9) brightness(.30) contrast(1.12);
   -webkit-mask-image:linear-gradient(90deg,transparent,#000 46%,#000 88%,transparent);
   mask-image:linear-gradient(90deg,transparent,#000 46%,#000 88%,transparent);}
-/* la bougie éclaire depuis sous le bouton, qui est passé à gauche */
+/* ── La bougie. Reprise de celle de l'intro cinématique, aux mêmes
+   couleurs : bougeoir laiton (#9a7b30), cire crème (#e9ddc2), flamme dorée
+   (#ffd27a), halo orangé (#ff9c3a). Tout est en CSS — un troisième contexte
+   WebGL sur la page pour un décor de 120 px ne se justifiait pas.
+   `--candle-x` tient la bougie ET le halo sur le même axe : c'est la flamme
+   qui est la source, le halo n'est que ce qu'elle éclaire. ── */
+/* la bougie se tient à droite, près du feuillet : c'est elle qui
+   l'éclaire, comme sur le bureau de l'intro. À gauche elle tombait
+   derrière le bouton. */
+.hs-closer{--candle-r:clamp(34px,13vw,210px);}
 .hs-closer-halo{position:absolute;top:auto;bottom:-150px;
-  left:clamp(24px,5vw,80px);transform:none;
+  right:var(--candle-r);transform:translateX(50%);
   width:min(760px,80vw);height:420px;pointer-events:none;z-index:1;
   background:radial-gradient(ellipse at center,
     rgba(216,173,76,.20) 0%,rgba(213,64,47,.10) 42%,transparent 72%);}
+.hs-closer-candle{position:absolute;z-index:1;pointer-events:none;
+  right:var(--candle-r);bottom:clamp(8px,2vh,26px);
+  transform:translateX(50%);width:52px;height:132px;}
+.hs-closer-candle span{position:absolute;left:50%;transform:translateX(-50%);}
+.cd-holder{bottom:0;width:52px;height:12px;border-radius:50%;
+  background:radial-gradient(ellipse at 50% 28%,#c9a86a 0%,#9a7b30 55%,#6d5620 100%);}
+.cd-wax{bottom:9px;width:23px;height:80px;border-radius:4px 4px 2px 2px;
+  background:linear-gradient(90deg,#a2926f 0%,#e9ddc2 42%,#f5ecd6 58%,#8d7d5c 100%);}
+.cd-wick{bottom:88px;width:2px;height:7px;border-radius:1px;background:#2a2016;}
+.cd-flame{bottom:92px;width:14px;height:32px;
+  border-radius:50% 50% 46% 46% / 66% 66% 34% 34%;
+  background:radial-gradient(ellipse at 50% 72%,
+    #fff6d8 0%,#ffd27a 34%,#ff9c3a 66%,rgba(255,120,40,0) 100%);
+  filter:blur(.5px);transform-origin:50% 100%;
+  opacity:var(--lum,1);}
+.cd-glow{bottom:52px;width:150px;height:150px;border-radius:50%;
+  background:radial-gradient(circle,rgba(255,156,58,.30) 0%,
+    rgba(255,156,58,.10) 38%,transparent 68%);
+  opacity:var(--lum,1);}
+/* le filet de fumée de l'intro, en plus discret encore */
+.cd-smoke{bottom:120px;width:3px;height:54px;
+  background:linear-gradient(to top,rgba(184,178,166,.20),transparent 78%);
+  filter:blur(2.5px);opacity:calc(.55 * var(--lum,1));}
+@media(max-width:820px){
+  /* origine en pied : la bougie rapetisse vers sa base et reste sous le
+     bouton, qui prend presque toute la largeur sur petit écran */
+  .hs-closer-candle{bottom:0;transform:translateX(50%) scale(.66);
+    transform-origin:50% 100%;}
+}
 @media(max-width:820px){
   .hs-closer-inner{max-width:none;}
   .hs-closer-sheet{width:78%;opacity:.22;}
@@ -616,11 +654,33 @@ html.no-motion .hs-ms-cartel{display:none;}
    bande est à l'écran (.alight), sinon on repeindrait un grand dégradé
    pour personne. html.js-candle posée par home.js (closerCandle). */
 .js-candle .hs-closer-halo{opacity:var(--lum,1);
-  transform:translateY(calc((1 - var(--lum,1)) * 46px));}
+  transform:translateX(50%) translateY(calc((1 - var(--lum,1)) * 46px));}
 /* le feuillet émerge avec la lumière, comme le reste de la bande */
 .js-candle .hs-closer-sheet{opacity:calc(.06 + .36 * var(--lum,1));}
 .js-candle .hs-closer.alight .hs-closer-halo{
   animation:lm-candle 8.4s ease-in-out infinite;}
+/* La flamme, elle, se tord : c'est le vrai vacillement. Période plus
+   courte et premier nombre non multiple du second, pour que les deux
+   animations ne se resynchronisent jamais à l'œil. */
+.js-candle .hs-closer.alight .cd-flame{
+  animation:lm-flame 3.1s ease-in-out infinite;}
+.js-candle .hs-closer.alight .cd-glow{
+  animation:lm-candle 3.1s ease-in-out infinite;}
+.js-candle .hs-closer.alight .cd-smoke{
+  animation:lm-smoke 6.7s ease-in-out infinite;}
+@keyframes lm-flame{
+  0%  {transform:translateX(-50%) scale(1,1)       skewX(0deg);}
+  13% {transform:translateX(-52%) scale(.94,1.09)  skewX(-3deg);}
+  27% {transform:translateX(-48%) scale(1.05,.95)  skewX(2deg);}
+  41% {transform:translateX(-51%) scale(.97,1.05)  skewX(-1deg);}
+  56% {transform:translateX(-49%) scale(1.03,.98)  skewX(3deg);}
+  68% {transform:translateX(-50%) scale(.96,1.07)  skewX(-2deg);}
+  84% {transform:translateX(-51%) scale(1.02,.97)  skewX(1deg);}
+  100%{transform:translateX(-50%) scale(1,1)       skewX(0deg);}}
+@keyframes lm-smoke{
+  0%  {transform:translateX(-50%) translateY(0)     scaleY(1);opacity:.5;}
+  50% {transform:translateX(-42%) translateY(-10px) scaleY(1.2);opacity:.28;}
+  100%{transform:translateX(-50%) translateY(0)     scaleY(1);opacity:.5;}}
 /* stops irréguliers : une flamme ne bat pas la mesure */
 @keyframes lm-candle{
   0%{filter:brightness(1);}    9%{filter:brightness(.87);}
@@ -1010,6 +1070,16 @@ html.no-motion header.topbar,html.no-motion header.topbar .topbar-in{transition:
     <section class="hs-closer">
       <div class="hs-closer-sheet" aria-hidden="true"></div>
       <div class="hs-closer-halo" aria-hidden="true"></div>
+      <!-- la bougie de l'intro, refaite en CSS : bougeoir laiton, cire crème,
+           flamme dorée, filet de fumée. C'est le défilement qui l'allume. -->
+      <div class="hs-closer-candle" aria-hidden="true">
+        <span class="cd-smoke"></span>
+        <span class="cd-glow"></span>
+        <span class="cd-flame"></span>
+        <span class="cd-wick"></span>
+        <span class="cd-wax"></span>
+        <span class="cd-holder"></span>
+      </div>
       <div class="hs-closer-inner">
         <p class="hs-sec-label">Pour commencer</p>
         <p class="hs-closer-line">Le plus court chemin dans Marx,
