@@ -10,11 +10,14 @@
 
    « Plus vivant » (inspiration zonixlab.com) — un seul pilote de
    défilement (rAF + abonnés), tout se coupe sous no-motion / < 768 px :
-   - scrubReveal()   : titres révélés mot à mot au défilement
-   - circuitScrub()  : le scroll fait circuler le capital (A→M→P→M′→A′)
-   - countUp()       : comptage animé des chiffres clés à l'entrée en vue
-   - cardFx()        : inclinaison + lueur des cartes sous le curseur
-   - heroParallax()  : parallaxe fine du portrait du héros
+   - scrubReveal()    : titres révélés mot à mot au défilement
+   - circuitScrub()   : « circuit du capital » — le scroll déplie
+                        A→M→P→M′→A′ (barre + nœuds + paliers de texte)
+   - countUp()        : comptage animé des chiffres clés à l'entrée en vue
+   - cardFx()         : inclinaison + lueur des cartes sous le curseur
+   - heroParallax()   : parallaxe fine du portrait du héros
+   - developImages()  : photos d'archive du catalogue révélées par balayage
+   - magneticButtons(): CTA principaux attirés vers le curseur
 
    La révélation orchestrée du héros (classe .lit sur .hs-hero) est pilotée
    par le script inline en bas de index.html (fiable, non différé).
@@ -313,7 +316,7 @@
                        .sort(function (a, b) { return a.year - b.year; });
       var plan = works.filter(function (w) { return w.status !== 'available'; })
                       .sort(function (a, b) { return a.year - b.year; });
-      if (availEl) availEl.innerHTML = avail.map(availCard).join('');
+      if (availEl) { availEl.innerHTML = avail.map(availCard).join(''); try { armDev(availEl); } catch (e) {} }
       if (planEl) planEl.innerHTML = plan.map(planRow).join('');
       if (countEl) {
         countEl.textContent = avail.length + (avail.length > 1 ? ' œuvres disponibles' : ' œuvre disponible') +
@@ -419,27 +422,99 @@
     }, 7000);
   }
 
-  /* — B. Le circuit du capital : le défilement fait circuler la valeur — */
+  /* — B/1. Le circuit du capital : le défilement déplie A→M→P→M′→A′ — la
+     barre coule en continu, les nœuds et les paliers de texte s'enchaînent
+     par cran. Statique (tous les paliers empilés) sous reduced-motion ou
+     < 768 px. — */
   function circuitScrub() {
     var band = document.querySelector('.circuit-band');
     if (!band) return;
     var nodes = [].slice.call(band.querySelectorAll('.circuit-node'));
+    var steps = [].slice.call(band.querySelectorAll('.circuit-step'));
+
     if (REDUCE || window.innerWidth < 768) {
       band.style.setProperty('--cp', '1');
       nodes.forEach(function (n) { n.classList.add('lit'); });
       return;
     }
+
+    document.documentElement.classList.add('js-circuit');
+    var nS = steps.length || 1;
     addScrollSub(function (y, vh) {
       var r = band.getBoundingClientRect();
-      var p = (vh * 0.85 - r.top) / (r.height + vh * 0.5);
+      /* 0 quand le haut de la bande atteint 80 % de l'écran, 1 après
+         l'avoir remontée d'un peu plus d'un écran */
+      var p = (vh * 0.8 - r.top) / (r.height + vh * 0.15);
       p = p < 0 ? 0 : p > 1 ? 1 : p;
-      band.style.setProperty('--cp', p.toFixed(4));
-      nodes.forEach(function (n) {
-        var at = parseFloat(n.getAttribute('data-at') || '0');
-        n.classList.toggle('lit', p >= at - 0.001);
-      });
+      band.style.setProperty('--cp', p.toFixed(4));       /* barre + étincelle : continu */
+      var idx = Math.min(nS - 1, Math.floor(p * nS));     /* nœuds + texte : par cran */
+      nodes.forEach(function (n, i) { n.classList.toggle('lit', i <= idx); });
+      steps.forEach(function (s, i) { s.classList.toggle('on', i === idx); });
       return true;
     });
+  }
+
+  /* — 2. Photos d'archive : « développement » (balayage) à l'entrée en vue — */
+  var _devIO = null;
+  function armDev(scope) {
+    if (!_devIO) return;
+    var els = (scope || document).querySelectorAll('.hs-w-img');
+    for (var i = 0; i < els.length; i++) {
+      if (!els[i].dataset.devArmed) { els[i].dataset.devArmed = '1'; _devIO.observe(els[i]); }
+    }
+  }
+  function developImages() {
+    if (REDUCE || window.innerWidth < 768 || !('IntersectionObserver' in window)) return;
+    document.documentElement.classList.add('js-dev');
+    _devIO = new IntersectionObserver(function (ents) {
+      ents.forEach(function (x) {
+        if (!x.isIntersecting) return;
+        _devIO.unobserve(x.target);
+        var t = x.target;   /* 2 frames : l'état clippé de base est bien pris avant la transition */
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () { t.classList.add('dev'); });
+        });
+      });
+    }, { threshold: 0.2, rootMargin: '0px 0px -5% 0px' });
+    armDev(document);
+    setTimeout(function () {
+      [].forEach.call(document.querySelectorAll('.js-dev .hs-w-img:not(.dev)'),
+        function (el) { el.classList.add('dev'); });
+    }, 6000);
+  }
+
+  /* — 3. Boutons d'action magnétiques — attirés vers le curseur — */
+  function magneticButtons() {
+    if (REDUCE) return;
+    if (!(window.matchMedia &&
+          window.matchMedia('(hover:hover) and (pointer:fine)').matches)) return;
+    var btns = [].slice.call(
+      document.querySelectorAll('.hs-btns .btn-filled, .hs-closer .btn-filled'));
+    if (!btns.length) return;
+    btns.forEach(function (b) { b.classList.add('btn-mag'); });
+    var R = 104, queued = false, mx = 0, my = 0;
+    function apply() {
+      queued = false;
+      btns.forEach(function (b) {
+        var r = b.getBoundingClientRect();
+        var dx = mx - (r.left + r.width / 2), dy = my - (r.top + r.height / 2);
+        var d = Math.sqrt(dx * dx + dy * dy);
+        var reach = R + r.width / 2;
+        if (d < reach) {
+          var s = 1 - d / reach;
+          b.classList.add('pulling');
+          b.style.transform = 'translate(' + (dx * 0.32 * s).toFixed(1) + 'px,' +
+            (dy * 0.32 * s).toFixed(1) + 'px)';
+        } else if (b.classList.contains('pulling')) {
+          b.classList.remove('pulling');
+          b.style.transform = '';
+        }
+      });
+    }
+    window.addEventListener('mousemove', function (e) {
+      mx = e.clientX; my = e.clientY;
+      if (!queued) { queued = true; requestAnimationFrame(apply); }
+    }, { passive: true });
   }
 
   /* — C. Chiffres clés : comptage animé à l'entrée en vue — */
@@ -545,6 +620,8 @@
     try { countUp(); } catch (e) { /* non bloquant */ }
     try { cardFx(); } catch (e) { /* non bloquant */ }
     try { heroParallax(); } catch (e) { /* non bloquant */ }
+    try { developImages(); } catch (e) { /* non bloquant */ }
+    try { magneticButtons(); } catch (e) { /* non bloquant */ }
   }
   function fallbackReveal() {
     var els = document.querySelectorAll('.reveal, .reveal-stagger, .circuit-band');
