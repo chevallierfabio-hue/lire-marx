@@ -341,19 +341,38 @@ html:not(.no-anim) .hs-hero .hs-right{
 .hs-w-go{margin-top:auto;padding-top:10px;font-family:'Inter',system-ui,sans-serif;
   font-size:.82rem;font-weight:600;color:var(--bright);}
 
-/* En préparation — index typographique par année */
-.hs-lib-planned{list-style:none;margin:0;padding:0;border-top:1px solid var(--line-soft);}
-.hs-p-row{display:grid;grid-template-columns:64px 1fr auto;gap:16px;align-items:baseline;
-  padding:13px 4px;border-bottom:1px solid var(--line-soft);transition:background .16s,padding-left .16s;}
-.hs-p-row:hover{background:rgba(216,173,76,.05);padding-left:10px;}
-.hs-p-year{font-family:'Fraunces',serif;font-style:italic;font-weight:900;font-size:1rem;color:var(--gold);}
-.hs-p-title{font-family:'Fraunces',serif;font-weight:600;font-size:1.02rem;color:var(--ink);letter-spacing:-.01em;}
-.hs-p-cat{font-family:'Inter',system-ui,sans-serif;font-size:.64rem;letter-spacing:.06em;
-  text-transform:uppercase;color:var(--muted);white-space:nowrap;}
-@media(max-width:600px){
-  .hs-p-row{grid-template-columns:48px 1fr;}
-  .hs-p-cat{display:none;}
-}
+/* En préparation — frise chronologique horizontale (défilement natif :
+   trackpad, molette↔, glisser, flèches clavier). home.js : timelineStrip() */
+.hs-timeline{position:relative;margin-top:4px;overflow:hidden;
+  -webkit-mask-image:linear-gradient(90deg,#000 88%,transparent);
+  mask-image:linear-gradient(90deg,#000 88%,transparent);}
+.hs-timeline::after{content:"";position:absolute;left:0;right:0;top:13px;height:1px;
+  pointer-events:none;opacity:.4;
+  background:linear-gradient(90deg,var(--gold-deep),var(--accent));}
+.hs-timeline-track{display:flex;gap:14px;overflow-x:auto;overflow-y:hidden;
+  padding:8px 2px 14px;scroll-snap-type:x proximity;cursor:grab;
+  scrollbar-width:thin;scrollbar-color:rgba(216,173,76,.45) transparent;
+  overscroll-behavior-x:contain;}
+.hs-timeline-track:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:4px;}
+.hs-timeline-track.dragging{cursor:grabbing;scroll-snap-type:none;user-select:none;}
+.hs-timeline-track::-webkit-scrollbar{height:5px;}
+.hs-timeline-track::-webkit-scrollbar-track{background:transparent;}
+.hs-timeline-track::-webkit-scrollbar-thumb{background:rgba(216,173,76,.45);border-radius:3px;}
+.hs-tl-card{position:relative;flex:0 0 auto;width:min(64vw,222px);
+  scroll-snap-align:start;padding:26px 6px 0;}
+.hs-tl-card::before{content:"";position:absolute;top:2px;left:6px;width:9px;height:9px;
+  border-radius:50%;background:var(--gold-deep);
+  box-shadow:0 0 0 3px var(--bg),0 0 10px rgba(216,173,76,.45);
+  transition:background .18s,box-shadow .18s,transform .18s;}
+.hs-tl-card:hover::before{background:var(--accent);transform:scale(1.25);
+  box-shadow:0 0 0 3px var(--bg),0 0 12px rgba(213,64,47,.5);}
+.hs-tl-card:hover .hs-tl-title{color:var(--bright);}
+.hs-tl-year{display:block;font-family:'Fraunces',serif;font-style:italic;font-weight:900;
+  font-size:1.15rem;color:var(--gold);}
+.hs-tl-title{display:block;margin-top:5px;font-family:'Fraunces',serif;font-weight:600;
+  font-size:1rem;line-height:1.18;color:var(--ink);letter-spacing:-.01em;transition:color .18s;}
+.hs-tl-cat{display:block;margin-top:7px;font-family:'Inter',system-ui,sans-serif;
+  font-size:.6rem;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);}
 
 /* — bande « circuit du capital » — colonne centrée, le défilement déplie
    A→M→P→M′→A′ palier par palier (home.js : circuitScrub) — */
@@ -708,8 +727,11 @@ html.no-motion header.topbar,html.no-motion header.topbar .topbar-in{transition:
         <div class="hs-w-loading">Chargement du catalogue…</div>
       </div>
 
-      <p class="hs-lib-sub reveal">En préparation — textes à intégrer, par ordre chronologique</p>
-      <ul class="hs-lib-planned reveal" id="lib-planned"></ul>
+      <p class="hs-lib-sub reveal">En préparation — la trajectoire, de 1846 à 1894</p>
+      <div class="hs-timeline reveal">
+        <div class="hs-timeline-track" id="lib-planned" tabindex="0" role="list"
+          aria-label="Œuvres en préparation, par ordre chronologique"></div>
+      </div>
     </section>
 
     <!-- Aperçu Place publique -->
