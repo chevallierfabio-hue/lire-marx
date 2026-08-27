@@ -223,10 +223,30 @@ dorée tenue **3 px en deçà** de la limite du tirage (posée pile sur la
 limite, le `clip-path` la rognerait entièrement), `--in` fait arriver la
 carte en fantôme avant le tirage et `--txt` amène le corps de la carte
 derrière la barre, avec un décalage de 0,14 d'une œuvre à l'autre. En bas,
-`--draw` trace le filet de `.hs-timeline::after` et chaque `.hs-tl-card`
-s'allume (`--lit`) quand le tracé dépasse sa position — calculée en
-`offsetLeft - scrollLeft` sur la largeur visible, et plafonnée à 0,95 pour
-que les œuvres hors champ finissent allumées elles aussi.
+`--draw` trace le filet de `.hs-timeline::after` et **la frise défile
+horizontalement pendant que la page défile verticalement** : `scrollLeft` du
+`.hs-timeline-track` est piloté sur une fenêtre plus longue que celle du
+filet — toute la traversée de la bande dans le viewport —, sinon la
+trajectoire serait parcourue avant qu'on ait eu le temps de la lire. Chaque
+`.hs-tl-card` s'allume (`--lit`) quand le tracé dépasse sa position
+(`offsetLeft - scrollLeft` sur la largeur visible). Cette position n'est
+**pas** plafonnée : une œuvre encore hors champ à droite a `f > 1` et reste
+éteinte — c'est ce qui fait que l'animation continue pendant le défilement,
+chacune s'allumant à son entrée. **On lâche prise dès que le lecteur saisit
+la frise** (`pointerdown`, tactile, clavier, molette *horizontale* — une
+molette verticale ne compte pas, c'est le geste de faire défiler la page
+curseur posé n'importe où) : `hManual` coupe le pilotage pour de bon.
+
+L'écriture de `scrollLeft` déclenche un `scroll` sur la piste, que le pilote
+commun voit (il écoute `document` en **capture**, et la capture atteint le
+document même pour un événement qui ne remonte pas). Pas de boucle pour
+autant : réécrire la même valeur ne déclenche rien, et on n'écrit qu'au-delà
+d'un demi-pixel d'écart.
+
+**Les œuvres disponibles sont triées par année DÉCROISSANTE** (`b.year -
+a.year`) : Le Capital ouvre la bibliothèque, les Manuscrits suivent. La
+frise « en préparation », elle, reste chronologique croissante — c'est une
+trajectoire.
 
 `developImages()` / `armDev()` / `html.js-dev` **n'existent plus** :
 libraryScrub les remplace intégralement (mêmes conditions d'activation,
