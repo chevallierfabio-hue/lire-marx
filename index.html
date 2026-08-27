@@ -308,17 +308,35 @@ html:not(.no-anim) .hs-hero.lit .hs-right{opacity:1;transform:none;transition-de
   font-size:clamp(1.7rem,3.4vw,2.5rem);letter-spacing:-.03em;color:var(--text);
   line-height:1.06;margin-bottom:34px;}
 
-/* — « Ce que vous pouvez faire » — */
-.hs-do-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px;}
-.hs-do-card{position:relative;overflow:hidden;background:var(--surface);
-  border:1px solid var(--border);border-radius:16px;padding:26px 24px;
-  transition:transform .4s cubic-bezier(.16,1,.3,1),box-shadow .22s;}
-.hs-do-card:hover{box-shadow:0 14px 34px -10px rgba(23,22,20,.13);}
-.hs-do-n{position:absolute;top:10px;right:16px;font-family:'Fraunces',serif;font-weight:900;
-  font-size:2.6rem;line-height:1;color:var(--accent);opacity:.15;}
-.hs-do-card h3{font-family:'Fraunces',serif;font-weight:900;font-size:1.18rem;
-  letter-spacing:-.02em;color:var(--text);margin-bottom:8px;}
-.hs-do-card p{font-size:.88rem;line-height:1.6;color:var(--muted);}
+/* — « Ce que vous pouvez faire » : composé comme le sommaire d'un livre —
+   Plus de cartes : un filet, un numéro de chapitre dans la marge (le même
+   traitement que les années de la frise : Fraunces italique, or), le titre,
+   et le texte dans une colonne mesurée. C'est la seule forme de la page qui
+   dise ce qu'est le site — un endroit où l'on lit — plutôt qu'une grille de
+   fonctionnalités. */
+.hs-do-list{display:flex;flex-direction:column;}
+.hs-do-row{position:relative;display:grid;
+  grid-template-columns:clamp(34px,4vw,58px) minmax(0,.8fr) minmax(0,1.2fr);
+  gap:clamp(12px,3vw,44px);align-items:start;
+  padding:clamp(24px,3.4vh,40px) 0;}
+.hs-do-row::before,.hs-do-row:last-child::after{content:"";position:absolute;
+  left:0;height:1px;width:var(--rule,100%);background:var(--border);}
+.hs-do-row::before{top:0;}
+.hs-do-row:last-child::after{bottom:0;}
+.hs-do-n{grid-column:1;font-family:'Fraunces',serif;font-style:italic;font-weight:900;
+  font-size:clamp(1rem,1.7vw,1.24rem);line-height:1.5;letter-spacing:.02em;
+  color:var(--gold);}
+.hs-do-row h3{grid-column:2;font-family:'Fraunces',serif;font-weight:900;
+  font-size:clamp(1.3rem,2.5vw,1.85rem);line-height:1.08;letter-spacing:-.025em;
+  color:var(--text);}
+.hs-do-row p{grid-column:3;font-size:.94rem;line-height:1.72;color:var(--muted);
+  max-width:54ch;}
+@media(max-width:860px){
+  .hs-do-row{grid-template-columns:auto minmax(0,1fr);gap:4px 14px;}
+  .hs-do-row h3{grid-column:2;grid-row:1;}
+  .hs-do-row p{grid-column:2;grid-row:2;margin-top:8px;}
+  .hs-do-n{grid-row:1;}
+}
 
 /* — LA BIBLIOTHÈQUE (catalogue piloté par oeuvres/bibliotheque.json) — */
 .hs-lib{padding:clamp(56px,8vh,96px) clamp(24px,5vw,80px);}
@@ -501,18 +519,14 @@ html:not(.no-anim) .hs-hero.lit .hs-right{opacity:1;transform:none;transition-de
   transition:opacity .12s linear,filter .12s linear,transform .12s linear;
   will-change:opacity,filter,transform;}
 
-/* D. Cartes — inclinaison qui suit le curseur + lueur de bougie */
-.hs-do-card,.hs-w-card{--rx:0deg;--ry:0deg;--lift:0px;--drop:0px;--tilt:0deg;
+/* D. Cartes du catalogue — inclinaison qui suit le curseur + lueur de bougie.
+   (Les trois fiches « Ce que vous pouvez faire » ne sont plus des cartes :
+   elles ne sont plus concernées.) */
+.hs-w-card{--rx:0deg;--ry:0deg;--lift:0px;--drop:0px;--tilt:0deg;
   transform:perspective(950px) translateY(var(--drop)) rotate(var(--tilt))
     rotateX(var(--rx)) rotateY(var(--ry)) translateY(var(--lift));}
-.hs-do-card:hover,.hs-w-card:hover{--lift:-4px;}
-.hs-do-card.tilting,.hs-w-card.tilting{transition:box-shadow .22s,border-color .22s;}
-.hs-do-card::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
-  border-radius:inherit;opacity:0;transition:opacity .3s ease;
-  background:radial-gradient(240px circle at var(--mx,50%) var(--my,0%),
-    rgba(216,173,76,.18),transparent 62%);}
-.hs-do-card.glow::after{opacity:1;}
-.hs-do-card h3,.hs-do-card p,.hs-do-n{position:relative;z-index:2;}
+.hs-w-card:hover{--lift:-4px;}
+.hs-w-card.tilting{transition:box-shadow .22s,border-color .22s;}
 
 /* E bis. La page réelle : cartel + panneau de référence.
    Le canvas redevient cliquable (il est en z-index 0, sous le texte et les
@@ -572,21 +586,16 @@ html.no-motion .hs-ms-cartel{display:none;}
   .hs-ms-fig img{height:100%;object-fit:cover;object-position:50% 0;}
 }
 
-/* F. « Ce que vous pouvez faire » — les trois feuillets se posent.
-   La réglure est là en permanence (un feuillet, pas une carte) ; sans JS
-   elle est entièrement révélée, et .poses la fait balayer au défilement. */
-.hs-do-card::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
-  border-radius:inherit;opacity:.6;
-  background-image:repeating-linear-gradient(to bottom,
-    var(--border) 0 1px,transparent 1px 15px);
-  background-repeat:no-repeat;background-size:100% 104px;
-  -webkit-mask-image:linear-gradient(to bottom,#000 0,#000 var(--sweep,999px),
-    transparent calc(var(--sweep,999px) + 42px));
-  mask-image:linear-gradient(to bottom,#000 0,#000 var(--sweep,999px),
-    transparent calc(var(--sweep,999px) + 42px));}
-.hs-do-grid.poses .hs-do-card{--sweep:0px;opacity:0;will-change:transform,opacity;}
-.hs-do-grid.poses .hs-do-n{opacity:calc(.15 * var(--ink,0));
-  transform:translateY(calc((1 - var(--ink,0)) * 7px));}
+/* F. « Ce que vous pouvez faire » — le sommaire s'écrit au défilement :
+   le filet se tire d'abord, l'entrée arrive derrière lui, et le numéro de
+   chapitre prend l'encre en dernier. Sans JS (.poses absente), tout est
+   déjà écrit — filets pleine largeur, texte et numéros à leur opacité. */
+.hs-do-list.poses .hs-do-row{--rule:0%;}
+.hs-do-list.poses .hs-do-n{opacity:var(--ink,1);
+  transform:translateY(calc((1 - var(--ink,1)) * 7px));}
+.hs-do-list.poses .hs-do-row h3,
+.hs-do-list.poses .hs-do-row p{opacity:calc(.05 + .95 * var(--pin,1));
+  transform:translateY(calc((1 - var(--pin,1)) * 13px));}
 
 /* H. Bande finale — la bougie prend.
    La page s'ouvre sur une bougie posée sur un bureau : elle se referme
@@ -764,7 +773,7 @@ html.no-motion .circuit-band{--cp:1;}
 html.no-motion .circuit-band .circuit-spark{opacity:0!important;}
 html.no-motion #circuit-bg,html.no-motion .circuit-veil{display:none!important;}
 html.no-motion #hero-bg{display:none!important;}
-html.no-motion .hs-do-card,html.no-motion .hs-w-card{transform:none!important;}
+html.no-motion .hs-w-card{transform:none!important;}
 html.no-motion header.topbar,html.no-motion header.topbar .topbar-in{transition:none!important;}
 
 @media(prefers-reduced-motion:reduce){
@@ -772,7 +781,7 @@ html.no-motion header.topbar,html.no-motion header.topbar .topbar-in{transition:
   .circuit-band{--cp:1;}
   .circuit-band.in .circuit-spark{opacity:0!important;}
   #hero-bg,#circuit-bg,.circuit-veil{display:none!important;}
-  .hs-do-card,.hs-w-card{transform:none!important;}
+  .hs-w-card{transform:none!important;}
   .hs-sec-h .rw{opacity:1!important;filter:none!important;transform:none!important;}
   header.topbar,header.topbar .topbar-in{transition:none!important;}
   .circuit-pin{height:auto!important;}
@@ -876,21 +885,21 @@ html.no-motion header.topbar,html.no-motion header.topbar .topbar-in{transition:
     <section class="hs-block">
       <p class="hs-sec-label">Ce que vous pouvez faire ici</p>
       <h2 class="hs-sec-h reveal">Lire, travailler le texte, en discuter</h2>
-      <div class="hs-do-grid reveal-stagger">
-        <article class="hs-do-card">
-          <span class="hs-do-n">I</span>
+      <div class="hs-do-list reveal-stagger">
+        <article class="hs-do-row">
+          <span class="hs-do-n" aria-hidden="true">I</span>
           <h3>Lire</h3>
           <p>Le texte intégral dans une liseuse réglable — police, taille, contraste —
             avec vos annotations privées, synchronisées si vous avez un compte.</p>
         </article>
-        <article class="hs-do-card">
-          <span class="hs-do-n">II</span>
+        <article class="hs-do-row">
+          <span class="hs-do-n" aria-hidden="true">II</span>
           <h3>L'atelier &amp; les simulations</h3>
           <p>Chaque chapitre déplié : anatomie des concepts, cartes, chronologie,
             et des modèles animés qui font tourner la valeur et la plus-value.</p>
         </article>
-        <article class="hs-do-card">
-          <span class="hs-do-n">III</span>
+        <article class="hs-do-row">
+          <span class="hs-do-n" aria-hidden="true">III</span>
           <h3>La Place publique</h3>
           <p>Les passages se commentent, les lectures se répondent. Un espace
             d'échange ouvert entre lecteurs du Capital et des Manuscrits.</p>

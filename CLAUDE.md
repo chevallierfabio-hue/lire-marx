@@ -185,144 +185,30 @@ défilement commun (`addScrollSub`), pas d'un écouteur local ; la boucle rAF
 s'arrête d'elle-même quand la liasse est sortie et que la rafale est
 retombée, et repart au premier scroll (`start()` dans l'abonné).
 
-**Section « Ce que vous pouvez faire » — les trois feuillets se posent
-(`doCards()`).** Prolongement de la liasse : ce qui s'envole du héros
-redescend ici. Les trois cartes ne sont plus révélées par le fondu
-`.reveal-stagger` mais **posées au défilement** — chacune arrive 30 px plus
-haut et de biais (`TILT` −2,6° / +1,9° / −1,5°), puis se pose à plat, avec un
-décalage `LEAD` d'une carte à la suivante. Sur la même course, un **balayage**
-(`--sweep`, en px) révèle la **réglure** du feuillet — bande de lignes en
-`--border` limitée aux 104 px du haut de la carte, derrière le chiffre et le
-titre, jamais derrière le paragraphe (essayé pleine hauteur : ça faisait du
-moiré avec les lignes de texte) — et le chiffre romain **prend l'encre**
-(`--ink`, décalé de 45 % pour venir après la pose). Piloté par la position de
-scroll → réversible.
+**Section « Ce que vous pouvez faire » — le sommaire (`doCards()`).** Ce
+n'étaient plus des cartes assez tôt : trois boîtes arrondies identiques, fond
+plein, bordure, gros chiffre pâle dans le coin — le seul endroit de la page
+qui retombait dans le gabarit générique, et l'élément le plus lourd de
+l'accueil pour le contenu le plus simple. C'est maintenant un **sommaire de
+livre** : `.hs-do-list` > `.hs-do-row`, une entrée par ligne, pleine largeur.
+Un filet en travers (`::before`, largeur pilotée par `--rule`), le numéro de
+chapitre dans la marge — **Fraunces italique en `--gold`, exactement le
+traitement des années de la frise**, c'est la rime qui tient la page
+ensemble — le titre en gros, et le texte dans une colonne mesurée à droite
+(`54ch`). Sous 860 px, le numéro reste en marge et le texte s'indente sous le
+titre.
 
-Deux points de mécanique à respecter : `doCards()` **retire lui-même**
-`.reveal-stagger` de la grille et pose `.poses` (sinon les deux systèmes
-d'opacité se marchent dessus) ; et la pose passe par **deux nouvelles
-variables CSS** `--drop` / `--tilt` ajoutées *devant* `--rx` / `--ry` /
-`--lift` dans le `transform` partagé `.hs-do-card,.hs-w-card` — surtout ne
-pas écrire `style.transform` en JS, ça casserait l'inclinaison au curseur de
-`cardFx()`. La réglure elle-même est **permanente** (`--sweep` vaut 999 px
-par défaut) : sans JS, sous no-motion ou en dessous de 768 px, les cartes
-gardent leur réglure et leur fondu simple.
+L'animation suit l'ordre dans lequel on écrirait la ligne à la main : le
+**filet se tire** d'abord (`--rule` 0 → 100 %), l'entrée arrive derrière lui
+(`--pin`), le numéro **prend l'encre** en dernier (`--ink`), le tout décalé
+d'une entrée à l'autre. Piloté par la position de scroll → réversible. Comme
+ailleurs, `doCards()` **retire `.reveal-stagger`** et pose `.poses` ; sans JS,
+sous no-motion ou en dessous de 768 px, le sommaire est simplement déjà écrit.
 
-**Plus de photo encadrée dans le héros.** `.hs-right` est en `display:none`
-et ne reparaît que sous `html.no-motion` — mobile étroit et reduced-motion,
-c'est-à-dire exactement là où la liasse ne peut pas tourner : le héros n'y
-serait sinon sans aucune image, et sa `figcaption` y porte la référence. Sur
-le chemin animé, la grille garde ses deux colonnes (la seconde vide) pour
-que le texte reste dans la moitié gauche et que la liasse ait la droite.
-
-**La page réelle est cliquable.** `#hero-bg` est repassé en
-`pointer-events:auto` — il est en `z-index:0`, sous le texte et les boutons,
-donc il n'intercepte que le vide (vérifié : `elementFromPoint` rend bien le
-bouton et le titre). `heroBg()` lance un raycast sur les **seuls** meshes
-`realMeshes`, et **seulement tant que `t < 0.25`** : une fois la liasse
-envolée les meshes existent toujours, éteints et hors cadre, mais restent
-touchables par un rayon. Viser pose `.aiming` sur le canvas (curseur) et
-`.aim` sur le cartel ; le clic appelle `_msOpen`.
-
-Le **cartel** `#msCartel` (bouton du DOM, en bas à droite du héros) est le
-chemin **accessible** : le clic sur le feuillet 3D n'en est que le raccourci
-à la souris, et `msPanel()` fonctionne sans WebGL. Le panneau `#msModal` rend
-la référence complète (fonds, cote, institution, licence) et lie l'original
-Commons.
-
-**Le panneau vit HORS de `#sheet`, à dessein.** `#sheet` porte
-`will-change:opacity,transform`, ce qui en fait le **bloc conteneur de tout
-`position:fixed` descendant** : placé dedans, le panneau se centrait sur la
-hauteur entière du document et le `focus()` de fermeture faisait sauter la
-page de 2 000 px. Toute future modale de l'accueil doit être posée au niveau
-de `<body>`, comme celles de `shell.js`.
-
-**La liasse n'est faite que de cette page.** Tous les feuillets portent le
-fac-similé de `manuscrit-ideologie-1846.webp` — l'écriture dessinée par
-`sheetTexture()` ne sert plus que de **texture d'attente** le temps que
-l'image arrive, et de repli définitif si elle n'arrive jamais. Treize fois
-la même image ferait une pile de photocopies : chaque feuillet a donc sa
-propre géométrie et **cadre une portion différente** de la page
-(`sheetGeo(zoom)` décale les UV ; les deux du dessus gardent la page
-entière, les autres s'en approchent). Une seule texture, donc un seul envoi
-GPU. La taille suit un dégradé du dessus vers le fond (`1.32 - a*0.34`) :
-une pile, pas un tas. Le raycast porte du coup sur **tous** les feuillets —
-toute la liasse ouvre la référence.
-
-C'est **le même fichier que le `<img fetchpriority="high">` du héros**, donc
-**zéro requête de plus** (vérifié au panneau réseau : une seule requête pour
-tous les consommateurs, panneau de référence compris) ; il est redessiné
-dans un canvas de 512 px avec un voile chaud en `soft-light` — sans lui, le
-fac-similé, plus brun, tranche en gris. Chargement asynchrone : les
-matériaux naissent avec la texture dessinée et sont échangés à l'arrivée de
-l'image (`mat.needsUpdate`), avec un rendu de rattrapage si la boucle dort
-déjà.
-
-**Le piège de la place disponible.** Le héros n'a que trois zones où un
-feuillet est réellement visible : le couloir vertical entre le texte et le
-portrait, la marge droite, et la bande sous le portrait. Le portrait est en
-`z-index:1` **au-dessus** du canvas : rien ne peut voler devant lui, et une
-liasse posée derrière lui est tout simplement invisible (essayé : `CX 7.8`
-puis `9.2` — le vol se réduisait à un coin de marge droite). D'où le choix
-du couloir central, qui a imposé d'**ouvrir le masque** de `#hero-bg` dans
-`index.html` : le dégradé passe de `transparent 22% → #000 52%` à
-`transparent 20% → #000 42%`, juste au-delà du bord droit de la colonne de
-texte (~36 % de la largeur du canvas). Ne pas resserrer ce masque sans
-redéplacer la liasse, et ne pas l'ouvrir davantage : les feuillets pâles
-passeraient derrière le texte crème.
-
-**Réglages solidaires de la liasse — ne pas en toucher un seul isolément** :
-`CX`/`CY`/`CZ`, `FAN`, `LEAD`, `SPAN`, `FLY`, l'échelle des feuillets
-(`0.60 + rnd*0.26`) et le masque de `#hero-bg`. Ils sont calés ensemble pour
-que la liasse au repos ne touche ni les boutons du héros ni le portrait, et
-que le couloir soit vide à la fin de la course.
-
-**Bande finale — la bougie prend (`closerCandle()`).** C'était la seule
-section de la page sans la moindre animation (pas même un `.reveal`), et son
-halo était resté sur le rouge de l'ancienne DA claire. La page s'ouvre sur
-une bougie posée sur un bureau : elle se referme dessus. La bande arrive
-presque noire et s'éclaire au défilement (`--lum` sur `.hs-closer` → opacité
-et montée du halo, opacité de la phrase, `drop-shadow` du bouton), la lueur
-venant de **sous** le bouton — une bougie éclaire d'en bas, pas du plafond
-(`.hs-closer-halo` est passé de `top:-40px` à `bottom:-150px`, et du rouge
-clair à un dégradé or → rouge). Puis un **vacillement** (`@keyframes
-lm-candle`, stops volontairement irréguliers — une flamme ne bat pas la
-mesure) persiste : c'est la seule chose de la page qui continue de vivre une
-fois qu'on a cessé de défiler.
-
-Deux points à garder : le vacillement joue sur `filter:brightness()` et
-**jamais sur l'opacité ni le transform** du halo, que le scrub occupe déjà —
-sinon les deux se battent ; et il ne tourne que sous `.alight`, posée par un
-IntersectionObserver, sinon on repeindrait en boucle un dégradé de 880 px
-pour personne. Sans `js-candle` (mobile, reduced-motion), le halo garde son
-opacité naturelle et la bande s'affiche telle quelle, éclairée.
-
-**Section « Place publique » de l'accueil — elle change de sol
-(`communeScrub()`).** La section n'était séparée de rien : même fond que la
-bibliothèque au-dessus, aucun filet — elle se fondait dans la précédente.
-Elle est maintenant une **bande** : `.hs-commune` = aplat `--surface` +
-`border-top`, le vocabulaire que le site emploie déjà pour « on change de
-registre » (bande circuit, bande CTA). **Sans trame quadrillée**, et c'est
-volontaire : les deux bandes texturées sont le carnet ; ici on est dehors.
-Pas de `border-bottom` non plus — `.hs-stats` qui suit apporte déjà son
-filet, deux traits feraient un doublon. Conséquence obligatoire : les
-`.cm-card` passent sur `var(--card)`, sinon leur `--paper` (= `--bg`) les
-creuse en trous plus sombres que leur propre sol.
-
-Animation : chaque note se dépose décalée (`--pin`, poussée de 16 px à
-gauche et 12 px vers le bas), puis le filet rouge de sa citation **se trace
-de haut en bas** derrière elle (`--trait`, un `background-size` en hauteur
-sur `background-origin:border-box`, la `border-left` d'origine passant en
-transparent). Réversible.
-
-**Piège propre à cette section : les notes n'existent pas au chargement.**
-Elles sont montées par `SHELL.commune.mount()` après un aller-retour
-Supabase, et le flux peut aussi ne rendre qu'un message d'état (chargement,
-hors ligne, aucune note). `communeScrub()` ne s'abonne donc qu'une fois des
-`.cm-card` réellement présentes, via un `MutationObserver` sur
-`#homeCommune` (débranché après 20 s), puis rappelle `onScrollDriver` comme
-la bibliothèque. Sans `js-place`, tout retombe sur les valeurs par défaut
-(`--pin:1`, `--trait:100%`) : les notes s'affichent normalement.
+Conséquence à ne pas oublier : `.hs-do-card` **n'existe plus**. Le `transform`
+partagé à variables (`--rx`/`--ry`/`--lift`/`--drop`/`--tilt`) et l'inclinaison
+au curseur de `cardFx()` ne concernent plus que `.hs-w-card`, les cartes du
+catalogue.
 
 **Section « La bibliothèque » — elle se constitue au défilement
 (`libraryScrub()`).** Une idée pour les deux moitiés : ce qui existe se
