@@ -396,12 +396,22 @@ html:not(.no-anim) .hs-hero .hs-right{
 .circuit-line-fill{position:absolute;left:8px;top:16px;height:2px;border-radius:2px;pointer-events:none;
   width:calc(var(--cp) * (100% - 16px));
   background:linear-gradient(90deg,var(--gold-deep),var(--accent));
-  box-shadow:0 0 12px rgba(216,173,76,.45);transition:width .55s cubic-bezier(.16,1,.3,1);}
-.circuit-spark{position:absolute;top:9px;left:calc(var(--cp) * (100% - 14px));
-  width:14px;height:14px;border-radius:50%;background:var(--accent);
-  box-shadow:0 0 14px 5px rgba(213,64,47,.4),0 0 5px 1px rgba(213,64,47,.75);
-  opacity:0;transition:left .55s cubic-bezier(.16,1,.3,1),opacity .3s ease;}
-.circuit-band.in .circuit-spark{opacity:1;}
+  box-shadow:0 0 12px rgba(216,173,76,.45);transition:width .18s linear;}
+/* le chariot du jeu qui traverse le circuit pendant le défilement */
+.circuit-cargo{position:absolute;top:-3px;left:calc(var(--cp) * (100% - 34px));
+  z-index:3;width:34px;height:auto;pointer-events:none;opacity:0;
+  transition:left .18s linear,opacity .3s ease,filter .3s ease;
+  filter:drop-shadow(0 2px 4px rgba(0,0,0,.55)) drop-shadow(0 0 7px rgba(216,173,76,.3));
+  will-change:left;}
+.circuit-cargo svg{display:block;width:100%;height:auto;overflow:visible;}
+.circuit-cargo .cw{transform:rotate(calc(var(--cp) * 2400deg));
+  transition:transform .18s linear;}
+.circuit-cargo .cargo-load{transform-box:fill-box;transform-origin:center;
+  transition:fill .3s ease,transform .3s ease;}
+.circuit-band.in .circuit-cargo{opacity:1;}
+/* sortie de production : la marchandise porte la plus-value (rouge + grossie) */
+.circuit-cargo.grown .cargo-load{fill:var(--accent);transform:scale(1.16);}
+.circuit-cargo.grown{filter:drop-shadow(0 2px 4px rgba(0,0,0,.55)) drop-shadow(0 0 11px rgba(213,64,47,.5));}
 .circuit-node b{transition:color .35s ease,text-shadow .35s ease;}
 .circuit-node.lit b{color:var(--gold);text-shadow:0 0 16px rgba(216,173,76,.5);}
 .circuit-node--end.lit b{color:var(--accent);text-shadow:0 0 20px rgba(213,64,47,.55);}
@@ -571,7 +581,7 @@ html.no-motion .hs-hero .hs-right{
   opacity:1!important;transform:none!important;transition:none!important;}
 html.no-motion .marquee-track{animation:none!important;}
 html.no-motion .circuit-band{--cp:1;}
-html.no-motion .circuit-band .circuit-spark{opacity:0!important;}
+html.no-motion .circuit-band .circuit-cargo{opacity:0!important;}
 html.no-motion #hero-bg{display:none!important;}
 html.no-motion .hs-do-card,html.no-motion .hs-w-card{transform:none!important;}
 html.no-motion header.topbar,html.no-motion header.topbar .topbar-in{transition:none!important;}
@@ -579,7 +589,7 @@ html.no-motion header.topbar,html.no-motion header.topbar .topbar-in{transition:
 @media(prefers-reduced-motion:reduce){
   .marquee-track{animation:none!important;}
   .circuit-band{--cp:1;}
-  .circuit-band.in .circuit-spark{opacity:0!important;}
+  .circuit-band.in .circuit-cargo{opacity:0!important;}
   #hero-bg{display:none!important;}
   .hs-do-card,.hs-w-card{transform:none!important;}
   .hs-sec-h .rw{opacity:1!important;filter:none!important;transform:none!important;}
@@ -710,7 +720,23 @@ html.no-motion header.topbar,html.no-motion header.topbar .topbar-in{transition:
         <div class="circuit">
           <span class="circuit-line" aria-hidden="true"></span>
           <span class="circuit-line-fill" aria-hidden="true"></span>
-          <span class="circuit-spark" aria-hidden="true"></span>
+          <span class="circuit-cargo" aria-hidden="true">
+            <svg viewBox="0 0 40 26" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2 8h20v9H2z" fill="#2a2016" stroke="#bd8f38" stroke-width="1.6"/>
+              <path d="M22 4h9l4 6v7H22z" fill="#241a12" stroke="#bd8f38" stroke-width="1.6"/>
+              <path d="M24.5 6.5h4.5l2.4 3.3h-6.9z" fill="#3a2b1a"/>
+              <rect class="cargo-load" x="5" y="1.4" width="12" height="7" rx="1.2"
+                fill="#d8ad4c" stroke="#8a6b3a" stroke-width="1.2"/>
+              <g class="cw" style="transform-box:fill-box;transform-origin:center">
+                <circle cx="10" cy="18" r="4.3" fill="#17110a" stroke="#bd8f38" stroke-width="1.5"/>
+                <path d="M10 14v8M6 18h8" stroke="#bd8f38" stroke-width="1.1"/>
+              </g>
+              <g class="cw" style="transform-box:fill-box;transform-origin:center">
+                <circle cx="30" cy="18" r="4.3" fill="#17110a" stroke="#bd8f38" stroke-width="1.5"/>
+                <path d="M30 14v8M26 18h8" stroke="#bd8f38" stroke-width="1.1"/>
+              </g>
+            </svg>
+          </span>
           <span class="circuit-node" data-at="0"><b>A</b><i>argent</i></span>
           <span class="circuit-node" data-at="0.25"><b>M</b><i>marchandise</i></span>
           <span class="circuit-node" data-at="0.5"><b>P</b><i>production</i></span>

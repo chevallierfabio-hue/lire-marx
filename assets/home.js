@@ -435,6 +435,7 @@
     if (!band) return;
     var nodes = [].slice.call(band.querySelectorAll('.circuit-node'));
     var steps = [].slice.call(band.querySelectorAll('.circuit-step'));
+    var cargo = band.querySelector('.circuit-cargo');
     var nS = steps.length || 1;
 
     function stat() {
@@ -460,9 +461,16 @@
       if (p < 0.34 || nS <= 1) { idx = 0; }
       else { idx = Math.min(nS - 1, 1 + Math.floor((p - 0.34) / (0.66 / (nS - 1)))); }
 
-      band.style.setProperty('--cp', (idx / (nS - 1)).toFixed(4));
+      /* barre + chariot : flux CONTINU (pas de saut d'un nœud à l'autre).
+         smoothstep ralentit le début → le chariot traîne près de A pendant
+         que le palier A est affiché, puis arrive sur chaque nœud pile quand
+         le texte change. */
+      var cp = p * p * (3 - 2 * p);
+      band.style.setProperty('--cp', cp.toFixed(4));
       nodes.forEach(function (n, i) { n.classList.toggle('lit', i <= idx); });
       steps.forEach(function (s, i) { s.classList.toggle('on', i === idx); });
+      /* après la production (P), la marchandise transportée sort grossie */
+      if (cargo) cargo.classList.toggle('grown', idx >= 3);
       return true;
     });
   }
