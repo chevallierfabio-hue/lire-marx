@@ -208,6 +208,21 @@ pas écrire `style.transform` en JS, ça casserait l'inclinaison au curseur de
 par défaut) : sans JS, sous no-motion ou en dessous de 768 px, les cartes
 gardent leur réglure et leur fondu simple.
 
+**Deux feuillets portent le vrai manuscrit.** Les rangs `REAL = [0, 6]` de
+la liasse (le feuillet du dessus — le mieux vu, le premier à décoller — et un
+du milieu de pile) reçoivent le **fac-similé** de `manuscrit-ideologie-1846.webp`
+à la place de l'écriture dessinée : la page montrée dans le cadre du héros
+est aussi l'une de celles qui s'envolent. Deux sur treize, pas plus — la
+liasse doit contenir de vraies pages, pas être une pile de photocopies.
+C'est **le même fichier que le `<img fetchpriority="high">` du héros**, donc
+**zéro requête de plus** (vérifié au panneau réseau : une seule requête pour
+deux consommateurs) ; il est redessiné dans un canvas de 512 px avec un voile
+chaud en `soft-light` — sans lui, le fac-similé, plus brun, tranche en gris
+au milieu des feuillets crème. Chargement asynchrone : les matériaux naissent
+avec la texture dessinée et sont échangés à l'arrivée de l'image
+(`mat.needsUpdate`), avec un rendu de rattrapage si la boucle dort déjà. Si
+l'image échoue, rien ne change.
+
 **Le piège de la place disponible.** Le héros n'a que trois zones où un
 feuillet est réellement visible : le couloir vertical entre le texte et le
 portrait, la marge droite, et la bande sous le portrait. Le portrait est en

@@ -181,8 +181,48 @@
       return t2;
     }
 
+    /* Un fac-similé RÉEL parmi les feuillets dessinés : la page montrée dans
+       le cadre du héros est aussi l'une de celles qui s'envolent. On réutilise
+       le fichier déjà chargé par le <img fetchpriority="high"> du héros — zéro
+       requête de plus, il sort du cache. Redessiné dans un canvas de 512 px de
+       large : la texture n'a pas besoin de mieux à cette taille à l'écran, et
+       ça garde le même pipeline (mipmaps coupés, LinearFilter) que les
+       feuillets dessinés. Si l'image échoue, on ne fait rien : les feuillets
+       gardent leur écriture dessinée. */
+    function realTexture(done) {
+      var im = new Image();
+      im.decoding = 'async';
+      im.onload = function () {
+        var W = 512, H = Math.round(W * (im.naturalHeight || 5) / (im.naturalWidth || 4));
+        var cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+        var g = cv.getContext('2d');
+        try { g.drawImage(im, 0, 0, W, H); } catch (e) { return; }
+        /* Le fac-similé est plus brun que les feuillets dessinés (crème) :
+           un voile chaud en soft-light le ramène dans leur famille sans
+           écraser l'encre — il doit rester reconnaissable comme la vraie
+           page, pas se fondre au point de disparaître. */
+        g.globalCompositeOperation = 'soft-light';
+        g.fillStyle = 'rgba(255,216,152,.42)';
+        g.fillRect(0, 0, W, H);
+        g.globalCompositeOperation = 'source-over';
+        var t = new THREE.CanvasTexture(cv);
+        t.generateMipmaps = false;
+        if (THREE.LinearFilter) t.minFilter = THREE.LinearFilter;
+        if (THREE.ClampToEdgeWrapping) t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping;
+        t.anisotropy = 2;
+        done(t);
+      };
+      im.onerror = function () { /* pas de fac-similé : rien ne change */ };
+      im.src = 'assets/img/archive/manuscrit-ideologie-1846.webp';
+    }
+
     /* La liasse : k=0 est le feuillet du dessus (part le premier, le plus
-       opaque), k=COUNT-1 le fond de pile (part le dernier, noyé de brume). */
+       opaque), k=COUNT-1 le fond de pile (part le dernier, noyé de brume).
+       REAL = les rangs qui porteront le fac-similé — le feuillet du dessus,
+       celui qu'on voit le mieux et qui décolle le premier, et un du milieu de
+       pile. Deux sur treize : la liasse contient de vraies pages, elle n'est
+       pas une pile de photocopies. */
+    var REAL = [0, 6], realMats = [];
     var geo = new THREE.PlaneGeometry(2.4, 3.1, 1, 1);
     var COUNT = window.innerWidth < 1100 ? 9 : 13;
     for (var k = 0; k < COUNT; k++) {
@@ -194,6 +234,7 @@
         transparent: true, opacity: op,
         depthWrite: false, side: THREE.DoubleSide
       });
+      if (REAL.indexOf(k) >= 0) realMats.push(mat);
       var m = new THREE.Mesh(geo, mat);
       /* fuite : vers le haut, vers la droite, et vers nous pour le dessus */
       var dir = new THREE.Vector3(
@@ -222,6 +263,16 @@
       m.position.set(u.hx, u.hy, u.hz);
       m.rotation.set(u.rx, u.ry, u.rz);
       sheets.push(m); scene.add(m);
+    }
+
+    if (realMats.length) {
+      realTexture(function (tex) {
+        for (var i = 0; i < realMats.length; i++) {
+          realMats[i].map = tex; realMats[i].needsUpdate = true;
+        }
+        /* la boucle peut dormir (liasse déjà sortie, ou hors écran) */
+        if (!running && active) renderer.render(scene, camera);
+      });
     }
 
     function resize() {
