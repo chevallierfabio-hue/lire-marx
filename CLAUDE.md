@@ -210,9 +210,23 @@ tient la bougie ET le halo sur le même axe — c'est la flamme qui est la
 source, le halo n'est que ce qu'elle éclaire ; les déplacer séparément
 casserait la lumière.
 
-C'est le **défilement qui l'allume** : `--lum` pilote l'opacité de la
-flamme, de sa lueur proche et de la fumée. La bande arrive donc sur une
-bougie éteinte, et « la bougie prend » devient littéral. Deux animations
+C'est le **défilement qui la relève et l'allume**, en deux temps, dans
+l'ordre où on ferait le geste : `--up` la redresse (elle arrive **couchée**,
+pivotant sur son pied grâce à `transform-origin:50% 100%`), puis `--flame`
+allume la flamme, sa lueur proche et la fumée. « La bougie prend » devient
+littéral.
+
+**Piège de mesure — la bougie ne se chronomètre PAS comme la bande.** Elle
+est posée au **bas** de la bande, et la bande est la **dernière section de
+la page** : son bas ne remonte jamais au-dessus du pli, puisque rien ne
+défile au-delà. Mesurée sur le haut de la bande (comme `--lum`), elle se
+relevait et s'allumait pendant qu'elle était encore **sous le pli** — on
+n'en voyait jamais que le résultat. `--up` et `--flame` se calculent donc
+sur `d = rect.bottom - vh`, ce qui reste du bas de la bande sous le pli :
+`d` vaut 0 au bas de page, la bougie se relève sur les 320 derniers pixels
+et s'allume sur les 130 derniers. Le geste tient entier dans la fenêtre où
+on la voit. `--lum`, lui, reste calé sur le haut : le texte doit être
+lisible tôt. Deux animations
 distinctes une fois `.alight` posée : `lm-flame` tord la flamme (3,1 s) et
 `lm-candle` fait respirer le halo (8,4 s) — deux périodes **non
 multiples**, sinon l'œil les resynchronise et la flamme se met à battre la

@@ -519,9 +519,15 @@ html:not(.no-anim) .hs-hero.lit .hs-right{opacity:1;transform:none;transition-de
   width:min(760px,80vw);height:420px;pointer-events:none;z-index:1;
   background:radial-gradient(ellipse at center,
     rgba(216,173,76,.20) 0%,rgba(213,64,47,.10) 42%,transparent 72%);}
+/* Elle arrive COUCHÉE et se relève au défilement, pivotant sur son pied
+   (`transform-origin` en bas), puis s'allume — deux temps distincts :
+   `--up` la redresse, `--lum` l'allume. */
 .hs-closer-candle{position:absolute;z-index:1;pointer-events:none;
   right:var(--candle-r);bottom:clamp(8px,2vh,26px);
-  transform:translateX(50%);width:52px;height:132px;}
+  width:52px;height:132px;--cd-scale:1;
+  transform-origin:50% 100%;
+  transform:translateX(50%) rotate(calc((1 - var(--up,1)) * -76deg))
+            scale(var(--cd-scale));}
 .hs-closer-candle span{position:absolute;left:50%;transform:translateX(-50%);}
 .cd-holder{bottom:0;width:52px;height:12px;border-radius:50%;
   background:radial-gradient(ellipse at 50% 28%,#c9a86a 0%,#9a7b30 55%,#6d5620 100%);}
@@ -533,20 +539,19 @@ html:not(.no-anim) .hs-hero.lit .hs-right{opacity:1;transform:none;transition-de
   background:radial-gradient(ellipse at 50% 72%,
     #fff6d8 0%,#ffd27a 34%,#ff9c3a 66%,rgba(255,120,40,0) 100%);
   filter:blur(.5px);transform-origin:50% 100%;
-  opacity:var(--lum,1);}
+  opacity:var(--flame,1);}
 .cd-glow{bottom:52px;width:150px;height:150px;border-radius:50%;
   background:radial-gradient(circle,rgba(255,156,58,.30) 0%,
     rgba(255,156,58,.10) 38%,transparent 68%);
-  opacity:var(--lum,1);}
+  opacity:var(--flame,1);}
 /* le filet de fumée de l'intro, en plus discret encore */
 .cd-smoke{bottom:120px;width:3px;height:54px;
   background:linear-gradient(to top,rgba(184,178,166,.20),transparent 78%);
-  filter:blur(2.5px);opacity:calc(.55 * var(--lum,1));}
+  filter:blur(2.5px);opacity:calc(.55 * var(--flame,1));}
 @media(max-width:820px){
-  /* origine en pied : la bougie rapetisse vers sa base et reste sous le
-     bouton, qui prend presque toute la largeur sur petit écran */
-  .hs-closer-candle{bottom:0;transform:translateX(50%) scale(.66);
-    transform-origin:50% 100%;}
+  /* elle rapetisse vers sa base et reste sous le bouton, qui prend presque
+     toute la largeur sur petit écran */
+  .hs-closer-candle{bottom:0;--cd-scale:.66;}
 }
 @media(max-width:820px){
   .hs-closer-inner{max-width:none;}
