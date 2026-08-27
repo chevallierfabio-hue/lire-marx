@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="preload" as="image" href="assets/img/archive/marx-portrait.webp" type="image/webp" fetchpriority="high">
-<script>if(window.innerWidth<768||window.matchMedia('(prefers-reduced-motion:reduce)').matches||location.search.indexOf('skip-anim')!==-1)document.documentElement.classList.add('no-anim');</script>
+<script>(function(){var d=document.documentElement,narrow=window.innerWidth<768,reduce=window.matchMedia('(prefers-reduced-motion:reduce)').matches,skip=location.search.indexOf('skip-anim')!==-1;if(narrow||reduce||skip)d.classList.add('no-anim');if(narrow||reduce)d.classList.add('no-motion');})();</script>
 <title>Lire Marx — Lecture guidée du Capital et des Manuscrits</title>
 <meta name="description" content="Lisez Marx sérieusement, sans prérequis. Ateliers de lecture guidés, simulations économiques et espace d'échange entre lecteurs — Le Capital et les Manuscrits de 1844 en accès libre.">
 <meta property="og:title" content="Lire Marx — Lecture guidée du Capital et des Manuscrits">
@@ -96,27 +96,55 @@ h1.big em{font-style:italic;font-weight:500;color:#e5392a;}
 </style>
 
 <style>
-/* ── Palette Rouge Internationale + variables shell (thème clair) ── */
+/* ── Palette « sombre-chaude » — brun-nuit façon scène à la bougie,
+   accents rouge drapeau + or. Redéfinit aussi les variables du shell
+   (topbar/sidebar/modales) pour qu'il suive le thème — sur cette page. ── */
 :root{
   /* tokens homepage */
-  --bg:#F7F5F0;--surface:#FBF9F4;--text:#171614;
-  --muted:#8B8577;--accent:#C41E3A;--border:rgba(23,22,20,.10);
+  --bg:#15100b;--surface:#1e1710;--text:#f3e9d4;
+  --muted:#b7a888;--accent:#d5402f;--border:rgba(243,233,212,.13);
 
-  /* shell.css variables → palette lumineuse (alignée sur le thème natif du shell) */
-  --paper:#F7F5F0;--paper-2:#EDE9E2;--card:#FBF9F4;
-  --ink:#171614;--ink-soft:#8B8577;
-  --red:#C41E3A;--red-deep:#9B1830;--bright:#C41E3A;
-  --gold:#9a7b35;--gold-deep:#7d6325;--blue:#39596b;--const:#8B8577;
-  --line:rgba(23,22,20,.11);--line-soft:rgba(23,22,20,.07);--ok:#52742f;
+  /* shell.css → palette sombre */
+  --paper:#15100b;--paper-2:#1e1710;--card:#221a12;
+  --ink:#f3e9d4;--ink-soft:#c7b599;
+  --red:#d5402f;--red-deep:#b5372a;--bright:#e5644f;
+  --gold:#d8ad4c;--gold-deep:#bd8f38;--blue:#5c8aa3;--const:#9a8b72;
+  --line:rgba(243,233,212,.13);--line-soft:rgba(243,233,212,.07);--ok:#7fa855;
   --f-ui:'Inter',system-ui,sans-serif;--f-serif:'Spectral',Georgia,serif;--f-hand:'Caveat',cursive;
+  --candle:rgba(216,173,76,.18);
 }
+html,body{background:#0d0a07;}
 
 /* ── Shell : masqué pendant l'animation, révélé à l'ouverture ── */
 header.topbar,aside.sidebar,#sbBackdrop{display:none;}
 body.shell-active header.topbar{display:flex;}
 body.shell-active aside.sidebar{display:block;}
-/* Topbar : position fixe (pas sticky, car body{overflow:hidden}) */
-header.topbar{position:fixed!important;top:0;left:0;right:0;z-index:140;}
+/* Topbar : position fixe (pas sticky, car body{overflow:hidden}) ;
+   transparente au-dessus du héros, opaque au scroll (.tb-solid via home.js) */
+header.topbar{position:fixed!important;top:0;left:0;right:0;z-index:140;
+  background:transparent;border-bottom-color:transparent;
+  transition:background .3s ease,border-color .3s ease,box-shadow .3s ease;}
+header.topbar.tb-solid{background:rgba(21,16,11,.92);
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  border-bottom-color:var(--line);box-shadow:0 10px 30px -18px rgba(0,0,0,.9);}
+
+/* ── Shell : correctifs de couleurs en dur pour le thème sombre ── */
+.brandmark{color:var(--ink);}
+.tb-btn,.acct-chip,#tbSearch,.tb-tabs{background:rgba(255,255,255,.05);border-color:var(--line);color:var(--ink);}
+.tb-btn:hover,.acct-chip:hover{border-color:var(--gold);}
+.acct-chip.guest{background:var(--gold-deep);border-color:var(--gold-deep);color:#1a130c;}
+.tb-tab.on,.ac-t.on{color:#1a130c;}
+.sidebar{background:rgba(21,16,11,.97);border-right-color:var(--line);}
+.sb-item{color:var(--ink);}
+.sb-item:hover{background:rgba(255,255,255,.05);}
+.sb-item.on{background:rgba(213,64,47,.16);color:var(--bright);}
+.tb-pop,.tb-results{background:var(--card);border-color:var(--line);box-shadow:0 18px 50px rgba(0,0,0,.7);}
+.tb-res:hover,.tb-res.active{background:var(--paper-2);}
+.acct-modal{background:rgba(6,4,3,.7);}
+.ac-card,.ac-card input,.msg-add input,.ac-bio{background:var(--paper);border-color:var(--line);color:var(--ink);}
+.ac-card code,.ac-p code,.ac-note code{background:rgba(255,255,255,.08);}
+.cm-card{background:var(--paper-2);border-color:var(--line);}
+.cm-card:hover{background:var(--card);border-color:var(--red);box-shadow:0 6px 20px rgba(0,0,0,.5);}
 
 /* ── Home wrapper (décalé de la sidebar + topbar fixées) ── */
 .hw{width:100%;height:100%;overflow-y:auto;overflow-x:hidden;
@@ -124,7 +152,7 @@ header.topbar{position:fixed!important;top:0;left:0;right:0;z-index:140;}
   box-sizing:border-box;padding-top:44px;padding-left:208px;}
 .hw::-webkit-scrollbar{width:5px;}
 .hw::-webkit-scrollbar-track{background:var(--bg);}
-.hw::-webkit-scrollbar-thumb{background:rgba(23,22,20,.15);border-radius:3px;}
+.hw::-webkit-scrollbar-thumb{background:rgba(243,233,212,.18);border-radius:3px;}
 body.sb-collapsed .hw{padding-left:0;}
 @media(max-width:860px){.hw{padding-left:0;}}
 
@@ -154,10 +182,10 @@ body.sb-collapsed .hw{padding-left:0;}
 .btn-filled:hover{opacity:.86;}
 .btn-outline{display:inline-flex;align-items:center;padding:11px 24px;
   border-radius:999px;background:transparent;
-  border:1px solid rgba(23,22,20,.22);color:var(--text);
+  border:1px solid rgba(243,233,212,.28);color:var(--text);
   font-size:14px;font-weight:500;text-decoration:none;
   transition:border-color .18s,background .18s;}
-.btn-outline:hover{border-color:rgba(23,22,20,.4);background:rgba(23,22,20,.04);}
+.btn-outline:hover{border-color:var(--gold);background:rgba(243,233,212,.05);}
 
 /* Portrait + images d'archive */
 .hs-right{position:relative;z-index:1;display:flex;justify-content:center;}
@@ -174,25 +202,7 @@ body.sb-collapsed .hw{padding-left:0;}
   color:rgba(251,249,244,.82);line-height:1.45;
   background:linear-gradient(to top,rgba(23,22,20,.62),transparent);}
 
-/* ── Catalogue ── */
-.hs-catalogue{display:grid;grid-template-columns:1fr 1fr;gap:20px;
-  padding:0 clamp(24px,5vw,80px) clamp(56px,7vh,90px);}
-.hs-catalogue-h{grid-column:1/-1;font-family:'Inter',system-ui,sans-serif;font-size:.78rem;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
-.hs-community{grid-column:1/-1;padding:10px 0 0;font-size:.92rem;color:var(--muted);}
-.hs-community a{color:var(--accent);text-decoration:none;font-weight:500;}
-.hs-community a:hover{text-decoration:underline;}
-.hs-card{border-radius:16px;overflow:hidden;background:var(--surface);
-  border:1px solid var(--border);transition:transform .22s,box-shadow .22s;
-  text-decoration:none;display:block;color:inherit;}
-.hs-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px -8px rgba(23,22,20,.14);}
-.hs-card-img{height:220px;position:relative;overflow:hidden;background:#1a1410;}
-.hs-card-img .hs-img-wrap{position:absolute;inset:0;}
-.hs-card-body{padding:20px 22px;display:flex;flex-direction:column;gap:6px;}
-.hs-card-label{font-size:11px;font-weight:600;letter-spacing:.14em;
-  text-transform:uppercase;color:var(--accent);}
-.hs-card-title{font-family:'Fraunces',serif;font-weight:900;font-size:1.35rem;
-  letter-spacing:-.02em;color:var(--text);line-height:1.1;}
-.hs-card-desc{font-size:.88rem;line-height:1.62;color:var(--muted);}
+/* ── Catalogue — voir bloc « LA BIBLIOTHÈQUE » plus bas ── */
 
 /* ── Stats bar ── */
 .hs-stats{display:flex;justify-content:center;gap:clamp(36px,7vw,110px);
@@ -209,8 +219,208 @@ body.sb-collapsed .hw{padding-left:0;}
   .hs-hero{grid-template-columns:1fr;min-height:auto;gap:36px;}
   .hs-right{order:-1;}
   .hs-portrait{max-width:280px;}
-  .hs-catalogue{grid-template-columns:1fr;}
   .hs-stats{gap:28px;}
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   ACCUEIL ANIMÉ — mouvement au scroll + sections enrichies
+   (assets/home.js pilote les classes .in / .lit)
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* — révélations au scroll — */
+.reveal{opacity:0;transform:translateY(22px);
+  transition:opacity .7s ease,transform .8s cubic-bezier(.16,1,.3,1);}
+.reveal.in{opacity:1;transform:none;}
+.reveal-stagger>*{opacity:0;transform:translateY(20px);
+  transition:opacity .6s ease,transform .7s cubic-bezier(.16,1,.3,1);}
+.reveal-stagger.in>*{opacity:1;transform:none;}
+.reveal-stagger.in>*:nth-child(2){transition-delay:.08s;}
+.reveal-stagger.in>*:nth-child(3){transition-delay:.16s;}
+.reveal-stagger.in>*:nth-child(4){transition-delay:.24s;}
+
+/* — héros : fond WebGL + orchestration d'entrée — */
+.hs-hero{overflow:hidden;}
+#hero-bg{position:absolute;inset:0;z-index:0;width:100%;height:100%;display:block;
+  pointer-events:none;opacity:0;transition:opacity 1.6s ease;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0%,transparent 22%,#000 52%,#000 100%);
+  mask-image:linear-gradient(90deg,transparent 0%,transparent 22%,#000 52%,#000 100%);}
+body.shell-active #hero-bg{opacity:1;}
+.hs-halo{z-index:0;}
+.hs-left,.hs-right{position:relative;z-index:1;}
+/* entrée orchestrée uniquement quand l'intro cinématique va jouer
+   (sinon — no-anim : mobile / reduced-motion / skip-anim — contenu direct) */
+html:not(.no-anim) .hs-hero .hs-left>*,
+html:not(.no-anim) .hs-hero .hs-right{
+  opacity:0;transform:translateY(18px);
+  transition:opacity .8s ease,transform .9s cubic-bezier(.16,1,.3,1);}
+.hs-hero.lit .hs-left>.hs-badge{opacity:1;transform:none;transition-delay:.05s;}
+.hs-hero.lit .hs-left>.hs-h1{opacity:1;transform:none;transition-delay:.16s;}
+.hs-hero.lit .hs-left>.hs-desc{opacity:1;transform:none;transition-delay:.30s;}
+.hs-hero.lit .hs-left>.hs-btns{opacity:1;transform:none;transition-delay:.42s;}
+.hs-hero.lit .hs-right{opacity:1;transform:none;transition-delay:.22s;}
+
+/* boutons pilule : légère élévation au survol */
+.hs-btns .btn-filled,.hs-btns .btn-outline,.hs-closer .btn-filled{
+  transition:opacity .18s,border-color .18s,background .18s,
+             transform .2s ease,box-shadow .25s ease;}
+.hs-btns .btn-filled:hover,.hs-btns .btn-outline:hover,.hs-closer .btn-filled:hover{
+  transform:translateY(-2px);}
+.hs-btns .btn-filled:hover,.hs-closer .btn-filled:hover{
+  opacity:1;box-shadow:0 14px 28px -12px rgba(196,30,58,.5);}
+
+/* — marquee de concepts — */
+.hs-marquee{overflow:hidden;padding:15px 0;
+  border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent);
+  mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent);}
+.marquee-track{display:flex;width:max-content;animation:hs-marquee 48s linear infinite;}
+.hs-marquee:hover .marquee-track{animation-play-state:paused;}
+.marquee-item{display:inline-flex;align-items:center;padding:0 4px;white-space:nowrap;
+  font-family:'Fraunces',serif;font-weight:500;font-size:1.02rem;letter-spacing:-.01em;color:var(--text);}
+.marquee-item::after{content:"·";margin:0 30px;color:var(--accent);}
+@keyframes hs-marquee{to{transform:translateX(-50%);}}
+
+/* — sections génériques — */
+.hs-block{padding:clamp(56px,8vh,96px) clamp(24px,5vw,80px);}
+.hs-sec-label{font-family:'Inter',system-ui,sans-serif;font-size:.72rem;font-weight:600;
+  letter-spacing:.11em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.hs-sec-h{font-family:'Fraunces',serif;font-weight:900;
+  font-size:clamp(1.7rem,3.4vw,2.5rem);letter-spacing:-.03em;color:var(--text);
+  line-height:1.06;margin-bottom:34px;}
+
+/* — « Ce que vous pouvez faire » — */
+.hs-do-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px;}
+.hs-do-card{position:relative;overflow:hidden;background:var(--surface);
+  border:1px solid var(--border);border-radius:16px;padding:26px 24px;
+  transition:transform .22s,box-shadow .22s;}
+.hs-do-card:hover{transform:translateY(-4px);box-shadow:0 14px 34px -10px rgba(23,22,20,.13);}
+.hs-do-n{position:absolute;top:10px;right:16px;font-family:'Fraunces',serif;font-weight:900;
+  font-size:2.6rem;line-height:1;color:var(--accent);opacity:.15;}
+.hs-do-card h3{font-family:'Fraunces',serif;font-weight:900;font-size:1.18rem;
+  letter-spacing:-.02em;color:var(--text);margin-bottom:8px;}
+.hs-do-card p{font-size:.88rem;line-height:1.6;color:var(--muted);}
+
+/* — LA BIBLIOTHÈQUE (catalogue piloté par oeuvres/bibliotheque.json) — */
+.hs-lib{padding:clamp(56px,8vh,96px) clamp(24px,5vw,80px);}
+.hs-lib-head .hs-sec-h{margin-bottom:10px;}
+.hs-lib-count{font-family:'Inter',system-ui,sans-serif;font-size:.84rem;
+  letter-spacing:.02em;color:var(--gold);}
+.hs-lib-sub{font-family:'Inter',system-ui,sans-serif;font-size:.68rem;font-weight:600;
+  letter-spacing:.13em;text-transform:uppercase;color:var(--muted);
+  margin:42px 0 16px;padding-bottom:9px;border-bottom:1px solid var(--line);}
+
+/* Disponibles — cartes riches */
+.hs-lib-avail{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px;}
+.hs-w-loading{color:var(--muted);font-size:.9rem;padding:8px 0;}
+.hs-w-card{display:flex;flex-direction:column;border:1px solid var(--line);
+  border-radius:16px;overflow:hidden;background:var(--surface);color:inherit;
+  text-decoration:none;transition:transform .22s,box-shadow .22s,border-color .22s;}
+.hs-w-card:hover{transform:translateY(-4px);border-color:var(--gold);
+  box-shadow:0 22px 48px -20px rgba(0,0,0,.7);}
+.hs-w-img{height:186px;overflow:hidden;position:relative;background:#0d0a07;}
+.hs-w-img img{width:100%;height:100%;object-fit:cover;
+  filter:grayscale(.7) sepia(.35) brightness(.82) contrast(1.05);}
+.hs-w-img::after{content:'';position:absolute;inset:0;
+  background:linear-gradient(to top,rgba(13,10,7,.78),rgba(13,10,7,.05) 55%),
+             radial-gradient(ellipse at 72% 18%,rgba(216,173,76,.16),transparent 60%);}
+.hs-w-body{padding:20px 22px 22px;display:flex;flex-direction:column;gap:8px;flex:1;}
+.hs-w-meta{display:flex;align-items:center;gap:10px;}
+.hs-w-status{font-family:'Inter',system-ui,sans-serif;font-size:.6rem;font-weight:700;
+  letter-spacing:.09em;text-transform:uppercase;border-radius:999px;padding:3px 9px;}
+.hs-w-ok{background:rgba(127,168,85,.18);color:#a9cf82;}
+.hs-w-year{font-family:'Inter',system-ui,sans-serif;font-size:.78rem;font-weight:600;
+  color:var(--gold);letter-spacing:.04em;}
+.hs-w-title{font-family:'Fraunces',serif;font-weight:900;font-size:1.4rem;
+  letter-spacing:-.02em;color:var(--ink);line-height:1.08;}
+.hs-w-cat{font-family:'Inter',system-ui,sans-serif;font-size:.66rem;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--muted);}
+.hs-w-desc{font-family:'Inter',system-ui,sans-serif;font-size:.86rem;line-height:1.6;color:var(--ink-soft);}
+.hs-w-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:2px;}
+.hs-w-tag{font-family:'Inter',system-ui,sans-serif;font-size:.62rem;color:var(--gold);
+  background:rgba(216,173,76,.12);border-radius:999px;padding:2px 8px;}
+.hs-w-go{margin-top:auto;padding-top:10px;font-family:'Inter',system-ui,sans-serif;
+  font-size:.82rem;font-weight:600;color:var(--bright);}
+
+/* En préparation — index typographique par année */
+.hs-lib-planned{list-style:none;margin:0;padding:0;border-top:1px solid var(--line-soft);}
+.hs-p-row{display:grid;grid-template-columns:64px 1fr auto;gap:16px;align-items:baseline;
+  padding:13px 4px;border-bottom:1px solid var(--line-soft);transition:background .16s,padding-left .16s;}
+.hs-p-row:hover{background:rgba(216,173,76,.05);padding-left:10px;}
+.hs-p-year{font-family:'Fraunces',serif;font-style:italic;font-weight:900;font-size:1rem;color:var(--gold);}
+.hs-p-title{font-family:'Fraunces',serif;font-weight:600;font-size:1.02rem;color:var(--ink);letter-spacing:-.01em;}
+.hs-p-cat{font-family:'Inter',system-ui,sans-serif;font-size:.64rem;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--muted);white-space:nowrap;}
+@media(max-width:600px){
+  .hs-p-row{grid-template-columns:48px 1fr;}
+  .hs-p-cat{display:none;}
+}
+
+/* — bande « circuit du capital » — */
+.circuit-band{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.2fr);
+  gap:clamp(28px,5vw,64px);align-items:center;
+  padding:clamp(44px,6vh,76px) clamp(24px,5vw,80px);
+  border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--surface);}
+.circuit-txt .hs-sec-h{margin-bottom:14px;}
+.circuit-txt p{font-size:.95rem;line-height:1.72;color:var(--muted);max-width:44ch;}
+.circuit{position:relative;display:flex;justify-content:space-between;align-items:center;min-height:54px;}
+.circuit-line{position:absolute;left:8px;right:8px;top:16px;height:2px;border-radius:2px;
+  background:linear-gradient(90deg,var(--border),var(--accent) 50%,var(--border));}
+.circuit-node{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:5px;}
+.circuit-node b{font-family:'Fraunces',serif;font-weight:900;font-size:1.25rem;color:var(--text);
+  background:var(--surface);padding:0 10px;}
+.circuit-node i{font-family:'Inter',system-ui,sans-serif;font-style:normal;font-size:.56rem;
+  letter-spacing:.07em;text-transform:uppercase;color:var(--muted);}
+.circuit-node--end b{color:var(--accent);}
+.circuit-spark{position:absolute;top:9px;left:0;width:14px;height:14px;border-radius:50%;
+  background:var(--accent);box-shadow:0 0 14px 5px rgba(196,30,58,.38),0 0 5px 1px rgba(196,30,58,.7);opacity:0;}
+.circuit-band.in .circuit-spark{animation:hs-spark 3.6s cubic-bezier(.6,0,.4,1) .25s 2;}
+@keyframes hs-spark{0%{left:0;opacity:0;}7%{opacity:1;}
+  90%{left:calc(100% - 14px);opacity:1;}100%{left:calc(100% - 14px);opacity:0;}}
+
+/* — aperçu Place publique — */
+.hs-commune-head{display:flex;align-items:baseline;justify-content:space-between;
+  gap:16px;flex-wrap:wrap;margin-bottom:26px;}
+.hs-commune-head .hs-sec-h{margin-bottom:0;}
+.hs-commune-more{font-family:'Inter',system-ui,sans-serif;font-size:.86rem;font-weight:600;
+  color:var(--accent);text-decoration:none;white-space:nowrap;}
+.hs-commune-more:hover{text-decoration:underline;}
+#homeCommune{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px;}
+
+/* — bande CTA finale — */
+.hs-closer{position:relative;overflow:hidden;text-align:center;
+  padding:clamp(64px,10vh,120px) clamp(24px,5vw,80px);
+  border-top:1px solid var(--border);background:var(--surface);}
+.hs-closer-halo{position:absolute;top:-40px;left:50%;transform:translateX(-50%);
+  width:640px;height:380px;pointer-events:none;
+  background:radial-gradient(ellipse at center,rgba(196,30,58,.09),transparent 66%);}
+.hs-closer p{position:relative;z-index:1;font-family:'Fraunces',serif;font-weight:900;
+  font-size:clamp(1.6rem,3.6vw,2.6rem);letter-spacing:-.03em;line-height:1.14;
+  color:var(--text);max-width:22ch;margin:0 auto 26px;}
+.hs-closer p em{font-style:italic;font-weight:500;color:var(--accent);}
+.hs-closer .btn-filled{position:relative;z-index:1;}
+
+/* — responsive — */
+@media(max-width:720px){
+  .circuit-band{grid-template-columns:1fr;gap:26px;}
+  .circuit-node i{display:none;}
+  #hero-bg{display:none;}
+}
+
+/* — pas de mouvement : mobile étroit ou prefers-reduced-motion — */
+html.no-motion .reveal,
+html.no-motion .reveal-stagger>*,
+html.no-motion .hs-hero .hs-left>*,
+html.no-motion .hs-hero .hs-right{
+  opacity:1!important;transform:none!important;transition:none!important;}
+html.no-motion .marquee-track{animation:none!important;}
+html.no-motion .circuit-band .circuit-spark{animation:none!important;opacity:0!important;}
+html.no-motion #hero-bg{display:none!important;}
+
+@media(prefers-reduced-motion:reduce){
+  .marquee-track{animation:none!important;}
+  .circuit-band.in .circuit-spark{animation:none!important;}
+  .circuit-spark{opacity:0!important;}
+  #hero-bg{display:none!important;}
 }
 </style>
 <link rel="preload" href="oeuvres/shell.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
@@ -254,6 +464,7 @@ body.sb-collapsed .hw{padding-left:0;}
 
     <!-- ② Hero deux colonnes — nav fournie par shell.js (topbar + sidebar) -->
     <section class="hs-hero">
+      <canvas id="hero-bg" aria-hidden="true"></canvas>
       <div class="hs-halo"></div>
       <div class="hs-left">
         <span class="hs-badge">Depuis 2026 · des centaines de lecteurs actifs</span>
@@ -277,46 +488,98 @@ body.sb-collapsed .hw{padding-left:0;}
       </div>
     </section>
 
-    <!-- ③ Catalogue -->
-    <section class="hs-catalogue" id="catalogue">
-      <h2 class="hs-catalogue-h">Les ateliers de lecture</h2>
-      <a class="hs-card" href="oeuvres/capital-1.html">
-        <div class="hs-card-img">
-          <div class="hs-img-wrap">
-            <picture>
-              <source srcset="assets/img/archive/manufacture.webp" type="image/webp">
-              <img src="assets/img/archive/manufacture.jpg" alt="Manufacture textile, XIXe siècle" loading="lazy">
-            </picture>
-          </div>
-          <figcaption class="hs-img-caption">Manufacture textile · XIXᵉ s. · domaine public</figcaption>
+    <!-- Marquee de concepts -->
+    <div class="hs-marquee" aria-hidden="true">
+      <div class="marquee-track">
+        <span class="marquee-item">marchandise</span>
+        <span class="marquee-item">valeur</span>
+        <span class="marquee-item">travail</span>
+        <span class="marquee-item">plus-value</span>
+        <span class="marquee-item">fétichisme</span>
+        <span class="marquee-item">force de travail</span>
+        <span class="marquee-item">accumulation</span>
+        <span class="marquee-item">aliénation</span>
+        <span class="marquee-item">classe</span>
+      </div>
+    </div>
+
+    <!-- Ce que vous pouvez faire -->
+    <section class="hs-block">
+      <p class="hs-sec-label">Ce que vous pouvez faire ici</p>
+      <h2 class="hs-sec-h reveal">Lire, travailler le texte, en discuter</h2>
+      <div class="hs-do-grid reveal-stagger">
+        <article class="hs-do-card">
+          <span class="hs-do-n">I</span>
+          <h3>Lire</h3>
+          <p>Le texte intégral dans une liseuse réglable — police, taille, contraste —
+            avec vos annotations privées, synchronisées si vous avez un compte.</p>
+        </article>
+        <article class="hs-do-card">
+          <span class="hs-do-n">II</span>
+          <h3>L'atelier &amp; les simulations</h3>
+          <p>Chaque chapitre déplié : anatomie des concepts, cartes, chronologie,
+            et des modèles animés qui font tourner la valeur et la plus-value.</p>
+        </article>
+        <article class="hs-do-card">
+          <span class="hs-do-n">III</span>
+          <h3>La Place publique</h3>
+          <p>Les passages se commentent, les lectures se répondent. Un espace
+            d'échange ouvert entre lecteurs du Capital et des Manuscrits.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- Le circuit du capital -->
+    <section class="circuit-band" aria-label="Le circuit du capital">
+      <div class="circuit-txt">
+        <p class="hs-sec-label">Le fil conducteur</p>
+        <h2 class="hs-sec-h">Le circuit du capital</h2>
+        <p>Tout <em>Le Capital</em> tient dans ce mouvement : de l'argent qui,
+          en traversant la marchandise et la production, revient augmenté.
+          Les ateliers de lecture le déplient, pas à pas.</p>
+      </div>
+      <div class="circuit">
+        <span class="circuit-line" aria-hidden="true"></span>
+        <span class="circuit-spark" aria-hidden="true"></span>
+        <span class="circuit-node"><b>A</b><i>argent</i></span>
+        <span class="circuit-node"><b>M</b><i>marchandise</i></span>
+        <span class="circuit-node"><b>P</b><i>production</i></span>
+        <span class="circuit-node"><b>M′</b><i>marchandise+</i></span>
+        <span class="circuit-node circuit-node--end"><b>A′</b><i>argent + plus-value</i></span>
+      </div>
+    </section>
+
+    <!-- ③ La bibliothèque — piloté par oeuvres/bibliotheque.json -->
+    <section class="hs-lib" id="catalogue">
+      <div class="hs-lib-head reveal">
+        <p class="hs-sec-label">Le corpus</p>
+        <h2 class="hs-sec-h">La bibliothèque de Marx</h2>
+        <p class="hs-lib-count" id="lib-count">…</p>
+      </div>
+
+      <p class="hs-lib-sub reveal">Disponibles — texte intégral, atelier et simulations</p>
+      <div class="hs-lib-avail reveal-stagger" id="lib-available">
+        <div class="hs-w-loading">Chargement du catalogue…</div>
+      </div>
+
+      <p class="hs-lib-sub reveal">En préparation — textes à intégrer, par ordre chronologique</p>
+      <ul class="hs-lib-planned reveal" id="lib-planned"></ul>
+    </section>
+
+    <!-- Aperçu Place publique -->
+    <section class="hs-block reveal" aria-label="Place publique">
+      <div class="hs-commune-head">
+        <div>
+          <p class="hs-sec-label">En ce moment</p>
+          <h2 class="hs-sec-h">Sur la Place publique</h2>
         </div>
-        <div class="hs-card-body">
-          <span class="hs-card-label">Texte guidé</span>
-          <h3 class="hs-card-title">Le Capital</h3>
-          <p class="hs-card-desc">33 chapitres annotés, avec simulations de la valeur, de la plus-value et de l'accumulation du capital.</p>
-        </div>
-      </a>
-      <a class="hs-card" href="oeuvres/manuscrits-1844.html">
-        <div class="hs-card-img">
-          <div class="hs-img-wrap">
-            <picture>
-              <source srcset="assets/img/archive/marx-jeune.webp" type="image/webp">
-              <img src="assets/img/archive/marx-jeune.jpg" alt="Marx jeune, portrait de la période parisienne" loading="lazy">
-            </picture>
-          </div>
-          <figcaption class="hs-img-caption">Marx jeune, période parisienne · domaine public</figcaption>
-        </div>
-        <div class="hs-card-body">
-          <span class="hs-card-label">En cours</span>
-          <h3 class="hs-card-title">Manuscrits de 1844</h3>
-          <p class="hs-card-desc">Les carnets de jeunesse de Marx, clés pour saisir le fondement philosophique du Capital.</p>
-        </div>
-      </a>
-      <p class="hs-community">Des questions sur votre lecture ? <a href="oeuvres/place-publique.html">Rejoignez la Place publique</a> — discussions ouvertes entre lecteurs du Capital et des Manuscrits.</p>
+        <a class="hs-commune-more" href="oeuvres/place-publique.html">Toutes les discussions →</a>
+      </div>
+      <div id="homeCommune"></div>
     </section>
 
     <!-- ④ Barre de chiffres clés -->
-    <div class="hs-stats">
+    <div class="hs-stats reveal-stagger">
       <div class="hs-stat">
         <span class="hs-stat-n">2</span>
         <span class="hs-stat-l">livres accessibles<br>en ateliers de lecture</span>
@@ -330,6 +593,13 @@ body.sb-collapsed .hw{padding-left:0;}
         <span class="hs-stat-l">espace de discussion<br>ouvert</span>
       </div>
     </div>
+
+    <!-- Bande CTA finale -->
+    <section class="hs-closer">
+      <div class="hs-closer-halo" aria-hidden="true"></div>
+      <p>Le plus court chemin dans Marx, c'est <em>de le lire</em>.</p>
+      <a href="oeuvres/capital-1.html" class="btn-filled">Commencer par le chapitre premier</a>
+    </section>
 
   </div>
 </div>
@@ -700,6 +970,9 @@ if(document.documentElement.classList.contains('no-anim'))return;
     else { sheet.classList.remove('show'); cine.classList.remove('hide'); }
 
     renderer.render(scene,camera);
+    /* immersion terminée : on fige la scène de l'intro — le fond WebGL du
+       héros (assets/home.js) prend le relais, inutile de rendre deux scènes. */
+    if(p>0.995){ try{ renderer.dispose(); }catch(e){} return; }
     if(!reduce) requestAnimationFrame(frame);
   }
 
@@ -710,29 +983,47 @@ if(document.documentElement.classList.contains('no-anim'))return;
 });
 </script>
 
+<!-- Mouvement de l'accueil (révélations, marquee, fond WebGL) -->
+<script src="assets/home.js" defer></script>
+
 <!-- Shell de navigation (topbar + sidebar + auth + social) -->
 <script src="config.js"></script>
 <script src="oeuvres/shell.js"></script>
 <script src="oeuvres/shell-social.js"></script>
 <script>
 (function(){
-  // Révéler le shell dès que #sheet devient visible (fin d'animation)
   var sheetEl = document.getElementById('sheet');
+  var hero = document.querySelector('.hs-hero');
+  function activate(){
+    document.body.classList.add('shell-active');   // révèle topbar + sidebar
+    if(hero) hero.classList.add('lit');            // orchestration d'entrée du héros
+  }
+  // Révéler dès que #sheet devient visible (fin de l'animation cinématique)
   var obs = new MutationObserver(function(){
-    if(sheetEl.classList.contains('show')){
-      document.body.classList.add('shell-active');
-      obs.disconnect();
-    }
+    if(sheetEl.classList.contains('show')){ activate(); obs.disconnect(); }
   });
   obs.observe(sheetEl, {attributes:true, attributeFilter:['class']});
-  // skip-anim ou reduced-motion : shell visible dès le départ
+  // skip-anim, reduced-motion ou mobile étroit : contenu visible dès le départ
   if(location.search.indexOf('skip-anim') !== -1 ||
-     window.matchMedia('(prefers-reduced-motion:reduce)').matches){
-    document.body.classList.add('shell-active');
+     window.matchMedia('(prefers-reduced-motion:reduce)').matches ||
+     window.innerWidth < 768){
+    activate();
   }
+  // Filet : si assets/home.js n'a pas pu s'initialiser (échec de chargement),
+  // on affiche tout le contenu — jamais de sections invisibles.
+  setTimeout(function(){
+    if(window.__homeReady) return;
+    var els = document.querySelectorAll('.reveal, .reveal-stagger, .circuit-band');
+    for(var i=0;i<els.length;i++) els[i].classList.add('in');
+  }, 5000);
 
   // Installer le shell (topbar + sidebar + auth)
   installShell({ workTitle: 'Bibliothèque', tabs: [] });
+
+  // Aperçu de la Place publique (4 dernières notes partagées)
+  if(window.SHELL && SHELL.commune){
+    SHELL.commune.mount(document.getElementById('homeCommune'), { limit: 4 });
+  }
 })();
 </script>
 </body>
