@@ -101,8 +101,30 @@ chargement initial pour l'onglet par défaut. **Toute nouvelle logique
 d'onglet doit appeler explicitement le rendu de l'onglet actif au
 chargement**, pas seulement au clic.
 
+**Accueil animé (`/index.html`, racine).** L'accueil canonique est
+`/index.html` (`oeuvres/index.html` = simple redirection 301 ; `_redirects`).
+Il porte : (1) l'intro cinématique Three.js (desktop, gated `no-anim`) ;
+(2) le contenu réel dans `.hw` (conteneur de défilement) — héros deux
+colonnes, marquee de concepts, « Ce que vous pouvez faire », bande
+« circuit du capital » animée (A–M–P–M′–A′), catalogue, aperçu Place
+publique (`SHELL.commune.mount(#homeCommune,{limit:4})`), chiffres clés,
+bande CTA finale. Le mouvement vit dans **`assets/home.js`** (chargé
+`defer`) : révélations au scroll (`IntersectionObserver`, classes
+`.reveal` / `.reveal-stagger` / `.in` ; racine = `.hw` si elle défile,
+sinon viewport), duplication du marquee, et **fond WebGL discret**
+(`#hero-bg`, feuillets pâles) — **coupé si `prefers-reduced-motion` ou
+largeur < 768**, ne démarre qu'une fois `body.shell-active`. Le script
+inline en bas de page pose `.lit` sur `.hs-hero` (entrée orchestrée) et
+`shell-active` dès que `#sheet` s'ouvre **ou** immédiatement si
+`skip-anim` / reduced-motion / **largeur < 768** (ce dernier corrige un
+bug où la topbar/sidebar restaient masquées sur mobile). Deux marqueurs
+sur `<html>` : `no-anim` (pas d'intro) et `no-motion` (pas d'animations
+du tout — mobile étroit ou reduced-motion). CSS de l'accueil = **inline**
+(critique LCP) ; JS = **externe + `defer`**. Ne pas réintroduire de
+Three.js bloquant. `SHELL.commune` vient de `shell.js` (déjà chargé).
+
 **Statut de la refonte par page** (à mettre à jour à chaque page migrée) :
-- ✅ Accueil général du site (`oeuvres/index.html`)
+- ✅ Accueil général du site (`/index.html`) — enrichi + animé (voir ci-dessus)
 - ✅ Accueil de l'œuvre Le Capital (hero + onglets Lire/Atelier/Ressources)
 - ✅ Page de lecture d'un chapitre (Le Capital) — bandeau + lettrine
   rubriquée + colonne de notes en marge retirée (redondante avec
