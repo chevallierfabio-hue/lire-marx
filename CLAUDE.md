@@ -155,6 +155,29 @@ défilement commun (`addScrollSub`), pas d'un écouteur local ; la boucle rAF
 s'arrête d'elle-même quand la liasse est sortie et que la rafale est
 retombée, et repart au premier scroll (`start()` dans l'abonné).
 
+**Section « Ce que vous pouvez faire » — les trois feuillets se posent
+(`doCards()`).** Prolongement de la liasse : ce qui s'envole du héros
+redescend ici. Les trois cartes ne sont plus révélées par le fondu
+`.reveal-stagger` mais **posées au défilement** — chacune arrive 30 px plus
+haut et de biais (`TILT` −2,6° / +1,9° / −1,5°), puis se pose à plat, avec un
+décalage `LEAD` d'une carte à la suivante. Sur la même course, un **balayage**
+(`--sweep`, en px) révèle la **réglure** du feuillet — bande de lignes en
+`--border` limitée aux 104 px du haut de la carte, derrière le chiffre et le
+titre, jamais derrière le paragraphe (essayé pleine hauteur : ça faisait du
+moiré avec les lignes de texte) — et le chiffre romain **prend l'encre**
+(`--ink`, décalé de 45 % pour venir après la pose). Piloté par la position de
+scroll → réversible.
+
+Deux points de mécanique à respecter : `doCards()` **retire lui-même**
+`.reveal-stagger` de la grille et pose `.poses` (sinon les deux systèmes
+d'opacité se marchent dessus) ; et la pose passe par **deux nouvelles
+variables CSS** `--drop` / `--tilt` ajoutées *devant* `--rx` / `--ry` /
+`--lift` dans le `transform` partagé `.hs-do-card,.hs-w-card` — surtout ne
+pas écrire `style.transform` en JS, ça casserait l'inclinaison au curseur de
+`cardFx()`. La réglure elle-même est **permanente** (`--sweep` vaut 999 px
+par défaut) : sans JS, sous no-motion ou en dessous de 768 px, les cartes
+gardent leur réglure et leur fondu simple.
+
 **Le piège de la place disponible.** Le héros n'a que trois zones où un
 feuillet est réellement visible : le couloir vertical entre le texte et le
 portrait, la marge droite, et la bande sous le portrait. Le portrait est en

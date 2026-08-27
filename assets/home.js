@@ -21,6 +21,8 @@
    - countUp()        : comptage animé des chiffres clés à l'entrée en vue
    - cardFx()         : inclinaison + lueur des cartes sous le curseur
    - heroParallax()   : parallaxe fine du portrait du héros
+   - doCards()        : « Ce que vous pouvez faire » — les trois cartes se
+                        posent comme des feuillets au défilement
    - developImages()  : photos d'archive du catalogue révélées par balayage
    - magneticButtons(): CTA principaux attirés vers le curseur
    - timelineStrip()  : « en préparation » = frise chronologique horizontale
@@ -1039,6 +1041,49 @@
     });
   }
 
+  /* — F. « Ce que vous pouvez faire » : les trois feuillets se posent —
+       Prolongement direct de la liasse du héros : ce qui s'envole en haut
+       redescend ici en trois feuillets qu'on peut lire. Chaque carte arrive
+       plus haut et de biais, puis se pose à plat ; le balayage révèle sa
+       réglure (le même geste que les photos du catalogue) et le chiffre
+       romain prend l'encre une fois le feuillet posé. Piloté par la position
+       de scroll → réversible. Sous no-motion / < 768 px la fonction sort et
+       `.reveal-stagger` reprend la main (fondu simple, réglure fixe). */
+  function doCards() {
+    if (REDUCE || window.innerWidth < 768) return;
+    var grid = document.querySelector('.hs-do-grid');
+    if (!grid) return;
+    var cards = [].slice.call(grid.querySelectorAll('.hs-do-card'));
+    if (!cards.length) return;
+    grid.classList.remove('reveal-stagger');   /* le scrub prend la main */
+    grid.classList.add('poses');
+
+    var TILT = [-2.6, 1.9, -1.5];              /* chaque feuillet tombe de biais */
+    var LEAD = 0.13;                           /* décalage d'un feuillet au suivant */
+    var SPAN = 0.58;                           /* durée de la pose d'un feuillet */
+
+    addScrollSub(function (y, vh) {
+      var r = grid.getBoundingClientRect();
+      var a = vh * 0.94, b = vh * 0.34;        /* course : haut de grille de 94 % à 34 % */
+      var q = (a - r.top) / (a - b);
+      if (q < 0) q = 0; if (q > 1) q = 1;
+      for (var i = 0; i < cards.length; i++) {
+        var c = cards[i];
+        var k = (q - i * LEAD) / SPAN;
+        if (k < 0) k = 0; if (k > 1) k = 1;
+        var e = k * k * (3 - 2 * k);
+        var ink = (e - 0.45) / 0.55;           /* l'encre vient après la pose */
+        if (ink < 0) ink = 0; if (ink > 1) ink = 1;
+        c.style.opacity = (0.05 + 0.95 * e).toFixed(3);
+        c.style.setProperty('--drop', ((1 - e) * 30).toFixed(1) + 'px');
+        c.style.setProperty('--tilt', ((1 - e) * TILT[i % 3]).toFixed(2) + 'deg');
+        c.style.setProperty('--sweep', (e * 132).toFixed(1) + 'px');
+        c.style.setProperty('--ink', ink.toFixed(3));
+      }
+      return true;
+    });
+  }
+
   /* --------------------------------------------------------------------- */
   function init() {
     window.__homeReady = true;   // désarme le filet inline de index.html
@@ -1053,6 +1098,7 @@
     try { countUp(); } catch (e) { /* non bloquant */ }
     try { cardFx(); } catch (e) { /* non bloquant */ }
     try { heroParallax(); } catch (e) { /* non bloquant */ }
+    try { doCards(); } catch (e) { /* non bloquant */ }
     try { developImages(); } catch (e) { /* non bloquant */ }
     try { magneticButtons(); } catch (e) { /* non bloquant */ }
     /* timelineStrip() est appelé par catalogue() une fois les cartes rendues */
