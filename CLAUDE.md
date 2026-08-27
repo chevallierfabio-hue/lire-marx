@@ -48,29 +48,36 @@ L'accueil du site est `oeuvres/index.html` (la bibliothèque), pilotée par
   {limit:6, compact:true})`) — avec un lien « Voir toutes les notes → »
   qui pointe vers `place-publique.html`.
 
-## Direction artistique — refonte « Rouge Internationale »
+## Direction artistique — bascule « sombre-chaude » (août 2026)
 
-Une refonte visuelle complète du site est en cours depuis août 2026.
-Toute nouvelle page ou tout nouveau composant doit suivre ces règles ;
-toute page pas encore migrée doit être alignée dessus dès qu'elle est
-retouchée.
+**Historique.** Une première refonte « Rouge Internationale » (fond clair
+`#F7F5F0`, rouge drapeau, Inter/Fraunces) a été appliquée à tout le site
+entre juin et août 2026. Le propriétaire a ensuite tranché pour une DA
+**sombre-chaude** — brun-nuit façon scène à la bougie, accents rouge + or,
+Fraunces conservé pour les titres. **`/index.html` (l'accueil) est la
+première page migrée** (voir « Accueil animé » ci-dessous). Les autres
+pages (Capital, Manuscrits, Place publique, shell) sont **encore en clair**
+et seront basculées dans des missions dédiées ; en attendant, une page
+retouchée s'aligne sur la nouvelle palette.
 
-**Palette (tokens CSS, custom properties sur `:root`)** :
+**Palette sombre-chaude (tokens CSS `:root`)** — telle qu'appliquée sur
+l'accueil :
 ```
---bg:      #F7F5F0   /* fond principal, blanc cassé */
---text:    #171614   /* texte principal, noir-brun encre */
---accent:  #C41E3A   /* rouge drapeau, saturé et assumé — accent unique */
---muted:   #8B8577   /* gris papier, texte secondaire/métadonnées */
---surface: #FBF9F4   /* fond de carte, légèrement plus clair que --bg */
---border:  #E9E5D8   /* bordures fines, séparateurs */
+--bg:      #15100b   /* fond principal, brun-nuit */
+--surface: #1e1710   /* fond de carte / bandeau */
+--text:    #f3e9d4   /* texte principal, crème chaude */
+--muted:   #b7a888   /* texte secondaire / métadonnées */
+--accent:  #d5402f   /* rouge drapeau, relevé pour le fond sombre */
+--gold:    #d8ad4c   /* accent secondaire — la chaleur de la bougie */
+--border:  rgba(243,233,212,.13)
 ```
+Sur `/index.html`, le `:root` redéfinit aussi les variables du shell
+(`--paper`, `--card`, `--ink`, `--line`…) pour que topbar/sidebar/modales
+suivent le thème — **uniquement sur cette page**.
 
-**Typographies** : `--font-display` = Fraunces (poids 500/600), réservée
-aux titres — jamais au corps de texte ni à la navigation.
-`--font-body` = Inter, pour tout le reste (nav, corps de texte, boutons,
-métadonnées). Ne jamais réintroduire de police système par défaut ni de
-serif ornementale/gothique — c'était le défaut de l'ancienne DA
-(« lumière = capital ») qu'on abandonne.
+**Typographies** (inchangé) : Fraunces (900 / 500 italique) pour les titres
+**uniquement** ; Inter (400/500/600) pour tout le reste. Ne jamais
+réintroduire de serif ornementale/gothique dans le corps ou la navigation.
 
 **Composants récurrents** : bouton pilule plein (fond `--text`, texte
 `--bg`, `border-radius: 100px`), bouton pilule outline (`border:
@@ -106,9 +113,16 @@ chargement**, pas seulement au clic.
 Il porte : (1) l'intro cinématique Three.js (desktop, gated `no-anim`) ;
 (2) le contenu réel dans `.hw` (conteneur de défilement) — héros deux
 colonnes, marquee de concepts, « Ce que vous pouvez faire », bande
-« circuit du capital » animée (A–M–P–M′–A′), catalogue, aperçu Place
+« circuit du capital » animée (A–M–P–M′–A′), **catalogue**, aperçu Place
 publique (`SHELL.commune.mount(#homeCommune,{limit:4})`), chiffres clés,
-bande CTA finale. Le mouvement vit dans **`assets/home.js`** (chargé
+bande CTA finale. **Thème sombre-chaud** (voir « Direction artistique »).
+Le **catalogue** est piloté par `oeuvres/bibliotheque.json` (source unique,
+`catalogue()` dans `home.js`) et rendu en deux niveaux : « Disponibles »
+= cartes riches (image d'archive, statut, concepts, « Ouvrir l'atelier »)
+dans `#lib-available` ; « En préparation » = index typographique par année
+(`année · titre · catégorie`) dans `#lib-planned` ; le décompte va dans
+`#lib-count`. FALLBACK sur les 2 œuvres disponibles si le fetch échoue.
+Le mouvement vit dans **`assets/home.js`** (chargé
 `defer`) : révélations au scroll (`IntersectionObserver`, classes
 `.reveal` / `.reveal-stagger` / `.in` ; racine = `.hw` si elle défile,
 sinon viewport), duplication du marquee, et **fond WebGL discret**

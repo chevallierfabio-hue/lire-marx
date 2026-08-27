@@ -48,6 +48,21 @@
   }
 
   /* --------------------------------------------------------------------- */
+  /* Topbar : transparente sur le héros, opaque au scroll. */
+  function topbarSolid() {
+    var tb = document.querySelector('header.topbar');
+    if (!tb) return;
+    function upd() {
+      var hero = document.querySelector('.hs-hero');
+      var trip = hero ? hero.offsetHeight - 90 : 200;
+      tb.classList.toggle('tb-solid', scrollPos() > trip);
+    }
+    upd();
+    (scrollRoot() || window).addEventListener('scroll', upd, { passive: true });
+    window.addEventListener('resize', upd);
+  }
+
+  /* --------------------------------------------------------------------- */
   function marquee() {
     var track = document.querySelector('.marquee-track');
     if (!track) return;
@@ -65,7 +80,7 @@
     if (!canvas.getContext ||
         !(canvas.getContext('webgl') || canvas.getContext('experimental-webgl'))) return;
 
-    var BG = 0xF7F5F0;
+    var BG = 0x0d0a07;
     var renderer, scene, camera, sheets = [], raf = null;
     var running = false, onScreen = true, active = false;
     var mx = 0, my = 0, tmx = 0, tmy = 0, scrollK = 0;
@@ -77,26 +92,26 @@
     renderer.setClearColor(BG, 0);
 
     scene = new THREE.Scene();
-    if (THREE.Fog) scene.fog = new THREE.Fog(BG, 9, 30);
+    if (THREE.Fog) scene.fog = new THREE.Fog(BG, 8, 26);
     camera = new THREE.PerspectiveCamera(56, 1, 0.1, 60);
     camera.position.set(0, 0, 12);
 
-    /* texture « feuillet » — papier pâle + griffonnage d'encre très discret */
+    /* texture « feuillet » — papier crème éclairé à la bougie + encre discrète */
     function sheetTexture(seed) {
       var S = 256;
       var cv = document.createElement('canvas'); cv.width = S; cv.height = S;
       var g = cv.getContext('2d');
       var grad = g.createLinearGradient(0, 0, 0, S);
-      grad.addColorStop(0, '#efeae0'); grad.addColorStop(1, '#e0d8c6');
+      grad.addColorStop(0, '#efe2c4'); grad.addColorStop(1, '#dcc9a0');
       g.fillStyle = grad; g.fillRect(0, 0, S, S);
       var i;
       for (i = 0; i < 16; i++) {
-        g.fillStyle = 'rgba(150,130,95,' + (0.02 + Math.random() * 0.04) + ')';
+        g.fillStyle = 'rgba(150,110,60,' + (0.03 + Math.random() * 0.05) + ')';
         g.beginPath();
         g.arc(Math.random() * S, Math.random() * S, 3 + Math.random() * 10, 0, 7);
         g.fill();
       }
-      g.strokeStyle = 'rgba(70,62,48,0.30)'; g.lineWidth = 1.4; g.lineCap = 'round';
+      g.strokeStyle = 'rgba(58,38,20,0.5)'; g.lineWidth = 1.5; g.lineCap = 'round';
       var y = 30 + (seed % 9);
       while (y < S - 22) {
         var x = 24 + (Math.random() < 0.22 ? 20 : 0);
@@ -124,7 +139,7 @@
     for (var k = 0; k < COUNT; k++) {
       var mat = new THREE.MeshBasicMaterial({
         map: sheetTexture(k * 17),
-        transparent: true, opacity: 0.62,
+        transparent: true, opacity: 0.82,
         depthWrite: false, side: THREE.DoubleSide
       });
       var m = new THREE.Mesh(geo, mat);
@@ -214,11 +229,105 @@
   }
 
   /* --------------------------------------------------------------------- */
+  /* Catalogue piloté par oeuvres/bibliotheque.json — source unique.
+     Deux niveaux : « Disponibles » (cartes riches) + « En préparation »
+     (index typographique par année). */
+  function catalogue() {
+    var availEl = document.getElementById('lib-available');
+    var planEl = document.getElementById('lib-planned');
+    var countEl = document.getElementById('lib-count');
+    if (!availEl && !planEl) return;
+
+    var CAT = {
+      'critique-economie-politique': "Critique de l'économie politique",
+      'philosophie': 'Jeune Marx',
+      'philosophie-histoire': 'Jeune Marx et histoire',
+      'politique': 'Écrits politiques',
+      'histoire-politique': 'Histoire politique',
+      'manuscrits-economie': 'Brouillons et ateliers'
+    };
+    var IMG = {
+      'capital-1': 'manufacture',
+      'manuscrits-1844': 'marx-jeune'
+    };
+    var FALLBACK = { works: [
+      { id: 'capital-1', title: 'Le Capital — Livre I', author: 'Karl Marx', year: 1867,
+        status: 'available', category: 'critique-economie-politique', path: 'oeuvres/capital-1.html',
+        description: 'Marchandise, monnaie, plus-value, journée de travail, machinisme et accumulation.',
+        concepts: ['marchandise', 'valeur', 'plus-value', 'capital'] },
+      { id: 'manuscrits-1844', title: 'Manuscrits de 1844', author: 'Karl Marx', year: 1844,
+        status: 'available', category: 'philosophie', path: 'oeuvres/manuscrits-1844.html',
+        description: 'Les carnets de jeunesse : travail aliéné, propriété privée, dépassement communiste.',
+        concepts: ['aliénation', 'travail', 'propriété privée'] }
+    ] };
+
+    function esc(s) {
+      return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+      });
+    }
+    function catLabel(c) { return CAT[c] || 'Œuvre'; }
+    function localPath(p) {
+      p = String(p || '');
+      return p.indexOf('oeuvres/') === 0 ? p : ('oeuvres/' + p);
+    }
+
+    function availCard(w) {
+      var img = IMG[w.id];
+      var concepts = (w.concepts || []).slice(0, 4).map(function (c) {
+        return '<span class="hs-w-tag">' + esc(c) + '</span>';
+      }).join('');
+      var pic = img
+        ? '<div class="hs-w-img"><picture>' +
+            '<source srcset="assets/img/archive/' + img + '.webp" type="image/webp">' +
+            '<img src="assets/img/archive/' + img + '.jpg" alt="" loading="lazy"></picture></div>'
+        : '';
+      return '<a class="hs-w-card" href="' + esc(localPath(w.path)) + '">' + pic +
+        '<div class="hs-w-body">' +
+          '<div class="hs-w-meta"><span class="hs-w-status hs-w-ok">Disponible</span>' +
+            '<span class="hs-w-year">' + esc(w.year) + '</span></div>' +
+          '<h4 class="hs-w-title">' + esc(w.title) + '</h4>' +
+          '<div class="hs-w-cat">' + esc(catLabel(w.category)) + '</div>' +
+          (w.description ? '<p class="hs-w-desc">' + esc(w.description) + '</p>' : '') +
+          (concepts ? '<div class="hs-w-tags">' + concepts + '</div>' : '') +
+          '<span class="hs-w-go">Ouvrir l’atelier →</span>' +
+        '</div></a>';
+    }
+    function planRow(w) {
+      return '<li class="hs-p-row">' +
+        '<span class="hs-p-year">' + esc(w.year) + '</span>' +
+        '<span class="hs-p-title">' + esc(w.title) + '</span>' +
+        '<span class="hs-p-cat">' + esc(catLabel(w.category)) + '</span>' +
+      '</li>';
+    }
+
+    function render(works) {
+      var avail = works.filter(function (w) { return w.status === 'available'; })
+                       .sort(function (a, b) { return a.year - b.year; });
+      var plan = works.filter(function (w) { return w.status !== 'available'; })
+                      .sort(function (a, b) { return a.year - b.year; });
+      if (availEl) availEl.innerHTML = avail.map(availCard).join('');
+      if (planEl) planEl.innerHTML = plan.map(planRow).join('');
+      if (countEl) {
+        countEl.textContent = avail.length + (avail.length > 1 ? ' œuvres disponibles' : ' œuvre disponible') +
+          ' · ' + plan.length + ' en préparation';
+      }
+    }
+
+    fetch('oeuvres/bibliotheque.json', { cache: 'no-cache' })
+      .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+      .then(function (d) { render(d && Array.isArray(d.works) ? d.works : FALLBACK.works); })
+      .catch(function () { render(FALLBACK.works); });
+  }
+
+  /* --------------------------------------------------------------------- */
   function init() {
     window.__homeReady = true;   // désarme le filet inline de index.html
     scroller = document.querySelector('.hw');
     try { reveal(); } catch (e) { fallbackReveal(); }
     try { marquee(); } catch (e) { /* non bloquant */ }
+    try { topbarSolid(); } catch (e) { /* non bloquant */ }
+    try { catalogue(); } catch (e) { /* non bloquant */ }
     try { heroBg(); } catch (e) { /* non bloquant */ }
   }
   function fallbackReveal() {

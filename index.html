@@ -96,27 +96,55 @@ h1.big em{font-style:italic;font-weight:500;color:#e5392a;}
 </style>
 
 <style>
-/* ── Palette Rouge Internationale + variables shell (thème clair) ── */
+/* ── Palette « sombre-chaude » — brun-nuit façon scène à la bougie,
+   accents rouge drapeau + or. Redéfinit aussi les variables du shell
+   (topbar/sidebar/modales) pour qu'il suive le thème — sur cette page. ── */
 :root{
   /* tokens homepage */
-  --bg:#F7F5F0;--surface:#FBF9F4;--text:#171614;
-  --muted:#8B8577;--accent:#C41E3A;--border:rgba(23,22,20,.10);
+  --bg:#15100b;--surface:#1e1710;--text:#f3e9d4;
+  --muted:#b7a888;--accent:#d5402f;--border:rgba(243,233,212,.13);
 
-  /* shell.css variables → palette lumineuse (alignée sur le thème natif du shell) */
-  --paper:#F7F5F0;--paper-2:#EDE9E2;--card:#FBF9F4;
-  --ink:#171614;--ink-soft:#8B8577;
-  --red:#C41E3A;--red-deep:#9B1830;--bright:#C41E3A;
-  --gold:#9a7b35;--gold-deep:#7d6325;--blue:#39596b;--const:#8B8577;
-  --line:rgba(23,22,20,.11);--line-soft:rgba(23,22,20,.07);--ok:#52742f;
+  /* shell.css → palette sombre */
+  --paper:#15100b;--paper-2:#1e1710;--card:#221a12;
+  --ink:#f3e9d4;--ink-soft:#c7b599;
+  --red:#d5402f;--red-deep:#b5372a;--bright:#e5644f;
+  --gold:#d8ad4c;--gold-deep:#bd8f38;--blue:#5c8aa3;--const:#9a8b72;
+  --line:rgba(243,233,212,.13);--line-soft:rgba(243,233,212,.07);--ok:#7fa855;
   --f-ui:'Inter',system-ui,sans-serif;--f-serif:'Spectral',Georgia,serif;--f-hand:'Caveat',cursive;
+  --candle:rgba(216,173,76,.18);
 }
+html,body{background:#0d0a07;}
 
 /* ── Shell : masqué pendant l'animation, révélé à l'ouverture ── */
 header.topbar,aside.sidebar,#sbBackdrop{display:none;}
 body.shell-active header.topbar{display:flex;}
 body.shell-active aside.sidebar{display:block;}
-/* Topbar : position fixe (pas sticky, car body{overflow:hidden}) */
-header.topbar{position:fixed!important;top:0;left:0;right:0;z-index:140;}
+/* Topbar : position fixe (pas sticky, car body{overflow:hidden}) ;
+   transparente au-dessus du héros, opaque au scroll (.tb-solid via home.js) */
+header.topbar{position:fixed!important;top:0;left:0;right:0;z-index:140;
+  background:transparent;border-bottom-color:transparent;
+  transition:background .3s ease,border-color .3s ease,box-shadow .3s ease;}
+header.topbar.tb-solid{background:rgba(21,16,11,.92);
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  border-bottom-color:var(--line);box-shadow:0 10px 30px -18px rgba(0,0,0,.9);}
+
+/* ── Shell : correctifs de couleurs en dur pour le thème sombre ── */
+.brandmark{color:var(--ink);}
+.tb-btn,.acct-chip,#tbSearch,.tb-tabs{background:rgba(255,255,255,.05);border-color:var(--line);color:var(--ink);}
+.tb-btn:hover,.acct-chip:hover{border-color:var(--gold);}
+.acct-chip.guest{background:var(--gold-deep);border-color:var(--gold-deep);color:#1a130c;}
+.tb-tab.on,.ac-t.on{color:#1a130c;}
+.sidebar{background:rgba(21,16,11,.97);border-right-color:var(--line);}
+.sb-item{color:var(--ink);}
+.sb-item:hover{background:rgba(255,255,255,.05);}
+.sb-item.on{background:rgba(213,64,47,.16);color:var(--bright);}
+.tb-pop,.tb-results{background:var(--card);border-color:var(--line);box-shadow:0 18px 50px rgba(0,0,0,.7);}
+.tb-res:hover,.tb-res.active{background:var(--paper-2);}
+.acct-modal{background:rgba(6,4,3,.7);}
+.ac-card,.ac-card input,.msg-add input,.ac-bio{background:var(--paper);border-color:var(--line);color:var(--ink);}
+.ac-card code,.ac-p code,.ac-note code{background:rgba(255,255,255,.08);}
+.cm-card{background:var(--paper-2);border-color:var(--line);}
+.cm-card:hover{background:var(--card);border-color:var(--red);box-shadow:0 6px 20px rgba(0,0,0,.5);}
 
 /* ── Home wrapper (décalé de la sidebar + topbar fixées) ── */
 .hw{width:100%;height:100%;overflow-y:auto;overflow-x:hidden;
@@ -124,7 +152,7 @@ header.topbar{position:fixed!important;top:0;left:0;right:0;z-index:140;}
   box-sizing:border-box;padding-top:44px;padding-left:208px;}
 .hw::-webkit-scrollbar{width:5px;}
 .hw::-webkit-scrollbar-track{background:var(--bg);}
-.hw::-webkit-scrollbar-thumb{background:rgba(23,22,20,.15);border-radius:3px;}
+.hw::-webkit-scrollbar-thumb{background:rgba(243,233,212,.18);border-radius:3px;}
 body.sb-collapsed .hw{padding-left:0;}
 @media(max-width:860px){.hw{padding-left:0;}}
 
@@ -154,10 +182,10 @@ body.sb-collapsed .hw{padding-left:0;}
 .btn-filled:hover{opacity:.86;}
 .btn-outline{display:inline-flex;align-items:center;padding:11px 24px;
   border-radius:999px;background:transparent;
-  border:1px solid rgba(23,22,20,.22);color:var(--text);
+  border:1px solid rgba(243,233,212,.28);color:var(--text);
   font-size:14px;font-weight:500;text-decoration:none;
   transition:border-color .18s,background .18s;}
-.btn-outline:hover{border-color:rgba(23,22,20,.4);background:rgba(23,22,20,.04);}
+.btn-outline:hover{border-color:var(--gold);background:rgba(243,233,212,.05);}
 
 /* Portrait + images d'archive */
 .hs-right{position:relative;z-index:1;display:flex;justify-content:center;}
@@ -174,25 +202,7 @@ body.sb-collapsed .hw{padding-left:0;}
   color:rgba(251,249,244,.82);line-height:1.45;
   background:linear-gradient(to top,rgba(23,22,20,.62),transparent);}
 
-/* ── Catalogue ── */
-.hs-catalogue{display:grid;grid-template-columns:1fr 1fr;gap:20px;
-  padding:0 clamp(24px,5vw,80px) clamp(56px,7vh,90px);}
-.hs-catalogue-h{grid-column:1/-1;font-family:'Inter',system-ui,sans-serif;font-size:.78rem;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
-.hs-community{grid-column:1/-1;padding:10px 0 0;font-size:.92rem;color:var(--muted);}
-.hs-community a{color:var(--accent);text-decoration:none;font-weight:500;}
-.hs-community a:hover{text-decoration:underline;}
-.hs-card{border-radius:16px;overflow:hidden;background:var(--surface);
-  border:1px solid var(--border);transition:transform .22s,box-shadow .22s;
-  text-decoration:none;display:block;color:inherit;}
-.hs-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px -8px rgba(23,22,20,.14);}
-.hs-card-img{height:220px;position:relative;overflow:hidden;background:#1a1410;}
-.hs-card-img .hs-img-wrap{position:absolute;inset:0;}
-.hs-card-body{padding:20px 22px;display:flex;flex-direction:column;gap:6px;}
-.hs-card-label{font-size:11px;font-weight:600;letter-spacing:.14em;
-  text-transform:uppercase;color:var(--accent);}
-.hs-card-title{font-family:'Fraunces',serif;font-weight:900;font-size:1.35rem;
-  letter-spacing:-.02em;color:var(--text);line-height:1.1;}
-.hs-card-desc{font-size:.88rem;line-height:1.62;color:var(--muted);}
+/* ── Catalogue — voir bloc « LA BIBLIOTHÈQUE » plus bas ── */
 
 /* ── Stats bar ── */
 .hs-stats{display:flex;justify-content:center;gap:clamp(36px,7vw,110px);
@@ -209,7 +219,6 @@ body.sb-collapsed .hw{padding-left:0;}
   .hs-hero{grid-template-columns:1fr;min-height:auto;gap:36px;}
   .hs-right{order:-1;}
   .hs-portrait{max-width:280px;}
-  .hs-catalogue{grid-template-columns:1fr;}
   .hs-stats{gap:28px;}
 }
 
@@ -290,6 +299,61 @@ html:not(.no-anim) .hs-hero .hs-right{
 .hs-do-card h3{font-family:'Fraunces',serif;font-weight:900;font-size:1.18rem;
   letter-spacing:-.02em;color:var(--text);margin-bottom:8px;}
 .hs-do-card p{font-size:.88rem;line-height:1.6;color:var(--muted);}
+
+/* — LA BIBLIOTHÈQUE (catalogue piloté par oeuvres/bibliotheque.json) — */
+.hs-lib{padding:clamp(56px,8vh,96px) clamp(24px,5vw,80px);}
+.hs-lib-head .hs-sec-h{margin-bottom:10px;}
+.hs-lib-count{font-family:'Inter',system-ui,sans-serif;font-size:.84rem;
+  letter-spacing:.02em;color:var(--gold);}
+.hs-lib-sub{font-family:'Inter',system-ui,sans-serif;font-size:.68rem;font-weight:600;
+  letter-spacing:.13em;text-transform:uppercase;color:var(--muted);
+  margin:42px 0 16px;padding-bottom:9px;border-bottom:1px solid var(--line);}
+
+/* Disponibles — cartes riches */
+.hs-lib-avail{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px;}
+.hs-w-loading{color:var(--muted);font-size:.9rem;padding:8px 0;}
+.hs-w-card{display:flex;flex-direction:column;border:1px solid var(--line);
+  border-radius:16px;overflow:hidden;background:var(--surface);color:inherit;
+  text-decoration:none;transition:transform .22s,box-shadow .22s,border-color .22s;}
+.hs-w-card:hover{transform:translateY(-4px);border-color:var(--gold);
+  box-shadow:0 22px 48px -20px rgba(0,0,0,.7);}
+.hs-w-img{height:186px;overflow:hidden;position:relative;background:#0d0a07;}
+.hs-w-img img{width:100%;height:100%;object-fit:cover;
+  filter:grayscale(.7) sepia(.35) brightness(.82) contrast(1.05);}
+.hs-w-img::after{content:'';position:absolute;inset:0;
+  background:linear-gradient(to top,rgba(13,10,7,.78),rgba(13,10,7,.05) 55%),
+             radial-gradient(ellipse at 72% 18%,rgba(216,173,76,.16),transparent 60%);}
+.hs-w-body{padding:20px 22px 22px;display:flex;flex-direction:column;gap:8px;flex:1;}
+.hs-w-meta{display:flex;align-items:center;gap:10px;}
+.hs-w-status{font-family:'Inter',system-ui,sans-serif;font-size:.6rem;font-weight:700;
+  letter-spacing:.09em;text-transform:uppercase;border-radius:999px;padding:3px 9px;}
+.hs-w-ok{background:rgba(127,168,85,.18);color:#a9cf82;}
+.hs-w-year{font-family:'Inter',system-ui,sans-serif;font-size:.78rem;font-weight:600;
+  color:var(--gold);letter-spacing:.04em;}
+.hs-w-title{font-family:'Fraunces',serif;font-weight:900;font-size:1.4rem;
+  letter-spacing:-.02em;color:var(--ink);line-height:1.08;}
+.hs-w-cat{font-family:'Inter',system-ui,sans-serif;font-size:.66rem;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--muted);}
+.hs-w-desc{font-family:'Inter',system-ui,sans-serif;font-size:.86rem;line-height:1.6;color:var(--ink-soft);}
+.hs-w-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:2px;}
+.hs-w-tag{font-family:'Inter',system-ui,sans-serif;font-size:.62rem;color:var(--gold);
+  background:rgba(216,173,76,.12);border-radius:999px;padding:2px 8px;}
+.hs-w-go{margin-top:auto;padding-top:10px;font-family:'Inter',system-ui,sans-serif;
+  font-size:.82rem;font-weight:600;color:var(--bright);}
+
+/* En préparation — index typographique par année */
+.hs-lib-planned{list-style:none;margin:0;padding:0;border-top:1px solid var(--line-soft);}
+.hs-p-row{display:grid;grid-template-columns:64px 1fr auto;gap:16px;align-items:baseline;
+  padding:13px 4px;border-bottom:1px solid var(--line-soft);transition:background .16s,padding-left .16s;}
+.hs-p-row:hover{background:rgba(216,173,76,.05);padding-left:10px;}
+.hs-p-year{font-family:'Fraunces',serif;font-style:italic;font-weight:900;font-size:1rem;color:var(--gold);}
+.hs-p-title{font-family:'Fraunces',serif;font-weight:600;font-size:1.02rem;color:var(--ink);letter-spacing:-.01em;}
+.hs-p-cat{font-family:'Inter',system-ui,sans-serif;font-size:.64rem;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--muted);white-space:nowrap;}
+@media(max-width:600px){
+  .hs-p-row{grid-template-columns:48px 1fr;}
+  .hs-p-cat{display:none;}
+}
 
 /* — bande « circuit du capital » — */
 .circuit-band{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.2fr);
@@ -485,42 +549,21 @@ html.no-motion #hero-bg{display:none!important;}
       </div>
     </section>
 
-    <!-- ③ Catalogue -->
-    <section class="hs-catalogue reveal-stagger" id="catalogue">
-      <h2 class="hs-catalogue-h">Les ateliers de lecture</h2>
-      <a class="hs-card" href="oeuvres/capital-1.html">
-        <div class="hs-card-img">
-          <div class="hs-img-wrap">
-            <picture>
-              <source srcset="assets/img/archive/manufacture.webp" type="image/webp">
-              <img src="assets/img/archive/manufacture.jpg" alt="Manufacture textile, XIXe siècle" loading="lazy">
-            </picture>
-          </div>
-          <figcaption class="hs-img-caption">Manufacture textile · XIXᵉ s. · domaine public</figcaption>
-        </div>
-        <div class="hs-card-body">
-          <span class="hs-card-label">Texte guidé</span>
-          <h3 class="hs-card-title">Le Capital</h3>
-          <p class="hs-card-desc">33 chapitres annotés, avec simulations de la valeur, de la plus-value et de l'accumulation du capital.</p>
-        </div>
-      </a>
-      <a class="hs-card" href="oeuvres/manuscrits-1844.html">
-        <div class="hs-card-img">
-          <div class="hs-img-wrap">
-            <picture>
-              <source srcset="assets/img/archive/marx-jeune.webp" type="image/webp">
-              <img src="assets/img/archive/marx-jeune.jpg" alt="Marx jeune, portrait de la période parisienne" loading="lazy">
-            </picture>
-          </div>
-          <figcaption class="hs-img-caption">Marx jeune, période parisienne · domaine public</figcaption>
-        </div>
-        <div class="hs-card-body">
-          <span class="hs-card-label">En cours</span>
-          <h3 class="hs-card-title">Manuscrits de 1844</h3>
-          <p class="hs-card-desc">Les carnets de jeunesse de Marx, clés pour saisir le fondement philosophique du Capital.</p>
-        </div>
-      </a>
-      <p class="hs-community">Des questions sur votre lecture ? <a href="oeuvres/place-publique.html">Rejoignez la Place publique</a> — discussions ouvertes entre lecteurs du Capital et des Manuscrits.</p>
+    <!-- ③ La bibliothèque — piloté par oeuvres/bibliotheque.json -->
+    <section class="hs-lib" id="catalogue">
+      <div class="hs-lib-head reveal">
+        <p class="hs-sec-label">Le corpus</p>
+        <h2 class="hs-sec-h">La bibliothèque de Marx</h2>
+        <p class="hs-lib-count" id="lib-count">…</p>
+      </div>
+
+      <p class="hs-lib-sub reveal">Disponibles — texte intégral, atelier et simulations</p>
+      <div class="hs-lib-avail reveal-stagger" id="lib-available">
+        <div class="hs-w-loading">Chargement du catalogue…</div>
+      </div>
+
+      <p class="hs-lib-sub reveal">En préparation — textes à intégrer, par ordre chronologique</p>
+      <ul class="hs-lib-planned reveal" id="lib-planned"></ul>
     </section>
 
     <!-- Aperçu Place publique -->
