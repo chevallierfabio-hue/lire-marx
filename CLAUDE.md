@@ -212,13 +212,20 @@ la source). 66 % et non 50 % — au milieu exact elle tombait sur la phrase ;
 et `z-index:1`, sous `.hs-closer-inner` (2), pour que le texte passe devant
 si elle le mord. Sur petit écran elle remonte dans la marge haute, à 84 %.
 
-Elle **TOURBILLONNE en s'allumant** : `--up` la fait tourner de deux tours
-et demi (`-900deg`) autour de **son propre centre** — `transform-origin` au
-milieu, pas au pied : un pivot au pied donne une bougie qui *se relève*, ce
-qui a été essayé et écarté. `--flame` allume la flamme, sa lueur, la fumée
-et le halo **pendant qu'elle tourne encore**, et finit de s'établir quand
-elle s'immobilise. Elle grandit aussi un peu en se posant
-(`scale(.72 → 1)`).
+Elle **TOURNOIE SUR SA LONGUEUR en s'allumant**, comme une toupie :
+`--up` la fait tourner de trois tours en **`rotateY`** — autour de son axe
+vertical, avec une `perspective(700px)` pour que ça se lise en volume, la
+cire s'affinant jusqu'au fil puis s'élargissant à chaque quart de tour. Et
+elle **grossit** en tournant, de `.55` à sa taille pleine. `--flame` allume
+la flamme, sa lueur, la fumée et le halo **pendant qu'elle tourne encore**,
+et finit de s'établir quand elle s'immobilise.
+
+**Trois rotations ont été essayées — ne pas revenir aux deux premières :**
+1. Pivot au pied (`transform-origin` en bas, `rotate` 2D) : la bougie *se
+   relève* depuis le sol. Écarté.
+2. `rotate()` 2D autour du centre : elle *culbute* dans le plan. Écarté.
+3. **`rotateY()` avec perspective** : elle tournoie sur sa longueur.
+   C'est celle-ci.
 
 **Ancien piège, aujourd'hui sans objet mais à connaître** : quand la bougie
 était posée en **bas** de la bande, elle ne pouvait pas être chronométrée
