@@ -436,6 +436,15 @@ html:not(.no-anim) .hs-hero .hs-right{
 .circuit-node--end.lit b{color:var(--accent);text-shadow:0 0 20px rgba(213,64,47,.55);}
 
 /* — aperçu Place publique — */
+/* La place change de sol : aplat --surface + filet, comme la bande circuit
+   et la bande CTA — le vocabulaire du site pour « on change de registre ».
+   Mais SANS trame quadrillée, et c'est ce qui la distingue de ces deux-là :
+   ici on n'est plus dans le carnet, on est dehors. Pas de filet bas : la
+   barre de chiffres qui suit apporte déjà le sien. */
+.hs-commune{background:var(--surface);border-top:1px solid var(--border);}
+/* les notes doivent rester plus claires que leur sol : sur --surface, leur
+   --paper (= --bg) les creuserait en trous sombres. */
+.hs-commune .cm-card{background:var(--card);}
 .hs-commune-head{display:flex;align-items:baseline;justify-content:space-between;
   gap:16px;flex-wrap:wrap;margin-bottom:26px;}
 .hs-commune-head .hs-sec-h{margin-bottom:0;}
@@ -500,6 +509,19 @@ html:not(.no-anim) .hs-hero .hs-right{
 .hs-do-grid.poses .hs-do-card{--sweep:0px;opacity:0;will-change:transform,opacity;}
 .hs-do-grid.poses .hs-do-n{opacity:calc(.15 * var(--ink,0));
   transform:translateY(calc((1 - var(--ink,0)) * 7px));}
+
+/* G. Place publique — les notes se déposent une à une, et le filet de
+   leur citation se trace de haut en bas comme un trait de plume qu'on
+   vient de poser. html.js-place + --pin par note (home.js : communeScrub). */
+.js-place #homeCommune .cm-card{
+  opacity:calc(.04 + .96 * var(--pin,1));
+  transform:translate3d(calc((1 - var(--pin,1)) * -16px),
+                        calc((1 - var(--pin,1)) * 12px),0);}
+.js-place #homeCommune .cm-quote{
+  border-left-color:transparent;
+  background-image:linear-gradient(var(--red),var(--red));
+  background-repeat:no-repeat;background-origin:border-box;
+  background-position:0 0;background-size:3px var(--trait,100%);}
 
 /* E. Hero — halo « projecteur » depuis la bougie, derrière le portrait */
 .hs-right{will-change:transform;}
@@ -823,7 +845,7 @@ html.no-motion header.topbar,html.no-motion header.topbar .topbar-in{transition:
     </section>
 
     <!-- Aperçu Place publique -->
-    <section class="hs-block reveal" aria-label="Place publique">
+    <section class="hs-block hs-commune reveal" aria-label="Place publique">
       <div class="hs-commune-head">
         <div>
           <p class="hs-sec-label">En ce moment</p>
