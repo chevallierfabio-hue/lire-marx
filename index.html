@@ -585,18 +585,30 @@ header.topbar.tb-solid .topbar-in{max-width:1180px;margin:0 auto;height:46px;
 }
 
 /* 2. Photos d'archive du catalogue : « développement » — balayage clip-path
-   + barre de révélateur dorée, à l'entrée en vue. html.js-dev posée par
-   home.js. Le portrait du héros garde son entrée orchestrée propre. */
-.js-dev .hs-w-img{clip-path:inset(0 100% 0 0);
-  transition:clip-path 1.05s cubic-bezier(.62,0,.34,1);}
-.js-dev .hs-w-img.dev{clip-path:inset(0 0 0 0);}
-.js-dev .hs-w-img.dev::before{
-  content:"";position:absolute;top:0;bottom:0;width:2px;z-index:5;pointer-events:none;
+   + barre de révélateur dorée — mais au SCROLL, pas en un coup : la barre
+   se tient à la limite exacte du tirage, c'est le geste du lecteur qui
+   développe la photo. html.js-devscrub posée par home.js (libraryScrub).
+   Le portrait du héros garde son entrée orchestrée propre. */
+.js-devscrub .hs-w-img{clip-path:inset(0 calc((1 - var(--dev,1)) * 100%) 0 0);}
+.js-devscrub .hs-w-img::before{
+  /* 3 px EN DEÇÀ du bord : le clip-path rogne aussi ce ::before, une barre
+     posée pile sur la limite du tirage disparaîtrait entièrement. */
+  content:"";position:absolute;top:0;bottom:0;width:3px;z-index:5;pointer-events:none;
+  left:calc(var(--dev,0) * 100% - 3px);opacity:var(--bar,0);
   background:linear-gradient(transparent,var(--gold) 28%,var(--gold) 72%,transparent);
-  box-shadow:0 0 18px 5px rgba(216,173,76,.5);
-  animation:lm-develop-bar 1.05s cubic-bezier(.62,0,.34,1) forwards;}
-@keyframes lm-develop-bar{
-  0%{left:-2px;opacity:0;}12%{opacity:1;}86%{opacity:1;}100%{left:100%;opacity:0;}}
+  box-shadow:0 0 18px 5px rgba(216,173,76,.5);}
+/* la carte n'est qu'un cadre vide tant que rien n'est tiré : elle arrive en
+   fantôme, puis prend corps dès les premiers pour cent du développement */
+.js-devscrub .hs-w-card{opacity:calc(.22 + .78 * var(--in,1));}
+/* le corps de la carte arrive derrière la barre */
+.js-devscrub .hs-w-body{opacity:var(--txt,1);
+  transform:translateY(calc((1 - var(--txt,1)) * 14px));}
+
+/* 2 bis. « En préparation » : la frise s'écrit — le filet se trace de gauche
+   à droite et chaque année s'allume à son passage. html.js-frise + --draw
+   (sur .hs-timeline) et --lit (par carte), posés par home.js. */
+.js-frise .hs-timeline::after{clip-path:inset(0 calc((1 - var(--draw,1)) * 100%) 0 0);}
+.js-frise .hs-tl-card{opacity:calc(.22 + .78 * var(--lit,1));}
 
 /* 3. Boutons d'action magnétiques (+ flèche qui décolle) */
 .btn-ar{display:inline-block;margin-left:.5em;

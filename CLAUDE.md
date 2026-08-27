@@ -197,6 +197,37 @@ passeraient derrière le texte crème.
 que la liasse au repos ne touche ni les boutons du héros ni le portrait, et
 que le couloir soit vide à la fin de la course.
 
+**Section « La bibliothèque » — elle se constitue au défilement
+(`libraryScrub()`).** Une idée pour les deux moitiés : ce qui existe se
+développe, ce qui vient s'écrit. En haut, le « révélateur » des photos
+d'archive n'est plus déclenché une fois par IntersectionObserver mais
+**scrubbé** — `--dev` pilote un `clip-path` gauche→droite, `--bar` la barre
+dorée tenue **3 px en deçà** de la limite du tirage (posée pile sur la
+limite, le `clip-path` la rognerait entièrement), `--in` fait arriver la
+carte en fantôme avant le tirage et `--txt` amène le corps de la carte
+derrière la barre, avec un décalage de 0,14 d'une œuvre à l'autre. En bas,
+`--draw` trace le filet de `.hs-timeline::after` et chaque `.hs-tl-card`
+s'allume (`--lit`) quand le tracé dépasse sa position — calculée en
+`offsetLeft - scrollLeft` sur la largeur visible, et plafonnée à 0,95 pour
+que les œuvres hors champ finissent allumées elles aussi.
+
+`developImages()` / `armDev()` / `html.js-dev` **n'existent plus** :
+libraryScrub les remplace intégralement (mêmes conditions d'activation,
+même effet, en réversible). Deux points de mécanique : la fonction est
+appelée **par `catalogue()` à la fin de `render()`**, jamais depuis `init()`
+— le catalogue est peuplé par `fetch`, il n'y a rien à animer avant ; et
+elle **retire `.reveal-stagger`** de `#lib-available`, sinon le fondu de
+`reveal()` ferait apparaître les cartes d'un coup en plein tirage.
+
+**Le piège de la mesure unique.** `addScrollSub` n'appelle son abonné qu'une
+fois à l'inscription, puis à chaque défilement. Or ici la mise en page bouge
+juste après : les cartes viennent d'être injectées et le navigateur a pu
+sauter sur l'ancre `#catalogue`. Sans rappel, une arrivée directe sur
+`liremarx.com/#catalogue` laissait la section **figée en plein
+développement** tant qu'on ne défilait pas. D'où le `requestAnimationFrame`
++ `setTimeout(…, 400)` + `window.load` à la fin de `libraryScrub()`. Tout
+nouvel abonné qui mesure un élément peuplé par `fetch` doit faire pareil.
+
 **Section « Le circuit du capital » (le jeu) — habillage.** Sur la ligne
 A–M–P–M′–A′, ce qui circule est un **curseur lumineux** (`.circuit-spark`,
 CSS pur : tête + traînée de comète, or puis rouge après P). Il n'y a plus
