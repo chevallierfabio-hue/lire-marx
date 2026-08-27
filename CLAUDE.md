@@ -140,7 +140,11 @@ Three.js bloquant. `SHELL.commune` vient de `shell.js` (déjà chargé).
 **Section « Le circuit du capital » (le jeu) — habillage.** Sur la ligne
 A–M–P–M′–A′, ce qui circule est un **curseur lumineux** (`.circuit-spark`,
 CSS pur : tête + traînée de comète, or puis rouge après P). Il n'y a plus
-de petit chariot SVG — ne pas le réintroduire. Le décor, lui, est le
+de petit chariot SVG — ne pas le réintroduire. Le fond de la section est
+le **carnet quadrillé** (`.circuit-band::before`), exactement la même
+trame que les chiffres clés (`.hs-stats::before`) : grille 36 px en
+`--border`, masque radial. Il est **sous** le canvas — le chariot roule
+sur le papier, pas dessous. Le décor animé, lui, est le
 **vrai chariot du jeu** : `circuitChariot()` dans `home.js` charge
 `assets/chariot.json` et le fait rouler dans le fond de la section pendant
 le défilement (roues qui tournent, trépidation, lanterne qui vacille,
@@ -154,22 +158,32 @@ Trois composantes : X traverse ; `Y_TOP → 0` (exposant `Y_EASE`) fait la
 DESCENTE — il plonge vite puis roule au ras du bas, ce qui le fait passer
 sous le bloc de texte au milieu du parcours ; `Z_FAR → Z_NEAR` l'amène vers
 nous (il sort plus grand qu'il n'est entré : le circuit revient grossi) et
-`Z_TURN` y superpose deux virages. Le cap suit la tangente `atan2(dx, dz)`
-et le roulis suit la courbure, bridé à ~4°. `scene.fog` est réglé sur la
-couleur exacte de `--surface`, donc le lointain disparaît vraiment.
+`Z_TURN` y superpose **un seul** virage (`sin(π t)`) : il entre braqué
+vers nous, se redresse, et ressort braqué de l'autre côté. Deux virages se
+lisaient comme un frétillement. Le roulis suit la courbure, bridé à ~4°.
+`scene.fog` est réglé sur la couleur exacte de `--surface`, donc le
+lointain disparaît vraiment.
 
-**Piège** : le « haut → bas » doit venir de Y, PAS de la profondeur. La
-perspective écrase les lointains — un grand écart de Z ne déplace le
-chariot que d'une soixantaine de pixels tout en le forçant à entrer de
-face et en imposant une caméra plongeante peu flatteuse. Ne pas refaire
-cet essai.
+**Deux pièges déjà rencontrés — ne pas les refaire :**
+- Le « haut → bas » doit venir de Y, PAS de la profondeur. La perspective
+  écrase les lointains : un grand écart de Z ne déplace le chariot que
+  d'une soixantaine de pixels tout en le forçant à entrer de face et en
+  imposant une caméra plongeante peu flatteuse.
+- Le cap ne doit PAS être la tangente 3D exacte. `atan2(dx, dz)` brut
+  donne un chariot qui **dérape** : la perspective écrase le déplacement
+  en profondeur, si bien qu'une caisse braquée de 30° vers nous se déplace
+  à l'écran presque à l'horizontale. D'où `HEAD_DAMP` — on ne retient que
+  la part *visible* de `dz`, la caisse se recale sur sa trajectoire
+  apparente, et le virage se lit quand même par la variation du cap.
 
 **Réglages solidaires — ne pas en toucher un seul isolément** : `Y_TOP` /
-`Y_EASE` / `Z_*`, les coefficients de caméra `0.296 * d` et `0.270 * d`
-dans `resize()`, l'échelle `0.78` du rig, et le `padding-bottom` de
-`.js-circuit .circuit-band` (qui remonte le bloc de texte pour dégager la
-bande basse). Ils sont calés ensemble pour que la diagonale reste entière
-dans le cadre et ne heurte pas le texte.
+`Y_FLOOR` / `Y_EASE` / `Z_*` / `HEAD_DAMP`, les coefficients de caméra
+`0.296 * d` et `0.270 * d` dans `resize()`, l'échelle `0.78` du rig, et le
+`padding-bottom` de `.js-circuit .circuit-band` (qui remonte le bloc de
+texte pour dégager la bande basse). Ils sont calés ensemble pour que la
+diagonale reste entière dans le cadre — `Y_FLOOR` en particulier retient
+la fin de course au-dessus du bord bas, là où le virage l'amène au plus
+près de nous.
 
 **Fenêtre de défilement propre au chariot.** `circuitScrub` lui passe
 `raw` (position brute de l'épinglage, négative avant / > 1 après), pas

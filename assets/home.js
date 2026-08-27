@@ -537,25 +537,30 @@
            modéré (cap sain, croissance mesurée). L'exposant Y_EASE
            (> 1) creuse la pente au début et l'aplanit ensuite : le chariot
            plonge vite depuis le haut, puis roule au ras du bas de la
-           section. C'est ce qui le fait passer SOUS le bloc de texte au
-           milieu du parcours, là où il le traversait tout droit ;
+           section. C'est ce qui le fait passer sous le bloc de texte au
+           milieu du parcours. `Y_FLOOR` empêche la fin de course de
+           descendre sous le bord bas du canvas, où le virage l'amène au
+           plus près de nous ;
          · Z_FAR → Z_NEAR, l'approche : il grossit en venant vers nous —
-           le circuit revient grossi, et c'est le chariot qui le dit —,
-           et Z_TURN y superpose deux virages pour que la diagonale ne
-           soit pas une droite.
-       Le cap suit la tangente et le roulis suit la courbure : il pilote,
-       il ne glisse pas. */
-    var Y_TOP = 9, Y_EASE = 1.9, Z_FAR = -9, Z_NEAR = 3, Z_TURN = 1.6;
+           le circuit revient grossi, et c'est le chariot qui le dit —, et
+           Z_TURN y superpose UN virage (une seule arche, `sin(π t)`) : le
+           chariot entre braqué vers nous puis se redresse et file vers la
+           droite. Un seul virage franc se lit ; deux se lisaient comme un
+           frétillement. */
+    var Y_TOP = 9, Y_FLOOR = 1.2, Y_EASE = 1.9;
+    var Z_FAR = -9, Z_NEAR = 3, Z_TURN = 6;
+    /* part de dz retenue pour le cap (cf. « CAP » dans place()) */
+    var HEAD_DAMP = 0.42;
     function pathAt(t) {
-      var R = reach(), tau = Math.PI * 2;
+      var R = reach(), pi = Math.PI;
       return {
         x:  (t * 2 - 1) * R,
-        y:  Y_TOP * Math.pow(1 - t, Y_EASE),
-        z:  Z_FAR + (Z_NEAR - Z_FAR) * t + Z_TURN * Math.sin(tau * t),
+        y:  Y_FLOOR + (Y_TOP - Y_FLOOR) * Math.pow(1 - t, Y_EASE),
+        z:  Z_FAR + (Z_NEAR - Z_FAR) * t + Z_TURN * Math.sin(pi * t),
         dx: 2 * R,
-        dz: (Z_NEAR - Z_FAR) + tau * Z_TURN * Math.cos(tau * t),
+        dz: (Z_NEAR - Z_FAR) + pi * Z_TURN * Math.cos(pi * t),
         /* dérivée seconde ≈ courbure : sert au roulis dans le virage */
-        cz: -tau * tau * Z_TURN * Math.sin(tau * t)
+        cz: -pi * pi * Z_TURN * Math.sin(pi * t)
       };
     }
 
@@ -649,14 +654,18 @@
 
       /* CAP : le chariot regarde là où il va. Le jeu le fait avancer vers
          son +Z local, et rotation.y = θ envoie ce +Z sur (sinθ, cosθ) — le
-         cap est donc exactement atan2(dx, dz). Aucun biais à ajouter : la
-         diagonale incline déjà le chariot d'une vingtaine de degrés vers
-         nous, on ne le voit jamais en profil strict. */
-      rig.rotation.y = Math.atan2(p.dx, p.dz);
-      /* ROULIS : il s'incline dans la courbe, comme dans le jeu. Borné à
-         ~4° — la courbure brute penche jusqu'à 11° aux extrémités, ce qui
-         donne un chariot couché, pas un chariot qui vire. */
-      var lean = p.cz * 0.0007;
+         cap est donc atan2(dx, dz).
+         MAIS on amortit dz. La tangente 3D exacte donnait un chariot qui
+         DÉRAPE : la perspective écrase le déplacement en profondeur, si
+         bien qu'une caisse braquée de 30° vers nous se déplaçait à l'écran
+         presque à l'horizontale. Ramener dz à sa contribution VISIBLE
+         recale la caisse sur sa trajectoire apparente — il roule droit, et
+         le virage se lit quand même parce qu'il fait varier le cap. */
+      rig.rotation.y = Math.atan2(p.dx, p.dz * HEAD_DAMP);
+      /* ROULIS : il s'incline dans le virage, comme dans le jeu. Borné à
+         ~4° — la courbure brute penche jusqu'à 11°, ce qui donne un
+         chariot couché, pas un chariot qui vire. */
+      var lean = p.cz * 0.0014;
       if (lean > 0.07) lean = 0.07; else if (lean < -0.07) lean = -0.07;
       rig.rotation.z = lean + Math.sin(now * 0.0021) * 0.012;
 
