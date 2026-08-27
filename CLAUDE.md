@@ -198,13 +198,15 @@ Fraunces ne plaisait pas). Ne pas reproposer de retirer la boîte.
 
 Animation : chaque bloc arrive 30 px plus haut et de biais (`--drop`,
 `--tilt`, angles −2,6° / +1,9° / −1,5°), puis se pose à plat, décalé d'un
-bloc au suivant ; le balayage `--sweep` révèle la **réglure** du feuillet
-(bande de lignes limitée aux 104 px du haut — essayée pleine hauteur, elle
-faisait du moiré avec les lignes de texte) et le numéro **prend l'encre**
-(`--ink`) une fois le feuillet posé. Piloté par la position de scroll →
-réversible. `doCards()` **retire `.reveal-stagger`** et pose `.poses` ; la
-réglure est permanente (`--sweep:999px` par défaut), donc sans JS, sous
-no-motion ou en dessous de 768 px, les blocs gardent réglure et fondu simple.
+bloc au suivant, et le numéro **prend l'encre** (`--ink`) une fois le
+feuillet posé. Piloté par la position de scroll → réversible. `doCards()`
+**retire `.reveal-stagger`** et pose `.poses` ; sans JS, sous no-motion ou en
+dessous de 768 px, fondu simple.
+
+**Pas de réglure dans les blocs.** Une bande de lignes horizontales
+(`--sweep` balayé au défilement) y a vécu un temps : retirée sur demande du
+propriétaire. Ne pas la réintroduire — ni pleine hauteur, ce qui faisait en
+plus du moiré avec les lignes de texte.
 
 Conséquence à ne pas oublier : `.hs-do-card` **n'existe plus** (c'est
 `.hs-do-item`). Le `transform` partagé à variables `--rx`/`--ry`/`--lift` et
