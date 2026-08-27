@@ -138,6 +138,20 @@ du tout — mobile étroit ou reduced-motion). CSS de l'accueil = **inline**
 (critique LCP) ; JS = **externe + `defer`**. Ne pas réintroduire de
 Three.js bloquant. `SHELL.commune` vient de `shell.js` (déjà chargé).
 
+**Piège de spécificité sur l'entrée du héros — déjà tombé dedans une
+fois.** Les éléments du héros sont cachés par
+`html:not(.no-anim) .hs-hero .hs-left>*, html:not(.no-anim) .hs-hero .hs-right`
+— soit **(0,3,1)**, à cause du `:not(.no-anim)` qui compte comme une classe
+*et* du `html` qui compte comme un élément. Les règles de révélation de la
+colonne gauche (`.hs-hero.lit .hs-left>.hs-h1`, quatre classes) passent
+devant ; celle du portrait (`.hs-hero.lit .hs-right`, trois classes) perdait,
+et **le portrait restait invisible dans tout le chemin immersif** — donc
+partout sauf `?skip-anim`, mobile et reduced-motion, c'est-à-dire les trois
+modes dans lesquels on teste. Le bug a vécu longtemps pour cette raison.
+Corrigé en préfixant la règle par le même `html:not(.no-anim)`. **Toute
+nouvelle règle `.lit` doit être vérifiée contre la spécificité (0,3,1) de la
+règle qui cache**, et testée au moins une fois hors `skip-anim`.
+
 **Héros de l'accueil — « la liasse » (`heroBg()` dans `home.js`).** Les
 feuillets d'archive ne dérivent plus en boucle : au repos ils sont
 **rassemblés en éventail** au bas du couloir vide qui sépare le titre du
