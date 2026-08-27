@@ -142,11 +142,23 @@ A–M–P–M′–A′, ce qui circule est un **curseur lumineux** (`.circuit-s
 CSS pur : tête + traînée de comète, or puis rouge après P). Il n'y a plus
 de petit chariot SVG — ne pas le réintroduire. Le décor, lui, est le
 **vrai chariot du jeu** : `circuitChariot()` dans `home.js` charge
-`assets/chariot.json` et le fait rouler de gauche à droite dans le fond de
-la section pendant le défilement (roues qui tournent, trépidation,
-lanterne qui vacille, **cargaison qui change avec le palier** — argent →
-moyens de production → marchandises → argent). Un voile radial
-(`.circuit-veil`) garde le texte lisible par-dessus.
+`assets/chariot.json` et le fait rouler dans le fond de la section pendant
+le défilement (roues qui tournent, trépidation, lanterne qui vacille,
+**cargaison qui change avec le palier** — argent → moyens de production →
+marchandises → argent). Un voile radial (`.circuit-veil`) garde le texte
+lisible par-dessus.
+
+Le trajet n'est **pas** une translation rectiligne : `pathAt(t)` décrit une
+courbe en profondeur (`Z_WAVE` creuse le milieu du parcours — le chariot
+s'éloigne et se dilue dans la brume derrière le bloc de texte ; `Z_GAIN` le
+ramène vers nous, il sort plus grand qu'il n'est entré : le circuit revient
+grossi). Le cap suit la tangente `atan2(dx, dz)` et le roulis suit la
+courbure, bridé à ~4°. `scene.fog` est réglé sur la couleur exacte de
+`--surface`, donc le lointain disparaît vraiment. **Trois réglages sont
+solidaires du cadrage — ne pas en toucher un seul isolément** : les
+amplitudes `Z_*`, le point visé `0.232 * d` dans `resize()` et l'échelle
+`0.78` du rig. Ils sont calés ensemble pour que le passage le plus
+rapproché reste sous le texte sans sortir par le bas du canvas.
 
 `assets/chariot.json` = `Vehicle.group` du projet **circuit-du-capital**
 (dépôt séparé, `~/Desktop/circuit-du-capital`) sérialisé par
