@@ -257,7 +257,13 @@ html:not(.no-anim) .hs-hero .hs-right{
 .hs-hero.lit .hs-left>.hs-h1{opacity:1;transform:none;transition-delay:.16s;}
 .hs-hero.lit .hs-left>.hs-desc{opacity:1;transform:none;transition-delay:.30s;}
 .hs-hero.lit .hs-left>.hs-btns{opacity:1;transform:none;transition-delay:.42s;}
-.hs-hero.lit .hs-right{opacity:1;transform:none;transition-delay:.22s;}
+/* ATTENTION à la spécificité : la règle qui cache est
+   `html:not(.no-anim) .hs-hero .hs-right` = (0,3,1). Les révélations de la
+   colonne gauche comptent quatre classes et passent devant ; celle-ci n'en
+   comptait que trois et perdait — le portrait restait invisible dans tout
+   le chemin immersif (donc partout sauf skip-anim / mobile / reduced-motion,
+   les trois modes dans lesquels on teste). Le préfixe la remet devant. */
+html:not(.no-anim) .hs-hero.lit .hs-right{opacity:1;transform:none;transition-delay:.22s;}
 
 /* boutons pilule : légère élévation au survol */
 .hs-btns .btn-filled,.hs-btns .btn-outline,.hs-closer .btn-filled{
