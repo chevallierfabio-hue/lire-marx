@@ -161,22 +161,14 @@
     var home = sb.querySelector('[data-act="home"]');
     home.addEventListener('click', function(){ location.href = '/?skip-anim'; });
 
-    // Bibliothèque : pour l'instant le catalogue de l'accueil. Basculera sur
-    // la page dédiée quand elle existera.
+    // Bibliothèque : la page dédiée « Par où commencer ».
     var bib = sb.querySelector('[data-act="biblio"]');
-    bib.addEventListener('click', function(){ location.href = '/?skip-anim#catalogue'; });
+    bib.addEventListener('click', function(){ location.href = '/oeuvres/bibliotheque.html'; });
 
-    // Marque l'entrée correspondant à la page courante. Un clic sur
-    // « Bibliothèque » depuis l'accueil ne change que le hash : pas de
-    // rechargement, donc on resynchronise sur hashchange.
-    if(location.pathname.replace(/\/index\.html$/, '/') === '/'){
-      var markHere = function(){
-        home.classList.toggle('on', location.hash !== '#catalogue');
-        bib.classList.toggle('on', location.hash === '#catalogue');
-      };
-      markHere();
-      window.addEventListener('hashchange', markHere);
-    }
+    // Marque l'entrée correspondant à la page courante.
+    var here = location.pathname.replace(/\/index\.html$/, '/');
+    if(here === '/') home.classList.add('on');
+    if(/\/bibliotheque\.html$/.test(here)) bib.classList.add('on');
 
     // Items de navigation inter-pages
     sb.querySelectorAll('.sb-item[data-act]').forEach(function(b){

@@ -1,6 +1,28 @@
 {
   "version": 1,
   "updated": "2026-08-27",
+  "readingGroups": [
+    {
+      "id": "seuils",
+      "label": "Les seuils",
+      "note": "Textes courts, sans prérequis — par où l'on peut entrer sans rien connaître."
+    },
+    {
+      "id": "jeune-marx",
+      "label": "Le jeune Marx",
+      "note": "Le laboratoire philosophique : l'aliénation, la conception matérialiste de l'histoire, la rupture avec l'idéalisme."
+    },
+    {
+      "id": "critique",
+      "label": "La critique de l'économie politique",
+      "note": "L'œuvre maîtresse et son atelier — des carnets de recherche aux trois livres du Capital."
+    },
+    {
+      "id": "interventions",
+      "label": "Les interventions politiques",
+      "note": "L'histoire en train de se faire : un coup d'État, un programme de parti."
+    }
+  ],
   "works": [
     {
       "id": "capital-1",
@@ -24,7 +46,15 @@
         "accumulation primitive"
       ],
       "readingGuide": "Commencer par le chapitre I avec patience, puis utiliser le parcours par sections pour suivre la progression de la marchandise jusqu'à l'accumulation primitive.",
-      "sourceNote": "Texte du domaine public, traduction Joseph Roy revue par Marx. La page existante charge le texte intégral depuis Wikisource et utilise aussi des fichiers locaux dans oeuvres/capital-1/textes/."
+      "sourceNote": "Texte du domaine public, traduction Joseph Roy revue par Marx. La page existante charge le texte intégral depuis Wikisource et utilise aussi des fichiers locaux dans oeuvres/capital-1/textes/.",
+      "reading": {
+        "group": "critique",
+        "primer": [
+          "travail-salarie-capital",
+          "salaire-prix-profit"
+        ],
+        "entry": "Comprendre comment marche le capitalisme"
+      }
     },
     {
       "id": "capital-2",
@@ -46,7 +76,13 @@
         "reproduction élargie"
       ],
       "readingGuide": "À lire après le Livre I pour comprendre comment le capital se reproduit dans le temps et dans l'ensemble social.",
-      "sourceNote": "Édition posthume établie par Friedrich Engels en 1885. Texte à intégrer depuis une source du domaine public."
+      "sourceNote": "Édition posthume établie par Friedrich Engels en 1885. Texte à intégrer depuis une source du domaine public.",
+      "reading": {
+        "group": "critique",
+        "after": [
+          "capital-1"
+        ]
+      }
     },
     {
       "id": "capital-3",
@@ -69,7 +105,14 @@
         "formule trinitaire"
       ],
       "readingGuide": "À aborder après les Livres I et II : le texte montre les formes apparentes que prend la plus-value dans la concurrence.",
-      "sourceNote": "Édition posthume établie par Friedrich Engels en 1894. Texte à intégrer depuis une source du domaine public."
+      "sourceNote": "Édition posthume établie par Friedrich Engels en 1894. Texte à intégrer depuis une source du domaine public.",
+      "reading": {
+        "group": "critique",
+        "after": [
+          "capital-1",
+          "capital-2"
+        ]
+      }
     },
     {
       "id": "contribution-critique-economie-politique",
@@ -91,7 +134,10 @@
         "base et superstructure"
       ],
       "readingGuide": "Lire la préface avant le corps du texte : elle donne un point d'entrée utile sur la méthode historique de Marx.",
-      "sourceNote": "Texte du domaine public à intégrer depuis une édition fiable."
+      "sourceNote": "Texte du domaine public à intégrer depuis une édition fiable.",
+      "reading": {
+        "group": "critique"
+      }
     },
     {
       "id": "manuscrits-1844",
@@ -113,7 +159,11 @@
         "émancipation"
       ],
       "readingGuide": "Commencer par le travail aliéné, puis lire les passages sur la propriété privée, le communisme et l'argent comme un laboratoire du jeune Marx.",
-      "sourceNote": "Manuscrits rédigés en 1844 et publiés pour la première fois en 1932. Texte local importé depuis l'archive XML/TEI du Marxists Internet Archive, avec liens de vérification vers la source."
+      "sourceNote": "Manuscrits rédigés en 1844 et publiés pour la première fois en 1932. Texte local importé depuis l'archive XML/TEI du Marxists Internet Archive, avec liens de vérification vers la source.",
+      "reading": {
+        "group": "jeune-marx",
+        "entry": "Comprendre ce que le travail fait à l'homme"
+      }
     },
     {
       "id": "ideologie-allemande",
@@ -135,7 +185,13 @@
         "classe"
       ],
       "readingGuide": "Commencer par la partie sur Feuerbach pour saisir la rupture avec l'idéalisme et le rôle central de la production sociale.",
-      "sourceNote": "Manuscrit de 1845-1846 publié après la mort des auteurs. Texte à intégrer depuis une édition fiable."
+      "sourceNote": "Manuscrit de 1845-1846 publié après la mort des auteurs. Texte à intégrer depuis une édition fiable.",
+      "reading": {
+        "group": "jeune-marx",
+        "primer": [
+          "manuscrits-1844"
+        ]
+      }
     },
     {
       "id": "manifeste-parti-communiste",
@@ -157,7 +213,11 @@
         "communisme"
       ],
       "readingGuide": "Lecture courte mais dense : suivre les quatre parties et distinguer l'analyse historique du programme politique.",
-      "sourceNote": "Texte publié en 1848 avec Friedrich Engels, domaine public."
+      "sourceNote": "Texte publié en 1848 avec Friedrich Engels, domaine public.",
+      "reading": {
+        "group": "seuils",
+        "entry": "Comprendre les classes et la politique"
+      }
     },
     {
       "id": "dix-huit-brumaire",
@@ -179,7 +239,13 @@
         "lutte politique"
       ],
       "readingGuide": "À lire avec une chronologie de la Deuxième République française pour suivre les alliances et renversements de classes.",
-      "sourceNote": "Texte du domaine public à intégrer depuis une édition fiable."
+      "sourceNote": "Texte du domaine public à intégrer depuis une édition fiable.",
+      "reading": {
+        "group": "interventions",
+        "primer": [
+          "manifeste-parti-communiste"
+        ]
+      }
     },
     {
       "id": "critique-programme-gotha",
@@ -201,7 +267,13 @@
         "communisme"
       ],
       "readingGuide": "Texte bref à lire ligne à ligne, en tenant compte du contexte du mouvement ouvrier allemand.",
-      "sourceNote": "Texte rédigé en 1875 et publié plus tard par Engels. Domaine public."
+      "sourceNote": "Texte rédigé en 1875 et publié plus tard par Engels. Domaine public.",
+      "reading": {
+        "group": "interventions",
+        "primer": [
+          "manifeste-parti-communiste"
+        ]
+      }
     },
     {
       "id": "grundrisse",
@@ -224,7 +296,13 @@
         "méthode"
       ],
       "readingGuide": "À lire comme carnet de recherche : privilégier des parcours thématiques plutôt qu'une lecture linéaire immédiate.",
-      "sourceNote": "Manuscrits publiés après la mort de Marx. Texte à intégrer depuis une édition du domaine public ou autorisée."
+      "sourceNote": "Manuscrits publiés après la mort de Marx. Texte à intégrer depuis une édition du domaine public ou autorisée.",
+      "reading": {
+        "group": "critique",
+        "after": [
+          "capital-1"
+        ]
+      }
     },
     {
       "id": "salaire-prix-profit",
@@ -246,7 +324,10 @@
         "lutte salariale"
       ],
       "readingGuide": "Bonne porte d'entrée pédagogique vers la théorie de la valeur et de la plus-value avant ou pendant le Livre I du Capital.",
-      "sourceNote": "Exposé de 1865 publié ensuite sous forme de brochure. Texte du domaine public."
+      "sourceNote": "Exposé de 1865 publié ensuite sous forme de brochure. Texte du domaine public.",
+      "reading": {
+        "group": "seuils"
+      }
     },
     {
       "id": "travail-salarie-capital",
@@ -268,7 +349,10 @@
         "concurrence"
       ],
       "readingGuide": "Texte court et introductif, utile avant Le Capital pour poser les rapports fondamentaux entre salaire et capital.",
-      "sourceNote": "Texte issu de conférences publiées en 1849. Domaine public."
+      "sourceNote": "Texte issu de conférences publiées en 1849. Domaine public.",
+      "reading": {
+        "group": "seuils"
+      }
     }
   ]
 }

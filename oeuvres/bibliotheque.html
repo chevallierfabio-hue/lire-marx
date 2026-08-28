@@ -1,0 +1,694 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>La bibliothèque — Par où commencer | Lire Marx</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Les douze œuvres de Marx du corpus Lire Marx, replacées dans un ordre de lecture : par où entrer, quel texte en prépare un autre, et ce que contient chacun.">
+<meta property="og:title" content="La bibliothèque — Par où commencer">
+<meta property="og:description" content="Les douze œuvres de Marx du corpus Lire Marx, replacées dans un ordre de lecture : par où entrer, quel texte en prépare un autre, et ce que contient chacun.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://liremarx.com/oeuvres/bibliotheque.html">
+<meta property="og:image" content="https://liremarx.com/assets/img/archive/manuscrit-ideologie-1846.jpg">
+<meta property="og:locale" content="fr_FR">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://liremarx.com/oeuvres/bibliotheque.html">
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="atelier.css">
+<link rel="stylesheet" href="shell.css">
+<style>
+/* ═══════════════════════════════════════════════════════════════════
+   Bibliothèque — « Par où commencer »
+   DA sombre-chaude (voir CLAUDE.md § Direction artistique). Comme sur
+   /index.html, le :root redéfinit AUSSI les tokens du shell, sinon
+   topbar / sidebar / modales resteraient en palette claire.
+   ═══════════════════════════════════════════════════════════════════ */
+:root{
+  /* tokens de page */
+  --bg:#15100b;--surface:#1e1710;--text:#f3e9d4;
+  --muted:#b7a888;--accent:#d5402f;--border:rgba(243,233,212,.13);
+
+  /* shell.css → palette sombre */
+  --paper:#15100b;--paper-2:#1e1710;--card:#221a12;
+  --ink:#f3e9d4;--ink-soft:#c7b599;
+  --red:#d5402f;--red-deep:#b5372a;--bright:#e5644f;
+  --gold:#d8ad4c;--gold-deep:#bd8f38;--blue:#5c8aa3;--const:#9a8b72;
+  --line:rgba(243,233,212,.13);--line-soft:rgba(243,233,212,.07);--ok:#7fa855;
+  --f-ui:'Inter',system-ui,sans-serif;--f-serif:'Spectral',Georgia,serif;
+}
+
+html,body{background:var(--bg);}
+body{color:var(--text);font-family:'Inter',system-ui,sans-serif;}
+
+/* ── Shell : correctifs de couleurs pour le thème sombre ── */
+.brandmark{color:var(--ink);}
+.tb-btn,.acct-chip,#tbSearch,.tb-tabs{background:rgba(255,255,255,.05);border-color:var(--line);color:var(--ink);}
+.tb-btn:hover,.acct-chip:hover{border-color:var(--gold);}
+.acct-chip.guest{background:var(--gold-deep);border-color:var(--gold-deep);color:#1a130c;}
+.tb-tab.on,.ac-t.on{color:#1a130c;}
+header.topbar{background:rgba(21,16,11,.96);border-bottom-color:var(--line);}
+.sidebar{background:rgba(21,16,11,.97);border-right-color:var(--line);}
+.sb-item{color:var(--ink);}
+.sb-item:hover{background:rgba(255,255,255,.05);}
+.sb-item.on{background:rgba(213,64,47,.16);color:var(--bright);}
+.tb-pop,.tb-results{background:var(--card);border-color:var(--line);box-shadow:0 18px 50px rgba(0,0,0,.7);}
+.tb-res:hover,.tb-res.active{background:var(--paper-2);}
+.acct-modal{background:rgba(6,4,3,.7);}
+.ac-card,.ac-card input,.msg-add input,.ac-bio{background:var(--paper);border-color:var(--line);color:var(--ink);}
+.ac-card code,.ac-p code,.ac-note code{background:rgba(255,255,255,.08);}
+.cm-card{background:var(--paper-2);border-color:var(--line);}
+
+/* ── Conteneur ── */
+.wrap{max-width:1080px;padding:0 clamp(22px,4vw,60px) 96px;}
+
+/* ── En-tête de page ── */
+/* overflow:hidden : le halo fait 640 px de large et débordait la page de
+   53 px sous 400 px de large — un défilement horizontal du document, que
+   rien ne doit provoquer. Même parade que .pp-hero sur la Place publique. */
+.bx-hero{position:relative;overflow:hidden;
+  padding:clamp(40px,6vh,68px) 0 clamp(28px,4vh,44px);}
+.bx-hero>*{position:relative;z-index:1;}
+/* Le halo doit rester HORS FLUX. `.bx-hero>*` pèse (0,1,0), autant que
+   `.bx-hero-halo` : à égalité c'est la dernière règle qui gagne, et le halo
+   repassait en position:relative — 360 px de vide poussant tout le héros.
+   D'où le sélecteur à (0,2,0), qui passe devant quel que soit l'ordre. */
+.bx-hero .bx-hero-halo{position:absolute;top:44%;left:26%;width:640px;height:360px;
+  transform:translate(-50%,-50%);pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse at center,rgba(213,64,47,.13) 0%,transparent 66%);}
+.bx-h1{font-family:'Fraunces',serif;font-weight:900;
+  font-size:clamp(2.2rem,5vw,3.5rem);line-height:1.02;letter-spacing:-.03em;
+  color:var(--text);margin-bottom:14px;}
+.bx-h1 em{font-style:italic;font-weight:500;color:var(--gold);}
+.bx-lede{font-size:1rem;line-height:1.72;color:var(--muted);max-width:56ch;}
+.bx-count{margin-top:16px;display:inline-flex;align-items:center;gap:9px;
+  font-size:.78rem;color:var(--muted);border:1px solid var(--border);
+  border-radius:999px;padding:6px 15px;}
+.bx-count b{color:var(--text);font-weight:600;}
+
+/* ── Rythme de section (rime avec .hs-sec-label / .hs-sec-h de l'accueil) ── */
+.bx-sec{padding-top:clamp(44px,6vh,72px);}
+.bx-label{font-family:'Inter',system-ui,sans-serif;font-size:.72rem;font-weight:600;
+  letter-spacing:.11em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.bx-h2{font-family:'Fraunces',serif;font-weight:900;
+  font-size:clamp(1.55rem,3.2vw,2.25rem);letter-spacing:-.03em;color:var(--text);
+  line-height:1.06;margin-bottom:12px;}
+.bx-intro{font-size:.94rem;line-height:1.7;color:var(--muted);max-width:62ch;margin-bottom:30px;}
+
+/* ═══ 1. Les portes ═══════════════════════════════════════════════ */
+.bx-doors{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;}
+.bx-door{display:flex;flex-direction:column;gap:12px;
+  border:1px solid var(--border);border-radius:18px;background:var(--surface);
+  padding:26px 26px 24px;text-decoration:none;color:inherit;
+  transition:border-color .22s,box-shadow .22s,transform .4s cubic-bezier(.16,1,.3,1);}
+.bx-door:hover{border-color:var(--gold);transform:translateY(-3px);
+  box-shadow:0 22px 48px -22px rgba(0,0,0,.75);}
+.bx-door-q{font-family:'Fraunces',serif;font-weight:900;
+  font-size:clamp(1.14rem,1.9vw,1.4rem);line-height:1.2;letter-spacing:-.02em;
+  color:var(--text);}
+.bx-door-w{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;}
+.bx-door-y{font-family:'Fraunces',serif;font-style:italic;font-weight:900;
+  font-size:1.05rem;color:var(--gold);}
+.bx-door-t{font-family:'Fraunces',serif;font-weight:600;font-size:1rem;
+  color:var(--ink);letter-spacing:-.01em;}
+.bx-door-d{font-size:.88rem;line-height:1.62;color:var(--muted);}
+.bx-door-go{margin-top:auto;padding-top:6px;font-size:.85rem;font-weight:600;
+  color:var(--accent);}
+.bx-door:hover .bx-door-go{color:var(--bright);}
+.bx-doors-soon{margin-top:20px;font-size:.86rem;line-height:1.65;color:var(--muted);
+  max-width:62ch;border-left:2px solid var(--border);padding-left:15px;}
+.bx-doors-soon b{color:var(--ink-soft);font-weight:600;}
+
+/* ═══ 2. Le fil ═══════════════════════════════════════════════════ */
+.bx-legend{display:flex;flex-wrap:wrap;gap:20px;margin-bottom:26px;
+  font-size:.78rem;color:var(--muted);}
+.bx-legend span{display:inline-flex;align-items:center;gap:8px;}
+.bx-legend i{display:block;width:26px;height:0;border-top:2px solid var(--gold);}
+.bx-legend i.dash{border-top-style:dashed;border-top-color:var(--const);}
+
+.bx-thread{border:1px solid var(--border);border-radius:18px;background:var(--surface);
+  padding:22px clamp(16px,3vw,26px);margin-bottom:16px;overflow-x:auto;}
+.bx-thread-h{font-family:'Inter',system-ui,sans-serif;font-size:.66rem;font-weight:700;
+  letter-spacing:.13em;text-transform:uppercase;color:var(--const);margin-bottom:16px;}
+.bx-flow{display:flex;align-items:stretch;gap:0;min-width:min-content;}
+.bx-level{display:flex;flex-direction:column;gap:10px;justify-content:center;
+  flex:0 0 auto;min-width:150px;max-width:188px;}
+.bx-node{display:block;text-decoration:none;color:inherit;
+  border:1px solid var(--border);border-radius:12px;background:var(--bg);
+  padding:11px 13px;transition:border-color .18s,background .18s;}
+a.bx-node:hover{border-color:var(--gold);background:var(--card);}
+.bx-node-y{font-family:'Fraunces',serif;font-style:italic;font-weight:900;
+  font-size:.92rem;color:var(--gold);}
+.bx-node-t{display:block;margin-top:3px;font-family:'Fraunces',serif;font-weight:600;
+  font-size:.9rem;line-height:1.2;color:var(--ink);letter-spacing:-.01em;}
+.bx-node.soon{opacity:.62;}
+.bx-node.soon .bx-node-y{color:var(--const);}
+.bx-node.here{border-color:var(--accent);box-shadow:0 0 0 1px rgba(213,64,47,.35);}
+
+/* le connecteur : trait + libellé, plein pour « puis », tireté pour « prépare » */
+.bx-link{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:6px;width:clamp(50px,5.4vw,72px);padding:0 4px;}
+.bx-link-l{font-size:.62rem;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--const);white-space:nowrap;}
+.bx-link-r{width:100%;height:0;border-top:2px solid var(--gold);position:relative;}
+.bx-link-r::after{content:'';position:absolute;right:-1px;top:-4px;
+  border-left:7px solid var(--gold);border-top:4px solid transparent;
+  border-bottom:4px solid transparent;}
+.bx-link.primer .bx-link-r{border-top-style:dashed;border-top-color:var(--const);}
+.bx-link.primer .bx-link-r::after{border-left-color:var(--const);}
+.bx-alone{font-size:.88rem;line-height:1.7;color:var(--muted);max-width:64ch;
+  border-left:2px solid var(--border);padding-left:15px;margin-top:22px;}
+.bx-alone b{color:var(--ink-soft);font-weight:600;}
+
+/* ═══ 3. Le corpus ════════════════════════════════════════════════ */
+.bx-tools{display:flex;flex-wrap:wrap;gap:22px;align-items:center;margin-bottom:28px;}
+.bx-chips{display:flex;flex-wrap:wrap;gap:8px;}
+.bx-chip{font-family:var(--f-ui);font-size:.78rem;font-weight:600;
+  padding:6px 14px;border-radius:999px;cursor:pointer;
+  border:1px solid var(--border);background:transparent;color:var(--muted);
+  transition:border-color .15s,color .15s,background .15s;}
+.bx-chip:hover{border-color:var(--gold);color:var(--ink);}
+.bx-chip.on{border-color:var(--accent);color:var(--bright);background:rgba(213,64,47,.1);}
+
+.bx-group{margin-bottom:38px;}
+.bx-group-h{font-family:'Fraunces',serif;font-weight:900;font-size:1.16rem;
+  letter-spacing:-.02em;color:var(--text);margin-bottom:5px;}
+.bx-group-n{font-size:.86rem;line-height:1.6;color:var(--muted);max-width:64ch;
+  margin-bottom:18px;}
+.bx-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;}
+
+.bx-work{display:flex;flex-direction:column;gap:10px;
+  border:1px solid var(--border);border-radius:16px;background:var(--surface);
+  padding:20px 22px 20px;transition:border-color .2s;}
+.bx-work:hover{border-color:rgba(216,173,76,.4);}
+.bx-work-head{display:flex;align-items:baseline;gap:11px;flex-wrap:wrap;}
+.bx-work-y{font-family:'Fraunces',serif;font-style:italic;font-weight:900;
+  font-size:1.1rem;color:var(--gold);flex:0 0 auto;}
+.bx-work-t{font-family:'Fraunces',serif;font-weight:600;font-size:1.04rem;
+  line-height:1.16;color:var(--ink);letter-spacing:-.01em;flex:1 1 auto;min-width:0;}
+.bx-status{flex:0 0 auto;font-family:var(--f-ui);font-size:.58rem;font-weight:700;
+  letter-spacing:.09em;text-transform:uppercase;border-radius:999px;padding:3px 9px;}
+.bx-status.ok{background:rgba(127,168,85,.18);color:#a9cf82;}
+.bx-status.soon{background:rgba(243,233,212,.07);color:var(--const);}
+.bx-work-a{font-size:.74rem;color:var(--const);letter-spacing:.02em;margin-top:-4px;}
+.bx-work-d{font-size:.88rem;line-height:1.62;color:var(--muted);}
+.bx-cx{display:flex;flex-wrap:wrap;gap:6px;}
+.bx-cx span{font-size:.66rem;color:var(--ink-soft);background:rgba(243,233,212,.06);
+  border:1px solid var(--line-soft);border-radius:999px;padding:2px 9px;}
+.bx-rel{font-size:.78rem;line-height:1.55;color:var(--const);}
+.bx-rel b{color:var(--ink-soft);font-weight:600;}
+.bx-more{border-top:1px solid var(--line-soft);padding-top:10px;margin-top:2px;}
+.bx-more>summary{list-style:none;cursor:pointer;font-family:'Fraunces',serif;
+  font-weight:600;font-size:.85rem;color:var(--ink-soft);
+  display:flex;align-items:center;gap:9px;transition:color .15s;}
+.bx-more>summary::-webkit-details-marker{display:none;}
+.bx-more>summary::before{content:'+';font-family:'Fraunces',serif;font-style:italic;
+  font-weight:900;color:var(--gold);font-size:1.05rem;line-height:1;
+  width:11px;display:inline-block;text-align:center;}
+.bx-more[open]>summary::before{content:'–';}
+.bx-more>summary:hover{color:var(--ink);}
+.bx-more-in{padding-top:11px;display:flex;flex-direction:column;gap:10px;}
+.bx-guide{font-family:'Spectral',Georgia,serif;font-size:.89rem;line-height:1.62;
+  color:var(--ink-soft);border-left:2px solid var(--gold);padding-left:13px;}
+.bx-source{font-size:.78rem;line-height:1.6;color:var(--const);}
+.bx-source b{color:var(--ink-soft);font-weight:600;}
+.bx-open{margin-top:auto;padding-top:6px;font-size:.85rem;font-weight:600;
+  color:var(--accent);text-decoration:none;}
+.bx-open:hover{color:var(--bright);}
+
+.bx-state{color:var(--muted);font-size:.92rem;padding:30px 0;line-height:1.6;}
+
+/* ── Révélation au défilement (coupée si reduced-motion) ── */
+.bx-rev{opacity:0;transform:translateY(16px);
+  transition:opacity .6s ease,transform .6s cubic-bezier(.16,1,.3,1);}
+.bx-rev.in{opacity:1;transform:none;}
+@media(prefers-reduced-motion:reduce){
+  .bx-rev{opacity:1;transform:none;transition:none;}
+  .bx-door,.bx-work{transition:none;}
+}
+
+/* ── Responsive ── */
+@media(max-width:640px){
+  .bx-grid{grid-template-columns:1fr;}
+  .bx-level{min-width:142px;}
+  .bx-link{width:56px;}
+  .bx-link-l{font-size:.56rem;}
+}
+</style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "La bibliothèque de Lire Marx",
+  "url": "https://liremarx.com/oeuvres/bibliotheque.html",
+  "description": "Les douze œuvres de Marx du corpus Lire Marx, replacées dans un ordre de lecture.",
+  "isPartOf": { "@type": "WebSite", "name": "Lire Marx", "url": "https://liremarx.com/" }
+}
+</script>
+</head>
+<body>
+
+<main class="wrap">
+
+  <!-- ═══ En-tête ═══ -->
+  <section class="bx-hero">
+    <div class="bx-hero-halo"></div>
+    <div class="bx-label">La bibliothèque</div>
+    <h1 class="bx-h1">Par où <em>commencer</em></h1>
+    <p class="bx-lede">Le corpus de Marx n'a pas d'ordre évident. Certains textes en préparent
+      d'autres, certains n'ont de sens qu'après, et quelques-uns s'ouvrent sans rien connaître.
+      Cette page les remet dans cet ordre-là plutôt que dans celui des dates.</p>
+    <div class="bx-count" id="bxCount"></div>
+  </section>
+
+  <!-- ═══ 1. Les portes ═══ -->
+  <section class="bx-sec" id="portes">
+    <div class="bx-label">Le seuil</div>
+    <h2 class="bx-h2" id="bxDoorsH">Les portes d'entrée</h2>
+    <p class="bx-intro">On n'entre pas dans Marx par le début : on y entre par une question.
+      Chaque porte ouvre sur un atelier de lecture complet — texte intégral, annotations,
+      discussions. Une porte n'apparaît ici que si son texte est réellement disponible.</p>
+    <div class="bx-doors" id="bxDoors"></div>
+    <div class="bx-doors-soon" id="bxDoorsSoon" hidden></div>
+  </section>
+
+  <!-- ═══ 2. Le fil ═══ -->
+  <section class="bx-sec" id="fil">
+    <div class="bx-label">Le fil</div>
+    <h2 class="bx-h2">Ce qui prépare quoi</h2>
+    <p class="bx-intro"><span id="bxThreadCount">Plusieurs enchaînements traversent</span> le corpus. Ce ne sont pas des règles :
+      un trait plein marque une vraie dépendance — le texte suppose le précédent —, un trait
+      tireté un simple coup de main, un texte court qui rend le suivant plus facile.</p>
+    <div class="bx-legend">
+      <span><i></i> à lire après</span>
+      <span><i class="dash"></i> prépare, sans obligation</span>
+    </div>
+    <div id="bxThreads"></div>
+    <div class="bx-alone" id="bxAlone" hidden></div>
+  </section>
+
+  <!-- ═══ 3. Le corpus ═══ -->
+  <section class="bx-sec" id="corpus">
+    <div class="bx-label">Le corpus</div>
+    <h2 class="bx-h2">Les douze œuvres</h2>
+    <p class="bx-intro">Chaque œuvre avec sa description, ses concepts, la manière de la lire
+      et la provenance de son texte.</p>
+    <div class="bx-tools">
+      <div class="bx-chips" id="bxFilters" role="group" aria-label="Filtrer par disponibilité"></div>
+      <div class="bx-chips" id="bxSort" role="group" aria-label="Ordre d'affichage"></div>
+    </div>
+    <div id="bxCorpus" aria-live="polite"><p class="bx-state">Chargement de la bibliothèque…</p></div>
+  </section>
+
+</main>
+
+<script src="../config.js"></script>
+<script src="shell.js"></script>
+<script src="shell-social.js"></script>
+<script>
+installShell({ workTitle: 'Bibliothèque', tabs: [] });
+
+/* ═══════════════════════════════════════════════════════════════════
+   Rendu de la bibliothèque. Tout vient de bibliotheque.json — source
+   centrale unique (CLAUDE.md) : groupes, ordre de lecture et portes
+   d'entrée y vivent aussi (objet `reading` par œuvre + `readingGroups`).
+   Rien de tout cela n'est codé en dur ici.
+   ═══════════════════════════════════════════════════════════════════ */
+(function(){
+  'use strict';
+
+  var elCount   = document.getElementById('bxCount');
+  var elDoors   = document.getElementById('bxDoors');
+  var elDoorsH  = document.getElementById('bxDoorsH');
+  var elThreadN = document.getElementById('bxThreadCount');
+  var elSoon    = document.getElementById('bxDoorsSoon');
+  var elThreads = document.getElementById('bxThreads');
+  var elAlone   = document.getElementById('bxAlone');
+  var elFilters = document.getElementById('bxFilters');
+  var elSort    = document.getElementById('bxSort');
+  var elCorpus  = document.getElementById('bxCorpus');
+
+  var WORKS = [], GROUPS = [], BY_ID = {};
+  var filter = 'all', sort = 'parcours';
+
+  function esc(s){
+    return String(s == null ? '' : s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;');
+  }
+  /* w.path vaut « oeuvres/xxx.html » : depuis /oeuvres/ il faut l'absolu. */
+  function href(w){
+    var p = String(w.path || '');
+    return p && p.charAt(0) !== '/' ? '/' + p : p;
+  }
+  function rd(w){ return w.reading || {}; }
+  function isOk(w){ return w.status === 'available'; }
+  function titleOf(id){ var w = BY_ID[id]; return w ? w.title : id; }
+  var NUM = ['zéro','une','deux','trois','quatre','cinq','six','sept',
+             'huit','neuf','dix','onze','douze'];
+  function numFr(n){ return NUM[n] || String(n); }
+
+  /* Énumération française : « A, B et C ». */
+  function listFr(ids){
+    var t = ids.map(titleOf);
+    if(t.length <= 1) return t.join('');
+    return t.slice(0,-1).join(', ') + ' et ' + t[t.length-1];
+  }
+
+  /* ── 1. Les portes ─────────────────────────────────────────────── */
+  function renderDoors(){
+    var doors = WORKS.filter(function(w){ return rd(w).entry && isOk(w); });
+    var waiting = WORKS.filter(function(w){ return rd(w).entry && !isOk(w); });
+
+    /* Le titre suit le nombre de portes réellement ouvertes : une porte
+       n'existe que si son atelier est disponible, et il s'en ouvrira
+       d'autres sans que cette page ait à être retouchée. */
+    if(!doors.length){
+      document.getElementById('portes').hidden = true;
+    } else {
+      elDoorsH.textContent = doors.length === 1
+        ? 'Une porte, pour commencer'
+        : numFr(doors.length).charAt(0).toUpperCase() + numFr(doors.length).slice(1) +
+          ' portes, selon ce que vous cherchez';
+    }
+
+    elDoors.innerHTML = doors.map(function(w){
+      return '<a class="bx-door bx-rev" href="' + esc(href(w)) + '">' +
+        '<span class="bx-door-q">' + esc(rd(w).entry) + '</span>' +
+        '<span class="bx-door-w"><span class="bx-door-y">' + esc(w.year) + '</span>' +
+        '<span class="bx-door-t">' + esc(w.title) + '</span></span>' +
+        '<span class="bx-door-d">' + esc(w.description) + '</span>' +
+        '<span class="bx-door-go">Ouvrir l\'atelier →</span>' +
+      '</a>';
+    }).join('');
+
+    if(waiting.length){
+      elSoon.innerHTML = 'Une porte de plus attend son texte : <b>' +
+        esc(listFr(waiting.map(function(w){ return w.id; }))) +
+        '</b>. Elle s\'ouvrira d\'elle-même le jour où l\'atelier sera prêt — en attendant, ' +
+        'la description et les concepts sont plus bas, dans le corpus.';
+      elSoon.hidden = false;
+    }
+  }
+
+  /* ── 2. Le fil ─────────────────────────────────────────────────── */
+  /* Construit le graphe (arêtes source → cible), le découpe en
+     composantes connexes, et range chaque composante en niveaux
+     (profondeur = plus long chemin depuis une racine). */
+  function buildGraph(){
+    var out = {}, inc = {}, kind = {};
+    WORKS.forEach(function(w){ out[w.id] = []; inc[w.id] = []; });
+    WORKS.forEach(function(w){
+      var r = rd(w);
+      [['after','after'],['primer','primer']].forEach(function(pair){
+        (r[pair[0]] || []).forEach(function(src){
+          if(!BY_ID[src]) return;
+          out[src].push(w.id);
+          inc[w.id].push(src);
+          kind[src + '>' + w.id] = pair[1];
+        });
+      });
+    });
+    return { out:out, inc:inc, kind:kind };
+  }
+
+  function renderThreads(){
+    var g = buildGraph();
+
+    /* composantes connexes (graphe traité comme non orienté) */
+    var seen = {}, comps = [];
+    WORKS.forEach(function(w){
+      if(seen[w.id]) return;
+      var stack = [w.id], comp = [];
+      seen[w.id] = true;
+      while(stack.length){
+        var id = stack.pop();
+        comp.push(id);
+        g.out[id].concat(g.inc[id]).forEach(function(n){
+          if(!seen[n]){ seen[n] = true; stack.push(n); }
+        });
+      }
+      comps.push(comp);
+    });
+
+    /* profondeur = plus long chemin depuis une racine de la composante */
+    function depthOf(id, memo){
+      if(memo[id] != null) return memo[id];
+      memo[id] = 0; /* garde-fou en cas de cycle */
+      var d = 0;
+      g.inc[id].forEach(function(src){ d = Math.max(d, depthOf(src, memo) + 1); });
+      memo[id] = d;
+      return d;
+    }
+
+    var threads = [], alone = [];
+    comps.forEach(function(comp){
+      if(comp.length < 2){ alone.push(comp[0]); return; }
+      var memo = {}, levels = [];
+      comp.forEach(function(id){
+        var d = depthOf(id, memo);
+        (levels[d] = levels[d] || []).push(id);
+      });
+      /* à l'intérieur d'un palier, l'ordre d'insertion n'a aucun sens :
+         on range par année pour que la colonne se lise de haut en bas. */
+      levels.forEach(function(lvl){
+        lvl.sort(function(a, b){ return BY_ID[a].year - BY_ID[b].year; });
+      });
+      threads.push(levels);
+    });
+
+    /* le fil qui commence le plus tôt s'affiche en premier */
+    threads.sort(function(a, b){
+      return BY_ID[a[0][0]].year - BY_ID[b[0][0]].year;
+    });
+
+    /* Un fil se nomme par son pivot : l'œuvre la mieux reliée du groupe
+       (ex æquo → la plus ancienne). Le tiret évite l'article contracté,
+       impossible à produire correctement à partir d'un titre quelconque. */
+    function hub(levels){
+      var ids = [].concat.apply([], levels), best = ids[0], bd = -1;
+      ids.forEach(function(id){
+        var d = g.out[id].length + g.inc[id].length;
+        if(d > bd || (d === bd && BY_ID[id].year < BY_ID[best].year)){ bd = d; best = id; }
+      });
+      return BY_ID[best].shortTitle;
+    }
+
+    elThreads.innerHTML = threads.map(function(levels){
+      var head = hub(levels);
+      var flow = '';
+      levels.forEach(function(lvl, i){
+        if(i > 0){
+          /* le connecteur est tireté seulement si TOUTES les arêtes qui
+             franchissent ce palier sont des « primer » */
+          var allPrimer = true;
+          lvl.forEach(function(id){
+            g.inc[id].forEach(function(src){
+              if(levels[i-1].indexOf(src) !== -1 && g.kind[src + '>' + id] !== 'primer') allPrimer = false;
+            });
+          });
+          flow += '<div class="bx-link' + (allPrimer ? ' primer' : '') + '" aria-hidden="true">' +
+                    '<span class="bx-link-l">' + (allPrimer ? 'prépare' : 'puis') + '</span>' +
+                    '<span class="bx-link-r"></span>' +
+                  '</div>';
+        }
+        flow += '<div class="bx-level">' + lvl.map(node).join('') + '</div>';
+      });
+      return '<div class="bx-thread bx-rev"><div class="bx-thread-h">Le fil — ' +
+             esc(head) + '</div><div class="bx-flow">' + flow + '</div></div>';
+    }).join('');
+
+    // (b) le nombre de fils est compté, jamais écrit en dur
+    elThreadN.textContent = threads.length === 1
+      ? 'Un enchaînement traverse'
+      : numFr(threads.length).charAt(0).toUpperCase() + numFr(threads.length).slice(1) +
+        ' enchaînements traversent';
+
+    if(alone.length){
+      elAlone.innerHTML = 'Hors de tout fil : <b>' + esc(listFr(alone)) +
+        '</b> — aucun texte du corpus ne le prépare, et il n\'en commande aucun. ' +
+        'Il se lit seul, quand on veut.';
+      elAlone.hidden = false;
+    }
+  }
+
+  function node(id){
+    var w = BY_ID[id], ok = isOk(w);
+    var tag = ok ? 'a' : 'span';
+    var at  = ok ? ' href="' + esc(href(w)) + '"' : '';
+    return '<' + tag + ' class="bx-node' + (ok ? ' here' : ' soon') + '"' + at +
+      (ok ? '' : ' title="En préparation"') + '>' +
+      '<span class="bx-node-y">' + esc(w.year) + '</span>' +
+      '<span class="bx-node-t">' + esc(w.shortTitle) + '</span>' +
+    '</' + tag + '>';
+  }
+
+  /* ── 3. Le corpus ──────────────────────────────────────────────── */
+  function card(w){
+    var r = rd(w), ok = isOk(w), rel = [];
+    /* Séparateur médian et non « et » : plusieurs titres du corpus contiennent
+       déjà un « et » (« Travail salarié et capital », « Salaire, prix et
+       profit »), et l'énumération devenait illisible. Le « et » reste en
+       prose, où il est à sa place. */
+    var listDot = function(ids){ return ids.map(titleOf).join(' · '); };
+    if(r.after && r.after.length)  rel.push('<b>À lire après</b> ' + esc(listDot(r.after)));
+    if(r.primer && r.primer.length) rel.push('<b>Préparé par</b> ' + esc(listDot(r.primer)));
+
+    return '<article class="bx-work bx-rev">' +
+      '<div class="bx-work-head">' +
+        '<span class="bx-work-y">' + esc(w.year) + '</span>' +
+        '<h3 class="bx-work-t">' + esc(w.title) + '</h3>' +
+        '<span class="bx-status ' + (ok ? 'ok">Disponible' : 'soon">En préparation') + '</span>' +
+      '</div>' +
+      '<p class="bx-work-a">' + esc(w.author) + '</p>' +
+      '<p class="bx-work-d">' + esc(w.description) + '</p>' +
+      '<div class="bx-cx">' + (w.concepts || []).map(function(c){
+        return '<span>' + esc(c) + '</span>';
+      }).join('') + '</div>' +
+      /* une relation par ligne : le point médian sépare déjà les titres à
+         l'intérieur d'une relation, le réutiliser entre elles rendrait
+         « À lire après A · B · Préparé par C » indéchiffrable */
+      (rel.length ? '<p class="bx-rel">' + rel.join('<br>') + '</p>' : '') +
+      '<details class="bx-more"><summary>Comment le lire</summary>' +
+        '<div class="bx-more-in">' +
+          '<p class="bx-guide">' + esc(w.readingGuide) + '</p>' +
+          '<p class="bx-source"><b>D\'où vient le texte —</b> ' + esc(w.sourceNote) + '</p>' +
+        '</div>' +
+      '</details>' +
+      (ok ? '<a class="bx-open" href="' + esc(href(w)) + '">Ouvrir l\'atelier →</a>' : '') +
+    '</article>';
+  }
+
+  /* `animate` vaut false quand le lecteur vient de cliquer un filtre : les
+     cartes doivent apparaître tout de suite. Rejouer le fondu à chaque clic
+     ferait clignoter une liste déjà sous les yeux. */
+  function renderCorpus(animate){
+    var list = WORKS.filter(function(w){
+      return filter === 'all' ||
+             (filter === 'available' && isOk(w)) ||
+             (filter === 'planned' && !isOk(w));
+    });
+
+    if(!list.length){
+      elCorpus.innerHTML = '<p class="bx-state">Aucune œuvre dans cette sélection.</p>';
+      return;
+    }
+
+    if(sort === 'annee'){
+      var byYear = list.slice().sort(function(a, b){ return a.year - b.year; });
+      elCorpus.innerHTML = '<div class="bx-grid">' + byYear.map(card).join('') + '</div>';
+    } else {
+      elCorpus.innerHTML = GROUPS.map(function(gr){
+        var inGroup = list.filter(function(w){ return rd(w).group === gr.id; })
+                          .sort(function(a, b){ return a.year - b.year; });
+        if(!inGroup.length) return '';
+        return '<section class="bx-group">' +
+          '<h3 class="bx-group-h">' + esc(gr.label) + '</h3>' +
+          '<p class="bx-group-n">' + esc(gr.note) + '</p>' +
+          '<div class="bx-grid">' + inGroup.map(card).join('') + '</div>' +
+        '</section>';
+      }).join('');
+    }
+    arm(animate !== false);
+  }
+
+  function chips(el, opts, current, onPick){
+    el.innerHTML = '';
+    opts.forEach(function(o){
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'bx-chip' + (o.id === current ? ' on' : '');
+      b.textContent = o.label;
+      b.setAttribute('aria-pressed', o.id === current ? 'true' : 'false');
+      b.addEventListener('click', function(){ onPick(o.id); });
+      el.appendChild(b);
+    });
+  }
+
+  function renderTools(){
+    var nOk = WORKS.filter(isOk).length;
+    chips(elFilters, [
+      { id:'all',       label:'Toutes (' + WORKS.length + ')' },
+      { id:'available', label:'Disponibles (' + nOk + ')' },
+      { id:'planned',   label:'En préparation (' + (WORKS.length - nOk) + ')' }
+    ], filter, function(id){ filter = id; renderTools(); renderCorpus(false); });
+
+    chips(elSort, [
+      { id:'parcours', label:'Par parcours' },
+      { id:'annee',    label:'Par année' }
+    ], sort, function(id){ sort = id; renderTools(); renderCorpus(false); });
+  }
+
+  /* ── Révélation au défilement ──────────────────────────────────── */
+  var io = null;
+  if(window.IntersectionObserver &&
+     !window.matchMedia('(prefers-reduced-motion:reduce)').matches){
+    io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, { rootMargin:'0px 0px -8% 0px', threshold:.05 });
+  }
+  function arm(animate){
+    var els = document.querySelectorAll('.bx-rev:not(.in)');
+    for(var i = 0; i < els.length; i++){
+      if(io && animate !== false) io.observe(els[i]);
+      else els[i].classList.add('in');
+    }
+  }
+
+  /* ── Chargement ────────────────────────────────────────────────── */
+  fetch('bibliotheque.json', { cache:'no-cache' })
+    .then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(function(data){
+      WORKS  = (data.works || []).filter(function(w){ return w && w.id; });
+      GROUPS = data.readingGroups || [];
+      WORKS.forEach(function(w){ BY_ID[w.id] = w; });
+      if(!WORKS.length) throw new Error('bibliothèque vide');
+
+      var nOk = WORKS.filter(isOk).length;
+      elCount.innerHTML = '<b>' + WORKS.length + '</b> œuvres · <b>' + nOk +
+        '</b> lisibles aujourd\'hui';
+
+      renderDoors();
+      renderThreads();
+      renderTools();
+      renderCorpus();
+
+      /* Les trois sections sont peuplées par ce fetch : au moment où le
+         navigateur a résolu l'ancre, elles étaient vides et la page a
+         grandi sous lui. On repose l'ancre une fois le contenu en place.
+         Une seule mesure ne suffit pas — Fraunces et Inter arrivent après
+         et décalent encore tout : d'où le rAF + le délai + window.load,
+         exactement le triptyque de libraryScrub() (voir CLAUDE.md).
+         On s'arrête si le lecteur a défilé lui-même entre-temps. */
+      if(location.hash.length > 1){
+        var target = document.getElementById(location.hash.slice(1));
+        if(target){
+          var settled = false;
+          /* `behavior:'instant'` et non scrollIntoView() : atelier.css pose
+             scroll-behavior:smooth sur <html>, dont scrollIntoView() hérite —
+             on veut un saut sec à l'arrivée, pas un travelling. */
+          var reAnchor = function(){
+            if(settled) return;
+            var y = target.getBoundingClientRect().top + window.pageYOffset;
+            try { window.scrollTo({ top:y, behavior:'instant' }); }
+            catch(e){ window.scrollTo(0, y); }
+          };
+          addEventListener('wheel',     function(){ settled = true; }, { passive:true, once:true });
+          addEventListener('touchstart',function(){ settled = true; }, { passive:true, once:true });
+          requestAnimationFrame(reAnchor);
+          setTimeout(reAnchor, 400);
+          addEventListener('load', reAnchor);
+          if(document.fonts && document.fonts.ready) document.fonts.ready.then(reAnchor);
+        }
+      }
+    })
+    .catch(function(err){
+      elCorpus.innerHTML = '<p class="bx-state">La bibliothèque n\'a pas pu être chargée. ' +
+        'Réessayez dans un instant.</p>';
+      if(window.console) console.warn('[bibliotheque]', err);
+    });
+})();
+</script>
+</body>
+</html>
