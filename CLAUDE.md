@@ -818,10 +818,34 @@ cale.height` donne exactement ce qui a été parcouru. **Le fil s'écrit donc
 pendant que son panneau tient l'écran**, et le suivant vient le recouvrir une
 fois écrit — le motif de la section « circuit » de l'accueil.
 
+**Le panneau recouvert RECULE** (`stackCards`) : il ne disparaît pas sous le
+suivant, il s'éloigne — échelle, flou, assombrissement. Valeurs relevées image
+par image sur la référence : 1157 px de large au repos, 1090 px une fois
+recouvert, soit **0,94**. `transform-origin: 50% 0` — le bord supérieur reste
+en place, seule la largeur se resserre ; avec une origine au centre le panneau
+semblerait glisser vers le bas au lieu de reculer. Le recul ne commence qu'à
+**mi-course** : le panneau tient l'écran d'abord, il ne s'efface qu'une fois
+son propos délivré. Le `filter` n'est posé que pendant la transition (classe
+`.receding`) — flouter en permanence un panneau de cette taille coûte cher
+pour rien. Et **le dernier panneau d'une pile ne recule jamais** : rien ne le
+recouvre.
+
+Les panneaux se figent **tous au même `top`**, sans décalage : sur la
+référence, le panneau précédent est entièrement recouvert, et c'est le recul,
+pas un liseré, qui dit qu'il est encore là.
+
+**Ni lavis ni rai doré sur ces panneaux.** Le grain de papier brunissait tout
+et le rai de lumière faisait bricolage — « assez moche », à raison. Le panneau
+est une carte sombre à bord fin (`#1c150e`, bord à 9 %), et la matière est dans
+la **planche d'archive** de la colonne droite : la même image que la carte de
+l'accueil pour la même œuvre, avec sa légende. Le grand chiffre romain en pied
+de panneau rime avec les `(01)(02)` de la référence, dans la typographie de la
+maison.
+
 Coupé sous 768 px et en reduced-motion (`js-stack`) : les panneaux redeviennent
-des blocs qui se suivent, les cales tombent à zéro. Et la pose de `poseCards`
-**ne s'applique plus aux portes** : un `translate` se battrait avec leur
-`position:sticky`.
+des blocs qui se suivent, les cales tombent à zéro, aucun recul. Et la pose de
+`poseCards` **ne s'applique plus aux portes** : un `translate` se battrait avec
+leur `position:sticky`.
 
 ### Sidebar : « Accueil » et « Bibliothèque » sont deux choses
 

@@ -111,40 +111,72 @@ header.topbar{background:rgba(21,16,11,.96);border-bottom-color:var(--line);}
    blocs qui se suivent, les cales tombent à zéro. */
 .bx-stack{position:relative;}
 .bx-run{display:block;height:0;}
-.js-stack .bx-run{height:56vh;}
-.js-stack .bx-stack>.bx-card{position:sticky;
-  top:calc(64px + var(--i,0) * 16px);
-  box-shadow:0 -20px 48px -20px rgba(0,0,0,.9),0 18px 44px -26px rgba(0,0,0,.8);}
-.bx-card{position:relative;}
-:root:not(.js-stack) .bx-stack>.bx-card{margin-bottom:16px;}
+.js-stack .bx-run{height:74vh;}
+
+/* Le panneau : une surface propre posée sur le noir. Pas de lavis, pas de
+   liseré doré — mesuré sur la référence, le panneau est une carte sombre à
+   bord fin, et c'est la TYPOGRAPHIE qui porte. */
+.bx-card{position:relative;background:#1c150e;
+  border:1px solid rgba(243,233,212,.09);border-radius:24px;
+  box-shadow:inset 0 1px 0 rgba(243,233,212,.05);}
+
+/* RECUL ET FLOU. Le panneau recouvert ne disparaît pas : il s'éloigne.
+   Mesuré image par image sur la référence — 1157 px de large au repos,
+   1090 px une fois recouvert, soit une échelle de 0,94 — plus un flou et un
+   assombrissement. L'origine est en HAUT AU CENTRE : le bord supérieur reste
+   en place, seule la largeur se resserre, sinon le panneau semblerait
+   glisser vers le bas au lieu de reculer. */
+.js-stack .bx-stack>.bx-card{position:sticky;top:64px;
+  transform-origin:50% 0;
+  transform:scale(var(--sc,1));
+  box-shadow:inset 0 1px 0 rgba(243,233,212,.05),
+             0 -26px 60px -24px rgba(0,0,0,.92),
+             0 26px 60px -30px rgba(0,0,0,.85);}
+.js-stack .bx-stack>.bx-card.receding{
+  filter:blur(var(--bl,0px)) brightness(var(--br,1));}
+:root:not(.js-stack) .bx-stack>.bx-card{margin-bottom:18px;}
 
 /* ═══ 1. Les portes ═══════════════════════════════════════════════ */
 .bx-doors{display:block;}
-.bx-door{display:grid;grid-template-columns:1.06fr 1fr;
-  gap:clamp(22px,4vw,60px);align-items:center;min-height:min(50vh,400px);
-  border:1px solid var(--border);border-radius:20px;background:var(--surface);
-  padding:clamp(26px,3.6vw,50px);text-decoration:none;color:inherit;
-  transition:border-color .22s;}
-.bx-door-l,.bx-door-r{display:flex;flex-direction:column;gap:14px;min-width:0;}
-.bx-door-n{font-family:'Fraunces',serif;font-style:italic;font-weight:900;
-  font-size:1.05rem;line-height:1;color:var(--gold);}
-@media(max-width:820px){
-  .bx-door{grid-template-columns:1fr;gap:18px;min-height:0;align-items:start;}
+.bx-door{display:grid;grid-template-columns:1.04fr .92fr;
+  gap:clamp(26px,4.5vw,72px);align-items:center;min-height:min(62vh,520px);
+  padding:clamp(30px,4vw,58px);text-decoration:none;color:inherit;
+  overflow:hidden;transition:border-color .22s;}
+.bx-door:hover{border-color:rgba(216,173,76,.34);}
+.bx-door-l,.bx-door-r{display:flex;flex-direction:column;gap:16px;min-width:0;}
+/* le chiffre en pied de panneau, comme les (01)(02) de la référence —
+   mais dans la typographie de la maison : Fraunces italique, or éteint */
+.bx-door-n{position:absolute;left:clamp(30px,4vw,58px);
+  bottom:clamp(22px,3vw,40px);z-index:1;
+  font-family:'Fraunces',serif;font-style:italic;font-weight:900;line-height:1;
+  font-size:clamp(1.9rem,3.6vw,3rem);color:rgba(216,173,76,.34);}
+/* la planche d'archive : c'est elle qui donne sa matière au panneau */
+.bx-door-plate{position:relative;border-radius:16px;overflow:hidden;
+  aspect-ratio:4/3;background:#0d0a07;
+  border:1px solid rgba(243,233,212,.08);}
+.bx-door-plate img{display:block;width:100%;height:100%;object-fit:cover;
+  filter:grayscale(.7) sepia(.32) brightness(.74) contrast(1.06);
+  transition:filter .5s ease,transform .6s cubic-bezier(.16,1,.3,1);}
+.bx-door:hover .bx-door-plate img{filter:grayscale(.5) sepia(.26) brightness(.88) contrast(1.04);
+  transform:scale(1.03);}
+.bx-door-plate::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(to top,rgba(13,10,7,.78),transparent 56%);}
+.bx-door-cap{position:absolute;left:14px;right:14px;bottom:11px;z-index:1;
+  font-size:.7rem;line-height:1.4;color:var(--ink-soft);letter-spacing:.01em;}
+@media(max-width:860px){
+  .bx-door{grid-template-columns:1fr;gap:20px;min-height:0;align-items:start;}
+  .bx-door-n{position:static;font-size:1.4rem;}
 }
-/* le grain de papier passe derrière le texte, et s'éclaire au survol :
-   une porte qu'on pousse laisse voir ce qu'il y a derrière */
-.bx-door::before{transition:opacity .35s ease,filter .35s ease;}
-.bx-door:hover::before{opacity:.72;filter:grayscale(1) brightness(.30) contrast(1.15);}
 .bx-door:hover{border-color:var(--gold);}
 .bx-door-q{font-family:'Fraunces',serif;font-weight:900;
-  font-size:clamp(1.4rem,2.9vw,2.15rem);line-height:1.1;letter-spacing:-.03em;
+  font-size:clamp(1.7rem,3.5vw,2.8rem);line-height:1.03;letter-spacing:-.035em;
   color:var(--text);}
 .bx-door-w{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;}
 .bx-door-y{font-family:'Fraunces',serif;font-style:italic;font-weight:900;
   font-size:1.05rem;color:var(--gold);}
 .bx-door-t{font-family:'Fraunces',serif;font-weight:600;font-size:1rem;
   color:var(--ink);letter-spacing:-.01em;}
-.bx-door-d{font-size:.88rem;line-height:1.62;color:var(--muted);}
+.bx-door-d{font-size:.95rem;line-height:1.68;color:var(--muted);max-width:42ch;}
 .bx-door-go{padding-top:4px;font-size:.9rem;font-weight:600;color:var(--accent);}
 .bx-door:hover .bx-door-go{color:var(--bright);}
 .bx-doors-soon{margin-top:20px;font-size:.86rem;line-height:1.65;color:var(--muted);
@@ -178,28 +210,18 @@ header.topbar{background:rgba(21,16,11,.96);border-bottom-color:var(--line);}
   background:url('../assets/img/archive/manuscrit-ideologie-1846.webp') center/cover no-repeat;
   filter:grayscale(1) brightness(.18) contrast(1.1) blur(.4px);
   opacity:.30;mix-blend-mode:screen;}
-/* Le grain reste DISCRET : monté trop haut, il lavait la page en brun et lui
-   faisait perdre la profondeur sombre à laquelle tient le propriétaire. C'est
-   le rai de lumière ci-dessous, pas le papier, qui fait lire une porte. */
-.bx-door::before{opacity:.34;filter:grayscale(1) brightness(.26) contrast(1.05) blur(.3px);}
-/* Et une porte est ENTREBÂILLÉE : un rai de lumière sur son chant gauche,
-   comme si la pièce d'à côté était éclairée. C'est ce qui la fait lire comme
-   une porte et non comme une vignette. Il s'ouvre au survol. */
-.bx-door::after{content:"";position:absolute;left:0;top:0;bottom:0;width:34%;
-  pointer-events:none;z-index:0;border-radius:18px 0 0 18px;
-  background:linear-gradient(90deg,
-    rgba(216,173,76,.20) 0,rgba(216,173,76,.07) 26%,transparent 100%);
-  box-shadow:inset 2px 0 0 rgba(233,201,132,.42);
-  transition:width .38s cubic-bezier(.16,1,.3,1),opacity .38s ease;}
-.bx-door:hover::after{width:62%;}
+/* Ni lavis ni rai doré : mesurés sur la référence, les panneaux sont des
+   cartes sombres à bord fin. Le grain brunissait tout et le rai faisait
+   bricolage — la matière est désormais dans la PLANCHE d'archive à droite. */
 .bx-paper>*{position:relative;z-index:1;}
 
 .bx-thread{display:flex;flex-direction:column;justify-content:center;
-  min-height:min(46vh,360px);
-  border:1px solid var(--border);border-radius:20px;background:var(--surface);
-  padding:clamp(24px,3.2vw,44px) clamp(18px,3vw,40px);overflow-x:auto;}
-.bx-thread-h{font-family:'Inter',system-ui,sans-serif;font-size:.66rem;font-weight:700;
-  letter-spacing:.13em;text-transform:uppercase;color:var(--const);margin-bottom:16px;}
+  min-height:min(58vh,480px);
+  padding:clamp(30px,4vw,58px) clamp(22px,3.4vw,52px);overflow-x:auto;}
+.bx-thread-h{font-family:'Fraunces',serif;font-weight:900;letter-spacing:-.02em;
+  font-size:clamp(1.25rem,2.3vw,1.85rem);line-height:1.06;color:var(--text);
+  margin-bottom:clamp(22px,3vw,38px);}
+.bx-thread-h em{font-style:normal;color:var(--gold);}
 .bx-flow{position:relative;display:flex;align-items:stretch;gap:0;min-width:min-content;}
 /* L'encre : le CSS pose la mise en page, le JS mesure les nœuds, le SVG relie.
    Il est SOUS les nœuds — un trait passe derrière une fiche, jamais dessus. */
@@ -527,18 +549,23 @@ installShell({ workTitle: 'Bibliothèque', tabs: [] });
     }
 
     var ROM = ['I','II','III','IV','V','VI'];
+    /* Mêmes planches que les cartes du catalogue de l'accueil : une œuvre,
+       une image, partout sur le site — et elles sont déjà en cache. */
+    var PLATE = { 'capital-1':'manufacture', 'manuscrits-1844':'marx-jeune' };
     elDoors.innerHTML = doors.map(function(w, i){
-      return '<a class="bx-door bx-card bx-paper" style="--i:' + i + '" href="' +
-               esc(href(w)) + '">' +
+      var pl = PLATE[w.id];
+      return '<a class="bx-door bx-card" href="' + esc(href(w)) + '">' +
+        '<span class="bx-door-n" aria-hidden="true">' + (ROM[i] || (i + 1)) + '</span>' +
         '<span class="bx-door-l">' +
-          '<span class="bx-door-n" aria-hidden="true">' + (ROM[i] || (i + 1)) + '</span>' +
           '<span class="bx-door-q">' + esc(rd(w).entry) + '</span>' +
+          '<span class="bx-door-d">' + esc(w.description) + '</span>' +
           '<span class="bx-door-go">Ouvrir l\'atelier →</span>' +
         '</span>' +
         '<span class="bx-door-r">' +
-          '<span class="bx-door-w"><span class="bx-door-y">' + esc(w.year) + '</span>' +
-          '<span class="bx-door-t">' + esc(w.title) + '</span></span>' +
-          '<span class="bx-door-d">' + esc(w.description) + '</span>' +
+          (pl ? '<span class="bx-door-plate">' +
+                  '<img src="../assets/img/archive/' + pl + '.webp" alt="" loading="lazy">' +
+                  '<span class="bx-door-cap">' + esc(w.title) + ' · ' + esc(w.year) + '</span>' +
+                '</span>' : '') +
         '</span>' +
       '</a><i class="bx-run" aria-hidden="true"></i>';
     }).join('');
@@ -666,7 +693,7 @@ installShell({ workTitle: 'Bibliothèque', tabs: [] });
          fils et éclaircissait toute la section. Un diagramme n'a pas besoin
          d'une matière, une porte si. */
       return '<div class="bx-thread bx-card" data-t="' + ti + '" style="--i:' + ti + '">' +
-               '<div class="bx-thread-h">Le fil — ' + esc(head) + '</div>' +
+               '<div class="bx-thread-h">Le fil de <em>' + esc(head) + '</em></div>' +
                '<div class="bx-flow">' +
                  '<svg class="bx-ink" aria-hidden="true"></svg>' + flow +
                '</div>' +
@@ -1044,6 +1071,37 @@ installShell({ workTitle: 'Bibliothèque', tabs: [] });
     ], sort, function(id){ sort = id; renderTools(); renderCorpus(); });
   }
 
+  /* ── Le panneau recouvert recule ─────────────────────────────────
+     Il ne disparaît pas sous le suivant : il s'éloigne — échelle, flou,
+     assombrissement. Le recul ne commence qu'à MI-COURSE : le panneau tient
+     l'écran d'abord, il ne s'efface qu'une fois son propos délivré.
+     Le DERNIER panneau d'une pile ne recule jamais : rien ne le recouvre. */
+  function stackCards(){
+    if(!SCRUB) return;
+    addScrollSub(function(){
+      var cards = document.querySelectorAll('.bx-stack > .bx-card');
+      for(var i = 0; i < cards.length; i++){
+        var c = cards[i], run = c.nextElementSibling;
+        var next = run && run.nextElementSibling;
+        var covered = !!(next && next.classList.contains('bx-card'));
+        if(!covered || !run || !run.classList.contains('bx-run')){
+          c.classList.remove('receding');
+          continue;
+        }
+        var cr = c.getBoundingClientRect(), rr = run.getBoundingClientRect();
+        var p = rr.height ? cl01((cr.bottom - rr.top) / rr.height) : 0;
+        var k = cl01((p - 0.45) / 0.55);
+        k = k * k * (3 - 2 * k);
+        c.style.setProperty('--sc', (1 - 0.062 * k).toFixed(4));
+        c.style.setProperty('--bl', (5.5 * k).toFixed(2) + 'px');
+        c.style.setProperty('--br', (1 - 0.46 * k).toFixed(3));
+        /* le filtre n'est posé que pendant la transition : flouter en
+           permanence un panneau de cette taille coûte cher pour rien */
+        c.classList.toggle('receding', k > 0.002);
+      }
+    });
+  }
+
   /* ── Les feuillets se posent ─────────────────────────────────────
      Remplace le fondu d'apparition. Un fondu se déclenche une fois et ne
      revient pas ; la pose est fonction de la position de défilement, donc
@@ -1088,6 +1146,7 @@ installShell({ workTitle: 'Bibliothèque', tabs: [] });
       renderTools();
       renderCorpus();
       poseCards();
+      stackCards();
 
       /* Les trois sections sont peuplées par ce fetch : au moment où le
          navigateur a résolu l'ancre, elles étaient vides et la page a
