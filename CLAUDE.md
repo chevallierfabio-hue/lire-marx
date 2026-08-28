@@ -726,6 +726,43 @@ large), texte d'intro raccourci, et de la vie — objets, lore, animations.
   `backwards`, jamais `both`** : l'opacité du conteneur est pilotée par
   le JS au défilement, un fill persistant la lui volerait.
 
+### La feuille volante (mission `feuille-volante`, août 2026)
+
+À l'ouverture de la page, **le vantail de la fenêtre s'ouvre** (groupe
+`sash` à charnière gauche — le dormant reste fixe) et un courant d'air
+fait s'envoler une feuille qui vient **se figer devant la caméra** :
+c'est elle qui porte le texte d'introduction. Le défilement la relance
+pendant que la caméra plonge, et elle **revient à la fin, retournée** —
+le texte de fin est à son verso (`rotation.y = π`, matériau DoubleSide).
+
+Mécanique, à ne pas casser :
+
+- **Le papier est à la 3D, l'encre au DOM.** La feuille (`sheet`,
+  enfant de la CAMÉRA — toute sa chorégraphie est en espace-caméra) est
+  un plan texturé ; les blocs `#bxIntro` et `#bxEnd` sont posés sur son
+  **rectangle projeté** (`sheetRect()` : 4 coins → `project()` →
+  left/top/width/height/font-size en ligne, tout l'intérieur en em).
+  Recalculé à CHAQUE image — le texte suit la respiration de la
+  feuille. La taille de police est **quantifiée au demi-pixel**, sinon
+  le texte se recompose en permanence. Le DOM reste net, cliquable et
+  accessible — ne jamais dessiner ces textes dans la texture.
+- **L'envol est temporel et ne joue qu'une fois** (`sheetT`, ~3,8 s),
+  et seulement si l'on arrive en HAUT de page ; une restauration de
+  défilement ou un scroll pendant l'envol le termine d'un coup
+  (`sheetDone`). Le départ (scrub sur `p` dans [0.006, T_IN·0.7]) et le
+  retour final (scrub sur [T_TRAVEL+0.02, 0.985]) sont, eux,
+  **fonctions de la position — réversibles**.
+- **`.lit` déclenche l'encre** : la cascade `bx3-rise` de l'intro ne
+  part plus au chargement mais quand la feuille s'est posée
+  (`landK > .85`). Le texte de fin est gaté par `endO × endK` — il
+  n'apparaît qu'une fois la feuille retournée posée.
+- **`MeshBasicMaterial` pour le papier, pas Lambert** : à 50 cm de la
+  flamme, un matériau éclairé brûlait au jaune uniforme et le grain
+  disparaissait. `fog:false` aussi.
+- L'intro et la fin sont désormais **encre sur papier** (palette ink
+  `#2b1c0e` / `#57432a` / `#8a6420` dans le CSS) — plus de crème sur
+  fond sombre pour ces deux blocs. Le vantail reste ouvert ensuite.
+
 ### Le repli à plat (`#bxFlat`)
 
 Sous 768 px, en reduced-motion, sans WebGL ou sans THREE — ou **sur
