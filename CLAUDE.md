@@ -700,6 +700,27 @@ large), texte d'intro raccourci, et de la vie — objets, lore, animations.
   groupe, silencieuse pour un groupe inconnu) dans le cartouche de
   travée (`.cap-l`, Spectral italique or). C'est du décor éditorial,
   comme le texte d'intro — pas des données.
+- **Le plan d'ensemble est un grand-angle** : deux focales (`EST_FOV`
+  74 — presque un fish-eye — pour les plans larges de début et de fin,
+  `TFOV` 42 pour le travelling), la transition d'approche mélange dolly
+  et zoom, et la fin de course est un léger dolly-zoom. `computeFraming`
+  calcule la distance À LA FOCALE LARGE. Les plans d'ensemble sont
+  suréclairés (`wideK` → ambiante, hémisphérique, lune) : la bougie ne
+  redevient la seule source qu'au ras des rayons.
+- **La flamme est dessinée, pas dégradée** : couches de blobs radiaux
+  étirés (enveloppe orange effilée, corps doré, cœur blanc-crème posé
+  BAS, pied bleu à la mèche), un SEUL plan billboard (les deux plans
+  croisés montraient leur couture), une mèche sous elle, halo séparé.
+  Ne pas revenir aux plans croisés.
+- **Trois pièges de cette passe** : (a) le fog LAVE les matériaux
+  additifs vers sa couleur — `fog:false` sur tout l'additif de la lune ;
+  (b) la **sidebar couvre ~208 px du canvas** : composer le plan large
+  au centre du viewport mettait la fenêtre pile dessous — `sbShift`
+  (mesuré sur `.sidebar` dans `computeFraming`) recentre la pièce dans
+  la zone visible ; (c) un objet ancré en espace-caméra dépend de la
+  FOCALE : le bougeoir porté est repositionné chaque image en fonction
+  de `camera.fov` (`-tan(fov/2)·z`), sinon le grand-angle le faisait
+  flotter en plein cadre.
 - **Intro** : lede raccourci (« Marx ne se lit pas dans l'ordre des
   dates… »), lignes qui se posent en cascade (`bx3-rise`). **Fill-mode
   `backwards`, jamais `both`** : l'opacité du conteneur est pilotée par
