@@ -70,6 +70,23 @@ nav.tabs.cap-tabs-bar .tab::after{display:none;}
 nav.tabs.cap-tabs-bar .tab.active{color:var(--ink);border-bottom-color:var(--accent);}
 nav.tabs.cap-tabs-bar .tab .num{display:none;}
 /* ── Cartes démarrage ── */
+/* Le bandeau de départ (remplace les deux cartes jumelles) */
+.cap-start{display:grid;grid-template-columns:1.55fr 1fr;margin-bottom:44px;
+  background:linear-gradient(150deg,#2c2117 0%,#211a12 58%,#1b150e 100%);
+  border:1px solid rgba(216,173,76,.20);border-radius:18px;}
+.cap-start-main{padding:26px 32px 26px;}
+.cap-start-side{padding:26px 32px 26px;border-left:1px solid var(--border);
+  display:flex;flex-direction:column;}
+.cap-start-title{font-family:'Fraunces',serif;font-weight:900;font-size:1.6rem;
+  letter-spacing:-.015em;color:var(--text);margin:6px 0 10px;}
+.cap-start .cap-card-desc{max-width:52ch;}
+.cap-start #resumeSlot{margin-top:12px;}
+.cap-start button{margin-top:14px;}
+.cap-start-side .cap-card-desc{margin-top:6px;}
+@media(max-width:900px){
+  .cap-start{grid-template-columns:1fr;}
+  .cap-start-side{border-left:0;border-top:1px solid var(--border);}
+}
 .cap-lire-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:28px;}
 .cap-card{background:var(--surface);border-radius:18px;padding:22px 22px 20px;
   border:1px solid transparent;transition:transform .2s,box-shadow .2s;}
@@ -137,63 +154,53 @@ nav.tabs.cap-tabs-bar .tab .num{display:none;}
   border:none;cursor:pointer;transition:background .15s;font-family:var(--f-ui);}
 .cap-btn-light:hover{background:rgba(247,245,240,.24);}
 /* ── Atelier : cartes sections ── */
-.atl-header{position:relative;overflow:hidden;padding:clamp(36px,5vh,54px) 0 clamp(28px,4vh,44px);margin-bottom:28px;}
-.atl-halo{position:absolute;top:50%;left:38%;width:560px;height:340px;pointer-events:none;
-  background:radial-gradient(ellipse at center,rgba(213,64,47,.12) 0%,transparent 62%);
-  transform:translate(-50%,-50%);}
-.atl-header-body{display:flex;align-items:flex-start;justify-content:space-between;gap:40px;position:relative;z-index:1;}
-.atl-h1{font-family:'Fraunces',serif;font-weight:900;font-size:clamp(2.2rem,5vw,3.4rem);
-  letter-spacing:-.025em;color:var(--text);line-height:1.02;}
-.atl-h1 em{font-style:italic;font-weight:500;color:var(--red-text);}
-.atl-prog-widget{flex:none;text-align:right;min-width:180px;}
-.atl-pct{font-family:'Fraunces',serif;font-weight:900;font-size:3.2rem;
-  letter-spacing:-.04em;color:var(--text);line-height:1;}
-.atl-pct-label{font-size:.7rem;font-weight:600;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-top:2px;}
-.atl-bar-bg{height:4px;border-radius:999px;background:rgba(243,233,212,.12);margin:10px 0 6px;}
-.atl-bar-fill{height:100%;border-radius:999px;background:var(--accent);transition:width .55s cubic-bezier(.16,1,.3,1);width:0%;}
-.atl-count{font-size:.76rem;color:var(--muted);font-family:var(--f-ui);}
-#man-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;align-items:start;}
-.atl-grid-sec{grid-column:1/3;font-size:.72rem;font-weight:700;letter-spacing:.22em;
-  text-transform:uppercase;color:var(--muted);padding:16px 0 8px;border-bottom:1px solid var(--line);}
-.atl-card{border-radius:18px;padding:20px 20px 18px;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s;}
-.atl-card.atl-done{background:var(--surface);cursor:pointer;border:1px solid transparent;}
-.atl-card.atl-done:hover{transform:translateY(-3px);box-shadow:0 14px 34px -12px rgba(0,0,0,.65);border-color:rgba(243,233,212,.16);}
-.atl-card.atl-current{grid-column:1/3;cursor:pointer;
-  background:linear-gradient(150deg,#2c2117 0%,#211a12 58%,#1b150e 100%);
-  border:1px solid rgba(216,173,76,.20);}
-.atl-card.atl-current:hover{transform:translateY(-2px);box-shadow:0 16px 40px -12px rgba(0,0,0,.7);}
-.atl-card.atl-upcoming{border:1px solid var(--line);opacity:.55;}
-.atl-card-halo{position:absolute;top:40%;left:28%;width:440px;height:280px;pointer-events:none;
-  background:radial-gradient(ellipse at center,rgba(216,173,76,.15) 0%,transparent 62%);transform:translate(-50%,-50%);}
-.atl-card-ind{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:14px;}
-.atl-done .atl-card-ind{background:var(--accent);}
-.atl-done .atl-card-ind svg{width:15px;height:15px;stroke:#fff;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;}
-.atl-current .atl-card-ind{border:2px solid var(--accent);}
-.atl-current .atl-card-ind span,.atl-upcoming .atl-card-ind span{font-family:'Fraunces',serif;font-weight:700;font-size:.9rem;}
-.atl-current .atl-card-ind span{color:var(--red-text);}
-.atl-upcoming .atl-card-ind{border:1.5px solid rgba(243,233,212,.20);}
-.atl-upcoming .atl-card-ind span{color:var(--muted);}
-.atl-card-chap{font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;}
-.atl-done .atl-card-chap,.atl-upcoming .atl-card-chap{color:var(--muted);}
-.atl-current .atl-card-chap{color:var(--muted);}
-.atl-card-title{font-family:'Fraunces',serif;font-weight:700;line-height:1.3;margin-bottom:8px;}
-.atl-done .atl-card-title,.atl-upcoming .atl-card-title{font-size:1rem;color:var(--text);}
-.atl-current .atl-card-title{font-size:1.28rem;color:var(--text);}
-.atl-card-status{font-size:.7rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;}
-.atl-done .atl-card-status{color:var(--ok);}
-.atl-current .atl-card-status{color:var(--red-text);}
-.atl-card-foot{display:flex;align-items:center;justify-content:space-between;margin-top:18px;gap:12px;}
-.atl-card-sim{font-size:.76rem;font-style:italic;color:var(--muted);}
-.atl-continue{font-family:var(--f-ui);font-size:.8rem;font-weight:700;
-  padding:8px 20px;border-radius:999px;border:none;background:rgba(247,245,240,.13);color:#F7F5F0;
-  cursor:pointer;transition:background .15s;white-space:nowrap;}
-.atl-continue:hover{background:rgba(247,245,240,.22);}
-.atl-done-toggle{display:inline-flex;align-items:center;gap:4px;font-size:.7rem;font-weight:600;
-  background:transparent;border:none;cursor:pointer;padding:4px 0;margin-top:6px;
-  transition:color .15s;font-family:var(--f-ui);}
+/* L'ancien en-tête géant du panneau Atelier (.atl-header : titre 3.4rem
+   + « 0 % » en 3.2rem) est remplacé par la grammaire commune .panel-head
+   d'atelier.css. */
+/* ── La table des matières des trois manuscrits — même liste de sommaire
+   que le Livre I sur capital-1 : numéro Fraunces italique or, titre,
+   statut à droite ; le manuscrit en cours est la SEULE carte, sur le
+   dégradé chaud d'emphase du socle. Trois cahiers seulement : les
+   lignes sont plus généreuses. */
+#man-grid{max-width:880px;}
+.atl-card{display:grid;grid-template-columns:52px 1fr auto;align-items:baseline;
+  column-gap:16px;padding:18px 12px 18px 2px;border-bottom:1px solid var(--line);
+  cursor:pointer;transition:background .15s;}
+.atl-card:hover{background:var(--hover);}
+.atl-num{font-family:'Fraunces',serif;font-style:italic;font-weight:500;
+  font-size:1.3rem;color:var(--gold);text-align:right;line-height:1;}
+.atl-upcoming .atl-num{color:var(--muted);opacity:.75;}
+.atl-card-title{font-family:'Fraunces',serif;font-weight:600;font-size:1.12rem;
+  color:var(--text);line-height:1.3;}
+.atl-upcoming .atl-card-title{font-weight:500;color:var(--ink-soft);}
+.atl-row-main{display:flex;flex-direction:column;gap:4px;}
+.atl-card-sub{font-family:var(--f-ui);font-size:.79rem;color:var(--muted);}
+.atl-row-side{display:flex;align-items:center;gap:16px;}
+.atl-card-status{font-size:.68rem;font-weight:700;letter-spacing:.09em;
+  text-transform:uppercase;font-family:var(--f-ui);color:var(--muted);}
+.atl-done-toggle{display:inline-flex;align-items:center;gap:5px;font-size:.68rem;
+  font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+  background:transparent;border:none;cursor:pointer;padding:6px 2px;
+  font-family:var(--f-ui);color:var(--muted);transition:color .15s;}
 .atl-done .atl-done-toggle{color:var(--ok);}
-.atl-done .atl-done-toggle:hover{color:var(--muted);}
-.atl-upcoming .atl-done-toggle{display:none;}
+.atl-done-toggle svg{width:12px;height:12px;stroke:currentColor;stroke-width:2.6;
+  stroke-linecap:round;stroke-linejoin:round;fill:none;}
+.atl-done-toggle:hover{color:var(--red-text);}
+.atl-card.atl-current{align-items:center;
+  background:linear-gradient(150deg,#2c2117 0%,#211a12 58%,#1b150e 100%);
+  border:1px solid rgba(216,173,76,.20);border-radius:14px;
+  padding:22px;margin:16px 0;transition:transform .2s,box-shadow .2s;}
+.atl-card.atl-current:hover{transform:translateY(-2px);
+  box-shadow:0 14px 34px -12px rgba(0,0,0,.55);
+  background:linear-gradient(150deg,#2c2117 0%,#211a12 58%,#1b150e 100%);}
+.atl-current .atl-num{font-size:1.6rem;}
+.atl-current .atl-card-title{font-size:1.3rem;font-weight:700;}
+.atl-current .atl-card-status{color:var(--red-text);}
+.atl-current .atl-card-desc-line{font-size:.9rem;font-style:italic;color:var(--ink-soft);margin-top:2px;}
+.atl-continue{font-family:var(--f-ui);font-size:.8rem;font-weight:700;
+  padding:8px 20px;border-radius:999px;border:none;background:rgba(247,245,240,.13);
+  color:var(--text);cursor:pointer;transition:background .15s;white-space:nowrap;}
+.atl-continue:hover,.atl-card.atl-current:hover .atl-continue{background:rgba(247,245,240,.22);}
 /* ── Ressources ── */
 .rss-section-label{font-size:.72rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;
   color:var(--muted);margin-bottom:14px;display:block;font-family:var(--f-ui);padding-top:4px;}
@@ -222,10 +229,14 @@ nav.tabs.cap-tabs-bar .tab .num{display:none;}
      sur trois lignes en travers du portrait. */
   .cap-cover-caption{font-size:8.5px;padding:16px 8px 6px;letter-spacing:.04em;}
   .cap-lire-grid{grid-template-columns:1fr;}
-  #man-grid{grid-template-columns:1fr;}
-  .atl-grid-sec,.atl-card.atl-current{grid-column:1;}
-  .atl-header-body{flex-direction:column;gap:20px;}
-  .atl-prog-widget{text-align:left;min-width:0;width:100%;}
+  .atl-card{grid-template-columns:40px 1fr auto;column-gap:10px;}
+  .atl-card.atl-current{grid-template-columns:40px 1fr;padding:16px 14px;align-items:start;}
+  .atl-current .atl-num{margin-top:2px;}
+  .atl-current .atl-row-side{grid-column:2;justify-content:flex-start;margin-top:8px;}
+}
+@media(max-width:480px){
+  .atl-card{grid-template-columns:34px 1fr;}
+  .atl-row-side{grid-column:2;justify-content:flex-start;margin-top:6px;}
 }
 @media(max-width:860px){.cap-ideas-grid{grid-template-columns:1fr 1fr;}.cap-actions-row{grid-template-columns:1fr;}}
 @media(max-width:580px){.cap-ideas-grid{grid-template-columns:1fr;}}
@@ -361,18 +372,19 @@ nav.subnav{position:sticky;top:85px;z-index:61;background:var(--bg);
   <!-- ACCUEIL — onglet "Lire les Manuscrits" (2 cartes de départ) -->
   <section class="panel active" id="accueil">
 
-    <!-- Deux cartes de démarrage rapide -->
-    <div class="cap-lire-grid" style="margin-bottom:40px;">
-      <div class="cap-card">
-        <div class="cap-card-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><g class="s"><path d="M12 6.4C10 4.6 7.2 3.9 3.6 4.1v13.2c3.6-.2 6.4.5 8.4 2.3 2-1.8 4.8-2.5 8.4-2.3V4.1c-3.6-.2-6.4.5-8.4 2.3Z"/><path d="M12 6.4v13.2"/></g></svg></div>
-        <div class="cap-card-title">Commencer la lecture</div>
+    <!-- Le bandeau de départ : une seule surface éclairée (le dégradé
+         chaud d'emphase du socle), le texte à gauche, le parcours à
+         droite derrière un filet. -->
+    <div class="cap-start">
+      <div class="cap-start-main">
+        <span class="cap-action-eyebrow">Le texte</span>
+        <div class="cap-start-title">Commencer la lecture</div>
         <div class="cap-card-desc">Le texte intégral des trois manuscrits — traduction J.-M. Palmier, domaine public.</div>
         <div id="resumeSlot"></div>
-        <button class="cap-btn-dark" onclick="activateTab('lire');document.getElementById('partSelect').value='2';loadPart(2);window.scrollTo({top:0,behavior:'smooth'});">Lire →</button>
+        <button class="cap-btn-light" onclick="activateTab('lire');document.getElementById('partSelect').value='2';loadPart(2);window.scrollTo({top:0,behavior:'smooth'});">Lire →</button>
       </div>
-      <div class="cap-card">
-        <div class="cap-card-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="f" d="M6.2 3.2h11.6v17.6L12 16.1l-5.8 4.7z"/></svg></div>
-        <div class="cap-card-title">Ton parcours</div>
+      <div class="cap-start-side">
+        <span class="cap-action-eyebrow">Ton parcours</span>
         <div id="manProgCard"><!-- rempli dynamiquement par syncManProgUI() --></div>
       </div>
     </div>
@@ -432,8 +444,12 @@ nav.subnav{position:sticky;top:85px;z-index:61;background:var(--bg);
   </section>
 
   <section class="panel" id="nav">
-    <h2 class="sec">Parcourir les Manuscrits</h2>
-    <p class="lead">Le plan des trois manuscrits : chaque cahier donne son fil, chaque partie un résumé argumenté, et un clic mène au texte intégral.</p>
+    <div class="panel-head">
+      <div class="panel-head-main">
+        <h2 class="sec">Parcourir les Manuscrits</h2>
+        <p class="lead">Le plan des trois manuscrits : chaque cahier donne son fil, chaque partie un résumé argumenté, et un clic mène au texte intégral.</p>
+      </div>
+    </div>
     <div class="edition-note"><b>Statut de l'édition.</b> Le texte provient de l'archive du Marxists Internet Archive.</div>
     <div class="search"><input type="text" id="filter" placeholder="Filtrer : aliénation, argent, Hegel, communisme…" aria-label="Filtrer les chapitres"></div>
     <div class="nores" id="nores">Aucune partie ne correspond.</div>
@@ -441,8 +457,12 @@ nav.subnav{position:sticky;top:85px;z-index:61;background:var(--bg);
   </section>
 
   <section class="panel" id="lire">
-    <h2 class="sec">Texte intégral</h2>
-    <p class="lead">Lecture complète des trois manuscrits, section par section, directement dans la page.</p>
+    <div class="panel-head">
+      <div class="panel-head-main">
+        <h2 class="sec">Texte intégral</h2>
+        <p class="lead">Lecture complète des trois manuscrits, section par section, directement dans la page.</p>
+      </div>
+    </div>
 
     <div class="method-note"><b>À quoi sert cet onglet.</b> C'est la <b>liseuse</b> de l'atelier : on y lit le texte intégral des manuscrits. Le <i>Parcourir</i> en donne des résumés et le <i>Cheminement</i> en suit la logique ; ici, ce sont les mots mêmes de Marx qui s'affichent.</div>
 
@@ -467,21 +487,20 @@ nav.subnav{position:sticky;top:85px;z-index:61;background:var(--bg);
 
   <!-- ATELIER-ACCUEIL — grille de sections -->
   <section class="panel" id="atelier-accueil">
-    <div class="atl-header">
-      <div class="atl-halo"></div>
-      <div class="atl-header-body">
-        <h2 class="atl-h1">Manuscrits<br><em>de 1844</em></h2>
-        <div class="atl-prog-widget" id="manAtlProgWidget">
-          <div id="manAtlProg" style="display:none">
-            <div class="atl-pct" id="manAtlPct">0 %</div>
-            <div class="atl-pct-label">complété</div>
-            <div class="atl-bar-bg"><div class="atl-bar-fill" id="manAtlFill"></div></div>
-            <div class="atl-count" id="manAtlCount">0 sur 3 manuscrits</div>
-          </div>
-          <div id="manAtlProgNA" class="prog-no-auth">
-            <span>Connecte-toi pour suivre ta progression</span>
-            <button class="prog-no-auth-btn" type="button" onclick="window.SHELL&&window.SHELL.auth&&window.SHELL.auth.openModal()">Se connecter</button>
-          </div>
+    <!-- Tête de panneau (grammaire commune) -->
+    <div class="panel-head">
+      <div class="panel-head-main">
+        <h2 class="sec">Les trois cahiers <em>de 1844</em></h2>
+        <p class="lead">Manuscrit par manuscrit — coche ce que tu as lu, reprends où tu t'étais arrêté.</p>
+      </div>
+      <div class="panel-meta">
+        <div id="manAtlProg" class="pg-prog" style="display:none">
+          <div class="pg-bar"><div class="pg-fill" id="manAtlFill"></div></div>
+          <div class="pg-count" id="manAtlCount">0 sur 3 manuscrits</div>
+        </div>
+        <div id="manAtlProgNA" class="prog-no-auth">
+          <span>Connecte-toi pour suivre ta progression</span>
+          <button class="prog-no-auth-btn" type="button" onclick="window.SHELL&&window.SHELL.auth&&window.SHELL.auth.openModal()">Se connecter</button>
         </div>
       </div>
     </div>
@@ -489,14 +508,22 @@ nav.subnav{position:sticky;top:85px;z-index:61;background:var(--bg);
   </section>
 
   <section class="panel" id="deriv">
-    <h2 class="sec">Le cheminement des Manuscrits</h2>
-    <p class="lead">Le texte n'avance pas comme une démonstration achevée, mais comme une série de déplacements. Voici le fil — non les concepts un à un, que dissèque le laboratoire, mais le ressort qui fait passer de l'un à l'autre, au long des trois cahiers.</p>
+    <div class="panel-head">
+      <div class="panel-head-main">
+        <h2 class="sec">Le cheminement des Manuscrits</h2>
+        <p class="lead">Le texte n'avance pas comme une démonstration achevée, mais comme une série de déplacements. Voici le fil — non les concepts un à un, que dissèque le laboratoire, mais le ressort qui fait passer de l'un à l'autre, au long des trois cahiers.</p>
+      </div>
+    </div>
     <div class="walk" id="walk"></div>
   </section>
 
   <section class="panel" id="labo">
-    <h2 class="sec">Le laboratoire des concepts</h2>
-    <p class="lead">Des instruments pour approcher les concepts non comme des définitions, mais comme des relations.</p>
+    <div class="panel-head">
+      <div class="panel-head-main">
+        <h2 class="sec">Le laboratoire des concepts</h2>
+        <p class="lead">Des instruments pour approcher les concepts non comme des définitions, mais comme des relations.</p>
+      </div>
+    </div>
     <div class="lab-tabs" id="labTabs">
       <button class="lab-tab active" type="button" data-instr="ana">L'anatomie du travail aliéné</button>
       <button class="lab-tab" type="button" data-instr="carte">La carte des concepts</button>
@@ -565,8 +592,12 @@ nav.subnav{position:sticky;top:85px;z-index:61;background:var(--bg);
   </section>
 
   <section class="panel" id="explore">
-    <h2 class="sec">Explorations</h2>
-    <p class="lead">Non plus expliquer le texte — le laboratoire s'en charge — mais ouvrir : où va la pensée une fois les cahiers refermés. Trois sorties, de la plus proche à la plus lointaine.</p>
+    <div class="panel-head">
+      <div class="panel-head-main">
+        <h2 class="sec">Explorations</h2>
+        <p class="lead">Non plus expliquer le texte — le laboratoire s'en charge — mais ouvrir : où va la pensée une fois les cahiers refermés. Trois sorties, de la plus proche à la plus lointaine.</p>
+      </div>
+    </div>
     <div class="explore-grid">
       <article class="explore-card"><small>La suite de l'œuvre</small><h3>De 1844 au Capital</h3><p>Les cahiers restent un chantier ; le fil se poursuit ailleurs. Les Thèses sur Feuerbach (1845) font de la praxis le critère, L'Idéologie allemande (1845-46) ancre la critique dans l'histoire matérielle, et la critique de l'économie politique aboutit, vingt ans plus tard, au Capital. L'aliénation n'y disparaît pas : elle s'y transforme.</p></article>
       <a class="explore-card explore-link" href="capital-1.html#feti"><small>Un pont vers Le Capital</small><h3>L'aliénation devient le fétichisme</h3><p>Ce que les Manuscrits nomment aliénation, Le Capital le repense sous le nom de fétichisme de la marchandise : le rapport social entre les hommes y prend la figure d'un rapport entre les choses. Le même problème, mûri par vingt ans de critique économique.</p><span class="explore-cta">Ouvrir Le Capital →</span></a>
@@ -575,14 +606,22 @@ nav.subnav{position:sticky;top:85px;z-index:61;background:var(--bg);
   </section>
 
   <section class="panel" id="chrono">
-    <h2 class="sec">La chronologie des Manuscrits</h2>
-    <p class="lead">Le texte a deux âges : celui de son écriture, en 1844, et celui de sa découverte, près d'un siècle plus tard — quand son exhumation rouvre la lecture de tout Marx.</p>
+    <div class="panel-head">
+      <div class="panel-head-main">
+        <h2 class="sec">La chronologie des Manuscrits</h2>
+        <p class="lead">Le texte a deux âges : celui de son écriture, en 1844, et celui de sa découverte, près d'un siècle plus tard — quand son exhumation rouvre la lecture de tout Marx.</p>
+      </div>
+    </div>
     <div class="timeline" id="timeline"></div>
   </section>
 
   <section class="panel" id="ressources">
-      <h2 class="sec">Ressources</h2>
-      <p class="lead">Conférences, podcasts et articles en libre accès autour des Manuscrits — pour approfondir avant ou après la lecture.</p>
+    <div class="panel-head">
+      <div class="panel-head-main">
+        <h2 class="sec">Ressources</h2>
+        <p class="lead">Conférences, podcasts et articles en libre accès autour des Manuscrits — pour approfondir avant ou après la lecture.</p>
+      </div>
+    </div>
     <span class="rss-section-label">Vidéos &amp; conférences</span>
     <div class="rss-grid">
       <a class="rss-card" href="https://www.youtube.com/watch?v=mDvnEmgtk0Y" target="_blank" rel="noopener">
@@ -1395,10 +1434,9 @@ function syncTabsA11y(pid){
       if(na)na.style.display=loggedIn?'none':'flex';
       if(pr)pr.style.display=loggedIn?'':'none';
       if(loggedIn){
-        var pctEl=byId('manAtlPct'),fillEl=byId('manAtlFill'),countEl=byId('manAtlCount');
-        if(pctEl)pctEl.textContent=pct+' %';
+        var fillEl=byId('manAtlFill'),countEl=byId('manAtlCount');
         if(fillEl)fillEl.style.width=pct+'%';
-        if(countEl)countEl.textContent=cnt+' sur '+_manTotal+' manuscrits';
+        if(countEl)countEl.textContent=cnt+' sur '+_manTotal+' manuscrits'+(pct?' \u00b7 '+pct+'\u00a0%':'');
       }
     }
 
@@ -1408,33 +1446,34 @@ function syncTabsA11y(pid){
       var grid=byId('man-grid'); if(!grid)return;
       var firstActive=-1;
       MAN_SECTIONS.forEach(function(s,i){if(!doneSet.has(s.part)&&firstActive<0)firstActive=i;});
+      var CHECK='<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><polyline points="2,9 6,13 14,3" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      /* Trois gabarits de LIGNE de sommaire — mêmes classes qu'avant, la
+         mécanique (délégation par classe plus bas) ne bouge pas. */
       var html='';
       MAN_SECTIONS.forEach(function(s,i){
         var isDone=doneSet.has(s.part); var isCur=!isDone&&i===firstActive;
         var cls='atl-card '+(isDone?'atl-done':isCur?'atl-current':'atl-upcoming');
+        var sub='Manuscrit '+esc(s.rn)+' \u00b7 '+s.chaps+' partie'+(s.chaps>1?'s':'');
+        var a11y=' role="link" tabindex="0" aria-label="Manuscrit '+esc(s.rn)+' \u2014 '+esc(s.t)+' \u2014 '+(isDone?'lu':isCur?'en cours':'\u00e0 lire')+'"';
         if(isCur){
-          html+='<div class="'+cls+'" data-part="'+s.part+'">'
-            +'<div class="atl-card-halo"></div>'
-            +'<div class="atl-card-ind"><span>'+esc(s.rn)+'</span></div>'
-            +'<div class="atl-card-chap">Manuscrit '+esc(s.rn)+'</div>'
-            +'<div class="atl-card-title">'+esc(s.t)+'</div>'
-            +'<div class="atl-card-status">▶ En cours · '+s.chaps+' partie'+(s.chaps>1?'s':'')+'</div>'
-            +'<div class="atl-card-foot">'
-            +'<span class="atl-card-sim">'+esc(s.desc)+'</span>'
-            +'<button class="atl-continue" data-part="'+s.part+'">Commencer →</button>'
-            +'</div></div>';
+          html+='<div class="'+cls+'" data-part="'+s.part+'"'+a11y+'>'
+            +'<span class="atl-num" aria-hidden="true">'+esc(s.rn)+'</span>'
+            +'<span class="atl-row-main">'
+            +'<span class="atl-card-title">'+esc(s.t)+'</span>'
+            +'<span class="atl-card-sub">'+sub+' \u00b7 <span class="atl-card-status">En cours</span></span>'
+            +'<span class="atl-card-desc-line">'+esc(s.desc)+'</span>'
+            +'</span>'
+            +'<span class="atl-row-side"><button class="atl-continue" data-part="'+s.part+'">Commencer \u2192</button></span></div>';
         } else {
-          var indHtml=isDone
-            ?'<svg viewBox="0 0 24 24" fill="none"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.6" stroke="#fff" d="M5 13l4 4L19 7"/></svg>'
-            :'<span>'+esc(s.rn)+'</span>';
-          html+='<div class="'+cls+'" data-part="'+s.part+'">'
-            +'<div class="atl-card-ind">'+indHtml+'</div>'
-            +'<div class="atl-card-chap">Manuscrit '+esc(s.rn)+'</div>'
-            +'<div class="atl-card-title">'+esc(s.t)+'</div>'
-            +(isDone?'<div class="atl-card-status">✓ Lu</div>':'')
-            +'<button class="atl-done-toggle" data-part="'+s.part+'">'
-            +(isDone?'✓ Marquer non lu':'○ Marquer comme lu')
-            +'</button></div>';
+          html+='<div class="'+cls+'" data-part="'+s.part+'"'+a11y+'>'
+            +'<span class="atl-num" aria-hidden="true">'+esc(s.rn)+'</span>'
+            +'<span class="atl-row-main">'
+            +'<span class="atl-card-title">'+esc(s.t)+'</span>'
+            +'<span class="atl-card-sub">'+sub+'</span>'
+            +'</span>'
+            +'<span class="atl-row-side"><button class="atl-done-toggle" data-part="'+s.part+'">'
+            +(isDone?CHECK+'Lu':'Marquer comme lu')
+            +'</button></span></div>';
         }
       });
       grid.innerHTML=html;
@@ -1445,12 +1484,17 @@ function syncTabsA11y(pid){
           loadPart(part);window.scrollTo({top:0,behavior:'smooth'});
         });
       });
-      grid.querySelectorAll('.atl-done .atl-card,[class*="atl-upcoming"]').forEach(function(card){
+      grid.querySelectorAll('.atl-card.atl-done,.atl-card.atl-upcoming').forEach(function(card){
         card.addEventListener('click',function(e){
-          if(e.target.classList.contains('atl-done-toggle'))return;
+          if(e.target.closest('.atl-done-toggle'))return;
           var part=+card.getAttribute('data-part');
           activateTab('lire');byId('partSelect').value=String(part);
           loadPart(part);window.scrollTo({top:0,behavior:'smooth'});
+        });
+      });
+      grid.querySelectorAll('.atl-card[role="link"]').forEach(function(card){
+        card.addEventListener('keydown',function(e){
+          if(e.key==='Enter'||e.key===' '){e.preventDefault();card.click();}
         });
       });
       grid.querySelectorAll('.atl-done-toggle').forEach(function(btn){

@@ -615,11 +615,11 @@ dans ces cas — et le CSS masque fiche, bandeau et voile sous 768 px.
 - ✅ **Socle sombre des pages d'atelier** (`capital-1.html`,
   `manuscrits-1844.html`) — août 2026, voir « Les pages d'atelier »
   ci-dessous. Les deux pages sont passées à la DA sombre-chaude.
-- 🔲 Onglets Parcourir / Cheminement / Modèles / Explorations /
-  Chronologie : le gel « ne pas retoucher » a été **levé par le
-  propriétaire** (août 2026) — ils sont rouverts au design. Le socle
-  sombre n'a touché que leurs couleurs ; leur mise en page reste à
-  reprendre dans une mission dédiée.
+- ✅ Onglets Parcourir / Cheminement / Modèles / Explorations /
+  Chronologie : gel levé, puis **passe moderne** (août 2026, mission
+  `atelier-moderne`) — grammaire de tête de panneau commune, table des
+  matières, surfaces et pilules unifiées. Voir « La passe moderne »
+  ci-dessous.
 - ✅ Page Bibliothèque à part (`oeuvres/bibliotheque.html`) — **refondue
   en scène 3D « la pièce aux rayonnages »** (août 2026), voir « La page
   Bibliothèque » ci-dessous. Elle avait été jugée inutile, rouverte sur
@@ -643,8 +643,14 @@ même squelette (`.cap-hero`, `.cap-tabs-bar`, `.panel`).
    aperçoit déjà au bout de l'allée dans la scène de la bibliothèque
    (`furnish()` : feuillets, encrier, plume, deux tomes, chandelle,
    fac-similé encadré). On prend le livre au rayon, on va l'ouvrir au
-   bureau : la rime boucle le parcours. **C'est la mission suivante**, elle
-   n'est pas faite ici.
+   bureau : la rime boucle le parcours. **Essayé puis ABANDONNÉ** (août
+   2026, mission `bureau-decriture`, branche supprimée) : un seuil 3D
+   complet — bureau de furnish() par-dessus l'épaule, livre de l'œuvre en
+   cuir de son rayon, couverture qui s'ouvre sur une page de garde,
+   teardown — a été construit et fonctionnait ; le propriétaire a tranché
+   qu'il ne voulait pas d'animation d'entrée mais une PAGE d'atelier
+   moderne, claire et pratique (mission `atelier-moderne` ci-dessous).
+   Ne pas re-proposer d'animation d'entrée sur les ateliers.
 3. Le gel des cinq onglets « satisfaisants tels quels » est **levé**.
 
 ### atelier.css est le système de record, et lui seul
@@ -744,6 +750,61 @@ avait laissé passer. Elle ne voit en revanche PAS un îlot clair dans une page
 sombre (texte foncé sur crème = fort contraste) : le bandeau de chapitre
 `.rdr-header` n'a été repéré qu'à l'œil.
 
+
+## Les pages d'atelier — la passe moderne (mission `atelier-moderne`)
+
+Demande du propriétaire : « une page stylisée pour l'atelier lui-même —
+moderne, clair, pratique, esthétique ». Refonte de mise en page DANS la
+DA sombre-chaude (pas un nouveau monde visuel), les deux pages.
+
+- **Grammaire de tête de panneau** (`.panel-head`, atelier.css) : titre
+  Fraunces + lede italique à gauche, méta compacte à droite
+  (`.pg-prog`/`.pg-bar`/`.pg-count`), filet dessous. Les NEUF panneaux
+  des deux pages l'utilisent. Les anciens en-têtes géants (`.atl-header` :
+  fil d'Ariane doublon + badge + titre 3,4 rem + « 0 % » en 3,2 rem) sont
+  SUPPRIMÉS — le héros replié porte déjà fil d'Ariane et titre. Le
+  pourcentage vit dans le compte (« 12 sur 33 chapitres · 36 % »), plus
+  jamais en chiffre géant.
+- **La table des matières** : les grilles de cartes chapitre (#navlist /
+  #atlNavlist sur Capital, #man-grid sur Manuscrits) sont des LISTES de
+  sommaire — numéro en Fraunces italique or (le traitement des années de
+  la frise), titre, simulation associée et statut à droite, sections en
+  capitales or. Le chapitre en cours est la SEULE carte de la liste
+  (dégradé chaud d'emphase du socle). « Lu » est aussi le bouton qui
+  dé-coche. Les gabarits de ligne vivent dans `renderAtlList` (Capital)
+  et `renderAtlGrid` (Manuscrits) ; la mécanique passe par les CLASSES
+  (`.atl-continue`, `.atl-done-toggle`, `data-part`) — les garder.
+- **Le bandeau de départ** (`.cap-start`) remplace les deux cartes
+  jumelles à icône de « Commencer » : une seule surface au dégradé chaud,
+  texte + reprise + bouton à gauche, « Ton parcours » (#capProgCard /
+  #manProgCard, contrats JS inchangés) à droite derrière un filet.
+- **Grammaire des encarts** : plus de filet latéral 3 px (le tell des UI
+  générées) sur les encarts/cartes — liseré fin 1 px de leur teinte,
+  rayon 12. EXCEPTION : les citations (`.pull`, `.acc-exergue-q`) gardent
+  leur filet de gauche, c'est une règle typographique ; la légende de
+  graphique aussi (échantillon de trait).
+- **Pilules et rayons** : `.btn` et `.formebtn` en pilule (la forme
+  committée) ; grandes surfaces du laboratoire à 16, piste chrono 12,
+  compbar 10. « Comprendre les concepts » rejoint les labels de section
+  en capitales or.
+
+**Pièges de cette mission :**
+1. **Deep-link `#labo` cassait toute la page Capital** : `activateTop`
+   appelait `drawTRPF()` au boot, AVANT le `const re0` du même bloc
+   script (TDZ) — l'exception tuait tout le reste du script. L'appel est
+   différé d'un tick (`setTimeout(drawTRPF,0)`). Tout nouveau rendu
+   déclenché par `syncTabsA11y`/`activateTop` au boot doit se méfier des
+   `const` déclarés plus bas dans le bloc.
+2. **Le pane sert des pages ENTIÈRES périmées**, pas seulement le CSS :
+   même `navigate force` + serveur no-store peut rendre une édition en
+   retard, et les captures après re-navigation same-URL montrent l'état
+   d'avant. Buster l'URL de la page (`?cb=n`, une valeur NEUVE à chaque
+   chargement) et vérifier au DOM (`getBoundingClientRect`,
+   `getComputedStyle`) plutôt qu'à la capture avant de conclure à un bug.
+3. Le sélecteur `.atl-done .atl-card` (Manuscrits) ne matchait rien : les
+   lignes « lu » n'étaient pas cliquables — corrigé en
+   `.atl-card.atl-done`, et les lignes portent role="link" + tabindex +
+   Enter/Espace comme sur Capital.
 
 ## Les pages d'atelier — accessibilité (mission `ateliers-accessibilite`)
 

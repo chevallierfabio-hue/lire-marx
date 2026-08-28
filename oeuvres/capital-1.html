@@ -1634,7 +1634,10 @@ function activateTop(top){
   sn.innerHTML=g.panels.map((pid,i)=>`<button type="button" class="subnavbtn${pid===curPanel[top]?' active':''}" data-panel="${pid}">${g.labels[i]||pid}</button>`).join('');
   sn.querySelectorAll('.subnavbtn').forEach(b=>b.addEventListener('click',()=>{curPanel[top]=b.dataset.panel;activateTop(top);}));
   const pid=curPanel[top];document.querySelectorAll('.panel').forEach(x=>x.classList.toggle('active',x.id===pid));
-  if(pid==='labo')drawTRPF();
+  /* Différé d'un tick : au boot d'un deep-link #labo, cet appel partait
+     AVANT le `const re0` du même bloc script (TDZ) — l'exception tuait
+     tout le reste du script de la page. */
+  if(pid==='labo')setTimeout(drawTRPF,0);
   syncTabsA11y(pid);
 }
 function activateTab(id){const t=panelTop(id);curPanel[t]=id;activateTop(t);}

@@ -20,11 +20,11 @@ header.work-head{text-align:center;margin:6px auto 26px;max-width:880px;}
 .reader-content .reader-error{max-width:720px;margin:40px auto;padding:22px;border:1px dashed var(--line);border-radius:8px;background:var(--paper-2);font-family:var(--f-serif);color:var(--ink-soft);}
 .reader-content .reader-error b{display:block;color:var(--ink);font-family:'Fraunces',Georgia,serif;font-size:1.18rem;margin-bottom:8px;}
 .chapter-grid,.cards,.models,.explore-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:18px;}
-.explore-link{display:flex;flex-direction:column;text-decoration:none;color:inherit;border-left:3px solid var(--red);transition:transform .15s,box-shadow .15s;}
+.explore-link{display:flex;flex-direction:column;text-decoration:none;color:inherit;border:1px solid rgba(213,64,47,.32);border-radius:12px;transition:transform .15s,box-shadow .15s,border-color .15s;}
 .explore-link:hover{transform:translateY(-2px);box-shadow:0 10px 26px -10px rgba(0,0,0,.6);}
 .explore-link small{color:var(--red-text);background:rgba(213,64,47,.14);}
 .explore-cta{display:block;margin-top:12px;font-family:'Fraunces',Georgia,serif;font-weight:700;font-size:.92rem;color:var(--bright);}
-.chapter small,.card small,.model small,.explore-card small{display:inline-flex;font-family:var(--f-ui);font-size:.66rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);background:rgba(216,173,76,.13);border-radius:999px;padding:3px 8px;margin-bottom:9px;}
+.chapter small,.card small,.model small,.explore-card small{display:inline-flex;font-family:var(--f-ui);font-size:.7rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);background:rgba(216,173,76,.13);border-radius:999px;padding:3px 8px;margin-bottom:9px;}
 .concepts{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px;}
 .walk{position:relative;max-width:760px;margin-top:8px;padding-left:32px;}
 .walk::before{content:"";position:absolute;left:7px;top:6px;bottom:6px;width:2px;background:var(--line);}
@@ -119,7 +119,7 @@ header.work-head{text-align:center;margin:6px auto 26px;max-width:880px;}
 .src-tab.active{border-color:var(--red);background:rgba(213,64,47,.12);}
 .src-sub{font-family:'Spectral',Georgia,serif;font-weight:400;font-style:italic;font-size:.8rem;color:var(--ink-soft);}
 .src-body{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-items:start;}
-.src-col{background:var(--paper-2);border:1px solid var(--line);border-top:3px solid var(--line);border-radius:6px;padding:16px clamp(12px,1.6vw,18px);}
+.src-col{background:var(--paper-2);border:1px solid var(--line);border-radius:12px;padding:16px clamp(12px,1.6vw,18px);}
 .src-col.is-keep{border-top-color:var(--ink);}
 .src-col.is-break{border-top-color:var(--red);}
 .src-col h4{font-family:'Fraunces',Georgia,serif;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);margin:0 0 10px;font-weight:700;}
@@ -130,7 +130,7 @@ header.work-head{text-align:center;margin:6px auto 26px;max-width:880px;}
 /* Atelier — instrument « Le devenir des concepts » (panel #labo, 4e onglet). */
 .devenir{margin-top:4px;}
 .dev-debat{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:26px;}
-.dev-pos{background:var(--paper-2);border:1px solid var(--line);border-top:3px solid var(--line);border-radius:6px;padding:16px clamp(12px,1.6vw,20px);}
+.dev-pos{background:var(--paper-2);border:1px solid var(--line);border-radius:12px;padding:16px clamp(12px,1.6vw,20px);}
 .dev-pos.is-break{border-top-color:var(--red);}
 .dev-pos.is-cont{border-top-color:var(--ink);}
 .dev-pos h4{font-family:'Fraunces',Georgia,serif;font-size:.95rem;font-weight:700;color:var(--ink);margin:0 0 10px;}
@@ -154,7 +154,7 @@ header.work-head{text-align:center;margin:6px auto 26px;max-width:880px;}
 
 /* Atelier — instrument « Marx contre Hegel » (panel #labo, 5e onglet). */
 .hegel{margin-top:4px;}
-.heg-dette{background:var(--paper-2);border:1px solid var(--line);border-left:3px solid var(--ink);border-radius:6px;padding:14px 18px;margin-bottom:22px;}
+.heg-dette{background:var(--paper-2);border:1px solid var(--line-strong,var(--line));border-radius:12px;padding:14px 18px;margin-bottom:22px;}
 .heg-dette h4{font-family:'Fraunces',Georgia,serif;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);margin:0 0 8px;font-weight:700;}
 .heg-dette p{font-family:'Spectral',Georgia,serif;font-size:.96rem;color:var(--ink);line-height:1.6;margin:0;}
 .heg-pick{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;}
@@ -164,7 +164,7 @@ header.work-head{text-align:center;margin:6px auto 26px;max-width:880px;}
 .heg-pill.is-key{border-style:dashed;}
 .heg-star{display:block;font-family:'Spectral',Georgia,serif;font-style:italic;font-weight:400;font-size:.72rem;color:var(--red-deep);}
 .heg-face{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;}
-.heg-col{background:var(--paper-2);border:1px solid var(--line);border-top:3px solid var(--line);border-radius:6px;padding:16px clamp(12px,1.6vw,20px);}
+.heg-col{background:var(--paper-2);border:1px solid var(--line);border-radius:12px;padding:16px clamp(12px,1.6vw,20px);}
 .heg-col h5{font-family:'Fraunces',Georgia,serif;font-size:.95rem;font-weight:700;margin:0 0 10px;}
 .heg-col p{font-family:'Spectral',Georgia,serif;font-size:.96rem;color:var(--ink);line-height:1.6;margin:0;}
 .heg-hegel{border-top-color:var(--ink);}
@@ -175,7 +175,7 @@ header.work-head{text-align:center;margin:6px auto 26px;max-width:880px;}
 
 /* Atelier — instrument « Lexique allemand » (panel #labo, 6e onglet). */
 .lexique{margin-top:4px;}
-.lex-pair{background:var(--paper-2);border:1px solid var(--line);border-left:3px solid var(--red);border-radius:6px;padding:14px 18px;margin-bottom:24px;}
+.lex-pair{background:var(--paper-2);border:1px solid rgba(213,64,47,.32);border-radius:12px;padding:14px 18px;margin-bottom:24px;}
 .lex-pair h4{font-family:'Fraunces',Georgia,serif;font-size:.95rem;font-weight:700;color:var(--red-deep);margin:0 0 8px;}
 .lex-pair p{font-family:'Spectral',Georgia,serif;font-size:.96rem;color:var(--ink);line-height:1.6;margin:0;}
 .lex-list{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
