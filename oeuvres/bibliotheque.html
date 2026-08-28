@@ -149,8 +149,19 @@ header.topbar{background:rgba(21,16,11,.96);border-bottom-color:var(--line);}
   background:url('../assets/img/archive/manuscrit-ideologie-1846.webp') center/cover no-repeat;
   filter:grayscale(1) brightness(.20) contrast(1.1) blur(.4px);
   opacity:.34;mix-blend-mode:screen;}
-/* les portes en montrent un peu plus : on y entre, autant voir le papier */
-.bx-door::before{opacity:.46;}
+/* Les portes montrent VRAIMENT leur papier : à brightness(.20) le grain
+   était invisible, ce qui revenait à ne rien avoir posé du tout. */
+.bx-door::before{opacity:.62;filter:grayscale(1) brightness(.42) contrast(1.05) blur(.3px);}
+/* Et une porte est ENTREBÂILLÉE : un rai de lumière sur son chant gauche,
+   comme si la pièce d'à côté était éclairée. C'est ce qui la fait lire comme
+   une porte et non comme une vignette. Il s'ouvre au survol. */
+.bx-door::after{content:"";position:absolute;left:0;top:0;bottom:0;width:34%;
+  pointer-events:none;z-index:0;border-radius:18px 0 0 18px;
+  background:linear-gradient(90deg,
+    rgba(216,173,76,.30) 0,rgba(216,173,76,.12) 26%,transparent 100%);
+  box-shadow:inset 2px 0 0 rgba(233,201,132,.55);
+  transition:width .38s cubic-bezier(.16,1,.3,1),opacity .38s ease;}
+.bx-door:hover::after{width:62%;}
 .bx-paper>*{position:relative;z-index:1;}
 
 .bx-thread{border:1px solid var(--border);border-radius:18px;background:var(--surface);
@@ -167,7 +178,10 @@ header.topbar{background:rgba(21,16,11,.96);border-bottom-color:var(--line);}
    le JS qui porte le tireté, et une déclaration CSS le battrait toujours —
    le trait des « primer » redevenait plein. */
 .bx-ink path.primer{stroke:var(--const);}
-.bx-nib{fill:var(--gold);opacity:0;}
+.bx-ink path.glow{stroke:#ffe9b8;stroke-width:3.4;stroke-linecap:round;
+  opacity:0;filter:drop-shadow(0 0 5px rgba(255,214,128,.85));}
+.bx-nib{fill:#fff3d6;opacity:0;
+  filter:drop-shadow(0 0 6px rgba(255,205,110,.95));}
 .bx-nib-halo{fill:var(--gold);opacity:0;}
 .bx-level{display:flex;flex-direction:column;gap:10px;justify-content:center;
   flex:0 0 auto;min-width:150px;max-width:188px;}
@@ -176,7 +190,7 @@ header.topbar{background:rgba(21,16,11,.96);border-bottom-color:var(--line);}
 .bx-node{--lit:1;position:relative;z-index:1;
   display:block;text-decoration:none;color:inherit;
   border:1px solid var(--border);border-radius:12px;
-  background:color-mix(in srgb,var(--bg) 92%,transparent);
+  background:var(--bg);
   padding:11px 13px;transition:border-color .18s,background .18s;
   opacity:calc(.30 + .70 * var(--lit));}
 a.bx-node:hover{border-color:var(--gold);background:var(--card);}
@@ -725,7 +739,13 @@ installShell({ workTitle: 'Bibliothèque', tabs: [] });
         var a = T.nodes[e.from], b = T.nodes[e.to];
         if(!a || !b) return;
         var ar = a.getBoundingClientRect(), br = b.getBoundingClientRect();
-        var x1 = ar.right - fr.left, y1 = ar.top + ar.height / 2 - fr.top;
+        /* Le trait part du bord GAUCHE de sa source, pas du bord droit.
+           Une vague finit au bord gauche de sa cible ; si la suivante repartait
+           du bord droit de ce même nœud, la plume ferait un bond de la largeur
+           de la fiche. En partant du bord gauche, elle repart EXACTEMENT là où
+           elle s'est arrêtée : le segment sous la fiche est masqué par la fiche
+           elle-même, et l'on voit la plume passer derrière la station. */
+        var x1 = ar.left - fr.left, y1 = ar.top + ar.height / 2 - fr.top;
         var x2 = br.left  - fr.left, y2 = br.top + br.height / 2 - fr.top;
         var dx = Math.max(16, (x2 - x1) * 0.55);
         /* la courbe, puis les deux barbes de la pointe : la plume arrive et
@@ -754,63 +774,87 @@ installShell({ workTitle: 'Bibliothèque', tabs: [] });
         var len = rev.getTotalLength();
         rev.style.strokeDasharray  = len;
         rev.style.strokeDashoffset = len;
-        T.paths.push({ rev:rev, vis:vis, len:len, e:e });
+
+        /* La traînée : le même chemin, mais dont on ne montre qu'une courte
+           fenêtre juste derrière la tête. C'est elle qui fait lire une plume
+           plutôt qu'un point qui se déplace. */
+        var glow = svgEl('path', { d:d, class:'glow', fill:'none' });
+        var halo = svgEl('circle', { class:'bx-nib-halo', r:11 });
+        var nib  = svgEl('circle', { class:'bx-nib', r:4 });
+
+        T.paths.push({ rev:rev, vis:vis, glow:glow, nib:nib, halo:halo,
+                       len:len, e:e });
       });
 
-      /* la plume : un point d'encre et sa lueur */
-      T.halo = svgEl('circle', { class:'bx-nib-halo', r:9 });
-      T.nib  = svgEl('circle', { class:'bx-nib', r:3 });
-      T.svg.appendChild(T.halo);
-      T.svg.appendChild(T.nib);
+      /* traînées au-dessus des traits, plumes au-dessus de tout */
+      T.paths.forEach(function(P){ T.svg.appendChild(P.glow); });
+      T.paths.forEach(function(P){ T.svg.appendChild(P.halo); T.svg.appendChild(P.nib); });
+
+      /* LES VAGUES. Une plume ne saute pas en arrière : les arêtes qui
+         quittent un même palier s'écrivent ENSEMBLE, et la vague suivante
+         repart des nœuds où la précédente s'est arrêtée — la continuité est
+         alors exacte. Les écrire une par une faisait repartir le trait d'un
+         autre nœud à chaque fois, et le point semblait reculer. */
+      var byLvl = {};
+      T.paths.forEach(function(P){
+        (byLvl[P.e.lvl] = byLvl[P.e.lvl] || []).push(P);
+      });
+      T.waves = Object.keys(byLvl)
+        .map(Number).sort(function(a,b){ return a - b; })
+        .map(function(lv){ return { lvl:lv, list:byLvl[lv] }; });
     });
   }
 
   /* q : avancement du fil, 0 → 1. Écrit les traits, allume les stations,
      et pose la plume à la tête du trait en cours. */
   function paintThread(T, q){
-    if(!T.paths || !T.paths.length) return;
-    var n = T.paths.length, lit = {}, head = null;
+    if(!T.waves || !T.waves.length) return;
+    var W = T.waves.length, lit = {}, gapLit = {};
 
-    T.roots.forEach(function(id){ lit[id] = cl01(q / 0.08); });
+    T.roots.forEach(function(id){ lit[id] = cl01(q / 0.06); });
 
-    for(var k = 0; k < n; k++){
-      var P = T.paths[k];
+    T.waves.forEach(function(wave, wi){
       /* Le seuil de 1e-4 n'est pas de la coquetterie : (1 - 4/5) * 5 vaut
-         0.9999999999999998 en flottant, si bien que la dernière arête d'un
-         fil de cinq n'était JAMAIS considérée comme finie — la plume restait
-         allumée en bout de course, sur un trait pourtant complet. */
-      var t = cl01((q - k / n) * n);
+         0.9999999999999998 en flottant, si bien que la dernière vague n'était
+         JAMAIS considérée comme finie — la plume restait allumée en bout de
+         course, sur un trait pourtant complet. */
+      var t = cl01((q - wi / W) * W);
       if(t > 1 - 1e-4) t = 1;
-      P.rev.style.strokeDashoffset = (P.len * (1 - t)).toFixed(2);
-      /* la station prend l'encre PENDANT que le trait l'atteint */
-      lit[P.e.to] = Math.max(lit[P.e.to] || 0, t);
-      if(t > 0 && t < 1) head = { P:P, t:t };
-    }
+      gapLit[wave.lvl] = t;
+
+      wave.list.forEach(function(P){
+        P.rev.style.strokeDashoffset = (P.len * (1 - t)).toFixed(2);
+        /* la station prend l'encre PENDANT que le trait l'atteint */
+        lit[P.e.to] = Math.max(lit[P.e.to] || 0, t);
+
+        if(t > 0 && t < 1){
+          var TR = Math.min(44, P.len * 0.55);
+          /* la fenêtre visible de la traînée finit exactement sur la tête :
+             avec un motif (TR, len+TR), le tiret occupe [-off, -off+TR], on
+             veut -off+TR = len*t, donc off = TR - len*t */
+          P.glow.style.strokeDasharray  = TR + ' ' + (P.len + TR);
+          P.glow.style.strokeDashoffset = (TR - P.len * t).toFixed(2);
+          P.glow.style.opacity = '.92';
+          var pt = P.rev.getPointAtLength(P.len * t);
+          P.nib.setAttribute('cx', pt.x);  P.nib.setAttribute('cy', pt.y);
+          P.halo.setAttribute('cx', pt.x); P.halo.setAttribute('cy', pt.y);
+          P.nib.style.opacity  = '1';
+          P.halo.style.opacity = '.22';
+        } else {
+          P.glow.style.opacity = '0';
+          P.nib.style.opacity  = '0';
+          P.halo.style.opacity = '0';
+        }
+      });
+    });
 
     for(var id in T.nodes){
       if(!T.nodes.hasOwnProperty(id)) continue;
       T.nodes[id].style.setProperty('--lit', (lit[id] || 0).toFixed(3));
     }
     T.gaps.forEach(function(gp){
-      var l = 0, lv = +gp.dataset.lvl;
-      T.paths.forEach(function(P, k){
-        if(P.e.lvl === lv) l = Math.max(l, Math.min(1, cl01((q - k / n) * n)));
-      });
-      gp.style.setProperty('--lit', l.toFixed(3));
+      gp.style.setProperty('--lit', (gapLit[+gp.dataset.lvl] || 0).toFixed(3));
     });
-
-    if(T.nib){
-      if(head){
-        var pt = head.P.rev.getPointAtLength(head.P.len * head.t);
-        T.nib.setAttribute('cx', pt.x);  T.nib.setAttribute('cy', pt.y);
-        T.halo.setAttribute('cx', pt.x); T.halo.setAttribute('cy', pt.y);
-        T.nib.style.opacity = '1';
-        T.halo.style.opacity = '.20';
-      } else {
-        T.nib.style.opacity = '0';
-        T.halo.style.opacity = '0';
-      }
-    }
   }
 
   /* ── 3. Le corpus ──────────────────────────────────────────────── */
