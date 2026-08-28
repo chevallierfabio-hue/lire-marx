@@ -74,7 +74,7 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
 .frow .flab{flex-basis:100%;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:1px;}
 .chip.c{background:var(--const);}.chip.v{background:var(--blue);}.chip.pl{background:var(--red);color:#fff;}/* le seul aplat où --bg ne passe pas (4,1:1) */.chip.tot{background:var(--ink);}.chip.new{background:var(--gold-deep);}
 .frow .op{color:var(--ink-soft);font-weight:600;}.frow .res{font-family:'Fraunces',serif;font-weight:900;font-size:1.1rem;color:var(--ink);}
-.identity{margin-top:8px;background:rgba(216,173,76,0.100);border-left:3px solid var(--gold);padding:12px 15px;border-radius:0 4px 4px 0;font-size:.92rem;color:var(--ink-soft);}
+.identity{margin-top:8px;background:rgba(216,173,76,0.100);border:1px solid rgba(216,173,76,.28);padding:12px 15px;border-radius:12px;font-size:.92rem;color:var(--ink-soft);}
 .identity b{color:var(--ink);font-family:'Fraunces',serif;}
 .note{margin-top:18px;font-size:.94rem;color:var(--ink-soft);line-height:1.55;}.note b{color:var(--ink);}
 .chartbox{border:1px solid var(--line);background:var(--card);border-radius:6px;padding:18px;}
@@ -112,7 +112,7 @@ svg.exchange{width:100%;height:auto;display:block;margin:22px 0 6px;font-family:
 .concepts-wrap>h3{font-family:'Fraunces',serif;font-weight:900;font-size:1.3rem;margin-bottom:4px;}
 .concepts-wrap>.csub{font-family:'Spectral',Georgia,serif;font-style:italic;color:var(--red-deep);margin-bottom:18px;font-size:.98rem;}
 .concept-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;}
-.ccard{border:1px solid var(--line);background:var(--card);border-radius:8px;padding:16px;display:flex;gap:14px;border-top:3px solid var(--accent,var(--ink));}
+.ccard{border:1px solid var(--line);background:var(--card);border-radius:12px;padding:16px;display:flex;gap:14px;}
 .cc-icon{flex:none;width:42px;height:42px;border-radius:10px;background:var(--accent,var(--ink));display:flex;align-items:center;justify-content:center;}
 .cc-icon svg{width:23px;height:23px;stroke:#fff;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;}
 .cc-term{font-family:'Fraunces',serif;font-weight:600;font-size:1.05rem;margin-bottom:4px;line-height:1.2;}
@@ -192,7 +192,7 @@ svg.stairmap{width:100%;height:auto;display:block;background:var(--card);border:
 .feq{font-family:'Fraunces',serif;font-weight:900;font-size:1.7rem;color:var(--ink);flex:none;}
 .forme-read{border:1px solid var(--line);background:var(--card);border-radius:6px;padding:24px;font-size:.96rem;line-height:1.62;}
 .fr-role{color:var(--ink);margin-bottom:14px;}
-.fr-flaw{color:var(--ink-soft);border-left:3px solid var(--red);padding:10px 14px;background:rgba(213,64,47,0.084);border-radius:0 4px 4px 0;margin-bottom:13px;}
+.fr-flaw{color:var(--ink-soft);border:1px solid rgba(213,64,47,.32);padding:10px 14px;background:rgba(213,64,47,0.084);border-radius:12px;margin-bottom:13px;}
 .fr-k{display:block;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--red-text);font-weight:600;margin-bottom:3px;}
 .fr-next{font-style:italic;color:var(--gold-deep);font-family:'Fraunces',serif;font-weight:600;}
 .fr-done{font-style:italic;color:var(--ok);font-family:'Fraunces',serif;font-weight:600;}
@@ -274,7 +274,7 @@ svg.x-scene{width:100%;height:auto;display:block;background:var(--card);border:1
 .x-row .x-v{font-family:'Fraunces',serif;font-weight:600;color:var(--ink);text-align:right;}
 .transp-fill{height:100%;background:linear-gradient(90deg,var(--gold-deep),var(--ok));transition:width .3s ease;}
 .feti-toggle-row{display:flex;justify-content:center;margin:2px 0 16px;}
-.x-caption{font-size:.96rem;line-height:1.62;color:var(--ink-soft);border-left:3px solid var(--gold);background:rgba(216,173,76,0.070);padding:13px 16px;border-radius:0 4px 4px 0;}
+.x-caption{font-size:.96rem;line-height:1.62;color:var(--ink-soft);border:1px solid rgba(216,173,76,.28);background:rgba(216,173,76,0.070);padding:13px 16px;border-radius:12px;}
 .x-caption b{color:var(--ink);}
 .salmask{position:absolute;top:0;bottom:0;background:repeating-linear-gradient(45deg,rgba(213,64,47,0.252),rgba(213,64,47,0.252) 6px,transparent 6px,transparent 12px);border-left:2px dashed var(--red-deep);display:flex;align-items:center;justify-content:center;}
 .salmask span{font-size:.72rem;color:var(--red-deep);font-style:italic;font-family:'Fraunces',serif;text-align:center;padding:0 4px;}
@@ -356,7 +356,7 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
 .np-head b{font-family:'Fraunces',serif;font-size:1.05rem;}
 .np-n{background:var(--ink);color:var(--paper);font-family:'Fraunces',serif;font-size:.74rem;padding:1px 9px;border-radius:20px;}
 .np-tools{margin-left:auto;display:flex;gap:8px;}
-.np-warn{background:rgba(213,64,47,0.112);border-left:3px solid var(--red);padding:9px 12px;border-radius:0 4px 4px 0;font-size:.85rem;color:var(--ink-soft);margin-bottom:10px;}
+.np-warn{background:rgba(213,64,47,0.112);border:1px solid rgba(213,64,47,.32);padding:9px 12px;border-radius:12px;font-size:.85rem;color:var(--ink-soft);margin-bottom:10px;}
 .np-empty,.np-empty2{color:var(--ink-soft);font-style:italic;font-size:.9rem;}
 .np-list{list-style:none;margin:0;padding:0;}
 .np-list li{display:flex;align-items:flex-start;gap:10px;padding:11px 0;border-top:1px solid var(--line-soft);}
@@ -386,8 +386,8 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
 .ac-note code{font-style:normal;background:rgba(243,233,212,.06);padding:1px 5px;border-radius:4px;font-size:.85em;}
 .ac-p{font-size:.95rem;line-height:1.6;color:var(--ink-soft);}
 .ac-p code{background:rgba(0,0,0,.05);padding:1px 5px;border-radius:4px;}
-.ac-err{background:rgba(213,64,47,0.140);border-left:3px solid var(--red);padding:9px 12px;border-radius:0 4px 4px 0;font-size:.88rem;color:var(--red-deep);margin-bottom:13px;}
-.ac-ok{background:rgba(127,168,85,0.156);border-left:3px solid var(--ok);padding:9px 12px;border-radius:0 4px 4px 0;font-size:.88rem;margin-bottom:13px;}
+.ac-err{background:rgba(213,64,47,0.140);border:1px solid rgba(213,64,47,.36);padding:9px 12px;border-radius:12px;font-size:.88rem;color:var(--red-deep);margin-bottom:13px;}
+.ac-ok{background:rgba(127,168,85,0.156);border:1px solid rgba(127,168,85,.4);padding:9px 12px;border-radius:12px;font-size:.88rem;margin-bottom:13px;}
 .ac-tabs{display:flex;margin-bottom:18px;border:1px solid var(--line);border-radius:8px;overflow:hidden;}
 .ac-t{flex:1;padding:10px;font-family:'Fraunces',serif;font-size:.92rem;background:transparent;border:none;cursor:pointer;color:var(--ink-soft);}
 .ac-t.on{background:var(--ink);color:var(--paper);}
@@ -426,38 +426,9 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
 .pub-note.pub-hidden,.pub-reply.pub-hidden{opacity:.6;}
 .pub-reasons{font-size:.82rem;color:var(--ink-soft);font-style:italic;margin:2px 0 4px;}
 
-/* ── Atelier : grille de cartes (panel #nav) ── */
-/* En-tête clair */
-.atl-header{position:relative;overflow:hidden;padding:clamp(36px,5vh,54px) 0 clamp(28px,4vh,44px);margin-bottom:28px;}
-.atl-halo{position:absolute;top:50%;left:38%;width:560px;height:340px;pointer-events:none;
-  background:radial-gradient(ellipse at center,rgba(213,64,47,0.095) 0%,transparent 62%);
-  transform:translate(-50%,-50%);}
-.atl-breadcrumb{display:flex;align-items:center;gap:6px;font-size:.75rem;
-  color:var(--muted);margin-bottom:14px;position:relative;z-index:1;}
-.atl-breadcrumb a{color:var(--muted);text-decoration:none;transition:color .15s;}
-.atl-breadcrumb a:hover{color:var(--text);}
-.atl-badge{display:inline-flex;align-items:center;font-size:.7rem;font-weight:700;
-  letter-spacing:.1em;text-transform:uppercase;color:var(--red-text);
-  background:rgba(213,64,47,0.108);border:1px solid rgba(213,64,47,0.243);
-  border-radius:999px;padding:4px 12px;margin-bottom:16px;position:relative;z-index:1;}
-.atl-header-body{display:flex;align-items:flex-start;justify-content:space-between;
-  gap:40px;position:relative;z-index:1;}
-.atl-h1{font-family:'Fraunces',serif;font-weight:900;
-  font-size:clamp(2.2rem,5vw,3.4rem);letter-spacing:-.025em;
-  color:var(--text);line-height:1.02;}
-.atl-h1 em{font-style:italic;font-weight:500;color:var(--red-text);}
-/* Widget progression */
-.atl-prog-widget{flex:none;text-align:right;min-width:180px;}
-.atl-pct{font-family:'Fraunces',serif;font-weight:900;font-size:3.2rem;
-  letter-spacing:-.04em;color:var(--text);line-height:1;}
-.atl-pct-label{font-size:.7rem;font-weight:600;color:var(--muted);
-  letter-spacing:.1em;text-transform:uppercase;margin-top:2px;}
-.atl-bar-bg{height:4px;border-radius:999px;background:rgba(243,233,212,.12);
-  margin:10px 0 6px;}
-.atl-bar-fill{height:100%;border-radius:999px;background:var(--accent);
-  transition:width .55s cubic-bezier(.16,1,.3,1);width:0%;}
-.atl-count{font-size:.76rem;color:var(--muted);
-  font-family:var(--f-ui);}
+/* ── Atelier : sommaire (panel #nav). L'ancien en-tête géant (.atl-header :
+   fil d'Ariane doublon + badge + titre 3.4rem + « 0 % » en 3.2rem) est
+   remplacé par la grammaire commune .panel-head d'atelier.css. ── */
 /* Recherche */
 .atl-search-wrap{margin-bottom:24px;}
 .atl-search{width:100%;max-width:520px;height:40px;border:1px solid var(--line);
@@ -465,81 +436,63 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
   font-family:var(--f-ui);font-size:.88rem;
   padding:0 14px;outline:none;transition:border-color .15s;}
 .atl-search:focus{border-color:var(--accent);}
-/* Grille (partagée par #nav et #atelier-accueil) */
-#navlist,#atlNavlist{display:grid;grid-template-columns:1fr 1fr;gap:15px;align-items:start;}
-/* Séparateur de section (pleine largeur) */
-.atl-grid-sec{grid-column:1/3;font-size:.72rem;font-weight:700;
-  letter-spacing:.22em;text-transform:uppercase;color:var(--muted);
-  padding:16px 0 8px;border-bottom:1px solid var(--line);}
-/* Carte commune */
-.atl-card{border-radius:18px;padding:20px 20px 18px;position:relative;overflow:hidden;
-  transition:transform .2s,box-shadow .2s;}
-.atl-card.atl-done{background:var(--surface);cursor:pointer;border:1px solid transparent;}
-.atl-card.atl-done:hover{transform:translateY(-3px);
-  box-shadow:0 14px 34px -12px rgba(0,0,0,.65);border-color:rgba(243,233,212,.16);}
-/* Carte en cours — pleine largeur + fond sombre */
-.atl-card.atl-current{grid-column:1/3;cursor:pointer;
+/* ── La table des matières (partagée par #nav et #atelier-accueil) ──
+   Une liste de sommaire, pas une grille de cartes : 33 chapitres se
+   parcourent à l'œil, en colonne, groupés par section. Le numéro est en
+   Fraunces italique or — le traitement des années de la frise, la rime
+   qui tient le site. Le chapitre en cours est la SEULE carte de la
+   liste, sur le dégradé chaud d'emphase du socle. */
+#navlist,#atlNavlist{max-width:880px;}
+.atl-grid-sec{font-size:.72rem;font-weight:700;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--gold);padding:30px 0 10px;
+  border-bottom:1px solid var(--line);font-family:var(--f-ui);}
+#navlist>.atl-grid-sec:first-child,#atlNavlist>.atl-grid-sec:first-child{padding-top:4px;}
+.atl-card{display:grid;grid-template-columns:44px 1fr auto;align-items:baseline;
+  column-gap:16px;padding:13px 12px 13px 2px;border-bottom:1px solid var(--line);
+  cursor:pointer;transition:background .15s;}
+.atl-card:hover{background:var(--hover);}
+.atl-num{font-family:'Fraunces',serif;font-style:italic;font-weight:500;
+  font-size:1.12rem;color:var(--gold);text-align:right;line-height:1;}
+.atl-upcoming .atl-num{color:var(--muted);opacity:.75;}
+.atl-card-title{font-family:'Fraunces',serif;font-weight:600;font-size:1.04rem;
+  color:var(--text);line-height:1.3;}
+.atl-upcoming .atl-card-title{font-weight:500;color:var(--ink-soft);}
+.atl-row-main{display:flex;flex-direction:column;gap:3px;}
+.atl-row-side{display:flex;align-items:center;gap:16px;}
+.atl-card-sim{font-size:.75rem;font-style:italic;color:var(--muted);}
+.atl-card-status{font-size:.68rem;font-weight:700;letter-spacing:.09em;
+  text-transform:uppercase;font-family:var(--f-ui);color:var(--muted);}
+/* le statut « lu » est aussi le bouton qui dé-coche */
+.atl-done-toggle{display:inline-flex;align-items:center;gap:5px;font-size:.68rem;
+  font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+  background:transparent;border:none;cursor:pointer;padding:6px 2px;
+  font-family:var(--f-ui);color:var(--ok);transition:color .15s;}
+.atl-done-toggle svg{width:12px;height:12px;}
+.atl-done-toggle:hover{color:var(--red-text);}
+/* Le chapitre en cours : la seule carte de la liste */
+.atl-card.atl-current{align-items:center;
   background:linear-gradient(150deg,#2c2117 0%,#211a12 58%,#1b150e 100%);
-  border:1px solid rgba(216,173,76,.20);}
+  border:1px solid rgba(216,173,76,.20);border-radius:14px;
+  padding:20px 22px;margin:16px 0;
+  transition:transform .2s,box-shadow .2s;}
 .atl-card.atl-current:hover{transform:translateY(-2px);
-  box-shadow:0 12px 32px -8px rgba(0,0,0,.28);}
-/* Carte à venir */
-.atl-card.atl-upcoming{border:1px solid var(--line);opacity:.78;cursor:pointer;transition:transform .2s,box-shadow .2s,opacity .2s,border-color .2s;}
-.atl-card.atl-upcoming:hover{opacity:1;transform:translateY(-3px);border-color:rgba(243,233,212,.22);}
-/* Halo de la carte en cours */
-.atl-card-halo{position:absolute;top:40%;left:28%;width:440px;height:280px;
-  pointer-events:none;
-  background:radial-gradient(ellipse at center,rgba(213,64,47,0.189) 0%,transparent 62%);
-  transform:translate(-50%,-50%);}
-/* Indicateur circulaire */
-.atl-card-ind{width:38px;height:38px;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;margin-bottom:14px;}
-.atl-done .atl-card-ind{background:var(--accent);}
-.atl-done .atl-card-ind svg{width:15px;height:15px;
-  stroke:#fff;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;}
-.atl-current .atl-card-ind{border:2px solid var(--accent);}
-.atl-current .atl-card-ind span,.atl-upcoming .atl-card-ind span{
-  font-family:'Fraunces',serif;font-weight:700;font-size:.9rem;}
-.atl-current .atl-card-ind span{color:var(--red-text);}
-.atl-upcoming .atl-card-ind{border:1.5px solid rgba(243,233,212,.20);}
-.atl-upcoming .atl-card-ind span{color:var(--muted);}
-/* Textes de la carte */
-.atl-card-chap{font-size:.7rem;font-weight:700;letter-spacing:.1em;
-  text-transform:uppercase;margin-bottom:6px;}
-.atl-done .atl-card-chap,.atl-upcoming .atl-card-chap{color:var(--muted);}
-.atl-current .atl-card-chap{color:rgba(247,245,240,.42);}
-.atl-card-title{font-family:'Fraunces',serif;font-weight:700;
-  line-height:1.3;margin-bottom:8px;}
-.atl-done .atl-card-title,.atl-upcoming .atl-card-title{font-size:1rem;color:var(--text);}
-.atl-current .atl-card-title{font-size:1.28rem;color:var(--text);}
-.atl-card-status{font-size:.7rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;}
-.atl-done .atl-card-status{color:var(--ok);}
+  box-shadow:0 14px 34px -12px rgba(0,0,0,.55);
+  background:linear-gradient(150deg,#2c2117 0%,#211a12 58%,#1b150e 100%);}
+.atl-current .atl-num{font-size:1.5rem;}
+.atl-current .atl-card-title{font-size:1.3rem;font-weight:700;}
 .atl-current .atl-card-status{color:var(--red-text);}
-/* Pied de la carte en cours */
-.atl-card-foot{display:flex;align-items:center;justify-content:space-between;
-  margin-top:18px;gap:12px;}
-.atl-card-sim{font-size:.76rem;font-style:italic;color:rgba(247,245,240,.35);}
-.atl-continue{display:inline-flex;align-items:center;font-family:var(--f-ui);font-size:.8rem;
-  font-weight:700;padding:8px 20px;border-radius:999px;border:none;
-  background:rgba(247,245,240,.13);color:var(--text);cursor:pointer;
-  transition:background .15s;white-space:nowrap;}
-.atl-continue:hover{background:rgba(247,245,240,.22);}
-/* Toggle marquer terminé */
-.atl-done-toggle{display:inline-flex;align-items:center;gap:4px;font-size:.7rem;
-  font-weight:600;background:transparent;border:none;cursor:pointer;
-  padding:4px 0;margin-top:6px;transition:color .15s;
-  font-family:var(--f-ui);}
-.atl-done .atl-done-toggle{color:var(--ok);}
-.atl-done .atl-done-toggle:hover{color:var(--muted);}
-.atl-upcoming .atl-done-toggle{display:none;}
+.atl-continue{display:inline-flex;align-items:center;font-family:var(--f-ui);
+  font-size:.8rem;font-weight:700;padding:8px 20px;border-radius:999px;border:none;
+  background:rgba(247,245,240,.13);color:var(--text);white-space:nowrap;
+  transition:background .15s;}
+.atl-card.atl-current:hover .atl-continue{background:rgba(247,245,240,.22);}
 /* Responsive */
 @media(max-width:740px){
-  #navlist,#atlNavlist{grid-template-columns:1fr;}
-  .atl-grid-sec,.atl-card.atl-current{grid-column:1;}
-  .atl-header-body{flex-direction:column;gap:20px;}
-  .atl-prog-widget{text-align:left;min-width:0;width:100%;}
+  .atl-card{grid-template-columns:34px 1fr auto;column-gap:10px;}
+  .atl-card-sim{display:none;}
+  .atl-card.atl-current{grid-template-columns:34px 1fr;padding:16px 14px;}
+  .atl-current .atl-row-side{grid-column:2;justify-content:flex-start;margin-top:8px;}
 }
-@media(max-width:480px){.atl-done-toggle{display:none;}}
 
 /* ── Reader : design Rouge Internationale (rdr-* évite collision avec rd-* de reader-tools) ── */
 
@@ -646,6 +599,23 @@ nav.tabs.cap-tabs-bar .tab .num{display:none;}
 /* Masquer le sous-nav quand "Commencer" (accueil) est actif */
 
 /* ── Onglet "Lire Le Capital" — 2 cartes ── */
+/* Le bandeau de départ (remplace .cap-lire-grid / les deux .cap-card) */
+.cap-start{display:grid;grid-template-columns:1.55fr 1fr;margin-bottom:44px;
+  background:linear-gradient(150deg,#2c2117 0%,#211a12 58%,#1b150e 100%);
+  border:1px solid rgba(216,173,76,.20);border-radius:18px;}
+.cap-start-main{padding:26px 32px 26px;}
+.cap-start-side{padding:26px 32px 26px;border-left:1px solid var(--border);
+  display:flex;flex-direction:column;}
+.cap-start-title{font-family:'Fraunces',serif;font-weight:900;font-size:1.6rem;
+  letter-spacing:-.015em;color:var(--text);margin:6px 0 10px;}
+.cap-start .cap-card-desc{max-width:52ch;}
+.cap-start #resumeSlot{margin-top:12px;}
+.cap-start button{margin-top:14px;}
+.cap-start-side .cap-card-desc{margin-top:6px;}
+@media(max-width:900px){
+  .cap-start{grid-template-columns:1fr;}
+  .cap-start-side{border-left:0;border-top:1px solid var(--border);}
+}
 .cap-lire-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:28px;}
 .cap-card{background:var(--surface);border-radius:18px;padding:22px 22px 20px;
   border:1px solid transparent;transition:transform .2s,box-shadow .2s;}
@@ -937,20 +907,20 @@ nav.subnav{position:sticky;top:85px;z-index:61;background:var(--bg);
   <!-- ACCUEIL — onglet "Lire Le Capital" (2 cartes de départ) -->
   <section class="panel" id="accueil">
 
-    <!-- Deux cartes de démarrage rapide -->
-    <div class="cap-lire-grid" id="capLireGrid" style="margin-bottom:40px;">
-      <!-- Carte 1 : Commencer la lecture -->
-      <div class="cap-card">
-        <div class="cap-card-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><g class="s"><path d="M12 6.4C10 4.6 7.2 3.9 3.6 4.1v13.2c3.6-.2 6.4.5 8.4 2.3 2-1.8 4.8-2.5 8.4-2.3V4.1c-3.6-.2-6.4.5-8.4 2.3Z"/><path d="M12 6.4v13.2"/></g></svg></div>
-        <div class="cap-card-title">Commencer la lecture</div>
+    <!-- Le bandeau de départ : une seule surface éclairée (le dégradé
+         chaud d'emphase du socle), le texte à gauche, le parcours à
+         droite derrière un filet. Les deux cartes jumelles à icône se
+         disputaient le même geste. -->
+    <div class="cap-start" id="capLireGrid">
+      <div class="cap-start-main">
+        <span class="cap-action-eyebrow">Le texte</span>
+        <div class="cap-start-title">Commencer la lecture</div>
         <div class="cap-card-desc">Le texte intégral du Livre I en 33 chapitres — traduction Joseph Roy (1872), revue par Marx, domaine public.</div>
         <div id="resumeSlot"></div>
-        <button class="cap-btn-dark" onclick="goLire(1,'I','La marchandise');window.scrollTo({top:0,behavior:'smooth'});">Lire →</button>
+        <button class="cap-btn-light" onclick="goLire(1,'I','La marchandise');window.scrollTo({top:0,behavior:'smooth'});">Lire →</button>
       </div>
-      <!-- Carte 2 : Ton parcours -->
-      <div class="cap-card">
-        <div class="cap-card-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="f" d="M6.2 3.2h11.6v17.6L12 16.1l-5.8 4.7z"/></svg></div>
-        <div class="cap-card-title">Ton parcours</div>
+      <div class="cap-start-side">
+        <span class="cap-action-eyebrow">Ton parcours</span>
         <div id="capProgCard"><!-- rempli dynamiquement par syncProgUI() --></div>
       </div>
     </div>
@@ -1022,22 +992,21 @@ nav.subnav{position:sticky;top:85px;z-index:61;background:var(--bg);
 
   <!-- NAVIGATEUR -->
   <section class="panel" id="nav">
-    <!-- En-tête clair avec progression dynamique -->
-    <div class="atl-header">
-      <div class="atl-halo"></div>
-      <nav class="atl-breadcrumb" aria-label="Fil d'Ariane">
-        <a href="/?skip-anim">Œuvres</a>
-        <span aria-hidden="true">›</span>
-        <span>Le Capital — Livre I</span>
-      </nav>
-      <span class="atl-badge">Atelier de lecture</span>
-      <div class="atl-header-body">
-        <h2 class="atl-h1">Le Capital<br><em>Livre I</em></h2>
-        <div class="atl-prog-widget">
-          <div class="atl-pct" id="atlPct">0%</div>
-          <div class="atl-pct-label">complété</div>
-          <div class="atl-bar-bg"><div class="atl-bar-fill" id="atlFill"></div></div>
-          <div class="atl-count" id="atlCount">0 sur 33 chapitres</div>
+    <!-- Tête de panneau (grammaire commune) : le héros replié porte déjà
+         fil d'Ariane et titre d'œuvre — plus de doublon ici. -->
+    <div class="panel-head">
+      <div class="panel-head-main">
+        <h2 class="sec">Le sommaire du Livre I</h2>
+        <p class="lead">Huit sections, trente-trois chapitres — chaque ligne ouvre son chapitre. Lu, en cours, à lire : des statuts, jamais des verrous.</p>
+      </div>
+      <div class="panel-meta">
+        <div id="atlProg" class="pg-prog" style="display:none">
+          <div class="pg-bar"><div class="pg-fill" id="atlFill"></div></div>
+          <div class="pg-count" id="atlCount">0 sur 33 chapitres</div>
+        </div>
+        <div id="atlProgNA" class="prog-no-auth">
+          <span>Connecte-toi pour suivre ta progression</span>
+          <button class="prog-no-auth-btn" type="button" onclick="window.SHELL&&window.SHELL.auth&&window.SHELL.auth.openModal()">Se connecter</button>
         </div>
       </div>
     </div>
@@ -1051,7 +1020,12 @@ nav.subnav{position:sticky;top:85px;z-index:61;background:var(--bg);
 
   <!-- LIRE -->
   <section class="panel" id="lire">
-    <p class="lead" style="margin-bottom:18px;">Traduction Joseph Roy (1872, revue par Marx) — texte intégral, domaine public, chargé depuis Wikisource. Choisir un chapitre puis cliquer sur « Charger le texte intégral ». <b>Connexion internet requise.</b></p>
+    <div class="panel-head">
+      <div class="panel-head-main">
+        <h2 class="sec">Le texte intégral</h2>
+        <p class="lead">Traduction Joseph Roy (1872, revue par Marx) — domaine public, chargé depuis Wikisource. <b>Connexion internet requise.</b></p>
+      </div>
+    </div>
     <div class="reader-bar">
       <select id="chapSelect" aria-label="Choisir un chapitre"></select>
       <button id="loadBtn" class="btn red" type="button">Charger le texte intégral →</button>
@@ -1062,8 +1036,12 @@ nav.subnav{position:sticky;top:85px;z-index:61;background:var(--bg);
 
   <!-- LABORATOIRE -->
   <section class="panel" id="labo">
-    <h2 class="sec">Le laboratoire des lois</h2>
-    <p class="lead">L'appareil quantitatif rendu manipulable. Chaque station explique ses concepts puis te laisse les faire varier.</p>
+        <div class="panel-head">
+      <div class="panel-head-main">
+  <h2 class="sec">Le laboratoire des lois</h2>
+      <p class="lead">L'appareil quantitatif rendu manipulable. Chaque station explique ses concepts puis te laisse les faire varier.</p>
+      </div>
+    </div>
     <div class="subtabs">
       <button class="subtab active" data-sub="s-taux">Taux &amp; profit</button>
       <button class="subtab" data-sub="s-trpf">Baisse tendancielle</button>
@@ -1278,23 +1256,20 @@ nav.subnav{position:sticky;top:85px;z-index:61;background:var(--bg);
   <!-- ATELIER — LISTE DES CHAPITRES -->
   <section class="panel" id="atelier-accueil">
 
-    <!-- En-tête clair avec halo accent + widget progression -->
-    <div class="atl-header">
-      <div class="atl-halo"></div>
-      <span class="atl-badge">Atelier de lecture</span>
-      <div class="atl-header-body">
-        <h2 class="atl-h1">Le procès de production<br><em>du capital</em></h2>
-        <div class="atl-prog-widget" id="atlProgWidget2">
-          <div id="atlProg2" style="display:none">
-            <div class="atl-pct" id="atlPct2">0%</div>
-            <div class="atl-pct-label">complété</div>
-            <div class="atl-bar-bg"><div class="atl-bar-fill" id="atlFill2"></div></div>
-            <div class="atl-count" id="atlCount2">0 sur 33 chapitres</div>
-          </div>
-          <div id="atlProgNA2" class="prog-no-auth">
-            <span>Connecte-toi pour suivre ta progression</span>
-            <button class="prog-no-auth-btn" type="button" onclick="window.SHELL&&window.SHELL.auth&&window.SHELL.auth.openModal()">Se connecter</button>
-          </div>
+    <!-- Tête de panneau (grammaire commune) -->
+    <div class="panel-head">
+      <div class="panel-head-main">
+        <h2 class="sec">Le procès de production <em>du capital</em></h2>
+        <p class="lead">Le Livre I chapitre par chapitre — coche ce que tu as lu, reprends où tu t'étais arrêté.</p>
+      </div>
+      <div class="panel-meta">
+        <div id="atlProg2" class="pg-prog" style="display:none">
+          <div class="pg-bar"><div class="pg-fill" id="atlFill2"></div></div>
+          <div class="pg-count" id="atlCount2">0 sur 33 chapitres</div>
+        </div>
+        <div id="atlProgNA2" class="prog-no-auth">
+          <span>Connecte-toi pour suivre ta progression</span>
+          <button class="prog-no-auth-btn" type="button" onclick="window.SHELL&&window.SHELL.auth&&window.SHELL.auth.openModal()">Se connecter</button>
         </div>
       </div>
     </div>
@@ -1306,8 +1281,12 @@ nav.subnav{position:sticky;top:85px;z-index:61;background:var(--bg);
 
   <!-- DÉRIVATION -->
   <section class="panel" id="deriv">
-    <h2 class="sec">L'ascension de l'abstrait au concret</h2>
-    <p class="lead">Le <i>Capital</i> ne juxtapose pas des thèmes : il <em>déduit</em>. Chaque catégorie révèle une contradiction qui rend la suivante nécessaire.</p>
+        <div class="panel-head">
+      <div class="panel-head-main">
+  <h2 class="sec">L'ascension de l'abstrait au concret</h2>
+      <p class="lead">Le <i>Capital</i> ne juxtapose pas des thèmes : il <em>déduit</em>. Chaque catégorie révèle une contradiction qui rend la suivante nécessaire.</p>
+      </div>
+    </div>
     <div class="method-note"><b>Ordre d'exposition ≠ ordre de recherche.</b> La marchandise est le point de départ logique dont tout découle. Le moteur, à chaque marche, est une <b>contradiction</b>.</div>
     <div class="stair" id="stair"></div>
     <div class="closing">⟶ Les Livres II et III poursuivent l'ascension : circulation, puis procès d'ensemble — profit, prix de production, intérêt, rente, formule trinitaire.</div>
@@ -1315,8 +1294,12 @@ nav.subnav{position:sticky;top:85px;z-index:61;background:var(--bg);
 
   <!-- CHRONOLOGIE -->
   <section class="panel" id="chrono">
-    <h2 class="sec">La chronologie du Capital</h2>
-    <p class="lead">Le pendant <em>concret</em> de la Dérivation : non plus la marche logique des catégories, mais l'histoire réelle sur laquelle elles reposent — une frise qu'on ne lit pas, qu'on <b>joue</b>.</p>
+        <div class="panel-head">
+      <div class="panel-head-main">
+  <h2 class="sec">La chronologie du Capital</h2>
+      <p class="lead">Le pendant <em>concret</em> de la Dérivation : non plus la marche logique des catégories, mais l'histoire réelle sur laquelle elles reposent — une frise qu'on ne lit pas, qu'on <b>joue</b>.</p>
+      </div>
+    </div>
     <div class="method-note"><b>Deux actes, un seul mouvement.</b> D'abord la <b>genèse</b> violente du capital (l'accumulation primitive : expropriation, lois sanglantes, colonies) ; puis, une fois le rapport institué, la <b>bataille de la journée de travail</b>, où la loi vient enfin disputer au capital la durée du travail. Entre les deux, un passage de relais : ce qui fut imposé par la force se met à se reproduire de lui-même.</div>
     <div class="howto"><span class="pin">i</span><div><b>Comment jouer :</b> appuie sur <b>Jouer</b> : la frise avance et <b>s'arrête sur chaque événement</b> le temps de le lire, puis repart. Tu peux aussi faire glisser le curseur ou cliquer une pastille pour aller directement à un moment. Le tableau de bord se met à jour en direct.</div></div>
 
@@ -1352,8 +1335,12 @@ nav.subnav{position:sticky;top:85px;z-index:61;background:var(--bg);
 
   <!-- EXPLORATIONS -->
   <section class="panel" id="explore">
-    <h2 class="sec">Explorations</h2>
-    <p class="lead">Deux pièces moins quantitatives que qualitatives : non des lois à régler, mais des transformations et des renversements à voir de ses propres yeux.</p>
+        <div class="panel-head">
+      <div class="panel-head-main">
+  <h2 class="sec">Explorations</h2>
+      <p class="lead">Deux pièces moins quantitatives que qualitatives : non des lois à régler, mais des transformations et des renversements à voir de ses propres yeux.</p>
+      </div>
+    </div>
     <div class="subtabs">
       <button class="xsub active" data-x="x-coop">L'atelier : coopération → machinisme</button>
       <button class="xsub" data-x="x-feti">Le fétichisme</button>
@@ -1423,8 +1410,12 @@ nav.subnav{position:sticky;top:85px;z-index:61;background:var(--bg);
 
   <section class="panel" id="ressources">
 
-      <h2 class="sec">Ressources</h2>
-      <p class="lead">Conférences, cours, podcasts et articles en libre accès — pour préparer la lecture, ou la prolonger.</p>
+    <div class="panel-head">
+      <div class="panel-head-main">
+        <h2 class="sec">Ressources</h2>
+        <p class="lead">Conférences, cours, podcasts et articles en libre accès — pour préparer la lecture, ou la prolonger.</p>
+      </div>
+    </div>
     <!-- VIDÉOS -->
     <span class="rss-section-label">Vidéos</span>
     <div class="rss-grid">
@@ -1935,12 +1926,10 @@ function renderAtlList(){
   const pct=Math.round(doneCount/total*100);
   const loggedIn=!!(window.SHELL&&window.SHELL.progress&&window.SHELL.progress.isLoggedIn());
   const fillEl=document.getElementById('atlFill');
-  const pctEl=document.getElementById('atlPct');
   const cntEl=document.getElementById('atlCount');
   if(loggedIn){
     if(fillEl)fillEl.style.width=pct+'%';
-    if(pctEl)pctEl.textContent=pct+'%';
-    if(cntEl)cntEl.textContent=doneCount+' sur '+total+' chapitres';
+    if(cntEl)cntEl.textContent=doneCount+' sur '+total+' chapitres'+(pct?' \u00b7 '+pct+'\u00a0%':'');
   }
   const nl=document.getElementById('navlist');
   if(!nl)return;
@@ -1963,26 +1952,25 @@ function renderAtlList(){
        en cours / à lire redevient un STATUT, pas un verrou. */
     const cardLabel=`Chapitre ${c.chapRn} — ${c.chapTitle.replace(/'/g,"&#39;")} — ${isDone?'terminé':isCurrent?(doneCount?'en cours':'chapitre d’entrée'):'à lire'}`;
     const clickAttr=` onclick="${goFn}" role="link" tabindex="0" aria-label="${cardLabel}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();${goFn}}"`;
+    /* Trois gabarits de LIGNE de sommaire : numéro Fraunces italique or,
+       titre, et à droite la simulation associée + le statut. La ligne en
+       cours est la seule carte (dégradé chaud d'emphase du socle). */
+    const m=META[c.chapRn]||{};
+    const simLabel=m.labo&&LABO_LABELS[m.labo]?`<span class="atl-card-sim">${LABO_LABELS[m.labo]}</span>`:'';
     let inner='';
     if(isCurrent){
-      const m=META[c.chapRn]||{};
-      const simLabel=m.labo&&LABO_LABELS[m.labo]?`<span class="atl-card-sim">${LABO_LABELS[m.labo]}</span>`:'<span></span>';
-      inner=`<div class="atl-card-halo"></div>
-        <div class="atl-card-ind"><span>${c.gnum}</span></div>
-        <div class="atl-card-chap">Ch. ${c.chapRn}</div>
-        <div class="atl-card-title">${c.chapTitle}</div>
-        <div class="atl-card-status">${doneCount?'En cours':'Chapitre d’entrée'}</div>
-        <div class="atl-card-foot">${simLabel}<span class="atl-continue" aria-hidden="true">Continuer →</span></div>`;
+      inner=`<span class="atl-num" aria-hidden="true">${c.gnum}</span>
+        <span class="atl-row-main"><span class="atl-card-title">${c.chapTitle}</span>
+        <span class="atl-card-status">${doneCount?'En cours':'Chapitre d’entrée'}</span></span>
+        <span class="atl-row-side">${simLabel}<span class="atl-continue" aria-hidden="true">Continuer →</span></span>`;
     } else if(isDone){
-      inner=`<div class="atl-card-ind">${CHECK_SVG}</div>
-        <div class="atl-card-chap">Ch. ${c.chapRn}</div>
-        <div class="atl-card-title">${c.chapTitle}</div>
-        <div class="atl-card-status">Terminé</div>
-        <button class="atl-done-toggle" type="button" onclick="event.stopPropagation();toggleDone(${c.gnum})">✓ Terminé</button>`;
+      inner=`<span class="atl-num" aria-hidden="true">${c.gnum}</span>
+        <span class="atl-card-title">${c.chapTitle}</span>
+        <span class="atl-row-side">${simLabel}<button class="atl-done-toggle" type="button" onclick="event.stopPropagation();toggleDone(${c.gnum})" aria-label="Marquer le chapitre ${c.chapRn} comme non lu">${CHECK_SVG}Lu</button></span>`;
     } else {
-      inner=`<div class="atl-card-ind"><span>${c.gnum}</span></div>
-        <div class="atl-card-chap">Ch. ${c.chapRn}</div>
-        <div class="atl-card-title">${c.chapTitle}</div>`;
+      inner=`<span class="atl-num" aria-hidden="true">${c.gnum}</span>
+        <span class="atl-card-title">${c.chapTitle}</span>
+        <span class="atl-row-side">${simLabel}<span class="atl-card-status">À lire</span></span>`;
     }
     html+=`<div class="atl-card atl-${state}" data-gnum="${c.gnum}" data-text="${ftext.replace(/"/g,'&quot;')}"${clickAttr}>${inner}</div>`;
   });
@@ -2035,13 +2023,16 @@ function syncProgUI(){
   var pr2=document.getElementById('atlProg2');
   if(na2)na2.style.display=loggedIn?'none':'flex';
   if(pr2)pr2.style.display=loggedIn?'':'none';
+  /* même bascule pour le widget compact de #nav (Parcourir) */
+  var na1=document.getElementById('atlProgNA');
+  var pr1=document.getElementById('atlProg');
+  if(na1)na1.style.display=loggedIn?'none':'flex';
+  if(pr1)pr1.style.display=loggedIn?'':'none';
   if(loggedIn){
-    var pctEl=document.getElementById('atlPct2');
     var fillEl=document.getElementById('atlFill2');
     var cntEl=document.getElementById('atlCount2');
-    if(pctEl)pctEl.textContent=pct+'%';
     if(fillEl)fillEl.style.width=pct+'%';
-    if(cntEl)cntEl.textContent=cnt+' sur '+total+' chapitres';
+    if(cntEl)cntEl.textContent=cnt+' sur '+total+' chapitres'+(pct?' \u00b7 '+pct+'\u00a0%':'');
   }
 }
 
