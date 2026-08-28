@@ -94,21 +94,31 @@ header.topbar{background:rgba(21,16,11,.96);border-bottom-color:var(--line);}
    (left/top/width/height/font-size en ligne, tout l'intérieur en em) —
    le DOM reste net et cliquable, la feuille fournit le papier. Encre
    sur papier, donc : plus de crème sur sombre ni d'ombre portée. */
+/* TYPOGRAPHIE DE LA FEUILLE. Ce texte est imprimé sur un vieux papier
+   plié : il se compose donc comme un document, pas comme une interface.
+   Spectral (la serif de lecture de la maison) pour tout le courant,
+   Fraunces pour le titre — l'Inter de l'UI n'a rien à faire là.
+   Filet sous le titre, capitales espacées pour la rubrique : c'est la
+   grammaire d'une page de titre. */
 .bx3-intro{position:fixed;z-index:10;left:0;top:0;pointer-events:none;
   box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;
   padding:7% 9% 6%;color:#2b1c0e;opacity:0;
+  font-family:'Spectral',Georgia,serif;
   transition:opacity .2s linear;}
-.bx3-intro .bx3-label{font-size:.62em;font-weight:600;letter-spacing:.11em;
-  text-transform:uppercase;color:#8a6420;margin-bottom:.55em;}
+.bx3-intro .bx3-label,.bx3-end .bx3-label{font-family:'Spectral',Georgia,serif;
+  font-size:.6em;font-weight:600;letter-spacing:.22em;
+  text-transform:uppercase;color:#8a6420;margin-bottom:.7em;}
 .bx3-h1{font-family:'Fraunces',serif;font-weight:900;
   font-size:2.35em;line-height:1.02;letter-spacing:-.03em;
-  margin-bottom:.35em;color:#241505;}
+  margin-bottom:.42em;padding-bottom:.3em;color:#241505;
+  border-bottom:1px solid rgba(90,64,34,.34);}
 .bx3-h1 em{font-style:italic;font-weight:500;color:#8a6420;}
-.bx3-lede{font-size:.92em;line-height:1.65;color:#57432a;max-width:46ch;}
-.bx3-count{margin-top:.8em;font-size:.78em;color:#6b5638;}
-.bx3-count b{color:#241505;font-weight:600;}
+.bx3-lede{font-size:.95em;line-height:1.6;color:#4a3823;
+  max-width:46ch;text-wrap:pretty;}
+.bx3-count{margin-top:.85em;font-size:.8em;font-style:italic;color:#6b5638;}
+.bx3-count b{color:#241505;font-weight:600;font-style:normal;}
 .bx3-legend{margin-top:1em;display:flex;flex-direction:column;gap:.45em;
-  font-size:.74em;color:#57432a;}
+  font-size:.78em;color:#4a3823;}
 .bx3-legend span{display:inline-flex;align-items:center;gap:10px;}
 .bx3-legend i{flex:0 0 auto;display:block;width:14px;height:14px;border-radius:3px;}
 .bx3-legend .lg-book{background:linear-gradient(180deg,#7a4a1e,#4a2c12);
@@ -117,8 +127,9 @@ header.topbar{background:rgba(21,16,11,.96);border-bottom-color:var(--line);}
   box-shadow:inset 0 -4px 0 rgba(21,16,11,.45),inset 0 5px 0 rgba(21,16,11,.0);}
 .bx3-legend .lg-ribbon{background:var(--accent);width:6px;height:16px;margin:0 4px;}
 .bx3-alt{margin-top:1.2em;pointer-events:auto;}
-.bx3-alt button{font:600 .76em/1 var(--f-ui);color:#8c2415;background:none;
-  border:0;border-bottom:1px solid #b09468;padding:0 0 3px;cursor:pointer;}
+.bx3-alt button{font:italic 500 .82em/1 'Spectral',Georgia,serif;color:#8c2415;
+  background:none;border:0;border-bottom:1px solid #b09468;padding:0 0 3px;
+  cursor:pointer;}
 .bx3-alt button:hover{color:#5e1508;border-color:#8a6420;}
 
 /* L'invite à descendre : bas de l'écran, disparaît avec l'intro. */
@@ -190,12 +201,18 @@ body.sb-collapsed .bx3-caption{left:clamp(28px,6vw,120px);}
 .bx3-end{position:fixed;z-index:10;left:0;top:0;pointer-events:none;
   box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;
   padding:8% 9%;text-align:center;color:#2b1c0e;opacity:0;
+  font-family:'Spectral',Georgia,serif;
   transition:opacity .25s linear;}
-.bx3-end .bx3-h1{font-size:1.9em;}
+.bx3-end .bx3-h1{font-size:1.9em;border-bottom:0;padding-bottom:0;}
+/* le filet du verso est CENTRÉ et court : une vignette de fin, pas la
+   ligne de titre pleine largeur du recto */
+.bx3-end .bx3-h1::after{content:"";display:block;width:3.2em;height:1px;
+  margin:.5em auto 0;background:rgba(90,64,34,.42);}
 .bx3-end .bx3-lede{margin:0 auto;}
 .bx3-end-acts{margin-top:1.4em;display:flex;gap:.7em;justify-content:center;
   flex-wrap:wrap;pointer-events:auto;}
-.bx3-btn{display:inline-block;font:600 .8em/1 var(--f-ui);text-decoration:none;
+.bx3-btn{display:inline-block;font:600 .84em/1 'Spectral',Georgia,serif;
+  text-decoration:none;
   border-radius:100px;padding:.85em 1.5em;cursor:pointer;transition:transform .15s,opacity .15s;}
 .bx3-btn.full{background:#2b1c0e;color:#e8dcc0;border:0;}
 .bx3-btn.ghost{background:transparent;color:#4a3826;border:1px solid #8a7454;}
@@ -868,8 +885,22 @@ installShell({ workTitle: 'Bibliothèque', tabs: [] });
         g.fillStyle = 'rgba(120,90,50,' + (0.02 + Math.random() * 0.05) + ')';
         g.fillRect(Math.random() * W, Math.random() * H, 1.3, 1.3);
       }
-      /* le pli d'une lettre, et des bords fatigués */
-      g.fillStyle = 'rgba(90,64,34,.10)'; g.fillRect(0, H * 0.36, W, 2);
+      /* LES PLIURES d'une lettre pliée en trois. Une pliure n'est pas un
+         filet : c'est une ombre DOUBLÉE d'un reflet, le creux puis
+         l'arête que la lumière accroche. Tracée en trait simple, elle se
+         lisait comme une règle typographique de plus — et venait doubler
+         le filet du titre. */
+      [1 / 3, 2 / 3].forEach(function(f){
+        var y = H * f;
+        var band = g.createLinearGradient(0, y - 7, 0, y + 7);
+        band.addColorStop(0, 'rgba(96,68,36,0)');
+        band.addColorStop(0.42, 'rgba(96,68,36,.13)');
+        band.addColorStop(0.5, 'rgba(74,50,24,.20)');
+        band.addColorStop(0.62, 'rgba(255,248,228,.34)');
+        band.addColorStop(1, 'rgba(96,68,36,0)');
+        g.fillStyle = band; g.fillRect(0, y - 7, W, 14);
+      });
+      /* bords fatigués */
       g.strokeStyle = 'rgba(90,64,34,.22)'; g.lineWidth = 5;
       g.strokeRect(1, 1, W - 2, H - 2);
       return tex(cv);
@@ -1042,8 +1073,13 @@ installShell({ workTitle: 'Bibliothèque', tabs: [] });
         b.position.set(x / 2, by, 0);
         group3d.add(b);
       });
-      var back = new THREE.Mesh(new THREE.PlaneGeometry(x + 6, caseH + 2), woodDark);
-      back.position.set(x / 2, (caseTop + caseBot) / 2, -0.92);
+      /* Le fond du meuble s'arrête à SON bord gauche. Étendu à −3 comme
+         avant, il passait derrière la fenêtre : on avait un vantail qui
+         s'ouvrait sur du bois sombre, et pas de nuit. Il déborde encore
+         à droite, où il sert de fond au bureau. */
+      var bx0 = -0.35, bx1 = x + 3;
+      var back = new THREE.Mesh(new THREE.PlaneGeometry(bx1 - bx0, caseH + 2), woodDark);
+      back.position.set((bx0 + bx1) / 2, (caseTop + caseBot) / 2, -0.92);
       group3d.add(back);
       var top = new THREE.Mesh(new THREE.BoxGeometry(x + 0.5, 0.3, 2.25), woodMat);
       top.position.set(x / 2, caseTop + 0.12, 0.05);
@@ -1122,6 +1158,67 @@ installShell({ workTitle: 'Bibliothèque', tabs: [] });
           b.position.set(wx + px, wy + py, -0.86);
           group3d.add(b);
         };
+        /* LE MUR, percé de la baie. Sans lui, la fenêtre s'ouvrait sur
+           le fond du meuble : du bois sombre au lieu de la nuit. Quatre
+           panneaux autour de l'ouverture (x ±0,85 · y ±1,3). */
+        var WZ = -0.98, wallMat = woodDark;
+        var mkWall = function(w, h, cx, cy){
+          var m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), wallMat);
+          m.position.set(cx, cy, WZ);
+          group3d.add(m);
+        };
+        mkWall(7.85, 11, -7.075, 0.5);            /* à gauche de la baie */
+        mkWall(1.10, 11, -0.90, 0.5);             /* entre la baie et le meuble */
+        mkWall(1.70, 3.3, wx, wy + 1.3 + 1.65);   /* au-dessus */
+        mkWall(1.70, 5.1, wx, wy - 1.3 - 2.55);   /* en dessous */
+
+        /* LA NUIT, derrière la baie : ciel, lune, étoiles et les toits.
+           Posée en retrait (parallaxe) — on voit dehors, pas un décor
+           collé à la vitre. */
+        (function(){
+          var W = 512, H = 456;
+          var cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+          var g = cv.getContext('2d');
+          var gr = g.createLinearGradient(0, 0, 0, H);
+          gr.addColorStop(0, '#0a1526'); gr.addColorStop(0.55, '#16283f');
+          gr.addColorStop(1, '#2b4058');
+          g.fillStyle = gr; g.fillRect(0, 0, W, H);
+          for(var i = 0; i < 190; i++){
+            var sx = Math.random() * W, sy = Math.random() * H * 0.8;
+            g.fillStyle = 'rgba(226,238,255,' + (0.15 + Math.random() * 0.6) + ')';
+            g.beginPath(); g.arc(sx, sy, Math.random() * 1.2 + 0.3, 0, 7); g.fill();
+          }
+          var mx = W * 0.31, my = H * 0.42, mr = 21;
+          var hg = g.createRadialGradient(mx, my, mr * 0.7, mx, my, mr * 5);
+          hg.addColorStop(0, 'rgba(206,224,248,.5)');
+          hg.addColorStop(0.35, 'rgba(180,204,236,.16)');
+          hg.addColorStop(1, 'rgba(160,190,230,0)');
+          g.fillStyle = hg;
+          g.beginPath(); g.arc(mx, my, mr * 5, 0, 7); g.fill();
+          g.fillStyle = '#dfe7f4';
+          g.beginPath(); g.arc(mx, my, mr, 0, 7); g.fill();
+          g.fillStyle = 'rgba(150,175,205,.34)';
+          [[-6, -5, 5], [8, 4, 6], [-2, 9, 3.5], [10, -8, 3]].forEach(function(c){
+            g.beginPath(); g.arc(mx + c[0], my + c[1], c[2], 0, 7); g.fill();
+          });
+          /* les toits : la ville dort, on la devine */
+          g.fillStyle = '#080d16';
+          var rx = 0, base = H * 0.80;
+          while(rx < W){
+            var rw = 26 + Math.random() * 54, rh = 22 + Math.random() * 62;
+            g.fillRect(rx, base - rh, rw, H - base + rh);
+            if(Math.random() < 0.5){
+              var chw = 7 + Math.random() * 6;
+              g.fillRect(rx + rw * 0.35, base - rh - (9 + Math.random() * 13), chw, 18);
+            }
+            rx += rw + 1;
+          }
+          var sky = new THREE.Mesh(new THREE.PlaneGeometry(9, 8),
+            new THREE.MeshBasicMaterial({ map: tex(cv), fog: false }));
+          sky.position.set(wx, wy + 0.6, -3.2);
+          group3d.add(sky);
+        })();
+
         /* le dormant reste ; le VANTAIL (vitre + croisillons) est un
            groupe à charnière gauche, que l'envol de la feuille ouvre */
         mkBar(1.7, 0.1, 0, 1.25); mkBar(1.7, 0.1, 0, -1.25);
@@ -1134,9 +1231,11 @@ installShell({ workTitle: 'Bibliothèque', tabs: [] });
         sh2.position.set(0.75, 0, 0); sash.add(sh2);
         /* fog:false sur tout l'additif de la lune : le brouillard lave un
            matériau additif vers sa propre couleur et l'éteint */
+        /* le vantail ouvert présente sa vitre de biais : à 0,42 elle
+           lisait comme un panneau blanc opaque, pas comme du verre */
         var glass = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 2.4),
-          new THREE.MeshBasicMaterial({ color: 0xa8c4de, transparent: true, fog: false,
-            opacity: 0.42, blending: THREE.AdditiveBlending, depthWrite: false,
+          new THREE.MeshBasicMaterial({ color: 0x9ab8d4, transparent: true, fog: false,
+            opacity: 0.2, blending: THREE.AdditiveBlending, depthWrite: false,
             side: THREE.DoubleSide }));
         glass.position.set(0.75, 0, -0.02);
         sash.add(glass);
@@ -1651,8 +1750,11 @@ installShell({ workTitle: 'Bibliothèque', tabs: [] });
           if(sheetT >= 1 || pT > 0.03){ sheetT = 1; sheetDone = true; }
         }
       }
-      /* la croisée s'ouvre au début de l'envol, puis reste ouverte */
-      if(sash) sash.rotation.y = (sheetDone ? 1 : sstep(0.04, 0.3, sheetT)) * 1.25;
+      /* La croisée s'ouvre au début de l'envol, puis reste ouverte.
+         Rotation NÉGATIVE : le vantail doit battre vers la pièce (+z).
+         En positif il pivotait dans le mur, et l'ouverture était
+         invisible — c'est exactement le bug qu'on a corrigé. */
+      if(sash) sash.rotation.y = -(sheetDone ? 1 : sstep(0.04, 0.3, sheetT)) * 1.35;
 
       var inZone = p < T_IN * 0.95, endZone = p > T_TRAVEL;
       sheet.visible = (inZone && (sheetPlaying || sheetDone)) || endZone;

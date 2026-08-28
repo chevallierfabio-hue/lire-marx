@@ -763,6 +763,39 @@ Mécanique, à ne pas casser :
   `#2b1c0e` / `#57432a` / `#8a6420` dans le CSS) — plus de crème sur
   fond sombre pour ces deux blocs. Le vantail reste ouvert ensuite.
 
+### La baie s'ouvre vraiment (mission `fenetre-et-composition`, août 2026)
+
+Deux défauts signalés par le propriétaire, tous deux réels :
+
+1. **Le fond du meuble passait DERRIÈRE la fenêtre.** Le panneau `back`
+   de `buildCase()` s'étendait de −3 à `caseW+3` : le vantail s'ouvrait
+   donc sur du bois sombre, et la lune n'existait pas. Le fond s'arrête
+   désormais au bord gauche du meuble (−0,35 ; il déborde toujours à
+   droite, où il sert de fond au bureau), et un **vrai mur percé** prend
+   la place à gauche — quatre panneaux autour de l'ouverture
+   (`mkWall`), jamais un plan plein.
+2. **Le vantail pivotait DANS le mur.** `sash.rotation.y` positif
+   envoie le battant vers `−z`. Il est négatif : la croisée bat vers la
+   pièce, et l'on voit enfin s'ouvrir ce qui laisse entrer la feuille.
+
+Derrière la baie, **la nuit** : un plan de ciel en retrait (parallaxe —
+on regarde dehors, pas un décor collé à la vitre), avec dégradé, étoiles,
+lune et halo, et la **silhouette des toits**. `fog:false` comme tout ce
+qui est vu par la fenêtre. La vitre du vantail ouvert est retombée à
+0,2 d'opacité : à 0,42 elle lisait comme un panneau blanc opaque.
+
+**Typographie de la feuille.** Le texte est imprimé sur un vieux papier
+plié : il se compose comme un document, pas comme une interface. Spectral
+(la serif de lecture de la maison) pour tout le courant — l'Inter de l'UI
+n'a rien à y faire —, Fraunces pour le titre, rubrique en capitales
+espacées, filet sous le titre au recto, vignette centrée au verso, ligne
+de comptes en italique. Palette d'encre (`#241505` / `#4a3823` / `#8a6420`).
+
+**Une pliure n'est pas un filet.** Tracée en trait simple, elle venait
+doubler le filet du titre et se lisait comme une règle typographique de
+plus. Les deux pliures (lettre pliée en trois) sont des **bandes ombre +
+reflet** — le creux, puis l'arête que la lumière accroche.
+
 ### Le repli à plat (`#bxFlat`)
 
 Sous 768 px, en reduced-motion, sans WebGL ou sans THREE — ou **sur
