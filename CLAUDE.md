@@ -612,14 +612,138 @@ dans ces cas — et le CSS masque fiche, bandeau et voile sous 768 px.
 - 🔲 Accueil de l'œuvre Manuscrits de 1844 (mission en cours — même
   structure que Le Capital, contenu à adapter : aliénation du
   travail, propriété privée, dépassement communiste)
+- ✅ **Socle sombre des pages d'atelier** (`capital-1.html`,
+  `manuscrits-1844.html`) — août 2026, voir « Les pages d'atelier »
+  ci-dessous. Les deux pages sont passées à la DA sombre-chaude.
 - 🔲 Onglets Parcourir / Cheminement / Modèles / Explorations /
-  Chronologie : **jugés satisfaisants tels quels, ne pas retoucher**
-  sans demande explicite.
+  Chronologie : le gel « ne pas retoucher » a été **levé par le
+  propriétaire** (août 2026) — ils sont rouverts au design. Le socle
+  sombre n'a touché que leurs couleurs ; leur mise en page reste à
+  reprendre dans une mission dédiée.
 - ✅ Page Bibliothèque à part (`oeuvres/bibliotheque.html`) — **refondue
   en scène 3D « la pièce aux rayonnages »** (août 2026), voir « La page
   Bibliothèque » ci-dessous. Elle avait été jugée inutile, rouverte sur
   demande explicite du propriétaire, puis refondue sur demande explicite
   encore : la page-document « Par où commencer » est remplacée.
+
+## Les pages d'atelier — le socle sombre (mission `atelier-socle-sombre`)
+
+`oeuvres/capital-1.html` et `oeuvres/manuscrits-1844.html` étaient les
+dernières pages en DA claire : on sortait de la bibliothèque en 3D — pièce
+brune, bougie à la main — et le clic « Ouvrir l'atelier » débouchait sur une
+page blanche. C'était la rupture la plus violente du site. Cette mission ne
+fait **que le socle** : palette, typographie, matière, grammaire de
+composants. Les deux pages d'un coup, parce qu'elles partagent exactement le
+même squelette (`.cap-hero`, `.cap-tabs-bar`, `.panel`).
+
+**Décisions du propriétaire prises au lancement de la mission :**
+1. Socle sombre sur les DEUX pages d'abord (plutôt qu'une scène sur une
+   seule page) — une scène ne peut pas se poser sur une page blanche.
+2. **La métaphore de l'atelier est LE BUREAU D'ÉCRITURE** — celui qu'on
+   aperçoit déjà au bout de l'allée dans la scène de la bibliothèque
+   (`furnish()` : feuillets, encrier, plume, deux tomes, chandelle,
+   fac-similé encadré). On prend le livre au rayon, on va l'ouvrir au
+   bureau : la rime boucle le parcours. **C'est la mission suivante**, elle
+   n'est pas faite ici.
+3. Le gel des cinq onglets « satisfaisants tels quels » est **levé**.
+
+### atelier.css est le système de record, et lui seul
+
+Les tokens sombres vivent désormais dans le `:root` d'`atelier.css`, aux
+**valeurs exactes** de `/index.html`, `bibliotheque.html` et
+`place-publique.html`. Les deux pages d'atelier ont vu leur `:root` clair
+**supprimé** : c'est cette duplication en tête de page qui les avait fait
+diverger du reste du site. Ne pas la réintroduire. (Bibliothèque et Place
+publique gardent le leur — elles redéclarent la même palette, c'est
+redondant mais inoffensif, et ça les protège d'un changement d'atelier.css.)
+
+Ajouts au socle : `--hover` (sur fond sombre un survol ÉCLAIRCIT — l'ancien
+aplat `--paper-2`, plus foncé, creusait la carte au lieu de la lever) et
+`--candle`. `--f-ui` passe de Bricolage Grotesque à **Inter**, la police
+d'interface du site ; les deux pages chargent donc `fonts/fonts.css` en
+local comme les pages déjà migrées (l'`@import` Google d'atelier.css ne
+fournit PAS Inter).
+
+### Ce qui ne se traduit pas par une simple substitution de couleur
+
+**Une carte d'emphase SOMBRE devient une carte ÉCLAIRÉE.** Sur papier clair,
+l'emphase se disait en inversant vers le noir (`.cap-action-dark`,
+`.atl-card.atl-current`, `.rdr-header`, tous en `background:#171614` ou
+`var(--text)`). Sur brun-nuit le même geste donne un pavé CRÈME en pleine
+page. Les trois portent maintenant le même dégradé chaud
+(`linear-gradient(150deg,#2c2117,#211a12,#1b150e)`) et un filet or à 20 % :
+c'est la surface sur laquelle tombe la bougie. Toute nouvelle emphase doit
+reprendre ce dégradé, jamais un aplat plus sombre.
+
+**`--red-deep` a changé de sens.** Sur fond clair, « rouge profond » était le
+rouge FORT ; sur brun-nuit c'est le rouge FAIBLE — 2,9:1, illisible. Le token
+ne sert **nulle part** de remplissage (25 usages, tous `color:`), il est donc
+repointé sur `#e5644f` dans atelier.css. Les pages qui ont leur propre
+`:root` gardent le leur.
+
+**Deux boutons n'avaient pas de couleur du tout.** `.lk` (atelier.css) et
+`.rd-chip` (reader-tools.css) déclaraient bordure et fond mais jamais
+`color` : un `<button>` retombait sur le noir de l'agent utilisateur. Le
+défaut existait déjà — la page claire le cachait. Sur fond sombre, texte
+invisible et pavé gris `#efefef` en plein texte. **Vérifier `color` sur tout
+composant bâti sur `<button>`.**
+
+**Les pastilles pleines prennent le fond de la page, pas du blanc.**
+`.chip`, `.chrono-phase`, `.sec-head .pg`, `.chap-head .badge` étaient en
+`color:#fff` sur `background:var(--ink)` — donc blanc sur crème une fois
+`--ink` inversé. Toutes en `color:var(--bg)`, ce qui est aussi la grammaire
+du bouton pilule plein du site.
+
+**La photographie d'archive doit être DANS la lumière, pas devant.** À pleine
+luminosité les tirages étaient l'objet le plus clair de la page et crevaient
+la pénombre : `grayscale(1) contrast(1.06) sepia(.30) brightness(.66)`.
+
+**Plus d'emoji dans des pastilles d'interface.** Les 📖/📊 de `.cap-card-icon`
+et du placeholder de liseuse sont remplacés par des **marques imprimées**
+dessinées (dos de livre ouvert, signet) en or — la règle déjà posée pour la
+légende du cartel de la bibliothèque.
+
+### Les thèmes de liseuse sont des SYSTÈMES, pas des listes de rustines
+
+La liseuse est le seul endroit du site où le lecteur peut demander un fond
+clair, et c'est un vrai besoin pour un chapitre entier. Une première
+tentative énumérait les sélecteurs à repeindre en sépia (titres, liens,
+notes, lettrine…) et en oubliait forcément — les `h1` restaient crème sur
+crème. **Chaque thème redéfinit maintenant les TOKENS dans sa propre
+portée** (`.reader.theme-sepia{--ink:…;--red:…;--line:…}`), si bien que tout
+descendant suit sans qu'on ait à le nommer, y compris ceux qui vivent dans
+le CSS propre à chaque livre. Faire pareil pour tout nouveau thème.
+
+Libellés remis d'aplomb dans `reader-tools.js` : `paper` → « Atelier » (la
+surface de la page, désormais sombre), `sepia` → « Papier » (le vrai choix
+clair), `dark` → « Nuit ». Au passage, `manuscrits-1844.css` codait
+`.reader-content{background:#fffaf0;color:#221d16}` en dur, ce qui rendait
+les thèmes **inopérants** sur le corps du texte : la règle est passée en
+`transparent`/`inherit`.
+
+### Vérifier ces pages : deux pièges d'outillage
+
+1. **Le serveur de test ne doit PAS mettre en cache.** `python3 -m
+   http.server` n'envoie aucun en-tête de cache, Chrome applique donc son
+   cache heuristique et sert un `atelier.css` périmé — on croit alors à des
+   bugs de contraste qui n'existent pas, et on « corrige » dans le vide.
+   Lancer un serveur qui pose `Cache-Control: no-store`.
+2. **La pane ne capture pas une page très haute.** Liseuse chargée, le
+   document fait 70 000 px : toute capture après défilement revient NOIRE ou
+   périmée, et les `getComputedStyle` d'éléments injectés tôt peuvent être
+   figés (un `cloneNode` inséré à côté donne, lui, la bonne valeur — c'est
+   le test qui départage un vrai bug d'un artefact). Vérifier au DOM, et
+   pour une capture, masquer temporairement le héros et les onglets pour
+   remonter la liseuse en haut de page.
+
+**Auditer le contraste plutôt que regarder.** Une sonde qui parcourt les
+éléments visibles, compare la couleur du texte au premier fond opaque
+au-dessus et signale tout ratio < 3,2:1, passée sur les neuf panneaux de
+chaque page et sur les trois thèmes de liseuse, a trouvé tout ce que l'œil
+avait laissé passer. Elle ne voit en revanche PAS un îlot clair dans une page
+sombre (texte foncé sur crème = fort contraste) : le bandeau de chapitre
+`.rdr-header` n'a été repéré qu'à l'œil.
+
 
 ## La page Bibliothèque — « la pièce aux rayonnages » (refonte août 2026)
 

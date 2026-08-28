@@ -185,7 +185,7 @@
     }
     function stateVal(n){ return n==='theme'?S.theme : n==='align'?S.align : n==='font'?S.font : n==='focus'?(S.focus?1:0) : ''; }
     var h='<h5>Réglages de lecture</h5>';
-    h+='<div class="rd-setrow"><span class="lab">Thème</span>'+seg('theme',[['paper','Papier'],['sepia','Sépia'],['dark','Sombre']])+'</div>';
+    h+='<div class="rd-setrow"><span class="lab">Thème</span>'+seg('theme',[['paper','Atelier'],['sepia','Papier'],['dark','Nuit']])+'</div>';
     h+=stepRow('Taille du texte','fs',Math.round(S.fs*100/1.04)+' %');
     h+=stepRow('Interligne','lh',S.lh.toFixed(2));
     h+=stepRow('Largeur','width',S.width+' px');

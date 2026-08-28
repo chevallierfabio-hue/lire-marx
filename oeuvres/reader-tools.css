@@ -15,13 +15,13 @@
 .reader.font-opendyslexic :is(.ws-text, .reader-content),.reader.font-opendyslexic :is(.ws-text, .reader-content) p{font-family:'OpenDyslexic','Comic Sans MS',sans-serif;letter-spacing:.01em;line-height:1.9;}
 .reader.focus-on :is(.ws-text, .reader-content) p{opacity:.32;transition:opacity .25s;}
 .reader.focus-on :is(.ws-text, .reader-content) p:hover,.reader.focus-on :is(.ws-text, .reader-content) p.rd-speak{opacity:1;}
-.reader :is(.ws-text, .reader-content) p.rd-speak{box-shadow:inset 3px 0 0 rgba(165,42,33,.35);border-radius:0 4px 4px 0;}
+.reader :is(.ws-text, .reader-content) p.rd-speak{box-shadow:inset 3px 0 0 rgba(213,64,47,.5);border-radius:0 4px 4px 0;}
 .reader.theme-dark :is(.ws-text, .reader-content) p.rd-speak{box-shadow:inset 3px 0 0 rgba(230,177,168,.5);}
-.reader :is(.ws-text, .reader-content) span.rd-sent-on{background:rgba(165,42,33,.16);border-radius:3px;box-shadow:0 0 0 1px rgba(165,42,33,.07);}
+.reader :is(.ws-text, .reader-content) span.rd-sent-on{background:rgba(213,64,47,.22);border-radius:3px;box-shadow:0 0 0 1px rgba(213,64,47,.12);}
 .reader.theme-dark :is(.ws-text, .reader-content) span.rd-sent-on{background:rgba(230,177,168,.20);box-shadow:none;}
    /* toolbar */
 .rd-toolbar{margin:-6px 0 22px;}
-.rd-progress{height:4px;background:rgba(0,0,0,.08);border-radius:3px;overflow:hidden;margin-bottom:12px;}
+.rd-progress{height:4px;background:rgba(243,233,212,.10);border-radius:3px;overflow:hidden;margin-bottom:12px;}
 .reader.theme-dark .rd-progress{background:rgba(255,255,255,.10);}
 .rd-progress > i{display:block;height:100%;width:0;background:var(--red);transition:width .15s linear;}
 .rd-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;}
@@ -50,7 +50,7 @@
 .reader.theme-dark .rd-seg button{background:#2a251f;color:#e8e0d2;}
 .rd-toclist{display:flex;flex-direction:column;gap:2px;max-height:300px;overflow:auto;}
 .rd-tocitem{text-align:left;background:none;border:none;cursor:pointer;color:var(--ink);font-family:'Spectral',serif;font-size:.95rem;padding:6px 8px;border-radius:5px;line-height:1.35;}
-.rd-tocitem:hover{background:rgba(165,42,33,.08);}
+.rd-tocitem:hover{background:rgba(213,64,47,.14);}
 .reader.theme-dark .rd-tocitem{color:#e8e0d2;}
 .rd-h3{padding-left:20px;font-size:.9rem;}
 .rd-h4{padding-left:34px;font-size:.86rem;color:var(--ink-soft);}
@@ -60,14 +60,14 @@
 .rd-note{font-size:.82rem;font-style:italic;color:var(--ink-soft);margin-top:10px;}
 .reader.theme-dark .rd-note{color:#b6aa94;}
 .rd-xref{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:14px;}
-.rd-chip{font-family:'Fraunces',serif;font-weight:600;font-size:.82rem;cursor:pointer;border-radius:30px;padding:7px 15px;border:1px solid;line-height:1;}
-.rd-chip.labo{color:var(--blue);border-color:var(--blue);background:rgba(57,89,107,.07);}
-.rd-chip.deriv{color:var(--gold-deep);border-color:var(--gold-deep);background:rgba(154,123,53,.08);}
-.rd-chip:hover{filter:brightness(.94);}
+.rd-chip{font-family:'Fraunces',serif;font-weight:600;font-size:.82rem;cursor:pointer;border-radius:30px;padding:7px 15px;border:1px solid var(--line);background:var(--card);color:var(--ink);line-height:1;}
+.rd-chip.labo{color:var(--blue);border-color:var(--blue);background:rgba(92,138,163,.14);}
+.rd-chip.deriv{color:var(--gold);border-color:var(--gold-deep);background:rgba(216,173,76,.13);}
+.rd-chip:hover{filter:brightness(1.14);}
 .rd-vsel{font-family:'Spectral',serif;font-size:.92rem;padding:7px 10px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--ink);max-width:100%;}
 .reader.theme-dark .rd-vsel{background:#2a251f;color:#e8e0d2;border-color:#473c30;}
 .reader :is(.ws-text, .reader-content) span.gloss{border-bottom:1px dotted var(--blue);cursor:help;}
-.reader :is(.ws-text, .reader-content) span.gloss:hover{background:rgba(57,89,107,.10);border-radius:2px;}
+.reader :is(.ws-text, .reader-content) span.gloss:hover{background:rgba(92,138,163,.16);border-radius:2px;}
 .reader.theme-dark :is(.ws-text, .reader-content) span.gloss{border-bottom-color:#8fb3c4;}
 .reader.theme-dark :is(.ws-text, .reader-content) span.gloss:hover{background:rgba(143,179,196,.16);}
 .rd-tip{position:absolute;z-index:120;max-width:320px;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:12px 14px;box-shadow:0 14px 40px -12px rgba(0,0,0,.45);font-family:'Spectral',serif;font-size:.92rem;line-height:1.5;}
@@ -75,3 +75,31 @@
 .rd-tip .rd-tip-term{display:block;font-family:'Fraunces',serif;font-weight:700;color:var(--red-deep);}
 .rd-tip .rd-tip-de{display:block;font-size:.78rem;color:var(--ink-soft);font-style:italic;margin:1px 0 7px;}
 .rd-tip .rd-tip-def{display:block;}
+
+/* ══ Les thèmes de lecture sont des SYSTÈMES, pas des listes de rustines ══
+   Depuis la bascule sombre de l'atelier, la liseuse est le seul endroit du
+   site où le lecteur peut demander un fond clair — et c'est un vrai besoin
+   pour un chapitre entier. Or la première tentative énumérait les sélecteurs
+   à repeindre (titres, liens, notes, lettrine…) et en oubliait forcément :
+   les h1 de la liseuse restaient crème sur crème.
+
+   Chaque thème redéfinit donc les TOKENS dans sa propre portée. Tout
+   descendant — y compris ceux qu'on ajoutera plus tard, et ceux qui vivent
+   dans le CSS propre à chaque livre — suit sans qu'on ait à le nommer. */
+.reader.theme-sepia{
+  --bg:#efe1c2;--text:#3b3019;--muted:#7d6c50;
+  --paper:#efe1c2;--paper-2:#e6d5b2;--card:#f5ecd6;--surface:#f5ecd6;
+  --ink:#3b3019;--ink-soft:#6a5b42;--const:#7d6c50;
+  --red:#9b2f22;--red-deep:#9b2f22;--bright:#9b2f22;
+  --gold:#8a6a22;--gold-deep:#7d6325;--blue:#39596b;--ok:#52742f;
+  --line:#d8c49a;--line-soft:#e2d3b2;--border:rgba(59,48,25,.18);
+  background:#efe1c2;color:#3b3019;border-color:#d8c49a;}
+.reader.theme-sepia .rd-progress{background:rgba(59,48,25,.14);}
+
+.reader.theme-dark{
+  --bg:#1d1a16;--text:#e8e0d2;--muted:#b6aa94;
+  --paper:#1d1a16;--paper-2:#26211b;--card:#221e19;--surface:#26211b;
+  --ink:#e8e0d2;--ink-soft:#b6aa94;--const:#9d917c;
+  --red:#e6b1a8;--red-deep:#e6b1a8;--bright:#e6b1a8;
+  --gold:#d8ad4c;--gold-deep:#bd8f38;--blue:#8fb3c4;--ok:#7fa855;
+  --line:#3a3127;--line-soft:#2f2921;--border:#3a3127;}
