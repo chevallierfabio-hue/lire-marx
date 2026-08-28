@@ -833,13 +833,18 @@ unifiée, état d'URL, barre de lecture collante, reprise de lecture) restent
 `.impeccable/critique/` (16/40 aux heuristiques de Nielsen, non versionné).
 
 **Arbitrages du propriétaire, à ne pas rouvrir sans lui :**
-1. **Wikisource reste la source du texte intégral.** Les 33 fichiers
-   `oeuvres/capital-1/textes/ch*.html` totalisent **21 000 mots** quand le
-   Livre I en fait ~300 000 : ce sont des **abrégés à ~7 %**, malgré leur
-   mention « Chapitre intégral ». `CHAP_AVAIL`/`CHAP_BASE`/`CHAP_CACHE`
-   (capital-1.html:1681) décrivent la bonne architecture et ne sont appelés
-   nulle part — **ne pas les brancher** : ça remplacerait le texte intégral
-   par une anthologie sous un onglet nommé « Texte intégral ».
+1. **Wikisource est la source du texte intégral, et la seule.** Les 33
+   fichiers `oeuvres/capital-1/textes/ch*.html` étaient des **abrégés à
+   ~7 %** (21 000 mots contre ~300 000 pour le Livre I) qui s'annonçaient
+   pourtant « Chapitre intégral — lisible hors-ligne ». **Supprimés en
+   août 2026** (mission `retrait-textes-abreges`), avec les constantes
+   mortes qui les adressaient (`CHAP_AVAIL`/`CHAP_BASE`/`CHAP_CACHE`,
+   déclarées et jamais appelées) et la mention devenue fausse dans le
+   `sourceNote` de `bibliotheque.json` — texte VISIBLE au cartel de la
+   bibliothèque, à ne pas oublier quand une source change. `loadSection()`
+   n'a aucun repli local : vérifié avant suppression. Ils restent dans
+   l'historique git si on les voulait un jour comme résumés — mais alors
+   sous un autre nom que « intégral ».
 2. **Les correctifs vont jusque dans le shell**, partagé par les quatre
    pages. Toute retouche du shell impose de revérifier accueil,
    bibliothèque et Place publique.

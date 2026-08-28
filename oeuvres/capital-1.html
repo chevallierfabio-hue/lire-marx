@@ -1857,10 +1857,11 @@ const fmt=(x,d=2)=>x.toLocaleString('fr-FR',{minimumFractionDigits:d,maximumFrac
 })();
 
 /* ---- texte intégral (domaine public) ---- */
-  /* ---- textes des chapitres : fichiers externes chargés à la demande (voir capital-1/textes/) ---- */
-  const CHAP_AVAIL=new Set([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33]);
-  const CHAP_BASE='capital-1/textes/';
-  const CHAP_CACHE={};
+  /* Le texte intégral vient de Wikisource (loadSection) — et de là seul.
+     Les 33 fichiers locaux capital-1/textes/ch*.html et les constantes
+     qui les adressaient (CHAP_AVAIL / CHAP_BASE / CHAP_CACHE, jamais
+     appelées) ont été retirés : c'étaient des abrégés à ~7 % qui
+     s'annonçaient « Chapitre intégral ». Voir CLAUDE.md. */
 const ROY_STRUCT=[
  {rn:'I',t:'Marchandise et monnaie',intro:"De la cellule du capitalisme à l'argent : Marx fonde la théorie de la valeur et le fétichisme, puis montre comment l'argent naît socialement de l'échange.",chaps:[['I','La marchandise','ch1'],['II','Des échanges',null],['III','La monnaie ou la circulation des marchandises',null]]},
  {rn:'II',t:"Transformation de l'argent en capital",intro:"Comment l'argent devient capital : la formule A-M-A′, son énigme (l'origine du gain) et sa clé — la force de travail.",chaps:[['IV','Formule générale du capital',null],['V','Contradictions de la formule générale du capital',null],['VI','Achat et vente de la force de travail',null]]},
