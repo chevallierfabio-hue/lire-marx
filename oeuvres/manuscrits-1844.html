@@ -489,11 +489,11 @@ nav.tabs.cap-tabs-bar .tab .num{display:none;}
       <div class="devenir" id="devenir">
         <div class="dev-debat">
           <article class="dev-pos is-break">
-            <h4>La coupure — Althusser</h4>
+            <h3>La coupure — Althusser</h3>
             <p>Vers 1845, une coupure épistémologique. Le jeune Marx des Manuscrits est encore idéologique — l'humanisme, l'aliénation, l'essence de l'homme hérités de Feuerbach et de Hegel. Le Marx scientifique du Capital rompt avec cette problématique : non plus un sujet-Homme, mais des rapports et des structures. Les Manuscrits seraient pré-marxistes.</p>
           </article>
           <article class="dev-pos is-cont">
-            <h4>La continuité — les lectures humanistes</h4>
+            <h3>La continuité — les lectures humanistes</h3>
             <p>Les Manuscrits sont la matrice de toute l'œuvre. L'aliénation reste le fil conducteur — le fétichisme de la marchandise en est la forme mûrie — et l'exigence d'émancipation la traverse de bout en bout. Leur exhumation tardive, en 1932, a nourri cette relecture : le Marx de la maturité approfondit, il ne renie pas.</p>
           </article>
         </div>
@@ -507,7 +507,7 @@ nav.tabs.cap-tabs-bar .tab .num{display:none;}
     <div class="instr" id="instr-hegel" hidden>
       <div class="hegel" id="hegel">
         <div class="heg-dette">
-          <h4>Ce que Marx reconnaît à Hegel</h4>
+          <h3>Ce que Marx reconnaît à Hegel</h3>
           <p>La grandeur de la Phénoménologie : penser l'auto-engendrement de l'homme comme un processus, saisir le travail comme l'acte par lequel l'homme se produit, et faire de la négativité le moteur du mouvement. Marx ne jette pas Hegel — il le remet sur ses pieds.</p>
         </div>
         <div class="heg-pick" id="hegPick"></div>
@@ -517,8 +517,8 @@ nav.tabs.cap-tabs-bar .tab .num{display:none;}
     <div class="instr" id="instr-lexique" hidden>
       <div class="lexique" id="lexique">
         <div class="lex-pair">
-          <h4>La paire décisive — Entfremdung vs Entäußerung</h4>
-          <p>Marx emploie les deux, et les traducteurs les rendent parfois par le même mot, « aliénation », ce qui brouille tout. Entäußerung (extériorisation, dessaisissement) est le mouvement, en soi neutre voire nécessaire, par lequel on se porte au-dehors — le terme a même un sens juridique : céder un bien. Entfremdung est le résultat hostile : devenir étranger. On peut s'extérioriser sans s'aliéner ; c'est l'écart entre les deux que la propriété privée vient combler.</p>
+          <h3>La paire décisive — <i lang="de">Entfremdung</i> vs <i lang="de">Entäußerung</i></h3>
+          <p>Marx emploie les deux, et les traducteurs les rendent parfois par le même mot, « aliénation », ce qui brouille tout. <i lang="de">Entäußerung</i> (extériorisation, dessaisissement) est le mouvement, en soi neutre voire nécessaire, par lequel on se porte au-dehors — le terme a même un sens juridique : céder un bien. <i lang="de">Entfremdung</i> est le résultat hostile : devenir étranger. On peut s'extérioriser sans s'aliéner ; c'est l'écart entre les deux que la propriété privée vient combler.</p>
         </div>
         <div class="lex-list" id="lexList"></div>
       </div>
@@ -542,6 +542,8 @@ nav.tabs.cap-tabs-bar .tab .num{display:none;}
   </section>
 
   <section class="panel" id="ressources">
+      <h2 class="sec">Ressources</h2>
+      <p class="lead">Conférences, podcasts et articles en libre accès autour des Manuscrits — pour approfondir avant ou après la lecture.</p>
     <span class="rss-section-label">Vidéos &amp; conférences</span>
     <div class="rss-grid">
       <a class="rss-card" href="https://www.youtube.com/watch?v=mDvnEmgtk0Y" target="_blank" rel="noopener">
@@ -866,11 +868,13 @@ function syncTabsA11y(pid){
     // Réinitialiser le bouton mark-done
     var existWrap=document.getElementById('manMarkDoneWrap');
     if(existWrap)existWrap.remove();
-    byId('readerContent').innerHTML='<div class="placeholder"><div><b>Chargement du texte...</b><span>Lecture du fichier local.</span></div></div>';
+    if(window.SHELL&&SHELL.announce)SHELL.announce('Chargement du texte en cours…');
+    byId('readerContent').innerHTML='<div class="placeholder" role="status"><div><b>Chargement du texte…</b><span>Lecture du fichier local.</span></div></div>';
     fetch(path,{cache:'no-cache'})
       .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.text();})
       .then(function(html){
-        byId('readerContent').innerHTML=cleanLocalHtml(html)||'<div class="reader-error"><b>Texte introuvable.</b><p>Le fichier local a été chargé, mais son contenu n’a pas pu être extrait.</p></div>';
+        byId('readerContent').innerHTML=cleanLocalHtml(html)||'<div class="reader-error" role="alert"><b>Texte introuvable.</b><p>Le fichier local a été chargé, mais son contenu n’a pas pu être extrait.</p></div>';
+        if(window.SHELL&&SHELL.announce)SHELL.announce('Texte chargé : '+(parts[i]&&parts[i].title||''));
         // Injecter le bouton mark-done (manuscrits 2-4 seulement)
         if(i>=2 && i<=4){
           var wrap=document.createElement('div');
@@ -926,7 +930,7 @@ function syncTabsA11y(pid){
       var sep=SEP.filter(function(s){return s.id===id;})[0]; if(!sep) return;
       schema.querySelectorAll('.ana-line').forEach(function(l){ l.classList.toggle('broken', l.getAttribute('data-sep')===id); });
       schema.querySelectorAll('.ana-node').forEach(function(n){ n.classList.toggle('active', n.getAttribute('data-sep')===id); });
-      detail.innerHTML = '<div class="ana-de">'+esc(sep.de)+'</div>'
+      detail.innerHTML = '<div class="ana-de" lang="de">'+esc(sep.de)+'</div>'
         + '<h3 class="ana-titre">'+esc(sep.titre)+'</h3>'
         + '<p class="ana-arr"><b>Ce qui est arraché : </b>'+esc(sep.arrache)+'.</p>'
         + '<p class="ana-meca">'+esc(sep.meca)+'</p>'
@@ -1005,7 +1009,7 @@ function syncTabsA11y(pid){
         if(o.L.dir==='ab') arrow = o.L.a===id ? '→' : '←';
         return '<li><span class="ar">'+arrow+'</span> <span class="to">'+esc(other.t)+'</span> — '+esc(o.L.sens)+'.</li>';
       }).join('');
-      detail.innerHTML = '<div class="carte-de">'+esc(c.de)+'</div>'
+      detail.innerHTML = '<div class="carte-de" lang="de">'+esc(c.de)+'</div>'
         + '<h3 class="carte-titre">'+esc(c.t)+'</h3>'
         + '<p class="carte-def">'+esc(c.def)+'</p>'
         + (rels ? '<ul class="carte-rel">'+rels+'</ul>' : '');
@@ -1043,9 +1047,9 @@ function syncTabsA11y(pid){
       }).join('');
       var s=SOURCES.filter(function(x){return x.id===cur;})[0];
       body.innerHTML=
-        '<div class="src-col"><h4>La source affirme</h4><p>'+esc(s.affirme)+'</p></div>'+
-        '<div class="src-col is-keep"><h4>Ce que Marx retient</h4><p>'+esc(s.retient)+'</p></div>'+
-        '<div class="src-col is-break"><h4>Ce qu’il dépasse</h4><p>'+esc(s.depasse)+'</p></div>';
+        '<div class="src-col"><h3>La source affirme</h3><p>'+esc(s.affirme)+'</p></div>'+
+        '<div class="src-col is-keep"><h3>Ce que Marx retient</h3><p>'+esc(s.retient)+'</p></div>'+
+        '<div class="src-col is-break"><h3>Ce qu’il dépasse</h3><p>'+esc(s.depasse)+'</p></div>';
       pick.querySelectorAll('.src-tab').forEach(function(b){
         b.onclick=function(){ cur=b.getAttribute('data-src'); draw(); };
       });
@@ -1078,9 +1082,9 @@ function syncTabsA11y(pid){
       var f=FILIATION.filter(function(x){return x.id===cur;})[0];
       body.innerHTML=
         '<div class="dev-trace">'+
-          '<div class="dev-step"><h5>En 1844</h5><p>'+esc(f.en1844)+'</p></div>'+
+          '<div class="dev-step"><h3>En 1844</h3><p>'+esc(f.en1844)+'</p></div>'+
           '<div class="dev-arrow">→</div>'+
-          '<div class="dev-step"><h5>Ce qu’il devient</h5><p>'+esc(f.devient)+'</p></div>'+
+          '<div class="dev-step"><h3>Ce qu’il devient</h3><p>'+esc(f.devient)+'</p></div>'+
         '</div>'+
         '<div class="dev-verdict v-'+esc(f.verdict)+'">'+esc(f.verdictLabel)+'</div>';
       pick.querySelectorAll('.dev-pill').forEach(function(b){
@@ -1115,8 +1119,8 @@ function syncTabsA11y(pid){
       var h=HEGEL.filter(function(x){return x.id===cur;})[0];
       body.innerHTML=
         '<div class="heg-face">'+
-          '<div class="heg-col heg-hegel"><h5>Hegel</h5><p>'+esc(h.hegel)+'</p></div>'+
-          '<div class="heg-col heg-marx"><h5>Marx</h5><p>'+esc(h.marx)+'</p></div>'+
+          '<div class="heg-col heg-hegel"><h3>Hegel</h3><p>'+esc(h.hegel)+'</p></div>'+
+          '<div class="heg-col heg-marx"><h3>Marx</h3><p>'+esc(h.marx)+'</p></div>'+
         '</div>';
       pick.querySelectorAll('.heg-pill').forEach(function(b){
         b.onclick=function(){ cur=b.getAttribute('data-heg'); draw(); };
@@ -1153,7 +1157,7 @@ function syncTabsA11y(pid){
         return '<span class="lex-brick"><b>'+esc(b[0])+'</b> '+esc(b[1])+'</span>';
       }).join('');
       return '<article class="lex-entry">'+
-        '<div class="lex-head"><span class="lex-de">'+esc(e.de)+'</span><span class="lex-fr">'+esc(e.fr)+'</span></div>'+
+        '<div class="lex-head"><span class="lex-de" lang="de">'+esc(e.de)+'</span><span class="lex-fr">'+esc(e.fr)+'</span></div>'+
         '<div class="lex-bricks">'+bricks+'</div>'+
         '<p class="lex-sens">'+esc(e.sens)+'</p>'+
       '</article>';
