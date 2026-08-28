@@ -813,9 +813,11 @@ par un.
 de défilement vient de la **hauteur du panneau** : le suivant le recouvre
 exactement après l'avoir parcourue. Une cale non nulle laissait voir le fond
 entre le panneau figé et celui qui monte — « trop d'espace », et ça se voyait.
-Seule la **dernière cale d'une pile** a une hauteur : sans elle, le dernier
-panneau n'aurait aucune distance pour se figer et son fil ne s'écrirait jamais.
-Ce vide-là est sous la pile, pas entre deux panneaux.
+**Aucune cale n'a de hauteur, pas même la dernière** : une cale de fin laissait
+un grand vide sous la pile. Le dernier panneau ne se fige donc pas — le bloc
+englobant s'arrête avec lui — et son fil s'écrit **pendant qu'il traverse
+l'écran** (`T.last` → fenêtre de traversée), ce qui lui donne une fenêtre plus
+longue qu'une cale sans coûter un pixel de vide.
 
 **La cale reste la règle de mesure**, même à zéro.  Un élément `sticky` ment sur sa position
 peinte, pas sur sa position de flux, donc mesurer le panneau gèlerait
