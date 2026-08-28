@@ -942,10 +942,14 @@ feTurbulence embarqué en data URI — aucune image externe), `.pp-nuit`
 (réverbère 100 % CSS : potence + volute, lanterne à croisillons, flamme
 aux couleurs de la maison #fff6d8/#ffd27a/#ff9c3a, halo), deux
 `.pp-vestige` (fantômes d'affiches lacérées, clip-path déchiré, décor
-pur). Le héros est LA grande affiche : rubrique « République des
-lecteurs », titre en capitales Fraunces, fleuron SVG, CTA en mention
-imprimée encadrée (→ `bibliotheque.html`, on entre par le corpus), envoi
-« Loi du 29 juillet 1881 — affichage libre ». Filtres par œuvre =
+pur). **L'en-tête est sobre, à la grammaire des autres pages**
+(`.pp-head` : label Inter en capitales, titre Fraunces 900 crème, lede
+d'une phrase) — une première version en faisait une grande
+affiche-héros (rubrique « République des lecteurs », fleuron, CTA vers
+la bibliothèque, envoi « Loi de 1881 ») : **retirée sur demande du
+propriétaire** (trop de texte, pas de renvoi à la bibliothèque, style à
+aligner sur le reste du site). Ne pas la re-proposer : le placard est le
+costume DES NOTES, pas celui du titre de la page. Filtres par œuvre =
 retailles de kraft, l'actif prend le tampon rouge (logique JS reprise
 telle quelle de la version précédente).
 
@@ -961,8 +965,8 @@ telle quelle de la version précédente).
   `pp-boot` + `pp-anim` (jamais sous reduced-motion ni < 768 px), puis
   `pp-lit` à DOMContentLoaded + rAF, **filet setTimeout 2,5 s** — jamais
   plus de 2,5 s dans le noir même si le rAF est gelé. `--lum` pilote
-  flamme, halo et voile chaud ; le héros attend `pp-lit` pour se poser
-  (`pa-pose`, fill-mode **backwards**, jamais both).
+  flamme, halo et voile chaud ; l'en-tête attend `pp-lit` pour
+  apparaître (`pp-head-in`, fill-mode **backwards**, jamais both).
 - **Le vacillement** : trois périodes NON multiples (3,1 s flamme, 5,3 s
   verre, 8,4 s halo), le halo vacille sur `filter:brightness` — jamais
   sur l'opacité, que `--lum` occupe déjà.
