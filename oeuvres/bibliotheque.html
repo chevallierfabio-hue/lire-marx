@@ -111,7 +111,15 @@ header.topbar{background:rgba(21,16,11,.96);border-bottom-color:var(--line);}
    blocs qui se suivent, les cales tombent à zéro. */
 .bx-stack{position:relative;}
 .bx-run{display:block;height:0;}
-.js-stack .bx-run{height:74vh;}
+/* Les cales sont à ZÉRO entre deux panneaux : les panneaux sont JOINTIFS,
+   comme sur la référence, et la distance de défilement vient de la hauteur du
+   panneau lui-même. Une cale non nulle laisse voir le fond entre le panneau
+   figé et celui qui monte — c'était trop d'espace, et ça se voyait.
+   Seule la DERNIÈRE cale d'une pile a une hauteur : sans elle, le dernier
+   panneau n'aurait aucune distance pour se figer, et son fil ne s'écrirait
+   jamais. Ce vide-là est sous la pile, pas entre deux panneaux. */
+.js-stack #bxDoors .bx-run:last-child{height:24vh;}
+.js-stack #bxThreads .bx-run:last-child{height:62vh;}
 
 /* Le panneau : une surface propre posée sur le noir. Pas de lavis, pas de
    liseré doré — mesuré sur la référence, le panneau est une carte sombre à
@@ -803,7 +811,11 @@ installShell({ workTitle: 'Bibliothèque', tabs: [] });
           if(T.run){
             var cr = T.wrap.getBoundingClientRect();
             var rr = T.run.getBoundingClientRect();
-            if(rr.height > 0) q = cl01((cr.bottom - rr.top) / rr.height);
+            /* La cale est à zéro entre deux panneaux : c'est alors la HAUTEUR
+               DU PANNEAU qui donne la distance, puisque le suivant le
+               recouvre exactement après l'avoir parcourue. */
+            var span = rr.height > 4 ? rr.height : cr.height;
+            if(span > 0) q = cl01((cr.bottom - rr.top) / span);
           }
           if(!q){
             var r = T.wrap.getBoundingClientRect();
@@ -1089,7 +1101,8 @@ installShell({ workTitle: 'Bibliothèque', tabs: [] });
           continue;
         }
         var cr = c.getBoundingClientRect(), rr = run.getBoundingClientRect();
-        var p = rr.height ? cl01((cr.bottom - rr.top) / rr.height) : 0;
+        var span = rr.height > 4 ? rr.height : cr.height;
+        var p = span ? cl01((cr.bottom - rr.top) / span) : 0;
         var k = cl01((p - 0.45) / 0.55);
         k = k * k * (3 - 2 * k);
         c.style.setProperty('--sc', (1 - 0.062 * k).toFixed(4));
