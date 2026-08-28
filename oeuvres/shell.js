@@ -1392,6 +1392,11 @@
   var st = { isMod: false };
   var subs = [];
 
+  function modUid(){
+    try { if(window.crypto && crypto.randomUUID) return crypto.randomUUID(); } catch(e){}
+    return 'a' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  }
+
   async function refresh(){
     var was = st.isMod;
     st.isMod = false;
@@ -1400,8 +1405,9 @@
       if(a && a.user){
         var c = await a.getClient();
         if(c){
-          var r = await c.from('moderators').select('user_id')
-            .eq('user_id', a.user.id).limit(1);
+          /* moderators n'a qu'une colonne : id = user_id du modérateur */
+          var r = await c.from('moderators').select('id')
+            .eq('id', a.user.id).limit(1);
           st.isMod = !!(r.data && r.data.length);
         }
       }
@@ -1416,15 +1422,18 @@
     /* prévenu quand le statut change (pour re-rendre un panneau ouvert) */
     onChange: function(cb){ if(typeof cb === 'function') subs.push(cb); },
 
-    /* Signaler une note publique. `reporter` est posé par défaut côté
-       base (auth.uid()) — on ne l'écrit jamais ici. */
+    /* Signaler une note publique. `reports` suit le style de
+       public_notes : id text généré ici, created en millisecondes ;
+       `reporter_id` est posé par défaut côté base (auth.uid()) — on ne
+       l'écrit jamais ici. */
     report: async function(noteId, reason){
       var a = SHELL.auth;
       if(!a || !a.user) return { error: { message: 'non connecté' } };
       var c = await a.getClient();
       if(!c) return { error: { message: 'client indisponible' } };
       return await c.from('reports').insert({
-        note_id: noteId, reason: (reason || '').trim() || null });
+        id: modUid(), note_id: noteId,
+        reason: (reason || '').trim() || null, created: Date.now() });
     },
 
     /* Masquer / rétablir une note (modérateurs seulement — la policy

@@ -1620,16 +1620,23 @@ chapitre par chapitre. C'est le rôle attendu d'une page de livre.
 
 ## Modération (mission `moderation-5c`)
 
-- **Le SQL vit dans `supabase/schema.sql`** (blocs idempotents ajoutés en
-  fin de fichier) : tables `moderators` (remplie À LA MAIN depuis le
-  dashboard Supabase — il n'y a pas d'UI d'administration, c'est voulu)
-  et `reports`, plus la policy `pn_update_mod` qui autorise les
-  modérateurs à basculer `public_notes.hidden`. **À REJOUER dans
+- **Le SQL vit dans `supabase/schema.sql`** (blocs idempotents en fin de
+  fichier). PIÈGE VÉCU : les tables `moderators` et `reports`
+  EXISTAIENT déjà dans la base (créées à la main au début du projet),
+  avec une structure différente de celle qu'on aurait dessinée — un
+  `create table if not exists` ne crée alors RIEN et une policy sur une
+  colonne supposée explose (« column does not exist »). Toujours
+  introspection d'abord (`information_schema.columns`) avant d'écrire
+  du SQL pour cette base. Structure RÉELLE : `moderators(id uuid)` — id
+  = user_id du modérateur, table remplie À LA MAIN depuis le dashboard
+  (pas d'UI d'administration, c'est voulu) ; `reports(id text, note_id
+  text, reporter_id uuid, reason, created bigint, resolved)` — le style
+  de public_notes : id client, created en millisecondes. RLS : chacun ne
+  lit de `moderators` QUE sa propre ligne (test « suis-je
+  modérateur ? ») ; `reports.reporter_id` posé par défaut à
+  `auth.uid()`, jamais à l'INSERT (règle maison). **À REJOUER dans
   Supabase** — tant que ce n'est pas fait, « Signaler » échoue avec un
-  toast d'erreur (chemin prévu). RLS : chacun ne lit de `moderators` QUE
-  sa propre ligne — c'est le test « suis-je modérateur ? » du client ;
-  `reports.reporter` est posé par défaut à `auth.uid()`, jamais à
-  l'INSERT (règle maison).
+  toast d'erreur (chemin prévu).
 - **`SHELL.mod`** (shell.js) : `isMod()` SYNCHRONE (cache, pour s'appeler
   en plein rendu), `ensure()`, `onChange(cb)`, `report(noteId, reason)`,
   `setHidden(noteId, bool)`. Le cache se rafraîchit sur

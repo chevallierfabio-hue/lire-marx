@@ -71,19 +71,35 @@ do $$ begin
 end $$;
 
 -- ── modération (mission moderation-5c) ───────────────────────────────────────
--- Trois pièces : la table des modérateurs (gérée à la main depuis le
--- dashboard Supabase — il n'y a pas d'UI d'administration), les
--- signalements, et le droit des modérateurs de basculer public_notes.hidden.
--- public_notes.id est un TEXT (uuid généré côté client) : reports.note_id
--- suit. `reporter` est posé par défaut à auth.uid() — ne jamais le poser
--- explicitement à l'INSERT (même règle que les autres tables).
+-- Les tables `moderators` et `reports` EXISTAIENT déjà (créées à la main
+-- au début du projet) : les blocs ci-dessous documentent leur structure
+-- RÉELLE — `create if not exists` est un no-op sur la base en place mais
+-- garde ce fichier comme référence — puis posent les défauts manquants
+-- et les policies. `moderators` n'a qu'UNE colonne : id = user_id du
+-- modérateur (table remplie à la main depuis le dashboard — pas d'UI
+-- d'administration). `reports` suit le style de public_notes : id text
+-- généré côté client, created en millisecondes (Date.now()),
+-- reporter_id posé par défaut à auth.uid() — ne jamais l'écrire à
+-- l'INSERT (règle maison).
 
 create table if not exists public.moderators (
-  user_id    uuid        primary key,
-  created_at timestamptz not null default now()
+  id uuid primary key
 );
 
+create table if not exists public.reports (
+  id          text    primary key,
+  note_id     text    not null,
+  reporter_id uuid,
+  reason      text,
+  created     bigint,
+  resolved    boolean
+);
+
+alter table public.reports alter column reporter_id set default auth.uid();
+alter table public.reports alter column resolved    set default false;
+
 alter table public.moderators enable row level security;
+alter table public.reports    enable row level security;
 
 do $$ begin
   -- chacun ne peut lire QUE sa propre ligne : c'est le test « suis-je
@@ -95,23 +111,10 @@ do $$ begin
   ) then
     execute '
       create policy mod_select_self on public.moderators
-        for select using (user_id = auth.uid())
+        for select using (id = auth.uid())
     ';
   end if;
-end $$;
 
-create table if not exists public.reports (
-  id         uuid        primary key default gen_random_uuid(),
-  note_id    text        not null,
-  reporter   uuid        not null default auth.uid(),
-  reason     text,
-  created_at timestamptz not null default now(),
-  resolved   boolean     not null default false
-);
-
-alter table public.reports enable row level security;
-
-do $$ begin
   -- tout connecté peut signaler (en son nom uniquement)
   if not exists (
     select 1 from pg_policies
@@ -120,7 +123,7 @@ do $$ begin
   ) then
     execute '
       create policy rep_insert_own on public.reports
-        for insert with check (reporter = auth.uid())
+        for insert with check (reporter_id = auth.uid())
     ';
   end if;
 
@@ -133,7 +136,7 @@ do $$ begin
     execute '
       create policy rep_select_mod on public.reports
         for select using (
-          exists (select 1 from public.moderators m where m.user_id = auth.uid())
+          exists (select 1 from public.moderators m where m.id = auth.uid())
         )
     ';
   end if;
@@ -147,10 +150,10 @@ do $$ begin
       create policy rep_update_mod on public.reports
         for update
         using (
-          exists (select 1 from public.moderators m where m.user_id = auth.uid())
+          exists (select 1 from public.moderators m where m.id = auth.uid())
         )
         with check (
-          exists (select 1 from public.moderators m where m.user_id = auth.uid())
+          exists (select 1 from public.moderators m where m.id = auth.uid())
         )
     ';
   end if;
@@ -166,10 +169,10 @@ do $$ begin
       create policy pn_update_mod on public.public_notes
         for update
         using (
-          exists (select 1 from public.moderators m where m.user_id = auth.uid())
+          exists (select 1 from public.moderators m where m.id = auth.uid())
         )
         with check (
-          exists (select 1 from public.moderators m where m.user_id = auth.uid())
+          exists (select 1 from public.moderators m where m.id = auth.uid())
         )
     ';
   end if;
