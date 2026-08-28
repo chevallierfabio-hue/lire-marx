@@ -711,6 +711,36 @@ nav.tabs.cap-tabs-bar .tab .num{display:none;}
       ['après 1932',"L'onde de choc","Le « jeune Marx » bouleverse la lecture de l'œuvre : relectures humanistes et existentialistes, et en retour la thèse althussérienne de la coupure. Un texte de jeunesse devient un enjeu majeur du XXe siècle."]
     ]}
   ];
+
+/* ── Sémantique d'onglets et repérage — voir SHELL.tabs dans shell.js ──
+   Rejoué à chaque bascule parce que #subnav est reconstruit en innerHTML. */
+function panelLabel(pid){
+  for(var t in GROUPS){
+    var i=GROUPS[t].panels.indexOf(pid);
+    if(i<0)continue;
+    /* Un groupe à panneau unique n'a pas de libellé de sous-onglet
+       (GROUPS.ressources.labels est vide) : on retombe sur l'intitulé de
+       l'onglet haut plutôt que sur la clé technique du groupe. */
+    if(GROUPS[t].labels[i])return GROUPS[t].labels[i];
+    var tb=document.querySelector('.cap-tabs-bar .tab[data-top="'+t+'"]');
+    return tb?tb.textContent.trim():pid;
+  }
+  return pid;
+}
+var a11yBooted=false;
+function syncTabsA11y(pid){
+  var S=window.SHELL;if(!S)return;
+  if(S.tabs){
+    S.tabs(document.querySelector('.cap-tabs-bar'),function(b){return curPanel[b.dataset.top];});
+    S.tabs(document.getElementById('subnav'),function(b){return b.dataset.panel;});
+  }
+  if(S.setWorkTab)S.setWorkTab(pid);
+  /* Le focus RESTE sur l'onglet (motif ARIA APG) ; c'est la région live qui
+     dit que le panneau a changé. Rien n'est annoncé au tout premier rendu :
+     à ce moment-là rien n'a changé pour personne. */
+  if(a11yBooted&&S.announce)S.announce('Panneau '+panelLabel(pid));
+  a11yBooted=true;
+}
   var GROUPS={
     lire:{panels:['accueil','nav','lire'],labels:['Commencer','Parcourir','Texte intégral']},
     atelier:{panels:['atelier-accueil','deriv','labo','explore','chrono'],labels:['Sections','Cheminement','Concepts','Explorations','Chronologie']},
@@ -731,6 +761,7 @@ nav.tabs.cap-tabs-bar .tab .num{display:none;}
     }
     var pid=curPanel[top];
     document.querySelectorAll('.panel').forEach(function(x){x.classList.toggle('active',x.id===pid);});
+    syncTabsA11y(pid);
   };
   window.activateTab=function(id){var t=panelTop(id);curPanel[t]=id;activateTop(t);window.scrollTo({top:0,behavior:'smooth'});};
   function preparePart(i){
@@ -1393,6 +1424,14 @@ installShell({
     {id:'ressources',      label:'Ressources'}
   ]
 });
+
+/* Le bloc d'onglets s'initialise AVANT que shell.js ne soit chargé : au
+   premier activateTop, SHELL.tabs n'existe pas encore et syncTabsA11y sort
+   sans rien poser. On rejoue donc une fois le shell installé. */
+(function(){
+  var p=document.querySelector('.panel.active');
+  if(p&&typeof syncTabsA11y==='function')syncTabsA11y(p.id);
+})();
 </script>
 </body>
 </html>

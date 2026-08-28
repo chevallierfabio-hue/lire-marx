@@ -1475,6 +1475,36 @@ document.addEventListener('DOMContentLoaded', function(){ window.scrollTo(0, 0);
 const ICONS={box:'<svg viewBox="0 0 24 24"><rect x="4" y="7.5" width="16" height="12.5" rx="1"/><path d="M4 7.5l8-4 8 4"/><path d="M12 3.5v16.5"/></svg>',worker:'<svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="3.2"/><path d="M5 20c0-4 3.5-6 7-6s7 2 7 6"/></svg>',coin:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v8M8 12h8"/></svg>',ratio:'<svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="1.5" fill="#fff" stroke="none"/><circle cx="12" cy="17" r="1.5" fill="#fff" stroke="none"/><path d="M6 12h12"/></svg>',layers:'<svg viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/></svg>',percent:'<svg viewBox="0 0 24 24"><circle cx="7.5" cy="7.5" r="2.4"/><circle cx="16.5" cy="16.5" r="2.4"/><path d="M6 18L18 6"/></svg>',clock:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.5 2"/></svg>',bolt:'<svg viewBox="0 0 24 24"><path d="M13 2L5 13h6l-1 9 8-12h-6l1-8z" fill="#fff" stroke="none"/></svg>',factory:'<svg viewBox="0 0 24 24"><path d="M3 21V11l5 3V11l5 3V8l6 3v9z"/><path d="M3 21h18"/></svg>',store:'<svg viewBox="0 0 24 24"><path d="M4 11l8-6 8 6"/><path d="M6 10v10h12V10"/><rect x="10" y="14.5" width="4" height="5.5"/></svg>',cycle:'<svg viewBox="0 0 24 24"><path d="M5 12a7 7 0 0 1 12-4.5"/><path d="M19 12a7 7 0 0 1-12 4.5"/><path d="M17 3.5V8h-4"/><path d="M7 20.5V16h4"/></svg>',scale:'<svg viewBox="0 0 24 24"><path d="M12 4v16M6 20h12"/><path d="M12 6l-6 2 6 2 6-2-6-2z"/></svg>'};
 
 /* ---- navigation onglets ---- */
+/* ── Sémantique d'onglets et repérage — voir SHELL.tabs dans shell.js ──
+   Rejoué à chaque bascule parce que #subnav est reconstruit en innerHTML. */
+function panelLabel(pid){
+  for(const t in GROUPS){
+    const i=GROUPS[t].panels.indexOf(pid);
+    if(i<0)continue;
+    /* Un groupe à panneau unique n'a pas de libellé de sous-onglet
+       (GROUPS.ressources.labels est vide) : on retombe sur l'intitulé de
+       l'onglet haut plutôt que sur la clé technique du groupe. */
+    if(GROUPS[t].labels[i])return GROUPS[t].labels[i];
+    const tb=document.querySelector('.cap-tabs-bar .tab[data-top="'+t+'"]');
+    return tb?tb.textContent.trim():pid;
+  }
+  return pid;
+}
+let a11yBooted=false;
+function syncTabsA11y(pid){
+  const S=window.SHELL;if(!S)return;
+  if(S.tabs){
+    S.tabs(document.querySelector('.cap-tabs-bar'),b=>curPanel[b.dataset.top]);
+    S.tabs(document.getElementById('subnav'),b=>b.dataset.panel);
+  }
+  if(S.setWorkTab)S.setWorkTab(pid);
+  /* Le focus RESTE sur l'onglet (motif ARIA APG) ; c'est la région live qui
+     dit que le panneau a changé. Rien n'est annoncé au tout premier rendu :
+     à ce moment-là rien n'a changé pour personne. */
+  if(a11yBooted&&S.announce)S.announce('Panneau '+panelLabel(pid));
+  a11yBooted=true;
+}
+
 const GROUPS={
  lire:{panels:['accueil','nav','lire'],labels:['Commencer','Parcourir','Texte intégral']},
  atelier:{panels:['atelier-accueil','deriv','labo','explore','chrono'],labels:['Chapitres','Cheminement','Modèles','Explorations','Chronologie']},
@@ -1487,10 +1517,11 @@ function activateTop(top){
   const g=GROUPS[top]||GROUPS.accueil,sn=document.getElementById('subnav');
   if(g.panels.length<2){sn.style.display='none';sn.innerHTML='';}
   else{sn.style.display='flex';
-    sn.innerHTML=g.panels.map((pid,i)=>`<button class="subnavbtn${pid===curPanel[top]?' active':''}" data-panel="${pid}">${g.labels[i]}</button>`).join('');
+    sn.innerHTML=g.panels.map((pid,i)=>`<button type="button" class="subnavbtn${pid===curPanel[top]?' active':''}" data-panel="${pid}">${g.labels[i]}</button>`).join('');
     sn.querySelectorAll('.subnavbtn').forEach(b=>b.addEventListener('click',()=>{curPanel[top]=b.dataset.panel;activateTop(top);window.scrollTo({top:0,behavior:'smooth'});}));}
   const pid=curPanel[top];document.querySelectorAll('.panel').forEach(x=>x.classList.toggle('active',x.id===pid));
   if(pid==='labo')drawTRPF();
+  syncTabsA11y(pid);
 }
 function activateTab(id){const t=panelTop(id);curPanel[t]=id;activateTop(t);}
 function activateSub(s){document.querySelectorAll('.subtab').forEach(x=>x.classList.toggle('active',x.dataset.sub===s));
@@ -2885,6 +2916,13 @@ installShell({
     {id:'ressources', label:'Ressources'}
   ]
 });
+/* Le bloc d'onglets s'initialise AVANT que shell.js ne soit chargé : au
+   premier activateTop, SHELL.tabs n'existe pas encore et syncTabsA11y sort
+   sans rien poser. On rejoue donc une fois le shell installé. */
+(function(){
+  var p=document.querySelector('.panel.active');
+  if(p&&typeof syncTabsA11y==='function')syncTabsA11y(p.id);
+})();
 // Le bouton « Confidentialité & données » du pied de page ouvre la modale RGPD
 // fournie par SHELL.auth (shell.js).
 (function(){

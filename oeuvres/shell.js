@@ -382,6 +382,74 @@
     return el('<a class="skip-link" href="#contenu">Aller au contenu</a>');
   }
 
+
+  /* ══ Sémantique d'onglets, partagée ══
+     Les pages de livre empilent jusqu'à cinq rangées de boutons stylés qui
+     ne portaient aucun rôle : ni role="tab", ni aria-selected, ni
+     aria-controls, et les <section class="panel"> n'étaient pas des
+     tabpanel. Pour une aide technique il n'y avait donc pas d'onglets du
+     tout — seulement des boutons dont l'un est peint différemment.
+     WCAG 4.1.2 et 1.3.1.
+
+     getPanelId(bouton) rend l'id du panneau que ce bouton révèle. Il est
+     passé par la page parce que la correspondance diffère d'une rangée à
+     l'autre (data-top désigne un GROUPE dont le panneau courant varie,
+     data-panel désigne le panneau directement).
+
+     Réentrant : #subnav est reconstruit en innerHTML à chaque bascule. */
+  function wireTabs(list, getPanelId){
+    if(!list) return;
+    list.setAttribute('role','tablist');
+    var items = [].slice.call(list.querySelectorAll('button'));
+    items.forEach(function(b, i){
+      var pid = null;
+      try { pid = getPanelId(b); } catch(e){}
+      var panel = pid ? document.getElementById(pid) : null;
+      if(!b.id) b.id = 'tb-' + (list.id || 'l') + '-' + (pid || i);
+      b.setAttribute('role','tab');
+      var on = b.classList.contains('active');
+      b.setAttribute('aria-selected', on ? 'true' : 'false');
+      // Tabindex roulant : une rangée d'onglets est UN seul arrêt de
+      // tabulation, on circule ensuite aux flèches (motif ARIA APG).
+      b.tabIndex = on ? 0 : -1;
+      if(panel){
+        b.setAttribute('aria-controls', pid);
+        panel.setAttribute('role','tabpanel');
+        panel.setAttribute('aria-labelledby', b.id);
+        if(!panel.hasAttribute('tabindex')) panel.tabIndex = -1;
+      }
+    });
+    if(list.dataset.a11yKeys) return;
+    list.dataset.a11yKeys = '1';
+    list.addEventListener('keydown', function(e){
+      if(['ArrowLeft','ArrowRight','Home','End'].indexOf(e.key) < 0) return;
+      var bs = [].slice.call(list.querySelectorAll('[role=tab]'));
+      var i = bs.indexOf(document.activeElement);
+      if(i < 0) return;
+      e.preventDefault();
+      var n = e.key === 'Home'  ? 0
+            : e.key === 'End'   ? bs.length - 1
+            : e.key === 'ArrowLeft' ? (i - 1 + bs.length) % bs.length
+            : (i + 1) % bs.length;
+      bs[n].focus();
+      bs[n].click();
+    });
+  }
+
+  /* L'entrée d'œuvre courante dans la sidebar. C'était la seule des trois
+     navigations à montrer toutes les destinations d'un coup, et la seule à
+     ne jamais dire laquelle est ouverte : wire() ne posait .on que sur
+     Accueil, Bibliothèque et Place publique. */
+  function setWorkTab(id){
+    var items = document.querySelectorAll('.sidebar .sb-item[data-act^="tab:"]');
+    items.forEach(function(b){
+      var on = b.dataset.act.slice(4) === id;
+      b.classList.toggle('on', on);
+      if(on) b.setAttribute('aria-current','true');
+      else   b.removeAttribute('aria-current');
+    });
+  }
+
   window.installShell = function(cfg){
     cfg = cfg || {};
     var body = document.body;
@@ -395,6 +463,8 @@
     if(mainEl && !mainEl.hasAttribute('tabindex')) mainEl.setAttribute('tabindex','-1');
     var S = window.SHELL = window.SHELL || {};
     S.announce = announce;
+    S.tabs = wireTabs;
+    S.setWorkTab = setWorkTab;
     var sidebar = buildSidebar(cfg);
     document.querySelector('header.topbar').after(sidebar);
     sidebar.after(buildBackdrop());
