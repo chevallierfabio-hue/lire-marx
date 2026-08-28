@@ -40,6 +40,18 @@
 html,body{background:var(--bg);}
 body{color:var(--text);font-family:'Inter',system-ui,sans-serif;}
 
+/* LA LAMPE. Une seule source pour toute la page : la nappe chaude de la
+   bougie de l'accueil, fixe, plus une pénombre par les bords. C'est elle qui
+   fait que les trois registres — la gravure, le papier, le registre — sont
+   éclairés par la même chose et tiennent ensemble. */
+.bx-lamp{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(74% 54% at 50% 22%,rgba(216,173,76,.062),transparent 66%),
+    radial-gradient(130% 78% at 50% 116%,rgba(0,0,0,.55),transparent 58%),
+    radial-gradient(90% 120% at -10% 50%,rgba(0,0,0,.42),transparent 56%),
+    radial-gradient(90% 120% at 110% 50%,rgba(0,0,0,.42),transparent 56%);}
+.wrap{position:relative;z-index:1;}
+
 /* ── Shell : correctifs de couleurs pour le thème sombre ── */
 .brandmark{color:var(--ink);}
 .tb-btn,.acct-chip,#tbSearch,.tb-tabs{background:rgba(255,255,255,.05);border-color:var(--line);color:var(--ink);}
@@ -59,7 +71,7 @@ header.topbar{background:rgba(21,16,11,.96);border-bottom-color:var(--line);}
 .cm-card{background:var(--paper-2);border-color:var(--line);}
 
 /* ── Conteneur ── */
-.wrap{max-width:1080px;padding:0 clamp(22px,4vw,60px) 96px;}
+.wrap{max-width:1240px;padding:0 clamp(20px,3.4vw,48px) 96px;}
 
 /* ── En-tête de page ── */
 /* overflow:hidden : le halo fait 640 px de large et débordait la page de
@@ -146,50 +158,52 @@ header.topbar{background:rgba(21,16,11,.96);border-bottom-color:var(--line);}
 
 /* ═══ 1. Les portes ═══════════════════════════════════════════════ */
 .bx-doors{display:block;}
-.bx-door{display:grid;grid-template-columns:1.04fr .92fr;
-  gap:clamp(26px,4.5vw,72px);align-items:center;min-height:min(62vh,520px);
-  padding:clamp(30px,4vw,58px);text-decoration:none;color:inherit;
-  overflow:hidden;transition:border-color .22s;}
-.bx-door:hover{border-color:rgba(216,173,76,.34);}
-.bx-door-l,.bx-door-r{display:flex;flex-direction:column;gap:16px;min-width:0;}
-/* le chiffre en pied de panneau, comme les (01)(02) de la référence —
-   mais dans la typographie de la maison : Fraunces italique, or éteint */
-.bx-door-n{position:absolute;left:clamp(30px,4vw,58px);
-  bottom:clamp(22px,3vw,40px);z-index:1;
-  font-family:'Fraunces',serif;font-style:italic;font-weight:900;line-height:1;
-  font-size:clamp(1.9rem,3.6vw,3rem);color:rgba(216,173,76,.34);}
-/* la planche d'archive : c'est elle qui donne sa matière au panneau */
-.bx-door-plate{position:relative;border-radius:16px;overflow:hidden;
-  aspect-ratio:4/3;background:#0d0a07;
-  border:1px solid rgba(243,233,212,.08);}
-.bx-door-plate img{display:block;width:100%;height:100%;object-fit:cover;
-  filter:grayscale(.7) sepia(.32) brightness(.74) contrast(1.06);
-  transition:filter .5s ease,transform .6s cubic-bezier(.16,1,.3,1);}
-.bx-door:hover .bx-door-plate img{filter:grayscale(.5) sepia(.26) brightness(.88) contrast(1.04);
-  transform:scale(1.03);}
-.bx-door-plate::after{content:"";position:absolute;inset:0;pointer-events:none;
-  background:linear-gradient(to top,rgba(13,10,7,.78),transparent 56%);}
-.bx-door-cap{position:absolute;left:14px;right:14px;bottom:11px;z-index:1;
-  font-size:.7rem;line-height:1.4;color:var(--ink-soft);letter-spacing:.01em;}
-@media(max-width:860px){
-  .bx-door{grid-template-columns:1fr;gap:20px;min-height:0;align-items:start;}
-  .bx-door-n{position:static;font-size:1.4rem;}
-}
-.bx-door:hover{border-color:var(--gold);}
+/* LA PORTE EST UNE AFFICHE. Le panneau était un cadre presque vide avec une
+   petite vignette dedans : le contenu ne méritait pas le panneau. La gravure
+   passe donc à FOND PERDU, très assombrie, et le titre se pose dessus en très
+   grand. C'est le matériau de cette section — le monde que le livre décrit. */
+.bx-door{position:relative;display:flex;flex-direction:column;justify-content:flex-end;
+  min-height:min(74vh,640px);padding:clamp(30px,4.6vw,66px);
+  text-decoration:none;color:inherit;overflow:hidden;}
+
+.bx-door-bg{position:absolute;inset:0;z-index:0;}
+.bx-door-bg img{display:block;width:100%;height:100%;object-fit:cover;
+  filter:grayscale(.68) sepia(.34) brightness(.40) contrast(1.08);
+  transform:scale(1.03);
+  transition:transform 1.4s cubic-bezier(.16,1,.3,1),filter .7s ease;}
+.bx-door:hover .bx-door-bg img{transform:scale(1.07);
+  filter:grayscale(.52) sepia(.28) brightness(.52) contrast(1.05);}
+/* Deux voiles : un du bas pour asseoir le texte, un de la gauche pour que la
+   colonne de titre garde son fond quelle que soit l'image. */
+.bx-door-bg::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(to top,rgba(21,16,11,.95) 4%,rgba(21,16,11,.66) 44%,
+               rgba(21,16,11,.24) 100%),
+             linear-gradient(to right,rgba(21,16,11,.88),rgba(21,16,11,.10) 64%);}
+
+.bx-door-l{position:relative;z-index:1;display:flex;flex-direction:column;gap:16px;
+  max-width:min(56ch,62%);}
+.bx-door-n{position:absolute;top:clamp(26px,3.4vw,46px);right:clamp(28px,3.6vw,52px);
+  z-index:1;font-family:'Fraunces',serif;font-style:italic;font-weight:900;line-height:1;
+  font-size:clamp(1.7rem,3.2vw,2.6rem);color:rgba(216,173,76,.40);}
+.bx-door-cap{position:absolute;right:clamp(28px,3.6vw,52px);
+  bottom:clamp(24px,3vw,42px);z-index:1;max-width:34ch;text-align:right;
+  font-size:.7rem;line-height:1.45;color:var(--const);}
+
 .bx-door-q{font-family:'Fraunces',serif;font-weight:900;
-  font-size:clamp(1.7rem,3.5vw,2.8rem);line-height:1.03;letter-spacing:-.035em;
-  color:var(--text);}
-.bx-door-w{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap;}
-.bx-door-y{font-family:'Fraunces',serif;font-style:italic;font-weight:900;
-  font-size:1.05rem;color:var(--gold);}
-.bx-door-t{font-family:'Fraunces',serif;font-weight:600;font-size:1rem;
-  color:var(--ink);letter-spacing:-.01em;}
-.bx-door-d{font-size:.95rem;line-height:1.68;color:var(--muted);max-width:42ch;}
-.bx-door-go{padding-top:4px;font-size:.9rem;font-weight:600;color:var(--accent);}
+  font-size:clamp(1.9rem,4.4vw,3.4rem);line-height:1.0;letter-spacing:-.035em;
+  color:var(--text);text-wrap:balance;}
+.bx-door-d{font-size:.95rem;line-height:1.68;color:var(--muted);max-width:44ch;}
+.bx-door-go{padding-top:4px;font-size:.92rem;font-weight:600;color:var(--accent);}
 .bx-door:hover .bx-door-go{color:var(--bright);}
-.bx-doors-soon{margin-top:20px;font-size:.86rem;line-height:1.65;color:var(--muted);
-  max-width:62ch;border-left:2px solid var(--border);padding-left:15px;}
-.bx-doors-soon b{color:var(--ink-soft);font-weight:600;}
+
+@media(max-width:860px){
+  .bx-door{min-height:0;padding:clamp(24px,5vw,34px);}
+  .bx-door-l{max-width:100%;}
+  .bx-door-n{font-size:1.4rem;}
+  .bx-door-cap{position:static;text-align:left;margin-top:14px;max-width:none;}
+  .bx-door-bg::after{background:linear-gradient(to top,rgba(21,16,11,.96) 10%,
+    rgba(21,16,11,.74) 60%,rgba(21,16,11,.42) 100%);}
+}
 
 /* ═══ 2. Le fil ═══════════════════════════════════════════════════ */
 /* Le sol : le carnet quadrillé des chiffres clés de l'accueil, à l'identique.
@@ -223,9 +237,19 @@ header.topbar{background:rgba(21,16,11,.96);border-bottom-color:var(--line);}
    bricolage — la matière est désormais dans la PLANCHE d'archive à droite. */
 .bx-paper>*{position:relative;z-index:1;}
 
-.bx-thread{display:flex;flex-direction:column;justify-content:center;
+/* LE FIL EST TRACÉ SUR DU PAPIER. Le panneau reçoit le fac-similé en fond,
+   très assombri et désaturé — de la fibre, pas une image. Monté trop clair il
+   lave tout en brun : ne pas remonter `brightness`. */
+.bx-thread{position:relative;display:flex;flex-direction:column;justify-content:center;
   min-height:min(58vh,480px);
-  padding:clamp(30px,4vw,58px) clamp(22px,3.4vw,52px);overflow-x:auto;}
+  padding:clamp(30px,4vw,58px) clamp(24px,3vw,44px);overflow-x:auto;}
+.bx-thread::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:url('../assets/img/archive/manuscrit-ideologie-1846.webp') center/cover no-repeat;
+  filter:grayscale(1) brightness(.15) contrast(1.15) blur(.3px);
+  opacity:.42;mix-blend-mode:screen;
+  -webkit-mask-image:radial-gradient(120% 100% at 50% 50%,#000 42%,transparent 88%);
+  mask-image:radial-gradient(120% 100% at 50% 50%,#000 42%,transparent 88%);}
+.bx-thread>*{position:relative;z-index:1;}
 .bx-thread-h{font-family:'Fraunces',serif;font-weight:900;letter-spacing:-.02em;
   font-size:clamp(1.25rem,2.3vw,1.85rem);line-height:1.06;color:var(--text);
   margin-bottom:clamp(22px,3vw,38px);}
@@ -245,20 +269,23 @@ header.topbar{background:rgba(21,16,11,.96);border-bottom-color:var(--line);}
 .bx-nib{fill:#fff3d6;opacity:0;
   filter:drop-shadow(0 0 6px rgba(255,205,110,.95));}
 .bx-nib-halo{fill:var(--gold);opacity:0;}
-.bx-level{display:flex;flex-direction:column;gap:10px;justify-content:center;
-  flex:0 0 auto;min-width:150px;max-width:188px;}
+.bx-level{display:flex;flex-direction:column;gap:14px;justify-content:center;
+  flex:0 0 auto;min-width:164px;max-width:190px;}
 /* --lit : « l'encre prend » quand la plume dépasse la station. Piloté par la
    position de défilement → réversible ; vaut 1 d'office sans scrub. */
 .bx-node{--lit:1;position:relative;z-index:1;
   display:block;text-decoration:none;color:inherit;
   border:1px solid var(--border);border-radius:12px;
   background:var(--bg);
-  padding:11px 13px;transition:border-color .18s,background .18s;}
+  padding:15px 17px;transition:border-color .18s,background .18s;}
 /* L'opacité porte sur le CONTENU, jamais sur la fiche : une fiche translucide
    laisse voir le trait qui passe derrière elle, et la plume semble alors
    repartir en arrière dans la case au lieu d'y disparaître. */
+/* Le plancher n'est pas à .22 mais à .42 : une station que la plume n'a pas
+   encore atteinte doit rester LISIBLE. Trop basse, elle donnait un panneau qui
+   paraît vide ou cassé tant qu'on n'a pas défilé jusqu'à lui. */
 .bx-node-y,.bx-node-t{position:relative;z-index:1;
-  opacity:calc(.22 + .78 * var(--lit));}
+  opacity:calc(.42 + .58 * var(--lit));}
 /* L'ALLUMAGE INTÉRIEUR. La plume s'arrête au bord du bloc, et c'est le bloc
    qui s'embrase : une lueur chaude naît du bord d'où vient le trait et gagne
    l'intérieur. --flash culmine à mi-arrivée puis retombe ; --lit reste. */
@@ -274,9 +301,9 @@ header.topbar{background:rgba(21,16,11,.96);border-bottom-color:var(--line);}
 .bx-ink path.tip.primer{stroke:var(--const);}
 a.bx-node:hover{border-color:var(--gold);background:var(--card);}
 .bx-node-y{font-family:'Fraunces',serif;font-style:italic;font-weight:900;
-  font-size:.92rem;color:var(--gold);}
-.bx-node-t{display:block;margin-top:3px;font-family:'Fraunces',serif;font-weight:600;
-  font-size:.9rem;line-height:1.2;color:var(--ink);letter-spacing:-.01em;}
+  font-size:1.12rem;color:var(--gold);}
+.bx-node-t{display:block;margin-top:5px;font-family:'Fraunces',serif;font-weight:600;
+  font-size:1.02rem;line-height:1.16;color:var(--ink);letter-spacing:-.015em;}
 /* « En préparation » se dit par la COULEUR, pas par une opacité globale :
    `.bx-node.soon` pèse (0,2,0) et écrasait le calc de `.bx-node`, si bien que
    les dix œuvres à venir restaient à 62 % — translucides en permanence, et
@@ -289,7 +316,7 @@ a.bx-node:hover{border-color:var(--gold);background:var(--card);}
 /* L'espace que l'encre traverse. Il ne porte plus que le mot ; le trait et sa
    pointe sont dans le SVG, tracés par la plume au défilement. */
 .bx-gap{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;
-  justify-content:center;width:clamp(56px,6vw,84px);padding:0 4px;
+  justify-content:center;width:clamp(54px,5.6vw,78px);padding:0 4px;
   position:relative;z-index:1;}
 /* Le mot est posé SUR le trait : sans fond il devient illisible dès qu'une
    fourche le traverse. Le cartouche est la convention du dessin technique —
@@ -312,43 +339,53 @@ a.bx-node:hover{border-color:var(--gold);background:var(--card);}
 .bx-chip:hover{border-color:var(--gold);color:var(--ink);}
 .bx-chip.on{border-color:var(--accent);color:var(--bright);background:rgba(213,64,47,.1);}
 
-.bx-group{margin-bottom:38px;}
+.bx-group{margin-bottom:clamp(38px,5vw,64px);}
 .bx-group-h{font-family:'Fraunces',serif;font-weight:900;font-size:1.16rem;
   letter-spacing:-.02em;color:var(--text);margin-bottom:5px;}
 .bx-group-n{font-size:.86rem;line-height:1.6;color:var(--muted);max-width:64ch;
   margin-bottom:18px;}
-.bx-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;}
+/* LE REGISTRE. Le corpus était une grille de fiches encadrées — un troisième
+   langage visuel sans rapport avec les affiches ni avec le papier. C'est une
+   LISTE : elle prend donc la forme d'un registre tenu à la plume, des lignes
+   séparées par un filet, l'année en tête de ligne. */
+.bx-grid{display:block;border-top:1px solid var(--line);}
 
-/* Le feuillet se pose : il arrive plus haut et de biais, puis s'aplatit.
-   Même geste que .hs-do-item sur l'accueil, piloté par la position de
-   défilement (donc réversible). --pose vaut 1 d'office sans scrub. */
-.bx-work{--pose:1;--tilt:0deg;
-  display:flex;flex-direction:column;gap:10px;
-  border:1px solid var(--border);border-radius:16px;background:var(--surface);
-  padding:20px 22px 20px;transition:border-color .2s;
+/* La ligne du registre. Elle se pose au défilement — même geste que
+   .hs-do-item sur l'accueil, piloté par la position, donc réversible —
+   mais sans inclinaison : une ligne de registre ne penche pas. */
+.bx-work{--pose:1;
+  display:grid;grid-template-columns:clamp(72px,7vw,104px) 1fr;
+  gap:4px clamp(16px,2.4vw,34px);align-items:start;
+  border-bottom:1px solid var(--line-soft);
+  padding:clamp(20px,2.4vw,30px) 4px clamp(20px,2.4vw,30px);
+  transition:background .22s;
   opacity:var(--pose);
-  transform:translateY(calc((1 - var(--pose)) * 26px))
-            rotate(calc((1 - var(--pose)) * var(--tilt)));}
+  transform:translateY(calc((1 - var(--pose)) * 20px));}
+.bx-work:hover{background:rgba(243,233,212,.022);}
 .js-pose .bx-work{will-change:transform,opacity;}
-.js-pose .bx-work-y{opacity:calc(.12 + .88 * var(--pose));}
+.bx-work-col{grid-column:2;display:flex;flex-direction:column;gap:10px;min-width:0;}
 .bx-work:hover{border-color:rgba(216,173,76,.4);}
-.bx-work-head{display:flex;align-items:baseline;gap:11px;flex-wrap:wrap;}
-.bx-work-y{font-family:'Fraunces',serif;font-style:italic;font-weight:900;
-  font-size:1.1rem;color:var(--gold);flex:0 0 auto;}
-.bx-work-t{font-family:'Fraunces',serif;font-weight:600;font-size:1.04rem;
-  line-height:1.16;color:var(--ink);letter-spacing:-.01em;flex:1 1 auto;min-width:0;}
+.bx-work-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;}
+/* l'année tient la colonne de gauche, comme un folio */
+.bx-work-y{grid-row:1 / span 2;grid-column:1;
+  font-family:'Fraunces',serif;font-style:italic;font-weight:900;
+  font-size:clamp(1.3rem,2vw,1.7rem);line-height:1;color:var(--gold);
+  opacity:calc(.34 + .66 * var(--pose));}
+.bx-work-t{font-family:'Fraunces',serif;font-weight:900;
+  font-size:clamp(1.06rem,1.7vw,1.32rem);
+  line-height:1.14;color:var(--text);letter-spacing:-.02em;flex:1 1 auto;min-width:0;}
 .bx-status{flex:0 0 auto;font-family:var(--f-ui);font-size:.58rem;font-weight:700;
   letter-spacing:.09em;text-transform:uppercase;border-radius:999px;padding:3px 9px;}
 .bx-status.ok{background:rgba(127,168,85,.18);color:#a9cf82;}
 .bx-status.soon{background:rgba(243,233,212,.07);color:var(--const);}
-.bx-work-a{font-size:.74rem;color:var(--const);letter-spacing:.02em;margin-top:-4px;}
-.bx-work-d{font-size:.88rem;line-height:1.62;color:var(--muted);}
+.bx-work-a{font-size:.76rem;color:var(--const);letter-spacing:.02em;margin-top:-4px;}
+.bx-work-d{font-size:.9rem;line-height:1.65;color:var(--muted);max-width:74ch;}
 .bx-cx{display:flex;flex-wrap:wrap;gap:6px;}
 .bx-cx span{font-size:.66rem;color:var(--ink-soft);background:rgba(243,233,212,.06);
   border:1px solid var(--line-soft);border-radius:999px;padding:2px 9px;}
 .bx-rel{font-size:.78rem;line-height:1.55;color:var(--const);}
 .bx-rel b{color:var(--ink-soft);font-weight:600;}
-.bx-more{border-top:1px solid var(--line-soft);padding-top:10px;margin-top:2px;}
+.bx-more{padding-top:4px;margin-top:2px;}
 .bx-more>summary{list-style:none;cursor:pointer;font-family:'Fraunces',serif;
   font-weight:600;font-size:.85rem;color:var(--ink-soft);
   display:flex;align-items:center;gap:9px;transition:color .15s;}
@@ -393,6 +430,8 @@ a.bx-node:hover{border-color:var(--gold);background:var(--card);}
 </script>
 </head>
 <body>
+
+<div class="bx-lamp" aria-hidden="true"></div>
 
 <main class="wrap">
 
@@ -563,18 +602,16 @@ installShell({ workTitle: 'Bibliothèque', tabs: [] });
     elDoors.innerHTML = doors.map(function(w, i){
       var pl = PLATE[w.id];
       return '<a class="bx-door bx-card" href="' + esc(href(w)) + '">' +
+        (pl ? '<span class="bx-door-bg" aria-hidden="true">' +
+                '<img src="../assets/img/archive/' + pl + '.webp" alt="" loading="lazy">' +
+              '</span>' : '') +
         '<span class="bx-door-n" aria-hidden="true">' + (ROM[i] || (i + 1)) + '</span>' +
         '<span class="bx-door-l">' +
           '<span class="bx-door-q">' + esc(rd(w).entry) + '</span>' +
           '<span class="bx-door-d">' + esc(w.description) + '</span>' +
           '<span class="bx-door-go">Ouvrir l\'atelier →</span>' +
         '</span>' +
-        '<span class="bx-door-r">' +
-          (pl ? '<span class="bx-door-plate">' +
-                  '<img src="../assets/img/archive/' + pl + '.webp" alt="" loading="lazy">' +
-                  '<span class="bx-door-cap">' + esc(w.title) + ' · ' + esc(w.year) + '</span>' +
-                '</span>' : '') +
-        '</span>' +
+        '<span class="bx-door-cap">' + esc(w.title) + ' · ' + esc(w.year) + '</span>' +
       '</a><i class="bx-run" aria-hidden="true"></i>';
     }).join('');
 
@@ -1004,8 +1041,9 @@ installShell({ workTitle: 'Bibliothèque', tabs: [] });
     if(r.primer && r.primer.length) rel.push('<b>Préparé par</b> ' + esc(listDot(r.primer)));
 
     return '<article class="bx-work">' +
+      '<span class="bx-work-y">' + esc(w.year) + '</span>' +
+      '<div class="bx-work-col">' +
       '<div class="bx-work-head">' +
-        '<span class="bx-work-y">' + esc(w.year) + '</span>' +
         '<h3 class="bx-work-t">' + esc(w.title) + '</h3>' +
         '<span class="bx-status ' + (ok ? 'ok">Disponible' : 'soon">En préparation') + '</span>' +
       '</div>' +
@@ -1025,6 +1063,7 @@ installShell({ workTitle: 'Bibliothèque', tabs: [] });
         '</div>' +
       '</details>' +
       (ok ? '<a class="bx-open" href="' + esc(href(w)) + '">Ouvrir l\'atelier →</a>' : '') +
+      '</div>' +
     '</article>';
   }
 
@@ -1130,7 +1169,6 @@ installShell({ workTitle: 'Bibliothèque', tabs: [] });
   function poseCards(){
     if(!SCRUB) return;
     document.documentElement.classList.add('js-pose');
-    var TILT = [-2.4, 1.8, -1.4, 2.1];
     addScrollSub(function(vh){
       /* plus les portes : ce sont des panneaux empilés, un translate se
          battrait avec leur `position:sticky` */
@@ -1139,9 +1177,6 @@ installShell({ workTitle: 'Bibliothèque', tabs: [] });
         var el = els[i], r = el.getBoundingClientRect();
         var t = cl01((vh * 0.94 - r.top) / (vh * 0.34));
         el.style.setProperty('--pose', (t * t * (3 - 2 * t)).toFixed(3));
-        if(!el.style.getPropertyValue('--tilt')){
-          el.style.setProperty('--tilt', TILT[i % TILT.length] + 'deg');
-        }
       }
     });
   }
