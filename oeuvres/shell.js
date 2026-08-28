@@ -360,10 +360,41 @@
     });
   }
 
+  /* Region live unique du site. Aucune des pages n'en avait : le fetch de
+     8 s du texte integral, les erreurs d'authentification, le nombre de
+     resultats de recherche et les filtres changeaient tous en silence.
+     WCAG 4.1.3. Exposee en SHELL.announce(msg). */
+  function buildLive(){
+    return el('<div id="srStatus" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>');
+  }
+  var liveEl = null, liveTimer = null;
+  function announce(msg){
+    if(!liveEl) liveEl = document.getElementById('srStatus');
+    if(!liveEl || !msg) return;
+    // Vider puis reecrire : reecrire le MEME texte ne declenche aucune
+    // annonce, et c'est le cas courant (deux « Chargement… » de suite).
+    liveEl.textContent = '';
+    clearTimeout(liveTimer);
+    liveTimer = setTimeout(function(){ liveEl.textContent = msg; }, 60);
+  }
+
+  function buildSkip(){
+    return el('<a class="skip-link" href="#contenu">Aller au contenu</a>');
+  }
+
   window.installShell = function(cfg){
     cfg = cfg || {};
     var body = document.body;
     body.prepend(buildTopbar());
+    body.prepend(buildSkip());
+    body.appendChild(buildLive());
+    // Cible du lien d'evitement : le conteneur principal de la page, quel que
+    // soit son element. On ne force pas <main> ici — les pages le declarent.
+    var mainEl = document.querySelector('main') || document.querySelector('.wrap');
+    if(mainEl && !mainEl.id) mainEl.id = 'contenu';
+    if(mainEl && !mainEl.hasAttribute('tabindex')) mainEl.setAttribute('tabindex','-1');
+    var S = window.SHELL = window.SHELL || {};
+    S.announce = announce;
     var sidebar = buildSidebar(cfg);
     document.querySelector('header.topbar').after(sidebar);
     sidebar.after(buildBackdrop());

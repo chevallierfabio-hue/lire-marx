@@ -16,6 +16,16 @@
      Les pages qui redéclarent leur propre :root (accueil, bibliothèque,
      place publique) gardent le leur. */
   --red-deep:#e5644f;
+  /* --red (#d5402f) plafonne à 4,14:1 sur --bg et 3,76:1 sur --card : il ne
+     peut PAS porter du texte sous 18,66 px (WCAG 1.4.3 exige 4,5:1). Il reste
+     donc réservé aux FONDS et aux TRAITS, qui n'ont besoin que de 3:1, et le
+     texte rouge passe par --red-text (5,64:1 sur --bg). */
+  --red-text:#e5644f;
+  /* --line (13 % de crème) donne 1,37:1 : invisible comme BORDURE DE
+     COMPOSANT, ce que WCAG 1.4.11 fixe à 3:1. --line-strong est pour tout ce
+     qui délimite un contrôle (champ, select, curseur) ; --line reste aux
+     séparateurs décoratifs, que le critère n'atteint pas. */
+  --line-strong:rgba(243,233,212,.34);
   --gold:#d8ad4c;--gold-deep:#bd8f38;--blue:#5c8aa3;--const:#9a8b72;
   --line:rgba(243,233,212,.13);--line-soft:rgba(243,233,212,.07);--ok:#7fa855;
   /* Sur fond sombre un survol ÉCLAIRCIT : un aplat opaque plus foncé
@@ -179,3 +189,63 @@ footer b{font-family:'Fraunces',serif;font-style:normal;color:var(--ink);}
 #progInvite.pi-visible{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto;}
 .pi-btn{background:var(--accent);color:#fff;border:none;padding:5px 14px;border-radius:100px;font-family:var(--f-ui);font-size:.82rem;font-weight:600;cursor:pointer;}
 .pi-close{background:transparent;color:rgba(21,16,11,.55);border:none;font-size:1.1rem;cursor:pointer;padding:0 2px;line-height:1;flex:none;}
+
+
+/* ══════════════════ Socle d'accessibilité ══════════════════
+   Partagé par les deux pages d'atelier ; la bibliothèque et la Place
+   publique chargent aussi ce fichier et en profitent. */
+
+/* Contenu réservé aux aides techniques. */
+.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0;}
+
+/* Lien d'évitement : sans lui il faut traverser 20 à 23 arrêts de tabulation
+   (barre du haut + sidebar) avant d'atteindre le contenu, à chaque page ET à
+   chaque changement d'onglet. */
+.skip-link{position:fixed;top:8px;left:8px;z-index:400;transform:translateY(-160%);
+  background:var(--text);color:var(--bg);font-family:var(--f-ui);font-weight:600;
+  font-size:.86rem;padding:10px 18px;border-radius:100px;text-decoration:none;
+  box-shadow:0 8px 24px -8px rgba(0,0,0,.7);transition:transform .18s;}
+.skip-link:focus{transform:translateY(0);}
+
+/* L'anneau de focus vivait dans le <style> de capital-1.html seulement :
+   manuscrits retombait sur celui du navigateur, 1 px collé au contrôle.
+   Ici il vaut pour toutes les pages d'atelier. WCAG 2.4.7, et 2.4.13 (AAA). */
+:focus-visible{outline:3px solid var(--red);outline-offset:2px;border-radius:3px;}
+
+/* La topbar est sticky sur 44 px : sans marge de défilement, un élément
+   rejoint par le focus s'aligne sur le bord haut du viewport, donc ENTIÈREMENT
+   dessous pour tout contrôle de moins de 44 px de haut. WCAG 2.4.11. */
+html{scroll-padding-top:60px;}
+
+/* Un accordéon replié par max-height:0 garde ses boutons dans le parcours de
+   tabulation : 24 arrêts sur du vide, avec un anneau de focus rogné par
+   overflow:hidden. visibility s'hérite et retire du focus, tout en laissant
+   la transition de max-height jouer. */
+.sec-body:not(.open),.chap-body:not(.open){visibility:hidden;}
+
+/* Bordures de composants — WCAG 1.4.11 (3:1). */
+.search input,.reader-bar select,.reader-bar input,
+textarea,select,input[type=range],input[type=text],input[type=email],
+input[type=password],input[type=search]{border-color:var(--line-strong);}
+
+/* Le texte rouge repasse au-dessus du seuil AA. */
+.btn.red,.cap-badge,.atl-card-status,.rss-badge,.rdr-label,.tab .num{color:var(--red-text);}
+
+@media (prefers-reduced-motion: reduce){
+  /* Les pages d'atelier étaient les deux seules du site à ne pas honorer la
+     préférence. On neutralise durées et défilements, sans supprimer les
+     changements d'état — un état qui n'arrive jamais serait pire. */
+  *,*::before,*::after{
+    animation-duration:.01ms!important;animation-iteration-count:1!important;
+    transition-duration:.01ms!important;scroll-behavior:auto!important;}
+  html{scroll-behavior:auto!important;}
+  /* Exception : la rotation du chargeur EST l'information. On la ralentit
+     sans la supprimer, le temps que le texte arrive. */
+  .spinner,.rd-spin{animation-duration:1.2s!important;animation-iteration-count:infinite!important;}
+}
+
+/* Le pied de page est un repère « contentinfo » : il ne peut pas vivre à
+   l'intérieur de <main>, où il n'en est plus un. Sorti de <main>, il reprend
+   la mesure de la page par .wrap. */
+footer.wrap{padding-top:22px;padding-bottom:60px;}
