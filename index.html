@@ -582,8 +582,13 @@ body.lm-driving .lm-drive-hud{opacity:1;visibility:visible;transform:translate(-
   width:min(760px,80vw);height:420px;pointer-events:none;z-index:1;
   background:radial-gradient(ellipse at center,
     rgba(216,173,76,.20) 0%,rgba(213,64,47,.10) 42%,transparent 72%);}
+/* Elle est POSÉE JUSTE EN DESSOUS de la page : son pied passe sous le bord
+   bas de la bande, que `.hs-closer{overflow:hidden}` coupe net. On ne voit
+   d'elle que ce qui dépasse — la cire et la flamme sortent du pied de page
+   comme d'un bureau qu'on ne montre pas. Le bougeoir (coupelle et douille)
+   reste dessiné plus bas dans ce fichier : il est simplement hors champ. */
 .hs-closer-candle{position:absolute;z-index:1;pointer-events:none;
-  right:var(--candle-r);bottom:clamp(8px,2vh,26px);
+  right:var(--candle-r);bottom:-28px;
   transform:translateX(50%);width:52px;height:132px;}
 .hs-closer-candle span{position:absolute;left:50%;transform:translateX(-50%);}
 /* ── LE BOUGEOIR. Ce n'était qu'une pastille plate : une pièce de monnaie
@@ -643,7 +648,10 @@ body.lm-driving .lm-drive-hud{opacity:1;visibility:visible;transform:translate(-
 @media(max-width:820px){
   /* origine en pied : la bougie rapetisse vers sa base et reste sous le
      bouton, qui prend presque toute la largeur sur petit écran */
-  .hs-closer-candle{bottom:6px;transform:translateX(50%) scale(.66);
+  /* origine en pied : la bougie rapetisse vers sa base. L'enfoncement suit
+     l'échelle (28 × .66 ≈ 18), sinon la même valeur en pixels mangerait une
+     part bien plus grande d'une bougie réduite aux deux tiers. */
+  .hs-closer-candle{bottom:-18px;transform:translateX(50%) scale(.66);
     transform-origin:50% 100%;}
 }
 @media(max-width:820px){
