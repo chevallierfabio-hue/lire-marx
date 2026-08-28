@@ -86,6 +86,7 @@
       : '';
     return el(
       '<aside class="sidebar" id="sidebar" aria-label="Navigation de l\'atelier">' +
+        '<button class="sb-item" type="button" data-act="home"><span class="sb-dot" style="background:var(--gold)"></span>Accueil</button>' +
         '<button class="sb-item" type="button" data-act="biblio"><span class="sb-dot" style="background:var(--ink-soft)"></span>Bibliothèque</button>' +
         '<button class="sb-item" type="button" data-act="commune"><span class="sb-dot" style="background:var(--red)"></span>Place publique</button>' +
         '<button class="sb-item" type="button" data-act="contacts"><span class="sb-dot" style="background:var(--blue)"></span>Contacts</button>' +
@@ -156,14 +157,31 @@
     // Brandmark → accueil (/) avec skip-anim pour éviter l'animation d'entrée
     document.getElementById('shellBrand').addEventListener('click', function(){ location.href = '/?skip-anim'; });
 
-    // Bibliothèque : navigue vers l'accueil sans rejouer l'animation
+    // Accueil : la page d'accueil, sans rejouer l'animation d'entrée.
+    var home = sb.querySelector('[data-act="home"]');
+    home.addEventListener('click', function(){ location.href = '/?skip-anim'; });
+
+    // Bibliothèque : pour l'instant le catalogue de l'accueil. Basculera sur
+    // la page dédiée quand elle existera.
     var bib = sb.querySelector('[data-act="biblio"]');
-    bib.addEventListener('click', function(){ location.href = '/?skip-anim'; });
+    bib.addEventListener('click', function(){ location.href = '/?skip-anim#catalogue'; });
+
+    // Marque l'entrée correspondant à la page courante. Un clic sur
+    // « Bibliothèque » depuis l'accueil ne change que le hash : pas de
+    // rechargement, donc on resynchronise sur hashchange.
+    if(location.pathname.replace(/\/index\.html$/, '/') === '/'){
+      var markHere = function(){
+        home.classList.toggle('on', location.hash !== '#catalogue');
+        bib.classList.toggle('on', location.hash === '#catalogue');
+      };
+      markHere();
+      window.addEventListener('hashchange', markHere);
+    }
 
     // Items de navigation inter-pages
     sb.querySelectorAll('.sb-item[data-act]').forEach(function(b){
       var act = b.dataset.act;
-      if(act === 'biblio' || (act && act.indexOf('tab:') === 0)) return; // déjà gérés
+      if(act === 'home' || act === 'biblio' || (act && act.indexOf('tab:') === 0)) return; // déjà gérés
       b.addEventListener('click', function(){
         if(act === 'open-capital'){ location.href = '/oeuvres/capital-1.html'; return; }
         if(act === 'open-manuscrits-1844'){ location.href = '/oeuvres/manuscrits-1844.html'; return; }
