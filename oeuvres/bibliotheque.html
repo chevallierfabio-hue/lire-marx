@@ -102,35 +102,84 @@ header.topbar{background:rgba(21,16,11,.96);border-bottom-color:var(--line);}
    grammaire d'une page de titre. */
 .bx3-intro{position:fixed;z-index:10;left:0;top:0;pointer-events:none;
   box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;
-  padding:7% 9% 6%;color:#2b1c0e;opacity:0;
+  align-items:center;text-align:center;
+  /* MARGES EN `em`, JAMAIS EN %. Un pourcentage de padding se résout sur
+     le bloc conteneur — et la feuille est en `position:fixed`, donc sur
+     le VIEWPORT : `10%` valait 144 px sur une feuille de 500, le texte
+     était comprimé dans un tiers de la page. Le `em`, lui, suit la
+     taille de police que sheetRect() dérive de la largeur de la
+     feuille : la marge reste proportionnelle au papier. */
+  padding:2.6em 2.4em;color:#2b1c0e;opacity:0;
   font-family:'Spectral',Georgia,serif;
   transition:opacity .2s linear;}
+
+/* L'ENCRE PREND LE GRAIN — c'est ce qui INCRUSTE le texte dans la
+   feuille au lieu de le poser dessus. Toutes les encres sont en alpha :
+   le papier transparaît DANS la lettre, qui hérite donc de son grain,
+   de ses pliures et de la lumière de la pièce, et fonce dans les creux.
+   Ne PAS chercher à faire ça en `mix-blend-mode:multiply` : `.bx3-intro`
+   porte un `z-index`, donc crée un contexte d'empilement, et le mélange
+   ne verrait que son propre fond transparent — jamais le canvas. Et
+   c'est une lecture de l'arrière-plan à chaque image, sur un bloc déjà
+   remis en page à chaque image. */
+
+/* La rubrique entre deux filets — l'en-tête d'une page de titre. */
 .bx3-intro .bx3-label,.bx3-end .bx3-label{font-family:'Spectral',Georgia,serif;
-  font-size:.6em;font-weight:600;letter-spacing:.22em;
-  text-transform:uppercase;color:#8a6420;margin-bottom:.7em;}
+  display:flex;align-items:center;justify-content:center;gap:.85em;
+  align-self:stretch;
+  font-size:.62em;font-weight:600;letter-spacing:.24em;
+  text-transform:uppercase;color:rgba(112,80,24,.88);margin-bottom:1.1em;}
+.bx3-intro .bx3-label::before,.bx3-intro .bx3-label::after,
+.bx3-end .bx3-label::before,.bx3-end .bx3-label::after{
+  content:"";flex:1 1 auto;max-width:5em;height:1px;background:rgba(90,64,34,.42);}
+
+/* Le titre se pose sur deux lignes, comme un frontispice : l'appel
+   droit, puis le mot en italique, plus grand. */
 .bx3-h1{font-family:'Fraunces',serif;font-weight:900;
-  font-size:2.35em;line-height:1.02;letter-spacing:-.03em;
-  margin-bottom:.42em;padding-bottom:.3em;color:#241505;
-  border-bottom:1px solid rgba(90,64,34,.34);}
-.bx3-h1 em{font-style:italic;font-weight:500;color:#8a6420;}
-.bx3-lede{font-size:.95em;line-height:1.6;color:#4a3823;
-  max-width:46ch;text-wrap:pretty;}
-.bx3-count{margin-top:.85em;font-size:.8em;font-style:italic;color:#6b5638;}
-.bx3-count b{color:#241505;font-weight:600;font-style:normal;}
-.bx3-legend{margin-top:1em;display:flex;flex-direction:column;gap:.45em;
-  font-size:.78em;color:#4a3823;}
-.bx3-legend span{display:inline-flex;align-items:center;gap:10px;}
-.bx3-legend i{flex:0 0 auto;display:block;width:14px;height:14px;border-radius:3px;}
-.bx3-legend .lg-book{background:linear-gradient(180deg,#7a4a1e,#4a2c12);
-  box-shadow:inset 0 0 0 1px rgba(216,173,76,.5);}
-.bx3-legend .lg-bundle{background:#6f5d42;
-  box-shadow:inset 0 -4px 0 rgba(21,16,11,.45),inset 0 5px 0 rgba(21,16,11,.0);}
-.bx3-legend .lg-ribbon{background:var(--accent);width:6px;height:16px;margin:0 4px;}
-.bx3-alt{margin-top:1.2em;pointer-events:auto;}
-.bx3-alt button{font:italic 500 .82em/1 'Spectral',Georgia,serif;color:#8c2415;
-  background:none;border:0;border-bottom:1px solid #b09468;padding:0 0 3px;
-  cursor:pointer;}
-.bx3-alt button:hover{color:#5e1508;border-color:#8a6420;}
+  font-size:1.6em;line-height:1.06;letter-spacing:.01em;
+  margin:0;color:rgba(28,16,4,.9);}
+.bx3-h1 em{display:block;font-style:italic;font-weight:500;
+  font-size:1.62em;line-height:1;letter-spacing:-.02em;color:rgba(112,80,24,.9);
+  margin-top:.06em;}
+
+/* Le fleuron : un filet rompu par un losange, dessiné à l'encre.
+   Il remplace le trait plein sous le titre, qui entrait en concurrence
+   avec les pliures du papier. */
+.bx3-orn{margin:1.05em auto;color:rgba(95,67,34,.85);line-height:0;}
+.bx3-orn svg{width:8.2em;height:auto;display:block;margin:0 auto;}
+
+.bx3-lede{font-size:.95em;line-height:1.62;color:rgba(58,42,22,.88);
+  max-width:34ch;margin:0 auto;text-wrap:pretty;}
+
+/* Les comptes en capitales espacées, et les nombres en toutes lettres :
+   un document ne chiffre pas ce qui peut s'écrire. */
+.bx3-count{margin-top:1.15em;font-size:.62em;letter-spacing:.16em;
+  text-transform:uppercase;color:rgba(88,68,42,.9);}
+.bx3-count b{color:rgba(28,16,4,.92);font-weight:600;}
+
+/* La légende : des marques imprimées, pas des pastilles d'interface —
+   angles vifs, tracé à l'encre, et le bloc centré mais aligné à
+   gauche à l'intérieur, comme la légende d'une planche. */
+.bx3-legend{margin-top:1.15em;display:flex;flex-direction:column;
+  align-items:flex-start;gap:.5em;width:max-content;max-width:100%;
+  font-size:.76em;color:rgba(58,42,22,.88);text-align:left;}
+.bx3-legend span{display:inline-flex;align-items:center;gap:.7em;}
+.bx3-legend i{flex:0 0 auto;display:block;border-radius:0;}
+.bx3-legend .lg-book{width:.52em;height:1.15em;
+  background:linear-gradient(90deg,#3d2410,#6b4520 55%,#43290f);
+  box-shadow:inset 0 0 0 1px rgba(160,120,40,.75);}
+.bx3-legend .lg-bundle{width:.72em;height:1.05em;background:#a08a63;
+  box-shadow:inset 0 0 0 1px rgba(74,50,24,.6),
+             inset 0 -.3em 0 -.22em rgba(48,32,14,.8),
+             inset 0 .34em 0 -.26em rgba(48,32,14,.8);}
+.bx3-legend .lg-ribbon{width:.24em;height:1.25em;background:#9d2a1c;
+  box-shadow:inset 0 0 0 1px rgba(74,20,12,.5);}
+
+.bx3-alt{margin-top:1.35em;pointer-events:auto;}
+.bx3-alt button{font:italic 500 .82em/1 'Spectral',Georgia,serif;color:rgba(130,32,18,.92);
+  background:none;border:0;border-bottom:1px solid rgba(140,36,21,.42);
+  padding:0 0 3px;cursor:pointer;}
+.bx3-alt button:hover{color:#5e1508;border-color:#8c2415;}
 
 /* L'invite à descendre : bas de l'écran, disparaît avec l'intro. */
 .bx3-hint{position:fixed;z-index:10;left:50%;bottom:26px;transform:translateX(-50%);
@@ -170,6 +219,7 @@ body.sb-collapsed .bx3-caption{left:clamp(28px,6vw,120px);}
 .bx3-intro.lit>*:nth-child(4){animation-delay:.32s}
 .bx3-intro.lit>*:nth-child(5){animation-delay:.44s}
 .bx3-intro.lit>*:nth-child(6){animation-delay:.56s}
+.bx3-intro.lit>*:nth-child(7){animation-delay:.68s}
 .js-bib3d .bx3-hint{animation:bx3-rise .8s .9s cubic-bezier(.2,.9,.25,1) backwards;}
 
 /* Le rail : les quatre rayons, pour sauter de l'un à l'autre. */
@@ -200,14 +250,10 @@ body.sb-collapsed .bx3-caption{left:clamp(28px,6vw,120px);}
    devant nous. Posée elle aussi sur le rectangle projeté. */
 .bx3-end{position:fixed;z-index:10;left:0;top:0;pointer-events:none;
   box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;
-  padding:8% 9%;text-align:center;color:#2b1c0e;opacity:0;
+  padding:2.6em 2.4em;text-align:center;color:#2b1c0e;opacity:0;
   font-family:'Spectral',Georgia,serif;
   transition:opacity .25s linear;}
-.bx3-end .bx3-h1{font-size:1.9em;border-bottom:0;padding-bottom:0;}
-/* le filet du verso est CENTRÉ et court : une vignette de fin, pas la
-   ligne de titre pleine largeur du recto */
-.bx3-end .bx3-h1::after{content:"";display:block;width:3.2em;height:1px;
-  margin:.5em auto 0;background:rgba(90,64,34,.42);}
+.bx3-end .bx3-h1{font-size:1.42em;}
 .bx3-end .bx3-lede{margin:0 auto;}
 .bx3-end-acts{margin-top:1.4em;display:flex;gap:.7em;justify-content:center;
   flex-wrap:wrap;pointer-events:auto;}
@@ -378,18 +424,29 @@ its provenance.
 <canvas id="bib3d" aria-hidden="true"></canvas>
 <div class="bx3-lamp" aria-hidden="true"></div>
 
-<!-- L'interface de la scène (cachée tant que la 3D n'est pas active) -->
-<div class="bx3-ui" aria-hidden="true">
+<!-- L'interface de la scène (cachée tant que la 3D n'est pas active).
+     PAS d'aria-hidden ici : quand la scène tourne, `#bxFlat` est en
+     display:none, donc ce bloc porte le SEUL texte de la page — le
+     masquer laissait un lecteur d'écran devant une page vide. -->
+<div class="bx3-ui">
   <div class="bx3-intro" id="bxIntro">
     <div class="bx3-label">La bibliothèque</div>
     <h1 class="bx3-h1">Par où <em>commencer</em></h1>
+    <div class="bx3-orn" aria-hidden="true">
+      <svg viewBox="0 0 120 12" fill="none">
+        <path d="M2 6h40M78 6h40" stroke="currentColor" stroke-width="1" opacity=".45"/>
+        <path d="M60 1.6 65 6l-5 4.4L55 6z" fill="currentColor" opacity=".62"/>
+        <circle cx="48.5" cy="6" r="1.15" fill="currentColor" opacity=".42"/>
+        <circle cx="71.5" cy="6" r="1.15" fill="currentColor" opacity=".42"/>
+      </svg>
+    </div>
     <p class="bx3-lede">Marx ne se lit pas dans l'ordre des dates. Ces rayons suivent
       l'ordre de lecture — longez-les, tirez un volume.</p>
     <div class="bx3-count" id="bx3Count"></div>
     <div class="bx3-legend">
-      <span><i class="lg-book"></i> Un livre relié se lit aujourd'hui</span>
-      <span><i class="lg-bundle"></i> Une liasse ficelée est en préparation</span>
-      <span><i class="lg-ribbon"></i> Un signet rouge marque une porte d'entrée</span>
+      <span><i class="lg-book"></i> Livre relié — se lit aujourd'hui</span>
+      <span><i class="lg-bundle"></i> Liasse ficelée — en préparation</span>
+      <span><i class="lg-ribbon"></i> Signet rouge — porte d'entrée</span>
     </div>
     <div class="bx3-alt"><button type="button" id="bx3ToFlat">Préférer la version liste</button></div>
   </div>
@@ -401,13 +458,23 @@ its provenance.
     <div class="cap-l" id="capL"></div>
   </div>
   <nav class="bx3-rail" id="bxRail" aria-label="Rayons de la bibliothèque" style="opacity:0"></nav>
-  <div class="bx3-tag" id="bxTag"></div>
+  <!-- étiquette de survol : redit ce que le cartel donne déjà -->
+  <div class="bx3-tag" id="bxTag" aria-hidden="true"></div>
   <div class="bx3-end" id="bxEnd" style="opacity:0">
+    <div class="bx3-label">Au verso</div>
     <h2 class="bx3-h1">La dernière <em>travée</em></h2>
+    <div class="bx3-orn" aria-hidden="true">
+      <svg viewBox="0 0 120 12" fill="none">
+        <path d="M2 6h40M78 6h40" stroke="currentColor" stroke-width="1" opacity=".45"/>
+        <path d="M60 1.6 65 6l-5 4.4L55 6z" fill="currentColor" opacity=".62"/>
+        <circle cx="48.5" cy="6" r="1.15" fill="currentColor" opacity=".42"/>
+        <circle cx="71.5" cy="6" r="1.15" fill="currentColor" opacity=".42"/>
+      </svg>
+    </div>
     <p class="bx3-lede" id="bxEndLede"></p>
     <div class="bx3-end-acts">
       <button class="bx3-btn full" type="button" id="bx3Back">Revenir à l'entrée</button>
-      <a class="bx3-btn ghost" href="/?skip-anim#catalogue">Le catalogue illustré de l'accueil</a>
+      <a class="bx3-btn ghost" href="/?skip-anim#catalogue">Le catalogue de l'accueil</a>
     </div>
   </div>
 </div>
@@ -1913,9 +1980,12 @@ installShell({ workTitle: 'Bibliothèque', tabs: [] });
     var NUM = ['zéro','un','deux','trois','quatre','cinq','six','sept',
                'huit','neuf','dix','onze','douze'];
     var numFr = function(n){ return NUM[n] || String(n); };
+    /* En toutes lettres : un document n'écrit pas « 12 ». Virgule et non
+       tiret : la ligne se coupe en deux à cette largeur, et un tiret en
+       tête de seconde ligne se lit comme une entrée de liste. */
     document.getElementById('bx3Count').innerHTML =
-      '<b>' + WORKS.length + '</b> œuvres sur les rayons · <b>' + nOk +
-      '</b> lisibles aujourd\'hui';
+      '<b>' + numFr(WORKS.length) + '</b> œuvres sur les rayons, <b>' +
+      numFr(nOk) + '</b> lisibles aujourd\'hui';
     document.getElementById('bxEndLede').textContent =
       'Vous avez longé les ' + numFr(bays.length) + ' rayons — ' +
       numFr(WORKS.length) + ' œuvres, dont ' + numFr(nOk) +

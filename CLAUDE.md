@@ -763,6 +763,45 @@ Mécanique, à ne pas casser :
   `#2b1c0e` / `#57432a` / `#8a6420` dans le CSS) — plus de crème sur
   fond sombre pour ces deux blocs. Le vantail reste ouvert ensuite.
 
+### Le texte est INCRUSTÉ dans la feuille (mission `texte-incruste`, août 2026)
+
+Le texte de présentation ne doit pas être posé sur la feuille : il doit y
+être imprimé. Deux volets, la police et l'agencement.
+
+**L'encre prend le grain.** Toutes les couleurs du recto et du verso sont
+en **alpha** (`rgba(28,16,4,.9)`, `rgba(58,42,22,.88)`…) : le papier
+transparaît DANS la lettre, qui hérite donc de son grain, de ses pliures
+et de la lumière de la pièce, et fonce dans les creux. **Ne pas tenter de
+faire ça en `mix-blend-mode:multiply`** — plus juste physiquement, mais
+inopérant ici : `.bx3-intro` porte un `z-index`, donc crée un contexte
+d'empilement, et le mélange ne verrait que son propre fond transparent,
+jamais le canvas. C'est en plus une lecture de l'arrière-plan à chaque
+image, sur un bloc déjà remis en page à chaque image.
+
+**L'agencement est celui d'une page de titre**, centré : rubrique en
+capitales espacées entre deux filets, titre sur deux lignes (l'appel
+droit, le mot en italique plus grand), **fleuron dessiné en SVG** (filet
+rompu par un losange — pas un glyphe Unicode), lede en mesure courte,
+comptes en capitales espacées **et en toutes lettres** (`numFr` — un
+document n'écrit pas « 12 »), légende en **marques imprimées** (angles
+vifs, dos de livre, liasse ficelée, signet) et non en pastilles
+d'interface, envoi en italique. Le verso porte la rubrique « Au verso ».
+
+**PIÈGE MAJEUR — jamais de `padding` en % sur la feuille.** Un padding en
+pourcentage se résout sur le **bloc conteneur**, et la feuille est en
+`position:fixed` : le conteneur est donc le VIEWPORT, pas l'élément.
+`padding:8% 10%` valait **144 px de marge sur une feuille de 500** — le
+texte était comprimé dans un tiers de la page, ce qui expliquait les
+retours à la ligne absurdes de la légende. Tout est en `em`, qui suit la
+taille de police que `sheetRect()` dérive de la largeur de la feuille :
+la marge reste proportionnelle au papier à toutes les largeurs.
+
+**Correctif d'accessibilité au passage** : `.bx3-ui` ne porte plus
+`aria-hidden`. Quand la scène tourne, `#bxFlat` est en `display:none` —
+ce bloc porte donc le SEUL texte de la page, et le masquer laissait un
+lecteur d'écran devant une page vide. Seule `#bxTag` (l'étiquette de
+survol, qui redit le cartel) reste masquée.
+
 ### La baie s'ouvre vraiment (mission `fenetre-et-composition`, août 2026)
 
 Deux défauts signalés par le propriétaire, tous deux réels :
