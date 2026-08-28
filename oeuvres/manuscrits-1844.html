@@ -69,7 +69,6 @@ nav.tabs.cap-tabs-bar .tab:hover{color:var(--ink);}
 nav.tabs.cap-tabs-bar .tab::after{display:none;}
 nav.tabs.cap-tabs-bar .tab.active{color:var(--ink);border-bottom-color:var(--accent);}
 nav.tabs.cap-tabs-bar .tab .num{display:none;}
-#subnav:has(button[data-panel="accueil"].active){display:none!important;}
 /* ── Cartes démarrage ── */
 .cap-lire-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:28px;}
 .cap-card{background:var(--surface);border-radius:18px;padding:22px 22px 20px;
@@ -269,6 +268,45 @@ nav.tabs.cap-tabs-bar .tab .num{display:none;}
   .cap-cover-caption{position:static;background:none;padding:8px 0 0;
     color:var(--muted);font-size:11px;line-height:1.45;letter-spacing:.05em;}
 }
+
+/* ══════════ La coquille de travail ══════════
+   Trois défauts tenaient ensemble : le héros occupait 406 à 483 px en tête
+   des NEUF panneaux (première ligne utile à 65-74 % du viewport), les deux
+   rangées d'onglets défilaient hors de portée, et #subnav disparaissait sur
+   deux onglets — ce qui faisait sauter la page de 63 px et déplaçait sous le
+   curseur la barre qu'on venait de cliquer. */
+
+/* Le seuil ne se franchit qu'une fois : hors de l'accueil de l'œuvre, le
+   héros se replie sur son fil d'Ariane et son titre. Le <h1> reste dans le
+   document — c'est le titre de la page — il change seulement d'échelle. */
+body.at-inner .cap-hero{grid-template-columns:1fr;gap:0;
+  padding:14px 0 12px;border-bottom:1px solid var(--line-soft);}
+body.at-inner .cap-hero-right,
+body.at-inner .cap-hero-halo,
+body.at-inner .cap-badge,
+body.at-inner .cap-desc,
+body.at-inner .cap-hero .cap-btn-dark{display:none;}
+body.at-inner .cap-h1{font-size:1.12rem;line-height:1.25;margin-bottom:0;letter-spacing:-.005em;}
+body.at-inner .cap-breadcrumb{margin-bottom:5px;}
+body.at-inner .cap-hero-left{display:flex;flex-direction:column;}
+
+/* Les deux rangées collent sous la topbar (44 px) et gardent une hauteur
+   CONSTANTE, quel que soit le groupe actif. */
+nav.tabs.cap-tabs-bar{position:sticky;top:44px;z-index:62;
+  background:var(--bg);padding-top:2px;}
+nav.subnav{position:sticky;top:85px;z-index:61;background:var(--bg);
+  min-height:42px;align-items:center;margin:0;justify-content:flex-start;
+  border-bottom:1px solid var(--line-soft);}
+/* La rangée subordonnée était plus GROSSE que sa rangée parente (15,4 px
+   contre 14,1) et centrée quand celle-ci est alignée à gauche. */
+.subnavbtn{font-size:.83rem;padding:9px 14px;}
+.subnavbtn.active::after{left:14px;right:14px;bottom:4px;}
+@media(max-width:740px){
+  nav.tabs.cap-tabs-bar,nav.subnav{overflow-x:auto;flex-wrap:nowrap;
+    scrollbar-width:none;}
+  nav.tabs.cap-tabs-bar::-webkit-scrollbar,nav.subnav::-webkit-scrollbar{display:none;}
+  .tab,.subnavbtn{white-space:nowrap;flex:0 0 auto;}
+}
 </style>
 <script type="application/ld+json">
 {
@@ -318,7 +356,7 @@ nav.tabs.cap-tabs-bar .tab .num{display:none;}
     <button class="tab" data-top="atelier">Atelier</button>
     <button class="tab" data-top="ressources">Ressources</button>
   </nav>
-  <nav class="subnav" id="subnav" style="display:none"></nav>
+  <nav class="subnav" id="subnav" aria-label="Sections de l'onglet"></nav>
 
   <!-- ACCUEIL — onglet "Lire les Manuscrits" (2 cartes de départ) -->
   <section class="panel active" id="accueil">
@@ -750,13 +788,32 @@ function syncTabsA11y(pid){
   /* Le focus RESTE sur l'onglet (motif ARIA APG) ; c'est la région live qui
      dit que le panneau a changé. Rien n'est annoncé au tout premier rendu :
      à ce moment-là rien n'a changé pour personne. */
+
+  /* Le panneau courant s'écrit dans l'URL. Le hash était LU au chargement
+     mais jamais ÉCRIT : impossible de partager « Modèles → Journée de
+     travail », le retour arrière quittait la page, et un rechargement
+     ramenait à l'accueil. On n'écrase pas un deep-link #note=… : il est
+     consommé au démarrage, avant le premier appel. */
+  if(a11yBooted && !/^#(note=|s=)/.test(location.hash)){
+    try{ history.replaceState(null,'','#'+pid); }catch(e){}
+  }
+  document.body.classList.toggle('at-inner', pid!=='accueil');
+  /* Changer d'onglet en cours de lecture laissait le lecteur au milieu de la
+     page précédente, sur un panneau dont le haut était 250 px plus bas. On
+     remonte — le héros replié ne coûte plus que 100 px. Jamais au premier
+     rendu : à ce moment-là personne n'a rien demandé. */
+  if(a11yBooted){
+    var _rm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({top:0,behavior:_rm?'auto':'smooth'});
+  }
+
   if(a11yBooted&&S.announce)S.announce('Panneau '+panelLabel(pid));
   a11yBooted=true;
 }
   var GROUPS={
     lire:{panels:['accueil','nav','lire'],labels:['Commencer','Parcourir','Texte intégral']},
     atelier:{panels:['atelier-accueil','deriv','labo','explore','chrono'],labels:['Sections','Cheminement','Concepts','Explorations','Chronologie']},
-    ressources:{panels:['ressources'],labels:[]}
+    ressources:{panels:['ressources'],labels:['Ressources']}
   };
   var curPanel={lire:'accueil',atelier:'atelier-accueil',ressources:'ressources'};
   function byId(id){return document.getElementById(id);}
@@ -765,12 +822,9 @@ function syncTabsA11y(pid){
   window.activateTop=function(top){
     document.querySelectorAll('.tab').forEach(function(b){b.classList.toggle('active',b.dataset.top===top);});
     var g=GROUPS[top]||GROUPS.accueil,sn=byId('subnav');
-    if(g.panels.length<2){sn.style.display='none';sn.innerHTML='';}
-    else{
-      sn.style.display='flex';
-      sn.innerHTML=g.panels.map(function(pid,i){return '<button class="subnavbtn'+(pid===curPanel[top]?' active':'')+'" type="button" data-panel="'+pid+'">'+g.labels[i]+'</button>';}).join('');
-      sn.querySelectorAll('.subnavbtn').forEach(function(b){b.addEventListener('click',function(){curPanel[top]=b.dataset.panel;activateTop(top);window.scrollTo({top:0,behavior:'smooth'});});});
-    }
+    /* Toujours rendue : l'escamoter faisait sauter la page de 63 px. */
+    sn.innerHTML=g.panels.map(function(pid,i){return '<button class="subnavbtn'+(pid===curPanel[top]?' active':'')+'" type="button" data-panel="'+pid+'">'+(g.labels[i]||pid)+'</button>';}).join('');
+    sn.querySelectorAll('.subnavbtn').forEach(function(b){b.addEventListener('click',function(){curPanel[top]=b.dataset.panel;activateTop(top);});});
     var pid=curPanel[top];
     document.querySelectorAll('.panel').forEach(function(x){x.classList.toggle('active',x.id===pid);});
     syncTabsA11y(pid);
@@ -1396,7 +1450,34 @@ function syncTabsA11y(pid){
     }
 
     /* ── Init navigation synchrone (hash) ── */
-    (function(){var h=(location.hash||'').replace(/^#/,''); activateTop(h in GROUPS?h:'lire');})();
+    (function(){
+    /* Le hash n'acceptait que les trois GROUPES : un lien vers un panneau
+     précis (#labo, #chrono) était ignoré, et le rechargement ramenait
+     toujours à l'accueil. Il accepte maintenant les deux. */
+  function panelExists(id){
+    for(var t in GROUPS){ if(GROUPS[t].panels.indexOf(id)>=0) return true; }
+    return false;
+  }
+  function bootFromHash(){
+    var h=(location.hash||'').replace(/^#/,'');
+    if(h in GROUPS) activateTop(h);
+    else if(panelExists(h)) activateTab(h);
+    else activateTop('lire');
+  }
+  bootFromHash();
+  /* Un hash qui désigne un panneau désigne AUSSI un élément réel du
+     document : le navigateur y saute tout seul et l'on débarque à 369 px du
+     haut, sous la coquille collante. On remet en haut. */
+  if(/^#[a-z-]+$/.test(location.hash||'')){
+    window.scrollTo({top:0,behavior:'instant'});
+    requestAnimationFrame(function(){ window.scrollTo({top:0,behavior:'instant'}); });
+  }
+  /* Retour arrière et avance du navigateur. */
+  window.addEventListener('hashchange', function(){
+    var h=(location.hash||'').replace(/^#/,'');
+    if(panelExists(h) && document.querySelector('.panel.active').id!==h) activateTab(h);
+  });
+    })();
   }
   // Contrat de deep-link au passage : si la page a été ouverte avec
   // #note=<id> (Place publique / notifications) ou #s=N&q=..., on
