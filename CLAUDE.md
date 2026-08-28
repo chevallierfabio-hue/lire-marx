@@ -806,6 +806,21 @@ DA sombre-chaude (pas un nouveau monde visuel), les deux pages.
    `.atl-card.atl-done`, et les lignes portent role="link" + tabindex +
    Enter/Espace comme sur Capital.
 
+### Le diagnostic est SOLDÉ (fin août 2026)
+
+Le rapport `.impeccable/critique/2026-08-28…` (16/40, 3 P0, 13 P1) est
+entièrement traité — vérifié point par point en fin de mission
+`finitions-diagnostic` : P0 par `ateliers-accessibilite`, architecture et
+en-têtes par `ateliers-architecture` + `atelier-moderne`, cartes « Trois
+idées » par `trois-idees-cliquables`, et les mineurs au fil de l'eau
+(lang="de" jusqu'à l'infobulle du glossaire, catégories de recherche à
+~6,2:1, barre du haut en deux rangées sous 375 px, mode focus liseuse à
+.55 révélé au clavier, message d'échec réécrit). **Les libellés
+divergents entre œuvres (« Chapitres/Modèles » vs « Sections/Concepts »)
+sont un CHOIX éditorial** — le vocabulaire suit la matière de chaque
+livre — pas un défaut de cohérence : ne pas les « harmoniser ». Ne pas
+rouvrir ce rapport ; un nouvel audit partirait de zéro.
+
 ## Les pages d'atelier — accessibilité (mission `ateliers-accessibilite`)
 
 Mission demandée après le socle sombre : « c'est l'endroit où les
