@@ -100,6 +100,10 @@ header.topbar{background:rgba(21,16,11,.96);border-bottom-color:var(--line);}
   border:1px solid var(--border);border-radius:18px;background:var(--surface);
   padding:26px 26px 24px;text-decoration:none;color:inherit;
   transition:border-color .22s,box-shadow .22s,transform .4s cubic-bezier(.16,1,.3,1);}
+/* le grain de papier passe derrière le texte, et s'éclaire au survol :
+   une porte qu'on pousse laisse voir ce qu'il y a derrière */
+.bx-door::before{transition:opacity .35s ease,filter .35s ease;}
+.bx-door:hover::before{opacity:.72;filter:grayscale(1) brightness(.30) contrast(1.15);}
 .bx-door:hover{border-color:var(--gold);transform:translateY(-3px);
   box-shadow:0 22px 48px -22px rgba(0,0,0,.75);}
 .bx-door-q{font-family:'Fraunces',serif;font-weight:900;
@@ -119,22 +123,62 @@ header.topbar{background:rgba(21,16,11,.96);border-bottom-color:var(--line);}
 .bx-doors-soon b{color:var(--ink-soft);font-weight:600;}
 
 /* ═══ 2. Le fil ═══════════════════════════════════════════════════ */
+/* Le sol : le carnet quadrillé des chiffres clés de l'accueil, à l'identique.
+   Le trait doit être tracé SUR quelque chose, sinon il flotte. */
+#fil{position:relative;}
+#fil::before{content:"";position:absolute;inset:-24px 0 0;pointer-events:none;
+  z-index:0;opacity:.5;
+  -webkit-mask-image:radial-gradient(ellipse at 42% 58%,#000 24%,transparent 74%);
+  mask-image:radial-gradient(ellipse at 42% 58%,#000 24%,transparent 74%);
+  background-image:linear-gradient(var(--border) 1px,transparent 1px),
+    linear-gradient(90deg,var(--border) 1px,transparent 1px);
+  background-size:36px 36px;}
+#fil>*{position:relative;z-index:1;}
+
 .bx-legend{display:flex;flex-wrap:wrap;gap:20px;margin-bottom:26px;
   font-size:.78rem;color:var(--muted);}
 .bx-legend span{display:inline-flex;align-items:center;gap:8px;}
 .bx-legend i{display:block;width:26px;height:0;border-top:2px solid var(--gold);}
 .bx-legend i.dash{border-top-style:dashed;border-top-color:var(--const);}
 
+/* Le papier. Le fac-similé du manuscrit sert de GRAIN, pas d'image : très
+   assombri et masqué, comme .hs-closer-sheet sur l'accueil. Pas de légende à
+   lui donner — on n'en montre pas le contenu, seulement la fibre. */
+.bx-paper{position:relative;overflow:hidden;}
+.bx-paper::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:url('../assets/img/archive/manuscrit-ideologie-1846.webp') center/cover no-repeat;
+  filter:grayscale(1) brightness(.20) contrast(1.1) blur(.4px);
+  opacity:.34;mix-blend-mode:screen;}
+/* les portes en montrent un peu plus : on y entre, autant voir le papier */
+.bx-door::before{opacity:.46;}
+.bx-paper>*{position:relative;z-index:1;}
+
 .bx-thread{border:1px solid var(--border);border-radius:18px;background:var(--surface);
   padding:22px clamp(16px,3vw,26px);margin-bottom:16px;overflow-x:auto;}
 .bx-thread-h{font-family:'Inter',system-ui,sans-serif;font-size:.66rem;font-weight:700;
   letter-spacing:.13em;text-transform:uppercase;color:var(--const);margin-bottom:16px;}
-.bx-flow{display:flex;align-items:stretch;gap:0;min-width:min-content;}
+.bx-flow{position:relative;display:flex;align-items:stretch;gap:0;min-width:min-content;}
+/* L'encre : le CSS pose la mise en page, le JS mesure les nœuds, le SVG relie.
+   Il est SOUS les nœuds — un trait passe derrière une fiche, jamais dessus. */
+.bx-ink{position:absolute;left:0;top:0;pointer-events:none;z-index:0;overflow:visible;}
+.bx-ink path{fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
+  stroke:var(--gold);}
+/* Pas de `stroke-dasharray` ici : c'est l'attribut de présentation posé par
+   le JS qui porte le tireté, et une déclaration CSS le battrait toujours —
+   le trait des « primer » redevenait plein. */
+.bx-ink path.primer{stroke:var(--const);}
+.bx-nib{fill:var(--gold);opacity:0;}
+.bx-nib-halo{fill:var(--gold);opacity:0;}
 .bx-level{display:flex;flex-direction:column;gap:10px;justify-content:center;
   flex:0 0 auto;min-width:150px;max-width:188px;}
-.bx-node{display:block;text-decoration:none;color:inherit;
-  border:1px solid var(--border);border-radius:12px;background:var(--bg);
-  padding:11px 13px;transition:border-color .18s,background .18s;}
+/* --lit : « l'encre prend » quand la plume dépasse la station. Piloté par la
+   position de défilement → réversible ; vaut 1 d'office sans scrub. */
+.bx-node{--lit:1;position:relative;z-index:1;
+  display:block;text-decoration:none;color:inherit;
+  border:1px solid var(--border);border-radius:12px;
+  background:color-mix(in srgb,var(--bg) 92%,transparent);
+  padding:11px 13px;transition:border-color .18s,background .18s;
+  opacity:calc(.30 + .70 * var(--lit));}
 a.bx-node:hover{border-color:var(--gold);background:var(--card);}
 .bx-node-y{font-family:'Fraunces',serif;font-style:italic;font-weight:900;
   font-size:.92rem;color:var(--gold);}
@@ -145,16 +189,18 @@ a.bx-node:hover{border-color:var(--gold);background:var(--card);}
 .bx-node.here{border-color:var(--accent);box-shadow:0 0 0 1px rgba(213,64,47,.35);}
 
 /* le connecteur : trait + libellé, plein pour « puis », tireté pour « prépare » */
-.bx-link{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;
-  justify-content:center;gap:6px;width:clamp(50px,5.4vw,72px);padding:0 4px;}
-.bx-link-l{font-size:.62rem;letter-spacing:.07em;text-transform:uppercase;
-  color:var(--const);white-space:nowrap;}
-.bx-link-r{width:100%;height:0;border-top:2px solid var(--gold);position:relative;}
-.bx-link-r::after{content:'';position:absolute;right:-1px;top:-4px;
-  border-left:7px solid var(--gold);border-top:4px solid transparent;
-  border-bottom:4px solid transparent;}
-.bx-link.primer .bx-link-r{border-top-style:dashed;border-top-color:var(--const);}
-.bx-link.primer .bx-link-r::after{border-left-color:var(--const);}
+/* L'espace que l'encre traverse. Il ne porte plus que le mot ; le trait et sa
+   pointe sont dans le SVG, tracés par la plume au défilement. */
+.bx-gap{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;width:clamp(56px,6vw,84px);padding:0 4px;
+  position:relative;z-index:1;}
+/* Le mot est posé SUR le trait : sans fond il devient illisible dès qu'une
+   fourche le traverse. Le cartouche est la convention du dessin technique —
+   la ligne passe derrière la légende, elle ne la barre pas. */
+.bx-gap-l{font-size:.62rem;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--const);white-space:nowrap;
+  background:var(--surface);padding:2px 5px;border-radius:4px;
+  opacity:calc(.15 + .85 * var(--lit,1));}
 .bx-alone{font-size:.88rem;line-height:1.7;color:var(--muted);max-width:64ch;
   border-left:2px solid var(--border);padding-left:15px;margin-top:22px;}
 .bx-alone b{color:var(--ink-soft);font-weight:600;}
@@ -176,9 +222,18 @@ a.bx-node:hover{border-color:var(--gold);background:var(--card);}
   margin-bottom:18px;}
 .bx-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;}
 
-.bx-work{display:flex;flex-direction:column;gap:10px;
+/* Le feuillet se pose : il arrive plus haut et de biais, puis s'aplatit.
+   Même geste que .hs-do-item sur l'accueil, piloté par la position de
+   défilement (donc réversible). --pose vaut 1 d'office sans scrub. */
+.bx-work{--pose:1;--tilt:0deg;
+  display:flex;flex-direction:column;gap:10px;
   border:1px solid var(--border);border-radius:16px;background:var(--surface);
-  padding:20px 22px 20px;transition:border-color .2s;}
+  padding:20px 22px 20px;transition:border-color .2s;
+  opacity:var(--pose);
+  transform:translateY(calc((1 - var(--pose)) * 26px))
+            rotate(calc((1 - var(--pose)) * var(--tilt)));}
+.js-pose .bx-work{will-change:transform,opacity;}
+.js-pose .bx-work-y{opacity:calc(.12 + .88 * var(--pose));}
 .bx-work:hover{border-color:rgba(216,173,76,.4);}
 .bx-work-head{display:flex;align-items:baseline;gap:11px;flex-wrap:wrap;}
 .bx-work-y{font-family:'Fraunces',serif;font-style:italic;font-weight:900;
@@ -217,12 +272,7 @@ a.bx-node:hover{border-color:var(--gold);background:var(--card);}
 
 .bx-state{color:var(--muted);font-size:.92rem;padding:30px 0;line-height:1.6;}
 
-/* ── Révélation au défilement (coupée si reduced-motion) ── */
-.bx-rev{opacity:0;transform:translateY(16px);
-  transition:opacity .6s ease,transform .6s cubic-bezier(.16,1,.3,1);}
-.bx-rev.in{opacity:1;transform:none;}
 @media(prefers-reduced-motion:reduce){
-  .bx-rev{opacity:1;transform:none;transition:none;}
   .bx-door,.bx-work{transition:none;}
 }
 
@@ -230,8 +280,8 @@ a.bx-node:hover{border-color:var(--gold);background:var(--card);}
 @media(max-width:640px){
   .bx-grid{grid-template-columns:1fr;}
   .bx-level{min-width:142px;}
-  .bx-link{width:56px;}
-  .bx-link-l{font-size:.56rem;}
+  .bx-gap{width:58px;}
+  .bx-gap-l{font-size:.56rem;}
 }
 </style>
 <script type="application/ld+json">
@@ -330,6 +380,41 @@ installShell({ workTitle: 'Bibliothèque', tabs: [] });
   var WORKS = [], GROUPS = [], BY_ID = {};
   var filter = 'all', sort = 'parcours';
 
+  /* ── Pilote de défilement local ──────────────────────────────────
+     home.js est propre à l'accueil et n'a rien à faire ici : on reprend
+     seulement sa mécanique, réduite à ce dont cette page a besoin. Un
+     abonné reçoit (y, vh) à l'inscription puis à chaque défilement, et
+     tout ce qu'il pilote est fonction de la POSITION — donc réversible.
+     SCRUB est le même verrou que sur l'accueil : sous reduced-motion ou
+     en dessous de 768 px, rien n'est piloté et tout est montré d'emblée. */
+  var REDUCE = window.matchMedia &&
+               window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  var SCRUB  = !REDUCE && window.innerWidth >= 768;
+
+  var subs = [], queued = false, wired = false;
+  function runSubs(){
+    queued = false;
+    var vh = window.innerHeight || 1;
+    for(var i = subs.length - 1; i >= 0; i--){
+      try { subs[i](vh); } catch(e){}
+    }
+  }
+  function onScroll(){
+    if(queued) return;
+    queued = true;
+    requestAnimationFrame(runSubs);
+  }
+  function addScrollSub(fn){
+    subs.push(fn);
+    if(!wired){
+      wired = true;
+      document.addEventListener('scroll', onScroll, { passive:true, capture:true });
+      window.addEventListener('resize', onScroll);
+    }
+    try { fn(window.innerHeight || 1); } catch(e){}
+  }
+  function cl01(v){ return v < 0 ? 0 : (v > 1 ? 1 : v); }
+
   function esc(s){
     return String(s == null ? '' : s)
       .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
@@ -372,7 +457,7 @@ installShell({ workTitle: 'Bibliothèque', tabs: [] });
     }
 
     elDoors.innerHTML = doors.map(function(w){
-      return '<a class="bx-door bx-rev" href="' + esc(href(w)) + '">' +
+      return '<a class="bx-door bx-paper" href="' + esc(href(w)) + '">' +
         '<span class="bx-door-q">' + esc(rd(w).entry) + '</span>' +
         '<span class="bx-door-w"><span class="bx-door-y">' + esc(w.year) + '</span>' +
         '<span class="bx-door-t">' + esc(w.title) + '</span></span>' +
@@ -473,29 +558,42 @@ installShell({ workTitle: 'Bibliothèque', tabs: [] });
       return BY_ID[best].shortTitle;
     }
 
-    elThreads.innerHTML = threads.map(function(levels){
+    /* Chaque fil retient ses ARÊTES, dans l'ordre où la plume les écrira :
+       palier du départ, puis de haut en bas. C'est cette liste, et non le
+       DOM, qui porte la séquence du tracé. */
+    INK = [];
+    elThreads.innerHTML = threads.map(function(levels, ti){
       var head = hub(levels);
-      var flow = '';
+      var edges = [], flow = '';
       levels.forEach(function(lvl, i){
         if(i > 0){
-          /* le connecteur est tireté seulement si TOUTES les arêtes qui
+          /* le trait est tireté seulement si TOUTES les arêtes qui
              franchissent ce palier sont des « primer » */
           var allPrimer = true;
           lvl.forEach(function(id){
             g.inc[id].forEach(function(src){
-              if(levels[i-1].indexOf(src) !== -1 && g.kind[src + '>' + id] !== 'primer') allPrimer = false;
+              if(levels[i-1].indexOf(src) === -1) return;
+              var k = g.kind[src + '>' + id];
+              if(k !== 'primer') allPrimer = false;
+              edges.push({ from:src, to:id, kind:k, lvl:i });
             });
           });
-          flow += '<div class="bx-link' + (allPrimer ? ' primer' : '') + '" aria-hidden="true">' +
-                    '<span class="bx-link-l">' + (allPrimer ? 'prépare' : 'puis') + '</span>' +
-                    '<span class="bx-link-r"></span>' +
+          flow += '<div class="bx-gap" data-lvl="' + i + '" aria-hidden="true">' +
+                    '<span class="bx-gap-l">' + (allPrimer ? 'prépare' : 'puis') + '</span>' +
                   '</div>';
         }
         flow += '<div class="bx-level">' + lvl.map(node).join('') + '</div>';
       });
-      return '<div class="bx-thread bx-rev"><div class="bx-thread-h">Le fil — ' +
-             esc(head) + '</div><div class="bx-flow">' + flow + '</div></div>';
+      INK.push({ ti:ti, levels:levels, edges:edges });
+      return '<div class="bx-thread bx-paper" data-t="' + ti + '">' +
+               '<div class="bx-thread-h">Le fil — ' + esc(head) + '</div>' +
+               '<div class="bx-flow">' +
+                 '<svg class="bx-ink" aria-hidden="true"></svg>' + flow +
+               '</div>' +
+             '</div>';
     }).join('');
+
+    inkThreads();
 
     // (b) le nombre de fils est compté, jamais écrit en dur
     elThreadN.textContent = threads.length === 1
@@ -516,10 +614,203 @@ installShell({ workTitle: 'Bibliothèque', tabs: [] });
     var tag = ok ? 'a' : 'span';
     var at  = ok ? ' href="' + esc(href(w)) + '"' : '';
     return '<' + tag + ' class="bx-node' + (ok ? ' here' : ' soon') + '"' + at +
+      ' data-id="' + esc(id) + '"' +
       (ok ? '' : ' title="En préparation"') + '>' +
       '<span class="bx-node-y">' + esc(w.year) + '</span>' +
       '<span class="bx-node-t">' + esc(w.shortTitle) + '</span>' +
     '</' + tag + '>';
+  }
+
+  /* ── Le fil s'écrit ──────────────────────────────────────────────
+     Pièce maîtresse de la page. Le CSS pose la mise en page, le JS MESURE
+     les nœuds réellement rendus, et le SVG relie ce qu'il a mesuré : la
+     géométrie n'est jamais devinée, donc elle survit à n'importe quelle
+     largeur, police ou longueur de titre.
+
+     Le tracé se fait au `stroke-dashoffset` d'un chemin de MASQUE, pas du
+     trait visible — sinon `stroke-dasharray` servirait à deux choses à la
+     fois (dessiner le trait tireté des « primer » ET mesurer l'avancement),
+     et les deux se battraient. Le masque révèle, le trait dessous garde son
+     style propre.
+
+     La plume est un point d'encre posé sur `getPointAtLength()` du chemin
+     en cours : on voit la ligne s'ÉCRIRE, pas apparaître. Même vocabulaire
+     que le curseur-comète du circuit sur l'accueil.
+
+     Tout est fonction de la position de défilement → strictement
+     réversible : on remonte, l'encre se retire. */
+  var NS = 'http://www.w3.org/2000/svg';
+  var INK = [];
+
+  function svgEl(name, attrs){
+    var e = document.createElementNS(NS, name);
+    for(var k in attrs) if(attrs.hasOwnProperty(k)) e.setAttribute(k, attrs[k]);
+    return e;
+  }
+
+  function inkThreads(){
+    var wraps = [].slice.call(elThreads.querySelectorAll('.bx-thread'));
+    if(!wraps.length) return;
+
+    wraps.forEach(function(wrap, i){
+      var T = INK[i];
+      if(!T) return;
+      T.wrap  = wrap;
+      T.flow  = wrap.querySelector('.bx-flow');
+      T.svg   = wrap.querySelector('.bx-ink');
+      T.nodes = {};
+      [].forEach.call(wrap.querySelectorAll('.bx-node'), function(n){
+        T.nodes[n.dataset.id] = n;
+      });
+      T.gaps = [].slice.call(wrap.querySelectorAll('.bx-gap'));
+      /* la station de départ est celle que la plume touche en premier */
+      T.roots = T.levels[0] || [];
+    });
+
+    /* Sans scrub (reduced-motion, moins de 768 px), le fil est simplement
+       écrit : traits complets, stations à l'encre, pas de plume. */
+    function repaint(){
+      if(SCRUB) onScroll();
+      else INK.forEach(function(T){ paintThread(T, 1); });
+    }
+    /* measureInk() efface les traits (dashoffset au maximum) avant de les
+       reconstruire : toute remesure DOIT être suivie d'un repaint, sinon un
+       simple changement d'orientation ferait disparaître le fil là où il
+       n'existe aucun défilement pour le redessiner. */
+    var remeasure = function(){ measureInk(); repaint(); };
+
+    measureInk();
+
+    if(SCRUB){
+      document.documentElement.classList.add('js-ink');
+      INK.forEach(function(T){
+        addScrollSub(function(vh){
+          var r = T.wrap.getBoundingClientRect();
+          /* fenêtre : le fil s'écrit pendant qu'il traverse l'écran */
+          var q = cl01((vh * 0.82 - r.top) / (r.height + vh * 0.30));
+          paintThread(T, q);
+        });
+      });
+    } else {
+      repaint();
+    }
+
+    /* La mise en page bouge encore après ce premier passage : les fiches
+       viennent d'être injectées et les polices n'ont pas fini d'arriver.
+       Même précaution que libraryScrub() sur l'accueil. */
+    requestAnimationFrame(remeasure);
+    setTimeout(remeasure, 400);
+    window.addEventListener('load', remeasure);
+    if(document.fonts && document.fonts.ready) document.fonts.ready.then(remeasure);
+    window.addEventListener('resize', remeasure);
+  }
+
+  function measureInk(){
+    INK.forEach(function(T){
+      if(!T.flow || !T.svg) return;
+      var W = Math.max(T.flow.scrollWidth, T.flow.offsetWidth);
+      var H = T.flow.offsetHeight;
+      if(!W || !H) return;
+      T.svg.setAttribute('width', W);
+      T.svg.setAttribute('height', H);
+      T.svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+      while(T.svg.firstChild) T.svg.removeChild(T.svg.firstChild);
+
+      var defs = svgEl('defs', {});
+      T.svg.appendChild(defs);
+      var fr = T.flow.getBoundingClientRect();
+      T.paths = [];
+
+      T.edges.forEach(function(e, k){
+        var a = T.nodes[e.from], b = T.nodes[e.to];
+        if(!a || !b) return;
+        var ar = a.getBoundingClientRect(), br = b.getBoundingClientRect();
+        var x1 = ar.right - fr.left, y1 = ar.top + ar.height / 2 - fr.top;
+        var x2 = br.left  - fr.left, y2 = br.top + br.height / 2 - fr.top;
+        var dx = Math.max(16, (x2 - x1) * 0.55);
+        /* la courbe, puis les deux barbes de la pointe : la plume arrive et
+           donne le coup de flèche, elle n'est pas posée d'avance */
+        var d = 'M' + x1 + ' ' + y1 +
+                'C' + (x1 + dx) + ' ' + y1 + ',' + (x2 - dx) + ' ' + y2 +
+                ',' + x2 + ' ' + y2 +
+                'M' + x2 + ' ' + y2 + 'l-7 -4.5' +
+                'M' + x2 + ' ' + y2 + 'l-7 4.5';
+
+        var id = 'ink-' + T.ti + '-' + k;
+        var mask = svgEl('mask', { id:id, maskUnits:'userSpaceOnUse',
+                                   x:-20, y:-20, width:W + 40, height:H + 40 });
+        var rev = svgEl('path', { d:d, fill:'none', stroke:'#fff',
+                                  'stroke-width':7, 'stroke-linecap':'round' });
+        mask.appendChild(rev);
+        defs.appendChild(mask);
+
+        var vis = svgEl('path', { d:d, mask:'url(#' + id + ')' });
+        if(e.kind === 'primer'){
+          vis.setAttribute('class', 'primer');
+          vis.setAttribute('stroke-dasharray', '5 5');
+        }
+        T.svg.appendChild(vis);
+
+        var len = rev.getTotalLength();
+        rev.style.strokeDasharray  = len;
+        rev.style.strokeDashoffset = len;
+        T.paths.push({ rev:rev, vis:vis, len:len, e:e });
+      });
+
+      /* la plume : un point d'encre et sa lueur */
+      T.halo = svgEl('circle', { class:'bx-nib-halo', r:9 });
+      T.nib  = svgEl('circle', { class:'bx-nib', r:3 });
+      T.svg.appendChild(T.halo);
+      T.svg.appendChild(T.nib);
+    });
+  }
+
+  /* q : avancement du fil, 0 → 1. Écrit les traits, allume les stations,
+     et pose la plume à la tête du trait en cours. */
+  function paintThread(T, q){
+    if(!T.paths || !T.paths.length) return;
+    var n = T.paths.length, lit = {}, head = null;
+
+    T.roots.forEach(function(id){ lit[id] = cl01(q / 0.08); });
+
+    for(var k = 0; k < n; k++){
+      var P = T.paths[k];
+      /* Le seuil de 1e-4 n'est pas de la coquetterie : (1 - 4/5) * 5 vaut
+         0.9999999999999998 en flottant, si bien que la dernière arête d'un
+         fil de cinq n'était JAMAIS considérée comme finie — la plume restait
+         allumée en bout de course, sur un trait pourtant complet. */
+      var t = cl01((q - k / n) * n);
+      if(t > 1 - 1e-4) t = 1;
+      P.rev.style.strokeDashoffset = (P.len * (1 - t)).toFixed(2);
+      /* la station prend l'encre PENDANT que le trait l'atteint */
+      lit[P.e.to] = Math.max(lit[P.e.to] || 0, t);
+      if(t > 0 && t < 1) head = { P:P, t:t };
+    }
+
+    for(var id in T.nodes){
+      if(!T.nodes.hasOwnProperty(id)) continue;
+      T.nodes[id].style.setProperty('--lit', (lit[id] || 0).toFixed(3));
+    }
+    T.gaps.forEach(function(gp){
+      var l = 0, lv = +gp.dataset.lvl;
+      T.paths.forEach(function(P, k){
+        if(P.e.lvl === lv) l = Math.max(l, Math.min(1, cl01((q - k / n) * n)));
+      });
+      gp.style.setProperty('--lit', l.toFixed(3));
+    });
+
+    if(T.nib){
+      if(head){
+        var pt = head.P.rev.getPointAtLength(head.P.len * head.t);
+        T.nib.setAttribute('cx', pt.x);  T.nib.setAttribute('cy', pt.y);
+        T.halo.setAttribute('cx', pt.x); T.halo.setAttribute('cy', pt.y);
+        T.nib.style.opacity = '1';
+        T.halo.style.opacity = '.20';
+      } else {
+        T.nib.style.opacity = '0';
+        T.halo.style.opacity = '0';
+      }
+    }
   }
 
   /* ── 3. Le corpus ──────────────────────────────────────────────── */
@@ -533,7 +824,7 @@ installShell({ workTitle: 'Bibliothèque', tabs: [] });
     if(r.after && r.after.length)  rel.push('<b>À lire après</b> ' + esc(listDot(r.after)));
     if(r.primer && r.primer.length) rel.push('<b>Préparé par</b> ' + esc(listDot(r.primer)));
 
-    return '<article class="bx-work bx-rev">' +
+    return '<article class="bx-work">' +
       '<div class="bx-work-head">' +
         '<span class="bx-work-y">' + esc(w.year) + '</span>' +
         '<h3 class="bx-work-t">' + esc(w.title) + '</h3>' +
@@ -558,10 +849,7 @@ installShell({ workTitle: 'Bibliothèque', tabs: [] });
     '</article>';
   }
 
-  /* `animate` vaut false quand le lecteur vient de cliquer un filtre : les
-     cartes doivent apparaître tout de suite. Rejouer le fondu à chaque clic
-     ferait clignoter une liste déjà sous les yeux. */
-  function renderCorpus(animate){
+  function renderCorpus(){
     var list = WORKS.filter(function(w){
       return filter === 'all' ||
              (filter === 'available' && isOk(w)) ||
@@ -588,7 +876,10 @@ installShell({ workTitle: 'Bibliothèque', tabs: [] });
         '</section>';
       }).join('');
     }
-    arm(animate !== false);
+    /* les fiches viennent d'être injectées : on leur donne tout de suite
+       la pose que leur position commande, sinon elles restent à zéro
+       jusqu'au prochain défilement */
+    runSubs();
   }
 
   function chips(el, opts, current, onPick){
@@ -610,30 +901,36 @@ installShell({ workTitle: 'Bibliothèque', tabs: [] });
       { id:'all',       label:'Toutes (' + WORKS.length + ')' },
       { id:'available', label:'Disponibles (' + nOk + ')' },
       { id:'planned',   label:'En préparation (' + (WORKS.length - nOk) + ')' }
-    ], filter, function(id){ filter = id; renderTools(); renderCorpus(false); });
+    ], filter, function(id){ filter = id; renderTools(); renderCorpus(); });
 
     chips(elSort, [
       { id:'parcours', label:'Par parcours' },
       { id:'annee',    label:'Par année' }
-    ], sort, function(id){ sort = id; renderTools(); renderCorpus(false); });
+    ], sort, function(id){ sort = id; renderTools(); renderCorpus(); });
   }
 
-  /* ── Révélation au défilement ──────────────────────────────────── */
-  var io = null;
-  if(window.IntersectionObserver &&
-     !window.matchMedia('(prefers-reduced-motion:reduce)').matches){
-    io = new IntersectionObserver(function(entries){
-      entries.forEach(function(e){
-        if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
-      });
-    }, { rootMargin:'0px 0px -8% 0px', threshold:.05 });
-  }
-  function arm(animate){
-    var els = document.querySelectorAll('.bx-rev:not(.in)');
-    for(var i = 0; i < els.length; i++){
-      if(io && animate !== false) io.observe(els[i]);
-      else els[i].classList.add('in');
-    }
+  /* ── Les feuillets se posent ─────────────────────────────────────
+     Remplace le fondu d'apparition. Un fondu se déclenche une fois et ne
+     revient pas ; la pose est fonction de la position de défilement, donc
+     réversible — et surtout un changement de filtre re-rend les fiches à
+     leur pose JUSTE, sans clignoter, puisque rien n'est « déjà joué ».
+     Le sélecteur est relu à chaque passage : le corpus est re-rendu à
+     chaque clic de filtre, un abonnement par carte ne survivrait pas. */
+  function poseCards(){
+    if(!SCRUB) return;
+    document.documentElement.classList.add('js-pose');
+    var TILT = [-2.4, 1.8, -1.4, 2.1];
+    addScrollSub(function(vh){
+      var els = document.querySelectorAll('#bxCorpus .bx-work, #bxDoors .bx-door');
+      for(var i = 0; i < els.length; i++){
+        var el = els[i], r = el.getBoundingClientRect();
+        var t = cl01((vh * 0.94 - r.top) / (vh * 0.34));
+        el.style.setProperty('--pose', (t * t * (3 - 2 * t)).toFixed(3));
+        if(!el.style.getPropertyValue('--tilt')){
+          el.style.setProperty('--tilt', TILT[i % TILT.length] + 'deg');
+        }
+      }
+    });
   }
 
   /* ── Chargement ────────────────────────────────────────────────── */
@@ -653,6 +950,7 @@ installShell({ workTitle: 'Bibliothèque', tabs: [] });
       renderThreads();
       renderTools();
       renderCorpus();
+      poseCards();
 
       /* Les trois sections sont peuplées par ce fetch : au moment où le
          navigateur a résolu l'ancre, elles étaient vides et la page a

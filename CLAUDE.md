@@ -670,6 +670,78 @@ pour le point médian entre titres dans « Préparé par » : plusieurs titres d
 corpus contiennent déjà un « et » (*Travail salarié **et** capital*), et
 l'énumération devenait illisible. Le « et » reste en prose, où il est juste.
 
+### Elle est vivante — encre sur papier
+
+Première version : typographie sur aplat sombre, sans image, avec un simple
+fondu d'`IntersectionObserver`. **Jugée morte par le propriétaire, à raison.**
+Le refus des images était une erreur d'analyse de ma part : la vie de l'accueil
+ne tient pas qu'au mouvement, elle tient d'abord à la MATIÈRE. Et le fondu est
+précisément ce que l'accueil a remplacé partout par du **scrub** — tout y est
+fonction de la position de défilement, donc réversible.
+
+Le monde matériel de cette page est donc **l'encre sur le papier**, distinct de
+celui de l'accueil (photographie, bougie, chariot) mais de la même famille :
+
+- **Le grain** (`.bx-paper`) — le fac-similé du manuscrit, très assombri et
+  légèrement flouté, en `mix-blend-mode:screen`. C'est une TEXTURE, pas une
+  image : on n'en montre pas le contenu, seulement la fibre, donc pas de
+  légende à lui donner. Plus visible sur les portes (`.46`) que dans les fils
+  (`.34`) — on pousse une porte, on ne pousse pas un diagramme.
+- **Le sol** — le carnet quadrillé des chiffres clés de l'accueil, sous `#fil` :
+  le trait doit être tracé SUR quelque chose.
+- **La pose** (`poseCards`) — les fiches arrivent de biais et s'aplatissent,
+  le geste de `.hs-do-item`. Le sélecteur est **relu à chaque passage** : le
+  corpus est re-rendu à chaque clic de filtre, un abonnement par carte n'y
+  survivrait pas. Bénéfice inattendu : un changement de filtre n'a plus besoin
+  d'être traité à part, la pose étant fonction de la position, les nouvelles
+  fiches arrivent justes du premier coup.
+
+### La pièce maîtresse — le fil s'écrit (`inkThreads`)
+
+Le diagramme de « ce qui prépare quoi » ne s'affiche pas : il **s'écrit**. Une
+plume avance au défilement, les traits se tracent derrière elle, et chaque
+œuvre **prend l'encre** quand la plume l'atteint. Rime avec le manuscrit du
+héros, avec « l'encre qui prend » des titres de l'accueil et avec le
+curseur-comète du circuit.
+
+**Le CSS pose, le JS mesure, le SVG dessine.** La géométrie n'est jamais
+devinée : on lit les rects réels des nœuds une fois rendus, donc elle survit à
+n'importe quelle largeur, police ou longueur de titre. Il n'y a **pas de
+WebGL** — un troisième contexte pour huit traits ne se justifiait pas.
+
+**Le tracé se fait sur un chemin de MASQUE, pas sur le trait visible.** C'est le
+point non négociable : `stroke-dasharray` servirait sinon à deux choses à la
+fois — dessiner le tireté des `primer` ET mesurer l'avancement — et les deux se
+battraient. Le masque révèle, le trait dessous garde son style. Corollaire déjà
+tombé une fois : ne **jamais** écrire `stroke-dasharray` en CSS sur ces
+chemins ; une déclaration CSS bat toujours l'attribut de présentation posé par
+le JS, et le tireté redevient plein.
+
+**La pointe de flèche fait partie du chemin** (deux barbes après la courbe) :
+la plume arrive et donne le coup de flèche, elle n'est pas posée d'avance. Un
+`marker-end` apparaîtrait dès le premier pixel tracé.
+
+**Pièges rencontrés, à ne pas refaire :**
+
+1. **`(1 - 4/5) * 5` vaut `0.9999999999999998`.** La dernière arête d'un fil de
+   cinq n'était donc jamais « finie » et la plume restait allumée en bout de
+   course, sur un trait pourtant complet. D'où le `if(t > 1 - 1e-4) t = 1`.
+2. **Toute remesure doit être suivie d'un repaint.** `measureInk()` reconstruit
+   les chemins avec le `dashoffset` au maximum, c'est-à-dire effacés. Sans
+   scrub — mobile, reduced-motion — aucun défilement ne viendra les redessiner :
+   un simple changement d'orientation faisait disparaître le fil.
+3. **La station prend l'encre, elle ne se déplace pas.** Un premier essai
+   décalait les nœuds éteints de 7 px ; comme le trait est mesuré une fois, la
+   pointe de la flèche ne tombait plus sur le bord de la fiche.
+4. **Le mot du connecteur est posé SUR le trait** et devenait illisible dès
+   qu'une fourche le traversait. Il porte donc un cartouche opaque — la
+   convention du dessin technique : la ligne passe derrière la légende.
+
+Le pilote de défilement est **local** (`addScrollSub` réduit, en tête du script
+de la page) : `home.js` est propre à l'accueil et n'a rien à faire ici. Même
+verrou `SCRUB` que l'accueil — sous reduced-motion ou en dessous de 768 px,
+rien n'est piloté, le fil est simplement écrit d'emblée, sans plume.
+
 ### Sidebar : « Accueil » et « Bibliothèque » sont deux choses
 
 Avant, « Bibliothèque » menait à l'accueil et le site n'avait aucun retour
