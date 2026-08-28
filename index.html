@@ -586,8 +586,43 @@ body.lm-driving .lm-drive-hud{opacity:1;visibility:visible;transform:translate(-
   right:var(--candle-r);bottom:clamp(8px,2vh,26px);
   transform:translateX(50%);width:52px;height:132px;}
 .hs-closer-candle span{position:absolute;left:50%;transform:translateX(-50%);}
-.cd-holder{bottom:0;width:52px;height:12px;border-radius:50%;
-  background:radial-gradient(ellipse at 50% 28%,#c9a86a 0%,#9a7b30 55%,#6d5620 100%);}
+/* ── LE BOUGEOIR. Ce n'était qu'une pastille plate : une pièce de monnaie
+   posée sous une bougie, sans épaisseur ni prise sur la cire. Un bougeoir,
+   c'est une COUPELLE large et basse et une DOUILLE qui serre la bougie —
+   et c'est la douille qui manquait le plus : sans elle la cire se posait
+   sur le disque au lieu d'y être tenue.
+   Chaque pièce est faite de deux morceaux : le CORPS (le flanc qu'on voit
+   de face) et le DESSUS (l'ellipse qu'on voit en plongée, ::before). C'est
+   ce décalage de quelques pixels entre les deux qui donne l'épaisseur.
+   Un laiton ne se lit pas à sa couleur mais à SA BANDE SPÉCULAIRE : d'où
+   les dégradés horizontaux à sept arrêts — sombre aux bords où le métal
+   fuit, éclat étroit au milieu — plutôt qu'un aplat. La flamme étant juste
+   au-dessus, les faces du dessus sont éclairées par le centre. ── */
+.cd-pan{bottom:2px;width:52px;height:11px;border-radius:50% / 46%;
+  /* la TRANCHE, franchement plus sombre que le dessus : c'est le dessous
+     du plateau, la flamme ne l'atteint pas. Elle ne se voit qu'en
+     croissant sous la face du dessus — c'est tout ce qu'il faut. */
+  background:linear-gradient(90deg,#1d1505 0%,#4e3d13 17%,#856820 41%,
+    #a3843a 50%,#7a5f1e 61%,#463710 84%,#1d1505 100%);
+  box-shadow:0 4px 10px -3px rgba(0,0,0,.85),0 12px 28px -9px rgba(0,0,0,.65);}
+.cd-pan::before{content:"";position:absolute;left:1px;right:1px;top:-4px;height:10px;
+  border-radius:50%;
+  /* L'éclat ne va PAS au centre : la douille l'occulte, et surtout elle
+     porte son ombre là. Ce qu'on voit du plateau, c'est la COURONNE entre
+     la douille et le bord — c'est donc là que le laiton doit briller,
+     centre dans l'ombre, bord repris par un filet clair. */
+  background:radial-gradient(ellipse at 50% 52%,
+    #3f3110 0%,#5c4816 28%,#a3843a 52%,#ead79e 72%,#c2a253 86%,#6a5320 100%);
+  box-shadow:inset 0 0 0 1px rgba(255,240,205,.20);}
+.cd-socket{bottom:8px;width:27px;height:13px;border-radius:50% / 26%;
+  background:linear-gradient(90deg,#1d1505 0%,#5a4717 15%,#a3843a 33%,
+    #d9bd77 46%,#a3843a 60%,#4e3d13 85%,#1d1505 100%);}
+/* la lèvre : sombre au centre (c'est un trou, la cire y entre), claire au
+   bord — l'anneau de métal que la flamme prend juste au-dessus */
+.cd-socket::before{content:"";position:absolute;left:-1px;right:-1px;top:-3px;height:8px;
+  border-radius:50%;
+  background:radial-gradient(ellipse at 50% 58%,
+    #2b2109 0%,#2b2109 30%,#7d6226 62%,#dcc687 86%,#fff3d2 100%);}
 .cd-wax{bottom:9px;width:23px;height:80px;border-radius:4px 4px 2px 2px;
   background:linear-gradient(90deg,#a2926f 0%,#e9ddc2 42%,#f5ecd6 58%,#8d7d5c 100%);}
 .cd-wick{bottom:88px;width:2px;height:7px;border-radius:1px;background:#2a2016;}
@@ -608,7 +643,7 @@ body.lm-driving .lm-drive-hud{opacity:1;visibility:visible;transform:translate(-
 @media(max-width:820px){
   /* origine en pied : la bougie rapetisse vers sa base et reste sous le
      bouton, qui prend presque toute la largeur sur petit écran */
-  .hs-closer-candle{bottom:0;transform:translateX(50%) scale(.66);
+  .hs-closer-candle{bottom:6px;transform:translateX(50%) scale(.66);
     transform-origin:50% 100%;}
 }
 @media(max-width:820px){
@@ -751,6 +786,12 @@ html.no-motion .hs-ms-cartel{display:none;}
   44%{filter:brightness(1.02);} 52%{filter:brightness(.84);}
   63%{filter:brightness(1.06);} 78%{filter:brightness(.92);}
   90%{filter:brightness(1.04);} 100%{filter:brightness(1);}}
+/* le laiton et la cire se réchauffent avec la flamme : la bande arrive sur
+   une bougie éteinte, et le métal ne peut pas briller avant elle. Aucune de
+   ces trois pièces n'est animée par ailleurs — poser un `filter` ici n'entre
+   donc pas en conflit avec le vacillement, qui vit sur le halo et la lueur. */
+.js-candle .cd-pan,.js-candle .cd-socket,.js-candle .cd-wax{
+  filter:brightness(calc(.52 + .48 * var(--lum,1)));}
 .js-candle .hs-closer-inner{opacity:calc(.08 + .92 * var(--lum,1));
   transform:translateY(calc((1 - var(--lum,1)) * 14px));}
 .js-candle .hs-closer .btn-filled{opacity:calc(.18 + .82 * var(--lum,1));
@@ -1152,7 +1193,8 @@ html.no-motion header.topbar,html.no-motion header.topbar .topbar-in{transition:
         <span class="cd-flame"></span>
         <span class="cd-wick"></span>
         <span class="cd-wax"></span>
-        <span class="cd-holder"></span>
+        <span class="cd-pan"></span>
+        <span class="cd-socket"></span>
       </div>
       <div class="hs-closer-inner">
         <p class="hs-sec-label">Pour commencer</p>
