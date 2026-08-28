@@ -1660,10 +1660,10 @@ chapitre par chapitre. C'est le rôle attendu d'une page de livre.
   cousin du `material.visible` déjà documenté.
 - `SHELL.commune` (aperçus lecture seule) reste filtré `hidden=false` et
   sans actions — ne pas l'équiper.
-- **Non testé en écriture** : aucune écriture n'a été jouée contre la
-  base (c'est la prod). Vérifié : gating déconnecté (modale), rendu des
-  trois surfaces, console propre sur les quatre pages du shell. Le
-  parcours modérateur réel attend une ligne dans `moderators`.
+- **Validé en production par le propriétaire** (août 2026) : SQL rejoué,
+  sa ligne insérée dans `moderators`, puis signalement, masquage
+  (registre ET fiche 3D — le feuillet quitte la table) et
+  rétablissement testés en vrai. Tout fonctionne.
 
 ## Conventions de travail
 
