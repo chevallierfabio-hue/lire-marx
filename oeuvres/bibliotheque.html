@@ -89,24 +89,26 @@ header.topbar{background:rgba(21,16,11,.96);border-bottom-color:var(--line);}
 .bx3-ui{display:none;}
 .js-bib3d .bx3-ui{display:block;}
 
-/* L'entrée : le titre de la page, par-dessus le plan large. S'efface dès
-   qu'on avance. Décalée du bord gauche pour respirer après la sidebar. */
-.bx3-intro{position:fixed;z-index:10;top:50%;transform:translateY(-52%);
-  left:clamp(240px,20vw,340px);max-width:34rem;pointer-events:none;
+/* L'entrée : le texte est ÉCRIT SUR LA FEUILLE volée par le courant
+   d'air. Le JS pose ce bloc sur le rectangle projeté de la feuille 3D
+   (left/top/width/height/font-size en ligne, tout l'intérieur en em) —
+   le DOM reste net et cliquable, la feuille fournit le papier. Encre
+   sur papier, donc : plus de crème sur sombre ni d'ombre portée. */
+.bx3-intro{position:fixed;z-index:10;left:0;top:0;pointer-events:none;
+  box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;
+  padding:7% 9% 6%;color:#2b1c0e;opacity:0;
   transition:opacity .2s linear;}
-body.sb-collapsed .bx3-intro{left:clamp(56px,9vw,180px);}
-.bx3-intro .bx3-label{font-size:.72rem;font-weight:600;letter-spacing:.11em;
-  text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.bx3-intro .bx3-label{font-size:.62em;font-weight:600;letter-spacing:.11em;
+  text-transform:uppercase;color:#8a6420;margin-bottom:.55em;}
 .bx3-h1{font-family:'Fraunces',serif;font-weight:900;
-  font-size:clamp(2.2rem,4.6vw,3.6rem);line-height:1.02;letter-spacing:-.03em;
-  margin-bottom:14px;text-shadow:0 2px 30px rgba(0,0,0,.8);}
-.bx3-h1 em{font-style:italic;font-weight:500;color:var(--gold);}
-.bx3-lede{font-size:.98rem;line-height:1.7;color:var(--muted);max-width:46ch;
-  text-shadow:0 1px 18px rgba(0,0,0,.9);}
-.bx3-count{margin-top:14px;font-size:.8rem;color:var(--const);}
-.bx3-count b{color:var(--ink-soft);font-weight:600;}
-.bx3-legend{margin-top:20px;display:flex;flex-direction:column;gap:7px;
-  font-size:.78rem;color:var(--muted);}
+  font-size:2.35em;line-height:1.02;letter-spacing:-.03em;
+  margin-bottom:.35em;color:#241505;}
+.bx3-h1 em{font-style:italic;font-weight:500;color:#8a6420;}
+.bx3-lede{font-size:.92em;line-height:1.65;color:#57432a;max-width:46ch;}
+.bx3-count{margin-top:.8em;font-size:.78em;color:#6b5638;}
+.bx3-count b{color:#241505;font-weight:600;}
+.bx3-legend{margin-top:1em;display:flex;flex-direction:column;gap:.45em;
+  font-size:.74em;color:#57432a;}
 .bx3-legend span{display:inline-flex;align-items:center;gap:10px;}
 .bx3-legend i{flex:0 0 auto;display:block;width:14px;height:14px;border-radius:3px;}
 .bx3-legend .lg-book{background:linear-gradient(180deg,#7a4a1e,#4a2c12);
@@ -114,10 +116,10 @@ body.sb-collapsed .bx3-intro{left:clamp(56px,9vw,180px);}
 .bx3-legend .lg-bundle{background:#6f5d42;
   box-shadow:inset 0 -4px 0 rgba(21,16,11,.45),inset 0 5px 0 rgba(21,16,11,.0);}
 .bx3-legend .lg-ribbon{background:var(--accent);width:6px;height:16px;margin:0 4px;}
-.bx3-alt{margin-top:22px;pointer-events:auto;}
-.bx3-alt button{font:600 .78rem/1 var(--f-ui);color:var(--const);background:none;
-  border:0;border-bottom:1px solid var(--line);padding:0 0 3px;cursor:pointer;}
-.bx3-alt button:hover{color:var(--ink-soft);border-color:var(--gold);}
+.bx3-alt{margin-top:1.2em;pointer-events:auto;}
+.bx3-alt button{font:600 .76em/1 var(--f-ui);color:#8c2415;background:none;
+  border:0;border-bottom:1px solid #b09468;padding:0 0 3px;cursor:pointer;}
+.bx3-alt button:hover{color:#5e1508;border-color:#8a6420;}
 
 /* L'invite à descendre : bas de l'écran, disparaît avec l'intro. */
 .bx3-hint{position:fixed;z-index:10;left:50%;bottom:26px;transform:translateX(-50%);
@@ -144,17 +146,19 @@ body.sb-collapsed .bx3-caption{left:clamp(28px,6vw,120px);}
   font-style:italic;font-size:.84rem;line-height:1.5;color:var(--gold);
   opacity:.9;text-shadow:0 1px 12px rgba(0,0,0,.9);}
 
-/* L'entrée du titre : les lignes se posent l'une après l'autre. `backwards`
-   et jamais `both` — l'opacité du conteneur est pilotée par le JS au
-   défilement, un fill-mode persistant la lui volerait. */
+/* L'encre prend sur la feuille : les lignes se posent l'une après
+   l'autre, déclenchées quand la feuille S'EST POSÉE (.lit, ajoutée par
+   le JS), pas au chargement. `backwards` et jamais `both` — l'opacité
+   du conteneur est pilotée par le JS au défilement, un fill-mode
+   persistant la lui volerait. */
 @keyframes bx3-rise{from{opacity:0;transform:translateY(16px)}
   to{opacity:1;transform:none}}
-.js-bib3d .bx3-intro>*{animation:bx3-rise .8s cubic-bezier(.2,.9,.25,1) backwards;}
-.js-bib3d .bx3-intro>*:nth-child(2){animation-delay:.1s}
-.js-bib3d .bx3-intro>*:nth-child(3){animation-delay:.2s}
-.js-bib3d .bx3-intro>*:nth-child(4){animation-delay:.32s}
-.js-bib3d .bx3-intro>*:nth-child(5){animation-delay:.44s}
-.js-bib3d .bx3-intro>*:nth-child(6){animation-delay:.56s}
+.bx3-intro.lit>*{animation:bx3-rise .8s cubic-bezier(.2,.9,.25,1) backwards;}
+.bx3-intro.lit>*:nth-child(2){animation-delay:.1s}
+.bx3-intro.lit>*:nth-child(3){animation-delay:.2s}
+.bx3-intro.lit>*:nth-child(4){animation-delay:.32s}
+.bx3-intro.lit>*:nth-child(5){animation-delay:.44s}
+.bx3-intro.lit>*:nth-child(6){animation-delay:.56s}
 .js-bib3d .bx3-hint{animation:bx3-rise .8s .9s cubic-bezier(.2,.9,.25,1) backwards;}
 
 /* Le rail : les quatre rayons, pour sauter de l'un à l'autre. */
@@ -181,17 +185,20 @@ body.sb-collapsed .bx3-caption{left:clamp(28px,6vw,120px);}
   font-weight:500;font-size:.86rem;color:var(--gold);
   text-shadow:0 1px 12px rgba(0,0,0,.95);}
 
-/* La fin de l'allée. */
-.bx3-end{position:fixed;z-index:10;top:50%;left:50%;transform:translate(-50%,-50%);
-  text-align:center;max-width:34rem;pointer-events:none;transition:opacity .25s linear;}
-.bx3-end .bx3-h1{font-size:clamp(1.7rem,3.4vw,2.5rem);}
+/* La fin de l'allée : le VERSO de la même feuille, revenue se poser
+   devant nous. Posée elle aussi sur le rectangle projeté. */
+.bx3-end{position:fixed;z-index:10;left:0;top:0;pointer-events:none;
+  box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;
+  padding:8% 9%;text-align:center;color:#2b1c0e;opacity:0;
+  transition:opacity .25s linear;}
+.bx3-end .bx3-h1{font-size:1.9em;}
 .bx3-end .bx3-lede{margin:0 auto;}
-.bx3-end-acts{margin-top:22px;display:flex;gap:12px;justify-content:center;
+.bx3-end-acts{margin-top:1.4em;display:flex;gap:.7em;justify-content:center;
   flex-wrap:wrap;pointer-events:auto;}
-.bx3-btn{display:inline-block;font:600 .86rem/1 var(--f-ui);text-decoration:none;
-  border-radius:100px;padding:12px 22px;cursor:pointer;transition:transform .15s,opacity .15s;}
-.bx3-btn.full{background:var(--text);color:var(--bg);border:0;}
-.bx3-btn.ghost{background:transparent;color:var(--ink-soft);border:1px solid var(--border);}
+.bx3-btn{display:inline-block;font:600 .8em/1 var(--f-ui);text-decoration:none;
+  border-radius:100px;padding:.85em 1.5em;cursor:pointer;transition:transform .15s,opacity .15s;}
+.bx3-btn.full{background:#2b1c0e;color:#e8dcc0;border:0;}
+.bx3-btn.ghost{background:transparent;color:#4a3826;border:1px solid #8a7454;}
 .bx3-btn:hover{transform:translateY(-1px);}
 .bx3-btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
 
@@ -312,7 +319,6 @@ body.sb-collapsed .bx3-caption{left:clamp(28px,6vw,120px);}
 
 @media(max-width:860px){
   .bx3-caption{left:24px;right:24px;bottom:74px;}
-  .bx3-intro{left:24px;right:24px;}
 }
 @media(prefers-reduced-motion:reduce){
   .bx3-hint i{animation:none;}
@@ -839,6 +845,46 @@ installShell({ workTitle: 'Bibliothèque', tabs: [] });
     carried.position.set(0.55, -0.43, -1.15);  /* x et y recalés par focale dans la boucle */
     camera.add(carried);
 
+    /* ── La feuille volante ─────────────────────────────────────────
+       Elle entre par la fenêtre au chargement, portée par le courant
+       d'air, et vient se figer devant nous : c'est ELLE qui porte le
+       texte d'introduction (le DOM se pose sur son rectangle projeté —
+       le papier est à la 3D, l'encre au DOM, qui reste net et
+       cliquable). Le défilement la relance pendant que la caméra
+       plonge — réversible — et elle revient à la fin, RETOURNÉE : le
+       texte de fin est à son verso. Enfant de la caméra : toute sa
+       chorégraphie est écrite en espace-caméra. */
+    var SHEET_W = 1.42, SHEET_H = 1.86;
+    var SHEET_FRZ = { x: -0.18, y: 0.02, z: -1.62 };
+    function paperTexture(){
+      var W = 256, H = 336;
+      var cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+      var g = cv.getContext('2d');
+      var gr = g.createLinearGradient(0, 0, W, H);
+      gr.addColorStop(0, '#ecdfc2'); gr.addColorStop(0.5, '#e4d5b4');
+      gr.addColorStop(1, '#d9c8a4');
+      g.fillStyle = gr; g.fillRect(0, 0, W, H);
+      for(var i = 0; i < 260; i++){
+        g.fillStyle = 'rgba(120,90,50,' + (0.02 + Math.random() * 0.05) + ')';
+        g.fillRect(Math.random() * W, Math.random() * H, 1.3, 1.3);
+      }
+      /* le pli d'une lettre, et des bords fatigués */
+      g.fillStyle = 'rgba(90,64,34,.10)'; g.fillRect(0, H * 0.36, W, 2);
+      g.strokeStyle = 'rgba(90,64,34,.22)'; g.lineWidth = 5;
+      g.strokeRect(1, 1, W - 2, H - 2);
+      return tex(cv);
+    }
+    /* MeshBasic et non Lambert : à 50 cm de la flamme, un matériau
+       éclairé brûlait au jaune uniforme et le grain disparaissait — le
+       papier porte sa lumière dans sa texture */
+    var sheet = new THREE.Mesh(
+      new THREE.PlaneGeometry(SHEET_W, SHEET_H, 1, 1),
+      new THREE.MeshBasicMaterial({ map: paperTexture(), side: THREE.DoubleSide,
+        fog: false }));
+    sheet.visible = false;
+    camera.add(sheet);
+    var bV = new THREE.Vector3();
+
     /* Cuirs par rayon : une famille brun / rouge / or, jamais criarde.
        L'ordre suit readingGroups ; une couleur par groupe, en boucle si
        le corpus gagnait un cinquième rayon. */
@@ -1024,6 +1070,7 @@ installShell({ workTitle: 'Bibliothèque', tabs: [] });
        Du décor, jamais des données : rien ici ne représente une œuvre,
        et tout est construit à partir des mesures réelles du meuble. */
     var moonLight = null;   /* renforcée sur les plans d'ensemble */
+    var sash = null, winX = -2.3, winY = 1.4;   /* le vantail, et la fenêtre */
     function furnish(){
       var floorY = -4.59;
 
@@ -1068,22 +1115,32 @@ installShell({ workTitle: 'Bibliothèque', tabs: [] });
          un froid bleu qui répond à la flamme portée */
       (function(){
         var wx = -2.3, wy = 1.4;
+        winX = wx; winY = wy;
         var frame = new THREE.MeshLambertMaterial({ color: 0x241408 });
         var mkBar = function(w, h, px, py){
           var b = new THREE.Mesh(new THREE.BoxGeometry(w, h, 0.08), frame);
           b.position.set(wx + px, wy + py, -0.86);
           group3d.add(b);
         };
+        /* le dormant reste ; le VANTAIL (vitre + croisillons) est un
+           groupe à charnière gauche, que l'envol de la feuille ouvre */
         mkBar(1.7, 0.1, 0, 1.25); mkBar(1.7, 0.1, 0, -1.25);
         mkBar(0.1, 2.6, -0.8, 0); mkBar(0.1, 2.6, 0.8, 0);
-        mkBar(0.06, 2.4, 0, 0);   mkBar(1.5, 0.06, 0, 0);
+        sash = new THREE.Group();
+        sash.position.set(wx - 0.75, wy, -0.87);
+        var sv = new THREE.Mesh(new THREE.BoxGeometry(0.06, 2.4, 0.06), frame);
+        sv.position.set(0.75, 0, 0); sash.add(sv);
+        var sh2 = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.06, 0.06), frame);
+        sh2.position.set(0.75, 0, 0); sash.add(sh2);
         /* fog:false sur tout l'additif de la lune : le brouillard lave un
            matériau additif vers sa propre couleur et l'éteint */
         var glass = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 2.4),
           new THREE.MeshBasicMaterial({ color: 0xa8c4de, transparent: true, fog: false,
-            opacity: 0.42, blending: THREE.AdditiveBlending, depthWrite: false }));
-        glass.position.set(wx, wy, -0.89);
-        group3d.add(glass);
+            opacity: 0.42, blending: THREE.AdditiveBlending, depthWrite: false,
+            side: THREE.DoubleSide }));
+        glass.position.set(0.75, 0, -0.02);
+        sash.add(glass);
+        group3d.add(sash);
         /* la lune déborde du châssis : une lueur derrière les barreaux,
            et une flaque bleue posée sur le parquet devant la fenêtre —
            sans elles, la fenêtre se perdait dans le mur sombre */
@@ -1328,15 +1385,46 @@ installShell({ workTitle: 'Bibliothèque', tabs: [] });
       scrollToX(bays[+b.dataset.bay].cx - LEAD, true);
     });
 
+    /* Pose un bloc DOM sur le rectangle projeté de la feuille : le
+       papier est à la 3D, l'encre au DOM. Recalculé à chaque image —
+       le texte suit la respiration de la feuille. La taille de police
+       est quantifiée au demi-pixel, sinon le texte se recompose en
+       permanence. */
+    function sheetRect(el){
+      camera.updateMatrixWorld(true);
+      var minX = 2, minY = 2, maxX = -2, maxY = -2;
+      for(var ci = 0; ci < 4; ci++){
+        bV.set(SHEET_W / 2 * (ci % 2 ? 1 : -1),
+               SHEET_H / 2 * (ci < 2 ? 1 : -1), 0);
+        sheet.localToWorld(bV); bV.project(camera);
+        if(bV.x < minX) minX = bV.x;
+        if(bV.x > maxX) maxX = bV.x;
+        if(bV.y < minY) minY = bV.y;
+        if(bV.y > maxY) maxY = bV.y;
+      }
+      var vw = window.innerWidth, vh = window.innerHeight;
+      var L = (minX * 0.5 + 0.5) * vw, T2 = (-maxY * 0.5 + 0.5) * vh;
+      var Wd = (maxX - minX) * 0.5 * vw, Hd = (maxY - minY) * 0.5 * vh;
+      el.style.left = L.toFixed(1) + 'px';
+      el.style.top = T2.toFixed(1) + 'px';
+      el.style.width = Wd.toFixed(1) + 'px';
+      el.style.height = Hd.toFixed(1) + 'px';
+      el.style.fontSize = (Math.round(Wd / 13) / 2) + 'px';
+    }
+
     function updateUI(){
-      var introO = cl01(1 - p / 0.09);
+      /* l'encre n'apparaît que quand la feuille s'est posée */
+      var introO = landK;
       elIntro.style.opacity = introO.toFixed(3);
       elIntro.style.pointerEvents = introO > 0.4 ? '' : 'none';
-      elHint.style.opacity = introO.toFixed(3);
+      if(introO > 0.85) elIntro.classList.add('lit');
+      if(introO > 0.01) sheetRect(elIntro);
+      elHint.style.opacity = cl01(1 - p / 0.09).toFixed(3);
 
-      var endO = sstep(0.93, 0.985, p);
+      var endO = sstep(0.96, 0.995, p) * endK;
       elEnd.style.opacity = endO.toFixed(3);
       elEnd.style.pointerEvents = endO > 0.5 ? '' : 'none';
+      if(endO > 0.01) sheetRect(elEnd);
 
       var midO = sstep(0.1, 0.17, p) * (1 - sstep(0.88, 0.94, p));
       elRail.style.opacity = Math.max(midO, endO * 0.9).toFixed(3);
@@ -1521,10 +1609,13 @@ installShell({ workTitle: 'Bibliothèque', tabs: [] });
 
     /* ── Boucle ── */
     var raf = null, lastT = 0, hidden = false, lastCamX = null, tilt = 0;
+    var sheetT = 0, sheetPlaying = false, sheetDone = false;
+    var landK = 0, endK = 0;   /* la feuille est posée (recto / verso) */
     function frame(now){
       raf = requestAnimationFrame(frame);
       var dt = Math.min(0.05, (now - lastT) / 1000 || 0.016);
       lastT = now;
+      var tsec = now / 1000;
 
       /* la caméra rejoint la position que le défilement commande */
       p += (pT - p) * (1 - Math.exp(-dt * 7));
@@ -1547,10 +1638,70 @@ installShell({ workTitle: 'Bibliothèque', tabs: [] });
       hemi.intensity = 0.5 + 0.45 * wideK;
       if(moonLight) moonLight.intensity = 0.6 + 0.6 * wideK;
 
+      /* ── la feuille volante ── */
+      if(!sheetDone){
+        if(!sheetPlaying){
+          /* on n'ouvre la fenêtre que si l'on arrive en haut de page ;
+             une restauration de défilement saute l'envol */
+          if(pT < 0.02){ sheetPlaying = true; sheetT = 0; }
+          else { sheetDone = true; sheetT = 1; }
+        }
+        if(sheetPlaying){
+          sheetT += dt / 3.8;
+          if(sheetT >= 1 || pT > 0.03){ sheetT = 1; sheetDone = true; }
+        }
+      }
+      /* la croisée s'ouvre au début de l'envol, puis reste ouverte */
+      if(sash) sash.rotation.y = (sheetDone ? 1 : sstep(0.04, 0.3, sheetT)) * 1.25;
+
+      var inZone = p < T_IN * 0.95, endZone = p > T_TRAVEL;
+      sheet.visible = (inZone && (sheetPlaying || sheetDone)) || endZone;
+      landK = 0; endK = 0;
+      if(sheet.visible){
+        var fx = SHEET_FRZ.x, fy = SHEET_FRZ.y, fz = SHEET_FRZ.z;
+        var srx = 0.05, sry = 0, srz = -0.035;
+        if(endZone){
+          /* elle revient de face et se RETOURNE : le verso vers nous */
+          var ep = sstep(T_TRAVEL + 0.02, 0.985, p);
+          fx = -0.06 + (1 - ep) * 2.1;
+          fy = 0.02 + (1 - ep) * 1.9;
+          fz = -1.62 - (1 - ep) * 3.8;
+          sry = Math.PI + (1 - ep) * 5.2;
+          srz = -0.03 + (1 - ep) * 2.3;
+          srx = 0.04 + (1 - ep) * 1.4;
+          endK = ep;
+        } else {
+          var fs = sheetDone ? 1 : sstep(0.28, 1, sheetT);
+          if(fs < 1){
+            /* du rebord de la fenêtre jusque devant nous, en
+               tourbillonnant — bézier en espace-caméra */
+            camera.updateMatrixWorld();
+            bV.set(winX + 0.35, winY - 0.3, 0.5);
+            camera.worldToLocal(bV);
+            var a = 1 - fs;
+            var mx = bV.x * 0.4 + fx * 0.6,
+                my = Math.max(bV.y, fy) + 1.4,
+                mz = bV.z * 0.45 + fz * 0.55;
+            fx = a * a * bV.x + 2 * a * fs * mx + fs * fs * fx;
+            fy = a * a * bV.y + 2 * a * fs * my + fs * fs * fy;
+            fz = a * a * bV.z + 2 * a * fs * mz + fs * fs * fz;
+            srx += a * 4.6; sry += a * 6.4; srz += a * 3.1;
+          }
+          /* le défilement la relance — fonction de la position, réversible */
+          var dp2 = sstep(0.006, T_IN * 0.7, p);
+          fx += dp2 * 0.7; fy += dp2 * 2.7; fz -= dp2 * 0.9;
+          srx += dp2 * 1.6; srz += dp2 * 2.6;
+          landK = (fs >= 1 ? 1 : 0) * (1 - sstep(0.004, 0.04, p));
+        }
+        /* une feuille tenue en l'air respire */
+        sheet.position.set(fx, fy + Math.sin(tsec * 1.35) * 0.006, fz);
+        sheet.rotation.set(srx + Math.sin(tsec * 1.05) * 0.012, sry,
+                           srz + Math.sin(tsec * 0.8) * 0.009);
+      }
+
       /* tout ce qui brûle vacille — la flamme portée, celle du bureau.
          Sommes de sinus à périodes non multiples : une flamme ne bat pas
          la mesure. */
-      var tsec = now / 1000;
       for(var fi = 0; fi < flames.length; fi++){
         var F = flames[fi];
         var fl = Math.sin(tsec * 9.3 + F.ph) * 0.5 +
