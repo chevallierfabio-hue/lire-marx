@@ -229,6 +229,11 @@
       var mark = document.createElement('mark');
       mark.className = cls;
       mark.dataset.anno = id;
+      /* Un <mark> n'est pas focusable : rouvrir une note n'était possible
+         qu'au clic. WCAG 2.1.1. */
+      mark.tabIndex = 0;
+      mark.setAttribute('role', 'button');
+      mark.setAttribute('aria-label', 'Note sur ce passage — ouvrir');
       node.parentNode.insertBefore(mark, node);
       mark.appendChild(node);
     }
@@ -267,9 +272,13 @@
     if(bar) return bar;
     bar = document.createElement('div');
     bar.className = 'anno-bar';
-    var h = '<span class="anno-bar-l">Surligner</span>';
+    /* title n'est ni rendu au tactile ni fiable au clavier : les quatre
+       pastilles n'avaient aucun nom accessible utilisable. WCAG 4.1.2. */
+    bar.setAttribute('role', 'toolbar');
+    bar.setAttribute('aria-label', 'Annoter la sélection');
+    var h = '<span class="anno-bar-l" id="annoBarL">Surligner</span>';
     COLORS.forEach(function(c){
-      h += '<button class="anno-sw c-' + c[0] + '" data-c="' + c[0] + '" title="' + c[1] + '" type="button"></button>';
+      h += '<button class="anno-sw c-' + c[0] + '" data-c="' + c[0] + '" aria-label="Surligner en ' + c[1] + '" type="button"></button>';
     });
     h += '<button class="share-btn" data-share="1" type="button">Partager</button>';
     bar.innerHTML = h;
@@ -335,7 +344,7 @@
     });
     pop.innerHTML = '<div class="anno-pop-q">« ' + esc(an.quote.slice(0, 140)) + (an.quote.length > 140 ? '…' : '') + ' »</div>'
       + '<div class="anno-pop-sw">' + sw + '</div>'
-      + '<textarea class="anno-pop-t" placeholder="Ta note…">' + esc(an.note || '') + '</textarea>'
+      + '<textarea class="anno-pop-t" aria-label="Votre note privée sur ce passage" placeholder="Ta note…">' + esc(an.note || '') + '</textarea>'
       + '<div class="anno-pop-act"><button class="btn red" data-act="save" type="button">Enregistrer</button><button class="lk" data-act="del" type="button">Supprimer</button></div>';
     var first = box ? box.querySelector('mark[data-anno="' + id + '"]') : null;
     pop.style.display = 'block';
@@ -634,7 +643,7 @@
       document.body.appendChild(pubPop);
     }
     pubPop.innerHTML = '<div class="pub-q">« ' + esc(anchor.quote.slice(0, 160)) + (anchor.quote.length > 160 ? '…' : '') + ' »</div>'
-      + '<textarea class="pub-ta" placeholder="Ta note publique sur ce passage…"></textarea>'
+      + '<textarea class="pub-ta" aria-label="Votre note publique sur ce passage" placeholder="Ta note publique sur ce passage…"></textarea>'
       + '<div class="pub-compose-act"><button class="lk" data-act="cancel" type="button">Annuler</button><button class="btn red" data-act="publish" type="button">Publier</button></div>';
     var top = window.scrollY + 120, left = window.scrollX + 20;
     if(rect){ top = window.scrollY + rect.bottom + 8; left = Math.max(8, window.scrollX + rect.left); }
@@ -682,7 +691,7 @@
       h += '</div>';
     }
     if(replyOpen === n.id){
-      h += '<div class="pub-replybox"><textarea class="pub-rta" placeholder="Ta réponse…"></textarea><div class="pub-compose-act"><button class="lk" data-replycancel="1" type="button">Annuler</button><button class="btn red" data-sendreply="' + n.id + '" type="button">Répondre</button></div></div>';
+      h += '<div class="pub-replybox"><textarea class="pub-rta" aria-label="Votre réponse" placeholder="Ta réponse…"></textarea><div class="pub-compose-act"><button class="lk" data-replycancel="1" type="button">Annuler</button><button class="btn red" data-sendreply="' + n.id + '" type="button">Répondre</button></div></div>';
     }
     h += '</div>';
     return h;
@@ -912,6 +921,30 @@
     document.addEventListener('mouseup', function(e){
       if(e.target.closest && e.target.closest('.anno-bar,.anno-pop')) return;
       setTimeout(onSelect, 0);
+    });
+    /* Une sélection faite au clavier (Maj + flèches) ne produit JAMAIS de
+       mouseup : la barre de surlignage n'apparaissait pas, et annoter —
+       la fonction centrale du site — était impossible sans souris.
+       selectionchange couvre les deux gestes ; il est très bavard, donc
+       amorti. WCAG 2.1.1. */
+    var selT = null;
+    document.addEventListener('selectionchange', function(){
+      clearTimeout(selT);
+      selT = setTimeout(function(){
+        var a = document.activeElement;
+        if(a && a.closest && a.closest('.anno-bar,.anno-pop,.pub-compose')) return;
+        if(a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) return;
+        onSelect();
+      }, 180);
+    });
+    /* Ouvrir une note existante au clavier. */
+    document.addEventListener('keydown', function(e){
+      if(e.key !== 'Enter' && e.key !== ' ') return;
+      var m = document.activeElement;
+      if(!m || !m.classList || !m.classList.contains('anno')) return;
+      if(!box || !box.contains(m)) return;
+      e.preventDefault();
+      openPop(m.dataset.anno);
     });
     document.addEventListener('mousedown', function(e){
       var t = e.target;

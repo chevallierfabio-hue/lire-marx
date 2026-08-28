@@ -360,7 +360,7 @@
     if(socConvo){
       h = '<div class="msg-head"><button class="msg-back" data-back="1" type="button" aria-label="Retour">‹</button><h3>' + esc(socConvo.username) + '</h3></div>'
         + '<div class="msg-thread" id="popThread">' + bubblesHtml() + '</div>'
-        + '<div class="msg-compose"><textarea id="popIn" placeholder="Ton message…"></textarea><button class="btn red" data-send="1" type="button">Envoyer</button></div>';
+        + '<div class="msg-compose"><textarea id="popIn" aria-label="Votre message" placeholder="Ton message…"></textarea><button class="btn red" data-send="1" type="button">Envoyer</button></div>';
     } else {
       h = '<div class="tb-pop-h">Messages</div>'
         + '<div class="msg-add"><input id="popAddIn" type="text" autocomplete="off" placeholder="Ajouter (pseudo)…" /><button class="btn red" data-add="1" type="button">+</button></div>'
@@ -415,7 +415,7 @@
         + '<span class="msg-ava" style="width:30px;height:30px;font-size:.8rem">' + avaHtml(socConvo.username, avatarOf(socConvo.id)) + '</span>'
         + '<h3 class="cv-conv-h">' + esc(socConvo.username) + '</h3></div>'
         + '<div class="msg-thread" id="cvThread">' + bubblesHtml() + '</div>'
-        + '<div class="msg-compose"><textarea id="cvIn" placeholder="Ton message…"></textarea><button class="btn red" id="cvSend" type="button">Envoyer</button></div></div>';
+        + '<div class="msg-compose"><textarea id="cvIn" aria-label="Votre message" placeholder="Ton message…"></textarea><button class="btn red" id="cvSend" type="button">Envoyer</button></div></div>';
     } else {
       right = '<div class="cv-pane cv-right"><div class="cv-ph">Choisis une conversation à gauche, ou ajoute un contact pour commencer à discuter.</div></div>';
     }
