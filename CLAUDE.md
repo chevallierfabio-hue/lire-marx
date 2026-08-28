@@ -175,11 +175,21 @@ tous deux corrigés par une classe posée sur `<body>` pendant l'intro :
 **L'épinglage est une remise à zéro par image, pas un `overflow:hidden` à
 retirer** : si la boucle mourait, un verrou CSS ne se rouvrirait jamais et la
 page resterait bloquée en haut — pire que le bug corrigé. Même raison pour le
-filet de `releaseIntro()`, appelé à `p>0.995` **et au plus tard 8 s après
-l'entrée** : un rAF ralenti ne doit pas pouvoir sceller la page. La classe
+filet de `releaseIntro()`, appelé **au plus tard 8 s après l'entrée** : un rAF
+ralenti ne doit pas pouvoir sceller la page. La classe
 n'est posée que si la boucle démarre vraiment (jamais en `no-anim` ni sous
 reduced-motion), et si elle restait par accident on ne perdrait que le
 raccourci souris — `#msCartel` est le chemin d'ouverture officiel du panneau.
+
+**Le verrou tombe quand la page a FINI D'APPARAÎTRE, pas quand `p` touche 1.**
+`p += (targetP-p)*0.035` converge de façon asymptotique : `sv` vaut 1 à
+`p=0.96`, soit la 90e image, quand `p>0.995` n'arrive qu'à la 149e. Libérer
+sur `p>0.995` laissait donc **une seconde pleine de défilement mort** (le
+double sur une machine lente) pendant laquelle l'accueil est entièrement
+visible et ignore la molette — c'est remonté comme bug. Le test est `sv >= 1` :
+à cet instant `#sheet` est à pleine opacité et à l'échelle 1, et le canvas de
+l'intro est à 0,18 % d'opacité. Rien ne distingue plus cet instant de la fin.
+Ne pas remonter ce seuil.
 
 **Pour tester tout ceci, la sonde est obligatoire.** Le rAF est si bridé dans
 un onglet piloté que l'intro n'avance pas du tout : `p` reste à 0, rien n'est
