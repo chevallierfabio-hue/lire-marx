@@ -16,6 +16,7 @@
 <link rel="stylesheet" href="fonts/fonts.css">
 <link rel="stylesheet" href="atelier.css">
 <link rel="stylesheet" href="shell.css">
+<script src="../vendor/three.min.js" defer></script>
 <style>
 /* ═══════════════════════════════════════════════════════════════════
    Place publique — « la table commune » (refonte août 2026, 2e passe)
@@ -371,6 +372,186 @@ html.pp-anim.pp-lit .pp-head{
   max-width:46ch;margin:48px auto 0;}
 .pp-fin b{color:var(--gold);font-weight:500;}
 
+/* ═══ LA SALLE (scène 3D) ══════════════════════════════════════════
+   Quand tout le permet (>= 768 px, pas de reduced-motion, WebGL,
+   des feuillets à poser), la page devient une SALLE DE RÉUNION en
+   trois dimensions : une longue table de bois éclairée de
+   chandeliers, les feuillets du forum posés dessus, le défilement
+   pour seul travelling — motif exact de la bibliothèque. Le forum à
+   plat ci-dessus devient alors le REPLI (#liste, mobile,
+   reduced-motion, sans WebGL) et reste la version des lecteurs
+   d'écran. Sous .js-pp3d, le décor CSS et le flux à plat s'effacent
+   devant le canvas. */
+/* canvas = élément REMPLACÉ : inset:0 ne l'étire pas (piège documenté),
+   width/height:100% obligatoires */
+#pp3d{display:none;}
+.js-pp3d #pp3d{display:block;position:fixed;inset:0;width:100%;height:100%;z-index:1;}
+#ppRun{height:0;}
+.js-pp3d .wrap,.js-pp3d .pp-table,.js-pp3d .pp-nuit,.js-pp3d .pp-bougie{display:none;}
+
+/* la pénombre par-dessus le canvas, sous l'interface (motif .bx3-lamp) */
+.pt-lamp{display:none;}
+.js-pp3d .pt-lamp{display:block;position:fixed;inset:0;z-index:2;pointer-events:none;
+  background:
+    radial-gradient(74% 54% at 50% 12%,rgba(216,173,76,.06),transparent 66%),
+    radial-gradient(130% 82% at 50% 118%,rgba(0,0,0,.3),transparent 56%),
+    radial-gradient(80% 130% at -8% 50%,rgba(0,0,0,.24),transparent 52%),
+    radial-gradient(80% 130% at 108% 50%,rgba(0,0,0,.24),transparent 52%);}
+
+.pt-ui{display:none;}
+.js-pp3d .pt-ui{display:block;}
+.js-pp3d .pt-hint,.js-pp3d .pt-rail{display:flex;}
+
+/* Le carton d'entrée : posé sur le plan large, s'efface au premier
+   défilement (opacité pilotée par p dans la boucle). */
+.pt-intro{position:fixed;z-index:10;left:50%;top:32%;transform:translate(-50%,-50%);
+  text-align:center;max-width:620px;padding:0 22px;pointer-events:none;}
+.pt-intro .pt-label{font-family:var(--f-ui);font-size:.72rem;font-weight:600;
+  letter-spacing:.11em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.pt-intro .pt-h1{font-family:'Fraunces',serif;font-weight:900;
+  font-size:clamp(2.2rem,4.8vw,3.4rem);letter-spacing:-.03em;line-height:1.03;
+  color:var(--text);margin:0 0 12px;text-shadow:0 2px 26px rgba(0,0,0,.8);}
+.pt-intro .pt-lede{font-family:'Spectral',Georgia,serif;font-size:.97rem;
+  line-height:1.66;color:var(--muted);max-width:46ch;margin:0 auto;
+  text-shadow:0 1px 14px rgba(0,0,0,.85);}
+.pt-intro .pt-count{margin-top:14px;font-family:var(--f-ui);font-size:.64rem;
+  font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--const);}
+.pt-intro .pt-count b{color:var(--gold);font-weight:600;}
+.pt-alt{margin-top:16px;pointer-events:auto;}
+.pt-alt button{font:italic 500 .84rem/1 'Spectral',Georgia,serif;color:var(--muted);
+  background:none;border:0;border-bottom:1px solid rgba(183,168,136,.4);
+  padding:0 0 3px;cursor:pointer;}
+.pt-alt button:hover{color:var(--ink);border-color:var(--ink);}
+/* les lignes se posent en cascade — backwards, jamais both (règle maison) */
+@keyframes pt-rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.js-pp3d .pt-intro>*{animation:pt-rise .8s cubic-bezier(.2,.9,.25,1) backwards;}
+.js-pp3d .pt-intro>*:nth-child(2){animation-delay:.1s}
+.js-pp3d .pt-intro>*:nth-child(3){animation-delay:.2s}
+.js-pp3d .pt-intro>*:nth-child(4){animation-delay:.32s}
+.js-pp3d .pt-intro>*:nth-child(5){animation-delay:.44s}
+
+/* L'invite à descendre */
+.pt-hint{position:fixed;z-index:10;left:50%;bottom:26px;transform:translateX(-50%);
+  /* le display vit sous .js-pp3d : posé ici, il écraserait le
+     display:none de .pt-ui et l'invite fuirait dans la version liste */
+  flex-direction:column;align-items:center;gap:8px;pointer-events:none;
+  font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:var(--const);
+  transition:opacity .2s linear;}
+.pt-hint i{display:block;width:1px;height:34px;
+  background:linear-gradient(to bottom,transparent,var(--gold));
+  animation:pt-drip 1.8s ease-out infinite;}
+@keyframes pt-drip{0%{transform:scaleY(.2);transform-origin:top}
+  60%{transform:scaleY(1);transform-origin:top}100%{transform:scaleY(1)}}
+
+/* L'étiquette de survol, projetée au-dessus du feuillet */
+.pt-tag{position:fixed;z-index:12;pointer-events:none;opacity:0;
+  transform:translate(-50%,-100%);max-width:34ch;text-align:center;
+  transition:opacity .14s linear;}
+.pt-tag .tg-t{font-family:'Caveat',cursive;font-weight:700;font-size:1.35rem;
+  line-height:1.1;color:var(--ink);text-shadow:0 2px 16px rgba(0,0,0,.95);}
+.pt-tag .tg-m{margin-top:2px;font-size:.68rem;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--const);text-shadow:0 1px 10px rgba(0,0,0,.95);}
+.pt-tag .tg-q{margin-top:5px;font-family:'Spectral',Georgia,serif;font-style:italic;
+  font-size:.85rem;color:var(--gold);text-shadow:0 1px 12px rgba(0,0,0,.95);}
+
+/* Le rail : une entrée par œuvre, pour sauter le long de la table */
+.pt-rail{position:fixed;z-index:11;left:50%;bottom:0;transform:translateX(-50%);
+  gap:2px;padding:6px 8px calc(10px + env(safe-area-inset-bottom,0px));
+  opacity:0;transition:opacity .28s linear;}
+.pt-rail button{font:600 .72rem/1 var(--f-ui);letter-spacing:.06em;
+  color:var(--const);background:rgba(21,16,11,.62);border:1px solid transparent;
+  border-radius:999px;padding:8px 13px;cursor:pointer;white-space:nowrap;
+  backdrop-filter:blur(4px);transition:color .15s,border-color .15s;}
+.pt-rail button:hover{color:var(--ink);}
+.pt-rail button.on{color:var(--gold);border-color:rgba(216,173,76,.4);}
+.pt-rail button:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+
+/* La fin de table */
+.pt-end{position:fixed;z-index:10;left:50%;top:30%;transform:translate(-50%,-50%);
+  text-align:center;max-width:560px;padding:0 22px;opacity:0;pointer-events:none;
+  transition:opacity .25s linear;}
+.pt-end .pt-h1{font-family:'Fraunces',serif;font-weight:900;font-size:1.9rem;
+  letter-spacing:-.02em;color:var(--text);margin:0 0 10px;
+  text-shadow:0 2px 22px rgba(0,0,0,.85);}
+.pt-end .pt-lede{font-family:'Spectral',Georgia,serif;font-size:.94rem;
+  line-height:1.66;color:var(--muted);text-shadow:0 1px 14px rgba(0,0,0,.85);}
+.pt-end-acts{margin-top:18px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+.pt-btn{display:inline-block;font:600 .8rem/1 var(--f-ui);border-radius:100px;
+  padding:11px 20px;cursor:pointer;transition:transform .15s,opacity .15s;}
+.pt-btn.full{background:var(--text);color:var(--bg);border:0;}
+.pt-btn.ghost{background:transparent;color:var(--muted);border:1px solid var(--border);}
+.pt-btn:hover{transform:translateY(-1px);}
+.pt-btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+
+/* ── La fiche du feuillet soulevé : le FIL COMPLET, et l'on y répond.
+   Même meuble que le cartel de la bibliothèque. ── */
+.pt-cartel{position:fixed;z-index:90;top:60px;right:16px;bottom:16px;
+  width:min(420px,calc(100vw - 32px));overflow:auto;overscroll-behavior:contain;
+  background:#1c150e;border:1px solid rgba(243,233,212,.12);border-radius:18px;
+  box-shadow:0 30px 80px rgba(0,0,0,.75);padding:24px 24px 20px;
+  transform:translateX(calc(100% + 24px));transition:transform .32s cubic-bezier(.2,.9,.25,1);}
+.pt-cartel.open{transform:none;}
+.pt-cartel:focus{outline:none;}
+.pt-x{position:absolute;top:12px;right:12px;width:34px;height:34px;
+  border-radius:50%;border:1px solid var(--line);background:rgba(255,255,255,.04);
+  color:var(--ink);font-size:1.25rem;line-height:1;cursor:pointer;}
+.pt-x:hover{border-color:var(--gold);}
+.ct-top{display:flex;align-items:center;gap:9px;margin-bottom:4px;padding-right:30px;}
+.ct-seal{flex:0 0 auto;width:28px;height:28px;border-radius:48% 52% 50% 46%;
+  transform:rotate(-7deg);display:flex;align-items:center;justify-content:center;
+  font-family:'Fraunces',serif;font-weight:700;font-size:.62rem;
+  color:rgba(255,240,214,.92);
+  box-shadow:inset 0 1px 2px rgba(255,255,255,.3),inset 0 -2px 3px rgba(0,0,0,.32);}
+.ct-name{font-family:'Caveat',cursive;font-weight:700;font-size:1.5rem;
+  line-height:1;color:var(--ink);}
+.ct-meta{font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--const);margin:2px 0 14px;}
+.ct-quote{font-family:'Spectral',Georgia,serif;font-style:italic;font-size:.84rem;
+  line-height:1.55;color:var(--ink-soft);border-left:2px solid rgba(213,64,47,.4);
+  padding:2px 0 2px 11px;margin:0 0 12px;}
+.ct-body{font-family:'Spectral',Georgia,serif;font-size:.99rem;line-height:1.7;
+  color:var(--ink);white-space:pre-wrap;margin:0 0 6px;}
+.ct-h{font:600 .68rem/1 var(--f-ui);letter-spacing:.1em;text-transform:uppercase;
+  color:var(--const);margin:18px 0 8px;}
+.ct-rep{border-left:2px solid var(--line);padding:2px 0 2px 12px;margin:0 0 12px;}
+.ct-rep-top{display:flex;align-items:baseline;gap:8px;margin-bottom:2px;}
+.ct-rep-name{font-family:'Caveat',cursive;font-weight:700;font-size:1.12rem;
+  line-height:1;color:var(--ink);}
+.ct-rep-when{margin-left:auto;font-family:'Spectral',Georgia,serif;font-style:italic;
+  font-size:.72rem;color:var(--const);}
+.ct-rep-body{font-family:'Spectral',Georgia,serif;font-size:.88rem;line-height:1.6;
+  color:var(--ink-soft);white-space:pre-wrap;}
+.ct-compose textarea{display:block;width:100%;min-height:64px;
+  background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:10px;
+  outline:none;resize:vertical;padding:10px 12px;
+  font-family:'Caveat',cursive;font-weight:500;font-size:1.22rem;line-height:1.4;
+  color:var(--ink);}
+.ct-compose textarea::placeholder{color:var(--const);}
+.ct-compose textarea:focus{border-color:var(--gold);}
+.ct-send{margin-top:9px;font:600 .72rem/1 var(--f-ui);letter-spacing:.14em;
+  text-transform:uppercase;color:#1a130c;background:var(--gold);
+  border:0;border-radius:100px;padding:10px 18px;cursor:pointer;}
+.ct-send:hover{background:var(--gold-deep);}
+.ct-send:focus-visible{outline:2px solid var(--ink);outline-offset:2px;}
+.ct-go{display:inline-block;margin-top:16px;font:600 .74rem/1 var(--f-ui);
+  letter-spacing:.12em;text-transform:uppercase;color:var(--bright);
+  text-decoration:none;border-bottom:1px solid rgba(229,100,79,.4);padding-bottom:3px;}
+.ct-go:hover{border-color:var(--bright);}
+.ct-soon{margin-top:16px;font:italic 400 .82rem/1.5 'Spectral',Georgia,serif;
+  color:var(--const);}
+
+/* Le bouton du registre : rejoindre la salle depuis la version liste */
+.pp-3d{margin:26px auto 0;text-align:center;position:relative;z-index:1;}
+.pp-3d[hidden]{display:none;}
+.pp-3d button{font:600 .8rem/1 var(--f-ui);color:var(--bg);background:var(--gold);
+  border:0;border-radius:100px;padding:12px 22px;cursor:pointer;}
+.pp-3d button:hover{background:var(--gold-deep);}
+
+@media (prefers-reduced-motion:reduce){
+  .pt-cartel{transition:none;}
+  .pt-hint i{animation:none;}
+}
+
 @media(max-width:760px){
   .pp-head{margin-top:22px;}
   /* :nth-child(n) pour égaler la spécificité (0,2,0) des variantes de
@@ -429,6 +610,39 @@ html.pp-anim.pp-lit .pp-head{
   <span class="cd-socket"></span>
 </div>
 
+<!-- La salle en trois dimensions : le canvas est fixe, le document ne
+     contient qu'une cale de défilement (motif bibliotheque.html) -->
+<canvas id="pp3d" aria-hidden="true"></canvas>
+<div id="ppRun" aria-hidden="true"></div>
+<div class="pt-lamp" aria-hidden="true"></div>
+
+<!-- Interface posée sur la scène. Pas de aria-hidden global : quand la
+     scène tourne, ces blocs portent le SEUL texte visible de la page
+     (leçon d'accessibilité de la bibliothèque). Seule l'étiquette de
+     survol, redondante avec la fiche, est masquée aux lecteurs. -->
+<div class="pt-ui pt-intro" id="ptIntro">
+  <div class="pt-label">Lire Marx</div>
+  <p class="pt-h1">Place publique</p>
+  <p class="pt-lede">La table commune des lecteurs&nbsp;: chaque feuillet posé là est une note laissée dans un texte&nbsp;— soulevez-en un pour lire le fil, et répondez.</p>
+  <p class="pt-count" id="ptCount"></p>
+  <div class="pt-alt"><button type="button" id="ptToFlat">Préférer la version liste</button></div>
+</div>
+<div class="pt-ui pt-hint" id="ptHint"><i></i>descendre le long de la table</div>
+<div class="pt-ui pt-tag" id="ptTag" aria-hidden="true"></div>
+<nav class="pt-ui pt-rail" id="ptRail" aria-label="Œuvres sur la table"></nav>
+<div class="pt-ui pt-end" id="ptEnd">
+  <p class="pt-h1">Le bout de la table</p>
+  <p class="pt-lede" id="ptEndLede"></p>
+  <div class="pt-end-acts">
+    <button type="button" class="pt-btn full" id="ptBack">Remonter la table</button>
+    <button type="button" class="pt-btn ghost" id="ptToFlat2">Version liste</button>
+  </div>
+</div>
+<aside class="pt-ui pt-cartel" id="ptCartel" hidden tabindex="-1" role="dialog" aria-label="Fil de discussion">
+  <button type="button" class="pt-x" id="ptCartelX" aria-label="Fermer">&times;</button>
+  <div id="ptCartelIn"></div>
+</aside>
+
 <main class="wrap">
 
   <div class="pp-rond" aria-hidden="true"></div>
@@ -449,6 +663,10 @@ html.pp-anim.pp-lit .pp-head{
   <section id="placeFull" aria-live="polite" aria-label="Notes des lecteurs"></section>
 
   <p class="pp-fin">La table s'allonge à mesure qu'on lit. <b>Sélectionnez un passage dans une liseuse</b> pour y déposer un nouveau feuillet.</p>
+
+  <div class="pp-3d" id="pp3dJoin" hidden>
+    <button type="button" id="pp3dBtn">Entrer dans la salle en trois dimensions</button>
+  </div>
 
 </main>
 
@@ -479,6 +697,7 @@ installShell({
   var SEALS = ['#a52a21', '#39596b', '#9a7b35', '#52742f'];
 
   var biblio = {};          // id → {title, path, status}
+  var biblioOrder = [];     // l'ordre des œuvres dans bibliotheque.json
   var tops = [];            // notes racines, plus récentes d'abord
   var repsBy = {};          // parent_id → [réponses, chronologiques]
   var filter = 'all';       // id d'œuvre (résolu) ou 'all'
@@ -543,6 +762,7 @@ installShell({
           path: path,
           status: w.status || 'planned'
         };
+        biblioOrder.push(w.id);
       });
       if(biblio['capital-1'] && !biblio['capital']) biblio['capital'] = biblio['capital-1'];
     } catch(e){}
@@ -673,11 +893,15 @@ installShell({
     }
     return true;
   }
-  async function sendReply(card, note){
-    var ta = card.querySelector('.fl-compose textarea');
-    var body = (ta.value || '').trim();
-    if(!body){ toast('Écris ta réponse.'); return; }
-    if(!ensurePoster()) return;
+  /* Cœur partagé entre le registre à plat et la fiche de la scène :
+     poste la réponse et met à jour l'ÉTAT (repsBy) ; chaque rendu met
+     ensuite à jour son propre DOM. `onReplyPosted` est le crochet de la
+     scène (régénérer la texture du feuillet, glisser un billet). */
+  var onReplyPosted = null;
+  async function postReply(note, body){
+    body = (body || '').trim();
+    if(!body){ toast('Écris ta réponse.'); return null; }
+    if(!ensurePoster()) return null;
     var a = window.SHELL.auth;
     var c = await a.getClient();
     var row = {
@@ -688,10 +912,18 @@ installShell({
       body: body, parent_id: note.id, created: Date.now()
     };
     var res = await c.from('public_notes').insert(row);
-    if(res.error){ toast('Réponse : ' + res.error.message); return; }
-    // billet glissé sous le feuillet sans re-rendre toute la table
+    if(res.error){ toast('Réponse : ' + res.error.message); return null; }
     row.profiles = { username: a.profile.username };
     (repsBy[note.id] = repsBy[note.id] || []).push(row);
+    toast('Réponse publiée.');
+    if(onReplyPosted){ try { onReplyPosted(note, row); } catch(e){} }
+    return row;
+  }
+  async function sendReply(card, note){
+    var ta = card.querySelector('.fl-compose textarea');
+    var row = await postReply(note, ta.value);
+    if(!row) return;
+    // billet glissé sous le feuillet sans re-rendre toute la table
     card.querySelector('.fl-reps').insertAdjacentHTML('beforeend', repHtml(row));
     var rc = card.querySelector('.fl-rc');
     var n = repsBy[note.id].length;
@@ -702,7 +934,6 @@ installShell({
     }
     ta.value = '';
     toggleCompose(card, false);
-    toast('Réponse publiée.');
     ppTick();
   }
   function toggleCompose(card, on){
@@ -746,6 +977,12 @@ installShell({
       feed.innerHTML = stateHtml('Aucun feuillet sur la table pour l\'instant. Ouvre un chapitre et sois la première personne à annoter un passage.');
       return;
     }
+    renderFlat();
+    decide();
+  }
+  /* le registre à plat — re-rendu aussi quand on quitte la salle 3D,
+     pour refléter les réponses postées depuis la fiche */
+  function renderFlat(){
     feed.innerHTML = tops.map(flHtml).join('');
     wire();
     buildFilters();
@@ -823,6 +1060,941 @@ installShell({
     addEventListener('resize', schedule);
     addEventListener('load', schedule);
   })();
+
+  /* ═══ LA SALLE — la scène en trois dimensions ════════════════════
+     Motif exact de bibliotheque.html : le canvas est fixe, le document
+     ne contient qu'une cale (#ppRun), le défilement est le travelling,
+     strictement réversible. La décision 3D/liste se prend au moment de
+     décider (jamais au parse), se rejoue au resize, et le registre à
+     plat ci-dessus reste la version des lecteurs d'écran, des mobiles
+     et du choix #liste. */
+  var REDUCE = window.matchMedia &&
+               window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  function want3D(){
+    return !REDUCE && window.innerWidth >= 768 && location.hash !== '#liste';
+  }
+  var scene3d = null, sceneTorn = false;
+
+  var NUMF = ['zéro','un','deux','trois','quatre','cinq','six','sept',
+              'huit','neuf','dix','onze','douze'];
+  function numFr(n, fem){
+    if(n === 1) return fem ? 'une' : 'un';
+    return (n >= 0 && n < NUMF.length) ? NUMF[n] : String(n);
+  }
+
+  function initScene(){
+    var canvas = document.getElementById('pp3d');
+    if(typeof THREE === 'undefined' || !canvas || !canvas.getContext ||
+       !(canvas.getContext('webgl') || canvas.getContext('experimental-webgl'))){
+      return null;
+    }
+    var BGC = 0x15100b;
+    var renderer;
+    try { renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true }); }
+    catch(e){ return null; }
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setClearColor(BGC, 1);
+
+    var scene = new THREE.Scene();
+    scene.fog = new THREE.Fog(BGC, 7.5, 22);
+    var camera = new THREE.PerspectiveCamera(46, 1, 0.1, 90);
+    /* Les chandeliers de la table sont les vraies sources ; l'ambiante
+       et l'hémisphérique débouchent la salle pour que le plan large se
+       lise sans attendre les flammes (leçon de la bibliothèque). */
+    var amb = new THREE.AmbientLight(0x4a3a28, 1.05); scene.add(amb);
+    var hemi = new THREE.HemisphereLight(0x87683e, 0x140d07, 0.5); scene.add(hemi);
+    scene.add(camera); /* la caméra porte le bougeoir : ses enfants doivent être dans la scène */
+
+    function cl01(v){ return v < 0 ? 0 : (v > 1 ? 1 : v); }
+    function sstep(a, b, v){ v = cl01((v - a) / (b - a)); return v * v * (3 - 2 * v); }
+    function hash01(str, salt){
+      var h = 2166136261 ^ (salt || 0);
+      for(var i = 0; i < str.length; i++){ h ^= str.charCodeAt(i); h = (h * 16777619) >>> 0; }
+      return (h % 1000) / 1000;
+    }
+
+    /* ── Textures dessinées ── */
+    function tex(cv){
+      var t = new THREE.CanvasTexture(cv);
+      t.generateMipmaps = false;
+      t.minFilter = THREE.LinearFilter;
+      t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping;
+      t.anisotropy = 4;
+      return t;
+    }
+    function woodCanvas(w, h, base, dark){
+      var cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+      var g = cv.getContext('2d');
+      g.fillStyle = base; g.fillRect(0, 0, w, h);
+      for(var i = 0; i < 46; i++){
+        g.strokeStyle = 'rgba(' + (Math.random() < 0.5 ? '10,5,2' : '90,58,28') + ',' +
+          (0.05 + Math.random() * 0.1) + ')';
+        g.lineWidth = 0.6 + Math.random() * 2;
+        var y = Math.random() * h;
+        g.beginPath(); g.moveTo(0, y);
+        for(var x = 0; x <= w; x += 24){
+          g.lineTo(x, y + Math.sin(x * 0.02 + i) * 2 + (Math.random() - 0.5) * 2);
+        }
+        g.stroke();
+      }
+      var grad = g.createLinearGradient(0, 0, 0, h);
+      grad.addColorStop(0, 'rgba(0,0,0,.24)');
+      grad.addColorStop(0.5, 'rgba(0,0,0,0)');
+      grad.addColorStop(1, 'rgba(0,0,0,' + dark + ')');
+      g.fillStyle = grad; g.fillRect(0, 0, w, h);
+      return cv;
+    }
+    function woodTexRepeat(base, dark, repX){
+      var t = new THREE.CanvasTexture(woodCanvas(512, 256, base, dark));
+      t.generateMipmaps = false; t.minFilter = THREE.LinearFilter;
+      t.wrapS = THREE.RepeatWrapping; t.wrapT = THREE.ClampToEdgeWrapping;
+      t.repeat.set(repX, 1); t.anisotropy = 4;
+      return t;
+    }
+
+    /* le texte replié sur le canvas — retourne le y suivant */
+    function wrapText(g, text, x, y, maxW, lh, maxLines){
+      var words = String(text || '').replace(/\s+/g, ' ').trim().split(' ');
+      var line = '', lines = 0;
+      for(var i = 0; i < words.length; i++){
+        var t = line ? line + ' ' + words[i] : words[i];
+        if(g.measureText(t).width > maxW && line){
+          lines++;
+          if(lines >= maxLines){
+            while(line.length && g.measureText(line + '…').width > maxW) line = line.slice(0, -1);
+            g.fillText(line + '…', x, y); return y + lh;
+          }
+          g.fillText(line, x, y); y += lh; line = words[i];
+        } else line = t;
+      }
+      if(line){ g.fillText(line, x, y); y += lh; }
+      return y;
+    }
+
+    /* Le feuillet : papier + encre, tout dessiné. Le COMMENTAIRE est le
+       texte principal (hiérarchie voulue) ; le passage cité tient en une
+       ligne italique de contexte. Tons et pose déterministes par id. */
+    var TONES = ['#e8dab9', '#dccc9f', '#e3d0a4', '#d5c193'];
+    function sheetTexture(note){
+      var W = 256, H = 340;
+      var cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+      var g = cv.getContext('2d');
+      var tone = TONES[(hash01(note.id, 1) * 4) | 0];
+      var gr = g.createLinearGradient(0, 0, W, H);
+      gr.addColorStop(0, tone); gr.addColorStop(1, '#cbb98f');
+      g.fillStyle = gr; g.fillRect(0, 0, W, H);
+      for(var i = 0; i < 210; i++){
+        g.fillStyle = 'rgba(120,90,50,' + (0.02 + Math.random() * 0.05) + ')';
+        g.fillRect(Math.random() * W, Math.random() * H, 1.3, 1.3);
+      }
+      g.strokeStyle = 'rgba(90,64,34,.22)'; g.lineWidth = 4;
+      g.strokeRect(1, 1, W - 2, H - 2);
+      var name = (note.profiles && note.profiles.username) || 'anonyme';
+      var w = workOf(note);
+      var title = (w.meta && w.meta.title) || 'Œuvre';
+      var sec = (note.section != null && note.section !== '') ? (' · sect. ' + note.section) : '';
+      g.textAlign = 'left'; g.textBaseline = 'alphabetic';
+      /* la signature en tête — un forum se lit par ses voix */
+      g.fillStyle = 'rgba(30,17,4,.92)';
+      g.font = '700 27px Caveat, cursive';
+      g.fillText(name, 18, 38);
+      g.fillStyle = 'rgba(58,42,22,.85)';
+      g.font = '600 11px Inter, sans-serif';
+      g.fillText((title + sec).toUpperCase(), 18, 58);
+      g.strokeStyle = 'rgba(30,17,4,.35)'; g.lineWidth = 1;
+      g.beginPath(); g.moveTo(18, 68); g.lineTo(W - 18, 68); g.stroke();
+      var y = 92;
+      if(note.quote){
+        g.fillStyle = 'rgba(58,42,22,.8)';
+        g.font = 'italic 400 13px Spectral, serif';
+        y = wrapText(g, '« ' + trunc(note.quote, 90) + ' »', 18, y, W - 36, 17, 2) + 8;
+      }
+      g.fillStyle = 'rgba(30,17,4,.92)';
+      g.font = '400 17px Spectral, serif';
+      wrapText(g, note.body || '', 18, y, W - 36, 24, 7);
+      var reps = repsBy[note.id] || [];
+      g.fillStyle = 'rgba(58,42,22,.8)';
+      g.font = '600 11px Inter, sans-serif';
+      g.fillText(reps.length
+        ? (reps.length + ' RÉPONSE' + (reps.length > 1 ? 'S' : '')).toUpperCase()
+        : 'RÉPONDRE — SOULEVEZ LE FEUILLET', 18, H - 18);
+      return tex(cv);
+    }
+    /* le billet de réponse qui dépasse de sous le feuillet */
+    function slipTexture(seed){
+      var W = 96, H = 64;
+      var cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+      var g = cv.getContext('2d');
+      g.fillStyle = seed % 2 ? '#d8c69c' : '#cdb88d';
+      g.fillRect(0, 0, W, H);
+      for(var i = 0; i < 60; i++){
+        g.fillStyle = 'rgba(96,66,24,' + (0.03 + Math.random() * 0.05) + ')';
+        g.fillRect(Math.random() * W, Math.random() * H, 1.2, 1.2);
+      }
+      /* trois lignes d'écriture suggérées */
+      g.strokeStyle = 'rgba(44,28,10,.4)'; g.lineWidth = 1.4;
+      for(var l = 0; l < 3; l++){
+        var y = 18 + l * 14;
+        g.beginPath(); g.moveTo(10, y);
+        for(var x = 10; x < W - 10 - l * 16; x += 7){
+          g.lineTo(x, y + Math.sin(x * 0.6 + seed + l) * 1.6);
+        }
+        g.stroke();
+      }
+      return tex(cv);
+    }
+    var SLIP_TEXES = [slipTexture(1), slipTexture(2), slipTexture(3)];
+
+    /* le cartouche de laiton d'une œuvre (bande spéculaire, motif biblio) */
+    function plaqueTexture(label){
+      var W = 512, H = 96;
+      var cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+      var g = cv.getContext('2d');
+      var grad = g.createLinearGradient(0, 0, W, 0);
+      grad.addColorStop(0, '#4e3d13'); grad.addColorStop(0.2, '#856820');
+      grad.addColorStop(0.45, '#c2a253'); grad.addColorStop(0.55, '#a3843a');
+      grad.addColorStop(0.8, '#6a5320'); grad.addColorStop(1, '#3f3110');
+      g.fillStyle = grad; g.fillRect(0, 0, W, H);
+      g.strokeStyle = 'rgba(30,20,6,.8)'; g.lineWidth = 4;
+      g.strokeRect(6, 6, W - 12, H - 12);
+      g.strokeStyle = 'rgba(255,240,205,.35)'; g.lineWidth = 1.5;
+      g.strokeRect(11, 11, W - 22, H - 22);
+      g.fillStyle = '#241505';
+      var size = 40;
+      g.font = '600 ' + size + 'px Fraunces, serif';
+      while(g.measureText(label).width > W - 60 && size > 18){
+        size -= 2; g.font = '600 ' + size + 'px Fraunces, serif';
+      }
+      g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.fillText(label, W / 2, H / 2 + 2);
+      return tex(cv);
+    }
+
+    /* ── Flammes (blobs dessinés, un seul plan billboard — règles de la
+       bibliothèque : ne pas revenir aux plans croisés) ── */
+    function blob(g, cx, cy, rx, ry, yBias, stops){
+      g.save();
+      g.translate(cx, cy); g.scale(rx, ry);
+      var gr = g.createRadialGradient(0, yBias, 0.04, 0, 0, 1);
+      for(var i = 0; i < stops.length; i++) gr.addColorStop(stops[i][0], stops[i][1]);
+      g.fillStyle = gr;
+      g.beginPath(); g.arc(0, 0, 1, 0, 7); g.fill();
+      g.restore();
+    }
+    function flameTexture(){
+      var W = 128, H = 256;
+      var cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+      var g = cv.getContext('2d');
+      blob(g, 64, 132, 44, 100, 0.35, [
+        [0, 'rgba(255,132,36,.5)'], [0.55, 'rgba(255,116,28,.22)'],
+        [1, 'rgba(255,104,20,0)']]);
+      blob(g, 64, 92, 15, 76, 0.5, [
+        [0, 'rgba(255,150,50,.5)'], [1, 'rgba(255,130,30,0)']]);
+      blob(g, 64, 150, 27, 74, 0.42, [
+        [0, 'rgba(255,208,116,.98)'], [0.55, 'rgba(255,172,62,.5)'],
+        [1, 'rgba(255,150,40,0)']]);
+      blob(g, 64, 176, 14, 40, 0.35, [
+        [0, 'rgba(255,251,235,1)'], [0.45, 'rgba(255,236,180,.85)'],
+        [1, 'rgba(255,210,120,0)']]);
+      blob(g, 64, 208, 13, 15, 0, [
+        [0, 'rgba(122,162,255,.4)'], [0.6, 'rgba(110,150,255,.18)'],
+        [1, 'rgba(110,150,255,0)']]);
+      return tex(cv);
+    }
+    function haloTexture(){
+      var S = 128;
+      var cv = document.createElement('canvas'); cv.width = S; cv.height = S;
+      var g = cv.getContext('2d');
+      var gr = g.createRadialGradient(S / 2, S / 2, 2, S / 2, S / 2, S / 2);
+      gr.addColorStop(0, 'rgba(255,178,88,.55)');
+      gr.addColorStop(0.5, 'rgba(255,150,60,.2)');
+      gr.addColorStop(1, 'rgba(255,140,50,0)');
+      g.fillStyle = gr; g.fillRect(0, 0, S, S);
+      return tex(cv);
+    }
+    var FLAME_TEX = flameTexture(), HALO_TEX = haloTexture();
+    var flames = [];   /* { grp, light, base, ph, bill } — tout ce qui brûle */
+    function makeFlame(sc){
+      var grp = new THREE.Group();
+      var halo = new THREE.Mesh(new THREE.PlaneGeometry(0.62 * sc, 0.62 * sc),
+        new THREE.MeshBasicMaterial({ map: HALO_TEX, transparent: true, opacity: 0.5,
+          blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }));
+      grp.add(halo);
+      var body = new THREE.Mesh(new THREE.PlaneGeometry(0.17 * sc, 0.34 * sc),
+        new THREE.MeshBasicMaterial({ map: FLAME_TEX, transparent: true,
+          blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }));
+      body.position.y = 0.02 * sc;
+      grp.add(body);
+      grp.userData.body = body;
+      grp.userData.halo = halo;
+      return grp;
+    }
+    function makeCandlestick(sc, lightIntensity, lightDist, bill){
+      var grp = new THREE.Group();
+      var brass = new THREE.MeshLambertMaterial({ color: 0x9a7b30 });
+      var pan = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.13 * sc, 0.15 * sc, 0.02 * sc, 18), brass);
+      grp.add(pan);
+      var socket = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.055 * sc, 0.065 * sc, 0.05 * sc, 12), brass);
+      socket.position.y = 0.03 * sc; grp.add(socket);
+      var wax = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.045 * sc, 0.05 * sc, 0.24 * sc, 12),
+        new THREE.MeshLambertMaterial({ color: 0xd8c8a8 }));
+      wax.position.y = 0.16 * sc; grp.add(wax);
+      var wick = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.006 * sc, 0.009 * sc, 0.035 * sc, 6),
+        new THREE.MeshBasicMaterial({ color: 0x1a120a }));
+      wick.position.y = 0.295 * sc; grp.add(wick);
+      var flame = makeFlame(sc);
+      flame.position.y = 0.46 * sc; grp.add(flame);
+      var light = null;
+      if(lightIntensity){
+        light = new THREE.PointLight(0xffb46a, lightIntensity, lightDist, 2);
+        light.position.y = 0.55 * sc; grp.add(light);
+      }
+      flames.push({ grp: flame, light: light, base: lightIntensity || 0,
+                    ph: Math.random() * 6.28, bill: !!bill });
+      return grp;
+    }
+    var carried = makeCandlestick(0.62, 1.6, 16, false);
+    carried.position.set(0.55, -0.43, -1.15);
+    camera.add(carried);
+
+    /* ── La table et ses feuillets ──────────────────────────────────
+       Un groupe = une œuvre (dans l'ordre de bibliotheque.json), ses
+       fils rangés le long de la table, plus récents d'abord. */
+    var SP = 1.55, PADX = 1.9, GAP_G = 2.3;
+    var tableL = 9;
+    var groups = [];
+    (function(){
+      var byW = {};
+      tops.forEach(function(n){
+        var id = workOf(n).id || 'autres';
+        (byW[id] = byW[id] || []).push(n);
+      });
+      var order = biblioOrder.filter(function(id){ return byW[id]; });
+      Object.keys(byW).forEach(function(id){ if(order.indexOf(id) < 0) order.push(id); });
+      var x = PADX;
+      order.forEach(function(id){
+        var notes = byW[id].slice(0, 80);   /* la suite vit dans la version liste */
+        var g = { id: id, label: (biblio[id] && biblio[id].title) || 'Autres textes',
+                  notes: notes, x0: x };
+        x += notes.length * SP;
+        g.x1 = x; g.cx = (g.x0 + g.x1) / 2;
+        groups.push(g);
+        x += GAP_G;
+      });
+      tableL = Math.max(x - GAP_G + PADX, 9);
+    })();
+
+    var room = new THREE.Group();
+    scene.add(room);
+    var woodTop = new THREE.MeshLambertMaterial({
+      map: woodTexRepeat('#2b1a0d', 0.35, Math.max(2, tableL / 3)) });
+    var woodDark = new THREE.MeshLambertMaterial({
+      map: woodTexRepeat('#20120a', 0.5, Math.max(2, tableL / 4)) });
+
+    /* le plateau, ses pieds, les deux bancs */
+    var top = new THREE.Mesh(new THREE.BoxGeometry(tableL + 1.4, 0.16, 3.6), woodTop);
+    top.position.set(tableL / 2, -0.08, 0);
+    room.add(top);
+    for(var lx = 0.4; lx <= tableL - 0.2; lx += Math.max(3.4, tableL / 5)){
+      [-1.45, 1.45].forEach(function(lz){
+        var leg = new THREE.Mesh(new THREE.BoxGeometry(0.18, 1.7, 0.18), woodDark);
+        leg.position.set(lx, -1.0, lz);
+        room.add(leg);
+      });
+    }
+    [-2.35, 2.35].forEach(function(bz){
+      var bench = new THREE.Mesh(new THREE.BoxGeometry(tableL * 0.96, 0.09, 0.52), woodDark);
+      bench.position.set(tableL / 2, -0.98, bz);
+      room.add(bench);
+      for(var bx = 1.0; bx <= tableL - 0.6; bx += Math.max(3.4, tableL / 4)){
+        var bleg = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.85, 0.4), woodDark);
+        bleg.position.set(bx, -1.44, bz);
+        room.add(bleg);
+      }
+    });
+    var floor = new THREE.Mesh(new THREE.PlaneGeometry(tableL + 40, 34),
+      new THREE.MeshLambertMaterial({ color: 0x170f08 }));
+    floor.rotation.x = -Math.PI / 2;
+    floor.position.set(tableL / 2, -1.86, 0);
+    room.add(floor);
+
+    /* les chandeliers de la table — les billboards font face au regard */
+    for(var cx2 = 1.6; cx2 <= tableL - 1.0; cx2 += 4.0){
+      var cs = makeCandlestick(0.55, 1.1, 7.5, true);
+      cs.position.set(cx2, 0, -1.28);
+      room.add(cs);
+    }
+    /* l'encrier au haut de table, la pile de feuilles vierges au bout */
+    var ink = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.12, 0.14, 14),
+      new THREE.MeshLambertMaterial({ color: 0x14100c }));
+    ink.position.set(0.7, 0.07, 0.7);
+    room.add(ink);
+    for(var pv = 0; pv < 3; pv++){
+      var blank = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.012, 1.2),
+        new THREE.MeshLambertMaterial({ color: 0xcbb98f }));
+      blank.position.set(tableL - 0.7 + (pv % 2) * 0.05, 0.01 + pv * 0.013, 0.8 - pv * 0.04);
+      blank.rotation.y = (pv - 1) * 0.14;
+      room.add(blank);
+    }
+
+    /* les cartouches d'œuvre, inclinés vers le regard (à plat, la caméra
+       les verrait par la tranche — piège documenté sur la bibliothèque) */
+    var regenFns = [];
+    groups.forEach(function(gr){
+      var pl = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.34, 0.05),
+        new THREE.MeshLambertMaterial({ map: plaqueTexture(gr.label) }));
+      pl.position.set(gr.cx, 0.26, -1.62);
+      pl.rotation.x = -0.3;
+      room.add(pl);
+      regenFns.push(function(){
+        pl.material.map = plaqueTexture(gr.label);
+        pl.material.needsUpdate = true;
+      });
+    });
+
+    /* ── Les feuillets ── */
+    var SH_W = 1.04, SH_H = 1.38, TOP_Y = 0.015;
+    var sheets = [];      /* { note, mesh, rest{x,y,z,rz}, out, outT, born, slips } */
+    var hitMeshes = [];
+    function addSlip(sh, i){
+      var sm = new THREE.Mesh(new THREE.PlaneGeometry(0.52, 0.36),
+        new THREE.MeshBasicMaterial({ map: SLIP_TEXES[i % 3] }));
+      sm.rotation.x = -Math.PI / 2;
+      sm.rotation.z = sh.rest.rz + (hash01(sh.note.id, 40 + i) - 0.5) * 0.5;
+      sm.position.set(
+        sh.rest.x + 0.3 - i * 0.22 + (hash01(sh.note.id, 50 + i) - 0.5) * 0.2,
+        TOP_Y - 0.006 - i * 0.0015,
+        sh.rest.z + SH_H / 2 + 0.06);
+      room.add(sm);
+      sh.slips.push(sm);
+    }
+    groups.forEach(function(gr){
+      gr.notes.forEach(function(note, i){
+        var mat = new THREE.MeshBasicMaterial({ map: sheetTexture(note) });
+        var m = new THREE.Mesh(new THREE.PlaneGeometry(SH_W, SH_H), mat);
+        m.rotation.x = -Math.PI / 2;
+        var rz = (hash01(note.id, 4) - 0.5) * 0.42;
+        m.rotation.z = rz;
+        var rest = {
+          x: gr.x0 + SP / 2 + i * SP,
+          y: TOP_Y + i * 0.0006,
+          z: -0.18 + (hash01(note.id, 3) - 0.5) * 0.5,
+          rz: rz
+        };
+        m.position.set(rest.x, rest.y, rest.z);
+        m.userData.note = note;
+        room.add(m);
+        var sh = { note: note, mesh: m, rest: rest, out: 0, outT: 0,
+                   born: 0, slips: [] };
+        var reps = repsBy[note.id] || [];
+        for(var k = 0; k < Math.min(reps.length, 3); k++) addSlip(sh, k);
+        sheets.push(sh);
+        hitMeshes.push(m);
+        regenFns.push(function(){
+          m.material.map = sheetTexture(note);
+          m.material.needsUpdate = true;
+        });
+      });
+    });
+    /* la scène répercute une réponse postée depuis la fiche : la
+       texture du feuillet se redessine, un billet se glisse dessous */
+    onReplyPosted = function(note){
+      for(var i = 0; i < sheets.length; i++){
+        var sh = sheets[i];
+        if(sh.note.id !== note.id) continue;
+        sh.mesh.material.map = sheetTexture(note);
+        sh.mesh.material.needsUpdate = true;
+        var n = (repsBy[note.id] || []).length;
+        if(sh.slips.length < Math.min(n, 3)) addSlip(sh, sh.slips.length);
+        break;
+      }
+    };
+
+    /* poussière dans la lumière */
+    var dust = (function(){
+      var N = 120, pos = new Float32Array(N * 3);
+      for(var i = 0; i < N; i++){
+        pos[i * 3]     = Math.random() * tableL;
+        pos[i * 3 + 1] = -1.5 + Math.random() * 4.5;
+        pos[i * 3 + 2] = -1.6 + Math.random() * 4.2;
+      }
+      var g = new THREE.BufferGeometry();
+      g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+      var m = new THREE.PointsMaterial({ color: 0xd8ad4c, size: 0.04,
+        transparent: true, opacity: 0.3, depthWrite: false });
+      var pts = new THREE.Points(g, m);
+      scene.add(pts);
+      return { pts: pts, pos: pos, n: N };
+    })();
+
+    /* ── Le travelling ── */
+    var CAMY = 2.3, CAMZ = 3.15, LOOKZ = -0.32, LEAD = 1.05;
+    var TFOV = 46, EST_FOV = 70, WIDE_Y = 4.3;
+    var zFar = 12, sbShift = 0, x0 = 1, x1 = 2;
+    var T_IN = 0.14, T_TRAVEL = 0.9;
+
+    function computeFraming(){
+      /* distance-pour-contenir, calculée À LA FOCALE LARGE (piège n°4
+         de la bibliothèque : une erreur d'un facteur 2 noie tout) */
+      var t = Math.tan(EST_FOV * Math.PI / 360);
+      var dV = (5.4 / 2 + 1.1) / t;
+      var dW = (tableL / 2 + 2.4) / (t * Math.max(camera.aspect, 0.5));
+      zFar = Math.max(dV, dW, 8.5);
+      var sbw = 0, sb = document.querySelector('.sidebar');
+      if(sb){
+        var sr = sb.getBoundingClientRect();
+        if(sr.width && sr.right > 0) sbw = sr.right;
+      }
+      sbShift = t * Math.max(camera.aspect, 0.5) * zFar *
+                (sbw / Math.max(1, window.innerWidth));
+      scene.fog.far = zFar + 12;
+      x0 = PADX - 0.3;
+      x1 = Math.max(tableL - PADX + 0.3, x0 + 0.1);
+    }
+
+    function camPose(p, out){
+      var wcx = tableL / 2 - sbShift;
+      if(p < T_IN){
+        var t = sstep(0, T_IN, p);
+        out.x  = wcx + (x0 - wcx) * t;
+        out.y  = WIDE_Y + (CAMY - WIDE_Y) * t;
+        out.z  = zFar + (CAMZ - zFar) * t;
+        out.lx = wcx + (x0 + LEAD - wcx) * t;
+        out.ly = -1.0 * (1 - t);
+        out.fov = EST_FOV + (TFOV - EST_FOV) * t;
+      } else if(p < T_TRAVEL){
+        var tt = (p - T_IN) / (T_TRAVEL - T_IN);
+        out.x = x0 + (x1 - x0) * tt;
+        out.y = CAMY; out.z = CAMZ;
+        out.lx = out.x + LEAD; out.ly = 0;
+        out.fov = TFOV;
+      } else {
+        var to = sstep(T_TRAVEL, 1, p);
+        out.x  = x1 + (wcx - x1) * to * 0.6;
+        out.y  = CAMY + (WIDE_Y * 0.82 - CAMY) * to;
+        out.z  = CAMZ + (zFar * 0.8 - CAMZ) * to;
+        out.lx = x1 + LEAD + (wcx - x1 - LEAD) * to * 0.6;
+        out.ly = -1.0 * to;
+        out.fov = TFOV + (EST_FOV - TFOV) * to;
+      }
+      out.lz = LOOKZ;
+    }
+
+    var pT = 0, p = 0, docSpan = 1;
+    var run = document.getElementById('ppRun');
+    function layout(){
+      var vh = window.innerHeight || 1;
+      run.style.height = Math.round(vh * (1.5 + sheets.length * 0.5 + 1.0)) + 'px';
+      docSpan = Math.max(1, document.documentElement.scrollHeight - vh);
+    }
+    function onScroll(){
+      pT = cl01((window.pageYOffset || 0) / docSpan);
+    }
+    function scrollToX(x, smoothB){
+      var tt = cl01((x - x0) / (x1 - x0 || 1));
+      var pp2 = T_IN + tt * (T_TRAVEL - T_IN);
+      try {
+        window.scrollTo({ top: pp2 * docSpan, behavior: smoothB ? 'smooth' : 'instant' });
+      } catch(e){ window.scrollTo(0, pp2 * docSpan); }
+    }
+
+    /* ── Interface DOM pilotée par p ── */
+    var elIntro  = document.getElementById('ptIntro');
+    var elHint   = document.getElementById('ptHint');
+    var elRail   = document.getElementById('ptRail');
+    var elEnd    = document.getElementById('ptEnd');
+    var elTag    = document.getElementById('ptTag');
+    var curGroup = -1;
+
+    elRail.innerHTML = groups.map(function(g, i){
+      return '<button type="button" data-g="' + i + '">' +
+        esc(g.label) + ' (' + g.notes.length + ')</button>';
+    }).join('');
+    elRail.addEventListener('click', function(ev){
+      var b = ev.target.closest('button[data-g]');
+      if(!b) return;
+      scrollToX(groups[+b.dataset.g].x0 + SP / 2 - LEAD * 0.4, true);
+    });
+
+    var nReps = 0;
+    Object.keys(repsBy).forEach(function(k){ nReps += repsBy[k].length; });
+    document.getElementById('ptCount').innerHTML =
+      '<b>' + numFr(tops.length) + '</b> feuillet' + (tops.length > 1 ? 's' : '') +
+      ' sur la table · <b>' + numFr(nReps, true) + '</b> réponse' + (nReps > 1 ? 's' : '');
+    document.getElementById('ptEndLede').textContent =
+      'Vous avez longé ' + numFr(tops.length) + ' feuillet' + (tops.length > 1 ? 's' : '') +
+      ' et ' + numFr(nReps, true) + ' réponse' + (nReps > 1 ? 's' : '') +
+      '. Le vôtre s\'écrit depuis une liseuse — sélectionnez un passage, il viendra se poser ici.';
+
+    function updateUI(){
+      var introO = 1 - sstep(0.004, T_IN * 0.6, p);
+      elIntro.style.opacity = introO.toFixed(3);
+      elIntro.style.visibility = introO < 0.02 ? 'hidden' : '';
+      elHint.style.opacity = cl01(1 - p / 0.05).toFixed(3);
+
+      var endO = sstep(0.955, 0.995, p);
+      elEnd.style.opacity = endO.toFixed(3);
+      elEnd.style.visibility = endO < 0.02 ? 'hidden' : '';
+      elEnd.style.pointerEvents = endO > 0.5 ? 'auto' : 'none';
+
+      var midO = sstep(0.07, 0.14, p) * (1 - sstep(0.9, 0.96, p));
+      elRail.style.opacity = midO.toFixed(3);
+      elRail.style.pointerEvents = midO > 0.2 ? '' : 'none';
+
+      var look = camera.position.x + LEAD, gi = -1;
+      for(var i = 0; i < groups.length; i++){
+        if(look >= groups[i].x0 - GAP_G / 2 && look < groups[i].x1 + GAP_G / 2){ gi = i; break; }
+      }
+      if(gi !== curGroup){
+        curGroup = gi;
+        var bs = elRail.querySelectorAll('button');
+        for(var k = 0; k < bs.length; k++) bs[k].classList.toggle('on', k === gi);
+      }
+    }
+
+    /* ── Survol et clic ── */
+    var ray = new THREE.Raycaster();
+    var ndc = new THREE.Vector2(-2, -2);
+    var moved = false, hovered = null;
+    var v3 = new THREE.Vector3();
+
+    canvas.addEventListener('pointermove', function(ev){
+      ndc.x = (ev.clientX / window.innerWidth) * 2 - 1;
+      ndc.y = -(ev.clientY / window.innerHeight) * 2 + 1;
+      moved = true;
+    });
+    canvas.addEventListener('pointerleave', function(){
+      ndc.set(-2, -2); moved = true;
+    });
+    function pickSheet(){
+      ray.setFromCamera(ndc, camera);
+      var hits = ray.intersectObjects(hitMeshes, false);
+      return hits.length ? hits[0].object : null;
+    }
+    function setHover(mesh){
+      if(hovered === mesh) return;
+      hovered = mesh;
+      canvas.style.cursor = mesh ? 'pointer' : '';
+      for(var i = 0; i < sheets.length; i++){
+        var sh = sheets[i];
+        sh.outT = (sh.mesh === mesh || (selected && sh.note.id === selected)) ? 1 : 0;
+      }
+      if(mesh){
+        var note = mesh.userData.note;
+        var name = (note.profiles && note.profiles.username) || 'anonyme';
+        var w = workOf(note);
+        var reps = repsBy[note.id] || [];
+        elTag.innerHTML =
+          '<div class="tg-t">' + esc(name) + '</div>' +
+          '<div class="tg-m">' + esc(((w.meta && w.meta.title) || 'Œuvre') + ' · ' + ago(note.created) +
+            (reps.length ? ' · ' + reps.length + ' rép.' : '')) + '</div>' +
+          (note.body ? '<div class="tg-q">' + esc(trunc(note.body, 70)) + '</div>' : '');
+      }
+      elTag.style.opacity = mesh ? 1 : 0;
+    }
+    function placeTag(){
+      if(!hovered) return;
+      v3.set(hovered.position.x, 0.95, hovered.position.z);
+      v3.project(camera);
+      elTag.style.left = ((v3.x * 0.5 + 0.5) * window.innerWidth) + 'px';
+      elTag.style.top  = ((-v3.y * 0.5 + 0.5) * window.innerHeight - 8) + 'px';
+    }
+
+    /* ── La fiche : le fil complet, et l'on y répond ── */
+    var elCartel   = document.getElementById('ptCartel');
+    var elCartelIn = document.getElementById('ptCartelIn');
+    var selected = null;
+
+    function ctRepHtml(r){
+      var nm = (r.profiles && r.profiles.username) || 'anonyme';
+      return '<div class="ct-rep">' +
+        '<div class="ct-rep-top"><span class="ct-rep-name">' + esc(nm) + '</span>' +
+        '<span class="ct-rep-when">' + esc(ago(r.created)) + '</span></div>' +
+        '<div class="ct-rep-body">' + esc(r.body || '') + '</div></div>';
+    }
+    function openCartel(note){
+      selected = note.id;
+      var w = workOf(note);
+      var title = (w.meta && w.meta.title) || 'Œuvre';
+      var openW = w.meta && w.meta.status === 'available' && w.meta.path;
+      var name = (note.profiles && note.profiles.username) || 'anonyme';
+      var reps = repsBy[note.id] || [];
+      var sec = (note.section != null && note.section !== '') ? (' · section ' + note.section) : '';
+      elCartelIn.innerHTML =
+        '<div class="ct-top">' +
+          '<span class="ct-seal" style="background:' + seal(note.section) + '">' + esc(initials(name)) + '</span>' +
+          '<span class="ct-name">' + esc(name) + '</span>' +
+        '</div>' +
+        '<div class="ct-meta">' + esc(title + sec + ' · ' + ago(note.created)) + '</div>' +
+        (note.quote ? '<div class="ct-quote">«&nbsp;' + esc(trunc(note.quote, 220)) + '&nbsp;»</div>' : '') +
+        '<div class="ct-body">' + esc(note.body || '') + '</div>' +
+        '<div class="ct-h">' + (reps.length
+          ? reps.length + ' réponse' + (reps.length > 1 ? 's' : '')
+          : 'Pas encore de réponse') + '</div>' +
+        '<div class="ct-reps">' + reps.map(ctRepHtml).join('') + '</div>' +
+        '<div class="ct-h">Répondre</div>' +
+        '<div class="ct-compose">' +
+          '<textarea rows="3" placeholder="Votre réponse…" aria-label="Votre réponse"></textarea>' +
+          '<button type="button" class="ct-send">Publier la réponse</button>' +
+        '</div>' +
+        (openW
+          ? '<a class="ct-go" href="' + esc(w.meta.path) + '#note=' +
+            encodeURIComponent(note.id) + '">Aller au passage&nbsp;→</a>'
+          : '<p class="ct-soon">L\'atelier de cette œuvre est en préparation — le passage s\'ouvrira ici le moment venu.</p>');
+      elCartelIn.querySelector('.ct-send').addEventListener('click', function(){
+        var ta = elCartelIn.querySelector('.ct-compose textarea');
+        postReply(note, ta.value).then(function(row){
+          if(!row) return;
+          ta.value = '';
+          elCartelIn.querySelector('.ct-reps')
+            .insertAdjacentHTML('beforeend', ctRepHtml(row));
+          var n = (repsBy[note.id] || []).length;
+          elCartelIn.querySelector('.ct-h').textContent =
+            n + ' réponse' + (n > 1 ? 's' : '');
+        });
+      });
+      elCartel.hidden = false;
+      requestAnimationFrame(function(){ elCartel.classList.add('open'); });
+      for(var i = 0; i < sheets.length; i++){
+        sheets[i].outT = sheets[i].note.id === selected ? 1 : 0;
+      }
+      elCartel.focus({ preventScroll: true });
+    }
+    function closeCartel(){
+      selected = null;
+      elCartel.classList.remove('open');
+      setTimeout(function(){ if(!selected) elCartel.hidden = true; }, 340);
+      for(var i = 0; i < sheets.length; i++){
+        sheets[i].outT = sheets[i].mesh === hovered ? 1 : 0;
+      }
+    }
+    canvas.addEventListener('click', function(ev){
+      /* le clic porte ses propres coordonnées : au tactile il n'y a pas
+         eu de pointermove avant lui (piège documenté) */
+      ndc.x = (ev.clientX / window.innerWidth) * 2 - 1;
+      ndc.y = -(ev.clientY / window.innerHeight) * 2 + 1;
+      var m = pickSheet();
+      if(m){
+        openCartel(m.userData.note);
+        if(p > T_IN * 0.6) scrollToX(m.position.x - LEAD * 0.4, true);
+      } else if(selected){
+        closeCartel();
+      }
+    });
+    document.getElementById('ptCartelX').addEventListener('click', closeCartel);
+    document.addEventListener('keydown', function(ev){
+      if(ev.key === 'Escape' && selected) closeCartel();
+    });
+    document.getElementById('ptBack').addEventListener('click', function(){
+      try { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+      catch(e){ window.scrollTo(0, 0); }
+    });
+
+    /* ── Boucle ── */
+    var raf = null, lastT = 0, hiddenTab = false, lastCamX = null, tilt = 0;
+    var fallStart = 0, fallDone = false;
+    function frame(now){
+      raf = requestAnimationFrame(frame);
+      var dt = Math.min(0.05, (now - lastT) / 1000 || 0.016);
+      lastT = now;
+      var tsec = now / 1000;
+
+      p += (pT - p) * (1 - Math.exp(-dt * 7));
+      if(Math.abs(pT - p) < 0.0004) p = pT;
+
+      var o = {};
+      camPose(p, o);
+      camera.position.set(o.x, o.y, o.z);
+      camera.lookAt(o.lx, o.ly, o.lz);
+      if(Math.abs(camera.fov - o.fov) > 0.01){
+        camera.fov = o.fov;
+        camera.updateProjectionMatrix();
+      }
+
+      /* les plans d'ensemble sont suréclairés : la salle se lit d'un
+         coup d'œil, les flammes reprennent la main au ras de la table */
+      var wideK = Math.max(1 - sstep(0, T_IN, p), sstep(T_TRAVEL, 1, p));
+      amb.intensity = 1.05 + 0.5 * wideK;
+      hemi.intensity = 0.5 + 0.4 * wideK;
+
+      /* la cascade d'entrée : les feuillets tombent se ranger, une
+         seule fois — puis chacun ne bouge plus que soulevé (survol ou
+         fiche ouverte). Sautée si l'on arrive en milieu de page. */
+      if(!fallDone){
+        if(!fallStart){
+          if(pT < 0.02) fallStart = now;
+          else fallDone = true;
+        }
+        if(fallStart){
+          var all = true;
+          for(var si = 0; si < sheets.length; si++){
+            if(!sheets[si].born) sheets[si].born = fallStart + si * 85;
+          }
+          if(now - fallStart > sheets.length * 85 + 800) fallDone = true;
+        }
+      }
+      for(var i2 = 0; i2 < sheets.length; i2++){
+        var sh = sheets[i2];
+        sh.out += (sh.outT - sh.out) * (1 - Math.exp(-dt * 10));
+        var e = 1;
+        if(!fallDone && sh.born){
+          e = sstep(0, 1, (now - sh.born) / 700);
+        } else if(!fallDone){ e = 0; }
+        var lift = sh.out;
+        sh.mesh.position.x = sh.rest.x;
+        sh.mesh.position.y = sh.rest.y + (1 - e) * 2.5 + lift * 0.3;
+        sh.mesh.position.z = sh.rest.z + lift * 0.28;
+        sh.mesh.rotation.x = -Math.PI / 2 + (1 - e) * 0.55 + lift * 0.34;
+        sh.mesh.rotation.z = sh.rest.rz + (1 - e) * 2.4;
+      }
+
+      /* tout ce qui brûle vacille — sommes de sinus à périodes non
+         multiples : une flamme ne bat pas la mesure */
+      for(var fi = 0; fi < flames.length; fi++){
+        var F = flames[fi];
+        var fl = Math.sin(tsec * 9.3 + F.ph) * 0.5 +
+                 Math.sin(tsec * 23.7 + F.ph) * 0.3 +
+                 Math.sin(tsec * 5.1 + F.ph) * 0.2;
+        var fl2 = Math.sin(tsec * 13.1 + F.ph) * 0.5 +
+                  Math.sin(tsec * 3.7 + F.ph) * 0.5;
+        var body = F.grp.userData.body, halo = F.grp.userData.halo;
+        body.scale.set(1 + fl * 0.09, 1 + fl * 0.2, 1);
+        body.rotation.z = fl2 * 0.055;
+        halo.material.opacity = 0.42 + fl * 0.12;
+        if(F.light) F.light.intensity = F.base * (1 + fl * 0.09);
+        if(F.bill) F.grp.lookAt(camera.position);
+      }
+      /* la main n'est pas un trépied ; et le bougeoir porté est ANCRÉ
+         au coin du cadre EN FONCTION DE LA FOCALE (piège documenté) */
+      var vx = lastCamX === null ? 0 : o.x - lastCamX;
+      lastCamX = o.x;
+      tilt += (Math.max(-0.22, Math.min(0.22, -vx * 5)) - tilt) *
+              (1 - Math.exp(-dt * 4));
+      carried.rotation.z = tilt;
+      var chh = Math.tan(camera.fov * Math.PI / 360) * 1.15;
+      carried.position.x = chh * camera.aspect * 0.7;
+      carried.position.y = -chh + 0.02 + Math.sin(tsec * 1.2) * 0.008;
+      camera.position.y += Math.sin(tsec * 0.9) * 0.012 +
+                           Math.sin(tsec * 1.63) * 0.007;
+      camera.position.x += Math.sin(tsec * 0.53) * 0.008;
+
+      var dp = dust.pos;
+      for(var di = 0; di < dust.n; di++){
+        dp[di * 3 + 1] += dt * 0.05 * (0.4 + (di % 5) * 0.2);
+        if(dp[di * 3 + 1] > 3.2) dp[di * 3 + 1] = -1.6;
+      }
+      dust.pts.geometry.attributes.position.needsUpdate = true;
+
+      if(moved){ moved = false; setHover(pickSheet()); }
+      placeTag();
+      updateUI();
+
+      renderer.render(scene, camera);
+    }
+
+    function resize(){
+      var w = window.innerWidth, h = window.innerHeight;
+      /* un onglet en arrière-plan peut annoncer 0×0 : on garde le
+         cadrage précédent plutôt que de réduire le tampon à néant */
+      if(!w || !h) return;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      computeFraming();
+      layout();
+      onScroll();
+    }
+
+    /* les textures au texte se redessinent quand Caveat et Fraunces
+       arrivent — le premier tracé part sur la police système */
+    if(document.fonts && document.fonts.ready){
+      document.fonts.ready.then(function(){
+        regenFns.forEach(function(f){ try { f(); } catch(e){} });
+      });
+    }
+
+    window.addEventListener('resize', resize);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    document.addEventListener('visibilitychange', function(){
+      hiddenTab = document.hidden;
+      if(hiddenTab && raf){ cancelAnimationFrame(raf); raf = null; }
+      else if(!hiddenTab && !raf && active){ lastT = performance.now(); raf = requestAnimationFrame(frame); }
+    });
+
+    var active = true;
+    function teardown(){
+      active = false;
+      if(raf){ cancelAnimationFrame(raf); raf = null; }
+      onReplyPosted = null;
+      document.documentElement.classList.remove('js-pp3d');
+      run.style.height = '0px';
+      closeCartel();
+      elTag.style.opacity = 0;
+      try { window.scrollTo(0, 0); } catch(e){}
+      document.getElementById('pp3dJoin').hidden = false;
+      sceneTorn = true;
+      /* le registre reprend la main, avec les réponses postées depuis
+         la fiche */
+      renderFlat();
+    }
+    document.getElementById('ptToFlat').addEventListener('click', teardown);
+    document.getElementById('ptToFlat2').addEventListener('click', teardown);
+
+    document.documentElement.classList.add('js-pp3d');
+    resize();
+    onScroll();
+    p = pT;
+    lastT = performance.now();
+    raf = requestAnimationFrame(frame);
+
+    return { teardown: teardown };
+  }
+
+  /* ── Amorçage de la scène ── */
+  function start3d(){
+    var s = initScene();
+    if(s){
+      scene3d = s;
+      document.getElementById('pp3dJoin').hidden = true;
+      try { window.scrollTo(0, 0); } catch(e){}
+    }
+  }
+  function decide(){
+    if(scene3d && !sceneTorn) return;
+    if(sceneTorn) return;              /* on ne relance qu'en rechargeant */
+    if(!tops.length) return;           /* rien à poser : le registre suffit */
+    if(typeof THREE === 'undefined'){ armThreeWait(); return; }
+    if(want3D()) start3d();
+    else if(!REDUCE && window.innerWidth >= 768){
+      document.getElementById('pp3dJoin').hidden = false;
+    }
+  }
+  /* three.min.js est en defer : au moment où load() aboutit il peut ne
+     pas être là. DOMContentLoaded arrive après les scripts defer —
+     c'est le rendez-vous sûr (motif bibliotheque.html). */
+  var threeWaitArmed = false;
+  function armThreeWait(){
+    if(threeWaitArmed) return;
+    threeWaitArmed = true;
+    if(document.readyState === 'loading'){
+      document.addEventListener('DOMContentLoaded', decide);
+    } else {
+      window.addEventListener('load', decide);
+      if(document.readyState === 'complete') setTimeout(decide, 60);
+    }
+  }
+  window.addEventListener('resize', decide);
+  document.getElementById('pp3dBtn').addEventListener('click', function(){
+    if(sceneTorn){ location.hash = ''; location.reload(); return; }
+    if(location.hash === '#liste'){
+      try { history.replaceState(null, '', location.pathname); } catch(e){}
+    }
+    start3d();
+  });
 })();
 </script>
 </body>

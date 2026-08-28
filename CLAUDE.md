@@ -586,8 +586,8 @@ dans ces cas — et le CSS masque fiche, bandeau et voile sous 768 px.
   première tentative de restylage ; vérifier que la restauration +
   réapplication progressive s'est bien terminée avant de reconstruire
   dessus.
-- ✅ Place publique — **refondue en « table commune » (forum)** (août
-  2026), voir « La page Place publique » ci-dessous.
+- ✅ Place publique — **refondue en « table commune » (forum), portée
+  en scène 3D** (août 2026), voir « La page Place publique » ci-dessous.
 - ✅ Barre latérale générale + barre horizontale du haut
 - 🔲 Accueil de l'œuvre Manuscrits de 1844 (mission en cours — même
   structure que Le Capital, contenu à adapter : aliénation du
@@ -914,7 +914,7 @@ d'origine (Livre II après le I, etc.) et les arbitrages éditoriaux validés
 (Grundrisse après Capital I, les trois primer, la Contribution hors de
 tout fil) sont documentés dans l'historique git de la version précédente.
 
-## La page Place publique — « la table commune » (refonte août 2026)
+## La page Place publique — « la table commune » (refonte août 2026, 3D)
 
 `oeuvres/place-publique.html` (CSS et JS inlinés, motif de la page).
 **Ce lieu est un FORUM** — décision du propriétaire, 2e passe de la
@@ -989,6 +989,53 @@ l'actif), désormais construits sur les DONNÉES (id d'œuvre résolu),
 plus sur le texte du DOM. Décor : rond de tasse, feuillets vierges —
 aria-hidden, jamais des données.
 
+### La salle en trois dimensions (mission `salle-commune-3d`)
+
+Sur demande du propriétaire (« passer un cap en qualité et en
+immersion, comme pour la biblio »), la page est devenue une **salle de
+réunion Three.js** au motif exact de la bibliothèque : canvas fixe,
+cale de défilement (#ppRun), le défilement pour seul travelling
+(réversible), plan large d'entrée → approche → travée → léger recul
+final. **Le registre à plat décrit ci-dessus est devenu le repli**
+(mobile, reduced-motion, sans WebGL, `#liste`, ou aucun feuillet) et
+reste la version des lecteurs d'écran — c'est LUI qui porte filtres et
+états ; la 3D n'existe que s'il y a des feuillets à poser.
+
+- **La scène** : une longue table de bois (longueur dérivée du nombre
+  de fils), deux bancs, chandeliers posés tous les 4 m (flammes
+  billboards, blobs dessinés — jamais de plans croisés), encrier en
+  haut de table, pile de feuilles vierges au bout, poussière,
+  bougeoir porté enfant de la caméra (ancré au coin du cadre EN
+  FONCTION DE LA FOCALE), fog couleur du fond. Tout est dérivé des
+  données ou du décor — jamais l'inverse.
+- **Un fil = un feuillet posé sur la table**, texture canvas
+  (signature Caveat, œuvre·section, citation en petit italique, le
+  COMMENTAIRE en texte principal, compte de réponses) redessinée sur
+  `document.fonts.ready` ET après chaque réponse postée ; **les
+  réponses sont des billets qui dépassent de sous le feuillet** (3
+  max). Tons et poses déterministes par hash de l'id. Les feuillets
+  sont groupés PAR ŒUVRE (ordre de bibliotheque.json), cartouche de
+  laiton incliné vers le regard par groupe, rail en bas = les œuvres.
+- **La cascade d'entrée** : au chargement (et seulement en haut de
+  page — une restauration de défilement la saute), les feuillets
+  TOMBENT se ranger l'un après l'autre — c'est la réponse à la
+  demande « des feuillets qui s'animent comme sur l'accueil ».
+  Temporelle et jouée une fois ; le reste du mouvement est du scrub.
+- **Survol** = le feuillet se soulève (outT easé) + étiquette
+  projetée ; **clic** = la caméra vient se poser devant (scrollToX —
+  le pilotage reste le défilement) et la FICHE s'ouvre
+  (`.pt-cartel`, meuble du cartel de la biblio) : fil complet,
+  citation, réponses, **composer** (textarea Caveat + « Publier la
+  réponse » via le cœur partagé `postReply`), « Aller au passage → ».
+  `onReplyPosted` répercute une réponse postée depuis la fiche sur le
+  feuillet 3D ; `teardown()` re-rend le registre pour la même raison.
+- Tous les pièges déjà documentés de la biblio ont été appliqués
+  d'office : canvas élément remplacé, resize à tailles nulles ignoré,
+  clic à coordonnées propres, distance-pour-contenir à la focale
+  large, compensation sidebar (`sbShift`), rendez-vous
+  DOMContentLoaded pour three.min.js en defer, `#liste`,
+  `location.reload()` si une scène a déjà été démontée.
+
 **Pièges rencontrés sur cette page (à ne pas refaire)** :
 
 1. **`innerWidth` vaut 0 dans un onglet chargé en arrière-plan** : le
@@ -998,7 +1045,15 @@ aria-hidden, jamais des données.
 2. **Spécificité des variantes nth-child** : les poses
    `.fl:nth-child(5n+1){--x:…}` pèsent (0,2,0) ; le correctif mobile
    doit s'écrire `.fl:nth-child(n){--x:0px}` pour les égaler.
-3. **Pour tester : la sonde, toujours.** Dans un onglet piloté le rAF
+3. **Le gating `.pt-ui{display:none}` ne survit pas à un `display`
+   posé dans la règle de base d'un élément** : `.pt-hint{display:flex}`
+   l'écrasait et l'invite 3D fuyait dans la version liste. Les
+   `display` des éléments d'interface 3D vivent SOUS `.js-pp3d`.
+4. **`#liste` cliqué depuis la page est une navigation same-document**
+   — rien ne recharge, la scène reste. Les boutons « version liste »
+   appellent `teardown()` directement ; le hash ne sert qu'à ARRIVER
+   en liste.
+5. **Pour tester : la sonde, toujours.** Dans un onglet piloté le rAF
    est gelé (cascade et scrub ne posent rien), les captures d'une pane
    masquée sont noires ou périmées, et `scroll-behavior:smooth` (posé
    par atelier.css) fait qu'un `window.scrollTo(0,y)` ne progresse
