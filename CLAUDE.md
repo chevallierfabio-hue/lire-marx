@@ -202,7 +202,16 @@ gauche.
 **Il y a une vraie bougie.** `.hs-closer-candle` reprend celle de l'intro
 cinématique, aux mêmes couleurs : bougeoir laiton `#9a7b30`, cire crème
 `#e9ddc2`, flamme `#ffd27a`, halo orangé `#ff9c3a`, et jusqu'au filet de
-fumée. **Tout est en CSS** — un troisième contexte WebGL sur la page (il y a
+fumée. Le **bougeoir** n'est pas une pastille : c'est une
+coupelle (`.cd-pan`) et une douille qui serre la cire (`.cd-socket`) — sans
+la douille, la bougie se posait sur un disque au lieu d'y être tenue, et ça
+se voyait. Chaque pièce est faite de deux morceaux, le CORPS (le flanc, vu
+de face) et le DESSUS (l'ellipse en plongée, `::before`) : c'est le
+décalage de quelques pixels entre les deux qui donne l'épaisseur. Un laiton
+se lit à sa BANDE SPÉCULAIRE, d'où les dégradés horizontaux à sept arrêts
+plutôt qu'un aplat. Et l'éclat de la coupelle ne va **pas** au centre — la
+douille l'occulte et y porte son ombre : ce qu'on voit du plateau, c'est la
+couronne entre les deux, et c'est là que le métal doit briller. **Tout est en CSS** — un troisième contexte WebGL sur la page (il y a
 déjà `#hero-bg` et `#circuit-bg`, plus celui de l'intro) pour un décor de
 130 px ne se justifiait pas. Elle se tient **à droite, près du feuillet**,
 qu'elle éclaire : à gauche elle tombait derrière le bouton. `--candle-r`
