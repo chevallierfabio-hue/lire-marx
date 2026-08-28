@@ -682,11 +682,16 @@ fonction de la position de défilement, donc réversible.
 Le monde matériel de cette page est donc **l'encre sur le papier**, distinct de
 celui de l'accueil (photographie, bougie, chariot) mais de la même famille :
 
-- **Le grain** (`.bx-paper`) — le fac-similé du manuscrit, très assombri et
+- **Le grain** (`.bx-paper`) — le fac-similé du manuscrit, assombri et
   légèrement flouté, en `mix-blend-mode:screen`. C'est une TEXTURE, pas une
   image : on n'en montre pas le contenu, seulement la fibre, donc pas de
-  légende à lui donner. Plus visible sur les portes (`.46`) que dans les fils
-  (`.34`) — on pousse une porte, on ne pousse pas un diagramme.
+  légende à lui donner. Plus visible sur les portes (`.62` / `brightness(.42)`)
+  que dans les fils (`.34` / `brightness(.20)`). **Attention au trop discret** :
+  posé d'abord à `brightness(.20)` partout, le grain était purement et
+  simplement invisible sur les portes — autant ne rien avoir mis.
+- **Le rai de lumière** (`.bx-door::after`) — une porte est ENTREBÂILLÉE : un
+  rai chaud sur son chant gauche, qui s'élargit au survol. C'est lui, et non le
+  grain, qui fait lire une porte plutôt qu'une vignette de catalogue.
 - **Le sol** — le carnet quadrillé des chiffres clés de l'accueil, sous `#fil` :
   le trait doit être tracé SUR quelque chose.
 - **La pose** (`poseCards`) — les fiches arrivent de biais et s'aplatissent,
@@ -720,6 +725,30 @@ le JS, et le tireté redevient plein.
 **La pointe de flèche fait partie du chemin** (deux barbes après la courbe) :
 la plume arrive et donne le coup de flèche, elle n'est pas posée d'avance. Un
 `marker-end` apparaîtrait dès le premier pixel tracé.
+
+**La plume écrit par VAGUES, jamais arête par arête.** Premier essai : les
+arêtes s'écrivaient une par une, dans l'ordre. Résultat, la plume **reculait**
+à chaque changement d'arête — l'arête suivante repartait d'un autre nœud — et
+le propriétaire l'a relevé aussitôt. L'unité juste est la vague : toutes les
+arêtes qui quittent un même palier s'écrivent **ensemble** (`T.waves`, groupées
+par `e.lvl`), et la vague suivante repart des nœuds où la précédente s'est
+arrêtée. Bénéfice second : une fourche est enfin dessinée comme une fourche,
+deux traits à la fois.
+
+**Et chaque trait part du bord GAUCHE de sa source, pas du bord droit.** Une
+vague finit au bord gauche de sa cible ; en repartant du bord droit du même
+nœud, la plume faisait encore un bond de la largeur de la fiche. En partant du
+bord gauche, elle repart **exactement** là où elle s'est arrêtée : le segment
+sous la fiche est masqué par la fiche, et l'on voit la plume passer derrière la
+station. C'est pour ça que `.bx-node` a un fond **opaque** — à 92 % le trait
+transparaissait.
+
+**Une plume doit se voir.** Un cercle de 3 px doré sur une ligne dorée ne se
+lit pas : le propriétaire voyait « des points lumineux », pas une plume. Il lui
+faut une tête chaude (`#fff3d6` + `drop-shadow`) ET une traînée courte derrière
+elle — un second chemin dont on ne montre qu'une fenêtre finissant sur la tête
+(motif `TR, len+TR`, décalage `TR - len*t`). C'est la traînée qui fait la
+lecture, pas le point.
 
 **Pièges rencontrés, à ne pas refaire :**
 
