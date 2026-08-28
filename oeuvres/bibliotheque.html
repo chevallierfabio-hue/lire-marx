@@ -79,10 +79,10 @@ header.topbar{background:rgba(21,16,11,.96);border-bottom-color:var(--line);}
    haut, l'ombre par les bords. Posée SUR le canvas, sous l'interface. */
 .bx3-lamp{position:fixed;inset:0;z-index:2;pointer-events:none;display:none;
   background:
-    radial-gradient(74% 54% at 50% 16%,rgba(216,173,76,.05),transparent 66%),
-    radial-gradient(130% 82% at 50% 118%,rgba(0,0,0,.5),transparent 56%),
-    radial-gradient(80% 130% at -8% 50%,rgba(0,0,0,.44),transparent 52%),
-    radial-gradient(80% 130% at 108% 50%,rgba(0,0,0,.44),transparent 52%);}
+    radial-gradient(74% 54% at 50% 16%,rgba(216,173,76,.07),transparent 66%),
+    radial-gradient(130% 82% at 50% 118%,rgba(0,0,0,.32),transparent 56%),
+    radial-gradient(80% 130% at -8% 50%,rgba(0,0,0,.26),transparent 52%),
+    radial-gradient(80% 130% at 108% 50%,rgba(0,0,0,.26),transparent 52%);}
 .js-bib3d .bx3-lamp{display:block;}
 
 /* ── Interface posée sur la scène ── */
@@ -140,6 +140,22 @@ body.sb-collapsed .bx3-caption{left:clamp(28px,6vw,120px);}
   font-size:1.35rem;line-height:1.1;margin-bottom:6px;text-shadow:0 2px 22px rgba(0,0,0,.85);}
 .bx3-caption .cap-n{font-size:.83rem;line-height:1.6;color:var(--muted);
   text-shadow:0 1px 14px rgba(0,0,0,.9);}
+.bx3-caption .cap-l{margin-top:7px;font-family:'Spectral',Georgia,serif;
+  font-style:italic;font-size:.84rem;line-height:1.5;color:var(--gold);
+  opacity:.9;text-shadow:0 1px 12px rgba(0,0,0,.9);}
+
+/* L'entrée du titre : les lignes se posent l'une après l'autre. `backwards`
+   et jamais `both` — l'opacité du conteneur est pilotée par le JS au
+   défilement, un fill-mode persistant la lui volerait. */
+@keyframes bx3-rise{from{opacity:0;transform:translateY(16px)}
+  to{opacity:1;transform:none}}
+.js-bib3d .bx3-intro>*{animation:bx3-rise .8s cubic-bezier(.2,.9,.25,1) backwards;}
+.js-bib3d .bx3-intro>*:nth-child(2){animation-delay:.1s}
+.js-bib3d .bx3-intro>*:nth-child(3){animation-delay:.2s}
+.js-bib3d .bx3-intro>*:nth-child(4){animation-delay:.32s}
+.js-bib3d .bx3-intro>*:nth-child(5){animation-delay:.44s}
+.js-bib3d .bx3-intro>*:nth-child(6){animation-delay:.56s}
+.js-bib3d .bx3-hint{animation:bx3-rise .8s .9s cubic-bezier(.2,.9,.25,1) backwards;}
 
 /* Le rail : les quatre rayons, pour sauter de l'un à l'autre. */
 .bx3-rail{position:fixed;z-index:11;left:50%;bottom:0;transform:translateX(-50%);
@@ -344,9 +360,8 @@ its provenance.
   <div class="bx3-intro" id="bxIntro">
     <div class="bx3-label">La bibliothèque</div>
     <h1 class="bx3-h1">Par où <em>commencer</em></h1>
-    <p class="bx3-lede">Le corpus de Marx n'a pas d'ordre évident. Cette pièce le range
-      dans un ordre de lecture plutôt que dans celui des dates : rayon par rayon, des
-      seuils aux interventions. Longez-les, tirez un volume.</p>
+    <p class="bx3-lede">Marx ne se lit pas dans l'ordre des dates. Ces rayons suivent
+      l'ordre de lecture — longez-les, tirez un volume.</p>
     <div class="bx3-count" id="bx3Count"></div>
     <div class="bx3-legend">
       <span><i class="lg-book"></i> Un livre relié se lit aujourd'hui</span>
@@ -360,6 +375,7 @@ its provenance.
     <div class="cap-k" id="capK"></div>
     <div class="cap-t" id="capT"></div>
     <div class="cap-n" id="capN"></div>
+    <div class="cap-l" id="capL"></div>
   </div>
   <nav class="bx3-rail" id="bxRail" aria-label="Rayons de la bibliothèque" style="opacity:0"></nav>
   <div class="bx3-tag" id="bxTag"></div>
@@ -524,13 +540,16 @@ installShell({ workTitle: 'Bibliothèque', tabs: [] });
     var scene = new THREE.Scene();
     var camera = new THREE.PerspectiveCamera(42, 1, 0.1, 80);
 
-    /* La bougie portée : une seule vraie source, chaude, qui suit la
-       caméra — on longe les rayonnages une bougie à la main. L'ambiante
-       ne fait que déboucher les ombres. */
-    var amb = new THREE.AmbientLight(0x453422, 0.85);
+    /* La bougie portée : la vraie source, chaude, voyage avec la caméra —
+       on longe les rayonnages une bougie à la main, et on la VOIT (le
+       bougeoir est un enfant de la caméra, en bas à droite du cadre).
+       L'ambiante et l'hémisphérique ne font que déboucher la pièce, pour
+       que le plan large se lise sans attendre la flamme. */
+    var amb = new THREE.AmbientLight(0x4a3a28, 1.0);
     scene.add(amb);
-    var candle = new THREE.PointLight(0xffb46a, 1.55, 16, 2);
-    scene.add(candle);
+    var hemi = new THREE.HemisphereLight(0x87683e, 0x140d07, 0.5);
+    scene.add(hemi);
+    scene.add(camera); /* la caméra porte le bougeoir : ses enfants doivent être dans la scène */
 
     /* ── Textures dessinées ── */
     function tex(cv){
@@ -705,6 +724,75 @@ installShell({ workTitle: 'Bibliothèque', tabs: [] });
       };
       return 'rgb(' + f(r) + ',' + f(gg) + ',' + f(b) + ')';
     }
+
+    /* ── La flamme ──────────────────────────────────────────────────
+       Deux plans croisés en fusion additive plus un halo. Le vacillement
+       (échelle + intensité de la lumière) vit dans la boucle, via le
+       registre `flames` — jamais un battement régulier. */
+    function flameTexture(){
+      var S = 64, H = 128;
+      var cv = document.createElement('canvas'); cv.width = S; cv.height = H;
+      var g = cv.getContext('2d');
+      var gr = g.createRadialGradient(S / 2, H * 0.6, 2, S / 2, H * 0.52, S * 0.8);
+      gr.addColorStop(0, 'rgba(255,244,214,1)');
+      gr.addColorStop(0.35, 'rgba(255,210,122,.9)');
+      gr.addColorStop(0.7, 'rgba(255,156,58,.4)');
+      gr.addColorStop(1, 'rgba(255,140,40,0)');
+      g.fillStyle = gr; g.fillRect(0, 0, S, H);
+      return tex(cv);
+    }
+    var FLAME_TEX = flameTexture();
+    var flames = [];   /* { grp, light, base, ph } — tout ce qui brûle */
+
+    function makeFlame(s){
+      var m = new THREE.MeshBasicMaterial({ map: FLAME_TEX, transparent: true,
+        blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide });
+      var grp = new THREE.Group();
+      var a = new THREE.Mesh(new THREE.PlaneGeometry(0.11 * s, 0.3 * s), m);
+      var b = a.clone(); b.rotation.y = Math.PI / 2;
+      grp.add(a); grp.add(b);
+      grp.add(new THREE.Mesh(new THREE.PlaneGeometry(0.55 * s, 0.55 * s),
+        new THREE.MeshBasicMaterial({ map: FLAME_TEX, transparent: true, opacity: 0.2,
+          blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide })));
+      return grp;
+    }
+
+    /* Un bougeoir : coupelle de laiton, douille qui serre la cire, la
+       flamme — les couleurs de la bougie de l'accueil (#9a7b30 laiton,
+       #e9ddc2 cire, #ffd27a flamme). */
+    function makeCandlestick(s, lightIntensity, lightDist){
+      var grp = new THREE.Group();
+      var brass = new THREE.MeshLambertMaterial({ color: 0x9a7b30 });
+      var pan = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.13 * s, 0.15 * s, 0.02 * s, 18), brass);
+      grp.add(pan);
+      var socket = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.055 * s, 0.065 * s, 0.05 * s, 12), brass);
+      socket.position.y = 0.03 * s; grp.add(socket);
+      var wax = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.045 * s, 0.05 * s, 0.24 * s, 12),
+        new THREE.MeshLambertMaterial({ color: 0xd8c8a8 }));
+      wax.position.y = 0.16 * s; grp.add(wax);
+      var flame = makeFlame(s);
+      flame.position.y = 0.4 * s; grp.add(flame);
+      var light = null;
+      if(lightIntensity){
+        /* un peu au-dessus de la flamme : collée à la cire, elle la
+           brûlait au blanc */
+        light = new THREE.PointLight(0xffb46a, lightIntensity, lightDist, 2);
+        light.position.y = 0.55 * s; grp.add(light);
+      }
+      flames.push({ grp: flame, light: light, base: lightIntensity || 0,
+                    ph: Math.random() * 6.28 });
+      return grp;
+    }
+
+    /* Le bougeoir porté : accroché à la caméra, en bas à droite du cadre,
+       la coupelle à demi sortie par le bas — la main qu'on ne montre pas.
+       Sa flamme est LA source principale de la scène. */
+    var carried = makeCandlestick(0.62, 1.8, 18);
+    carried.position.set(0.55, -0.43, -1.15);
+    camera.add(carried);
 
     /* Cuirs par rayon : une famille brun / rouge / or, jamais criarde.
        L'ordre suit readingGroups ; une couleur par groupe, en boucle si
@@ -885,7 +973,137 @@ installShell({ workTitle: 'Bibliothèque', tabs: [] });
 
     var caseW = buildCase();
     var caseCX = caseW / 2;
-    scene.fog = new THREE.Fog(BGC, 8, 26);
+    scene.fog = new THREE.Fog(BGC, 9.5, 26);
+
+    /* ── La pièce se meuble ─────────────────────────────────────────
+       Du décor, jamais des données : rien ici ne représente une œuvre,
+       et tout est construit à partir des mesures réelles du meuble. */
+    function furnish(){
+      var floorY = -4.59;
+
+      /* le tapis de couloir : il guide l'allée et réchauffe le parquet */
+      (function(){
+        var cv = document.createElement('canvas'); cv.width = 256; cv.height = 64;
+        var g = cv.getContext('2d');
+        g.fillStyle = '#3a1712'; g.fillRect(0, 0, 256, 64);
+        g.strokeStyle = 'rgba(216,173,76,.5)'; g.lineWidth = 2;
+        g.strokeRect(7, 7, 242, 50);
+        g.strokeStyle = 'rgba(216,173,76,.25)'; g.lineWidth = 1;
+        g.strokeRect(13, 13, 230, 38);
+        var m = new THREE.Mesh(new THREE.PlaneGeometry(caseW + 2.5, 3.1),
+          new THREE.MeshLambertMaterial({ map: tex(cv) }));
+        m.rotation.x = -Math.PI / 2;
+        m.position.set(caseCX, floorY + 0.015, 2.3);
+        group3d.add(m);
+      })();
+
+      /* l'échelle, appuyée sur la travée de l'œuvre maîtresse : rotation.x
+         NÉGATIVE — le sommet part vers -z, contre le meuble ; positive,
+         elle tomberait vers le lecteur */
+      (function(){
+        var bay = bays[Math.min(2, bays.length - 1)];
+        if(!bay) return;
+        var lad = new THREE.Group(), L = 8.6, A = 0.24;
+        var railGeo = new THREE.BoxGeometry(0.09, L, 0.05);
+        var r1 = new THREE.Mesh(railGeo, woodMat); r1.position.x = -0.3;
+        var r2 = new THREE.Mesh(railGeo, woodMat); r2.position.x = 0.3;
+        lad.add(r1); lad.add(r2);
+        for(var i = 0; i < 9; i++){
+          var rung = new THREE.Mesh(new THREE.BoxGeometry(0.56, 0.06, 0.05), woodMat);
+          rung.position.y = -L / 2 + 0.5 + i * 0.95;
+          lad.add(rung);
+        }
+        lad.rotation.x = -A;
+        lad.position.set(bay.x1 - 0.7, floorY + (L / 2) * Math.cos(A), 1.78);
+        group3d.add(lad);
+      })();
+
+      /* la fenêtre au clair de lune, à gauche du meuble : la nuit dehors,
+         un froid bleu qui répond à la flamme portée */
+      (function(){
+        var wx = -2.3, wy = 1.4;
+        var frame = new THREE.MeshLambertMaterial({ color: 0x241408 });
+        var mkBar = function(w, h, px, py){
+          var b = new THREE.Mesh(new THREE.BoxGeometry(w, h, 0.08), frame);
+          b.position.set(wx + px, wy + py, -0.86);
+          group3d.add(b);
+        };
+        mkBar(1.7, 0.1, 0, 1.25); mkBar(1.7, 0.1, 0, -1.25);
+        mkBar(0.1, 2.6, -0.8, 0); mkBar(0.1, 2.6, 0.8, 0);
+        mkBar(0.06, 2.4, 0, 0);   mkBar(1.5, 0.06, 0, 0);
+        var glass = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 2.4),
+          new THREE.MeshBasicMaterial({ color: 0x8fb0ce, transparent: true,
+            opacity: 0.2, blending: THREE.AdditiveBlending, depthWrite: false }));
+        glass.position.set(wx, wy, -0.89);
+        group3d.add(glass);
+        var moon = new THREE.PointLight(0x88a7c4, 0.6, 11, 2);
+        moon.position.set(wx, wy, 0.6);
+        scene.add(moon);
+      })();
+
+      /* le bureau d'écriture, au bout de l'allée : c'est là que les
+         liasses deviennent des livres. Feuillets, encrier, plume, une
+         chandelle à lui, et le fac-similé du manuscrit dans son cadre —
+         la même page que le héros de l'accueil. */
+      (function(){
+        var desk = new THREE.Group(), topY = 1.52;
+        var top = new THREE.Mesh(new THREE.BoxGeometry(2.7, 0.12, 1.5), woodMat);
+        top.position.y = topY; desk.add(top);
+        [[-1.22, -0.62], [1.22, -0.62], [-1.22, 0.62], [1.22, 0.62]]
+          .forEach(function(pq){
+            var leg = new THREE.Mesh(new THREE.BoxGeometry(0.11, 1.46, 0.11), woodDark);
+            leg.position.set(pq[0], topY - 0.79, pq[1]);
+            desk.add(leg);
+          });
+        for(var i = 0; i < 4; i++){
+          var sheet = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.008, 0.36),
+            new THREE.MeshLambertMaterial({ color: 0xcbb98f }));
+          sheet.position.set(-0.5 + i * 0.22, topY + 0.07 + i * 0.009,
+                             0.12 + (i % 2) * 0.14);
+          sheet.rotation.y = (i - 1.5) * 0.16;
+          desk.add(sheet);
+        }
+        var ink = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.07, 0.1, 10),
+          new THREE.MeshLambertMaterial({ color: 0x14100a }));
+        ink.position.set(0.5, topY + 0.11, 0.3); desk.add(ink);
+        var quill = new THREE.Mesh(new THREE.BoxGeometry(0.018, 0.44, 0.045),
+          new THREE.MeshLambertMaterial({ color: 0xe4dcc4, side: THREE.DoubleSide }));
+        quill.position.set(0.53, topY + 0.32, 0.28);
+        quill.rotation.z = 0.5; quill.rotation.x = -0.25;
+        desk.add(quill);
+        var b1 = new THREE.Mesh(new THREE.BoxGeometry(0.56, 0.1, 0.4),
+          new THREE.MeshLambertMaterial({ color: 0x4a1a12 }));
+        b1.position.set(-0.85, topY + 0.11, -0.3); b1.rotation.y = 0.2; desk.add(b1);
+        var b2 = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.09, 0.36),
+          new THREE.MeshLambertMaterial({ color: 0x6d2418 }));
+        b2.position.set(-0.82, topY + 0.2, -0.28); b2.rotation.y = 0.06; desk.add(b2);
+        var dc = makeCandlestick(0.9, 0.9, 7);
+        dc.position.set(0.95, topY + 0.06, -0.35);
+        desk.add(dc);
+        /* le cadre, appuyé au fond ; la page arrive en différé et le
+           cadre vit très bien sans elle si le fichier manque */
+        var fr = new THREE.Group();
+        fr.add(new THREE.Mesh(new THREE.BoxGeometry(0.94, 1.2, 0.05),
+          new THREE.MeshLambertMaterial({ color: 0x241408 })));
+        var pageMat = new THREE.MeshLambertMaterial({ color: 0x9c8a68 });
+        var page = new THREE.Mesh(new THREE.PlaneGeometry(0.8, 1.06), pageMat);
+        page.position.z = 0.03; fr.add(page);
+        new THREE.TextureLoader().load(
+          '../assets/img/archive/manuscrit-ideologie-1846.webp',
+          function(t){
+            t.minFilter = THREE.LinearFilter; t.generateMipmaps = false;
+            t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping;
+            pageMat.map = t; pageMat.color.set(0xbfae8e); pageMat.needsUpdate = true;
+          });
+        fr.position.set(0.1, topY + 0.62, -0.52);
+        fr.rotation.x = -0.14;
+        desk.add(fr);
+        desk.position.set(caseW + 1.05, floorY + 0.06, 1.9);
+        desk.rotation.y = -0.55;
+        group3d.add(desk);
+      })();
+    }
+    furnish();
 
     /* poussière dans la lumière : quelques grains qui dérivent */
     var dust = (function(){
@@ -918,7 +1136,9 @@ installShell({ workTitle: 'Bibliothèque', tabs: [] });
          horizontal, le plus contraignant des deux l'emporte */
       var t = Math.tan(camera.fov * Math.PI / 360);
       var dV = (9.9 / 2 + 0.6) / t;
-      var dW = (caseW / 2 + 1.2) / (t * Math.max(camera.aspect, 0.5));
+      /* marge horizontale large : la fenêtre (à gauche du meuble) et le
+         bureau (à droite) font partie du plan d'ensemble */
+      var dW = (caseW / 2 + 3.4) / (t * Math.max(camera.aspect, 0.5));
       zFar = Math.max(dV, dW, 11);
       scene.fog.far = zFar + 13;
       x0 = Math.min(bays.length ? bays[0].cx : 2, 2.4);
@@ -986,6 +1206,15 @@ installShell({ workTitle: 'Bibliothèque', tabs: [] });
     var elCapK  = document.getElementById('capK');
     var elCapT  = document.getElementById('capT');
     var elCapN  = document.getElementById('capN');
+    var elCapL  = document.getElementById('capL');
+    /* Une ligne de contexte par rayon — du décor éditorial, pas des
+       données : elle tombe silencieusement pour un groupe inconnu. */
+    var LORE = {
+      'seuils': '« Des textes écrits pour être dits — brochures et discours, à lire à voix haute. »',
+      'jeune-marx': '« Paris, 1844 : un exil, des cahiers, et tout le vocabulaire qui se met en place. »',
+      'critique': '« Londres, salle de lecture du British Museum : vingt ans de liasses pour un livre paru. »',
+      'interventions': '« L\'histoire au présent : un coup d\'État analysé à chaud, un programme repris ligne à ligne. »'
+    };
     var elRail  = document.getElementById('bxRail');
     var elEnd   = document.getElementById('bxEnd');
     var elTag   = document.getElementById('bxTag');
@@ -1030,6 +1259,7 @@ installShell({ workTitle: 'Bibliothèque', tabs: [] });
           elCapK.textContent = 'Rayon ' + (ROM[bi] || (bi + 1));
           elCapT.textContent = bays[bi].group.label;
           elCapN.textContent = bays[bi].group.note;
+          elCapL.textContent = LORE[bays[bi].group.id] || '';
         }
       }
       elCap.style.opacity = (bi >= 0 ? midO : 0).toFixed(3);
@@ -1194,7 +1424,7 @@ installShell({ workTitle: 'Bibliothèque', tabs: [] });
     });
 
     /* ── Boucle ── */
-    var raf = null, lastT = 0, hidden = false;
+    var raf = null, lastT = 0, hidden = false, lastCamX = null, tilt = 0;
     function frame(now){
       raf = requestAnimationFrame(frame);
       var dt = Math.min(0.05, (now - lastT) / 1000 || 0.016);
@@ -1209,12 +1439,30 @@ installShell({ workTitle: 'Bibliothèque', tabs: [] });
       camera.position.set(o.x, o.y, o.z);
       camera.lookAt(o.lx, o.ly, o.lz);
 
-      /* la bougie voyage avec nous, et vacille */
+      /* tout ce qui brûle vacille — la flamme portée, celle du bureau.
+         Sommes de sinus à périodes non multiples : une flamme ne bat pas
+         la mesure. */
       var tsec = now / 1000;
-      var fl = Math.sin(tsec * 9.3) * 0.5 + Math.sin(tsec * 23.7) * 0.3 +
-               Math.sin(tsec * 5.1) * 0.2;
-      candle.intensity = 1.55 + fl * 0.14;
-      candle.position.set(o.x + 0.9 + fl * 0.02, o.y - 0.7, o.z - 1.5);
+      for(var fi = 0; fi < flames.length; fi++){
+        var F = flames[fi];
+        var fl = Math.sin(tsec * 9.3 + F.ph) * 0.5 +
+                 Math.sin(tsec * 23.7 + F.ph) * 0.3 +
+                 Math.sin(tsec * 5.1 + F.ph) * 0.2;
+        F.grp.scale.set(1 + fl * 0.08, 1 + fl * 0.16, 1 + fl * 0.08);
+        if(F.light) F.light.intensity = F.base * (1 + fl * 0.09);
+      }
+      /* la main n'est pas un trépied : le bougeoir s'incline avec le
+         mouvement (la flamme couchée au vent du travelling), et la caméra
+         respire à peine — des amplitudes de l'ordre du centimètre */
+      var vx = lastCamX === null ? 0 : o.x - lastCamX;
+      lastCamX = o.x;
+      tilt += (Math.max(-0.22, Math.min(0.22, -vx * 5)) - tilt) *
+              (1 - Math.exp(-dt * 4));
+      carried.rotation.z = tilt;
+      carried.position.y = -0.5 + Math.sin(tsec * 1.2) * 0.008;
+      camera.position.y += Math.sin(tsec * 0.9) * 0.012 +
+                           Math.sin(tsec * 1.63) * 0.007;
+      camera.position.x += Math.sin(tsec * 0.53) * 0.008;
 
       /* poussière : dérive lente */
       var pp = dust.pos;

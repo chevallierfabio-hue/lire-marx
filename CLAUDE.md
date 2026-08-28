@@ -669,6 +669,42 @@ libre ni de plan d'intro figé).
 - Textures texte (dos, liasses, cartouches) redessinées sur
   `document.fonts.ready` — le premier tracé part sur la police système.
 
+### La pièce s'est meublée (mission `bibliotheque-meublee`, août 2026)
+
+Retouches demandées par le propriétaire : plus de lumière (surtout le plan
+large), texte d'intro raccourci, et de la vie — objets, lore, animations.
+
+- **Lumière** : ambiante relevée + une `HemisphereLight` chaude, pénombre
+  CSS (`.bx3-lamp`) adoucie — le plan large doit se lire SANS attendre la
+  flamme. Le fog part à 9,5.
+- **Le bougeoir porté se voit** : `makeCandlestick()` (coupelle laiton,
+  douille, cire, flamme additive à deux plans croisés + halo), enfant de
+  la CAMÉRA (`scene.add(camera)` obligatoire pour que ses enfants
+  rendent), coupelle à demi sortie du bas du cadre. Il porte la lumière
+  principale — posée un peu AU-DESSUS de la flamme, collée à la cire elle
+  la brûlait au blanc. Il **s'incline avec le mouvement** (tilt easé sur
+  la vitesse caméra) et la caméra respire à peine (sommes de sinus,
+  amplitudes centimétriques). Tout ce qui brûle vit dans le registre
+  `flames` — périodes non multiples, une flamme ne bat pas la mesure.
+- **La pièce** (`furnish()`, décor jamais données) : tapis de couloir,
+  échelle appuyée sur la travée de l'œuvre maîtresse (**`rotation.x`
+  NÉGATIVE** pour l'appuyer au meuble — positive, elle tombe vers le
+  lecteur), fenêtre au clair de lune à gauche (verre additif + point
+  bleu `0x88a7c4` — le froid qui répond à la flamme), et le **bureau
+  d'écriture au bout de l'allée** : feuillets, encrier, plume, deux
+  tomes, sa chandelle, et le fac-similé du manuscrit ENCADRÉ
+  (`TextureLoader` en différé, le cadre vit sans la page si le fichier
+  manque — même image que le héros de l'accueil). Le cadrage du plan
+  large prend une marge horizontale de 3,4 pour les inclure tous deux.
+- **Lore** : une ligne de contexte par rayon (`LORE`, clé = id du
+  groupe, silencieuse pour un groupe inconnu) dans le cartouche de
+  travée (`.cap-l`, Spectral italique or). C'est du décor éditorial,
+  comme le texte d'intro — pas des données.
+- **Intro** : lede raccourci (« Marx ne se lit pas dans l'ordre des
+  dates… »), lignes qui se posent en cascade (`bx3-rise`). **Fill-mode
+  `backwards`, jamais `both`** : l'opacité du conteneur est pilotée par
+  le JS au défilement, un fill persistant la lui volerait.
+
 ### Le repli à plat (`#bxFlat`)
 
 Sous 768 px, en reduced-motion, sans WebGL ou sans THREE — ou **sur
