@@ -465,6 +465,7 @@ html.pp-anim.pp-lit .pp-head{
 
 /* Le rail : une entrée par œuvre, pour sauter le long de la table */
 .pt-rail{position:fixed;z-index:11;left:50%;bottom:0;transform:translateX(-50%);
+  flex-wrap:wrap;justify-content:center;max-width:min(92vw,880px);
   gap:2px;padding:6px 8px calc(10px + env(safe-area-inset-bottom,0px));
   opacity:0;transition:opacity .28s linear;}
 .pt-rail button{font:600 .72rem/1 var(--f-ui);letter-spacing:.06em;
@@ -1254,10 +1255,33 @@ installShell({
         g.font = 'italic 400 13px Spectral, serif';
         y = wrapText(g, '« ' + trunc(note.quote, 90) + ' »', 18, y, W - 36, 17, 2) + 8;
       }
+      var reps = repsBy[note.id] || [];
       g.fillStyle = 'rgba(30,17,4,.92)';
       g.font = '400 17px Spectral, serif';
-      wrapText(g, note.body || '', 18, y, W - 36, 24, 7);
-      var reps = repsBy[note.id] || [];
+      /* la place du corps se partage avec les réponses affichées */
+      y = wrapText(g, note.body || '', 18, y, W - 36, 24, reps.length ? 4 : 7);
+      /* LA CONVERSATION SE VOIT SANS SOULEVER : les deux dernières
+         réponses, en retrait, à l'encre plus claire */
+      if(reps.length){
+        y += 8;
+        reps.slice(-2).forEach(function(r){
+          if(y > H - 44) return;
+          var nm = (r.profiles && r.profiles.username) || 'anonyme';
+          g.fillStyle = 'rgba(44,28,10,.88)';
+          g.font = '700 15px Caveat, cursive';
+          var pre = '\u21b3 ' + nm;
+          g.fillText(pre, 26, y);
+          var wN = g.measureText(pre).width;
+          g.fillStyle = 'rgba(58,42,22,.8)';
+          g.font = 'italic 400 12px Spectral, serif';
+          var rest = '\u2014 ' + trunc(r.body || '', 34);
+          while(rest.length > 4 && g.measureText(rest).width > W - 44 - wN){
+            rest = rest.slice(0, -2);
+          }
+          g.fillText(rest, 26 + wN + 6, y);
+          y += 21;
+        });
+      }
       g.fillStyle = 'rgba(58,42,22,.8)';
       g.font = '600 11px Inter, sans-serif';
       g.fillText(reps.length
@@ -1409,7 +1433,14 @@ installShell({
     /* ── La table et ses feuillets ──────────────────────────────────
        Un groupe = une œuvre (dans l'ordre de bibliotheque.json), ses
        fils rangés le long de la table, plus récents d'abord. */
-    var SP = 1.55, PADX = 1.9, GAP_G = 2.3;
+    /* DEUX FEUILLETS DE FRONT, en quinconce (rangée proche z≈+0.42,
+       rangée lointaine z≈−0.72) : adaptation d'échelle — à cent fils,
+       la rangée unique faisait un couloir interminable. Le pas
+       HORIZONTAL est donc par demi-feuillet (0.78), deux fils par
+       colonne, et la table raccourcit de moitié. */
+    var SPX = 0.78, PADX = 1.9, GAP_G = 2.3;
+    var ROW_Z = [0.42, -0.72];
+    var GROUP_MAX = 80, hiddenCount = 0;
     var tableL = 9;
     var groups = [];
     (function(){
@@ -1422,15 +1453,17 @@ installShell({
       Object.keys(byW).forEach(function(id){ if(order.indexOf(id) < 0) order.push(id); });
       var x = PADX;
       order.forEach(function(id){
-        var notes = byW[id].slice(0, 80);   /* la suite vit dans la version liste */
+        var all = byW[id];
+        var notes = all.slice(0, GROUP_MAX);
+        hiddenCount += all.length - notes.length;
         var g = { id: id, label: (biblio[id] && biblio[id].title) || 'Autres textes',
                   notes: notes, x0: x };
-        x += notes.length * SP;
+        x += Math.max(notes.length * SPX, 1.6);
         g.x1 = x; g.cx = (g.x0 + g.x1) / 2;
         groups.push(g);
         x += GAP_G;
       });
-      tableL = Math.max(x - GAP_G + PADX, 9);
+      tableL = Math.max(x - GAP_G + PADX + (hiddenCount ? 1.8 : 0), 9);
     })();
 
     var room = new THREE.Group();
@@ -1503,8 +1536,26 @@ installShell({
 
     /* ── Les feuillets ── */
     var SH_W = 1.04, SH_H = 1.38, TOP_Y = 0.015;
-    var sheets = [];      /* { note, mesh, rest{x,y,z,rz}, out, outT, born, slips } */
+    var sheets = [];      /* { note, mesh, rest{x,y,z,rz}, out, outT, born, slips, inked } */
     var hitMeshes = [];
+    /* ENCRE PARESSEUSE — adaptation d'échelle : à cent fils, peindre
+       cent canvases au chargement coûtait cher. Chaque feuillet naît
+       PAPIER NU (matériau partagé par ton) et n'est encré que quand la
+       caméra approche (< INK_DIST, 2 par image dans la boucle) — de
+       loin et sous le fog, un papier nu est indiscernable. */
+    var INK_DIST = 20;
+    var BLANK_MATS = TONES.map(function(t){
+      return new THREE.MeshBasicMaterial({ color: t });
+    });
+    function ensureInk(sh){
+      if(sh.inked) return;
+      sh.inked = true;
+      sh.mesh.material = new THREE.MeshBasicMaterial({ map: sheetTexture(sh.note) });
+      avaFor(sh.note, function(){
+        sh.mesh.material.map = sheetTexture(sh.note);
+        sh.mesh.material.needsUpdate = true;
+      });
+    }
     function addSlip(sh, i){
       var sm = new THREE.Mesh(new THREE.PlaneGeometry(0.52, 0.36),
         new THREE.MeshBasicMaterial({ map: SLIP_TEXES[i % 3] }));
@@ -1519,42 +1570,74 @@ installShell({
     }
     groups.forEach(function(gr){
       gr.notes.forEach(function(note, i){
-        var mat = new THREE.MeshBasicMaterial({ map: sheetTexture(note) });
+        var mat = BLANK_MATS[(hash01(note.id, 1) * 4) | 0];
         var m = new THREE.Mesh(new THREE.PlaneGeometry(SH_W, SH_H), mat);
         m.rotation.x = -Math.PI / 2;
         var rz = (hash01(note.id, 4) - 0.5) * 0.42;
         m.rotation.z = rz;
         var rest = {
-          x: gr.x0 + SP / 2 + i * SP,
+          /* un peu de désordre en x : le quinconce strict se lisait
+             comme une fermeture éclair, pas comme une table couverte */
+          x: gr.x0 + SPX / 2 + i * SPX + (hash01(note.id, 6) - 0.5) * 0.24,
           y: TOP_Y + i * 0.0006,
-          z: -0.18 + (hash01(note.id, 3) - 0.5) * 0.5,
+          z: ROW_Z[i % 2] + (hash01(note.id, 3) - 0.5) * 0.3,
           rz: rz
         };
         m.position.set(rest.x, rest.y, rest.z);
         m.userData.note = note;
         room.add(m);
         var sh = { note: note, mesh: m, rest: rest, out: 0, outT: 0,
-                   born: 0, slips: [] };
+                   born: 0, slips: [], inked: false };
         var reps = repsBy[note.id] || [];
         for(var k = 0; k < Math.min(reps.length, 3); k++) addSlip(sh, k);
         sheets.push(sh);
         hitMeshes.push(m);
         regenFns.push(function(){
-          m.material.map = sheetTexture(note);
-          m.material.needsUpdate = true;
-        });
-        avaFor(note, function(){
+          if(!sh.inked) return;
           m.material.map = sheetTexture(note);
           m.material.needsUpdate = true;
         });
       });
     });
+    /* Quand tout ne tient pas sur la table, LA PILE : les feuillets
+       plus anciens, rassemblés au bout — cliquable, elle ouvre le
+       registre à plat qui garde tout. Le forum reste donc entier,
+       la table ne montre que ce qu'une table peut porter. */
+    var pileMesh = null;
+    if(hiddenCount){
+      var pileG = new THREE.Group();
+      for(var pv2 = 0; pv2 < 7; pv2++){
+        var ps = new THREE.Mesh(new THREE.PlaneGeometry(SH_W, SH_H),
+          BLANK_MATS[pv2 % 4]);
+        ps.rotation.x = -Math.PI / 2;
+        ps.rotation.z = (hash01('pile', pv2) - 0.5) * 0.5;
+        ps.position.set((hash01('px', pv2) - 0.5) * 0.14,
+          TOP_Y + pv2 * 0.011, (hash01('pz', pv2) - 0.5) * 0.14);
+        pileG.add(ps);
+      }
+      pileG.position.set(tableL - PADX + 0.9, 0, -0.15);
+      room.add(pileG);
+      /* Le plan de prise du raycaster, un peu plus large. PAS
+         material.visible:false — Mesh.raycast IGNORE un matériau
+         invisible et le clic passait au travers ; opacity:0 est
+         invisible ET levable. */
+      pileMesh = new THREE.Mesh(new THREE.PlaneGeometry(SH_W * 1.3, SH_H * 1.3),
+        new THREE.MeshBasicMaterial({ transparent: true, opacity: 0,
+          depthWrite: false }));
+      pileMesh.rotation.x = -Math.PI / 2;
+      pileMesh.position.set(tableL - PADX + 0.9, TOP_Y + 0.1, -0.15);
+      pileMesh.userData.pile = true;
+      room.add(pileMesh);
+      hitMeshes.push(pileMesh);
+    }
+
     /* la scène répercute une réponse postée depuis la fiche : la
        texture du feuillet se redessine, un billet se glisse dessous */
     onReplyPosted = function(note){
       for(var i = 0; i < sheets.length; i++){
         var sh = sheets[i];
         if(sh.note.id !== note.id) continue;
+        if(!sh.inked){ ensureInk(sh); }
         sh.mesh.material.map = sheetTexture(note);
         sh.mesh.material.needsUpdate = true;
         var n = (repsBy[note.id] || []).length;
@@ -1584,7 +1667,7 @@ installShell({
     /* Le travelling lit par-dessus l'épaule : caméra plus HAUTE et plus
        PROCHE du bord (plongée ~55°) — à l'oblique d'avant, l'encre des
        feuillets ne se lisait pas (retour du propriétaire). */
-    var CAMY = 3.0, CAMZ = 1.78, LOOKZ = -0.26, LEAD = 0.8;
+    var CAMY = 3.0, CAMZ = 1.9, LOOKZ = -0.15, LEAD = 0.8;
     var TFOV = 44, EST_FOV = 70, WIDE_Y = 4.3;
     var zFar = 12, sbShift = 0, x0 = 1, x1 = 2;
     var T_IN = 0.14, T_TRAVEL = 0.9;
@@ -1640,13 +1723,21 @@ installShell({
     var run = document.getElementById('ppRun');
     function layout(){
       var vh = window.innerHeight || 1;
-      run.style.height = Math.round(vh * (1.5 + sheets.length * 0.5 + 1.0)) + 'px';
+      run.style.height = Math.round(vh * (1.5 + sheets.length * 0.3 + 1.0)) + 'px';
       docSpan = Math.max(1, document.documentElement.scrollHeight - vh);
     }
     function onScroll(){
       pT = cl01((window.pageYOffset || 0) / docSpan);
     }
     function scrollToX(x, smoothB){
+      /* pré-encrer autour de la CIBLE : sans ça, un saut de rail
+         débouchait sur du papier nu le temps que le budget par image
+         rattrape la caméra */
+      for(var i = 0, n = 0; i < sheets.length && n < 14; i++){
+        if(!sheets[i].inked && Math.abs(sheets[i].rest.x - x) < INK_DIST){
+          ensureInk(sheets[i]); n++;
+        }
+      }
       var tt = cl01((x - x0) / (x1 - x0 || 1));
       var pp2 = T_IN + tt * (T_TRAVEL - T_IN);
       try {
@@ -1669,7 +1760,7 @@ installShell({
     elRail.addEventListener('click', function(ev){
       var b = ev.target.closest('button[data-g]');
       if(!b) return;
-      scrollToX(groups[+b.dataset.g].x0 + SP / 2 - LEAD * 0.4, true);
+      scrollToX(groups[+b.dataset.g].x0 + SPX / 2 - LEAD * 0.4, true);
     });
 
     var nReps = 0;
@@ -1735,7 +1826,12 @@ installShell({
         var sh = sheets[i];
         sh.outT = (sh.mesh === mesh || (selected && sh.note.id === selected)) ? 1 : 0;
       }
-      if(mesh){
+      if(mesh && mesh.userData.pile){
+        elTag.innerHTML =
+          '<div class="tg-t">Les feuillets plus anciens</div>' +
+          '<div class="tg-m">encore ' + hiddenCount + ' sur cette table</div>' +
+          '<div class="tg-a">cliquer&nbsp;: ouvrir la version liste, qui garde tout</div>';
+      } else if(mesh){
         var note = mesh.userData.note;
         var name = (note.profiles && note.profiles.username) || 'anonyme';
         var w = workOf(note);
@@ -1834,6 +1930,7 @@ installShell({
       ndc.x = (ev.clientX / window.innerWidth) * 2 - 1;
       ndc.y = -(ev.clientY / window.innerHeight) * 2 + 1;
       var m = pickSheet();
+      if(m && m.userData.pile){ teardown(); return; }
       if(m){
         openCartel(m.userData.note);
         if(p > T_IN * 0.6) scrollToX(m.position.x - LEAD * 0.4, true);
@@ -1891,6 +1988,14 @@ installShell({
             if(!sheets[si].born) sheets[si].born = fallStart + si * 85;
           }
           if(now - fallStart > sheets.length * 85 + 800) fallDone = true;
+        }
+      }
+      /* l'encre se peint à l'approche — trois feuillets par image */
+      var inkBudget = 3;
+      for(var ik = 0; ik < sheets.length && inkBudget; ik++){
+        if(!sheets[ik].inked &&
+           Math.abs(sheets[ik].rest.x - camera.position.x) < INK_DIST){
+          ensureInk(sheets[ik]); inkBudget--;
         }
       }
       for(var i2 = 0; i2 < sheets.length; i2++){

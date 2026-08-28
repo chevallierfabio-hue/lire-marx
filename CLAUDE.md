@@ -1042,6 +1042,24 @@ reste la version des lecteurs d'écran — c'est LUI qui porte filtres et
   réponse » via le cœur partagé `postReply`), « Aller au passage → ».
   `onReplyPosted` répercute une réponse postée depuis la fiche sur le
   feuillet 3D ; `teardown()` re-rend le registre pour la même raison.
+- **L'échelle est prévue pour cent fils et plus** (demande du
+  propriétaire) : (a) les feuillets vont DEUX DE FRONT, en quinconce
+  (rangées z≈+0.42 / −0.72, pas horizontal 0.78 + désordre en x — le
+  quinconce strict se lisait comme une fermeture éclair) ; (b) **les
+  deux dernières réponses s'écrivent SUR le feuillet** (« ↳ nom — début
+  de la réponse », le corps se réduit à 4 lignes quand il y en a) — la
+  conversation se voit sans soulever ; (c) **encre paresseuse** : les
+  feuillets naissent PAPIER NU (matériaux partagés par ton) et ne sont
+  encrés qu'à l'approche de la caméra (INK_DIST 20, budget 3/image,
+  pré-encrage autour de la CIBLE dans scrollToX — sans lui, un saut de
+  rail débouchait sur du papier nu) ; (d) au-delà de GROUP_MAX (80) par
+  œuvre, **la pile des feuillets plus anciens** au bout de la table —
+  cliquable, elle ouvre le registre qui garde tout ; (e) cale de
+  défilement 0.3·vh par feuillet, rail qui replie
+  (`flex-wrap`). Testé à 100 et 150 fils (sonde `?stress=`, retirée).
+- **`material.visible:false` est IGNORÉ par le raycaster**
+  (Mesh.raycast sort tôt) : le plan de prise de la pile est en
+  `transparent:true, opacity:0` — invisible ET levable.
 - Tous les pièges déjà documentés de la biblio ont été appliqués
   d'office : canvas élément remplacé, resize à tailles nulles ignoré,
   clic à coordonnées propres, distance-pour-contenir à la focale
