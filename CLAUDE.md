@@ -670,6 +670,44 @@ pour le point médian entre titres dans « Préparé par » : plusieurs titres d
 corpus contiennent déjà un « et » (*Travail salarié **et** capital*), et
 l'énumération devenait illisible. Le « et » reste en prose, où il est juste.
 
+### Trois matériaux, une seule lumière
+
+La page a été jugée laide dans une version intermédiaire, et le diagnostic
+tient en deux points : **le vide** (un panneau de 58 vh contenant un petit
+diagramme dans un coin — le contenu ne méritait pas le panneau) et **l'absence
+d'unité** (trois langages visuels sans rapport : des panneaux-affiches, un
+diagramme technique, une grille de fiches).
+
+D'où le système actuel — **un matériau par section, de la même main** :
+
+| section | matériau | ce que ça dit |
+|---|---|---|
+| **Les portes** | la **gravure**, à fond perdu, très assombrie, le titre en très grand par-dessus | le monde que le livre décrit |
+| **Le fil** | le **papier** : le fac-similé en fond de panneau, le tracé dessus | le plan qu'on trace |
+| **Le corpus** | le **registre** : des lignes à filet, l'année en tête comme un folio | la liste qu'on tient |
+
+Et **une seule source de lumière** (`.bx-lamp`, fixe) : la nappe chaude de la
+bougie de l'accueil plus une pénombre par les bords. C'est elle qui fait tenir
+les trois registres ensemble. Ne pas ajouter d'autre halo local.
+
+**La porte est une AFFICHE, pas une fiche à vignette.** L'image occupe tout le
+panneau ; deux voiles la couvrent — un du bas pour asseoir le texte, un de la
+gauche pour que la colonne de titre garde son fond quelle que soit l'image.
+Le chiffre romain en haut à droite, le cartel en bas à droite.
+
+**Le plancher de lisibilité des stations est à `.42`, pas à `.22`.** Une
+station que la plume n'a pas encore atteinte doit rester lisible : trop basse,
+elle donnait un panneau qui paraît vide ou cassé tant qu'on n'a pas défilé
+jusqu'à lui.
+
+**`.wrap` fait 1240 px sur cette page** (et non 1080) : des affiches pleine
+largeur méritent la largeur, et le fil du *Capital* — quatre paliers — a besoin
+de cette place une fois les stations à l'échelle du panneau. **Réglage
+solidaire** : largeur de `.wrap`, padding horizontal de `.bx-thread`,
+`min/max-width` de `.bx-level` et largeur de `.bx-gap` se tiennent ; toucher
+l'un sans vérifier `scrollWidth - clientWidth` des trois fils fait déborder le
+dernier palier hors du cadre.
+
 ### Elle est vivante — encre sur papier
 
 Première version : typographie sur aplat sombre, sans image, avec un simple
