@@ -135,6 +135,9 @@ colonnes, marquee de concepts, « Ce que vous pouvez faire », bande
 « circuit du capital » animée (A–M–P–M′–A′), **catalogue**, aperçu Place
 publique (`SHELL.commune.mount(#homeCommune,{limit:4})`), chiffres clés,
 bande CTA finale. **Thème sombre-chaud** (voir « Direction artistique »).
+Le bouton plein du héros dit **« Entrer dans la bibliothèque »** et mène à
+`oeuvres/bibliotheque.html`, plus à `capital-1.html` : on entre dans le site
+par le corpus, pas par une œuvre choisie d'avance.
 Le **catalogue** est piloté par `oeuvres/bibliotheque.json` (source unique,
 `catalogue()` dans `home.js`) et rendu en deux niveaux : « Disponibles »
 = cartes riches (image d'archive, statut, concepts, « Ouvrir l'atelier »)
