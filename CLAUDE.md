@@ -724,9 +724,22 @@ tombé une fois : ne **jamais** écrire `stroke-dasharray` en CSS sur ces
 chemins ; une déclaration CSS bat toujours l'attribut de présentation posé par
 le JS, et le tireté redevient plein.
 
-**La pointe de flèche fait partie du chemin** (deux barbes après la courbe) :
-la plume arrive et donne le coup de flèche, elle n'est pas posée d'avance. Un
-`marker-end` apparaîtrait dès le premier pixel tracé.
+**La pointe de flèche est un chemin À PART**, que la plume ne parcourt jamais ;
+elle se pose sur les derniers 12 % du trajet. Elle a d'abord fait partie du
+tracé (deux barbes après la courbe, pour que la plume « donne le coup de
+flèche ») : la plume dessinait la courbe, revenait à la pointe, traçait une
+barbe, revenait encore. **Deux allers-retours au contact du bloc, lus comme un
+rebond** — le propriétaire l'a vu tout de suite sur vidéo. Ne pas les
+réintégrer au chemin animé.
+
+**Et c'est le BLOC QUI S'ALLUME, pas la plume qui traverse.** Une version
+intermédiaire faisait partir chaque trait du bord gauche de sa source pour que
+la plume passe derrière la fiche : temps mort, et illisible dès que la fiche
+n'était pas parfaitement opaque. Le relais d'une vague à la suivante est
+désormais assuré par l'ALLUMAGE : `--flash`, qui culmine à mi-arrivée puis
+retombe, embrase le bloc de l'intérieur (`.bx-node::after`, lueur radiale
+partant du bord d'où vient le trait) tandis que `--lit` reste. Idée du
+propriétaire, meilleure que la mécanique qu'elle remplace.
 
 **La plume écrit par VAGUES, jamais arête par arête.** Premier essai : les
 arêtes s'écrivaient une par une, dans l'ordre. Résultat, la plume **reculait**
@@ -783,6 +796,32 @@ Le pilote de défilement est **local** (`addScrollSub` réduit, en tête du scri
 de la page) : `home.js` est propre à l'accueil et n'a rien à faire ici. Même
 verrou `SCRUB` que l'accueil — sous reduced-motion ou en dessous de 768 px,
 rien n'est piloté, le fil est simplement écrit d'emblée, sans plume.
+
+### Les panneaux s'empilent (`.bx-stack`)
+
+Les deux portes et les trois enchaînements sont des **panneaux pleine largeur
+qui s'empilent** : chacun se fige sous la topbar, le suivant remonte le
+recouvrir en laissant dépasser un liseré de 16 px. Motif demandé par le
+propriétaire d'après zonixlab.com.
+
+**Les panneaux sont FRÈRES dans un même conteneur**, jamais chacun dans sa
+boîte : c'est ce qui fait que le bloc englobant est la pile entière et que les
+panneaux déjà figés le RESTENT. Un `sticky` par boîte les ferait repartir un
+par un.
+
+**La distance de défilement vient des `.bx-run`** — des cales vides après
+chaque panneau. Elles servent aussi de **règle de mesure** : un élément
+`sticky` ment sur sa position peinte, pas sur sa position de flux, donc
+mesurer le panneau gèlerait l'avancement du fil pendant qu'il est figé. La
+cale, elle, défile normalement, et `q = (panneau.bottom - cale.top) /
+cale.height` donne exactement ce qui a été parcouru. **Le fil s'écrit donc
+pendant que son panneau tient l'écran**, et le suivant vient le recouvrir une
+fois écrit — le motif de la section « circuit » de l'accueil.
+
+Coupé sous 768 px et en reduced-motion (`js-stack`) : les panneaux redeviennent
+des blocs qui se suivent, les cales tombent à zéro. Et la pose de `poseCards`
+**ne s'applique plus aux portes** : un `translate` se battrait avec leur
+`position:sticky`.
 
 ### Sidebar : « Accueil » et « Bibliothèque » sont deux choses
 
