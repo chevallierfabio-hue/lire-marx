@@ -586,8 +586,8 @@ dans ces cas — et le CSS masque fiche, bandeau et voile sous 768 px.
   première tentative de restylage ; vérifier que la restauration +
   réapplication progressive s'est bien terminée avant de reconstruire
   dessus.
-- ✅ Place publique — **refondue en « mur d'affiches »** (août 2026),
-  voir « La page Place publique » ci-dessous.
+- ✅ Place publique — **refondue en « table commune » (forum)** (août
+  2026), voir « La page Place publique » ci-dessous.
 - ✅ Barre latérale générale + barre horizontale du haut
 - 🔲 Accueil de l'œuvre Manuscrits de 1844 (mission en cours — même
   structure que Le Capital, contenu à adapter : aliénation du
@@ -914,87 +914,99 @@ d'origine (Livre II après le I, etc.) et les arbitrages éditoriaux validés
 (Grundrisse après Capital I, les trois primer, la Contribution hors de
 tout fil) sont documentés dans l'historique git de la version précédente.
 
-## La page Place publique — « le mur d'affiches » (refonte août 2026)
+## La page Place publique — « la table commune » (refonte août 2026)
 
-`oeuvres/place-publique.html` (CSS et JS inlinés, motif de la page). La
-page EST une **palissade la nuit, sous un réverbère à gaz** : chaque note
-de lecteur est un placard imprimé collé au mur. Arbitrages retenus avec
-le propriétaire : concept « mur d'affiches » (contre la table d'estaminet
-et la séance publique), et scène animée au défilement **en DOM + CSS
-pur** — pas de WebGL : le contenu est du texte vivant venu de Supabase,
-il reste du vrai texte accessible. DA sombre-chaude, `:root` redéfinit
-les tokens du shell comme sur `/index.html` et `bibliotheque.html`.
+`oeuvres/place-publique.html` (CSS et JS inlinés, motif de la page).
+**Ce lieu est un FORUM** — décision du propriétaire, 2e passe de la
+refonte : la 1re passe (« le mur d'affiches » : palissade la nuit,
+réverbère à gaz, placards en lecture seule) a été REMPLACÉE sur ses
+retours. Ne pas y revenir. Ce qui a changé et pourquoi :
 
-**Le flux vient toujours de `SHELL.commune.mount(#placeFull, {})`** —
-la page ne re-fetch rien, elle RHABILLE les `.cm-*` (motif déjà employé
-par la version précédente). La grammaire DOM de `cardHtml()` (row → work
-→ quote → body → foot) est recomposée en page de titre par `order` en
-flex-column : l'œuvre en **rubrique entre filets**, la citation en
-**manchette** (Fraunces italique centré), la note en corps Spectral, la
-**signature au pied** — cachet de cire + nom en Caveat + section + date.
-Le fond du cachet (`.cm-av`) est posé en style EN LIGNE par shell.js
-(une couleur par section) : on n'a PAS à se battre avec, la palette
-(`accent()`) est précisément une palette de cires à cacheter.
+- **La scène est une TABLE de bois vue en plongée** (planches
+  horizontales — c'est ce qui distingue un plateau d'une palissade),
+  et les notes sont des **feuillets qui volent et se posent dessus**,
+  comme la liasse du héros de l'accueil — demande explicite. Ici tout
+  est DOM + CSS, pas de WebGL : le contenu est du texte vivant.
+- **Le commentaire prime sur la citation.** Le passage cité est en
+  petit, encre passée, filet rouge discret, AU-DESSUS du corps — c'est
+  le contexte, pas la manchette (l'inverse de la 1re passe, corrigé
+  sur demande).
+- **Les réponses s'affichent et se composent sur place** : billets
+  glissés sous le feuillet parent, et un billet à écrire — textarea
+  en Caveat, on répond à la main.
+- **La bougie de l'accueil éclaire la table** (mêmes classes cd-*,
+  mêmes couleurs, même règle coupelle + douille), posée au bord
+  droit, à demi hors cadre par le bas. Masquée < 768 px.
 
-**Les décors** : `.pp-mur` (planches en repeating-gradients + bruit SVG
-feTurbulence embarqué en data URI — aucune image externe), `.pp-nuit`
-(pénombre fixe par-dessus le contenu, motif `.bx3-lamp`), `.pp-lampe`
-(réverbère 100 % CSS : potence + volute, lanterne à croisillons, flamme
-aux couleurs de la maison #fff6d8/#ffd27a/#ff9c3a, halo), deux
-`.pp-vestige` (fantômes d'affiches lacérées, clip-path déchiré, décor
-pur). **L'en-tête est sobre, à la grammaire des autres pages**
-(`.pp-head` : label Inter en capitales, titre Fraunces 900 crème, lede
-d'une phrase) — une première version en faisait une grande
-affiche-héros (rubrique « République des lecteurs », fleuron, CTA vers
-la bibliothèque, envoi « Loi de 1881 ») : **retirée sur demande du
-propriétaire** (trop de texte, pas de renvoi à la bibliothèque, style à
-aligner sur le reste du site). Ne pas la re-proposer : le placard est le
-costume DES NOTES, pas celui du titre de la page. Filtres par œuvre =
-retailles de kraft, l'actif prend le tampon rouge (logique JS reprise
-telle quelle de la version précédente).
+**Le rendu du flux est PROPRE À CETTE PAGE** (fetch + rendu inlinés —
+précédent : l'ancienne vue riche de capital-1 avant retrait-shell-host).
+`SHELL.commune` reste la vue compacte en lecture seule des autres pages
+(aperçus de l'accueil et de la bibliothèque) : **ne pas le modifier**
+pour les besoins du forum. La page partage seulement ses conventions :
+`public_notes.work` = id de bibliotheque.json, alias hérité
+`'capital'` → `'capital-1'` (à l'AFFICHAGE **et** à l'ÉCRITURE : une
+réponse à une note héritée s'écrit avec l'id résolu, jamais l'alias),
+jamais de second client Supabase (toujours `SHELL.auth.getClient()`),
+petits outils dupliqués plutôt que couplés (esc/ago/toast — shell-social
+fait pareil et le commente).
 
-**Les mouvements, tous compatibles avec les règles maison** :
+**Le contrat de réponse reprend EXACTEMENT `addReply()` de
+shell-annotations.js** : ligne `{id: uid(), author_id: SHELL.auth.user.id,
+work, section, body, parent_id, created: Date.now()}` (une réponse n'a
+pas de quote), et le même gating : configuré + connecté + pseudo choisi,
+sinon toast + `SHELL.auth.openModal()`. Après l'INSERT, le billet est
+ajouté en optimiste (pas de re-rendu complet de la table — le
+défilement ne doit pas sauter). Deux requêtes au chargement : racines
+(`parent_id is null`, desc, 200) et réponses (`parent_id not null`,
+asc, 800), groupées côté client. La modération reste différée à 5c.
 
-- **La pose des affiches est un scrub réversible** : `--k` (0 = décollée,
-  fantôme, plus inclinée, ombre portée loin ; 1 = plaquée) est écrit par
-  un listener scroll + rAF sur la fenêtre [94 %, 64 %] du viewport.
-  **Défaut CSS `var(--k,1)`** : sans JS, sous reduced-motion ou < 768 px,
-  tout est collé d'emblée. L'ombre de vol vit sur un `::before` dont
-  l'opacité vaut `1 - k` — on n'interpole pas un box-shadow par image.
-- **L'allumage du réverbère** : un script inline en tête de body pose
-  `pp-boot` + `pp-anim` (jamais sous reduced-motion ni < 768 px), puis
-  `pp-lit` à DOMContentLoaded + rAF, **filet setTimeout 2,5 s** — jamais
-  plus de 2,5 s dans le noir même si le rAF est gelé. `--lum` pilote
-  flamme, halo et voile chaud ; l'en-tête attend `pp-lit` pour
-  apparaître (`pp-head-in`, fill-mode **backwards**, jamais both).
-- **Le vacillement** : trois périodes NON multiples (3,1 s flamme, 5,3 s
-  verre, 8,4 s halo), le halo vacille sur `filter:brightness` — jamais
-  sur l'opacité, que `--lum` occupe déjà.
+**Les mouvements** (tous sous les règles maison — réversibles, défaut
+posé, périodes non multiples) :
+
+- **`--k` (0 = en l'air : haut, dérive `--fx`, sur-rotation `--rr`,
+  ombre de vol sur `::before` ; 1 = posé)** est piloté par DEUX
+  mouvements : la CASCADE au chargement (chaque feuillet a son
+  `_born`, ils tombent l'un après l'autre — une seule fois, dans le
+  sens du temps) et le SCRUB au défilement (réversible). La règle de
+  composition : `k = min(cible de défilement, avancement de cascade)`
+  — la cascade ne fait que RETENIR un feuillet, jamais le poser plus
+  tôt que le défilement ne le permet. Défaut CSS `var(--k,1)` : sans
+  JS / reduced-motion / < 768 px, tout est posé.
+- **L'allumage de la bougie** : même mécanique `pp-boot`/`pp-anim`/
+  `pp-lit` que la passe précédente (script inline en tête de body,
+  filet setTimeout 2,5 s, `--lum` sur flamme/halo/voile chaud,
+  en-tête gaté par `pp-lit`, fill-mode backwards).
+- Le tick **ignore les hauteurs nulles** (`if(!vh) return`) et les
+  feuillets filtrés (`display:none`) ; ouvrir/fermer un billet ou
+  filtrer change les hauteurs → rappeler `ppTick()`.
+
+**L'en-tête reste sobre** (grammaire des autres pages : label Inter en
+capitales, titre Fraunces 900 crème, lede d'une phrase) — l'affiche-
+héros de la 1re passe avait déjà été retirée sur demande (trop de
+texte, pas de renvoi à la bibliothèque) : ne re-proposer ni l'une ni
+l'autre. Filtres par œuvre = retailles de kraft (tampon rouge sur
+l'actif), désormais construits sur les DONNÉES (id d'œuvre résolu),
+plus sur le texte du DOM. Décor : rond de tasse, feuillets vierges —
+aria-hidden, jamais des données.
 
 **Pièges rencontrés sur cette page (à ne pas refaire)** :
 
-1. **`innerWidth` vaut 0 dans un onglet chargé en arrière-plan** (le
-   piège `resize()` de la bibliothèque, version gating) : le test
-   « mobile » du boot est `innerWidth > 0 && innerWidth < 768` — une
-   largeur NULLE n'est pas « étroit », c'est « inconnu », on prend le
-   chemin animé.
+1. **`innerWidth` vaut 0 dans un onglet chargé en arrière-plan** : le
+   test « mobile » du boot est `innerWidth > 0 && innerWidth < 768` —
+   une largeur NULLE n'est pas « étroit », c'est « inconnu », on prend
+   le chemin animé. Même famille : le tick ignore `innerHeight` nul.
 2. **Spécificité des variantes nth-child** : les poses
-   `.cm-card:nth-child(5n+1){--x:…}` pèsent (0,2,0) ; le correctif
-   mobile doit s'écrire `.cm-card:nth-child(n){--x:0px}` pour les
-   égaler — un simple `.cm-card` dans la media query perd (même famille
-   de piège que le héros de l'accueil).
-3. **Pour tester : la sonde, toujours.** Dans l'onglet piloté le rAF est
-   gelé (le scrub ne pose rien), les captures d'une pane masquée sont
-   noires ou périmées, et `scroll-behavior:smooth` (posé par atelier.css)
-   fait qu'un `window.scrollTo(0,y)` ne progresse PAS — passer
-   `{behavior:'instant'}`. Exposer temporairement le tick, avancer à la
-   main, retirer la sonde avant le commit.
+   `.fl:nth-child(5n+1){--x:…}` pèsent (0,2,0) ; le correctif mobile
+   doit s'écrire `.fl:nth-child(n){--x:0px}` pour les égaler.
+3. **Pour tester : la sonde, toujours.** Dans un onglet piloté le rAF
+   est gelé (cascade et scrub ne posent rien), les captures d'une pane
+   masquée sont noires ou périmées, et `scroll-behavior:smooth` (posé
+   par atelier.css) fait qu'un `window.scrollTo(0,y)` ne progresse
+   PAS — passer `{behavior:'instant'}`. Exposer temporairement le
+   tick, avancer à la main, retirer la sonde avant le commit.
 
-Les cartes s'arment via un MutationObserver jamais déconnecté (le flux
-est injecté en async et re-injecté sur « Réessayer ») ; `applyFilter()`
-rappelle le tick, car masquer des cartes change tous les rects. La
-sidebar marque « Place publique » `.on` sur cette page (une ligne dans
-`shell.js`, à côté du marquage Accueil/Bibliothèque).
+La sidebar marque « Place publique » `.on` sur cette page (une ligne
+dans `shell.js`, à côté du marquage Accueil/Bibliothèque).
 
 ## Shell partagé : atelier.css + shell.css + shell.js (+ shell-social.js)
 
