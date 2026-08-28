@@ -115,11 +115,11 @@ header.topbar{background:rgba(21,16,11,.96);border-bottom-color:var(--line);}
    comme sur la référence, et la distance de défilement vient de la hauteur du
    panneau lui-même. Une cale non nulle laisse voir le fond entre le panneau
    figé et celui qui monte — c'était trop d'espace, et ça se voyait.
-   Seule la DERNIÈRE cale d'une pile a une hauteur : sans elle, le dernier
-   panneau n'aurait aucune distance pour se figer, et son fil ne s'écrirait
-   jamais. Ce vide-là est sous la pile, pas entre deux panneaux. */
-.js-stack #bxDoors .bx-run:last-child{height:24vh;}
-.js-stack #bxThreads .bx-run:last-child{height:62vh;}
+   AUCUNE cale n'a de hauteur, pas même la dernière. Une cale de fin laissait
+   un grand vide sous la pile ; le dernier panneau ne se fige donc pas — le
+   bloc englobant s'arrête avec lui — et son fil s'écrit pendant qu'il
+   TRAVERSE l'écran, ce qui lui donne une fenêtre plus longue qu'une cale sans
+   coûter un pixel de vide. */
 
 /* Le panneau : une surface propre posée sur le noir. Pas de lavis, pas de
    liseré doré — mesuré sur la référence, le panneau est une carte sombre à
@@ -779,6 +779,11 @@ installShell({ workTitle: 'Bibliothèque', tabs: [] });
       });
       T.gaps = [].slice.call(wrap.querySelectorAll('.bx-gap'));
       T.run  = wrap.nextElementSibling;
+      /* Le dernier panneau d'une pile ne se fige jamais : le bloc englobant
+         s'arrête avec lui. Son fil se mesure donc à la traversée de l'écran,
+         pas à un épinglage qui n'aura pas lieu. */
+      T.last = !(T.run && T.run.nextElementSibling &&
+                 T.run.nextElementSibling.classList.contains('bx-card'));
       /* la station de départ est celle que la plume touche en premier */
       T.roots = T.levels[0] || [];
     });
@@ -807,19 +812,19 @@ installShell({ workTitle: 'Bibliothèque', tabs: [] });
              son bas et le haut de la cale est exactement ce qui a été
              parcouru. Le fil s'écrit donc PENDANT que le panneau tient
              l'écran, et le suivant vient le recouvrir une fois écrit. */
-          var q = 0;
-          if(T.run){
-            var cr = T.wrap.getBoundingClientRect();
+          var r = T.wrap.getBoundingClientRect(), q;
+          if(T.last || !T.run){
+            /* fenêtre de traversée : le fil s'écrit pendant que le panneau
+               monte à l'écran, sans qu'aucun vide ait à lui en donner le temps */
+            q = cl01((vh * 0.86 - r.top) / (r.height + vh * 0.34));
+          } else {
+            /* le panneau est figé : la cale, elle, défile. Cale à zéro entre
+               deux panneaux → c'est la HAUTEUR DU PANNEAU qui donne la
+               distance, puisque le suivant le recouvre après l'avoir
+               parcourue. */
             var rr = T.run.getBoundingClientRect();
-            /* La cale est à zéro entre deux panneaux : c'est alors la HAUTEUR
-               DU PANNEAU qui donne la distance, puisque le suivant le
-               recouvre exactement après l'avoir parcourue. */
-            var span = rr.height > 4 ? rr.height : cr.height;
-            if(span > 0) q = cl01((cr.bottom - rr.top) / span);
-          }
-          if(!q){
-            var r = T.wrap.getBoundingClientRect();
-            q = cl01((vh * 0.82 - r.top) / (r.height + vh * 0.30));
+            var span = rr.height > 4 ? rr.height : r.height;
+            q = span > 0 ? cl01((r.bottom - rr.top) / span) : 0;
           }
           paintThread(T, q);
         });
