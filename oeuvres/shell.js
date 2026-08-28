@@ -169,6 +169,9 @@
     var here = location.pathname.replace(/\/index\.html$/, '/');
     if(here === '/') home.classList.add('on');
     if(/\/bibliotheque\.html$/.test(here)) bib.classList.add('on');
+    // Place publique : marquer l'entrée quand on est sur sa page dédiée.
+    var communeBtn = sb.querySelector('[data-act="commune"]');
+    if(communeBtn && /\/place-publique\.html$/.test(here)) communeBtn.classList.add('on');
 
     // Items de navigation inter-pages
     sb.querySelectorAll('.sb-item[data-act]').forEach(function(b){

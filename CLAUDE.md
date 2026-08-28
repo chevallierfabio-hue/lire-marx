@@ -586,7 +586,8 @@ dans ces cas — et le CSS masque fiche, bandeau et voile sous 768 px.
   première tentative de restylage ; vérifier que la restauration +
   réapplication progressive s'est bien terminée avant de reconstruire
   dessus.
-- ✅ Place publique
+- ✅ Place publique — **refondue en « mur d'affiches »** (août 2026),
+  voir « La page Place publique » ci-dessous.
 - ✅ Barre latérale générale + barre horizontale du haut
 - 🔲 Accueil de l'œuvre Manuscrits de 1844 (mission en cours — même
   structure que Le Capital, contenu à adapter : aliénation du
@@ -912,6 +913,84 @@ que ses deux `primer` ne le sont pas. Ce qui vient des `readingGuide`
 d'origine (Livre II après le I, etc.) et les arbitrages éditoriaux validés
 (Grundrisse après Capital I, les trois primer, la Contribution hors de
 tout fil) sont documentés dans l'historique git de la version précédente.
+
+## La page Place publique — « le mur d'affiches » (refonte août 2026)
+
+`oeuvres/place-publique.html` (CSS et JS inlinés, motif de la page). La
+page EST une **palissade la nuit, sous un réverbère à gaz** : chaque note
+de lecteur est un placard imprimé collé au mur. Arbitrages retenus avec
+le propriétaire : concept « mur d'affiches » (contre la table d'estaminet
+et la séance publique), et scène animée au défilement **en DOM + CSS
+pur** — pas de WebGL : le contenu est du texte vivant venu de Supabase,
+il reste du vrai texte accessible. DA sombre-chaude, `:root` redéfinit
+les tokens du shell comme sur `/index.html` et `bibliotheque.html`.
+
+**Le flux vient toujours de `SHELL.commune.mount(#placeFull, {})`** —
+la page ne re-fetch rien, elle RHABILLE les `.cm-*` (motif déjà employé
+par la version précédente). La grammaire DOM de `cardHtml()` (row → work
+→ quote → body → foot) est recomposée en page de titre par `order` en
+flex-column : l'œuvre en **rubrique entre filets**, la citation en
+**manchette** (Fraunces italique centré), la note en corps Spectral, la
+**signature au pied** — cachet de cire + nom en Caveat + section + date.
+Le fond du cachet (`.cm-av`) est posé en style EN LIGNE par shell.js
+(une couleur par section) : on n'a PAS à se battre avec, la palette
+(`accent()`) est précisément une palette de cires à cacheter.
+
+**Les décors** : `.pp-mur` (planches en repeating-gradients + bruit SVG
+feTurbulence embarqué en data URI — aucune image externe), `.pp-nuit`
+(pénombre fixe par-dessus le contenu, motif `.bx3-lamp`), `.pp-lampe`
+(réverbère 100 % CSS : potence + volute, lanterne à croisillons, flamme
+aux couleurs de la maison #fff6d8/#ffd27a/#ff9c3a, halo), deux
+`.pp-vestige` (fantômes d'affiches lacérées, clip-path déchiré, décor
+pur). Le héros est LA grande affiche : rubrique « République des
+lecteurs », titre en capitales Fraunces, fleuron SVG, CTA en mention
+imprimée encadrée (→ `bibliotheque.html`, on entre par le corpus), envoi
+« Loi du 29 juillet 1881 — affichage libre ». Filtres par œuvre =
+retailles de kraft, l'actif prend le tampon rouge (logique JS reprise
+telle quelle de la version précédente).
+
+**Les mouvements, tous compatibles avec les règles maison** :
+
+- **La pose des affiches est un scrub réversible** : `--k` (0 = décollée,
+  fantôme, plus inclinée, ombre portée loin ; 1 = plaquée) est écrit par
+  un listener scroll + rAF sur la fenêtre [94 %, 64 %] du viewport.
+  **Défaut CSS `var(--k,1)`** : sans JS, sous reduced-motion ou < 768 px,
+  tout est collé d'emblée. L'ombre de vol vit sur un `::before` dont
+  l'opacité vaut `1 - k` — on n'interpole pas un box-shadow par image.
+- **L'allumage du réverbère** : un script inline en tête de body pose
+  `pp-boot` + `pp-anim` (jamais sous reduced-motion ni < 768 px), puis
+  `pp-lit` à DOMContentLoaded + rAF, **filet setTimeout 2,5 s** — jamais
+  plus de 2,5 s dans le noir même si le rAF est gelé. `--lum` pilote
+  flamme, halo et voile chaud ; le héros attend `pp-lit` pour se poser
+  (`pa-pose`, fill-mode **backwards**, jamais both).
+- **Le vacillement** : trois périodes NON multiples (3,1 s flamme, 5,3 s
+  verre, 8,4 s halo), le halo vacille sur `filter:brightness` — jamais
+  sur l'opacité, que `--lum` occupe déjà.
+
+**Pièges rencontrés sur cette page (à ne pas refaire)** :
+
+1. **`innerWidth` vaut 0 dans un onglet chargé en arrière-plan** (le
+   piège `resize()` de la bibliothèque, version gating) : le test
+   « mobile » du boot est `innerWidth > 0 && innerWidth < 768` — une
+   largeur NULLE n'est pas « étroit », c'est « inconnu », on prend le
+   chemin animé.
+2. **Spécificité des variantes nth-child** : les poses
+   `.cm-card:nth-child(5n+1){--x:…}` pèsent (0,2,0) ; le correctif
+   mobile doit s'écrire `.cm-card:nth-child(n){--x:0px}` pour les
+   égaler — un simple `.cm-card` dans la media query perd (même famille
+   de piège que le héros de l'accueil).
+3. **Pour tester : la sonde, toujours.** Dans l'onglet piloté le rAF est
+   gelé (le scrub ne pose rien), les captures d'une pane masquée sont
+   noires ou périmées, et `scroll-behavior:smooth` (posé par atelier.css)
+   fait qu'un `window.scrollTo(0,y)` ne progresse PAS — passer
+   `{behavior:'instant'}`. Exposer temporairement le tick, avancer à la
+   main, retirer la sonde avant le commit.
+
+Les cartes s'arment via un MutationObserver jamais déconnecté (le flux
+est injecté en async et re-injecté sur « Réessayer ») ; `applyFilter()`
+rappelle le tick, car masquer des cartes change tous les rects. La
+sidebar marque « Place publique » `.on` sur cette page (une ligne dans
+`shell.js`, à côté du marquage Accueil/Bibliothèque).
 
 ## Shell partagé : atelier.css + shell.css + shell.js (+ shell-social.js)
 
