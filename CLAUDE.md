@@ -809,12 +809,19 @@ boîte : c'est ce qui fait que le bloc englobant est la pile entière et que les
 panneaux déjà figés le RESTENT. Un `sticky` par boîte les ferait repartir un
 par un.
 
-**La distance de défilement vient des `.bx-run`** — des cales vides après
-chaque panneau. Elles servent aussi de **règle de mesure** : un élément
-`sticky` ment sur sa position peinte, pas sur sa position de flux, donc
-mesurer le panneau gèlerait l'avancement du fil pendant qu'il est figé. La
-cale, elle, défile normalement, et `q = (panneau.bottom - cale.top) /
-cale.height` donne exactement ce qui a été parcouru. **Le fil s'écrit donc
+**Les panneaux sont JOINTIFS et les cales sont à ZÉRO entre eux.** La distance
+de défilement vient de la **hauteur du panneau** : le suivant le recouvre
+exactement après l'avoir parcourue. Une cale non nulle laissait voir le fond
+entre le panneau figé et celui qui monte — « trop d'espace », et ça se voyait.
+Seule la **dernière cale d'une pile** a une hauteur : sans elle, le dernier
+panneau n'aurait aucune distance pour se figer et son fil ne s'écrirait jamais.
+Ce vide-là est sous la pile, pas entre deux panneaux.
+
+**La cale reste la règle de mesure**, même à zéro.  Un élément `sticky` ment sur sa position
+peinte, pas sur sa position de flux, donc mesurer le panneau gèlerait
+l'avancement du fil pendant qu'il est figé ; la cale, elle, défile normalement.
+`q = (panneau.bottom - cale.top) / span`, où `span` vaut la hauteur de la cale
+quand elle en a une, **et sinon celle du panneau**. **Le fil s'écrit donc
 pendant que son panneau tient l'écran**, et le suivant vient le recouvrir une
 fois écrit — le motif de la section « circuit » de l'accueil.
 
