@@ -432,7 +432,9 @@ build : le site reste statique et lit le JSON tel quel. Les noms
 l'export et `circuitChariot()`.
 
 **Le chariot se conduit — « Prendre les rênes » (`chariotDrive`, dans
-`circuitChariot()`).** Pendant que le chariot traverse la bande, une fiche
+`circuitChariot()`).** À MI-COURSE du chariot (`q > 0.48`, pas dès son
+entrée : proposée plus tôt, la fiche arrivait avant lui et on lisait « ce
+chariot se conduit » sans l'avoir encore vu rouler), une fiche
 se propose en haut à droite de la bande (`.circuit-reins`,
 `#chariotReins`) — son `top` doit rester sous la topbar, qui est en
 `position:fixed` à 44 px et en z-index 140 : la fiche, à z-index 5 dans la

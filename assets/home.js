@@ -989,9 +989,12 @@
     _chariot = function (raw, i) {
       q = progress(raw);
       if (i !== idx) { idx = i; setCargo(idx); }
-      /* la fiche ne se propose que pendant que le chariot est réellement
-         sur sa course : c'est aussi la seule fenêtre où ZQSD prend la main */
-      offerReins(rig && q > 0.05 && q < 0.98);
+      /* La fiche ne se propose qu'À MI-COURSE — le chariot doit d'abord
+         avoir traversé la moitié de son trajet. Proposée dès son entrée,
+         elle arrivait avant lui : on lisait « ce chariot se conduit » sans
+         avoir encore vu qu'il roulait. C'est aussi la seule fenêtre où
+         ZQSD prend la main, et elle se referme quand il quitte le cadre. */
+      offerReins(rig && q > 0.48 && q < 0.98);
       if (driving) return;
       canvas.classList.toggle('on', q > 0.01 && q < 0.995);
       if (!running && rig && onScreen && !(settled && (q <= 0 || q >= 1))) start();
