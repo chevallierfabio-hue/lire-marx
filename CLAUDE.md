@@ -685,10 +685,12 @@ celui de l'accueil (photographie, bougie, chariot) mais de la même famille :
 - **Le grain** (`.bx-paper`) — le fac-similé du manuscrit, assombri et
   légèrement flouté, en `mix-blend-mode:screen`. C'est une TEXTURE, pas une
   image : on n'en montre pas le contenu, seulement la fibre, donc pas de
-  légende à lui donner. Plus visible sur les portes (`.62` / `brightness(.42)`)
-  que dans les fils (`.34` / `brightness(.20)`). **Attention au trop discret** :
-  posé d'abord à `brightness(.20)` partout, le grain était purement et
-  simplement invisible sur les portes — autant ne rien avoir mis.
+  légende à lui donner. **Il n'est posé QUE sur les portes** — une porte a une
+  surface, un diagramme n'en a pas besoin. Étalé sur les trois grands cadres
+  des fils, il lavait la section en brun et faisait perdre à la page la
+  profondeur sombre à laquelle le propriétaire tient : il a demandé le retour
+  aux versions plus sombres. **Ne pas le remonter** ; c'est le rai de lumière,
+  pas le papier, qui fait lire une porte.
 - **Le rai de lumière** (`.bx-door::after`) — une porte est ENTREBÂILLÉE : un
   rai chaud sur son chant gauche, qui s'élargit au survol. C'est lui, et non le
   grain, qui fait lire une porte plutôt qu'une vignette de catalogue.
@@ -742,6 +744,17 @@ bord gauche, elle repart **exactement** là où elle s'est arrêtée : le segmen
 sous la fiche est masqué par la fiche, et l'on voit la plume passer derrière la
 station. C'est pour ça que `.bx-node` a un fond **opaque** — à 92 % le trait
 transparaissait.
+
+**Une fiche du fil doit être OPAQUE, toujours.** C'est la cause réelle du
+« roll back » signalé sur vidéo : `.bx-node.soon{opacity:.62}`, rescapée de la
+première version, pèse (0,2,0) et **écrasait** le `calc()` de `.bx-node`. Les
+dix œuvres en préparation restaient donc translucides en permanence — on voyait
+au travers la plume traverser la fiche par-derrière, et elle semblait repartir
+en arrière dans la case. Deux règles en découlent : **« en préparation » se dit
+par la couleur, jamais par une opacité globale**, et **le `--lit` porte sur le
+CONTENU** (`.bx-node-y`, `.bx-node-t`), jamais sur la fiche. Bénéfice au
+passage : avant ce correctif, les dix œuvres à venir ne prenaient jamais
+l'encre, l'opacité fixe masquant complètement l'effet.
 
 **Une plume doit se voir.** Un cercle de 3 px doré sur une ligne dorée ne se
 lit pas : le propriétaire voyait « des points lumineux », pas une plume. Il lui

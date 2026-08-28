@@ -127,7 +127,7 @@ header.topbar{background:rgba(21,16,11,.96);border-bottom-color:var(--line);}
    Le trait doit être tracé SUR quelque chose, sinon il flotte. */
 #fil{position:relative;}
 #fil::before{content:"";position:absolute;inset:-24px 0 0;pointer-events:none;
-  z-index:0;opacity:.5;
+  z-index:0;opacity:.32;
   -webkit-mask-image:radial-gradient(ellipse at 42% 58%,#000 24%,transparent 74%);
   mask-image:radial-gradient(ellipse at 42% 58%,#000 24%,transparent 74%);
   background-image:linear-gradient(var(--border) 1px,transparent 1px),
@@ -147,19 +147,20 @@ header.topbar{background:rgba(21,16,11,.96);border-bottom-color:var(--line);}
 .bx-paper{position:relative;overflow:hidden;}
 .bx-paper::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
   background:url('../assets/img/archive/manuscrit-ideologie-1846.webp') center/cover no-repeat;
-  filter:grayscale(1) brightness(.20) contrast(1.1) blur(.4px);
-  opacity:.34;mix-blend-mode:screen;}
-/* Les portes montrent VRAIMENT leur papier : à brightness(.20) le grain
-   était invisible, ce qui revenait à ne rien avoir posé du tout. */
-.bx-door::before{opacity:.62;filter:grayscale(1) brightness(.42) contrast(1.05) blur(.3px);}
+  filter:grayscale(1) brightness(.18) contrast(1.1) blur(.4px);
+  opacity:.30;mix-blend-mode:screen;}
+/* Le grain reste DISCRET : monté trop haut, il lavait la page en brun et lui
+   faisait perdre la profondeur sombre à laquelle tient le propriétaire. C'est
+   le rai de lumière ci-dessous, pas le papier, qui fait lire une porte. */
+.bx-door::before{opacity:.34;filter:grayscale(1) brightness(.26) contrast(1.05) blur(.3px);}
 /* Et une porte est ENTREBÂILLÉE : un rai de lumière sur son chant gauche,
    comme si la pièce d'à côté était éclairée. C'est ce qui la fait lire comme
    une porte et non comme une vignette. Il s'ouvre au survol. */
 .bx-door::after{content:"";position:absolute;left:0;top:0;bottom:0;width:34%;
   pointer-events:none;z-index:0;border-radius:18px 0 0 18px;
   background:linear-gradient(90deg,
-    rgba(216,173,76,.30) 0,rgba(216,173,76,.12) 26%,transparent 100%);
-  box-shadow:inset 2px 0 0 rgba(233,201,132,.55);
+    rgba(216,173,76,.20) 0,rgba(216,173,76,.07) 26%,transparent 100%);
+  box-shadow:inset 2px 0 0 rgba(233,201,132,.42);
   transition:width .38s cubic-bezier(.16,1,.3,1),opacity .38s ease;}
 .bx-door:hover::after{width:62%;}
 .bx-paper>*{position:relative;z-index:1;}
@@ -191,14 +192,21 @@ header.topbar{background:rgba(21,16,11,.96);border-bottom-color:var(--line);}
   display:block;text-decoration:none;color:inherit;
   border:1px solid var(--border);border-radius:12px;
   background:var(--bg);
-  padding:11px 13px;transition:border-color .18s,background .18s;
-  opacity:calc(.30 + .70 * var(--lit));}
+  padding:11px 13px;transition:border-color .18s,background .18s;}
+/* L'opacité porte sur le CONTENU, jamais sur la fiche : une fiche translucide
+   laisse voir le trait qui passe derrière elle, et la plume semble alors
+   repartir en arrière dans la case au lieu d'y disparaître. */
+.bx-node-y,.bx-node-t{opacity:calc(.22 + .78 * var(--lit));}
 a.bx-node:hover{border-color:var(--gold);background:var(--card);}
 .bx-node-y{font-family:'Fraunces',serif;font-style:italic;font-weight:900;
   font-size:.92rem;color:var(--gold);}
 .bx-node-t{display:block;margin-top:3px;font-family:'Fraunces',serif;font-weight:600;
   font-size:.9rem;line-height:1.2;color:var(--ink);letter-spacing:-.01em;}
-.bx-node.soon{opacity:.62;}
+/* « En préparation » se dit par la COULEUR, pas par une opacité globale :
+   `.bx-node.soon` pèse (0,2,0) et écrasait le calc de `.bx-node`, si bien que
+   les dix œuvres à venir restaient à 62 % — translucides en permanence, et
+   incapables de jamais prendre l'encre. */
+.bx-node.soon .bx-node-t{color:var(--muted);}
 .bx-node.soon .bx-node-y{color:var(--const);}
 .bx-node.here{border-color:var(--accent);box-shadow:0 0 0 1px rgba(213,64,47,.35);}
 
@@ -599,7 +607,10 @@ installShell({ workTitle: 'Bibliothèque', tabs: [] });
         flow += '<div class="bx-level">' + lvl.map(node).join('') + '</div>';
       });
       INK.push({ ti:ti, levels:levels, edges:edges });
-      return '<div class="bx-thread bx-paper" data-t="' + ti + '">' +
+      /* pas de `bx-paper` ici : le grain lavait les trois grandes surfaces des
+         fils et éclaircissait toute la section. Un diagramme n'a pas besoin
+         d'une matière, une porte si. */
+      return '<div class="bx-thread" data-t="' + ti + '">' +
                '<div class="bx-thread-h">Le fil — ' + esc(head) + '</div>' +
                '<div class="bx-flow">' +
                  '<svg class="bx-ink" aria-hidden="true"></svg>' + flow +
