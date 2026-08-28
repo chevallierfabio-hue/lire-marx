@@ -28,7 +28,19 @@
 .reader :is(.ws-text, .reader-content) span.rd-sent-on{background:rgba(213,64,47,.22);border-radius:3px;box-shadow:0 0 0 1px rgba(213,64,47,.12);}
 .reader.theme-dark :is(.ws-text, .reader-content) span.rd-sent-on{background:rgba(230,177,168,.20);box-shadow:none;}
    /* toolbar */
-.rd-toolbar{margin:-6px 0 22px;}
+/* La barre d'outils était position:static en tête d'un article de
+   262 000 px : le besoin d'agrandir le texte ou de changer de chapitre naît
+   APRÈS vingt minutes de lecture, pas avant, et il fallait alors remonter
+   40 000 px en perdant sa place. Elle colle désormais sous la topbar.
+   Les marges négatives lui font traverser le rembourrage de .reader, pour
+   que rien ne défile dans l'interstice. */
+.rd-toolbar{position:sticky;top:44px;z-index:58;background:var(--card);
+  margin:-32px clamp(-54px,-5vw,-20px) 22px;
+  padding:14px clamp(20px,5vw,54px) 12px;
+  border-bottom:1px solid var(--line-soft);}
+.reader.theme-sepia .rd-toolbar{background:#efe1c2;}
+.reader.theme-dark .rd-toolbar{background:#1d1a16;}
+
 .rd-progress{height:4px;background:rgba(243,233,212,.10);border-radius:3px;overflow:hidden;margin-bottom:12px;}
 .reader.theme-dark .rd-progress{background:rgba(255,255,255,.10);}
 .rd-progress > i{display:block;height:100%;width:0;background:var(--red);transition:width .15s linear;}
@@ -111,3 +123,14 @@
   --red:#e6b1a8;--red-deep:#e6b1a8;--bright:#e6b1a8;
   --gold:#d8ad4c;--gold-deep:#bd8f38;--blue:#8fb3c4;--ok:#7fa855;
   --line:#3a3127;--line-soft:#2f2921;--border:#3a3127;}
+
+/* La barre s'aligne sur l'axe gauche du texte, pas au centre — et tient sur
+   UNE rangée : à sept boutons elle se repliait sur trois, ce qui fait
+   beaucoup de coquille collante au-dessus d'un texte qu'on vient lire. */
+.rd-row{justify-content:flex-start!important;flex-wrap:nowrap;overflow-x:auto;
+  scrollbar-width:none;padding-bottom:2px;}
+.rd-row::-webkit-scrollbar{display:none;}
+.rd-row .rd-btn{flex:0 0 auto;white-space:nowrap;}
+/* Le renvoi croisé ne prend une seconde rangée que s'il existe. */
+.rd-xref:empty{display:none;}
+.rd-xref{margin-top:8px;}

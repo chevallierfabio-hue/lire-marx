@@ -240,3 +240,15 @@ input[type=password],input[type=search]{border-color:var(--line-strong);}
    l'intérieur de <main>, où il n'en est plus un. Sorti de <main>, il reprend
    la mesure de la page par .wrap. */
 footer.wrap{padding-top:22px;padding-bottom:60px;}
+
+
+/* ══ Mode lecture ══
+   Une fois le texte chargé, ce sont les commandes de LECTURE qui doivent
+   rester sous la main — pas les onglets de l'œuvre. Empiler les trois
+   (topbar 44 + onglets 41 + sous-onglets 42 + barre de lecture) mangerait
+   19 % d'un écran de 900 px. Les deux rangées d'onglets se décollent donc
+   et défilent normalement ; on y revient par la sidebar, par le menu en
+   mobile, ou en remontant. */
+body.at-reading nav.tabs.cap-tabs-bar,
+body.at-reading nav.subnav{position:static;}
+body.at-reading .cap-hero{display:none;}

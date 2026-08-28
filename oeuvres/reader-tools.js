@@ -304,6 +304,11 @@
      + '<div class="rd-pop" id="rdpop-set" data-pop="set" role="group" aria-label="Réglages de lecture" hidden></div>'
      + '<div class="rd-xref"></div>';
     r.insertBefore(tb, r.firstChild);
+    /* Signale à la page qu'on est entré dans le texte : la coquille de
+       l'œuvre se décolle au profit du bandeau de lecture. Seulement si la
+       liseuse est RÉELLEMENT affichée — un montage dans un panneau masqué
+       décollerait la coquille d'un panneau qu'on ne lit pas. */
+    if(r.getClientRects().length) document.body.classList.add('at-reading');
 
     // bornes préc/suiv
     var navCfg=cfg.nav||{};

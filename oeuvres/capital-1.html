@@ -1595,6 +1595,7 @@ function syncTabsA11y(pid){
     try{ history.replaceState(null,'','#'+pid); }catch(e){}
   }
   document.body.classList.toggle('at-inner', pid!=='accueil');
+  if(pid!=='lire') document.body.classList.remove('at-reading');
   /* Changer d'onglet en cours de lecture laissait le lecteur au milieu de la
      page précédente, sur un panneau dont le haut était 250 px plus bas. On
      remonte — le héros replié ne coûte plus que 100 px. Jamais au premier
@@ -1650,8 +1651,13 @@ document.querySelectorAll('.subtab').forEach(t=>t.addEventListener('click',()=>a
   }
   function bootFromHash(){
     var h=(location.hash||'').replace(/^#/,'');
-    if(h in GROUPS) activateTop(h);
-    else if(panelExists(h)) activateTab(h);
+    /* « lire », « accueil » et « ressources » nomment À LA FOIS un groupe et
+       un panneau. Le panneau est le plus précis des deux et doit gagner :
+       sinon #lire ouvrait le GROUPE, dont le panneau par défaut est
+       l'accueil — on demandait le texte intégral, on obtenait la page de
+       garde. activateTab active de toute façon le groupe qui le contient. */
+    if(panelExists(h)) activateTab(h);
+    else if(h in GROUPS) activateTop(h);
     else activateTop('lire');
   }
   bootFromHash();
