@@ -13,8 +13,16 @@
 .reader.font-atkinson :is(.ws-text, .reader-content),.reader.font-atkinson :is(.ws-text, .reader-content) p{font-family:'Atkinson Hyperlegible','Trebuchet MS',Verdana,sans-serif;letter-spacing:.012em;}
 .reader.font-lexend :is(.ws-text, .reader-content),.reader.font-lexend :is(.ws-text, .reader-content) p{font-family:'Lexend','Segoe UI',sans-serif;letter-spacing:.004em;}
 .reader.font-opendyslexic :is(.ws-text, .reader-content),.reader.font-opendyslexic :is(.ws-text, .reader-content) p{font-family:'OpenDyslexic','Comic Sans MS',sans-serif;letter-spacing:.01em;line-height:1.9;}
-.reader.focus-on :is(.ws-text, .reader-content) p{opacity:.32;transition:opacity .25s;}
-.reader.focus-on :is(.ws-text, .reader-content) p:hover,.reader.focus-on :is(.ws-text, .reader-content) p.rd-speak{opacity:1;}
+/* Le mode focus n'était révélé que par :hover. Au clavier et au tactile il
+   n'y a pas de survol : TOUT le texte restait à 32 % d'opacité — 2,59:1,
+   illisible, sans autre issue que désactiver le mode. WCAG 2.1.1 et 1.4.3.
+   Le plancher passe à .55 (4,6:1, au-dessus du seuil AA même estompé) et le
+   paragraphe se révèle aussi au focus clavier et à la lecture vocale. */
+.reader.focus-on :is(.ws-text, .reader-content) p{opacity:.55;transition:opacity .25s;}
+.reader.focus-on :is(.ws-text, .reader-content) p:hover,
+.reader.focus-on :is(.ws-text, .reader-content) p:focus,
+.reader.focus-on :is(.ws-text, .reader-content) p:focus-within,
+.reader.focus-on :is(.ws-text, .reader-content) p.rd-speak{opacity:1;}
 .reader :is(.ws-text, .reader-content) p.rd-speak{box-shadow:inset 3px 0 0 rgba(213,64,47,.5);border-radius:0 4px 4px 0;}
 .reader.theme-dark :is(.ws-text, .reader-content) p.rd-speak{box-shadow:inset 3px 0 0 rgba(230,177,168,.5);}
 .reader :is(.ws-text, .reader-content) span.rd-sent-on{background:rgba(213,64,47,.22);border-radius:3px;box-shadow:0 0 0 1px rgba(213,64,47,.12);}

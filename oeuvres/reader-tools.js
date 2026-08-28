@@ -140,6 +140,8 @@
     var done = total>0 ? (-rect.top)/total : (rect.bottom<=vh?1:0);
     done=Math.max(0,Math.min(1,done));
     bar.style.width=(done*100).toFixed(1)+'%';
+    var pb=bar.parentNode;
+    if(pb&&pb.setAttribute)pb.setAttribute('aria-valuenow',Math.round(done*100));
   }
   window.addEventListener('scroll',updateProgress,{passive:true});
   window.addEventListener('resize',updateProgress,{passive:true});
@@ -164,6 +166,10 @@
     });
     r.querySelectorAll('.rd-row [data-rd]').forEach(function(b){
       var nm=b.getAttribute('data-rd');
+      if(b.hasAttribute('aria-expanded')){
+        var pop=r.querySelector('[data-pop="'+nm+'"]');
+        b.setAttribute('aria-expanded', pop && !pop.hidden ? 'true' : 'false');
+      }
       if(nm==='audio'||nm==='gloss')return; // états "on" persistants (lecture / glossaire actif)
       b.classList.toggle('on', nm===name && opening);
     });
@@ -172,16 +178,26 @@
   /* ---- panneau Réglages (re-rendu à chaque changement) ---- */
   function renderSet(r){
     var box=r.querySelector('[data-pop="set"]'); if(!box)return;
+    /* Les groupes segmentés portaient l'état par la SEULE classe .on :
+       invisible pour une aide technique. aria-pressed l'expose, et
+       role=group + aria-label rattachent le groupe à son intitulé, qui
+       n'était qu'un <span> décoratif. WCAG 4.1.2. */
     function seg(name,opts){ // opts: [[val,label],...]
-      return '<div class="rd-seg">'+opts.map(function(o){
-        return '<button data-set="'+name+'" data-v="'+o[0]+'"'+((''+stateVal(name))===(''+o[0])?' class="on"':'')+'>'+o[1]+'</button>';
+      return '<div class="rd-seg" role="group" aria-label="'+segLab(name)+'" data-seg="'+name+'">'+opts.map(function(o){
+        var on = (''+stateVal(name))===(''+o[0]);
+        return '<button type="button" data-set="'+name+'" data-v="'+o[0]+'" aria-pressed="'+(on?'true':'false')+'"'+(on?' class="on"':'')+'>'+o[1]+'</button>';
       }).join('')+'</div>';
     }
+    function segLab(n){
+      return n==='theme'?'Thème':n==='align'?'Alignement':n==='font'?'Police':n==='focus'?'Mode focus':n;
+    }
+    /* Les huit boutons − / + n'avaient pour nom accessible que « − » ou
+       « + » : huit contrôles indiscernables. */
     function stepRow(lab,name,disp){
-      return '<div class="rd-setrow"><span class="lab">'+lab+'</span><span class="rd-step">'
-        +'<button class="rd-mini" data-dec="'+name+'">−</button>'
-        +'<span class="rd-val">'+disp+'</span>'
-        +'<button class="rd-mini" data-inc="'+name+'">+</button></span></div>';
+      return '<div class="rd-setrow"><span class="lab" id="rdlab-'+name+'">'+lab+'</span><span class="rd-step">'
+        +'<button type="button" class="rd-mini" data-dec="'+name+'" aria-label="Diminuer : '+lab.toLowerCase()+'"><span aria-hidden="true">−</span></button>'
+        +'<span class="rd-val" data-val="'+name+'" role="status" aria-live="polite" aria-atomic="true">'+disp+'</span>'
+        +'<button type="button" class="rd-mini" data-inc="'+name+'" aria-label="Augmenter : '+lab.toLowerCase()+'"><span aria-hidden="true">+</span></button></span></div>';
     }
     function stateVal(n){ return n==='theme'?S.theme : n==='align'?S.align : n==='font'?S.font : n==='focus'?(S.focus?1:0) : ''; }
     var h='<h5>Réglages de lecture</h5>';
@@ -194,18 +210,39 @@
     h+='<div class="rd-setrow"><span class="lab">Mode focus</span>'+seg('focus',[['0','Off'],['1','On']])+'</div>';
     h+='<div class="rd-note">Le mode focus estompe tout sauf le paragraphe survolé (ou lu à voix haute). Réglages mémorisés sur cet appareil.</div>';
     box.innerHTML=h;
+    /* CHAQUE réglage terminait par renderSet(r), qui réécrit box.innerHTML :
+       le bouton qu'on venait d'activer disparaissait, et le focus retombait
+       sur <body>. Impossible d'agrandir le texte deux fois de suite sans
+       re-tabuler tout le panneau. WCAG 2.4.3. On met donc à jour SEULEMENT
+       ce qui change : l'état pressé du groupe, ou la valeur affichée. */
+    function syncSeg(n){
+      var g=box.querySelector('[data-seg="'+n+'"]');
+      if(!g)return;
+      g.querySelectorAll('[data-set]').forEach(function(x){
+        var on=(''+stateVal(n))===(''+x.getAttribute('data-v'));
+        x.classList.toggle('on',on);
+        x.setAttribute('aria-pressed',on?'true':'false');
+      });
+    }
+    function syncVal(n){
+      var v=box.querySelector('[data-val="'+n+'"]');
+      if(!v)return;
+      v.textContent = n==='fs' ? Math.round(S.fs*100/1.04)+' %'
+                    : n==='lh' ? S.lh.toFixed(2)
+                    : S.width+' px';
+    }
     box.querySelectorAll('[data-set]').forEach(function(b){ b.onclick=function(){
       var n=b.getAttribute('data-set'), v=b.getAttribute('data-v');
       if(n==='theme')S.theme=v; else if(n==='align')S.align=v;
       else if(n==='font')S.font=v; else if(n==='focus')S.focus=(v==='1');
-      saveS(); applyTo(r); renderSet(r);
+      saveS(); applyTo(r); syncSeg(n);
     };});
     box.querySelectorAll('[data-dec],[data-inc]').forEach(function(b){ b.onclick=function(){
       var inc=b.hasAttribute('data-inc'); var n=b.getAttribute(inc?'data-inc':'data-dec');
       if(n==='fs')   S.fs=clamp(+(S.fs+(inc?0.06:-0.06)).toFixed(2),0.85,1.6);
       if(n==='lh')   S.lh=clamp(+(S.lh+(inc?0.08:-0.08)).toFixed(2),1.3,2.2);
       if(n==='width')S.width=clamp(S.width+(inc?60:-60),560,1040);
-      saveS(); applyTo(r); renderSet(r); updateProgress();
+      saveS(); applyTo(r); syncVal(n); updateProgress();
     };});
   }
   function clamp(x,a,b){ return Math.max(a,Math.min(b,x)); }
@@ -244,24 +281,27 @@
 
     var tb=document.createElement('div'); tb.className='rd-toolbar';
     tb.innerHTML=''
-     + '<div class="rd-progress"><i></i></div>'
-     + '<div class="rd-row">'
-     +   '<button class="rd-btn" data-rd="prev" title="Chapitre précédent">◀ Préc.</button>'
-     +   '<button class="rd-btn" data-rd="next" title="Chapitre suivant">Suiv. ▶</button>'
-     +   '<button class="rd-btn" data-rd="toc">Sommaire</button>'
-     +   '<button class="rd-btn" data-rd="audio">▶ Écouter</button>'
-     +   '<button class="rd-btn" data-rd="clear">En clair</button>'
-     +   '<button class="rd-btn" data-rd="gloss">Glossaire</button>'
-     +   '<button class="rd-btn" data-rd="set">Aa Réglages</button>'
+     /* La jauge n'avait ni rôle ni valeur ; les glyphes ◀ ▶ Aa entraient
+        dans le nom accessible et étaient vocalisés tels quels ; aucun
+        bouton à popover n'exposait aria-expanded. WCAG 4.1.2. */
+     + '<div class="rd-progress" role="progressbar" aria-label="Progression dans le chapitre" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i></i></div>'
+     + '<div class="rd-row" role="toolbar" aria-label="Outils de lecture">'
+     +   '<button type="button" class="rd-btn" data-rd="prev" aria-label="Chapitre précédent"><span aria-hidden="true">◀</span> Préc.</button>'
+     +   '<button type="button" class="rd-btn" data-rd="next" aria-label="Chapitre suivant">Suiv. <span aria-hidden="true">▶</span></button>'
+     +   '<button type="button" class="rd-btn" data-rd="toc" aria-expanded="false" aria-controls="rdpop-toc">Sommaire</button>'
+     +   '<button type="button" class="rd-btn" data-rd="audio" aria-expanded="false" aria-controls="rdpop-audio"><span aria-hidden="true">▶</span> Écouter</button>'
+     +   '<button type="button" class="rd-btn" data-rd="clear" aria-expanded="false" aria-controls="rdpop-clear">En clair</button>'
+     +   '<button type="button" class="rd-btn" data-rd="gloss" aria-pressed="false">Glossaire</button>'
+     +   '<button type="button" class="rd-btn" data-rd="set" aria-expanded="false" aria-controls="rdpop-set"><span aria-hidden="true">Aa</span> Réglages</button>'
      + '</div>'
-     + '<div class="rd-pop" data-pop="toc" hidden></div>'
-     + '<div class="rd-pop" data-pop="audio" hidden><h5>Écouter le texte</h5>'
+     + '<div class="rd-pop" id="rdpop-toc" data-pop="toc" role="group" aria-label="Sommaire" hidden></div>'
+     + '<div class="rd-pop" id="rdpop-audio" data-pop="audio" role="group" aria-label="Écouter le texte" hidden><h5>Écouter le texte</h5>'
      +   '<div class="rd-setrow"><span class="lab">Vitesse</span><span class="rd-step">'
      +     '<button class="rd-mini" data-rate="dn">−</button><span class="rd-val" data-ratev>'+S.rate.toFixed(1)+'×</span><button class="rd-mini" data-rate="up">+</button></span></div>'
      +   '<div class="rd-vwrap"></div>'
      +   '<div class="rd-note">Le surlignage suit le paragraphe lu. La qualité dépend des voix installées sur ton appareil.</div></div>'
-     + '<div class="rd-pop" data-pop="clear" hidden><h5>En clair</h5>'+clearHtml+'</div>'
-     + '<div class="rd-pop" data-pop="set" hidden></div>'
+     + '<div class="rd-pop" id="rdpop-clear" data-pop="clear" role="group" aria-label="En clair" hidden><h5>En clair</h5>'+clearHtml+'</div>'
+     + '<div class="rd-pop" id="rdpop-set" data-pop="set" role="group" aria-label="Réglages de lecture" hidden></div>'
      + '<div class="rd-xref"></div>';
     r.insertBefore(tb, r.firstChild);
 
@@ -289,8 +329,9 @@
     tb.querySelector('[data-rd="clear"]').onclick=function(){ togglePop(r,'clear'); };
     tb.querySelector('[data-rd="set"]').onclick=function(){ renderSet(r); togglePop(r,'set'); };
     var gbtn=tb.querySelector('[data-rd="gloss"]');
-    if(gbtn){ gbtn.classList.toggle('on',!!S.gloss);
-      gbtn.onclick=function(){ S.gloss=!S.gloss; saveS(); if(S.gloss)wrapGloss(); else unwrapGloss(); gbtn.classList.toggle('on',S.gloss); }; }
+    if(gbtn){ gbtn.classList.toggle('on',!!S.gloss); gbtn.setAttribute('aria-pressed',S.gloss?'true':'false');
+      gbtn.onclick=function(){ S.gloss=!S.gloss; saveS(); if(S.gloss)wrapGloss(); else unwrapGloss();
+        gbtn.classList.toggle('on',S.gloss); gbtn.setAttribute('aria-pressed',S.gloss?'true':'false'); }; }
     tb.querySelector('[data-rd="audio"]').onclick=function(){
       if(!synth){ togglePop(r,'audio'); return; }
       if(A.playing) pauseAudio(); else playAudio();
@@ -346,6 +387,11 @@
     if(len<mid.nodeValue.length) mid.splitText(len);
     var span=document.createElement('span');
     span.className='gloss'; span.setAttribute('tabindex','0');
+    /* Le span était focusable mais sans rôle ni description : arriver
+       dessus au clavier ne montrait jamais la définition, puisque seuls
+       click et mouseover étaient écoutés. WCAG 2.1.1 et 1.4.13. */
+    span.setAttribute('role','button');
+    span.setAttribute('aria-describedby','rdTip');
     span.setAttribute('data-de',term.de||''); span.setAttribute('data-def',term.def||'');
     mid.parentNode.insertBefore(span,mid); span.appendChild(mid);
   }
@@ -380,23 +426,29 @@
   }
 
   /* ---- infobulle ---- */
-  var tip=null, tipSticky=false;
-  function ensureTip(){ if(tip)return tip; tip=document.createElement('div'); tip.className='rd-tip'; tip.hidden=true; document.body.appendChild(tip); return tip; }
+  var tip=null, tipSticky=false, tipAnchor=null;
+  function ensureTip(){ if(tip)return tip; tip=document.createElement('div'); tip.className='rd-tip'; tip.id='rdTip'; tip.setAttribute('role','tooltip'); tip.hidden=true; document.body.appendChild(tip); return tip; }
   function showTip(span){
     ensureTip();
+    /* lang="de" : sans lui, une synthèse vocale française prononce
+       « Entäußerung » en français. WCAG 3.1.2. */
     tip.innerHTML='<span class="rd-tip-term">'+esc(span.textContent)+'</span>'
-      +(span.getAttribute('data-de')?'<span class="rd-tip-de">allemand : <i>'+esc(span.getAttribute('data-de'))+'</i></span>':'')
+      +(span.getAttribute('data-de')?'<span class="rd-tip-de">allemand : <i lang="de">'+esc(span.getAttribute('data-de'))+'</i></span>':'')
       +'<span class="rd-tip-def">'+esc(span.getAttribute('data-def')||'')+'</span>';
     tip.hidden=false;
+    tipAnchor=span;
+    placeTip(span);
+  }
+  function placeTip(span){
+    if(!tip||tip.hidden)return;
     var r=span.getBoundingClientRect();
-    var top=r.bottom+window.scrollY+6;
-    tip.style.top=top+'px';
+    tip.style.top=(r.bottom+window.scrollY+6)+'px';
     var vw=document.documentElement.clientWidth;
     var left=r.left+window.scrollX;
     var maxL=window.scrollX+vw-tip.offsetWidth-10;
     tip.style.left=Math.max(window.scrollX+8,Math.min(left,maxL))+'px';
   }
-  function hideTip(){ if(tip)tip.hidden=true; tipSticky=false; }
+  function hideTip(){ if(tip)tip.hidden=true; tipSticky=false; tipAnchor=null; }
   document.addEventListener('click',function(e){
     var g=e.target.closest && e.target.closest('span.gloss');
     if(g){ if(g.closest('mark.anno'))return; e.stopPropagation(); tipSticky=true; showTip(g); return; }
@@ -412,7 +464,31 @@
     var g=e.target.closest && e.target.closest('span.gloss');
     if(g){ var to=e.relatedTarget; if(to && to.closest && (to.closest('span.gloss')===g||to.closest('.rd-tip')))return; hideTip(); }
   });
-  window.addEventListener('scroll',function(){ if(tip && !tip.hidden) hideTip(); },{passive:true});
+  /* Au clavier : le focus ouvre l'infobulle, le blur la ferme, Échap aussi.
+     Sans ces trois écouteurs, un terme de glossaire atteint au clavier
+     restait muet. */
+  document.addEventListener('focusin',function(e){
+    var g=e.target.closest&&e.target.closest('span.gloss');
+    if(g && !g.closest('mark.anno')) showTip(g);
+  });
+  document.addEventListener('focusout',function(e){
+    var g=e.target.closest&&e.target.closest('span.gloss');
+    if(g) hideTip();
+  });
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape' && tip && !tip.hidden) hideTip();
+    if((e.key==='Enter'||e.key===' ')&&document.activeElement&&document.activeElement.classList&&document.activeElement.classList.contains('gloss')){
+      e.preventDefault(); tipSticky=true; showTip(document.activeElement);
+    }
+  });
+  /* La fermeture au défilement contrevenait à la persistance exigée par
+     1.4.13 : on ne referme que si le terme est sorti de l'écran. */
+  window.addEventListener('scroll',function(){
+    if(!tip || tip.hidden || !tipAnchor) return;
+    var r=tipAnchor.getBoundingClientRect();
+    if(r.bottom<0 || r.top>(window.innerHeight||0)) hideTip();
+    else placeTip(tipAnchor);
+  },{passive:true});
 
   window.Reading={ mount:mountReader };
 })();
