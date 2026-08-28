@@ -1651,6 +1651,15 @@ if(document.documentElement.classList.contains('no-anim'))return;
     if(p>0.6){ sheet.classList.add('show'); cine.classList.add('hide'); }
     else { sheet.classList.remove('show'); cine.classList.remove('hide'); }
 
+    /* On rend la main dès que la page a FINI D'APPARAÎTRE, pas quand p touche
+       enfin 1. `p += (targetP-p)*0.035` converge de façon asymptotique : sv
+       vaut 1 à p=0.96, soit la 90e image, alors que p>0.995 n'arrive qu'à la
+       149e — presque une seconde de défilement mort à 60 fps, et le double
+       sur une machine lente, pendant laquelle l'accueil est entièrement
+       visible et ignore la molette. sv>=1 dit exactement « le site est là » :
+       #sheet est à pleine opacité et à l'échelle 1, et le canvas de l'intro
+       est à 0,25 % d'opacité — rien ne distingue plus cet instant de la fin. */
+    if(sv >= 1) releaseIntro();
     if(enterAt && now-enterAt>8000) releaseIntro();
 
     /* On ENTRE dans le site par le haut. À p>0.6, #sheet passe en
