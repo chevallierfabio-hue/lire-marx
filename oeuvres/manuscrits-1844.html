@@ -1572,6 +1572,9 @@ function syncTabsA11y(pid){
     loadPart(idx);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+  // Les onclick inline du héros et de la carte « Lire → » appellent
+  // loadPart(2) hors de l'IIFE — même motif que window.renderResume.
+  window.loadPart = loadPart;
 })();
 </script>
 <script src="../config.js"></script>
