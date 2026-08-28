@@ -609,9 +609,10 @@ dans ces cas — et le CSS masque fiche, bandeau et voile sous 768 px.
 - ✅ Place publique — **refondue en « table commune » (forum), portée
   en scène 3D** (août 2026), voir « La page Place publique » ci-dessous.
 - ✅ Barre latérale générale + barre horizontale du haut
-- 🔲 Accueil de l'œuvre Manuscrits de 1844 (mission en cours — même
-  structure que Le Capital, contenu à adapter : aliénation du
-  travail, propriété privée, dépassement communiste)
+- ✅ Accueil de l'œuvre Manuscrits de 1844 — même structure que Le
+  Capital (aliénation du travail, propriété privée, dépassement
+  communiste), passée depuis par le socle sombre, l'accessibilité,
+  l'architecture et la passe moderne
 - ✅ **Socle sombre des pages d'atelier** (`capital-1.html`,
   `manuscrits-1844.html`) — août 2026, voir « Les pages d'atelier »
   ci-dessous. Les deux pages sont passées à la DA sombre-chaude.
