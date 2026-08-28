@@ -1322,7 +1322,10 @@ sinon toast + `SHELL.auth.openModal()`. Après l'INSERT, le billet est
 ajouté en optimiste (pas de re-rendu complet de la table — le
 défilement ne doit pas sauter). Deux requêtes au chargement : racines
 (`parent_id is null`, desc, 200) et réponses (`parent_id not null`,
-asc, 800), groupées côté client. La modération reste différée à 5c.
+asc, 800), groupées côté client. La modération est FAITE (voir
+« Modération » plus bas) : un modérateur reçoit aussi les fils masqués,
+mais la salle 3D ne les pose JAMAIS sur la table — le registre et la
+fiche les portent, estompés.
 
 **Les mouvements** (tous sous les règles maison — réversibles, défaut
 posé, périodes non multiples) :
@@ -1571,7 +1574,8 @@ ouvre un panneau qui liste les notes (top + replies), avec
 propres notes). Composition : sélection dans le texte → bouton
 « Partager » dans l'anno-bar → popover avec textarea → INSERT
 dans `public_notes` (avec `before/quote/after`). La modération
-(`reports`, `hidden`, rôle `moderators`) reste **différée à 5c**.
+(`reports`, `hidden`, rôle `moderators`) est **faite** — mission
+`moderation-5c`, voir la section « Modération » ci-dessous.
 
 **Reste couplé à la liseuse.** Le surlignage précis du passage
 (deep-link au passage) et le profil membre cliquable (notes publiques
@@ -1613,6 +1617,46 @@ chapitre par chapitre. C'est le rôle attendu d'une page de livre.
 
 **Pour ajouter un nouveau livre** : voir « Shell partagé », point
 « Pour ajouter un livre ». Capital n'est plus un cas spécial à étudier.
+
+## Modération (mission `moderation-5c`)
+
+- **Le SQL vit dans `supabase/schema.sql`** (blocs idempotents ajoutés en
+  fin de fichier) : tables `moderators` (remplie À LA MAIN depuis le
+  dashboard Supabase — il n'y a pas d'UI d'administration, c'est voulu)
+  et `reports`, plus la policy `pn_update_mod` qui autorise les
+  modérateurs à basculer `public_notes.hidden`. **À REJOUER dans
+  Supabase** — tant que ce n'est pas fait, « Signaler » échoue avec un
+  toast d'erreur (chemin prévu). RLS : chacun ne lit de `moderators` QUE
+  sa propre ligne — c'est le test « suis-je modérateur ? » du client ;
+  `reports.reporter` est posé par défaut à `auth.uid()`, jamais à
+  l'INSERT (règle maison).
+- **`SHELL.mod`** (shell.js) : `isMod()` SYNCHRONE (cache, pour s'appeler
+  en plein rendu), `ensure()`, `onChange(cb)`, `report(noteId, reason)`,
+  `setHidden(noteId, bool)`. Le cache se rafraîchit sur
+  `SHELL.auth.onChange` **en différé** (`setTimeout 0` — jamais d'await
+  Supabase dans un callback onChange, règle deadlock GoTrue).
+- **Trois surfaces** : le panneau « Notes partagées » par passage
+  (shell-annotations.js), le registre de la Place publique et sa fiche
+  (place-publique.html). Partout : « Signaler » sur toute note qui n'est
+  pas la sienne (gating `ensurePoster` — toast + modale si déconnecté),
+  motif facultatif dans une petite boîte inline ; pour un modérateur,
+  « Masquer »/« Rétablir » et les notes masquées visibles ESTOMPÉES avec
+  l'étiquette « Masquée ». Le fetch retire le filtre `hidden=false`
+  seulement si `isMod()` ; comme le statut arrive en différé, chaque
+  surface s'abonne à `SHELL.mod.onChange` pour recharger.
+- **La salle 3D ne pose JAMAIS un fil masqué sur la table** — même pour
+  un modérateur : la table est la salle publique, la modération se fait
+  au registre et dans la fiche. Un fil masqué depuis la fiche quitte la
+  table sur-le-champ via le crochet `onNoteHidden` (motif jumeau
+  d'`onReplyPosted`) : mesh et billets `visible=false` ET retirés de
+  `hitMeshes` — le raycaster de three ignore `visible:false`, piège
+  cousin du `material.visible` déjà documenté.
+- `SHELL.commune` (aperçus lecture seule) reste filtré `hidden=false` et
+  sans actions — ne pas l'équiper.
+- **Non testé en écriture** : aucune écriture n'a été jouée contre la
+  base (c'est la prod). Vérifié : gating déconnecté (modale), rendu des
+  trois surfaces, console propre sur les quatre pages du shell. Le
+  parcours modérateur réel attend une ligne dans `moderators`.
 
 ## Conventions de travail
 

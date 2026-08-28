@@ -307,3 +307,8 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
 body.at-reading .notes-fab{display:inline-flex;}
 /* Les deux pilules partagent enfin leur arête droite. */
 .notes-fab{right:18px;}
+/* ── modération (moderation-5c) : notes masquées + boîte de signalement ── */
+.pub-hiddennote>.pub-q,.pub-hiddennote>.pub-body{opacity:.45;}
+.pub-hidden-tag{font-family:var(--f-ui);font-size:.64rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--red-text,#e5644f);background:rgba(213,64,47,.14);border-radius:999px;padding:1px 8px;margin-left:6px;}
+.pub-rpta{width:100%;min-height:54px;resize:vertical;background:var(--card);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-family:var(--f-ui);font-size:.85rem;padding:8px 10px;}
+.pub-rpta:focus-visible{border-color:var(--red);outline:none;}

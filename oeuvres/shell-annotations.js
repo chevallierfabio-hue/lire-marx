@@ -537,10 +537,13 @@
     pubNotes = [];
     if(!sb || !workId){ renderPublic(); return; }
     try {
-      var res = await sb.from('public_notes')
+      var q = sb.from('public_notes')
         .select('id,author_id,section,before,quote,after,body,parent_id,hidden,created,profiles(username)')
-        .eq('work', workId).eq('section', section).eq('hidden', false)
-        .order('created', { ascending: true });
+        .eq('work', workId).eq('section', section);
+      /* un modérateur voit aussi les notes masquées (rendues estompées),
+         sinon il ne pourrait jamais les rétablir */
+      if(!(window.SHELL && SHELL.mod && SHELL.mod.isMod())) q = q.eq('hidden', false);
+      var res = await q.order('created', { ascending: true });
       if(res.error) throw res.error;
       var rows = res.data || [], tops = {}, reps = [];
       rows.forEach(function(r){
@@ -589,6 +592,26 @@
     replyOpen = null;
     await loadPublic(curWork, curSection);
   }
+  /* ── signalement + modération ─────────────────────────────────── */
+  var reportOpen = null;
+
+  async function sendReport(id){
+    if(!ensurePoster()) return;
+    var ta = pubPanel && pubPanel.querySelector('.pub-rpta');
+    var res = await SHELL.mod.report(id, ta ? ta.value : '');
+    if(res.error){ toast('Signalement : ' + res.error.message); return; }
+    reportOpen = null;
+    toast('Merci — la note a été signalée à la modération.');
+    renderPublic();
+  }
+
+  async function modToggle(id, to){
+    var res = await SHELL.mod.setHidden(id, to === '1');
+    if(res.error){ toast('Modération : ' + res.error.message); return; }
+    toast(to === '1' ? 'Note masquée.' : 'Note rétablie.');
+    await loadPublic(curWork, curSection);
+  }
+
   async function delPublic(id){
     if(!sb || !user) return;
     var res = await sb.from('public_notes').delete().eq('id', id);
@@ -668,9 +691,11 @@
 
   function noteBlockHtml(n){
     var mine = user && n.author_id === user.id;
-    var h = '<div class="pub-note" data-id="' + n.id + '">'
+    var isMod = !!(window.SHELL && SHELL.mod && SHELL.mod.isMod());
+    var h = '<div class="pub-note' + (n.hidden ? ' pub-hiddennote' : '') + '" data-id="' + n.id + '">'
       + '<div class="pub-meta"><span class="pub-author">' + esc(n.author) + '</span>'
-      + '<span class="pub-date">' + esc(fmtDate(n.created)) + '</span></div>';
+      + '<span class="pub-date">' + esc(fmtDate(n.created)) + '</span>'
+      + (n.hidden ? '<span class="pub-hidden-tag">Masquée</span>' : '') + '</div>';
     if(n.quote){
       h += '<div class="pub-q" data-go="' + n.id + '">« ' + esc(n.quote.slice(0, 140)) + (n.quote.length > 140 ? '…' : '') + ' »</div>';
     }
@@ -679,14 +704,30 @@
       + '<button class="lk" data-go="' + n.id + '" type="button">Aller au passage</button>'
       + '<button class="lk" data-reply="' + n.id + '" type="button">Répondre' + (n.replies && n.replies.length ? ' (' + n.replies.length + ')' : '') + '</button>'
       + (mine ? '<button class="lk" data-del="' + n.id + '" type="button">Supprimer</button>' : '')
+      + (!mine ? '<button class="lk" data-report="' + n.id + '" type="button">Signaler</button>' : '')
+      + (isMod ? '<button class="lk" data-mod="' + n.id + '" data-mod-to="' + (n.hidden ? '0' : '1') + '" type="button">' + (n.hidden ? 'Rétablir' : 'Masquer') + '</button>' : '')
       + '</div>';
+    if(reportOpen === n.id){
+      h += '<div class="pub-replybox"><textarea class="pub-rpta" aria-label="Motif du signalement (facultatif)" placeholder="Pourquoi signaler cette note ? (facultatif)"></textarea>'
+        + '<div class="pub-compose-act"><button class="lk" data-reportcancel="1" type="button">Annuler</button>'
+        + '<button class="btn red" data-sendreport="' + n.id + '" type="button">Signaler</button></div></div>';
+    }
     if(n.replies && n.replies.length){
       h += '<div class="pub-replies">';
       n.replies.forEach(function(r){
         var rm = user && r.author_id === user.id;
-        h += '<div class="pub-reply"><div class="pub-meta"><span class="pub-author">' + esc(r.author) + '</span><span class="pub-date">' + esc(fmtDate(r.created)) + '</span></div>'
+        h += '<div class="pub-reply' + (r.hidden ? ' pub-hiddennote' : '') + '"><div class="pub-meta"><span class="pub-author">' + esc(r.author) + '</span><span class="pub-date">' + esc(fmtDate(r.created)) + '</span>'
+          + (r.hidden ? '<span class="pub-hidden-tag">Masquée</span>' : '') + '</div>'
           + '<div class="pub-body">' + esc(r.body) + '</div>'
-          + '<div class="pub-acts">' + (rm ? '<button class="lk" data-del="' + r.id + '" type="button">Supprimer</button>' : '') + '</div></div>';
+          + '<div class="pub-acts">' + (rm ? '<button class="lk" data-del="' + r.id + '" type="button">Supprimer</button>' : '')
+          + (!rm ? '<button class="lk" data-report="' + r.id + '" type="button">Signaler</button>' : '')
+          + (isMod ? '<button class="lk" data-mod="' + r.id + '" data-mod-to="' + (r.hidden ? '0' : '1') + '" type="button">' + (r.hidden ? 'Rétablir' : 'Masquer') + '</button>' : '')
+          + '</div></div>';
+        if(reportOpen === r.id){
+          h += '<div class="pub-replybox"><textarea class="pub-rpta" aria-label="Motif du signalement (facultatif)" placeholder="Pourquoi signaler cette note ? (facultatif)"></textarea>'
+            + '<div class="pub-compose-act"><button class="lk" data-reportcancel="1" type="button">Annuler</button>'
+            + '<button class="btn red" data-sendreport="' + r.id + '" type="button">Signaler</button></div></div>';
+        }
       });
       h += '</div>';
     }
@@ -771,6 +812,25 @@
     });
     pubPanel.querySelectorAll('[data-del]').forEach(function(b){
       b.onclick = function(){ delPublic(b.dataset.del); };
+    });
+    pubPanel.querySelectorAll('[data-report]').forEach(function(b){
+      b.onclick = function(){
+        if(!ensurePoster()) return;
+        reportOpen = (reportOpen === b.dataset.report) ? null : b.dataset.report;
+        replyOpen = null;
+        renderPublic();
+        var ta = pubPanel.querySelector('.pub-rpta');
+        if(ta) ta.focus();
+      };
+    });
+    pubPanel.querySelectorAll('[data-reportcancel]').forEach(function(b){
+      b.onclick = function(){ reportOpen = null; renderPublic(); };
+    });
+    pubPanel.querySelectorAll('[data-sendreport]').forEach(function(b){
+      b.onclick = function(){ sendReport(b.dataset.sendreport); };
+    });
+    pubPanel.querySelectorAll('[data-mod]').forEach(function(b){
+      b.onclick = function(){ modToggle(b.dataset.mod, b.dataset.modTo); };
     });
   }
 
@@ -1038,4 +1098,12 @@
   // travail (flashAnchor au passage).
   SHELL.reader.parseDeepLink = function(){ return pendingDeepLink; };
   SHELL.reader.resolveDeepLink = resolveDeepLink;
+
+  /* Le statut modérateur arrive en différé (fetch après connexion) : quand
+     il tombe, on recharge la section courante pour faire apparaître les
+     notes masquées et les actions de modération dans un panneau déjà
+     ouvert. */
+  if(window.SHELL && SHELL.mod && SHELL.mod.onChange){
+    SHELL.mod.onChange(function(){ if(curWork) loadPublic(curWork, curSection); });
+  }
 })();

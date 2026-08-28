@@ -346,6 +346,31 @@ html.pp-anim.pp-lit .pp-head{
   background:transparent;border:none;padding:0;color:var(--enc-2);}
 .fl-reply:hover{color:var(--enc-r);}
 .fl-reply:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+/* ── modération (moderation-5c) ── */
+.fl-report,.fl-modbtn{font-family:var(--f-ui);font-size:.62rem;font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;background:none;border:0;
+  padding:2px 0;cursor:pointer;color:rgba(58,42,22,.62);}
+.fl-report:hover,.fl-modbtn:hover{color:var(--enc-r);}
+.fl-report:focus-visible,.fl-modbtn:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+.fl-hidden .fl-quote,.fl-hidden .fl-body,.fl-hidden .fl-reps{opacity:.45;}
+.fl-hidden-tag{font-family:var(--f-ui);font-size:.58rem;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;color:#8a1d10;
+  background:rgba(146,30,17,.12);border-radius:999px;padding:2px 8px;}
+.fl-repbox textarea{display:block;width:100%;min-height:44px;
+  font-family:'Caveat',cursive;font-size:1.05rem;color:var(--enc);
+  background:transparent;border:0;border-bottom:1px dashed rgba(58,42,22,.35);
+  padding:6px 2px;resize:vertical;}
+.fl-repbox{margin-top:8px;}
+.ct-modrow{display:flex;gap:16px;margin-top:14px;}
+.ct-report,.ct-modbtn{font:600 .68rem/1 var(--f-ui);letter-spacing:.12em;
+  text-transform:uppercase;background:none;border:0;padding:2px 0;
+  cursor:pointer;color:var(--muted);}
+.ct-report:hover,.ct-modbtn:hover{color:var(--red-text,#e5644f);}
+.ct-report:focus-visible,.ct-modbtn:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+.ct-repbox textarea{display:block;width:100%;min-height:44px;
+  font-family:var(--f-ui);font-size:.85rem;color:var(--text);
+  background:var(--card);border:1px solid var(--border);border-radius:8px;
+  padding:8px 10px;resize:vertical;margin-top:8px;}
 .fl-rc{font-family:var(--f-ui);font-size:.6rem;font-weight:600;
   letter-spacing:.14em;text-transform:uppercase;color:rgba(58,42,22,.62);}
 .fl-go{margin-left:auto;font-family:var(--f-ui);font-size:.64rem;
@@ -792,15 +817,18 @@ installShell({
     if(!auth) return { mode: 'no-client' };
     var c = await auth.getClient();
     if(!c) return { mode: 'no-client' };
-    var rt = await c.from('public_notes')
-      .select('id,author_id,work,section,quote,body,parent_id,created,profiles(username,avatar_url)')
-      .eq('hidden', false).is('parent_id', null)
-      .order('created', { ascending: false }).limit(200);
+    var isMod = !!(window.SHELL && SHELL.mod && SHELL.mod.isMod());
+    var qt = c.from('public_notes')
+      .select('id,author_id,work,section,quote,body,parent_id,hidden,created,profiles(username,avatar_url)')
+      .is('parent_id', null);
+    if(!isMod) qt = qt.eq('hidden', false);
+    var rt = await qt.order('created', { ascending: false }).limit(200);
     if(rt.error) throw rt.error;
-    var rr = await c.from('public_notes')
-      .select('id,author_id,work,section,body,parent_id,created,profiles(username,avatar_url)')
-      .eq('hidden', false).not('parent_id', 'is', null)
-      .order('created', { ascending: true }).limit(800);
+    var qr = c.from('public_notes')
+      .select('id,author_id,work,section,body,parent_id,hidden,created,profiles(username,avatar_url)')
+      .not('parent_id', 'is', null);
+    if(!isMod) qr = qr.eq('hidden', false);
+    var rr = await qr.order('created', { ascending: true }).limit(800);
     if(rr.error) throw rr.error;
     tops = rt.data || [];
     repsBy = {};
@@ -833,7 +861,7 @@ installShell({
     var rcTxt = reps.length ? (reps.length + ' réponse' + (reps.length > 1 ? 's' : '')) : '';
     var sec = (note.section != null && note.section !== '') ? (' · section ' + note.section) : '';
     return (
-      '<article class="fl" data-id="' + esc(note.id) + '" data-work="' + esc(w.id) + '">' +
+      '<article class="fl' + (note.hidden ? ' fl-hidden' : '') + '" data-id="' + esc(note.id) + '" data-work="' + esc(w.id) + '">' +
         '<div class="fl-top">' +
           '<span class="fl-seal" style="background:' + seal(note.section) + '">' + esc(initials(name)) +
             avaImg(note) + '</span>' +
@@ -851,8 +879,18 @@ installShell({
             '<button type="button" class="fl-btn fl-btn-pub">Publier</button>' +
           '</div>' +
         '</div>' +
+        '<div class="fl-repbox" hidden>' +
+          '<textarea rows="2" placeholder="Pourquoi signaler ce fil ? (facultatif)" aria-label="Motif du signalement (facultatif)"></textarea>' +
+          '<div class="fl-compose-row">' +
+            '<button type="button" class="fl-btn fl-rep-ann">Annuler</button>' +
+            '<button type="button" class="fl-btn fl-btn-pub fl-rep-send">Signaler</button>' +
+          '</div>' +
+        '</div>' +
         '<div class="fl-foot">' +
           '<button type="button" class="fl-reply">Répondre</button>' +
+          (isMine(note) ? '' : '<button type="button" class="fl-report">Signaler</button>') +
+          (isModNow() ? '<button type="button" class="fl-modbtn">' + (note.hidden ? 'Rétablir' : 'Masquer') + '</button>' : '') +
+          (note.hidden ? '<span class="fl-hidden-tag">Masquée</span>' : '') +
           (rcTxt ? '<span class="fl-rc">' + esc(rcTxt) + '</span>' : '') +
           (open
             ? '<a class="fl-go" href="' + esc(w.meta.path) + '#note=' + encodeURIComponent(note.id) + '">Aller au passage&nbsp;→</a>'
@@ -961,6 +999,30 @@ installShell({
     if(on) box.querySelector('textarea').focus();
     ppTick(); // la hauteur du feuillet a changé
   }
+  /* ── modération (moderation-5c) ── */
+  function isMine(note){
+    var a = window.SHELL && SHELL.auth;
+    return !!(a && a.user && note.author_id === a.user.id);
+  }
+  function isModNow(){ return !!(window.SHELL && SHELL.mod && SHELL.mod.isMod()); }
+  /* crochet 3D : quand un fil est masqué, son feuillet quitte la table */
+  var onNoteHidden = null;
+  async function reportNote(note, reason, done){
+    var res = await SHELL.mod.report(note.id, reason);
+    if(res.error){ toast('Signalement : ' + res.error.message); return; }
+    toast('Merci — le fil a été signalé à la modération.');
+    if(done) done();
+  }
+  async function modToggle(note){
+    var to = !note.hidden;
+    var res = await SHELL.mod.setHidden(note.id, to);
+    if(res.error){ toast('Modération : ' + res.error.message); return; }
+    note.hidden = to;
+    toast(to ? 'Fil masqué.' : 'Fil rétabli.');
+    if(to && onNoteHidden){ try { onNoteHidden(note.id); } catch(e){} }
+    renderFlat();
+  }
+
   function wire(){
     feed.querySelectorAll('.fl').forEach(function(card){
       var note = tops.filter(function(n){ return n.id === card.dataset.id; })[0];
@@ -973,6 +1035,27 @@ installShell({
       });
       card.querySelector('.fl-btn-ann').addEventListener('click', function(){ toggleCompose(card, false); });
       card.querySelector('.fl-btn-pub').addEventListener('click', function(){ sendReply(card, note); });
+      var rb = card.querySelector('.fl-report');
+      if(rb) rb.addEventListener('click', function(){
+        if(!ensurePoster()) return;
+        var box = card.querySelector('.fl-repbox');
+        box.hidden = !box.hidden;
+        if(!box.hidden) box.querySelector('textarea').focus();
+        ppTick();
+      });
+      var ra = card.querySelector('.fl-rep-ann');
+      if(ra) ra.addEventListener('click', function(){
+        card.querySelector('.fl-repbox').hidden = true; ppTick();
+      });
+      var rs = card.querySelector('.fl-rep-send');
+      if(rs) rs.addEventListener('click', function(){
+        var ta = card.querySelector('.fl-repbox textarea');
+        reportNote(note, ta.value, function(){
+          card.querySelector('.fl-repbox').hidden = true; ppTick();
+        });
+      });
+      var mb = card.querySelector('.fl-modbtn');
+      if(mb) mb.addEventListener('click', function(){ modToggle(note); });
     });
   }
 
@@ -1007,6 +1090,13 @@ installShell({
     armPose();
   }
   load();
+  /* le statut modérateur arrive en différé : on recharge alors le flux
+     pour faire apparaître les fils masqués (estompés) et les actions */
+  if(window.SHELL && SHELL.mod && SHELL.mod.onChange){
+    SHELL.mod.onChange(function(){
+      fetchAll().then(renderFlat).catch(function(){});
+    });
+  }
 
   /* ── La pose des feuillets ────────────────────────────────────────
      Deux mouvements sur le même --k :
@@ -1446,6 +1536,7 @@ installShell({
     (function(){
       var byW = {};
       tops.forEach(function(n){
+        if(n.hidden) return;   /* un fil masqué ne se pose pas sur la table */
         var id = workOf(n).id || 'autres';
         (byW[id] = byW[id] || []).push(n);
       });
@@ -1642,6 +1733,21 @@ installShell({
         sh.mesh.material.needsUpdate = true;
         var n = (repsBy[note.id] || []).length;
         if(sh.slips.length < Math.min(n, 3)) addSlip(sh, sh.slips.length);
+        break;
+      }
+    };
+    /* un fil masqué quitte la table sur-le-champ : mesh et billets
+       invisibles ET retirés de hitMeshes — le raycaster de three ne
+       respecte pas visible:false (piège cousin de material.visible) */
+    onNoteHidden = function(id){
+      for(var i = 0; i < sheets.length; i++){
+        var sh = sheets[i];
+        if(sh.note.id !== id) continue;
+        sh.mesh.visible = false;
+        sh.slips.forEach(function(sm){ sm.visible = false; });
+        var hi = hitMeshes.indexOf(sh.mesh);
+        if(hi >= 0) hitMeshes.splice(hi, 1);
+        if(selected === id) closeCartel();
         break;
       }
     };
@@ -1893,10 +1999,34 @@ installShell({
           '<textarea rows="3" placeholder="Votre réponse…" aria-label="Votre réponse"></textarea>' +
           '<button type="button" class="ct-send">Publier la réponse</button>' +
         '</div>' +
+        '<div class="ct-modrow">' +
+          (isMine(note) ? '' : '<button type="button" class="ct-report">Signaler ce fil</button>') +
+          (isModNow() ? '<button type="button" class="ct-modbtn">' + (note.hidden ? 'Rétablir' : 'Masquer') + '</button>' : '') +
+        '</div>' +
+        '<div class="ct-repbox" hidden>' +
+          '<textarea rows="2" placeholder="Pourquoi signaler ce fil ? (facultatif)" aria-label="Motif du signalement (facultatif)"></textarea>' +
+          '<button type="button" class="ct-send ct-rep-send">Signaler</button>' +
+        '</div>' +
         (openW
           ? '<a class="ct-go" href="' + esc(w.meta.path) + '#note=' +
             encodeURIComponent(note.id) + '">Aller au passage&nbsp;→</a>'
           : '<p class="ct-soon">L\'atelier de cette œuvre est en préparation — le passage s\'ouvrira ici le moment venu.</p>');
+      var ctR = elCartelIn.querySelector('.ct-report');
+      if(ctR) ctR.addEventListener('click', function(){
+        if(!ensurePoster()) return;
+        var box = elCartelIn.querySelector('.ct-repbox');
+        box.hidden = !box.hidden;
+        if(!box.hidden) box.querySelector('textarea').focus();
+      });
+      var ctRS = elCartelIn.querySelector('.ct-rep-send');
+      if(ctRS) ctRS.addEventListener('click', function(){
+        var ta = elCartelIn.querySelector('.ct-repbox textarea');
+        reportNote(note, ta.value, function(){
+          elCartelIn.querySelector('.ct-repbox').hidden = true;
+        });
+      });
+      var ctM = elCartelIn.querySelector('.ct-modbtn');
+      if(ctM) ctM.addEventListener('click', function(){ modToggle(note); });
       elCartelIn.querySelector('.ct-send').addEventListener('click', function(){
         var ta = elCartelIn.querySelector('.ct-compose textarea');
         postReply(note, ta.value).then(function(row){
@@ -2091,6 +2221,7 @@ installShell({
       active = false;
       if(raf){ cancelAnimationFrame(raf); raf = null; }
       onReplyPosted = null;
+      onNoteHidden = null;
       document.documentElement.classList.remove('js-pp3d');
       run.style.height = '0px';
       closeCartel();

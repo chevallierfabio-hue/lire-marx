@@ -1373,3 +1373,79 @@
 
   SHELL.commune = { mount: mount };
 })();
+
+/* ══════════════════════════════════════════════════════════════════════
+   SHELL.mod — modération (mission moderation-5c)
+
+   Le rôle vit dans la table `moderators` (gérée à la main depuis le
+   dashboard Supabase — pas d'UI d'administration). RLS ne laisse lire à
+   chacun QUE sa propre ligne : le test « suis-je modérateur ? » est donc
+   un simple select. `isMod()` est SYNCHRONE (il lit un cache) pour
+   pouvoir s'appeler en plein rendu ; le cache est rafraîchi à chaque
+   changement de session — en DIFFÉRÉ (setTimeout 0), jamais d'await
+   Supabase dans un callback onChange (règle deadlock GoTrue de la
+   maison).
+   ══════════════════════════════════════════════════════════════════════ */
+(function(){
+  'use strict';
+  var SHELL = window.SHELL = window.SHELL || {};
+  var st = { isMod: false };
+  var subs = [];
+
+  async function refresh(){
+    var was = st.isMod;
+    st.isMod = false;
+    try {
+      var a = SHELL.auth;
+      if(a && a.user){
+        var c = await a.getClient();
+        if(c){
+          var r = await c.from('moderators').select('user_id')
+            .eq('user_id', a.user.id).limit(1);
+          st.isMod = !!(r.data && r.data.length);
+        }
+      }
+    } catch(e){}
+    if(st.isMod !== was) subs.forEach(function(cb){ try{ cb(st.isMod); }catch(e){} });
+    return st.isMod;
+  }
+
+  SHELL.mod = {
+    isMod: function(){ return st.isMod; },
+    ensure: refresh,
+    /* prévenu quand le statut change (pour re-rendre un panneau ouvert) */
+    onChange: function(cb){ if(typeof cb === 'function') subs.push(cb); },
+
+    /* Signaler une note publique. `reporter` est posé par défaut côté
+       base (auth.uid()) — on ne l'écrit jamais ici. */
+    report: async function(noteId, reason){
+      var a = SHELL.auth;
+      if(!a || !a.user) return { error: { message: 'non connecté' } };
+      var c = await a.getClient();
+      if(!c) return { error: { message: 'client indisponible' } };
+      return await c.from('reports').insert({
+        note_id: noteId, reason: (reason || '').trim() || null });
+    },
+
+    /* Masquer / rétablir une note (modérateurs seulement — la policy
+       pn_update_mod fait foi, le client ne fait que demander). */
+    setHidden: async function(noteId, hidden){
+      var a = SHELL.auth;
+      var c = a ? await a.getClient() : null;
+      if(!c) return { error: { message: 'client indisponible' } };
+      return await c.from('public_notes')
+        .update({ hidden: !!hidden }).eq('id', noteId);
+    }
+  };
+
+  function arm(){
+    if(SHELL.auth && SHELL.auth.onChange){
+      SHELL.auth.onChange(function(){ setTimeout(refresh, 0); });
+      return true;
+    }
+    return false;
+  }
+  /* shell.js définit SHELL.auth plus haut dans ce même fichier, mais on
+     se protège d'un ordre de chargement inattendu */
+  if(!arm()) document.addEventListener('DOMContentLoaded', arm, { once: true });
+})();
