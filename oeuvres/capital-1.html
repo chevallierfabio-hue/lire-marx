@@ -800,6 +800,16 @@ nav.tabs.cap-tabs-bar .tab .num{display:none;}
 /* ── Liseuse : les titres en rouge profond s'enfonçaient dans le brun-nuit ── */
 .reader .rkicker,.reader .rsrc,.reader h4,
 .ws-text h2,.ws-text h3,.ws-text h4{color:var(--bright);}
+
+/* La légende de source est sortie de .cap-cover : dans l'image, elle
+   recouvrait la moitié du fac-similé sur une couverture réduite à 130 px.
+   Elle reste superposée sur grand écran (.cap-hero-right est en
+   position:relative) et se pose SOUS la couverture en mobile. */
+.cap-cover-caption{position:absolute;bottom:0;left:0;right:0;z-index:1;}
+@media(max-width:740px){
+  .cap-cover-caption{position:static;background:none;padding:8px 0 0;
+    color:var(--muted);font-size:9.5px;line-height:1.45;letter-spacing:.05em;}
+}
 </style>
 <script src="../config.js"></script>
 <script src="shell.js"></script>
@@ -860,8 +870,8 @@ nav.tabs.cap-tabs-bar .tab .num{display:none;}
     <div class="cap-hero-right">
       <div class="cap-cover">
         <img class="cap-cover-img" src="../assets/img/archive/das-kapital-titre-1867.jpg" alt="Das Kapital, page de titre de l'édition originale, Hambourg 1867" loading="lazy">
-        <div class="cap-cover-caption">Page de titre · Hambourg, 1867 · Zentralbibliothek Zürich</div>
       </div>
+        <div class="cap-cover-caption">Page de titre · Hambourg, 1867 · Zentralbibliothek Zürich</div>
     </div>
   </section>
 

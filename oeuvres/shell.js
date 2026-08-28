@@ -49,11 +49,11 @@
   function buildTopbar(){
     return el(
       '<header class="topbar"><div class="topbar-in">' +
-        '<button id="sbToggle" class="sb-toggle" type="button" aria-label="Ouvrir le menu">☰</button>' +
+        '<button id="sbToggle" class="sb-toggle" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="sidebar"><span aria-hidden="true">☰</span></button>' +
         '<button class="brandmark" type="button" id="shellBrand" aria-label="Lire Marx — revenir à la bibliothèque">Lire<span class="d">.</span>Marx</button>' +
         '<div class="tb-search">' +
           '<span class="tb-search-ic" aria-hidden="true">⌕</span>' +
-          '<input id="tbSearch" type="text" autocomplete="off" spellcheck="false" placeholder="Rechercher un concept, une date, un chapitre…" aria-label="Rechercher">' +
+          '<input id="tbSearch" type="text" autocomplete="off" spellcheck="false" placeholder="Rechercher un concept, une date, un chapitre…" aria-label="Rechercher" role="combobox" aria-expanded="false" aria-controls="tbResults" aria-autocomplete="list" aria-haspopup="listbox">' +
           '<div id="tbResults" class="tb-results" role="listbox" hidden></div>' +
         '</div>' +
         '<div class="topbar-right">' +
@@ -146,11 +146,15 @@
 
     // Ouverture/fermeture sidebar (mobile : toggle ; desktop : collapse)
     document.getElementById('sbToggle').addEventListener('click', function(){
-      if(window.matchMedia('(max-width:860px)').matches){
-        document.body.classList.toggle('sb-open');
-      } else {
-        document.body.classList.toggle('sb-collapsed');
-      }
+      var narrow = window.matchMedia('(max-width:860px)').matches;
+      if(narrow) document.body.classList.toggle('sb-open');
+      else       document.body.classList.toggle('sb-collapsed');
+      /* L'état n'était exposé nulle part : même bouton, même libellé,
+         ouvert comme fermé. WCAG 4.1.2. */
+      var open = narrow ? document.body.classList.contains('sb-open')
+                        : !document.body.classList.contains('sb-collapsed');
+      this.setAttribute('aria-expanded', open ? 'true' : 'false');
+      this.setAttribute('aria-label', open ? 'Fermer le menu' : 'Ouvrir le menu');
     });
     bk.addEventListener('click', function(){ document.body.classList.remove('sb-open'); });
 
@@ -248,15 +252,21 @@
       + '<div class="tb-pop-t">Lire.Marx est libre, gratuit et sans publicité. Pour aider à le faire vivre :</div>'
       + '<a class="tb-pop-cta" href="#" target="_blank" rel="noopener">Faire un don</a>';
     wrap.appendChild(pop);
+    pop.id = pop.id || 'supportPop';
+    btn.setAttribute('aria-haspopup', 'dialog');
+    btn.setAttribute('aria-expanded', 'false');
+    btn.setAttribute('aria-controls', pop.id);
+    function sync(){ btn.setAttribute('aria-expanded', pop.hidden ? 'false' : 'true'); }
     btn.addEventListener('click', function(e){
       e.stopPropagation();
       // Ferme les autres popovers .tb-pop (sociaux notamment).
       document.querySelectorAll('.tb-pop').forEach(function(p){ if(p !== pop) p.hidden = true; });
       pop.hidden = !pop.hidden;
+      sync();
     });
     pop.addEventListener('click', function(e){ e.stopPropagation(); });
-    document.addEventListener('click', function(){ pop.hidden = true; });
-    document.addEventListener('keydown', function(e){ if(e.key === 'Escape') pop.hidden = true; });
+    document.addEventListener('click', function(){ pop.hidden = true; sync(); });
+    document.addEventListener('keydown', function(e){ if(e.key === 'Escape'){ pop.hidden = true; sync(); } });
   }
 
   // ----- Recherche partagée -----
@@ -321,7 +331,24 @@
       return indexPending;
     }
 
-    function close(){ box.hidden = true; }
+    function close(){
+      box.hidden = true;
+      inp.setAttribute('aria-expanded','false');
+      inp.removeAttribute('aria-activedescendant');
+      cur = -1;
+    }
+    /* Option survolée au clavier. Le CSS stylait déjà .tb-res.active — la
+       classe n'était jamais posée, et aucune touche fléchée n'était gérée. */
+    var cur = -1;
+    function opts(){ return [].slice.call(box.querySelectorAll('[role=option]')); }
+    function mark(i){
+      var o = opts();
+      if(!o.length) return;
+      cur = (i + o.length) % o.length;
+      o.forEach(function(b,k){ b.classList.toggle('active', k === cur); });
+      inp.setAttribute('aria-activedescendant', o[cur].id);
+      o[cur].scrollIntoView({block:'nearest'});
+    }
 
     function render(q){
       var nq = norm(q).trim();
@@ -334,6 +361,8 @@
         if(!hits.length){
           box.innerHTML = '<div class="tb-empty">Aucun résultat pour « ' + esc(q) + ' »</div>';
           box.hidden = false;
+          inp.setAttribute('aria-expanded','true');
+          announce('Aucun résultat pour ' + q);
           return;
         }
         box.innerHTML = '';
@@ -342,18 +371,33 @@
           b.type = 'button';
           b.className = 'tb-res';
           b.setAttribute('role', 'option');
+          b.id = 'tbo-' + (box.children.length);
+          /* Une option de listbox ne se tabule pas : on y circule aux
+             flèches depuis le champ (aria-activedescendant). */
+          b.tabIndex = -1;
           b.innerHTML = '<span class="tb-res-main"><span class="tb-res-t">' + esc(e.t) + '</span><span class="tb-res-s">' + esc(e.s) + '</span></span><span class="tb-res-cat tb-cat-' + e.cat + '">' + esc(e.lab) + '</span>';
           b.addEventListener('mousedown', function(ev){ ev.preventDefault(); });
           b.addEventListener('click', function(){ inp.value = ''; close(); try { e.act(); } catch(x){} });
           box.appendChild(b);
         });
         box.hidden = false;
+        inp.setAttribute('aria-expanded','true');
+        cur = -1;
+        announce(hits.length + (hits.length > 1 ? ' résultats' : ' résultat'));
       });
     }
 
     inp.addEventListener('input', function(){ render(inp.value); });
     inp.addEventListener('focus', function(){ if(inp.value) render(inp.value); });
-    inp.addEventListener('keydown', function(e){ if(e.key === 'Escape'){ close(); inp.blur(); } });
+    inp.addEventListener('keydown', function(e){
+      if(e.key === 'Escape'){ close(); inp.blur(); return; }
+      if(box.hidden) return;
+      if(e.key === 'ArrowDown'){ e.preventDefault(); mark(cur + 1); }
+      else if(e.key === 'ArrowUp'){ e.preventDefault(); mark(cur - 1); }
+      else if(e.key === 'Home' && cur >= 0){ e.preventDefault(); mark(0); }
+      else if(e.key === 'End' && cur >= 0){ e.preventDefault(); mark(opts().length - 1); }
+      else if(e.key === 'Enter' && cur >= 0){ e.preventDefault(); opts()[cur].click(); }
+    });
     document.addEventListener('click', function(e){
       var w = document.querySelector('.tb-search');
       if(w && !w.contains(e.target)) close();
@@ -590,6 +634,51 @@
   }
 
   // ----- modales ---------------------------------------------------------
+  /* Aucune des trois modales ne gérait le focus : à l'ouverture il restait
+     sur le bouton déclencheur, les ~30 contrôles d'arrière-plan restaient
+     tabulables, et à la fermeture le focus retombait sur <body> parce que
+     l'élément qui le portait venait d'être masqué. WCAG 2.4.3.
+     Mutualisé ici et réutilisé par shell-social.js via SHELL.modal. */
+  var lastFocus = null;
+  function bgParts(){
+    return [document.querySelector('header.topbar'),
+            document.querySelector('.sidebar'),
+            document.querySelector('main, .wrap'),
+            document.querySelector('body > footer')].filter(Boolean);
+  }
+  function focusablesIn(root){
+    return [].slice.call(root.querySelectorAll(
+      'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])'
+    )).filter(function(e){ return e.getClientRects().length; });
+  }
+  function trapKeys(e){
+    if(e.key !== 'Tab') return;
+    var box = e.currentTarget.querySelector('[role="dialog"]') || e.currentTarget;
+    var f = focusablesIn(box);
+    if(!f.length) return;
+    var first = f[0], last = f[f.length - 1];
+    if(e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
+    else if(!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
+  }
+  function enterModal(host){
+    if(!host) return;
+    lastFocus = document.activeElement;
+    bgParts().forEach(function(n){ n.setAttribute('inert',''); n.setAttribute('aria-hidden','true'); });
+    host.addEventListener('keydown', trapKeys);
+    // Laisser le rendu se poser avant de chercher un focusable.
+    setTimeout(function(){
+      var box = host.querySelector('[role="dialog"]') || host;
+      var f = focusablesIn(box);
+      (f[0] || box).focus();
+    }, 0);
+  }
+  function leaveModal(host){
+    if(host) host.removeEventListener('keydown', trapKeys);
+    bgParts().forEach(function(n){ n.removeAttribute('inert'); n.removeAttribute('aria-hidden'); });
+    if(lastFocus && lastFocus.isConnected && lastFocus.getClientRects().length) lastFocus.focus();
+    lastFocus = null;
+  }
+
   function openModal(){
     if(!modalEl) modalEl = document.getElementById('acctModal');
     if(!modalEl) return;
@@ -599,21 +688,25 @@
     renderModal();
     modalEl.hidden = false;
     document.body.style.overflow = 'hidden';
+    enterModal(modalEl);
   }
   function closeModal(){
     if(!modalEl) return;
     modalEl.hidden = true;
     document.body.style.overflow = '';
+    leaveModal(modalEl);
   }
   function openPrivacy(){
     if(!privacyEl) privacyEl = document.getElementById('privacyModal');
     if(!privacyEl) return;
     privacyEl.hidden = false;
     document.body.style.overflow = 'hidden';
+    enterModal(privacyEl);
   }
   function closePrivacy(){
     if(!privacyEl) return;
     privacyEl.hidden = true;
+    leaveModal(privacyEl);
     if(!modalEl || modalEl.hidden) document.body.style.overflow = '';
   }
 
@@ -698,8 +791,11 @@
     if(!modalEl) return;
     var slot = modalEl.querySelector('#acctView');
     if(!slot) return;
-    var err = view.err ? '<div class="ac-err">' + esc(view.err) + '</div>' : '';
-    var ok  = view.notice ? '<div class="ac-ok">' + esc(view.notice) + '</div>' : '';
+    /* role=alert : une erreur de connexion s'affichait dans un <div> muet.
+       aria-describedby relie l'erreur aux champs (WCAG 3.3.1). */
+    var err = view.err ? '<div class="ac-err" id="acErr" role="alert">' + esc(view.err) + '</div>' : '';
+    var ok  = view.notice ? '<div class="ac-ok" role="status">' + esc(view.notice) + '</div>' : '';
+    var inv = view.err ? ' aria-invalid="true" aria-describedby="acErr"' : '';
 
     // "Compte non configuré" ne doit s'afficher QUE si getClient a tourné
     // ET a réellement échoué (configured === false). Si configured est null
@@ -711,7 +807,8 @@
     }
     if(view.recovery){
       slot.innerHTML = '<div class="ac-card"><h3>Choisir un nouveau mot de passe</h3>' + err + ok
-        + '<input type="password" id="acNew" placeholder="nouveau mot de passe (6 caractères min.)" autocomplete="new-password">'
+        + '<label class="ac-lab" for="acNew">Nouveau mot de passe</label>'
+        + '<input type="password" id="acNew" placeholder="6 caractères minimum" autocomplete="new-password"' + inv + '>'
         + '<div class="ac-row"><button class="btn red" data-act="setpw" type="button"' + (view.busy ? ' disabled' : '') + '>Enregistrer</button></div></div>';
       wireModalActions(slot);
       return;
@@ -730,7 +827,7 @@
         var bio = (p && p.bio) || '';
         slot.innerHTML = '<div class="ac-card"><h3>Mon compte</h3>' + err + ok
           + '<div class="ac-id"><span class="ac-ava">' + avaHtml(pseudo || u.email, p && p.avatar_url) + '</span><div><div class="ac-pseudo">' + (pseudo ? esc(pseudo) : '<i>sans pseudo</i>') + '</div><div class="ac-mail">' + esc(u.email || '') + '</div></div></div>'
-          + '<label class="ac-lab">Pseudo public</label>'
+          + '<label class="ac-lab" for="acUser">Pseudo public</label>'
           + '<div class="ac-row"><input type="text" id="acUser" value="' + esc(pseudo) + '" placeholder="ton-pseudo" maxlength="24"><button class="btn" data-act="saveuser" type="button">Enregistrer</button></div>'
           + '<p class="ac-note">Ce pseudo apparaîtra à côté de tes notes publiques ; ton e-mail, jamais.</p>'
           + '<label class="ac-lab">Photo de profil</label>'
@@ -738,7 +835,7 @@
           + '<div class="ac-avabtns"><input type="file" id="acAvaFile" accept="image/*" style="display:none">'
           + '<button class="btn" data-act="ava-pick" type="button"' + (view.busy ? ' disabled' : '') + '>Choisir une image…</button>'
           + ((p && p.avatar_url) ? '<button class="lk" data-act="ava-clear" type="button">Retirer la photo</button>' : '') + '</div></div>'
-          + '<label class="ac-lab">Description</label>'
+          + '<label class="ac-lab" for="acBio">Description</label>'
           + '<textarea id="acBio" class="ac-bio" maxlength="280" placeholder="Quelques mots sur toi (280 caractères max).">' + esc(bio) + '</textarea>'
           + '<div class="ac-row"><button class="btn red" data-act="savemeta" type="button">Enregistrer le profil</button></div>'
           + (view.eraseConfirm
@@ -756,9 +853,15 @@
     slot.innerHTML = '<div class="ac-card"><div class="ac-tabs">'
       + '<button class="ac-t' + (signup ? '' : ' on') + '" data-act="mode-signin" type="button">Se connecter</button>'
       + '<button class="ac-t' + (signup ? ' on' : '') + '" data-act="mode-signup" type="button">Créer un compte</button></div>' + err + ok
-      + '<input type="email" id="acEmail" placeholder="adresse e-mail" autocomplete="email">'
-      + (signup ? '<input type="text" id="acUser" placeholder="pseudo public (2 à 24 caractères)" maxlength="24">' : '')
-      + '<input type="password" id="acPw" placeholder="mot de passe" autocomplete="' + (signup ? 'new-password' : 'current-password') + '">'
+      /* Ces trois champs étaient les SEULS contrôles du site sans nom
+         accessible : un placeholder n'est pas une étiquette, il disparaît
+         à la saisie. WCAG 3.3.2 et 4.1.2. */
+      + '<label class="ac-lab" for="acEmail">Adresse e-mail</label>'
+      + '<input type="email" id="acEmail" placeholder="vous@exemple.fr" autocomplete="email"' + inv + '>'
+      + (signup ? '<label class="ac-lab" for="acUser">Pseudo public</label>'
+                + '<input type="text" id="acUser" placeholder="2 à 24 caractères" maxlength="24"' + inv + '>' : '')
+      + '<label class="ac-lab" for="acPw">Mot de passe</label>'
+      + '<input type="password" id="acPw" placeholder="' + (signup ? '6 caractères minimum' : 'votre mot de passe') + '" autocomplete="' + (signup ? 'new-password' : 'current-password') + '"' + inv + '>'
       + '<div class="ac-row"><button class="btn red" data-act="' + (signup ? 'do-signup' : 'do-signin') + '" type="button"' + (view.busy ? ' disabled' : '') + '>' + (view.busy ? '…' : (signup ? 'Créer mon compte' : 'Se connecter')) + '</button>'
       + (signup ? '' : '<button class="lk" data-act="reset" type="button">Mot de passe oublié ?</button>') + '</div>'
       + '<p class="ac-note">' + (signup ? 'Tu choisis un pseudo public et un mot de passe ; ton adresse e-mail reste privée.' : 'Retrouve et synchronise tes annotations sur tous tes appareils.') + '</p>'
@@ -1017,6 +1120,9 @@
     // UI
     openModal: openModal, closeModal: closeModal,
     openPrivacy: openPrivacy, closePrivacy: closePrivacy,
+    /* Mis à disposition de shell-social.js : sa modale Contacts reprend le
+       même motif et souffrait des mêmes défauts de focus. */
+    _enterModal: enterModal, _leaveModal: leaveModal,
     renderChip: renderChip, renderModal: renderModal,
     setLoggedInRenderer: setLoggedInRenderer,
     // appelée automatiquement par installShell()
