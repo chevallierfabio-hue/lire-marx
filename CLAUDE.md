@@ -594,305 +594,125 @@ dans ces cas — et le CSS masque fiche, bandeau et voile sous 768 px.
 - 🔲 Onglets Parcourir / Cheminement / Modèles / Explorations /
   Chronologie : **jugés satisfaisants tels quels, ne pas retoucher**
   sans demande explicite.
-- ✅ Page Bibliothèque à part (`oeuvres/bibliotheque.html`) — voir
-  « La page Bibliothèque » ci-dessous. Elle avait été jugée inutile puis
-  **rouverte sur demande explicite du propriétaire** ; la note qui disait
-  « abandonnée, ne pas la recréer » ne vaut plus.
+- ✅ Page Bibliothèque à part (`oeuvres/bibliotheque.html`) — **refondue
+  en scène 3D « la pièce aux rayonnages »** (août 2026), voir « La page
+  Bibliothèque » ci-dessous. Elle avait été jugée inutile, rouverte sur
+  demande explicite du propriétaire, puis refondue sur demande explicite
+  encore : la page-document « Par où commencer » est remplacée.
 
-## La page Bibliothèque — « Par où commencer »
+## La page Bibliothèque — « la pièce aux rayonnages » (refonte août 2026)
 
 `oeuvres/bibliotheque.html` (CSS et JS inlinés, motif de `place-publique.html`).
 Cible du clic sidebar « Bibliothèque ». **DA sombre-chaude** : son `:root`
 redéfinit les tokens du shell comme le fait `/index.html`, sinon
 topbar / sidebar / modales resteraient en clair.
 
-**Ce n'est pas un catalogue.** Le catalogue existe déjà sur l'accueil, et
-c'est pour cette raison qu'une page Bibliothèque avait été jugée inutile une
-première fois. Sa vocation est autre : **remettre les douze œuvres dans un
-ordre de lecture** plutôt que dans l'ordre des dates. Trois niveaux :
+**Refonte totale demandée par le propriétaire (août 2026)** : la page n'est
+plus un document (portes / fil / corpus empilés) mais **une bibliothèque en
+trois dimensions que l'on longe une bougie à la main** — un plan caméra
+piloté par le défilement, les livres pour seule navigation. L'ancienne
+version « Par où commencer » (panneaux empilés, plume `inkThreads`,
+registre) est **remplacée** ; son registre survit comme repli à plat
+(voir plus bas). Arbitrages retenus avec le propriétaire : refonte totale
+(pas un simple héros 3D), et travelling au défilement (pas de navigation
+libre ni de plan d'intro figé).
 
-1. **Le seuil** — les portes d'entrée, une question par porte.
-2. **Le fil** — les enchaînements « ce qui prépare quoi ».
-3. **Le corpus** — les douze œuvres, filtrables (statut) et triables
-   (par parcours / par année), avec `readingGuide` et `sourceNote` — deux
-   champs qui dormaient dans le JSON sans être affichés nulle part.
+### La scène (Three.js, `initScene()` inliné)
 
-**La section catalogue de l'accueil n'a pas bougé** : arbitrage explicite du
-propriétaire, la redondance est assumée. Ne pas « nettoyer » l'un au nom de
-l'autre.
+- **Un rayon = un `readingGroup`** de `bibliotheque.json`, dans l'ordre du
+  fichier (seuils → jeune Marx → critique → interventions). Les œuvres du
+  rayon, triées par année croissante, tiennent la rangée du milieu — celle
+  que la caméra longe. Au-dessus et en dessous : des liasses couchées sans
+  étiquette, un décor, **jamais des œuvres** (ne pas leur donner de titre :
+  le corpus reste la source unique de ce qui existe).
+- **Une œuvre `available` est un livre relié** : cuir (une couleur par
+  rayon, `LEATHERS`), dorures, nerfs, titre au dos **de bas en haut**
+  (convention française de reliure), `shortTitle` sur le dos, titre complet
+  dans le cartel. **Une œuvre `planned` est une liasse ficelée** : kraft,
+  deux tours de ficelle, titre à l'encre en Caveat — « en préparation »
+  se dit par la matière (pas encore reliée), plus aucun besoin d'opacité.
+- **Le signet rouge marque une porte d'entrée** (`reading.entry`), et
+  seulement si l'œuvre est disponible — la règle « pas de porte sans
+  atelier » de l'ancienne page tient toujours.
+- **La bougie est portée** : un seul `PointLight` chaud qui suit la caméra
+  (plus une ambiante faible qui débouche). Elle vacille (somme de sinus,
+  jamais un battement régulier). Poussière : un petit `Points` qui dérive.
+  `scene.fog` couleur du fond — les travées voisines s'estompent.
+- **Le défilement est le travelling**, strictement réversible : `p` (0→1
+  sur la cale `#bibRun`, hauteur dérivée du nombre de rayons) commande la
+  caméra via `camPose()` — plan large (l'intro couvre), approche
+  (`T_IN=0.16`), travée par travée à vitesse constante, léger recul final
+  (`T_TRAVEL=0.9`). La caméra rejoint sa cible en douceur dans la boucle
+  rAF (`1-exp(-dt·7)`).
+- **Aller à un livre = écrire la position de défilement** (`scrollToX`,
+  `behavior:'smooth'`) : le pilotage reste le scroll, donc réversible, et
+  la caméra traverse réellement les rayons intermédiaires. Utilisé par le
+  rail (les boutons de rayons en bas), par le clic sur un volume et par
+  les relations du cartel.
+- **Le cartel** (`.bx3-cartel`, panneau fixe à droite) porte TOUT le
+  contenu d'une œuvre : question d'entrée, titre, statut, description,
+  concepts, **relations dans les deux sens** (« Avant lui » = after +
+  primer ; « Après lui » = calculé en inversant le graphe), readingGuide,
+  sourceNote, « Ouvrir l'atelier ». Les relations sont des boutons : clic
+  → cartel de l'autre œuvre + la caméra s'y porte. Échap ou clic dans le
+  vide ferme. Le livre sélectionné/survolé **se tire de l'étagère**
+  (`outT` easé dans la boucle).
+- **Étiquette de survol** (`.bx3-tag`) projetée au-dessus du volume
+  (titre, année, état, question d'entrée). Les cartouches de laiton des
+  rayons (`plaqueTexture`) sont **inclinés vers le regard**
+  (`rotation.x=-0.34`) — à plat sur le chant de la tablette, la caméra les
+  voyait par la tranche.
+- **Rien en dur** : nombre de rayons, rail, comptes, textes de fin — tout
+  est dérivé des données, les nombres en toutes lettres (`numFr`). Le
+  lede de l'intro dit « rayon par rayon » précisément pour ne pas écrire
+  « quatre ».
+- Textures texte (dos, liasses, cartouches) redessinées sur
+  `document.fonts.ready` — le premier tracé part sur la police système.
 
-**Pas d'image sur cette page**, volontairement : les photos d'archive sont le
-langage du catalogue de l'accueil, et les reprendre ici aurait fait de la
-page un doublon visuel. Sa matière, c'est le diagramme des fils.
+### Le repli à plat (`#bxFlat`)
 
-### L'ordre de lecture vit dans `bibliotheque.json`
+Sous 768 px, en reduced-motion, sans WebGL ou sans THREE — ou **sur
+demande** (`#liste`, ou le bouton « Préférer la version liste » de
+l'intro) — la page est un **registre à plat** : les groupes de lecture
+avec leurs notes, chaque œuvre en ligne (année en folio, statut, porte
+d'entrée, description, concepts, relations, « Comment le lire » en
+`<details>`, lien atelier). C'est aussi la version des lecteurs d'écran
+et des robots. Quand la 3D est active, `#bxFlat` est en `display:none`
+(la 3D se pilote au clavier par le rail + Échap ; l'accès complet au
+clavier passe par la version liste). Le bouton « Entrer dans la
+bibliothèque en trois dimensions » du registre relance la scène
+(`location.reload()` si une scène a déjà été démontée par `teardown()`).
 
-La règle de la **source centrale unique** s'applique : le graphe n'est PAS
-codé dans la page. Deux ajouts au fichier :
+**La décision 3D/liste se prend au moment de décider, pas au parse**
+(`want3D()` appelée dans `decide()`, rejouée sur `resize`) : la fenêtre
+peut ne pas avoir sa taille définitive pendant l'exécution du script —
+c'est vrai des onglets pilotés ET d'une fenêtre qu'on élargit. `decide()`
+est idempotente (garde `scene3d`).
 
-- `readingGroups[]` — `{id, label, note}`, quatre groupes : `seuils`,
-  `jeune-marx`, `critique`, `interventions`.
-- `reading` par œuvre — `{group, after[], primer[], entry}` ; `after` et
-  `primer` sont omis quand vides, `entry` quand l'œuvre n'est pas une porte.
+### Pièges rencontrés sur cette page (à ne pas refaire)
 
-`after` = prérequis réel (« à lire après »), trait plein. `primer` =
-conseillé en amont sans obligation, trait tireté. **La distinction n'est pas
-cosmétique** : *Le Capital I* est lisible aujourd'hui alors que ses deux
-`primer` ne le sont pas — les mettre en `after` l'aurait fait paraître
-verrouillé derrière deux textes qui n'existent pas.
-
-**Ce qui vient des `readingGuide` d'origine** (donc non négociable) : Livre II
-après le I, Livre III après I et II, *Travail salarié* et *Salaire, prix et
-profit* en amont du *Capital*. **Ce qui est un arbitrage éditorial** validé
-par le propriétaire : *Grundrisse* placé après *Capital I*, les trois
-`primer` (*Manuscrits* → *Idéologie*, *Manifeste* → *18 Brumaire* et
-*Gotha*), la *Contribution* laissée hors de tout fil, et le libellé des
-portes.
-
-### Tout se compte, rien ne s'écrit en dur
-
-Le nombre de portes, le nombre de fils, le nom de chaque fil et les décomptes
-des filtres sont **dérivés des données à l'exécution**. Conséquence voulue :
-le jour où le *Manifeste* passera en `available`, sa porte s'ouvrira seule et
-le titre passera de « Deux portes » à « Trois portes » **sans toucher au
-code**. Ne jamais réintroduire un nombre écrit dans le HTML — le premier jet
-annonçait « Trois portes » alors que deux existaient.
-
-**Une porte n'existe que si son œuvre est disponible** : c'est l'arbitrage
-retenu contre une porte qui n'ouvrirait sur rien. Les portes en attente sont
-nommées en dessous, en prose.
-
-**Un fil se nomme par son pivot** (`Le fil — Capital I`) : l'œuvre la mieux
-reliée du groupe, ex æquo départagé par l'année. Le tiret n'est pas un tic de
-style — « Le fil de Manifeste » ne se dit pas, et aucun article contracté ne
-peut être produit correctement à partir d'un titre quelconque. Même raison
-pour le point médian entre titres dans « Préparé par » : plusieurs titres du
-corpus contiennent déjà un « et » (*Travail salarié **et** capital*), et
-l'énumération devenait illisible. Le « et » reste en prose, où il est juste.
-
-### Trois matériaux, une seule lumière
-
-La page a été jugée laide dans une version intermédiaire, et le diagnostic
-tient en deux points : **le vide** (un panneau de 58 vh contenant un petit
-diagramme dans un coin — le contenu ne méritait pas le panneau) et **l'absence
-d'unité** (trois langages visuels sans rapport : des panneaux-affiches, un
-diagramme technique, une grille de fiches).
-
-D'où le système actuel — **un matériau par section, de la même main** :
-
-| section | matériau | ce que ça dit |
-|---|---|---|
-| **Les portes** | la **gravure**, à fond perdu, très assombrie, le titre en très grand par-dessus | le monde que le livre décrit |
-| **Le fil** | le **papier** : le fac-similé en fond de panneau, le tracé dessus | le plan qu'on trace |
-| **Le corpus** | le **registre** : des lignes à filet, l'année en tête comme un folio | la liste qu'on tient |
-
-Et **une seule source de lumière** (`.bx-lamp`, fixe) : la nappe chaude de la
-bougie de l'accueil plus une pénombre par les bords. C'est elle qui fait tenir
-les trois registres ensemble. Ne pas ajouter d'autre halo local.
-
-**La porte est une AFFICHE, pas une fiche à vignette.** L'image occupe tout le
-panneau ; deux voiles la couvrent — un du bas pour asseoir le texte, un de la
-gauche pour que la colonne de titre garde son fond quelle que soit l'image.
-Le chiffre romain en haut à droite, le cartel en bas à droite.
-
-**Le plancher de lisibilité des stations est à `.42`, pas à `.22`.** Une
-station que la plume n'a pas encore atteinte doit rester lisible : trop basse,
-elle donnait un panneau qui paraît vide ou cassé tant qu'on n'a pas défilé
-jusqu'à lui.
-
-**`.wrap` fait 1240 px sur cette page** (et non 1080) : des affiches pleine
-largeur méritent la largeur, et le fil du *Capital* — quatre paliers — a besoin
-de cette place une fois les stations à l'échelle du panneau. **Réglage
-solidaire** : largeur de `.wrap`, padding horizontal de `.bx-thread`,
-`min/max-width` de `.bx-level` et largeur de `.bx-gap` se tiennent ; toucher
-l'un sans vérifier `scrollWidth - clientWidth` des trois fils fait déborder le
-dernier palier hors du cadre.
-
-### Elle est vivante — encre sur papier
-
-Première version : typographie sur aplat sombre, sans image, avec un simple
-fondu d'`IntersectionObserver`. **Jugée morte par le propriétaire, à raison.**
-Le refus des images était une erreur d'analyse de ma part : la vie de l'accueil
-ne tient pas qu'au mouvement, elle tient d'abord à la MATIÈRE. Et le fondu est
-précisément ce que l'accueil a remplacé partout par du **scrub** — tout y est
-fonction de la position de défilement, donc réversible.
-
-Le monde matériel de cette page est donc **l'encre sur le papier**, distinct de
-celui de l'accueil (photographie, bougie, chariot) mais de la même famille :
-
-- **Le grain** (`.bx-paper`) — le fac-similé du manuscrit, assombri et
-  légèrement flouté, en `mix-blend-mode:screen`. C'est une TEXTURE, pas une
-  image : on n'en montre pas le contenu, seulement la fibre, donc pas de
-  légende à lui donner. **Il n'est posé QUE sur les portes** — une porte a une
-  surface, un diagramme n'en a pas besoin. Étalé sur les trois grands cadres
-  des fils, il lavait la section en brun et faisait perdre à la page la
-  profondeur sombre à laquelle le propriétaire tient : il a demandé le retour
-  aux versions plus sombres. **Ne pas le remonter** ; c'est le rai de lumière,
-  pas le papier, qui fait lire une porte.
-- **Le rai de lumière** (`.bx-door::after`) — une porte est ENTREBÂILLÉE : un
-  rai chaud sur son chant gauche, qui s'élargit au survol. C'est lui, et non le
-  grain, qui fait lire une porte plutôt qu'une vignette de catalogue.
-- **Le sol** — le carnet quadrillé des chiffres clés de l'accueil, sous `#fil` :
-  le trait doit être tracé SUR quelque chose.
-- **La pose** (`poseCards`) — les fiches arrivent de biais et s'aplatissent,
-  le geste de `.hs-do-item`. Le sélecteur est **relu à chaque passage** : le
-  corpus est re-rendu à chaque clic de filtre, un abonnement par carte n'y
-  survivrait pas. Bénéfice inattendu : un changement de filtre n'a plus besoin
-  d'être traité à part, la pose étant fonction de la position, les nouvelles
-  fiches arrivent justes du premier coup.
-
-### La pièce maîtresse — le fil s'écrit (`inkThreads`)
-
-Le diagramme de « ce qui prépare quoi » ne s'affiche pas : il **s'écrit**. Une
-plume avance au défilement, les traits se tracent derrière elle, et chaque
-œuvre **prend l'encre** quand la plume l'atteint. Rime avec le manuscrit du
-héros, avec « l'encre qui prend » des titres de l'accueil et avec le
-curseur-comète du circuit.
-
-**Le CSS pose, le JS mesure, le SVG dessine.** La géométrie n'est jamais
-devinée : on lit les rects réels des nœuds une fois rendus, donc elle survit à
-n'importe quelle largeur, police ou longueur de titre. Il n'y a **pas de
-WebGL** — un troisième contexte pour huit traits ne se justifiait pas.
-
-**Le tracé se fait sur un chemin de MASQUE, pas sur le trait visible.** C'est le
-point non négociable : `stroke-dasharray` servirait sinon à deux choses à la
-fois — dessiner le tireté des `primer` ET mesurer l'avancement — et les deux se
-battraient. Le masque révèle, le trait dessous garde son style. Corollaire déjà
-tombé une fois : ne **jamais** écrire `stroke-dasharray` en CSS sur ces
-chemins ; une déclaration CSS bat toujours l'attribut de présentation posé par
-le JS, et le tireté redevient plein.
-
-**La pointe de flèche est un chemin À PART**, que la plume ne parcourt jamais ;
-elle se pose sur les derniers 12 % du trajet. Elle a d'abord fait partie du
-tracé (deux barbes après la courbe, pour que la plume « donne le coup de
-flèche ») : la plume dessinait la courbe, revenait à la pointe, traçait une
-barbe, revenait encore. **Deux allers-retours au contact du bloc, lus comme un
-rebond** — le propriétaire l'a vu tout de suite sur vidéo. Ne pas les
-réintégrer au chemin animé.
-
-**Et c'est le BLOC QUI S'ALLUME, pas la plume qui traverse.** Une version
-intermédiaire faisait partir chaque trait du bord gauche de sa source pour que
-la plume passe derrière la fiche : temps mort, et illisible dès que la fiche
-n'était pas parfaitement opaque. Le relais d'une vague à la suivante est
-désormais assuré par l'ALLUMAGE : `--flash`, qui culmine à mi-arrivée puis
-retombe, embrase le bloc de l'intérieur (`.bx-node::after`, lueur radiale
-partant du bord d'où vient le trait) tandis que `--lit` reste. Idée du
-propriétaire, meilleure que la mécanique qu'elle remplace.
-
-**La plume écrit par VAGUES, jamais arête par arête.** Premier essai : les
-arêtes s'écrivaient une par une, dans l'ordre. Résultat, la plume **reculait**
-à chaque changement d'arête — l'arête suivante repartait d'un autre nœud — et
-le propriétaire l'a relevé aussitôt. L'unité juste est la vague : toutes les
-arêtes qui quittent un même palier s'écrivent **ensemble** (`T.waves`, groupées
-par `e.lvl`), et la vague suivante repart des nœuds où la précédente s'est
-arrêtée. Bénéfice second : une fourche est enfin dessinée comme une fourche,
-deux traits à la fois.
-
-**Et chaque trait part du bord GAUCHE de sa source, pas du bord droit.** Une
-vague finit au bord gauche de sa cible ; en repartant du bord droit du même
-nœud, la plume faisait encore un bond de la largeur de la fiche. En partant du
-bord gauche, elle repart **exactement** là où elle s'est arrêtée : le segment
-sous la fiche est masqué par la fiche, et l'on voit la plume passer derrière la
-station. C'est pour ça que `.bx-node` a un fond **opaque** — à 92 % le trait
-transparaissait.
-
-**Une fiche du fil doit être OPAQUE, toujours.** C'est la cause réelle du
-« roll back » signalé sur vidéo : `.bx-node.soon{opacity:.62}`, rescapée de la
-première version, pèse (0,2,0) et **écrasait** le `calc()` de `.bx-node`. Les
-dix œuvres en préparation restaient donc translucides en permanence — on voyait
-au travers la plume traverser la fiche par-derrière, et elle semblait repartir
-en arrière dans la case. Deux règles en découlent : **« en préparation » se dit
-par la couleur, jamais par une opacité globale**, et **le `--lit` porte sur le
-CONTENU** (`.bx-node-y`, `.bx-node-t`), jamais sur la fiche. Bénéfice au
-passage : avant ce correctif, les dix œuvres à venir ne prenaient jamais
-l'encre, l'opacité fixe masquant complètement l'effet.
-
-**Une plume doit se voir.** Un cercle de 3 px doré sur une ligne dorée ne se
-lit pas : le propriétaire voyait « des points lumineux », pas une plume. Il lui
-faut une tête chaude (`#fff3d6` + `drop-shadow`) ET une traînée courte derrière
-elle — un second chemin dont on ne montre qu'une fenêtre finissant sur la tête
-(motif `TR, len+TR`, décalage `TR - len*t`). C'est la traînée qui fait la
-lecture, pas le point.
-
-**Pièges rencontrés, à ne pas refaire :**
-
-1. **`(1 - 4/5) * 5` vaut `0.9999999999999998`.** La dernière arête d'un fil de
-   cinq n'était donc jamais « finie » et la plume restait allumée en bout de
-   course, sur un trait pourtant complet. D'où le `if(t > 1 - 1e-4) t = 1`.
-2. **Toute remesure doit être suivie d'un repaint.** `measureInk()` reconstruit
-   les chemins avec le `dashoffset` au maximum, c'est-à-dire effacés. Sans
-   scrub — mobile, reduced-motion — aucun défilement ne viendra les redessiner :
-   un simple changement d'orientation faisait disparaître le fil.
-3. **La station prend l'encre, elle ne se déplace pas.** Un premier essai
-   décalait les nœuds éteints de 7 px ; comme le trait est mesuré une fois, la
-   pointe de la flèche ne tombait plus sur le bord de la fiche.
-4. **Le mot du connecteur est posé SUR le trait** et devenait illisible dès
-   qu'une fourche le traversait. Il porte donc un cartouche opaque — la
-   convention du dessin technique : la ligne passe derrière la légende.
-
-Le pilote de défilement est **local** (`addScrollSub` réduit, en tête du script
-de la page) : `home.js` est propre à l'accueil et n'a rien à faire ici. Même
-verrou `SCRUB` que l'accueil — sous reduced-motion ou en dessous de 768 px,
-rien n'est piloté, le fil est simplement écrit d'emblée, sans plume.
-
-### Les panneaux s'empilent (`.bx-stack`)
-
-Les deux portes et les trois enchaînements sont des **panneaux pleine largeur
-qui s'empilent** : chacun se fige sous la topbar, le suivant remonte le
-recouvrir en laissant dépasser un liseré de 16 px. Motif demandé par le
-propriétaire d'après zonixlab.com.
-
-**Les panneaux sont FRÈRES dans un même conteneur**, jamais chacun dans sa
-boîte : c'est ce qui fait que le bloc englobant est la pile entière et que les
-panneaux déjà figés le RESTENT. Un `sticky` par boîte les ferait repartir un
-par un.
-
-**Les panneaux sont JOINTIFS et les cales sont à ZÉRO entre eux.** La distance
-de défilement vient de la **hauteur du panneau** : le suivant le recouvre
-exactement après l'avoir parcourue. Une cale non nulle laissait voir le fond
-entre le panneau figé et celui qui monte — « trop d'espace », et ça se voyait.
-**Aucune cale n'a de hauteur, pas même la dernière** : une cale de fin laissait
-un grand vide sous la pile. Le dernier panneau ne se fige donc pas — le bloc
-englobant s'arrête avec lui — et son fil s'écrit **pendant qu'il traverse
-l'écran** (`T.last` → fenêtre de traversée), ce qui lui donne une fenêtre plus
-longue qu'une cale sans coûter un pixel de vide.
-
-**La cale reste la règle de mesure**, même à zéro.  Un élément `sticky` ment sur sa position
-peinte, pas sur sa position de flux, donc mesurer le panneau gèlerait
-l'avancement du fil pendant qu'il est figé ; la cale, elle, défile normalement.
-`q = (panneau.bottom - cale.top) / span`, où `span` vaut la hauteur de la cale
-quand elle en a une, **et sinon celle du panneau**. **Le fil s'écrit donc
-pendant que son panneau tient l'écran**, et le suivant vient le recouvrir une
-fois écrit — le motif de la section « circuit » de l'accueil.
-
-**Le panneau recouvert RECULE** (`stackCards`) : il ne disparaît pas sous le
-suivant, il s'éloigne — échelle, flou, assombrissement. Valeurs relevées image
-par image sur la référence : 1157 px de large au repos, 1090 px une fois
-recouvert, soit **0,94**. `transform-origin: 50% 0` — le bord supérieur reste
-en place, seule la largeur se resserre ; avec une origine au centre le panneau
-semblerait glisser vers le bas au lieu de reculer. Le recul ne commence qu'à
-**mi-course** : le panneau tient l'écran d'abord, il ne s'efface qu'une fois
-son propos délivré. Le `filter` n'est posé que pendant la transition (classe
-`.receding`) — flouter en permanence un panneau de cette taille coûte cher
-pour rien. Et **le dernier panneau d'une pile ne recule jamais** : rien ne le
-recouvre.
-
-Les panneaux se figent **tous au même `top`**, sans décalage : sur la
-référence, le panneau précédent est entièrement recouvert, et c'est le recul,
-pas un liseré, qui dit qu'il est encore là.
-
-**Ni lavis ni rai doré sur ces panneaux.** Le grain de papier brunissait tout
-et le rai de lumière faisait bricolage — « assez moche », à raison. Le panneau
-est une carte sombre à bord fin (`#1c150e`, bord à 9 %), et la matière est dans
-la **planche d'archive** de la colonne droite : la même image que la carte de
-l'accueil pour la même œuvre, avec sa légende. Le grand chiffre romain en pied
-de panneau rime avec les `(01)(02)` de la référence, dans la typographie de la
-maison.
-
-Coupé sous 768 px et en reduced-motion (`js-stack`) : les panneaux redeviennent
-des blocs qui se suivent, les cales tombent à zéro, aucun recul. Et la pose de
-`poseCards` **ne s'applique plus aux portes** : un `translate` se battrait avec
-leur `position:sticky`.
+1. **Un `<canvas>` est un élément REMPLACÉ : `position:fixed; inset:0` ne
+   l'étire pas.** Il garde sa taille intrinsèque — celle du tampon de
+   rendu, ici 2×viewport à cause du pixelRatio — et on ne voyait que le
+   quart haut-gauche de la scène. `width:100%; height:100%` explicites
+   obligatoires.
+2. **`resize()` doit ignorer les tailles nulles.** Un onglet en
+   arrière-plan peut annoncer `innerWidth/Height` 0 ; réduire le tampon du
+   renderer à 0×0 rend l'écran noir jusqu'au prochain vrai resize.
+3. **Le clic porte ses propres coordonnées.** Le raycaster ne doit pas
+   dépendre du `ndc` du dernier `pointermove` : au tactile (ou pour tout
+   clic synthétique) il n'y a pas eu de survol avant le clic.
+4. **Le cadrage du plan large se calcule en distance-pour-contenir**
+   (`(H/2)/tan(fov/2)` et `(W/2)/(tan·aspect)`, le plus contraignant
+   gagne). Une erreur d'un facteur 2 ici noie le meuble dans le fog.
+5. **Pour tester : la sonde, toujours.** Dans un onglet piloté le rAF est
+   bridé (la caméra ne rejoint jamais sa cible), les transitions CSS
+   gèlent (les fondus d'interface semblent morts) et **les défilements
+   `smooth` ne progressent pas du tout** — trois faux bugs. Exposer
+   temporairement `{setP, tick, state}`, avancer image par image,
+   **retirer la sonde avant le commit**. Des captures entièrement noires
+   peuvent aussi n'être que la pane masquée (vérifier
+   `document.hidden` et `isContextLost()` avant de « corriger »).
 
 ### Sidebar : « Accueil » et « Bibliothèque » sont deux choses
 
@@ -908,38 +728,24 @@ livre ont **elles aussi** un onglet « Accueil » dans leur `sb-work` : c'est
 l'accueil de l'œuvre, pas celui du site, et le titre de section au-dessus
 (`LE CAPITAL — LIVRE I`) est ce qui les distingue.
 
-### Quatre pièges rencontrés sur cette page
+### L'ordre de lecture vit dans `bibliotheque.json` (inchangé)
 
-1. **`.bx-hero>*` écrasait le `position:absolute` du halo.** Les deux
-   sélecteurs pèsent (0,1,0) ; à égalité, la dernière règle gagne, et le halo
-   repassait dans le flux — 360 px de vide poussant tout le héros vers le bas.
-   Corrigé par `.bx-hero .bx-hero-halo`, à (0,2,0). C'est le **même genre de
-   piège que sur le héros de l'accueil** : sur ce dépôt, toute règle qui
-   annule une autre doit être vérifiée à la spécificité, pas à l'ordre.
+La règle de la **source centrale unique** s'applique toujours : le graphe
+n'est PAS codé dans la page. Les deux champs ajoutés pour l'ancienne
+version restent le contrat de celle-ci :
 
-2. **`scrollIntoView()` hérite de `scroll-behavior:smooth`**, posé par
-   `atelier.css` sur `<html>`. Pour une ancre à l'arrivée on veut un saut sec,
-   pas un travelling — et dans un onglet piloté, dont le rAF est bridé,
-   l'animation ne progresse **jamais** : le scroll paraît simplement ignoré.
-   Utiliser `window.scrollTo({top, behavior:'instant'})`.
+- `readingGroups[]` — `{id, label, note}`, quatre groupes : `seuils`,
+  `jeune-marx`, `critique`, `interventions`. Un groupe = un rayon.
+- `reading` par œuvre — `{group, after[], primer[], entry}` ; `after` et
+  `primer` omis quand vides, `entry` quand l'œuvre n'est pas une porte.
 
-3. **Une ancre profonde doit être reposée plusieurs fois.** Les trois sections
-   sont peuplées par un `fetch` : au moment où le navigateur résout `#corpus`,
-   elles sont vides. Et une seule mesure après le rendu ne suffit pas non plus,
-   parce que Fraunces et Inter arrivent ensuite et décalent encore tout. D'où
-   `rAF + setTimeout(400) + window.load + document.fonts.ready`, avec abandon
-   si le lecteur défile lui-même — le **même triptyque que `libraryScrub()`**
-   sur l'accueil, pour la même raison.
-
-4. **Le fondu de révélation ne doit pas rejouer sur un changement de filtre.**
-   `renderCorpus(false)` pose `.in` directement : refaire apparaître en fondu
-   une liste déjà sous les yeux du lecteur la fait clignoter. Le fondu ne sert
-   qu'à la première traversée de la page.
-
-Un cinquième, pour mémoire : le halo faisait **déborder la page de 53 px
-horizontalement** sous 400 px de large. Un élément en `position:absolute`
-compte dans le `scrollWidth` du document. `overflow:hidden` sur `.bx-hero`,
-comme `.pp-hero` sur la Place publique.
+`after` = prérequis réel (« à lire après »), `primer` = conseillé sans
+obligation — la distinction s'affiche dans le cartel (« à lire après » /
+« prépare ») et n'est pas cosmétique : *Le Capital I* est lisible alors
+que ses deux `primer` ne le sont pas. Ce qui vient des `readingGuide`
+d'origine (Livre II après le I, etc.) et les arbitrages éditoriaux validés
+(Grundrisse après Capital I, les trois primer, la Contribution hors de
+tout fil) sont documentés dans l'historique git de la version précédente.
 
 ## Shell partagé : atelier.css + shell.css + shell.js (+ shell-social.js)
 

@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <title>La bibliothèque — Par où commencer | Lire Marx</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="Les douze œuvres de Marx du corpus Lire Marx, replacées dans un ordre de lecture : par où entrer, quel texte en prépare un autre, et ce que contient chacun.">
+<meta name="description" content="Les douze œuvres de Marx du corpus Lire Marx, rangées sur les rayonnages d'une bibliothèque à la bougie : par où entrer, quel texte en prépare un autre, et ce que contient chacun.">
 <meta property="og:title" content="La bibliothèque — Par où commencer">
-<meta property="og:description" content="Les douze œuvres de Marx du corpus Lire Marx, replacées dans un ordre de lecture : par où entrer, quel texte en prépare un autre, et ce que contient chacun.">
+<meta property="og:description" content="Les douze œuvres de Marx du corpus Lire Marx, rangées sur les rayonnages d'une bibliothèque à la bougie : par où entrer, quel texte en prépare un autre, et ce que contient chacun.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://liremarx.com/oeuvres/bibliotheque.html">
 <meta property="og:image" content="https://liremarx.com/assets/img/archive/manuscrit-ideologie-1846.jpg">
@@ -16,10 +16,15 @@
 <link rel="stylesheet" href="fonts/fonts.css">
 <link rel="stylesheet" href="atelier.css">
 <link rel="stylesheet" href="shell.css">
+<script src="../vendor/three.min.js" defer></script>
 <style>
 /* ═══════════════════════════════════════════════════════════════════
-   Bibliothèque — « Par où commencer »
-   DA sombre-chaude (voir CLAUDE.md § Direction artistique). Comme sur
+   Bibliothèque — « la pièce aux rayonnages »
+   Refonte totale (août 2026) : la page EST une bibliothèque en trois
+   dimensions que l'on longe une bougie à la main, le défilement pour
+   seul travelling. Les livres sont la navigation ; toute l'information
+   (portes, ordre de lecture, guides) vit dans le cartel qui s'ouvre au
+   clic sur un volume. DA sombre-chaude (voir CLAUDE.md). Comme sur
    /index.html, le :root redéfinit AUSSI les tokens du shell, sinon
    topbar / sidebar / modales resteraient en palette claire.
    ═══════════════════════════════════════════════════════════════════ */
@@ -39,18 +44,7 @@
 
 html,body{background:var(--bg);}
 body{color:var(--text);font-family:'Inter',system-ui,sans-serif;}
-
-/* LA LAMPE. Une seule source pour toute la page : la nappe chaude de la
-   bougie de l'accueil, fixe, plus une pénombre par les bords. C'est elle qui
-   fait que les trois registres — la gravure, le papier, le registre — sont
-   éclairés par la même chose et tiennent ensemble. */
-.bx-lamp{position:fixed;inset:0;z-index:0;pointer-events:none;
-  background:
-    radial-gradient(74% 54% at 50% 22%,rgba(216,173,76,.062),transparent 66%),
-    radial-gradient(130% 78% at 50% 116%,rgba(0,0,0,.55),transparent 58%),
-    radial-gradient(90% 120% at -10% 50%,rgba(0,0,0,.42),transparent 56%),
-    radial-gradient(90% 120% at 110% 50%,rgba(0,0,0,.42),transparent 56%);}
-.wrap{position:relative;z-index:1;}
+::selection{background:rgba(216,173,76,.32);color:var(--text);}
 
 /* ── Shell : correctifs de couleurs pour le thème sombre ── */
 .brandmark{color:var(--ink);}
@@ -70,352 +64,243 @@ header.topbar{background:rgba(21,16,11,.96);border-bottom-color:var(--line);}
 .ac-card code,.ac-p code,.ac-note code{background:rgba(255,255,255,.08);}
 .cm-card{background:var(--paper-2);border-color:var(--line);}
 
-/* ── Conteneur ── */
-.wrap{max-width:1240px;padding:0 clamp(20px,3.4vw,48px) 96px;}
+/* ═══ LA SCÈNE ════════════════════════════════════════════════════
+   Le canvas est fixe, plein écran, sous la topbar (z 140) et la sidebar
+   (z 120). Le document ne contient qu'une cale de défilement : c'est le
+   défilement qui déplace la caméra — strictement réversible, comme tout
+   le mouvement du site. */
+/* canvas = élément REMPLACÉ : inset:0 ne l'étire pas, il garde sa taille
+   intrinsèque (le tampon de rendu). width/height:100% sont obligatoires. */
+#bib3d{position:fixed;inset:0;width:100%;height:100%;z-index:1;display:none;}
+.js-bib3d #bib3d{display:block;}
+#bibRun{height:0;}
 
-/* ── En-tête de page ── */
-/* overflow:hidden : le halo fait 640 px de large et débordait la page de
-   53 px sous 400 px de large — un défilement horizontal du document, que
-   rien ne doit provoquer. Même parade que .pp-hero sur la Place publique. */
-.bx-hero{position:relative;overflow:hidden;
-  padding:clamp(40px,6vh,68px) 0 clamp(28px,4vh,44px);}
-.bx-hero>*{position:relative;z-index:1;}
-/* Le halo doit rester HORS FLUX. `.bx-hero>*` pèse (0,1,0), autant que
-   `.bx-hero-halo` : à égalité c'est la dernière règle qui gagne, et le halo
-   repassait en position:relative — 360 px de vide poussant tout le héros.
-   D'où le sélecteur à (0,2,0), qui passe devant quel que soit l'ordre. */
-.bx-hero .bx-hero-halo{position:absolute;top:44%;left:26%;width:640px;height:360px;
-  transform:translate(-50%,-50%);pointer-events:none;z-index:0;
-  background:radial-gradient(ellipse at center,rgba(213,64,47,.13) 0%,transparent 66%);}
-.bx-h1{font-family:'Fraunces',serif;font-weight:900;
-  font-size:clamp(2.2rem,5vw,3.5rem);line-height:1.02;letter-spacing:-.03em;
-  color:var(--text);margin-bottom:14px;}
-.bx-h1 em{font-style:italic;font-weight:500;color:var(--gold);}
-.bx-lede{font-size:1rem;line-height:1.72;color:var(--muted);max-width:56ch;}
-.bx-count{margin-top:16px;display:inline-flex;align-items:center;gap:9px;
-  font-size:.78rem;color:var(--muted);border:1px solid var(--border);
-  border-radius:999px;padding:6px 15px;}
-.bx-count b{color:var(--text);font-weight:600;}
+/* La pénombre : mêmes nappes que l'ancienne lampe — un voile chaud en
+   haut, l'ombre par les bords. Posée SUR le canvas, sous l'interface. */
+.bx3-lamp{position:fixed;inset:0;z-index:2;pointer-events:none;display:none;
+  background:
+    radial-gradient(74% 54% at 50% 16%,rgba(216,173,76,.05),transparent 66%),
+    radial-gradient(130% 82% at 50% 118%,rgba(0,0,0,.5),transparent 56%),
+    radial-gradient(80% 130% at -8% 50%,rgba(0,0,0,.44),transparent 52%),
+    radial-gradient(80% 130% at 108% 50%,rgba(0,0,0,.44),transparent 52%);}
+.js-bib3d .bx3-lamp{display:block;}
 
-/* ── Rythme de section (rime avec .hs-sec-label / .hs-sec-h de l'accueil) ── */
-.bx-sec{padding-top:clamp(44px,6vh,72px);}
-.bx-label{font-family:'Inter',system-ui,sans-serif;font-size:.72rem;font-weight:600;
-  letter-spacing:.11em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
-.bx-h2{font-family:'Fraunces',serif;font-weight:900;
-  font-size:clamp(1.55rem,3.2vw,2.25rem);letter-spacing:-.03em;color:var(--text);
-  line-height:1.06;margin-bottom:12px;}
-.bx-intro{font-size:.94rem;line-height:1.7;color:var(--muted);max-width:62ch;margin-bottom:30px;}
+/* ── Interface posée sur la scène ── */
+.bx3-ui{display:none;}
+.js-bib3d .bx3-ui{display:block;}
 
-/* ═══ L'EMPILEMENT ════════════════════════════════════════════════
-   Chaque panneau se fige sous la topbar, et le suivant remonte le
-   recouvrir en laissant dépasser un liseré. Les panneaux sont FRÈRES dans
-   un même conteneur, jamais chacun dans sa boîte : c'est ce qui fait que
-   le bloc englobant est la pile entière et que les panneaux déjà figés le
-   RESTENT au lieu de repartir vers le haut un par un.
+/* L'entrée : le titre de la page, par-dessus le plan large. S'efface dès
+   qu'on avance. Décalée du bord gauche pour respirer après la sidebar. */
+.bx3-intro{position:fixed;z-index:10;top:50%;transform:translateY(-52%);
+  left:clamp(240px,20vw,340px);max-width:34rem;pointer-events:none;
+  transition:opacity .2s linear;}
+body.sb-collapsed .bx3-intro{left:clamp(56px,9vw,180px);}
+.bx3-intro .bx3-label{font-size:.72rem;font-weight:600;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.bx3-h1{font-family:'Fraunces',serif;font-weight:900;
+  font-size:clamp(2.2rem,4.6vw,3.6rem);line-height:1.02;letter-spacing:-.03em;
+  margin-bottom:14px;text-shadow:0 2px 30px rgba(0,0,0,.8);}
+.bx3-h1 em{font-style:italic;font-weight:500;color:var(--gold);}
+.bx3-lede{font-size:.98rem;line-height:1.7;color:var(--muted);max-width:46ch;
+  text-shadow:0 1px 18px rgba(0,0,0,.9);}
+.bx3-count{margin-top:14px;font-size:.8rem;color:var(--const);}
+.bx3-count b{color:var(--ink-soft);font-weight:600;}
+.bx3-legend{margin-top:20px;display:flex;flex-direction:column;gap:7px;
+  font-size:.78rem;color:var(--muted);}
+.bx3-legend span{display:inline-flex;align-items:center;gap:10px;}
+.bx3-legend i{flex:0 0 auto;display:block;width:14px;height:14px;border-radius:3px;}
+.bx3-legend .lg-book{background:linear-gradient(180deg,#7a4a1e,#4a2c12);
+  box-shadow:inset 0 0 0 1px rgba(216,173,76,.5);}
+.bx3-legend .lg-bundle{background:#6f5d42;
+  box-shadow:inset 0 -4px 0 rgba(21,16,11,.45),inset 0 5px 0 rgba(21,16,11,.0);}
+.bx3-legend .lg-ribbon{background:var(--accent);width:6px;height:16px;margin:0 4px;}
+.bx3-alt{margin-top:22px;pointer-events:auto;}
+.bx3-alt button{font:600 .78rem/1 var(--f-ui);color:var(--const);background:none;
+  border:0;border-bottom:1px solid var(--line);padding:0 0 3px;cursor:pointer;}
+.bx3-alt button:hover{color:var(--ink-soft);border-color:var(--gold);}
 
-   La distance de défilement vient des `.bx-run`, des cales vides placées
-   APRÈS chaque panneau. Elles servent aussi de règle de mesure : un
-   élément `sticky` ment sur sa position peinte, pas sur sa position de
-   flux — la cale, elle, défile normalement, et c'est d'elle qu'on tire
-   l'avancement du fil pendant que le panneau est figé.
+/* L'invite à descendre : bas de l'écran, disparaît avec l'intro. */
+.bx3-hint{position:fixed;z-index:10;left:50%;bottom:26px;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;
+  font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:var(--const);
+  transition:opacity .2s linear;}
+.bx3-hint i{display:block;width:1px;height:34px;
+  background:linear-gradient(to bottom,transparent,var(--gold));}
+@keyframes bx3-drip{0%{transform:scaleY(.2);transform-origin:top}
+  60%{transform:scaleY(1);transform-origin:top}100%{transform:scaleY(1)}}
+.bx3-hint i{animation:bx3-drip 1.8s ease-out infinite;}
 
-   Coupé sous 768 px et en reduced-motion : les panneaux redeviennent des
-   blocs qui se suivent, les cales tombent à zéro. */
-.bx-stack{position:relative;}
-.bx-run{display:block;height:0;}
-/* Les cales sont à ZÉRO entre deux panneaux : les panneaux sont JOINTIFS,
-   comme sur la référence, et la distance de défilement vient de la hauteur du
-   panneau lui-même. Une cale non nulle laisse voir le fond entre le panneau
-   figé et celui qui monte — c'était trop d'espace, et ça se voyait.
-   AUCUNE cale n'a de hauteur, pas même la dernière. Une cale de fin laissait
-   un grand vide sous la pile ; le dernier panneau ne se fige donc pas — le
-   bloc englobant s'arrête avec lui — et son fil s'écrit pendant qu'il
-   TRAVERSE l'écran, ce qui lui donne une fenêtre plus longue qu'une cale sans
-   coûter un pixel de vide. */
+/* Le cartouche de travée : quel rayon on longe. */
+.bx3-caption{position:fixed;z-index:10;left:clamp(232px,18vw,320px);bottom:34px;
+  max-width:38ch;pointer-events:none;transition:opacity .28s linear;}
+body.sb-collapsed .bx3-caption{left:clamp(28px,6vw,120px);}
+.bx3-caption .cap-k{font-family:'Fraunces',serif;font-style:italic;font-weight:900;
+  color:var(--gold);font-size:1.05rem;margin-bottom:4px;}
+.bx3-caption .cap-t{font-family:'Fraunces',serif;font-weight:900;letter-spacing:-.02em;
+  font-size:1.35rem;line-height:1.1;margin-bottom:6px;text-shadow:0 2px 22px rgba(0,0,0,.85);}
+.bx3-caption .cap-n{font-size:.83rem;line-height:1.6;color:var(--muted);
+  text-shadow:0 1px 14px rgba(0,0,0,.9);}
 
-/* Le panneau : une surface propre posée sur le noir. Pas de lavis, pas de
-   liseré doré — mesuré sur la référence, le panneau est une carte sombre à
-   bord fin, et c'est la TYPOGRAPHIE qui porte. */
-.bx-card{position:relative;background:#1c150e;
-  border:1px solid rgba(243,233,212,.09);border-radius:24px;
-  box-shadow:inset 0 1px 0 rgba(243,233,212,.05);}
+/* Le rail : les quatre rayons, pour sauter de l'un à l'autre. */
+.bx3-rail{position:fixed;z-index:11;left:50%;bottom:0;transform:translateX(-50%);
+  display:flex;gap:2px;padding:6px 8px calc(10px + env(safe-area-inset-bottom,0px));
+  transition:opacity .28s linear;}
+.bx3-rail button{font:600 .72rem/1 var(--f-ui);letter-spacing:.06em;
+  color:var(--const);background:rgba(21,16,11,.62);border:1px solid transparent;
+  border-radius:999px;padding:8px 13px;cursor:pointer;white-space:nowrap;
+  backdrop-filter:blur(4px);transition:color .15s,border-color .15s;}
+.bx3-rail button:hover{color:var(--ink);}
+.bx3-rail button.on{color:var(--gold);border-color:rgba(216,173,76,.4);}
+.bx3-rail button:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
 
-/* RECUL ET FLOU. Le panneau recouvert ne disparaît pas : il s'éloigne.
-   Mesuré image par image sur la référence — 1157 px de large au repos,
-   1090 px une fois recouvert, soit une échelle de 0,94 — plus un flou et un
-   assombrissement. L'origine est en HAUT AU CENTRE : le bord supérieur reste
-   en place, seule la largeur se resserre, sinon le panneau semblerait
-   glisser vers le bas au lieu de reculer. */
-.js-stack .bx-stack>.bx-card{position:sticky;top:64px;
-  transform-origin:50% 0;
-  transform:scale(var(--sc,1));
-  box-shadow:inset 0 1px 0 rgba(243,233,212,.05),
-             0 -26px 60px -24px rgba(0,0,0,.92),
-             0 26px 60px -30px rgba(0,0,0,.85);}
-.js-stack .bx-stack>.bx-card.receding{
-  filter:blur(var(--bl,0px)) brightness(var(--br,1));}
-:root:not(.js-stack) .bx-stack>.bx-card{margin-bottom:18px;}
+/* L'étiquette de survol : titre, année, état — projetée près du livre. */
+.bx3-tag{position:fixed;z-index:12;pointer-events:none;opacity:0;
+  transform:translate(-50%,-100%);max-width:30ch;text-align:center;
+  transition:opacity .14s linear;}
+.bx3-tag .tg-t{font-family:'Fraunces',serif;font-weight:900;letter-spacing:-.015em;
+  font-size:1.02rem;line-height:1.15;text-shadow:0 2px 16px rgba(0,0,0,.95);}
+.bx3-tag .tg-m{margin-top:3px;font-size:.7rem;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--const);text-shadow:0 1px 10px rgba(0,0,0,.95);}
+.bx3-tag .tg-q{margin-top:5px;font-family:'Fraunces',serif;font-style:italic;
+  font-weight:500;font-size:.86rem;color:var(--gold);
+  text-shadow:0 1px 12px rgba(0,0,0,.95);}
 
-/* ═══ 1. Les portes ═══════════════════════════════════════════════ */
-.bx-doors{display:block;}
-/* LA PORTE EST UNE AFFICHE. Le panneau était un cadre presque vide avec une
-   petite vignette dedans : le contenu ne méritait pas le panneau. La gravure
-   passe donc à FOND PERDU, très assombrie, et le titre se pose dessus en très
-   grand. C'est le matériau de cette section — le monde que le livre décrit. */
-.bx-door{position:relative;display:flex;flex-direction:column;justify-content:flex-end;
-  min-height:min(74vh,640px);padding:clamp(30px,4.6vw,66px);
-  text-decoration:none;color:inherit;overflow:hidden;}
+/* La fin de l'allée. */
+.bx3-end{position:fixed;z-index:10;top:50%;left:50%;transform:translate(-50%,-50%);
+  text-align:center;max-width:34rem;pointer-events:none;transition:opacity .25s linear;}
+.bx3-end .bx3-h1{font-size:clamp(1.7rem,3.4vw,2.5rem);}
+.bx3-end .bx3-lede{margin:0 auto;}
+.bx3-end-acts{margin-top:22px;display:flex;gap:12px;justify-content:center;
+  flex-wrap:wrap;pointer-events:auto;}
+.bx3-btn{display:inline-block;font:600 .86rem/1 var(--f-ui);text-decoration:none;
+  border-radius:100px;padding:12px 22px;cursor:pointer;transition:transform .15s,opacity .15s;}
+.bx3-btn.full{background:var(--text);color:var(--bg);border:0;}
+.bx3-btn.ghost{background:transparent;color:var(--ink-soft);border:1px solid var(--border);}
+.bx3-btn:hover{transform:translateY(-1px);}
+.bx3-btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
 
-.bx-door-bg{position:absolute;inset:0;z-index:0;}
-.bx-door-bg img{display:block;width:100%;height:100%;object-fit:cover;
-  filter:grayscale(.68) sepia(.34) brightness(.40) contrast(1.08);
-  transform:scale(1.03);
-  transition:transform 1.4s cubic-bezier(.16,1,.3,1),filter .7s ease;}
-.bx-door:hover .bx-door-bg img{transform:scale(1.07);
-  filter:grayscale(.52) sepia(.28) brightness(.52) contrast(1.05);}
-/* Deux voiles : un du bas pour asseoir le texte, un de la gauche pour que la
-   colonne de titre garde son fond quelle que soit l'image. */
-.bx-door-bg::after{content:"";position:absolute;inset:0;
-  background:linear-gradient(to top,rgba(21,16,11,.95) 4%,rgba(21,16,11,.66) 44%,
-               rgba(21,16,11,.24) 100%),
-             linear-gradient(to right,rgba(21,16,11,.88),rgba(21,16,11,.10) 64%);}
+/* ── Le cartel : la fiche du livre qu'on a tiré ── */
+.bx3-cartel{position:fixed;z-index:90;top:60px;right:16px;bottom:16px;
+  width:min(400px,calc(100vw - 32px));overflow:auto;overscroll-behavior:contain;
+  background:#1c150e;border:1px solid rgba(243,233,212,.12);border-radius:18px;
+  box-shadow:0 30px 80px rgba(0,0,0,.75);padding:26px 26px 22px;
+  transform:translateX(calc(100% + 24px));transition:transform .32s cubic-bezier(.2,.9,.25,1);}
+.bx3-cartel.open{transform:none;}
+.bx3-cartel:focus{outline:none;}
+.bx3-x{position:absolute;top:12px;right:12px;width:34px;height:34px;
+  border-radius:50%;border:1px solid var(--line);background:rgba(255,255,255,.04);
+  color:var(--ink);font-size:1.25rem;line-height:1;cursor:pointer;}
+.bx3-x:hover{border-color:var(--gold);}
+.ct-entry{font-family:'Fraunces',serif;font-style:italic;font-weight:500;
+  font-size:1rem;color:var(--gold);margin-bottom:10px;}
+.ct-entry b{font-style:normal;font-weight:600;font-family:var(--f-ui);
+  font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-deep);
+  display:block;margin-bottom:3px;}
+.ct-t{font-family:'Fraunces',serif;font-weight:900;letter-spacing:-.02em;
+  font-size:1.5rem;line-height:1.12;margin-bottom:6px;padding-right:26px;}
+.ct-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  font-size:.78rem;color:var(--const);margin-bottom:16px;}
+.ct-status{font:700 .58rem/1 var(--f-ui);letter-spacing:.09em;text-transform:uppercase;
+  border-radius:999px;padding:4px 10px;}
+.ct-status.ok{background:rgba(127,168,85,.18);color:#a9cf82;}
+.ct-status.soon{background:rgba(243,233,212,.07);color:var(--const);}
+.ct-d{font-size:.9rem;line-height:1.66;color:var(--muted);margin-bottom:16px;}
+.ct-cx{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px;}
+.ct-cx span{font-size:.66rem;color:var(--ink-soft);background:rgba(243,233,212,.06);
+  border:1px solid var(--line-soft);border-radius:999px;padding:3px 9px;}
+.ct-h{font:600 .68rem/1 var(--f-ui);letter-spacing:.1em;text-transform:uppercase;
+  color:var(--const);margin:18px 0 8px;}
+.ct-rel{display:flex;flex-direction:column;gap:6px;}
+.ct-rel button{display:flex;align-items:baseline;gap:9px;width:100%;text-align:left;
+  background:rgba(255,255,255,.03);border:1px solid var(--line-soft);border-radius:9px;
+  padding:8px 11px;cursor:pointer;color:var(--ink-soft);font-family:inherit;
+  transition:border-color .15s;}
+.ct-rel button:hover{border-color:var(--gold);}
+.ct-rel .r-y{font-family:'Fraunces',serif;font-style:italic;font-weight:900;
+  font-size:.86rem;color:var(--gold);flex:0 0 auto;}
+.ct-rel .r-t{font-family:'Fraunces',serif;font-weight:600;font-size:.9rem;line-height:1.2;}
+.ct-rel .r-k{margin-left:auto;font-size:.62rem;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--const);flex:0 0 auto;}
+.ct-guide{font-family:'Spectral',Georgia,serif;font-size:.9rem;line-height:1.62;
+  color:var(--ink-soft);border-left:2px solid var(--gold);padding-left:13px;}
+.ct-source{font-size:.78rem;line-height:1.6;color:var(--const);margin-top:10px;}
+.ct-open{display:inline-block;margin-top:20px;font:600 .88rem/1 var(--f-ui);
+  background:var(--text);color:var(--bg);text-decoration:none;
+  border-radius:100px;padding:12px 22px;}
+.ct-open:hover{opacity:.9;}
+.ct-soon-note{margin-top:18px;font-size:.8rem;line-height:1.6;color:var(--const);
+  border-top:1px solid var(--line-soft);padding-top:12px;}
 
-.bx-door-l{position:relative;z-index:1;display:flex;flex-direction:column;gap:16px;
-  max-width:min(56ch,62%);}
-.bx-door-n{position:absolute;top:clamp(26px,3.4vw,46px);right:clamp(28px,3.6vw,52px);
-  z-index:1;font-family:'Fraunces',serif;font-style:italic;font-weight:900;line-height:1;
-  font-size:clamp(1.7rem,3.2vw,2.6rem);color:rgba(216,173,76,.40);}
-.bx-door-cap{position:absolute;right:clamp(28px,3.6vw,52px);
-  bottom:clamp(24px,3vw,42px);z-index:1;max-width:34ch;text-align:right;
-  font-size:.7rem;line-height:1.45;color:var(--const);}
-
-.bx-door-q{font-family:'Fraunces',serif;font-weight:900;
-  font-size:clamp(1.9rem,4.4vw,3.4rem);line-height:1.0;letter-spacing:-.035em;
-  color:var(--text);text-wrap:balance;}
-.bx-door-d{font-size:.95rem;line-height:1.68;color:var(--muted);max-width:44ch;}
-.bx-door-go{padding-top:4px;font-size:.92rem;font-weight:600;color:var(--accent);}
-.bx-door:hover .bx-door-go{color:var(--bright);}
+/* ═══ LE REPLI À PLAT ═════════════════════════════════════════════
+   Sous 768 px, en reduced-motion, sans WebGL — ou sur demande (#liste) :
+   la même bibliothèque, tenue en registre. C'est aussi la version que
+   lisent les lecteurs d'écran et les robots. */
+.js-bib3d #bxFlat{display:none;}
+.wrap{position:relative;z-index:1;max-width:1080px;
+  padding:0 clamp(20px,3.4vw,48px) 96px;}
+.fl-hero{padding:clamp(40px,6vh,68px) 0 clamp(24px,3vh,36px);}
+.fl-label{font-size:.72rem;font-weight:600;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.fl-h1{font-family:'Fraunces',serif;font-weight:900;
+  font-size:clamp(2rem,5vw,3.1rem);line-height:1.04;letter-spacing:-.03em;
+  margin-bottom:12px;}
+.fl-h1 em{font-style:italic;font-weight:500;color:var(--gold);}
+.fl-lede{font-size:.96rem;line-height:1.7;color:var(--muted);max-width:56ch;}
+.fl-count{margin-top:14px;font-size:.8rem;color:var(--const);}
+.fl-count b{color:var(--ink-soft);font-weight:600;}
+.fl-3d{margin-top:16px;}
+.fl-3d button{font:600 .8rem/1 var(--f-ui);color:var(--gold);background:none;
+  border:1px solid rgba(216,173,76,.4);border-radius:100px;padding:9px 16px;cursor:pointer;}
+.fl-3d button:hover{background:rgba(216,173,76,.08);}
+.fl-group{margin-top:clamp(36px,5vh,56px);}
+.fl-gh{font-family:'Fraunces',serif;font-weight:900;font-size:1.3rem;
+  letter-spacing:-.02em;margin-bottom:5px;}
+.fl-gn{font-size:.86rem;line-height:1.6;color:var(--muted);max-width:64ch;margin-bottom:14px;}
+.fl-list{border-top:1px solid var(--line);}
+.fl-work{display:grid;grid-template-columns:clamp(60px,7vw,92px) 1fr;
+  gap:4px clamp(14px,2.4vw,30px);align-items:start;
+  border-bottom:1px solid var(--line-soft);padding:clamp(18px,2.4vw,26px) 4px;}
+.fl-y{grid-row:1 / span 2;font-family:'Fraunces',serif;font-style:italic;
+  font-weight:900;font-size:clamp(1.2rem,2vw,1.5rem);line-height:1;color:var(--gold);}
+.fl-col{grid-column:2;display:flex;flex-direction:column;gap:9px;min-width:0;}
+.fl-head{display:flex;align-items:baseline;gap:11px;flex-wrap:wrap;}
+.fl-t{font-family:'Fraunces',serif;font-weight:900;font-size:clamp(1.02rem,1.7vw,1.24rem);
+  line-height:1.14;letter-spacing:-.02em;}
+.fl-status{flex:0 0 auto;font:700 .56rem/1 var(--f-ui);letter-spacing:.09em;
+  text-transform:uppercase;border-radius:999px;padding:3px 9px;}
+.fl-status.ok{background:rgba(127,168,85,.18);color:#a9cf82;}
+.fl-status.soon{background:rgba(243,233,212,.07);color:var(--const);}
+.fl-entry{font-family:'Fraunces',serif;font-style:italic;font-weight:500;
+  font-size:.9rem;color:var(--gold);}
+.fl-d{font-size:.88rem;line-height:1.62;color:var(--muted);max-width:74ch;}
+.fl-cx{display:flex;flex-wrap:wrap;gap:6px;}
+.fl-cx span{font-size:.64rem;color:var(--ink-soft);background:rgba(243,233,212,.06);
+  border:1px solid var(--line-soft);border-radius:999px;padding:2px 8px;}
+.fl-rel{font-size:.78rem;line-height:1.55;color:var(--const);}
+.fl-rel b{color:var(--ink-soft);font-weight:600;}
+.fl-more>summary{list-style:none;cursor:pointer;font-family:'Fraunces',serif;
+  font-weight:600;font-size:.84rem;color:var(--ink-soft);display:flex;
+  align-items:center;gap:8px;}
+.fl-more>summary::-webkit-details-marker{display:none;}
+.fl-more>summary::before{content:'+';font-family:'Fraunces',serif;font-style:italic;
+  font-weight:900;color:var(--gold);width:10px;display:inline-block;text-align:center;}
+.fl-more[open]>summary::before{content:'–';}
+.fl-more-in{padding-top:10px;display:flex;flex-direction:column;gap:9px;}
+.fl-guide{font-family:'Spectral',Georgia,serif;font-size:.88rem;line-height:1.6;
+  color:var(--ink-soft);border-left:2px solid var(--gold);padding-left:12px;}
+.fl-source{font-size:.76rem;line-height:1.6;color:var(--const);}
+.fl-open{margin-top:2px;font:600 .84rem/1 var(--f-ui);color:var(--accent);
+  text-decoration:none;}
+.fl-open:hover{color:var(--bright);}
+.fl-state{color:var(--muted);font-size:.92rem;padding:30px 0;line-height:1.6;}
 
 @media(max-width:860px){
-  .bx-door{min-height:0;padding:clamp(24px,5vw,34px);}
-  .bx-door-l{max-width:100%;}
-  .bx-door-n{font-size:1.4rem;}
-  .bx-door-cap{position:static;text-align:left;margin-top:14px;max-width:none;}
-  .bx-door-bg::after{background:linear-gradient(to top,rgba(21,16,11,.96) 10%,
-    rgba(21,16,11,.74) 60%,rgba(21,16,11,.42) 100%);}
+  .bx3-caption{left:24px;right:24px;bottom:74px;}
+  .bx3-intro{left:24px;right:24px;}
 }
-
-/* ═══ 2. Le fil ═══════════════════════════════════════════════════ */
-/* Le sol : le carnet quadrillé des chiffres clés de l'accueil, à l'identique.
-   Le trait doit être tracé SUR quelque chose, sinon il flotte. */
-#fil{position:relative;}
-#fil::before{content:"";position:absolute;inset:-24px 0 0;pointer-events:none;
-  z-index:0;opacity:.32;
-  -webkit-mask-image:radial-gradient(ellipse at 42% 58%,#000 24%,transparent 74%);
-  mask-image:radial-gradient(ellipse at 42% 58%,#000 24%,transparent 74%);
-  background-image:linear-gradient(var(--border) 1px,transparent 1px),
-    linear-gradient(90deg,var(--border) 1px,transparent 1px);
-  background-size:36px 36px;}
-#fil>*{position:relative;z-index:1;}
-
-.bx-legend{display:flex;flex-wrap:wrap;gap:20px;margin-bottom:26px;
-  font-size:.78rem;color:var(--muted);}
-.bx-legend span{display:inline-flex;align-items:center;gap:8px;}
-.bx-legend i{display:block;width:26px;height:0;border-top:2px solid var(--gold);}
-.bx-legend i.dash{border-top-style:dashed;border-top-color:var(--const);}
-
-/* Le papier. Le fac-similé du manuscrit sert de GRAIN, pas d'image : très
-   assombri et masqué, comme .hs-closer-sheet sur l'accueil. Pas de légende à
-   lui donner — on n'en montre pas le contenu, seulement la fibre. */
-.bx-paper{position:relative;overflow:hidden;}
-.bx-paper::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
-  background:url('../assets/img/archive/manuscrit-ideologie-1846.webp') center/cover no-repeat;
-  filter:grayscale(1) brightness(.18) contrast(1.1) blur(.4px);
-  opacity:.30;mix-blend-mode:screen;}
-/* Ni lavis ni rai doré : mesurés sur la référence, les panneaux sont des
-   cartes sombres à bord fin. Le grain brunissait tout et le rai faisait
-   bricolage — la matière est désormais dans la PLANCHE d'archive à droite. */
-.bx-paper>*{position:relative;z-index:1;}
-
-/* LE FIL EST TRACÉ SUR DU PAPIER. Le panneau reçoit le fac-similé en fond,
-   très assombri et désaturé — de la fibre, pas une image. Monté trop clair il
-   lave tout en brun : ne pas remonter `brightness`. */
-.bx-thread{position:relative;display:flex;flex-direction:column;justify-content:center;
-  min-height:min(58vh,480px);
-  padding:clamp(30px,4vw,58px) clamp(24px,3vw,44px);overflow-x:auto;}
-.bx-thread::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
-  background:url('../assets/img/archive/manuscrit-ideologie-1846.webp') center/cover no-repeat;
-  filter:grayscale(1) brightness(.15) contrast(1.15) blur(.3px);
-  opacity:.42;mix-blend-mode:screen;
-  -webkit-mask-image:radial-gradient(120% 100% at 50% 50%,#000 42%,transparent 88%);
-  mask-image:radial-gradient(120% 100% at 50% 50%,#000 42%,transparent 88%);}
-.bx-thread>*{position:relative;z-index:1;}
-.bx-thread-h{font-family:'Fraunces',serif;font-weight:900;letter-spacing:-.02em;
-  font-size:clamp(1.25rem,2.3vw,1.85rem);line-height:1.06;color:var(--text);
-  margin-bottom:clamp(22px,3vw,38px);}
-.bx-thread-h em{font-style:normal;color:var(--gold);}
-.bx-flow{position:relative;display:flex;align-items:stretch;gap:0;min-width:min-content;}
-/* L'encre : le CSS pose la mise en page, le JS mesure les nœuds, le SVG relie.
-   Il est SOUS les nœuds — un trait passe derrière une fiche, jamais dessus. */
-.bx-ink{position:absolute;left:0;top:0;pointer-events:none;z-index:0;overflow:visible;}
-.bx-ink path{fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;
-  stroke:var(--gold);}
-/* Pas de `stroke-dasharray` ici : c'est l'attribut de présentation posé par
-   le JS qui porte le tireté, et une déclaration CSS le battrait toujours —
-   le trait des « primer » redevenait plein. */
-.bx-ink path.primer{stroke:var(--const);}
-.bx-ink path.glow{stroke:#ffe9b8;stroke-width:3.4;stroke-linecap:round;
-  opacity:0;filter:drop-shadow(0 0 5px rgba(255,214,128,.85));}
-.bx-nib{fill:#fff3d6;opacity:0;
-  filter:drop-shadow(0 0 6px rgba(255,205,110,.95));}
-.bx-nib-halo{fill:var(--gold);opacity:0;}
-.bx-level{display:flex;flex-direction:column;gap:14px;justify-content:center;
-  flex:0 0 auto;min-width:164px;max-width:190px;}
-/* --lit : « l'encre prend » quand la plume dépasse la station. Piloté par la
-   position de défilement → réversible ; vaut 1 d'office sans scrub. */
-.bx-node{--lit:1;position:relative;z-index:1;
-  display:block;text-decoration:none;color:inherit;
-  border:1px solid var(--border);border-radius:12px;
-  background:var(--bg);
-  padding:15px 17px;transition:border-color .18s,background .18s;}
-/* L'opacité porte sur le CONTENU, jamais sur la fiche : une fiche translucide
-   laisse voir le trait qui passe derrière elle, et la plume semble alors
-   repartir en arrière dans la case au lieu d'y disparaître. */
-/* Le plancher n'est pas à .22 mais à .42 : une station que la plume n'a pas
-   encore atteinte doit rester LISIBLE. Trop basse, elle donnait un panneau qui
-   paraît vide ou cassé tant qu'on n'a pas défilé jusqu'à lui. */
-.bx-node-y,.bx-node-t{position:relative;z-index:1;
-  opacity:calc(.42 + .58 * var(--lit));}
-/* L'ALLUMAGE INTÉRIEUR. La plume s'arrête au bord du bloc, et c'est le bloc
-   qui s'embrase : une lueur chaude naît du bord d'où vient le trait et gagne
-   l'intérieur. --flash culmine à mi-arrivée puis retombe ; --lit reste. */
-.bx-node::after{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
-  border-radius:inherit;
-  background:radial-gradient(130% 150% at 0% 50%,
-    rgba(216,173,76,.34) 0%,rgba(216,173,76,.10) 42%,transparent 72%);
-  opacity:calc(var(--lit) * .55 + var(--flash,0) * .75);}
-.js-ink .bx-node{
-  border-color:rgba(243,233,212,calc(.13 + .22 * var(--lit)));
-  box-shadow:0 0 calc(var(--flash,0) * 20px) rgba(216,173,76,calc(var(--flash,0) * .40));}
-.bx-ink path.tip{opacity:0;stroke:var(--gold);}
-.bx-ink path.tip.primer{stroke:var(--const);}
-a.bx-node:hover{border-color:var(--gold);background:var(--card);}
-.bx-node-y{font-family:'Fraunces',serif;font-style:italic;font-weight:900;
-  font-size:1.12rem;color:var(--gold);}
-.bx-node-t{display:block;margin-top:5px;font-family:'Fraunces',serif;font-weight:600;
-  font-size:1.02rem;line-height:1.16;color:var(--ink);letter-spacing:-.015em;}
-/* « En préparation » se dit par la COULEUR, pas par une opacité globale :
-   `.bx-node.soon` pèse (0,2,0) et écrasait le calc de `.bx-node`, si bien que
-   les dix œuvres à venir restaient à 62 % — translucides en permanence, et
-   incapables de jamais prendre l'encre. */
-.bx-node.soon .bx-node-t{color:var(--muted);}
-.bx-node.soon .bx-node-y{color:var(--const);}
-.bx-node.here{border-color:var(--accent);box-shadow:0 0 0 1px rgba(213,64,47,.35);}
-
-/* le connecteur : trait + libellé, plein pour « puis », tireté pour « prépare » */
-/* L'espace que l'encre traverse. Il ne porte plus que le mot ; le trait et sa
-   pointe sont dans le SVG, tracés par la plume au défilement. */
-.bx-gap{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;
-  justify-content:center;width:clamp(54px,5.6vw,78px);padding:0 4px;
-  position:relative;z-index:1;}
-/* Le mot est posé SUR le trait : sans fond il devient illisible dès qu'une
-   fourche le traverse. Le cartouche est la convention du dessin technique —
-   la ligne passe derrière la légende, elle ne la barre pas. */
-.bx-gap-l{font-size:.62rem;letter-spacing:.07em;text-transform:uppercase;
-  color:var(--const);white-space:nowrap;
-  background:var(--surface);padding:2px 5px;border-radius:4px;
-  opacity:calc(.15 + .85 * var(--lit,1));}
-.bx-alone{font-size:.88rem;line-height:1.7;color:var(--muted);max-width:64ch;
-  border-left:2px solid var(--border);padding-left:15px;margin-top:22px;}
-.bx-alone b{color:var(--ink-soft);font-weight:600;}
-
-/* ═══ 3. Le corpus ════════════════════════════════════════════════ */
-.bx-tools{display:flex;flex-wrap:wrap;gap:22px;align-items:center;margin-bottom:28px;}
-.bx-chips{display:flex;flex-wrap:wrap;gap:8px;}
-.bx-chip{font-family:var(--f-ui);font-size:.78rem;font-weight:600;
-  padding:6px 14px;border-radius:999px;cursor:pointer;
-  border:1px solid var(--border);background:transparent;color:var(--muted);
-  transition:border-color .15s,color .15s,background .15s;}
-.bx-chip:hover{border-color:var(--gold);color:var(--ink);}
-.bx-chip.on{border-color:var(--accent);color:var(--bright);background:rgba(213,64,47,.1);}
-
-.bx-group{margin-bottom:clamp(38px,5vw,64px);}
-.bx-group-h{font-family:'Fraunces',serif;font-weight:900;font-size:1.16rem;
-  letter-spacing:-.02em;color:var(--text);margin-bottom:5px;}
-.bx-group-n{font-size:.86rem;line-height:1.6;color:var(--muted);max-width:64ch;
-  margin-bottom:18px;}
-/* LE REGISTRE. Le corpus était une grille de fiches encadrées — un troisième
-   langage visuel sans rapport avec les affiches ni avec le papier. C'est une
-   LISTE : elle prend donc la forme d'un registre tenu à la plume, des lignes
-   séparées par un filet, l'année en tête de ligne. */
-.bx-grid{display:block;border-top:1px solid var(--line);}
-
-/* La ligne du registre. Elle se pose au défilement — même geste que
-   .hs-do-item sur l'accueil, piloté par la position, donc réversible —
-   mais sans inclinaison : une ligne de registre ne penche pas. */
-.bx-work{--pose:1;
-  display:grid;grid-template-columns:clamp(72px,7vw,104px) 1fr;
-  gap:4px clamp(16px,2.4vw,34px);align-items:start;
-  border-bottom:1px solid var(--line-soft);
-  padding:clamp(20px,2.4vw,30px) 4px clamp(20px,2.4vw,30px);
-  transition:background .22s;
-  opacity:var(--pose);
-  transform:translateY(calc((1 - var(--pose)) * 20px));}
-.bx-work:hover{background:rgba(243,233,212,.022);}
-.js-pose .bx-work{will-change:transform,opacity;}
-.bx-work-col{grid-column:2;display:flex;flex-direction:column;gap:10px;min-width:0;}
-.bx-work:hover{border-color:rgba(216,173,76,.4);}
-.bx-work-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;}
-/* l'année tient la colonne de gauche, comme un folio */
-.bx-work-y{grid-row:1 / span 2;grid-column:1;
-  font-family:'Fraunces',serif;font-style:italic;font-weight:900;
-  font-size:clamp(1.3rem,2vw,1.7rem);line-height:1;color:var(--gold);
-  opacity:calc(.34 + .66 * var(--pose));}
-.bx-work-t{font-family:'Fraunces',serif;font-weight:900;
-  font-size:clamp(1.06rem,1.7vw,1.32rem);
-  line-height:1.14;color:var(--text);letter-spacing:-.02em;flex:1 1 auto;min-width:0;}
-.bx-status{flex:0 0 auto;font-family:var(--f-ui);font-size:.58rem;font-weight:700;
-  letter-spacing:.09em;text-transform:uppercase;border-radius:999px;padding:3px 9px;}
-.bx-status.ok{background:rgba(127,168,85,.18);color:#a9cf82;}
-.bx-status.soon{background:rgba(243,233,212,.07);color:var(--const);}
-.bx-work-a{font-size:.76rem;color:var(--const);letter-spacing:.02em;margin-top:-4px;}
-.bx-work-d{font-size:.9rem;line-height:1.65;color:var(--muted);max-width:74ch;}
-.bx-cx{display:flex;flex-wrap:wrap;gap:6px;}
-.bx-cx span{font-size:.66rem;color:var(--ink-soft);background:rgba(243,233,212,.06);
-  border:1px solid var(--line-soft);border-radius:999px;padding:2px 9px;}
-.bx-rel{font-size:.78rem;line-height:1.55;color:var(--const);}
-.bx-rel b{color:var(--ink-soft);font-weight:600;}
-.bx-more{padding-top:4px;margin-top:2px;}
-.bx-more>summary{list-style:none;cursor:pointer;font-family:'Fraunces',serif;
-  font-weight:600;font-size:.85rem;color:var(--ink-soft);
-  display:flex;align-items:center;gap:9px;transition:color .15s;}
-.bx-more>summary::-webkit-details-marker{display:none;}
-.bx-more>summary::before{content:'+';font-family:'Fraunces',serif;font-style:italic;
-  font-weight:900;color:var(--gold);font-size:1.05rem;line-height:1;
-  width:11px;display:inline-block;text-align:center;}
-.bx-more[open]>summary::before{content:'–';}
-.bx-more>summary:hover{color:var(--ink);}
-.bx-more-in{padding-top:11px;display:flex;flex-direction:column;gap:10px;}
-.bx-guide{font-family:'Spectral',Georgia,serif;font-size:.89rem;line-height:1.62;
-  color:var(--ink-soft);border-left:2px solid var(--gold);padding-left:13px;}
-.bx-source{font-size:.78rem;line-height:1.6;color:var(--const);}
-.bx-source b{color:var(--ink-soft);font-weight:600;}
-.bx-open{margin-top:auto;padding-top:6px;font-size:.85rem;font-weight:600;
-  color:var(--accent);text-decoration:none;}
-.bx-open:hover{color:var(--bright);}
-
-.bx-state{color:var(--muted);font-size:.92rem;padding:30px 0;line-height:1.6;}
-
 @media(prefers-reduced-motion:reduce){
-  .bx-door,.bx-work{transition:none;}
-}
-
-/* ── Responsive ── */
-@media(max-width:640px){
-  .bx-grid{grid-template-columns:1fr;}
-  .bx-level{min-width:142px;}
-  .bx-gap{width:58px;}
-  .bx-gap-l{font-size:.56rem;}
+  .bx3-hint i{animation:none;}
+  .bx3-cartel{transition:none;}
 }
 </style>
 <script type="application/ld+json">
@@ -430,61 +315,88 @@ a.bx-node:hover{border-color:var(--gold);background:var(--card);}
 </script>
 </head>
 <body>
+<!--
+THESIS : la bibliothèque n'est pas une liste, c'est une pièce — on la longe
+une bougie à la main, et les livres eux-mêmes sont la navigation. Refus du
+catalogue en grille.
+OWN-WORLD : brun-nuit #15100b, lumière de bougie portée (point light chaud
+qui suit la caméra), cuir + or pour les reliures, liasse ficelée pour les
+œuvres en préparation, signet rouge pour les portes d'entrée. Fraunces pour
+tout ce qui est titré, Caveat pour l'encre manuscrite des liasses.
+STORY : le visiteur comprend qu'un rayon = un moment de l'ordre de lecture
+(seuils → jeune Marx → critique → interventions), tire un livre, lit son
+cartel, et suit les fils « à lire après / préparé par » de volume en volume.
+FIRST VIEWPORT : plan large sur le meuble entier dans la pénombre, titre
+« Par où commencer » à gauche, invite à descendre ; le défilement fait le
+travelling d'approche puis longe les quatre travées.
+FORM : scène Three.js pilotée par la position de scroll (réversible),
+repli en registre à plat sous 768 px / reduced-motion / sans WebGL / #liste.
+FINISH : unreviewed and undocumented is unfinished; this build ends with the
+finish review, the verdict, DESIGN.md, and every shipping raster carrying
+its provenance.
+-->
 
-<div class="bx-lamp" aria-hidden="true"></div>
+<canvas id="bib3d" aria-hidden="true"></canvas>
+<div class="bx3-lamp" aria-hidden="true"></div>
 
-<main class="wrap">
-
-  <!-- ═══ En-tête ═══ -->
-  <section class="bx-hero">
-    <div class="bx-hero-halo"></div>
-    <div class="bx-label">La bibliothèque</div>
-    <h1 class="bx-h1">Par où <em>commencer</em></h1>
-    <p class="bx-lede">Le corpus de Marx n'a pas d'ordre évident. Certains textes en préparent
-      d'autres, certains n'ont de sens qu'après, et quelques-uns s'ouvrent sans rien connaître.
-      Cette page les remet dans cet ordre-là plutôt que dans celui des dates.</p>
-    <div class="bx-count" id="bxCount"></div>
-  </section>
-
-  <!-- ═══ 1. Les portes ═══ -->
-  <section class="bx-sec" id="portes">
-    <div class="bx-label">Le seuil</div>
-    <h2 class="bx-h2" id="bxDoorsH">Les portes d'entrée</h2>
-    <p class="bx-intro">On n'entre pas dans Marx par le début : on y entre par une question.
-      Chaque porte ouvre sur un atelier de lecture complet — texte intégral, annotations,
-      discussions. Une porte n'apparaît ici que si son texte est réellement disponible.</p>
-    <div class="bx-doors bx-stack" id="bxDoors"></div>
-    <div class="bx-doors-soon" id="bxDoorsSoon" hidden></div>
-  </section>
-
-  <!-- ═══ 2. Le fil ═══ -->
-  <section class="bx-sec" id="fil">
-    <div class="bx-label">Le fil</div>
-    <h2 class="bx-h2">Ce qui prépare quoi</h2>
-    <p class="bx-intro"><span id="bxThreadCount">Plusieurs enchaînements traversent</span> le corpus. Ce ne sont pas des règles :
-      un trait plein marque une vraie dépendance — le texte suppose le précédent —, un trait
-      tireté un simple coup de main, un texte court qui rend le suivant plus facile.</p>
-    <div class="bx-legend">
-      <span><i></i> à lire après</span>
-      <span><i class="dash"></i> prépare, sans obligation</span>
+<!-- L'interface de la scène (cachée tant que la 3D n'est pas active) -->
+<div class="bx3-ui" aria-hidden="true">
+  <div class="bx3-intro" id="bxIntro">
+    <div class="bx3-label">La bibliothèque</div>
+    <h1 class="bx3-h1">Par où <em>commencer</em></h1>
+    <p class="bx3-lede">Le corpus de Marx n'a pas d'ordre évident. Cette pièce le range
+      dans un ordre de lecture plutôt que dans celui des dates : rayon par rayon, des
+      seuils aux interventions. Longez-les, tirez un volume.</p>
+    <div class="bx3-count" id="bx3Count"></div>
+    <div class="bx3-legend">
+      <span><i class="lg-book"></i> Un livre relié se lit aujourd'hui</span>
+      <span><i class="lg-bundle"></i> Une liasse ficelée est en préparation</span>
+      <span><i class="lg-ribbon"></i> Un signet rouge marque une porte d'entrée</span>
     </div>
-    <div class="bx-stack" id="bxThreads"></div>
-    <div class="bx-alone" id="bxAlone" hidden></div>
-  </section>
-
-  <!-- ═══ 3. Le corpus ═══ -->
-  <section class="bx-sec" id="corpus">
-    <div class="bx-label">Le corpus</div>
-    <h2 class="bx-h2">Les douze œuvres</h2>
-    <p class="bx-intro">Chaque œuvre avec sa description, ses concepts, la manière de la lire
-      et la provenance de son texte.</p>
-    <div class="bx-tools">
-      <div class="bx-chips" id="bxFilters" role="group" aria-label="Filtrer par disponibilité"></div>
-      <div class="bx-chips" id="bxSort" role="group" aria-label="Ordre d'affichage"></div>
+    <div class="bx3-alt"><button type="button" id="bx3ToFlat">Préférer la version liste</button></div>
+  </div>
+  <div class="bx3-hint" id="bxHint"><i aria-hidden="true"></i>Descendre</div>
+  <div class="bx3-caption" id="bxCaption" style="opacity:0">
+    <div class="cap-k" id="capK"></div>
+    <div class="cap-t" id="capT"></div>
+    <div class="cap-n" id="capN"></div>
+  </div>
+  <nav class="bx3-rail" id="bxRail" aria-label="Rayons de la bibliothèque" style="opacity:0"></nav>
+  <div class="bx3-tag" id="bxTag"></div>
+  <div class="bx3-end" id="bxEnd" style="opacity:0">
+    <h2 class="bx3-h1">La dernière <em>travée</em></h2>
+    <p class="bx3-lede" id="bxEndLede"></p>
+    <div class="bx3-end-acts">
+      <button class="bx3-btn full" type="button" id="bx3Back">Revenir à l'entrée</button>
+      <a class="bx3-btn ghost" href="/?skip-anim#catalogue">Le catalogue illustré de l'accueil</a>
     </div>
-    <div id="bxCorpus" aria-live="polite"><p class="bx-state">Chargement de la bibliothèque…</p></div>
-  </section>
+  </div>
+</div>
 
+<!-- Le cartel (vit hors de .bx3-ui : il porte du contenu réel) -->
+<aside class="bx3-cartel" id="bxCartel" role="dialog" aria-modal="false"
+       aria-label="Fiche de l'œuvre" tabindex="-1" hidden>
+  <button class="bx3-x" type="button" id="bxCartelX" aria-label="Fermer la fiche">×</button>
+  <div id="bxCartelIn"></div>
+</aside>
+
+<!-- La cale de défilement de la scène -->
+<div id="bibRun" aria-hidden="true"></div>
+
+<!-- Le repli à plat : registre complet, données identiques -->
+<main class="wrap" id="bxFlat">
+  <section class="fl-hero">
+    <div class="fl-label">La bibliothèque</div>
+    <h1 class="fl-h1">Par où <em>commencer</em></h1>
+    <p class="fl-lede">Le corpus de Marx n'a pas d'ordre évident. Certains textes en
+      préparent d'autres, et quelques-uns s'ouvrent sans rien connaître. Cette page les
+      range dans cet ordre-là plutôt que dans celui des dates.</p>
+    <div class="fl-count" id="flCount"></div>
+    <div class="fl-3d" id="fl3d" hidden>
+      <button type="button" id="fl3dBtn">Entrer dans la bibliothèque en trois dimensions</button>
+    </div>
+  </section>
+  <div id="flGroups"><p class="fl-state">Chargement de la bibliothèque…</p></div>
 </main>
 
 <script src="../config.js"></script>
@@ -494,72 +406,35 @@ a.bx-node:hover{border-color:var(--gold);background:var(--card);}
 installShell({ workTitle: 'Bibliothèque', tabs: [] });
 
 /* ═══════════════════════════════════════════════════════════════════
-   Rendu de la bibliothèque. Tout vient de bibliotheque.json — source
+   La bibliothèque en scène. Tout vient de bibliotheque.json — source
    centrale unique (CLAUDE.md) : groupes, ordre de lecture et portes
-   d'entrée y vivent aussi (objet `reading` par œuvre + `readingGroups`).
-   Rien de tout cela n'est codé en dur ici.
+   d'entrée y vivent (objet `reading` par œuvre + `readingGroups`).
+   Rien n'est codé en dur ici : ni le nombre de rayons, ni les livres.
+
+   Deux rendus des MÊMES données :
+   - la scène (Three.js) quand tout le permet — le défilement est le
+     travelling, strictement réversible ;
+   - le registre à plat sinon (mobile, reduced-motion, pas de WebGL,
+     ou choix du lecteur : #liste / bouton « version liste »).
    ═══════════════════════════════════════════════════════════════════ */
 (function(){
   'use strict';
 
-  var elCount   = document.getElementById('bxCount');
-  var elDoors   = document.getElementById('bxDoors');
-  var elDoorsH  = document.getElementById('bxDoorsH');
-  var elThreadN = document.getElementById('bxThreadCount');
-  var elSoon    = document.getElementById('bxDoorsSoon');
-  var elThreads = document.getElementById('bxThreads');
-  var elAlone   = document.getElementById('bxAlone');
-  var elFilters = document.getElementById('bxFilters');
-  var elSort    = document.getElementById('bxSort');
-  var elCorpus  = document.getElementById('bxCorpus');
-
-  var WORKS = [], GROUPS = [], BY_ID = {};
-  var filter = 'all', sort = 'parcours';
-
-  /* ── Pilote de défilement local ──────────────────────────────────
-     home.js est propre à l'accueil et n'a rien à faire ici : on reprend
-     seulement sa mécanique, réduite à ce dont cette page a besoin. Un
-     abonné reçoit (y, vh) à l'inscription puis à chaque défilement, et
-     tout ce qu'il pilote est fonction de la POSITION — donc réversible.
-     SCRUB est le même verrou que sur l'accueil : sous reduced-motion ou
-     en dessous de 768 px, rien n'est piloté et tout est montré d'emblée. */
   var REDUCE = window.matchMedia &&
                window.matchMedia('(prefers-reduced-motion:reduce)').matches;
-  var SCRUB  = !REDUCE && window.innerWidth >= 768;
-  /* L'empilement collant obéit au même verrou : sous 768 px ou en
-     reduced-motion, les panneaux redeviennent des blocs qui se suivent. */
-  if(SCRUB) document.documentElement.classList.add('js-stack');
+  /* évalué au moment de DÉCIDER, pas au parse : la fenêtre peut ne pas
+     avoir sa taille définitive pendant que le script s'exécute */
+  function want3D(){
+    return !REDUCE && window.innerWidth >= 768 && location.hash !== '#liste';
+  }
 
-  var subs = [], queued = false, wired = false;
-  function runSubs(){
-    queued = false;
-    var vh = window.innerHeight || 1;
-    for(var i = subs.length - 1; i >= 0; i--){
-      try { subs[i](vh); } catch(e){}
-    }
-  }
-  function onScroll(){
-    if(queued) return;
-    queued = true;
-    requestAnimationFrame(runSubs);
-  }
-  function addScrollSub(fn){
-    subs.push(fn);
-    if(!wired){
-      wired = true;
-      document.addEventListener('scroll', onScroll, { passive:true, capture:true });
-      window.addEventListener('resize', onScroll);
-    }
-    try { fn(window.innerHeight || 1); } catch(e){}
-  }
-  function cl01(v){ return v < 0 ? 0 : (v > 1 ? 1 : v); }
+  var WORKS = [], GROUPS = [], BY_ID = {};
 
   function esc(s){
     return String(s == null ? '' : s)
       .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
       .replace(/"/g,'&quot;');
   }
-  /* w.path vaut « oeuvres/xxx.html » : depuis /oeuvres/ il faut l'absolu. */
   function href(w){
     var p = String(w.path || '');
     return p && p.charAt(0) !== '/' ? '/' + p : p;
@@ -567,622 +442,883 @@ installShell({ workTitle: 'Bibliothèque', tabs: [] });
   function rd(w){ return w.reading || {}; }
   function isOk(w){ return w.status === 'available'; }
   function titleOf(id){ var w = BY_ID[id]; return w ? w.title : id; }
-  var NUM = ['zéro','une','deux','trois','quatre','cinq','six','sept',
-             'huit','neuf','dix','onze','douze'];
-  function numFr(n){ return NUM[n] || String(n); }
-
-  /* Énumération française : « A, B et C ». */
-  function listFr(ids){
-    var t = ids.map(titleOf);
-    if(t.length <= 1) return t.join('');
-    return t.slice(0,-1).join(', ') + ' et ' + t[t.length-1];
+  function cl01(v){ return v < 0 ? 0 : (v > 1 ? 1 : v); }
+  function sstep(a, b, v){ v = cl01((v - a) / (b - a)); return v * v * (3 - 2 * v); }
+  /* petit hachage déterministe : chaque livre garde sa silhouette d'une
+     visite à l'autre, sans table écrite en dur */
+  function hash01(s, salt){
+    var h = 2166136261 ^ (salt || 0);
+    for(var i = 0; i < s.length; i++){ h ^= s.charCodeAt(i); h = (h * 16777619) >>> 0; }
+    return (h % 1000) / 1000;
   }
 
-  /* ── 1. Les portes ─────────────────────────────────────────────── */
-  function renderDoors(){
-    var doors = WORKS.filter(function(w){ return rd(w).entry && isOk(w); });
-    var waiting = WORKS.filter(function(w){ return rd(w).entry && !isOk(w); });
+  /* ── Le registre à plat ─────────────────────────────────────────── */
+  var elFlGroups = document.getElementById('flGroups');
+  var elFlCount  = document.getElementById('flCount');
 
-    /* Le titre suit le nombre de portes réellement ouvertes : une porte
-       n'existe que si son atelier est disponible, et il s'en ouvrira
-       d'autres sans que cette page ait à être retouchée. */
-    if(!doors.length){
-      document.getElementById('portes').hidden = true;
-    } else {
-      elDoorsH.textContent = doors.length === 1
-        ? 'Une porte, pour commencer'
-        : numFr(doors.length).charAt(0).toUpperCase() + numFr(doors.length).slice(1) +
-          ' portes, selon ce que vous cherchez';
-    }
+  function relLine(w){
+    var r = rd(w), parts = [];
+    var dot = function(ids){ return ids.map(titleOf).join(' · '); };
+    if(r.after  && r.after.length)  parts.push('<b>À lire après</b> ' + esc(dot(r.after)));
+    if(r.primer && r.primer.length) parts.push('<b>Préparé par</b> ' + esc(dot(r.primer)));
+    return parts.length ? '<p class="fl-rel">' + parts.join('<br>') + '</p>' : '';
+  }
 
-    var ROM = ['I','II','III','IV','V','VI'];
-    /* Mêmes planches que les cartes du catalogue de l'accueil : une œuvre,
-       une image, partout sur le site — et elles sont déjà en cache. */
-    var PLATE = { 'capital-1':'manufacture', 'manuscrits-1844':'marx-jeune' };
-    elDoors.innerHTML = doors.map(function(w, i){
-      var pl = PLATE[w.id];
-      return '<a class="bx-door bx-card" href="' + esc(href(w)) + '">' +
-        (pl ? '<span class="bx-door-bg" aria-hidden="true">' +
-                '<img src="../assets/img/archive/' + pl + '.webp" alt="" loading="lazy">' +
-              '</span>' : '') +
-        '<span class="bx-door-n" aria-hidden="true">' + (ROM[i] || (i + 1)) + '</span>' +
-        '<span class="bx-door-l">' +
-          '<span class="bx-door-q">' + esc(rd(w).entry) + '</span>' +
-          '<span class="bx-door-d">' + esc(w.description) + '</span>' +
-          '<span class="bx-door-go">Ouvrir l\'atelier →</span>' +
-        '</span>' +
-        '<span class="bx-door-cap">' + esc(w.title) + ' · ' + esc(w.year) + '</span>' +
-      '</a><i class="bx-run" aria-hidden="true"></i>';
+  function renderFlat(){
+    var nOk = WORKS.filter(isOk).length;
+    elFlCount.innerHTML = '<b>' + WORKS.length + '</b> œuvres · <b>' + nOk +
+      '</b> lisibles aujourd\'hui';
+
+    elFlGroups.innerHTML = GROUPS.map(function(gr){
+      var list = WORKS.filter(function(w){ return rd(w).group === gr.id; })
+                      .sort(function(a, b){ return a.year - b.year; });
+      if(!list.length) return '';
+      return '<section class="fl-group">' +
+        '<h2 class="fl-gh">' + esc(gr.label) + '</h2>' +
+        '<p class="fl-gn">' + esc(gr.note) + '</p>' +
+        '<div class="fl-list">' + list.map(function(w){
+          var ok = isOk(w);
+          return '<article class="fl-work">' +
+            '<span class="fl-y">' + esc(w.year) + '</span>' +
+            '<div class="fl-col">' +
+              '<div class="fl-head">' +
+                '<h3 class="fl-t">' + esc(w.title) + '</h3>' +
+                '<span class="fl-status ' + (ok ? 'ok">Disponible' : 'soon">En préparation') + '</span>' +
+              '</div>' +
+              (rd(w).entry && ok
+                ? '<p class="fl-entry">Porte d\'entrée — ' + esc(rd(w).entry) + '</p>' : '') +
+              '<p class="fl-d">' + esc(w.description) + '</p>' +
+              '<div class="fl-cx">' + (w.concepts || []).map(function(c){
+                return '<span>' + esc(c) + '</span>'; }).join('') + '</div>' +
+              relLine(w) +
+              '<details class="fl-more"><summary>Comment le lire</summary>' +
+                '<div class="fl-more-in">' +
+                  '<p class="fl-guide">' + esc(w.readingGuide) + '</p>' +
+                  '<p class="fl-source"><b>D\'où vient le texte —</b> ' + esc(w.sourceNote) + '</p>' +
+                '</div>' +
+              '</details>' +
+              (ok ? '<a class="fl-open" href="' + esc(href(w)) + '">Ouvrir l\'atelier →</a>' : '') +
+            '</div>' +
+          '</article>';
+        }).join('') + '</div>' +
+      '</section>';
     }).join('');
+  }
 
-    if(waiting.length){
-      elSoon.innerHTML = 'Une porte de plus attend son texte : <b>' +
-        esc(listFr(waiting.map(function(w){ return w.id; }))) +
-        '</b>. Elle s\'ouvrira d\'elle-même le jour où l\'atelier sera prêt — en attendant, ' +
-        'la description et les concepts sont plus bas, dans le corpus.';
-      elSoon.hidden = false;
+  /* ═══ LA SCÈNE ═══════════════════════════════════════════════════ */
+  function initScene(){
+    var canvas = document.getElementById('bib3d');
+    if(typeof THREE === 'undefined' || !canvas || !canvas.getContext ||
+       !(canvas.getContext('webgl') || canvas.getContext('experimental-webgl'))){
+      return false;
     }
-  }
 
-  /* ── 2. Le fil ─────────────────────────────────────────────────── */
-  /* Construit le graphe (arêtes source → cible), le découpe en
-     composantes connexes, et range chaque composante en niveaux
-     (profondeur = plus long chemin depuis une racine). */
-  function buildGraph(){
-    var out = {}, inc = {}, kind = {};
-    WORKS.forEach(function(w){ out[w.id] = []; inc[w.id] = []; });
-    WORKS.forEach(function(w){
-      var r = rd(w);
-      [['after','after'],['primer','primer']].forEach(function(pair){
-        (r[pair[0]] || []).forEach(function(src){
-          if(!BY_ID[src]) return;
-          out[src].push(w.id);
-          inc[w.id].push(src);
-          kind[src + '>' + w.id] = pair[1];
-        });
-      });
-    });
-    return { out:out, inc:inc, kind:kind };
-  }
+    var BGC = 0x15100b;
+    var renderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+    } catch(e){ return false; }
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setClearColor(BGC, 1);
 
-  function renderThreads(){
-    var g = buildGraph();
+    var scene = new THREE.Scene();
+    var camera = new THREE.PerspectiveCamera(42, 1, 0.1, 80);
 
-    /* composantes connexes (graphe traité comme non orienté) */
-    var seen = {}, comps = [];
-    WORKS.forEach(function(w){
-      if(seen[w.id]) return;
-      var stack = [w.id], comp = [];
-      seen[w.id] = true;
-      while(stack.length){
-        var id = stack.pop();
-        comp.push(id);
-        g.out[id].concat(g.inc[id]).forEach(function(n){
-          if(!seen[n]){ seen[n] = true; stack.push(n); }
-        });
+    /* La bougie portée : une seule vraie source, chaude, qui suit la
+       caméra — on longe les rayonnages une bougie à la main. L'ambiante
+       ne fait que déboucher les ombres. */
+    var amb = new THREE.AmbientLight(0x453422, 0.85);
+    scene.add(amb);
+    var candle = new THREE.PointLight(0xffb46a, 1.55, 16, 2);
+    scene.add(candle);
+
+    /* ── Textures dessinées ── */
+    function tex(cv){
+      var t = new THREE.CanvasTexture(cv);
+      t.generateMipmaps = false;
+      t.minFilter = THREE.LinearFilter;
+      t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping;
+      t.anisotropy = 4;
+      return t;
+    }
+
+    function woodCanvas(w, h, base, dark){
+      var cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+      var g = cv.getContext('2d');
+      g.fillStyle = base; g.fillRect(0, 0, w, h);
+      for(var i = 0; i < 46; i++){
+        g.strokeStyle = 'rgba(' + (Math.random() < 0.5 ? '10,5,2' : '90,58,28') + ',' +
+          (0.05 + Math.random() * 0.1) + ')';
+        g.lineWidth = 0.6 + Math.random() * 2;
+        var y = Math.random() * h;
+        g.beginPath(); g.moveTo(0, y);
+        for(var x = 0; x <= w; x += 24){
+          g.lineTo(x, y + Math.sin(x * 0.02 + i) * 2 + (Math.random() - 0.5) * 2);
+        }
+        g.stroke();
       }
-      comps.push(comp);
-    });
-
-    /* profondeur = plus long chemin depuis une racine de la composante */
-    function depthOf(id, memo){
-      if(memo[id] != null) return memo[id];
-      memo[id] = 0; /* garde-fou en cas de cycle */
-      var d = 0;
-      g.inc[id].forEach(function(src){ d = Math.max(d, depthOf(src, memo) + 1); });
-      memo[id] = d;
-      return d;
+      var grad = g.createLinearGradient(0, 0, 0, h);
+      grad.addColorStop(0, 'rgba(0,0,0,.28)');
+      grad.addColorStop(0.5, 'rgba(0,0,0,0)');
+      grad.addColorStop(1, 'rgba(0,0,0,' + dark + ')');
+      g.fillStyle = grad; g.fillRect(0, 0, w, h);
+      return cv;
     }
 
-    var threads = [], alone = [];
-    comps.forEach(function(comp){
-      if(comp.length < 2){ alone.push(comp[0]); return; }
-      var memo = {}, levels = [];
-      comp.forEach(function(id){
-        var d = depthOf(id, memo);
-        (levels[d] = levels[d] || []).push(id);
-      });
-      /* à l'intérieur d'un palier, l'ordre d'insertion n'a aucun sens :
-         on range par année pour que la colonne se lise de haut en bas. */
-      levels.forEach(function(lvl){
-        lvl.sort(function(a, b){ return BY_ID[a].year - BY_ID[b].year; });
-      });
-      threads.push(levels);
-    });
-
-    /* le fil qui commence le plus tôt s'affiche en premier */
-    threads.sort(function(a, b){
-      return BY_ID[a[0][0]].year - BY_ID[b[0][0]].year;
-    });
-
-    /* Un fil se nomme par son pivot : l'œuvre la mieux reliée du groupe
-       (ex æquo → la plus ancienne). Le tiret évite l'article contracté,
-       impossible à produire correctement à partir d'un titre quelconque. */
-    function hub(levels){
-      var ids = [].concat.apply([], levels), best = ids[0], bd = -1;
-      ids.forEach(function(id){
-        var d = g.out[id].length + g.inc[id].length;
-        if(d > bd || (d === bd && BY_ID[id].year < BY_ID[best].year)){ bd = d; best = id; }
-      });
-      return BY_ID[best].shortTitle;
+    /* Le dos d'un livre relié. Convention française : le titre se lit de
+       bas en haut. L'or est plus franc sur une œuvre disponible. */
+    function spineCanvas(w, colHex, okFlag){
+      var W = 160, H = 640;
+      var cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+      var g = cv.getContext('2d');
+      var grad = g.createLinearGradient(0, 0, W, 0);
+      grad.addColorStop(0, shade(colHex, -0.35));
+      grad.addColorStop(0.22, shade(colHex, 0.16));
+      grad.addColorStop(0.5, colHex);
+      grad.addColorStop(0.82, shade(colHex, -0.18));
+      grad.addColorStop(1, shade(colHex, -0.45));
+      g.fillStyle = grad; g.fillRect(0, 0, W, H);
+      /* grain du cuir */
+      for(var i = 0; i < 220; i++){
+        g.fillStyle = 'rgba(0,0,0,' + (0.02 + Math.random() * 0.05) + ')';
+        g.fillRect(Math.random() * W, Math.random() * H, 1.4, 1.4);
+      }
+      /* nerfs : cinq bourrelets horizontaux */
+      var gold = okFlag ? '#d8ad4c' : 'rgba(216,173,76,.42)';
+      for(var n = 0; n < 5; n++){
+        var y = 70 + n * ((H - 150) / 4);
+        g.fillStyle = 'rgba(0,0,0,.3)'; g.fillRect(0, y + 3, W, 3);
+        g.fillStyle = 'rgba(255,236,190,.14)'; g.fillRect(0, y - 3, W, 3);
+        g.strokeStyle = gold; g.lineWidth = 1.2; g.globalAlpha = okFlag ? 0.85 : 0.4;
+        g.beginPath(); g.moveTo(10, y - 7); g.lineTo(W - 10, y - 7); g.stroke();
+        g.beginPath(); g.moveTo(10, y + 9); g.lineTo(W - 10, y + 9); g.stroke();
+        g.globalAlpha = 1;
+      }
+      return { cv: cv, gold: gold };
     }
 
-    /* Chaque fil retient ses ARÊTES, dans l'ordre où la plume les écrira :
-       palier du départ, puis de haut en bas. C'est cette liste, et non le
-       DOM, qui porte la séquence du tracé. */
-    INK = [];
-    elThreads.innerHTML = threads.map(function(levels, ti){
-      var head = hub(levels);
-      var edges = [], flow = '';
-      levels.forEach(function(lvl, i){
-        if(i > 0){
-          /* le trait est tireté seulement si TOUTES les arêtes qui
-             franchissent ce palier sont des « primer » */
-          var allPrimer = true;
-          lvl.forEach(function(id){
-            g.inc[id].forEach(function(src){
-              if(levels[i-1].indexOf(src) === -1) return;
-              var k = g.kind[src + '>' + id];
-              if(k !== 'primer') allPrimer = false;
-              edges.push({ from:src, to:id, kind:k, lvl:i });
-            });
-          });
-          flow += '<div class="bx-gap" data-lvl="' + i + '" aria-hidden="true">' +
-                    '<span class="bx-gap-l">' + (allPrimer ? 'prépare' : 'puis') + '</span>' +
-                  '</div>';
+    function spineTexture(work, colHex){
+      var ok = isOk(work);
+      var sp = spineCanvas(work, colHex, ok);
+      var g = sp.cv.getContext('2d');
+      var W = sp.cv.width, H = sp.cv.height;
+      /* MARX en tête, à plat */
+      g.fillStyle = sp.gold;
+      g.font = '600 21px Inter, sans-serif';
+      g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.globalAlpha = ok ? 0.95 : 0.6;
+      g.fillText('MARX', W / 2, 38);
+      /* le titre, de bas en haut */
+      g.save();
+      g.translate(W / 2 + 6, H - 88);
+      g.rotate(-Math.PI / 2);
+      var title = work.shortTitle || work.title;
+      var size = 46;
+      g.font = '600 ' + size + 'px Fraunces, serif';
+      while(g.measureText(title).width > H - 220 && size > 22){
+        size -= 2; g.font = '600 ' + size + 'px Fraunces, serif';
+      }
+      g.textAlign = 'left'; g.textBaseline = 'middle';
+      g.fillText(title, 0, 0);
+      g.restore();
+      /* l'année en pied */
+      g.font = 'italic 900 26px Fraunces, serif';
+      g.textAlign = 'center';
+      g.fillText(String(work.year), W / 2, H - 40);
+      g.globalAlpha = 1;
+      return tex(sp.cv);
+    }
+
+    /* La liasse ficelée : une œuvre en préparation n'est pas encore
+       reliée. Papier kraft, deux tours de ficelle, le titre à l'encre. */
+    function bundleTexture(work){
+      var W = 160, H = 640;
+      var cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+      var g = cv.getContext('2d');
+      var grad = g.createLinearGradient(0, 0, W, 0);
+      grad.addColorStop(0, '#5c4c34');
+      grad.addColorStop(0.5, '#7d6a4a');
+      grad.addColorStop(1, '#55462f');
+      g.fillStyle = grad; g.fillRect(0, 0, W, H);
+      /* tranches de feuillets : fines lignes horizontales irrégulières */
+      for(var y = 6; y < H; y += 4 + Math.random() * 5){
+        g.strokeStyle = 'rgba(30,20,10,' + (0.08 + Math.random() * 0.12) + ')';
+        g.lineWidth = 1;
+        g.beginPath(); g.moveTo(0, y); g.lineTo(W, y + (Math.random() - 0.5) * 3); g.stroke();
+      }
+      /* la ficelle : deux tours sombres, et le nœud */
+      [H * 0.3, H * 0.7].forEach(function(fy){
+        g.fillStyle = 'rgba(26,17,9,.85)'; g.fillRect(0, fy - 4, W, 8);
+        g.fillStyle = 'rgba(140,112,72,.5)'; g.fillRect(0, fy - 4, W, 2);
+      });
+      g.fillStyle = 'rgba(26,17,9,.9)';
+      g.beginPath(); g.arc(W * 0.62, H * 0.3, 9, 0, 7); g.fill();
+      /* le titre à l'encre, à main levée */
+      g.save();
+      g.translate(W / 2 + 4, H - 96);
+      g.rotate(-Math.PI / 2);
+      var title = work.shortTitle || work.title;
+      var size = 44;
+      g.font = '700 ' + size + 'px Caveat, cursive';
+      while(g.measureText(title).width > H - 260 && size > 24){
+        size -= 2; g.font = '700 ' + size + 'px Caveat, cursive';
+      }
+      g.fillStyle = 'rgba(34,22,10,.92)';
+      g.textAlign = 'left'; g.textBaseline = 'middle';
+      g.fillText(title, 0, 0);
+      g.restore();
+      g.font = '500 30px Caveat, cursive';
+      g.fillStyle = 'rgba(34,22,10,.85)';
+      g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.fillText(String(work.year), W / 2, H - 46);
+      return tex(cv);
+    }
+
+    function plaqueTexture(label){
+      var W = 512, H = 84;
+      var cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+      var g = cv.getContext('2d');
+      var grad = g.createLinearGradient(0, 0, W, 0);
+      grad.addColorStop(0, '#241708'); grad.addColorStop(0.5, '#382712');
+      grad.addColorStop(1, '#221507');
+      g.fillStyle = grad; g.fillRect(0, 0, W, H);
+      g.strokeStyle = 'rgba(216,173,76,.65)'; g.lineWidth = 2;
+      g.strokeRect(5, 5, W - 10, H - 10);
+      g.fillStyle = '#d8ad4c';
+      var size = 30;
+      g.font = '600 ' + size + 'px Inter, sans-serif';
+      var txt = label.toUpperCase();
+      while(g.measureText(txt).width > W - 60 && size > 14){
+        size -= 2; g.font = '600 ' + size + 'px Inter, sans-serif';
+      }
+      g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.fillText(txt, W / 2, H / 2 + 2);
+      return tex(cv);
+    }
+
+    function shade(hex, k){
+      var n = parseInt(hex.slice(1), 16);
+      var r = (n >> 16) & 255, gg = (n >> 8) & 255, b = n & 255;
+      var f = function(c){
+        c = k >= 0 ? c + (255 - c) * k : c * (1 + k);
+        return Math.max(0, Math.min(255, Math.round(c)));
+      };
+      return 'rgb(' + f(r) + ',' + f(gg) + ',' + f(b) + ')';
+    }
+
+    /* Cuirs par rayon : une famille brun / rouge / or, jamais criarde.
+       L'ordre suit readingGroups ; une couleur par groupe, en boucle si
+       le corpus gagnait un cinquième rayon. */
+    var LEATHERS = ['#6d2418', '#7a4a1e', '#4a1a12', '#33261a'];
+
+    /* ── Le meuble ──────────────────────────────────────────────────
+       Un rayon (readingGroup) = une travée. Les livres du rayon, rangés
+       par année, tiennent la rangée du milieu — celle que la caméra
+       longe. Au-dessus et en dessous : des liasses couchées, sans titre,
+       le fonds de l'atelier. */
+    var BOOK_D = 1.5;                  /* profondeur d'un volume */
+    var BASE_Y = -1.2;                 /* dessus de la tablette des livres */
+    var GAPB = 0.13, PADX = 1.0, UPW = 0.34, BOARD_T = 0.18;
+
+    var woodMat = new THREE.MeshLambertMaterial({
+      map: tex(woodCanvas(512, 256, '#2b1a0d', 0.4)) });
+    var woodDark = new THREE.MeshLambertMaterial({
+      map: tex(woodCanvas(256, 256, '#20120a', 0.55)) });
+    var paperEdge = new THREE.MeshLambertMaterial({ color: 0xcbb98f });
+    var paperEdgeDim = new THREE.MeshLambertMaterial({ color: 0x8f7d5c });
+
+    var group3d = new THREE.Group();
+    scene.add(group3d);
+
+    var books = [];      /* { work, mesh, baseZ, out, outT, bayIdx } */
+    var bays = [];       /* { group, x0, x1, cx } */
+    var hitMeshes = [];
+    var regenFns = [];   /* re-dessiner les textures quand Fraunces arrive */
+
+    /* silhouette d'un volume : déterministe par id */
+    function bookDims(w){
+      var ok = isOk(w);
+      var h1 = hash01(w.id, 1), h2 = hash01(w.id, 2);
+      return {
+        th: (ok ? 0.42 : 0.5) + h1 * 0.2,
+        h:  (ok ? 2.15 : 1.95) + h2 * 0.3
+      };
+    }
+
+    function makeBook(w, colHex, x, bayIdx){
+      var d = bookDims(w), ok = isOk(w);
+      var geo = new THREE.BoxGeometry(d.th, d.h, BOOK_D);
+      var spineMat = new THREE.MeshLambertMaterial({});
+      var coverMat = new THREE.MeshLambertMaterial({
+        color: ok ? colHex : '#6f5d42' });
+      if(ok) coverMat.color.offsetHSL(0, 0, -0.04);
+      var edge = ok ? paperEdge : paperEdgeDim;
+      /* faces : +x, -x, +y, -y, +z (dos, vers nous), -z */
+      var mesh = new THREE.Mesh(geo,
+        [coverMat, coverMat, edge, coverMat, spineMat, edge]);
+      var draw = function(){
+        spineMat.map = ok ? spineTexture(w, colHex) : bundleTexture(w);
+        spineMat.needsUpdate = true;
+      };
+      draw();
+      regenFns.push(draw);
+      mesh.position.set(x + d.th / 2, BASE_Y + d.h / 2, 0);
+      if(!ok){
+        /* une liasse ne tient pas au garde-à-vous */
+        mesh.rotation.z = (hash01(w.id, 3) - 0.5) * 0.05;
+        mesh.rotation.y = (hash01(w.id, 4) - 0.5) * 0.06;
+      }
+      mesh.userData.work = w;
+      group3d.add(mesh);
+      hitMeshes.push(mesh);
+
+      /* le signet rouge d'une porte d'entrée — seulement si elle est
+         réellement ouverte (règle produit : pas de porte sans atelier) */
+      if(rd(w).entry && ok){
+        var rb = new THREE.Mesh(
+          new THREE.BoxGeometry(0.1, 0.62, 0.02),
+          new THREE.MeshLambertMaterial({ color: 0xd5402f }));
+        rb.position.set(0, d.h / 2 + 0.14, BOOK_D / 2 - 0.09);
+        rb.rotation.x = 0.16;
+        mesh.add(rb);
+      }
+      books.push({ work: w, mesh: mesh, baseZ: 0, out: 0, outT: 0, bayIdx: bayIdx });
+      return d.th;
+    }
+
+    /* liasses couchées : le fonds, sans étiquette — un décor, pas des œuvres */
+    function makeDeco(x0, x1, yBase){
+      var x = x0 + 0.5 + Math.random() * 0.8;
+      while(x < x1 - 1.6){
+        var n = 1 + Math.floor(Math.random() * 3), y = yBase;
+        for(var i = 0; i < n; i++){
+          var h = 0.1 + Math.random() * 0.1;
+          var m = new THREE.Mesh(
+            new THREE.BoxGeometry(1.15 + Math.random() * 0.5, h, 1.05),
+            new THREE.MeshLambertMaterial({
+              color: Math.random() < 0.5 ? 0x584a34 : 0x4a3a26 }));
+          m.position.set(x + (Math.random() - 0.5) * 0.14, y + h / 2, -0.15);
+          m.rotation.y = (Math.random() - 0.5) * 0.2;
+          group3d.add(m);
+          y += h;
         }
-        flow += '<div class="bx-level">' + lvl.map(node).join('') + '</div>';
-      });
-      INK.push({ ti:ti, levels:levels, edges:edges });
-      /* pas de `bx-paper` ici : le grain lavait les trois grandes surfaces des
-         fils et éclaircissait toute la section. Un diagramme n'a pas besoin
-         d'une matière, une porte si. */
-      return '<div class="bx-thread bx-card" data-t="' + ti + '" style="--i:' + ti + '">' +
-               '<div class="bx-thread-h">Le fil de <em>' + esc(head) + '</em></div>' +
-               '<div class="bx-flow">' +
-                 '<svg class="bx-ink" aria-hidden="true"></svg>' + flow +
-               '</div>' +
-             '</div><i class="bx-run" aria-hidden="true"></i>';
-    }).join('');
-
-    inkThreads();
-
-    // (b) le nombre de fils est compté, jamais écrit en dur
-    elThreadN.textContent = threads.length === 1
-      ? 'Un enchaînement traverse'
-      : numFr(threads.length).charAt(0).toUpperCase() + numFr(threads.length).slice(1) +
-        ' enchaînements traversent';
-
-    if(alone.length){
-      elAlone.innerHTML = 'Hors de tout fil : <b>' + esc(listFr(alone)) +
-        '</b> — aucun texte du corpus ne le prépare, et il n\'en commande aucun. ' +
-        'Il se lit seul, quand on veut.';
-      elAlone.hidden = false;
+        x += 2.1 + Math.random() * 1.6;
+      }
     }
-  }
 
-  function node(id){
-    var w = BY_ID[id], ok = isOk(w);
-    var tag = ok ? 'a' : 'span';
-    var at  = ok ? ' href="' + esc(href(w)) + '"' : '';
-    return '<' + tag + ' class="bx-node' + (ok ? ' here' : ' soon') + '"' + at +
-      ' data-id="' + esc(id) + '"' +
-      (ok ? '' : ' title="En préparation"') + '>' +
-      '<span class="bx-node-y">' + esc(w.year) + '</span>' +
-      '<span class="bx-node-t">' + esc(w.shortTitle) + '</span>' +
-    '</' + tag + '>';
-  }
+    function buildCase(){
+      var x = 0;
+      var boardYs = [BASE_Y - BOARD_T / 2 - 0.005, 1.78, 4.78, -4.22];
+      var caseTop = 4.9, caseBot = -4.32, caseH = caseTop - caseBot;
 
-  /* ── Le fil s'écrit ──────────────────────────────────────────────
-     Pièce maîtresse de la page. Le CSS pose la mise en page, le JS MESURE
-     les nœuds réellement rendus, et le SVG relie ce qu'il a mesuré : la
-     géométrie n'est jamais devinée, donc elle survit à n'importe quelle
-     largeur, police ou longueur de titre.
+      GROUPS.forEach(function(gr, gi){
+        var list = WORKS.filter(function(w){ return rd(w).group === gr.id; })
+                        .sort(function(a, b){ return a.year - b.year; });
+        if(!list.length) return;
 
-     Le tracé se fait au `stroke-dashoffset` d'un chemin de MASQUE, pas du
-     trait visible — sinon `stroke-dasharray` servirait à deux choses à la
-     fois (dessiner le trait tireté des « primer » ET mesurer l'avancement),
-     et les deux se battraient. Le masque révèle, le trait dessous garde son
-     style propre.
+        /* montant à gauche de la travée */
+        var up = new THREE.Mesh(new THREE.BoxGeometry(UPW, caseH, 2.0), woodMat);
+        up.position.set(x + UPW / 2, (caseTop + caseBot) / 2, 0);
+        group3d.add(up);
+        x += UPW;
 
-     La plume est un point d'encre posé sur `getPointAtLength()` du chemin
-     en cours : on voit la ligne s'ÉCRIRE, pas apparaître. Même vocabulaire
-     que le curseur-comète du circuit sur l'accueil.
-
-     Tout est fonction de la position de défilement → strictement
-     réversible : on remonte, l'encre se retire. */
-  var NS = 'http://www.w3.org/2000/svg';
-  var INK = [];
-
-  function svgEl(name, attrs){
-    var e = document.createElementNS(NS, name);
-    for(var k in attrs) if(attrs.hasOwnProperty(k)) e.setAttribute(k, attrs[k]);
-    return e;
-  }
-
-  function inkThreads(){
-    var wraps = [].slice.call(elThreads.querySelectorAll('.bx-thread'));
-    if(!wraps.length) return;
-
-    wraps.forEach(function(wrap, i){
-      var T = INK[i];
-      if(!T) return;
-      T.wrap  = wrap;
-      T.flow  = wrap.querySelector('.bx-flow');
-      T.svg   = wrap.querySelector('.bx-ink');
-      T.nodes = {};
-      [].forEach.call(wrap.querySelectorAll('.bx-node'), function(n){
-        T.nodes[n.dataset.id] = n;
-      });
-      T.gaps = [].slice.call(wrap.querySelectorAll('.bx-gap'));
-      T.run  = wrap.nextElementSibling;
-      /* Le dernier panneau d'une pile ne se fige jamais : le bloc englobant
-         s'arrête avec lui. Son fil se mesure donc à la traversée de l'écran,
-         pas à un épinglage qui n'aura pas lieu. */
-      T.last = !(T.run && T.run.nextElementSibling &&
-                 T.run.nextElementSibling.classList.contains('bx-card'));
-      /* la station de départ est celle que la plume touche en premier */
-      T.roots = T.levels[0] || [];
-    });
-
-    /* Sans scrub (reduced-motion, moins de 768 px), le fil est simplement
-       écrit : traits complets, stations à l'encre, pas de plume. */
-    function repaint(){
-      if(SCRUB) onScroll();
-      else INK.forEach(function(T){ paintThread(T, 1); });
-    }
-    /* measureInk() efface les traits (dashoffset au maximum) avant de les
-       reconstruire : toute remesure DOIT être suivie d'un repaint, sinon un
-       simple changement d'orientation ferait disparaître le fil là où il
-       n'existe aucun défilement pour le redessiner. */
-    var remeasure = function(){ measureInk(); repaint(); };
-
-    measureInk();
-
-    if(SCRUB){
-      document.documentElement.classList.add('js-ink');
-      INK.forEach(function(T){
-        addScrollSub(function(vh){
-          /* Le panneau est `sticky` : sa position peinte se fige, la mesurer
-             gèlerait l'avancement. La cale qui le suit, elle, défile
-             normalement — et pendant que le panneau est figé, l'écart entre
-             son bas et le haut de la cale est exactement ce qui a été
-             parcouru. Le fil s'écrit donc PENDANT que le panneau tient
-             l'écran, et le suivant vient le recouvrir une fois écrit. */
-          var r = T.wrap.getBoundingClientRect(), q;
-          if(T.last || !T.run){
-            /* fenêtre de traversée : le fil s'écrit pendant que le panneau
-               monte à l'écran, sans qu'aucun vide ait à lui en donner le temps */
-            q = cl01((vh * 0.86 - r.top) / (r.height + vh * 0.34));
-          } else {
-            /* le panneau est figé : la cale, elle, défile. Cale à zéro entre
-               deux panneaux → c'est la HAUTEUR DU PANNEAU qui donne la
-               distance, puisque le suivant le recouvre après l'avoir
-               parcourue. */
-            var rr = T.run.getBoundingClientRect();
-            var span = rr.height > 4 ? rr.height : r.height;
-            q = span > 0 ? cl01((r.bottom - rr.top) / span) : 0;
-          }
-          paintThread(T, q);
+        var innerW = list.reduce(function(s, w){ return s + bookDims(w).th; }, 0) +
+                     GAPB * (list.length - 1) + 2 * PADX;
+        innerW = Math.max(innerW, 3.6);
+        var bx0 = x, bx = x + PADX;
+        list.forEach(function(w, i){
+          bx += makeBook(w, LEATHERS[gi % LEATHERS.length], bx, bays.length) +
+                (i < list.length - 1 ? GAPB : 0);
         });
+        x = bx0 + innerW;
+
+        makeDeco(bx0, x, 1.87);
+        makeDeco(bx0, x, -4.13);
+
+        /* le cartouche de laiton sur le chant de la tablette */
+        var plq = new THREE.MeshLambertMaterial({});
+        var drawPlq = function(){
+          plq.map = plaqueTexture(gr.label); plq.needsUpdate = true;
+        };
+        drawPlq(); regenFns.push(drawPlq);
+        /* incliné vers le regard : à plat sur le chant, la caméra le
+           voyait par la tranche et il se lisait comme un filet doré */
+        var pm = new THREE.Mesh(new THREE.PlaneGeometry(2.0, 0.33), plq);
+        pm.position.set((bx0 + x) / 2, BASE_Y - BOARD_T / 2 + 0.02, 1.06);
+        pm.rotation.x = -0.34;
+        group3d.add(pm);
+
+        bays.push({ group: gr, x0: bx0, x1: x, cx: (bx0 + x) / 2 });
       });
-    } else {
-      repaint();
+
+      /* montant de droite */
+      var up2 = new THREE.Mesh(new THREE.BoxGeometry(UPW, caseH, 2.0), woodMat);
+      up2.position.set(x + UPW / 2, (caseTop + caseBot) / 2, 0);
+      group3d.add(up2);
+      x += UPW;
+
+      /* tablettes filantes + fond + corniche */
+      boardYs.forEach(function(by){
+        var b = new THREE.Mesh(new THREE.BoxGeometry(x, BOARD_T, 2.05), woodMat);
+        b.position.set(x / 2, by, 0);
+        group3d.add(b);
+      });
+      var back = new THREE.Mesh(new THREE.PlaneGeometry(x + 6, caseH + 2), woodDark);
+      back.position.set(x / 2, (caseTop + caseBot) / 2, -0.92);
+      group3d.add(back);
+      var top = new THREE.Mesh(new THREE.BoxGeometry(x + 0.5, 0.3, 2.25), woodMat);
+      top.position.set(x / 2, caseTop + 0.12, 0.05);
+      group3d.add(top);
+      var bot = new THREE.Mesh(new THREE.BoxGeometry(x + 0.5, 0.3, 2.25), woodMat);
+      bot.position.set(x / 2, caseBot - 0.12, 0.05);
+      group3d.add(bot);
+
+      /* le parquet, pour que le meuble soit posé quelque part */
+      var floor = new THREE.Mesh(new THREE.PlaneGeometry(x + 30, 24),
+        new THREE.MeshLambertMaterial({ map: tex(woodCanvas(512, 256, '#1c1108', 0.5)) }));
+      floor.rotation.x = -Math.PI / 2;
+      floor.position.set(x / 2, caseBot - 0.27, 5);
+      group3d.add(floor);
+
+      return x;
     }
 
-    /* La mise en page bouge encore après ce premier passage : les fiches
-       viennent d'être injectées et les polices n'ont pas fini d'arriver.
-       Même précaution que libraryScrub() sur l'accueil. */
-    requestAnimationFrame(remeasure);
-    setTimeout(remeasure, 400);
-    window.addEventListener('load', remeasure);
-    if(document.fonts && document.fonts.ready) document.fonts.ready.then(remeasure);
-    window.addEventListener('resize', remeasure);
-  }
+    var caseW = buildCase();
+    var caseCX = caseW / 2;
+    scene.fog = new THREE.Fog(BGC, 8, 26);
 
-  function measureInk(){
-    INK.forEach(function(T){
-      if(!T.flow || !T.svg) return;
-      var W = Math.max(T.flow.scrollWidth, T.flow.offsetWidth);
-      var H = T.flow.offsetHeight;
-      if(!W || !H) return;
-      T.svg.setAttribute('width', W);
-      T.svg.setAttribute('height', H);
-      T.svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
-      while(T.svg.firstChild) T.svg.removeChild(T.svg.firstChild);
+    /* poussière dans la lumière : quelques grains qui dérivent */
+    var dust = (function(){
+      var N = 130, pos = new Float32Array(N * 3);
+      for(var i = 0; i < N; i++){
+        pos[i * 3]     = Math.random() * caseW;
+        pos[i * 3 + 1] = -4 + Math.random() * 8;
+        pos[i * 3 + 2] = 0.8 + Math.random() * 4.2;
+      }
+      var g = new THREE.BufferGeometry();
+      g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+      var m = new THREE.PointsMaterial({ color: 0xd8ad4c, size: 0.045,
+        transparent: true, opacity: 0.32, depthWrite: false });
+      var p = new THREE.Points(g, m);
+      scene.add(p);
+      return { pts: p, pos: pos, n: N };
+    })();
 
-      var defs = svgEl('defs', {});
-      T.svg.appendChild(defs);
-      var fr = T.flow.getBoundingClientRect();
-      T.paths = [];
+    /* ── Le travelling ──────────────────────────────────────────────
+       p = position de défilement, 0 → 1 sur la cale. Trois temps :
+       le plan large (l'intro couvre), l'approche, puis on longe les
+       travées à vitesse constante ; enfin un léger recul, la fin. */
+    var CAMZ = 6.3, CAMY = 0.15, LOOKY = -0.05, LEAD = 0.8;
+    var zFar = 14;
+    var x0 = 0, x1 = caseW;   /* bornes du travelling, refaites au resize */
 
-      T.edges.forEach(function(e, k){
-        var a = T.nodes[e.from], b = T.nodes[e.to];
-        if(!a || !b) return;
-        var ar = a.getBoundingClientRect(), br = b.getBoundingClientRect();
-        /* Le trait va d'un BORD À L'AUTRE, sans jamais passer sous une fiche.
-           Faire traverser la fiche à la plume créait un temps mort, et le relais
-           d'une vague à la suivante n'est pas assuré par le déplacement : c'est
-           le BLOC QUI S'ALLUME quand la plume l'atteint, et qui passe la lumière. */
-        var x1 = ar.right - fr.left, y1 = ar.top + ar.height / 2 - fr.top;
-        var x2 = br.left  - fr.left, y2 = br.top + br.height / 2 - fr.top;
-        var dx = Math.max(16, (x2 - x1) * 0.55);
-        /* La courbe SEULE. Les deux barbes de la pointe ont d'abord fait partie
-           du tracé — la plume dessinait la courbe, revenait à la pointe, traçait
-           une barbe, revenait encore : deux allers-retours au contact du bloc,
-           lus comme un rebond. Elles sont désormais un chemin à part, qui
-           n'apparaît qu'à l'arrivée et que la plume ne parcourt jamais. */
-        var d = 'M' + x1 + ' ' + y1 +
-                'C' + (x1 + dx) + ' ' + y1 + ',' + (x2 - dx) + ' ' + y2 +
-                ',' + x2 + ' ' + y2;
-        var dTip = 'M' + x2 + ' ' + y2 + 'l-7 -4.5M' + x2 + ' ' + y2 + 'l-7 4.5';
+    function computeFraming(){
+      /* distance du plan large : le meuble entier tient dans l'image —
+         ajustement vertical (caseH ≈ 9,9 avec les corniches) ET
+         horizontal, le plus contraignant des deux l'emporte */
+      var t = Math.tan(camera.fov * Math.PI / 360);
+      var dV = (9.9 / 2 + 0.6) / t;
+      var dW = (caseW / 2 + 1.2) / (t * Math.max(camera.aspect, 0.5));
+      zFar = Math.max(dV, dW, 11);
+      scene.fog.far = zFar + 13;
+      x0 = Math.min(bays.length ? bays[0].cx : 2, 2.4);
+      x1 = Math.max(caseW - 2.4, x0 + 0.1);
+      if(bays.length){
+        x0 = bays[0].x0 + 1.2;
+        x1 = bays[bays.length - 1].x1 - 1.2;
+      }
+    }
 
-        var id = 'ink-' + T.ti + '-' + k;
-        var mask = svgEl('mask', { id:id, maskUnits:'userSpaceOnUse',
-                                   x:-20, y:-20, width:W + 40, height:H + 40 });
-        var rev = svgEl('path', { d:d, fill:'none', stroke:'#fff',
-                                  'stroke-width':7, 'stroke-linecap':'round' });
-        mask.appendChild(rev);
-        defs.appendChild(mask);
+    var T_IN = 0.16, T_TRAVEL = 0.9;   /* bornes des phases */
 
-        var vis = svgEl('path', { d:d, mask:'url(#' + id + ')' });
-        var tip = svgEl('path', { d:dTip, class:'tip' });
-        if(e.kind === 'primer'){
-          vis.setAttribute('class', 'primer');
-          vis.setAttribute('stroke-dasharray', '5 5');
-          tip.setAttribute('class', 'tip primer');
+    function camPose(p, out){
+      if(p < T_IN){
+        var t = sstep(0, T_IN, p);
+        out.x  = caseCX + (x0 - caseCX) * t;
+        out.y  = 0.9 + (CAMY - 0.9) * t;
+        out.z  = zFar + 0.8 + (CAMZ - zFar - 0.8) * t;
+        out.lx = caseCX + (x0 + LEAD - caseCX) * t;
+        out.ly = 0 + (LOOKY - 0) * t;
+      } else if(p < T_TRAVEL){
+        var tt = (p - T_IN) / (T_TRAVEL - T_IN);
+        out.x = x0 + (x1 - x0) * tt;
+        out.y = CAMY; out.z = CAMZ;
+        out.lx = out.x + LEAD; out.ly = LOOKY;
+      } else {
+        var to = sstep(T_TRAVEL, 1, p);
+        out.x  = x1 + (caseCX - x1) * to * 0.7;
+        out.y  = CAMY + (1.0 - CAMY) * to;
+        out.z  = CAMZ + (zFar * 0.82 - CAMZ) * to;
+        out.lx = x1 + LEAD + (caseCX - x1 - LEAD) * to * 0.7;
+        out.ly = LOOKY * (1 - to);
+      }
+      out.lz = 0;
+    }
+
+    /* défilement → cible ; la caméra la rejoint en douceur dans la boucle */
+    var pT = 0, p = 0, docSpan = 1;
+    var run = document.getElementById('bibRun');
+    function layout(){
+      var vh = window.innerHeight || 1;
+      var nB = Math.max(bays.length, 1);
+      run.style.height = Math.round(vh * (1.5 + nB * 1.3 + 0.9)) + 'px';
+      docSpan = Math.max(1,
+        document.documentElement.scrollHeight - vh);
+    }
+    function onScroll(){
+      pT = cl01((window.pageYOffset || 0) / docSpan);
+    }
+
+    /* aller à un livre / une travée : on écrit la position de défilement
+       correspondante — le pilotage reste le défilement, donc réversible */
+    function scrollToX(x, smooth){
+      var tt = cl01((x - x0) / (x1 - x0 || 1));
+      var pp = T_IN + tt * (T_TRAVEL - T_IN);
+      try {
+        window.scrollTo({ top: pp * docSpan, behavior: smooth ? 'smooth' : 'instant' });
+      } catch(e){ window.scrollTo(0, pp * docSpan); }
+    }
+
+    /* ── Interface DOM pilotée par p ── */
+    var elIntro = document.getElementById('bxIntro');
+    var elHint  = document.getElementById('bxHint');
+    var elCap   = document.getElementById('bxCaption');
+    var elCapK  = document.getElementById('capK');
+    var elCapT  = document.getElementById('capT');
+    var elCapN  = document.getElementById('capN');
+    var elRail  = document.getElementById('bxRail');
+    var elEnd   = document.getElementById('bxEnd');
+    var elTag   = document.getElementById('bxTag');
+    var curBay = -1;
+
+    /* le rail est construit depuis les travées réelles */
+    var ROM = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'];
+    elRail.innerHTML = bays.map(function(b, i){
+      return '<button type="button" data-bay="' + i + '">' +
+        esc(ROM[i] || (i + 1)) + ' · ' + esc(b.group.label) + '</button>';
+    }).join('');
+    elRail.addEventListener('click', function(ev){
+      var b = ev.target.closest('button[data-bay]');
+      if(!b) return;
+      scrollToX(bays[+b.dataset.bay].cx - LEAD, true);
+    });
+
+    function updateUI(){
+      var introO = cl01(1 - p / 0.09);
+      elIntro.style.opacity = introO.toFixed(3);
+      elIntro.style.pointerEvents = introO > 0.4 ? '' : 'none';
+      elHint.style.opacity = introO.toFixed(3);
+
+      var endO = sstep(0.93, 0.985, p);
+      elEnd.style.opacity = endO.toFixed(3);
+      elEnd.style.pointerEvents = endO > 0.5 ? '' : 'none';
+
+      var midO = sstep(0.1, 0.17, p) * (1 - sstep(0.88, 0.94, p));
+      elRail.style.opacity = Math.max(midO, endO * 0.9).toFixed(3);
+      elRail.style.pointerEvents = (midO > 0.2 || endO > 0.2) ? '' : 'none';
+
+      /* travée courante = celle que le regard traverse */
+      var look = camera.position.x + LEAD, bi = -1;
+      for(var i = 0; i < bays.length; i++){
+        if(look >= bays[i].x0 - UPW && look < bays[i].x1 + UPW / 2){ bi = i; break; }
+      }
+      if(bi !== curBay){
+        curBay = bi;
+        var bs = elRail.querySelectorAll('button');
+        for(var k = 0; k < bs.length; k++) bs[k].classList.toggle('on', k === bi);
+        if(bi >= 0){
+          elCapK.textContent = 'Rayon ' + (ROM[bi] || (bi + 1));
+          elCapT.textContent = bays[bi].group.label;
+          elCapN.textContent = bays[bi].group.note;
         }
-        T.svg.appendChild(vis);
-        T.svg.appendChild(tip);
-
-        var len = rev.getTotalLength();
-        rev.style.strokeDasharray  = len;
-        rev.style.strokeDashoffset = len;
-
-        /* La traînée : le même chemin, mais dont on ne montre qu'une courte
-           fenêtre juste derrière la tête. C'est elle qui fait lire une plume
-           plutôt qu'un point qui se déplace. */
-        var glow = svgEl('path', { d:d, class:'glow', fill:'none' });
-        var halo = svgEl('circle', { class:'bx-nib-halo', r:11 });
-        var nib  = svgEl('circle', { class:'bx-nib', r:4 });
-
-        T.paths.push({ rev:rev, vis:vis, tip:tip, glow:glow, nib:nib, halo:halo,
-                       len:len, e:e });
-      });
-
-      /* traînées au-dessus des traits, plumes au-dessus de tout */
-      T.paths.forEach(function(P){ T.svg.appendChild(P.glow); });
-      T.paths.forEach(function(P){ T.svg.appendChild(P.halo); T.svg.appendChild(P.nib); });
-
-      /* LES VAGUES. Une plume ne saute pas en arrière : les arêtes qui
-         quittent un même palier s'écrivent ENSEMBLE, et la vague suivante
-         repart des nœuds où la précédente s'est arrêtée — la continuité est
-         alors exacte. Les écrire une par une faisait repartir le trait d'un
-         autre nœud à chaque fois, et le point semblait reculer. */
-      var byLvl = {};
-      T.paths.forEach(function(P){
-        (byLvl[P.e.lvl] = byLvl[P.e.lvl] || []).push(P);
-      });
-      T.waves = Object.keys(byLvl)
-        .map(Number).sort(function(a,b){ return a - b; })
-        .map(function(lv){ return { lvl:lv, list:byLvl[lv] }; });
-    });
-  }
-
-  /* q : avancement du fil, 0 → 1. Écrit les traits, allume les stations,
-     et pose la plume à la tête du trait en cours. */
-  function paintThread(T, q){
-    if(!T.waves || !T.waves.length) return;
-    var W = T.waves.length, lit = {}, gapLit = {};
-
-    T.roots.forEach(function(id){ lit[id] = cl01(q / 0.06); });
-
-    T.waves.forEach(function(wave, wi){
-      /* Le seuil de 1e-4 n'est pas de la coquetterie : (1 - 4/5) * 5 vaut
-         0.9999999999999998 en flottant, si bien que la dernière vague n'était
-         JAMAIS considérée comme finie — la plume restait allumée en bout de
-         course, sur un trait pourtant complet. */
-      var t = cl01((q - wi / W) * W);
-      if(t > 1 - 1e-4) t = 1;
-      gapLit[wave.lvl] = t;
-
-      wave.list.forEach(function(P){
-        P.rev.style.strokeDashoffset = (P.len * (1 - t)).toFixed(2);
-        /* la pointe se pose sur les tout derniers pour cent du trajet */
-        P.tip.style.opacity = cl01((t - 0.88) / 0.12).toFixed(3);
-        /* la station prend l'encre PENDANT que le trait l'atteint */
-        lit[P.e.to] = Math.max(lit[P.e.to] || 0, t);
-
-        if(t > 0 && t < 1){
-          var TR = Math.min(44, P.len * 0.55);
-          /* la fenêtre visible de la traînée finit exactement sur la tête :
-             avec un motif (TR, len+TR), le tiret occupe [-off, -off+TR], on
-             veut -off+TR = len*t, donc off = TR - len*t */
-          P.glow.style.strokeDasharray  = TR + ' ' + (P.len + TR);
-          P.glow.style.strokeDashoffset = (TR - P.len * t).toFixed(2);
-          P.glow.style.opacity = '.92';
-          var pt = P.rev.getPointAtLength(P.len * t);
-          P.nib.setAttribute('cx', pt.x);  P.nib.setAttribute('cy', pt.y);
-          P.halo.setAttribute('cx', pt.x); P.halo.setAttribute('cy', pt.y);
-          P.nib.style.opacity  = '1';
-          P.halo.style.opacity = '.22';
-        } else {
-          P.glow.style.opacity = '0';
-          P.nib.style.opacity  = '0';
-          P.halo.style.opacity = '0';
-        }
-      });
-    });
-
-    for(var id in T.nodes){
-      if(!T.nodes.hasOwnProperty(id)) continue;
-      var L = lit[id] || 0;
-      T.nodes[id].style.setProperty('--lit', L.toFixed(3));
-      /* --flash culmine au MILIEU de l'arrivée puis retombe : le bloc prend
-         feu au contact de la plume, puis se stabilise à sa lumière propre.
-         C'est cet allumage, et non le déplacement, qui relaie une vague à la
-         suivante — la plume n'a plus à traverser la fiche. */
-      T.nodes[id].style.setProperty('--flash', (4 * L * (1 - L)).toFixed(3));
-    }
-    T.gaps.forEach(function(gp){
-      gp.style.setProperty('--lit', (gapLit[+gp.dataset.lvl] || 0).toFixed(3));
-    });
-  }
-
-  /* ── 3. Le corpus ──────────────────────────────────────────────── */
-  function card(w){
-    var r = rd(w), ok = isOk(w), rel = [];
-    /* Séparateur médian et non « et » : plusieurs titres du corpus contiennent
-       déjà un « et » (« Travail salarié et capital », « Salaire, prix et
-       profit »), et l'énumération devenait illisible. Le « et » reste en
-       prose, où il est à sa place. */
-    var listDot = function(ids){ return ids.map(titleOf).join(' · '); };
-    if(r.after && r.after.length)  rel.push('<b>À lire après</b> ' + esc(listDot(r.after)));
-    if(r.primer && r.primer.length) rel.push('<b>Préparé par</b> ' + esc(listDot(r.primer)));
-
-    return '<article class="bx-work">' +
-      '<span class="bx-work-y">' + esc(w.year) + '</span>' +
-      '<div class="bx-work-col">' +
-      '<div class="bx-work-head">' +
-        '<h3 class="bx-work-t">' + esc(w.title) + '</h3>' +
-        '<span class="bx-status ' + (ok ? 'ok">Disponible' : 'soon">En préparation') + '</span>' +
-      '</div>' +
-      '<p class="bx-work-a">' + esc(w.author) + '</p>' +
-      '<p class="bx-work-d">' + esc(w.description) + '</p>' +
-      '<div class="bx-cx">' + (w.concepts || []).map(function(c){
-        return '<span>' + esc(c) + '</span>';
-      }).join('') + '</div>' +
-      /* une relation par ligne : le point médian sépare déjà les titres à
-         l'intérieur d'une relation, le réutiliser entre elles rendrait
-         « À lire après A · B · Préparé par C » indéchiffrable */
-      (rel.length ? '<p class="bx-rel">' + rel.join('<br>') + '</p>' : '') +
-      '<details class="bx-more"><summary>Comment le lire</summary>' +
-        '<div class="bx-more-in">' +
-          '<p class="bx-guide">' + esc(w.readingGuide) + '</p>' +
-          '<p class="bx-source"><b>D\'où vient le texte —</b> ' + esc(w.sourceNote) + '</p>' +
-        '</div>' +
-      '</details>' +
-      (ok ? '<a class="bx-open" href="' + esc(href(w)) + '">Ouvrir l\'atelier →</a>' : '') +
-      '</div>' +
-    '</article>';
-  }
-
-  function renderCorpus(){
-    var list = WORKS.filter(function(w){
-      return filter === 'all' ||
-             (filter === 'available' && isOk(w)) ||
-             (filter === 'planned' && !isOk(w));
-    });
-
-    if(!list.length){
-      elCorpus.innerHTML = '<p class="bx-state">Aucune œuvre dans cette sélection.</p>';
-      return;
+      }
+      elCap.style.opacity = (bi >= 0 ? midO : 0).toFixed(3);
     }
 
-    if(sort === 'annee'){
-      var byYear = list.slice().sort(function(a, b){ return a.year - b.year; });
-      elCorpus.innerHTML = '<div class="bx-grid">' + byYear.map(card).join('') + '</div>';
-    } else {
-      elCorpus.innerHTML = GROUPS.map(function(gr){
-        var inGroup = list.filter(function(w){ return rd(w).group === gr.id; })
-                          .sort(function(a, b){ return a.year - b.year; });
-        if(!inGroup.length) return '';
-        return '<section class="bx-group">' +
-          '<h3 class="bx-group-h">' + esc(gr.label) + '</h3>' +
-          '<p class="bx-group-n">' + esc(gr.note) + '</p>' +
-          '<div class="bx-grid">' + inGroup.map(card).join('') + '</div>' +
-        '</section>';
+    /* ── Survol et clic ── */
+    var ray = new THREE.Raycaster();
+    var ndc = new THREE.Vector2(-2, -2);
+    var moved = false, hovered = null;
+    var v3 = new THREE.Vector3();
+
+    canvas.addEventListener('pointermove', function(ev){
+      ndc.x = (ev.clientX / window.innerWidth) * 2 - 1;
+      ndc.y = -(ev.clientY / window.innerHeight) * 2 + 1;
+      moved = true;
+    });
+    canvas.addEventListener('pointerleave', function(){
+      ndc.set(-2, -2); moved = true;
+    });
+
+    function pickBook(){
+      ray.setFromCamera(ndc, camera);
+      var hits = ray.intersectObjects(hitMeshes, false);
+      return hits.length ? hits[0].object : null;
+    }
+
+    function setHover(mesh){
+      if(hovered === mesh) return;
+      hovered = mesh;
+      canvas.style.cursor = mesh ? 'pointer' : '';
+      for(var i = 0; i < books.length; i++){
+        var b = books[i];
+        b.outT = (b.mesh === mesh || (selected && b.work.id === selected)) ? 1 : 0;
+      }
+      if(mesh){
+        var w = mesh.userData.work;
+        elTag.innerHTML =
+          '<div class="tg-t">' + esc(w.shortTitle || w.title) + '</div>' +
+          '<div class="tg-m">' + esc(w.year) + ' · ' +
+            (isOk(w) ? 'disponible' : 'en préparation') + '</div>' +
+          (rd(w).entry && isOk(w)
+            ? '<div class="tg-q">' + esc(rd(w).entry) + '</div>' : '');
+      }
+      elTag.style.opacity = mesh ? 1 : 0;
+    }
+
+    function placeTag(){
+      if(!hovered) return;
+      var w = hovered.userData.work, d = bookDims(w);
+      v3.set(hovered.position.x, BASE_Y + d.h + 0.42, 0.8);
+      v3.project(camera);
+      elTag.style.left = ((v3.x * 0.5 + 0.5) * window.innerWidth) + 'px';
+      elTag.style.top  = ((-v3.y * 0.5 + 0.5) * window.innerHeight - 8) + 'px';
+    }
+
+    /* ── Le cartel ── */
+    var elCartel   = document.getElementById('bxCartel');
+    var elCartelIn = document.getElementById('bxCartelIn');
+    var selected = null;
+
+    function relBtns(ids, kindLabel){
+      return ids.filter(function(id){ return BY_ID[id]; }).map(function(id){
+        var w = BY_ID[id];
+        return '<button type="button" data-goto="' + esc(id) + '">' +
+          '<span class="r-y">' + esc(w.year) + '</span>' +
+          '<span class="r-t">' + esc(w.shortTitle || w.title) + '</span>' +
+          '<span class="r-k">' + kindLabel + '</span></button>';
       }).join('');
     }
-    /* les fiches viennent d'être injectées : on leur donne tout de suite
-       la pose que leur position commande, sinon elles restent à zéro
-       jusqu'au prochain défilement */
-    runSubs();
-  }
 
-  function chips(el, opts, current, onPick){
-    el.innerHTML = '';
-    opts.forEach(function(o){
-      var b = document.createElement('button');
-      b.type = 'button';
-      b.className = 'bx-chip' + (o.id === current ? ' on' : '');
-      b.textContent = o.label;
-      b.setAttribute('aria-pressed', o.id === current ? 'true' : 'false');
-      b.addEventListener('click', function(){ onPick(o.id); });
-      el.appendChild(b);
+    function openCartel(w){
+      selected = w.id;
+      var r = rd(w), ok = isOk(w);
+      var after  = (r.after  || []),
+          primer = (r.primer || []);
+      /* et l'inverse : ce que CE texte prépare */
+      var leadsTo = WORKS.filter(function(o){
+        var ro = rd(o);
+        return (ro.after || []).indexOf(w.id) >= 0 ||
+               (ro.primer || []).indexOf(w.id) >= 0;
+      }).map(function(o){ return o.id; });
+
+      elCartelIn.innerHTML =
+        (r.entry ? '<div class="ct-entry"><b>Porte d\'entrée</b>' + esc(r.entry) + '</div>' : '') +
+        '<h2 class="ct-t">' + esc(w.title) + '</h2>' +
+        '<div class="ct-meta"><span>' + esc(w.author) + ' · ' + esc(w.year) + '</span>' +
+          '<span class="ct-status ' + (ok ? 'ok">Disponible' : 'soon">En préparation') + '</span></div>' +
+        '<p class="ct-d">' + esc(w.description) + '</p>' +
+        '<div class="ct-cx">' + (w.concepts || []).map(function(c){
+          return '<span>' + esc(c) + '</span>'; }).join('') + '</div>' +
+        (after.length || primer.length
+          ? '<div class="ct-h">Avant lui</div><div class="ct-rel">' +
+            relBtns(after, 'à lire après') + relBtns(primer, 'prépare') + '</div>'
+          : '') +
+        (leadsTo.length
+          ? '<div class="ct-h">Après lui</div><div class="ct-rel">' +
+            relBtns(leadsTo, 'suite') + '</div>'
+          : '') +
+        '<div class="ct-h">Comment le lire</div>' +
+        '<p class="ct-guide">' + esc(w.readingGuide) + '</p>' +
+        '<p class="ct-source"><b>D\'où vient le texte —</b> ' + esc(w.sourceNote) + '</p>' +
+        (ok
+          ? '<a class="ct-open" href="' + esc(href(w)) + '">Ouvrir l\'atelier →</a>'
+          : '<p class="ct-soon-note">L\'atelier de ce texte est en préparation. ' +
+            'Le jour où il ouvrira, ce volume prendra sa reliure.</p>');
+      elCartel.hidden = false;
+      /* la transition a besoin d'une image avec le panneau déjà rendu */
+      requestAnimationFrame(function(){ elCartel.classList.add('open'); });
+      for(var i = 0; i < books.length; i++){
+        books[i].outT = books[i].work.id === selected ? 1 : 0;
+      }
+      elCartel.focus({ preventScroll: true });
+    }
+
+    function closeCartel(){
+      selected = null;
+      elCartel.classList.remove('open');
+      setTimeout(function(){ if(!selected) elCartel.hidden = true; }, 340);
+      for(var i = 0; i < books.length; i++){
+        books[i].outT = books[i].mesh === hovered ? 1 : 0;
+      }
+    }
+
+    canvas.addEventListener('click', function(ev){
+      /* le clic porte ses propres coordonnées : au tactile (ou sans
+         survol préalable) il n'y a pas eu de pointermove avant lui */
+      ndc.x = (ev.clientX / window.innerWidth) * 2 - 1;
+      ndc.y = -(ev.clientY / window.innerHeight) * 2 + 1;
+      var m = pickBook();
+      if(m){
+        var w = m.userData.work;
+        openCartel(w);
+        /* la caméra vient se poser devant le volume */
+        if(p > T_IN * 0.6) scrollToX(m.position.x - LEAD * 0.4, true);
+      } else if(selected){
+        closeCartel();
+      }
     });
-  }
+    document.getElementById('bxCartelX').addEventListener('click', closeCartel);
+    elCartelIn.addEventListener('click', function(ev){
+      var b = ev.target.closest('button[data-goto]');
+      if(!b) return;
+      var w = BY_ID[b.dataset.goto];
+      if(!w) return;
+      openCartel(w);
+      var bk = null;
+      for(var i = 0; i < books.length; i++){
+        if(books[i].work.id === w.id){ bk = books[i]; break; }
+      }
+      if(bk) scrollToX(bk.mesh.position.x - LEAD * 0.4, true);
+    });
+    document.addEventListener('keydown', function(ev){
+      if(ev.key === 'Escape' && selected) closeCartel();
+    });
 
-  function renderTools(){
+    document.getElementById('bx3Back').addEventListener('click', function(){
+      try { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+      catch(e){ window.scrollTo(0, 0); }
+    });
+    document.getElementById('bx3ToFlat').addEventListener('click', function(){
+      teardown();
+    });
+
+    /* ── Boucle ── */
+    var raf = null, lastT = 0, hidden = false;
+    function frame(now){
+      raf = requestAnimationFrame(frame);
+      var dt = Math.min(0.05, (now - lastT) / 1000 || 0.016);
+      lastT = now;
+
+      /* la caméra rejoint la position que le défilement commande */
+      p += (pT - p) * (1 - Math.exp(-dt * 7));
+      if(Math.abs(pT - p) < 0.0004) p = pT;
+
+      var o = {};
+      camPose(p, o);
+      camera.position.set(o.x, o.y, o.z);
+      camera.lookAt(o.lx, o.ly, o.lz);
+
+      /* la bougie voyage avec nous, et vacille */
+      var tsec = now / 1000;
+      var fl = Math.sin(tsec * 9.3) * 0.5 + Math.sin(tsec * 23.7) * 0.3 +
+               Math.sin(tsec * 5.1) * 0.2;
+      candle.intensity = 1.55 + fl * 0.14;
+      candle.position.set(o.x + 0.9 + fl * 0.02, o.y - 0.7, o.z - 1.5);
+
+      /* poussière : dérive lente */
+      var pp = dust.pos;
+      for(var i = 0; i < dust.n; i++){
+        pp[i * 3 + 1] += dt * 0.06 * (0.4 + (i % 5) * 0.2);
+        if(pp[i * 3 + 1] > 4.5) pp[i * 3 + 1] = -4.5;
+      }
+      dust.pts.geometry.attributes.position.needsUpdate = true;
+
+      /* livres tirés */
+      for(var k = 0; k < books.length; k++){
+        var b = books[k];
+        b.out += (b.outT - b.out) * (1 - Math.exp(-dt * 10));
+        b.mesh.position.z = b.baseZ + b.out * 0.5;
+      }
+
+      if(moved){ moved = false; setHover(pickBook()); }
+      placeTag();
+      updateUI();
+
+      renderer.render(scene, camera);
+    }
+
+    function resize(){
+      var w = window.innerWidth, h = window.innerHeight;
+      /* un onglet en arrière-plan peut annoncer 0×0 : on garde alors le
+         cadrage précédent plutôt que de réduire le tampon à néant */
+      if(!w || !h) return;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      computeFraming();
+      layout();
+      onScroll();
+    }
+
+    /* les textures au texte se redessinent quand Fraunces et Caveat
+       arrivent — sinon le premier tracé part sur la police système */
+    if(document.fonts && document.fonts.ready){
+      document.fonts.ready.then(function(){
+        regenFns.forEach(function(f){ try { f(); } catch(e){} });
+      });
+    }
+
+    window.addEventListener('resize', resize);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    document.addEventListener('visibilitychange', function(){
+      hidden = document.hidden;
+      if(hidden && raf){ cancelAnimationFrame(raf); raf = null; }
+      else if(!hidden && !raf && active){ lastT = performance.now(); raf = requestAnimationFrame(frame); }
+    });
+
+    var active = true;
+    function teardown(){
+      active = false;
+      if(raf){ cancelAnimationFrame(raf); raf = null; }
+      document.documentElement.classList.remove('js-bib3d');
+      run.style.height = '0px';
+      closeCartel();
+      elTag.style.opacity = 0;
+      try { window.scrollTo(0, 0); } catch(e){}
+      document.getElementById('fl3d').hidden = false;
+    }
+
+    document.documentElement.classList.add('js-bib3d');
+    resize();
+    onScroll();
+    p = pT;
+    lastT = performance.now();
+    raf = requestAnimationFrame(frame);
+
+    /* compte + fin, dérivés des données */
     var nOk = WORKS.filter(isOk).length;
-    chips(elFilters, [
-      { id:'all',       label:'Toutes (' + WORKS.length + ')' },
-      { id:'available', label:'Disponibles (' + nOk + ')' },
-      { id:'planned',   label:'En préparation (' + (WORKS.length - nOk) + ')' }
-    ], filter, function(id){ filter = id; renderTools(); renderCorpus(); });
+    var NUM = ['zéro','un','deux','trois','quatre','cinq','six','sept',
+               'huit','neuf','dix','onze','douze'];
+    var numFr = function(n){ return NUM[n] || String(n); };
+    document.getElementById('bx3Count').innerHTML =
+      '<b>' + WORKS.length + '</b> œuvres sur les rayons · <b>' + nOk +
+      '</b> lisibles aujourd\'hui';
+    document.getElementById('bxEndLede').textContent =
+      'Vous avez longé les ' + numFr(bays.length) + ' rayons — ' +
+      numFr(WORKS.length) + ' œuvres, dont ' + numFr(nOk) +
+      ' se lisent dès aujourd\'hui. Les liasses ficelées prendront leur ' +
+      'reliure au fur et à mesure.';
 
-    chips(elSort, [
-      { id:'parcours', label:'Par parcours' },
-      { id:'annee',    label:'Par année' }
-    ], sort, function(id){ sort = id; renderTools(); renderCorpus(); });
+    return { teardown: teardown };
   }
 
-  /* ── Le panneau recouvert recule ─────────────────────────────────
-     Il ne disparaît pas sous le suivant : il s'éloigne — échelle, flou,
-     assombrissement. Le recul ne commence qu'à MI-COURSE : le panneau tient
-     l'écran d'abord, il ne s'efface qu'une fois son propos délivré.
-     Le DERNIER panneau d'une pile ne recule jamais : rien ne le recouvre. */
-  function stackCards(){
-    if(!SCRUB) return;
-    addScrollSub(function(){
-      var cards = document.querySelectorAll('.bx-stack > .bx-card');
-      for(var i = 0; i < cards.length; i++){
-        var c = cards[i], run = c.nextElementSibling;
-        var next = run && run.nextElementSibling;
-        var covered = !!(next && next.classList.contains('bx-card'));
-        if(!covered || !run || !run.classList.contains('bx-run')){
-          c.classList.remove('receding');
-          continue;
-        }
-        var cr = c.getBoundingClientRect(), rr = run.getBoundingClientRect();
-        var span = rr.height > 4 ? rr.height : cr.height;
-        var p = span ? cl01((cr.bottom - rr.top) / span) : 0;
-        var k = cl01((p - 0.45) / 0.55);
-        k = k * k * (3 - 2 * k);
-        c.style.setProperty('--sc', (1 - 0.062 * k).toFixed(4));
-        c.style.setProperty('--bl', (5.5 * k).toFixed(2) + 'px');
-        c.style.setProperty('--br', (1 - 0.46 * k).toFixed(3));
-        /* le filtre n'est posé que pendant la transition : flouter en
-           permanence un panneau de cette taille coûte cher pour rien */
-        c.classList.toggle('receding', k > 0.002);
+  /* ── Amorçage ──────────────────────────────────────────────────── */
+  var scene3d = null;
+  function bootFlatBtn(){
+    var btn = document.getElementById('fl3dBtn');
+    btn.addEventListener('click', function(){
+      if(scene3d){ location.hash = ''; location.reload(); return; }
+      if(location.hash === '#liste'){
+        try { history.replaceState(null, '', location.pathname); } catch(e){}
       }
+      var s = initScene();
+      if(s){ scene3d = s; document.getElementById('fl3d').hidden = true;
+             try { window.scrollTo(0, 0); } catch(e){} }
     });
   }
 
-  /* ── Les feuillets se posent ─────────────────────────────────────
-     Remplace le fondu d'apparition. Un fondu se déclenche une fois et ne
-     revient pas ; la pose est fonction de la position de défilement, donc
-     réversible — et surtout un changement de filtre re-rend les fiches à
-     leur pose JUSTE, sans clignoter, puisque rien n'est « déjà joué ».
-     Le sélecteur est relu à chaque passage : le corpus est re-rendu à
-     chaque clic de filtre, un abonnement par carte ne survivrait pas. */
-  function poseCards(){
-    if(!SCRUB) return;
-    document.documentElement.classList.add('js-pose');
-    addScrollSub(function(vh){
-      /* plus les portes : ce sont des panneaux empilés, un translate se
-         battrait avec leur `position:sticky` */
-      var els = document.querySelectorAll('#bxCorpus .bx-work');
-      for(var i = 0; i < els.length; i++){
-        var el = els[i], r = el.getBoundingClientRect();
-        var t = cl01((vh * 0.94 - r.top) / (vh * 0.34));
-        el.style.setProperty('--pose', (t * t * (3 - 2 * t)).toFixed(3));
-      }
-    });
-  }
-
-  /* ── Chargement ────────────────────────────────────────────────── */
-  fetch('bibliotheque.json', { cache:'no-cache' })
+  fetch('bibliotheque.json', { cache: 'no-cache' })
     .then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then(function(data){
       WORKS  = (data.works || []).filter(function(w){ return w && w.id; });
@@ -1190,49 +1326,41 @@ installShell({ workTitle: 'Bibliothèque', tabs: [] });
       WORKS.forEach(function(w){ BY_ID[w.id] = w; });
       if(!WORKS.length) throw new Error('bibliothèque vide');
 
-      var nOk = WORKS.filter(isOk).length;
-      elCount.innerHTML = '<b>' + WORKS.length + '</b> œuvres · <b>' + nOk +
-        '</b> lisibles aujourd\'hui';
+      renderFlat();
+      bootFlatBtn();
 
-      renderDoors();
-      renderThreads();
-      renderTools();
-      renderCorpus();
-      poseCards();
-      stackCards();
+      var start3d = function(){
+        scene3d = initScene();
+        /* WebGL absent : le registre reste, sans bouton vers la scène */
+        document.getElementById('fl3d').hidden = true;
+      };
 
-      /* Les trois sections sont peuplées par ce fetch : au moment où le
-         navigateur a résolu l'ancre, elles étaient vides et la page a
-         grandi sous lui. On repose l'ancre une fois le contenu en place.
-         Une seule mesure ne suffit pas — Fraunces et Inter arrivent après
-         et décalent encore tout : d'où le rAF + le délai + window.load,
-         exactement le triptyque de libraryScrub() (voir CLAUDE.md).
-         On s'arrête si le lecteur a défilé lui-même entre-temps. */
-      if(location.hash.length > 1){
-        var target = document.getElementById(location.hash.slice(1));
-        if(target){
-          var settled = false;
-          /* `behavior:'instant'` et non scrollIntoView() : atelier.css pose
-             scroll-behavior:smooth sur <html>, dont scrollIntoView() hérite —
-             on veut un saut sec à l'arrivée, pas un travelling. */
-          var reAnchor = function(){
-            if(settled) return;
-            var y = target.getBoundingClientRect().top + window.pageYOffset;
-            try { window.scrollTo({ top:y, behavior:'instant' }); }
-            catch(e){ window.scrollTo(0, y); }
-          };
-          addEventListener('wheel',     function(){ settled = true; }, { passive:true, once:true });
-          addEventListener('touchstart',function(){ settled = true; }, { passive:true, once:true });
-          requestAnimationFrame(reAnchor);
-          setTimeout(reAnchor, 400);
-          addEventListener('load', reAnchor);
-          if(document.fonts && document.fonts.ready) document.fonts.ready.then(reAnchor);
+      var decide = function(){
+        if(scene3d) return;
+        if(want3D()) start3d();
+        else if(!REDUCE && window.innerWidth >= 768){
+          /* arrivé via #liste : proposer la scène quand même */
+          document.getElementById('fl3d').hidden = false;
         }
+      };
+      /* la fenêtre peut n'avoir sa vraie taille qu'après le chargement
+         (ou être élargie plus tard) : la décision se rejoue alors */
+      window.addEventListener('resize', decide);
+      /* three.min.js est en defer : au moment où ce script inline
+         s'exécute il n'est pas encore là. DOMContentLoaded arrive
+         après les scripts defer — c'est le rendez-vous sûr. */
+      if(typeof THREE !== 'undefined') decide();
+      else if(document.readyState === 'loading'){
+        document.addEventListener('DOMContentLoaded', decide);
+      } else {
+        window.addEventListener('load', decide);
+        /* si load est déjà passé, le rendez-vous n'aura jamais lieu */
+        if(document.readyState === 'complete') decide();
       }
     })
     .catch(function(err){
-      elCorpus.innerHTML = '<p class="bx-state">La bibliothèque n\'a pas pu être chargée. ' +
-        'Réessayez dans un instant.</p>';
+      elFlGroups.innerHTML = '<p class="fl-state">La bibliothèque n\'a pas pu être ' +
+        'chargée. Réessayez dans un instant.</p>';
       if(window.console) console.warn('[bibliotheque]', err);
     });
 })();
