@@ -689,6 +689,16 @@ body.lm-driving .lm-drive-hud{opacity:1;visibility:visible;transform:translate(-
    portent le fac-similé et pose .aim sur le cartel. */
 #hero-bg{pointer-events:auto;}
 #hero-bg.aiming{cursor:pointer;}
+/* …mais PAS pendant l'intro cinématique. #sheet porte pointer-events:none
+   tant qu'il n'est pas ouvert, seulement une déclaration sur l'enfant ANNULE
+   le `none` de l'ancêtre : la ligne ci-dessus rendait le canvas du héros
+   cliquable dès la première image de l'intro, et un clic destiné à faire
+   avancer l'animation ouvrait le panneau « Une page réelle du manuscrit ».
+   body.intro-run n'existe que pendant l'intro (posée et retirée par le
+   script en bas de page). Si elle restait par accident, on ne perdrait que
+   le raccourci souris : le cartel #msCartel est le chemin d'ouverture
+   officiel, et il n'est pas concerné. */
+body.intro-run #hero-bg{pointer-events:none;}
 .hs-ms-cartel{position:absolute;right:clamp(24px,5vw,80px);bottom:clamp(28px,5vh,54px);
   z-index:2;display:inline-flex;align-items:center;gap:7px;
   max-width:min(300px,44vw);padding:5px 11px 5px 8px;text-align:left;
@@ -1562,12 +1572,24 @@ if(document.documentElement.classList.contains('no-anim'))return;
   /* ---------- interaction ---------- */
   var tmx=0,tmy=0,mx=0,my=0;
   window.addEventListener('mousemove',function(e){tmx=(e.clientX/window.innerWidth-0.5);tmy=(e.clientY/window.innerHeight-0.5);});
-  function enter(){ targetP=1; }
+  var enterAt=0, introLocked=true;
+  function enter(){ if(!targetP) enterAt=performance.now(); targetP=1; }
   function leave(){ targetP=0; }
+  /* Fin de l'intro : le héros redevient cliquable et .hw cesse d'être épinglé.
+     Appelée normalement à p>0.995, et au pire 8 s après l'entrée — la boucle,
+     elle, continue jusqu'au bout. Sans ce filet, un rAF ralenti (onglet en
+     arrière-plan, machine lente) laisserait la page définitivement bloquée
+     en haut, ce qui serait pire que le bug qu'on corrige. */
+  function releaseIntro(){
+    if(!introLocked) return;
+    introLocked=false;
+    document.body.classList.remove('intro-run');
+  }
   var acc=0;
   window.addEventListener('wheel',function(e){ acc+=e.deltaY; if(acc>120) enter(); if(acc<-150 && p<0.15){ leave(); acc=0; } },{passive:true});
   canvas.addEventListener('click', enter);
   var sheet=document.getElementById('sheet'), cine=document.getElementById('cine');
+  var hw=document.querySelector('.hw');
   var app=document.getElementById('app'); // conservé pour compatibilité, non chargé
 
   function resize(){var w=window.innerWidth,h=window.innerHeight;renderer.setSize(w,h,false);
@@ -1629,16 +1651,32 @@ if(document.documentElement.classList.contains('no-anim'))return;
     if(p>0.6){ sheet.classList.add('show'); cine.classList.add('hide'); }
     else { sheet.classList.remove('show'); cine.classList.remove('hide'); }
 
+    if(enterAt && now-enterAt>8000) releaseIntro();
+
+    /* On ENTRE dans le site par le haut. À p>0.6, #sheet passe en
+       pointer-events:auto alors que l'intro n'est qu'aux deux tiers : la
+       molette qui sert à entrer se met alors à faire défiler .hw, et on
+       débouchait sur l'accueil déjà descendu de plusieurs écrans.
+       On épingle donc .hw en haut tant que l'intro n'est pas finie. C'est
+       une remise à zéro par image plutôt qu'un overflow:hidden à retirer :
+       si la boucle mourait, le défilement resterait normal — un verrou CSS,
+       lui, ne se serait jamais rouvert. */
+    if(introLocked && hw && hw.scrollTop) hw.scrollTop = 0;
+
     renderer.render(scene,camera);
     /* immersion terminée : on fige la scène de l'intro — le fond WebGL du
        héros (assets/home.js) prend le relais, inutile de rendre deux scènes. */
-    if(p>0.995){ try{ renderer.dispose(); }catch(e){} return; }
+    if(p>0.995){
+      releaseIntro();
+      try{ renderer.dispose(); }catch(e){}
+      return;
+    }
     if(!reduce) requestAnimationFrame(frame);
   }
 
   setTimeout(function(){document.getElementById('loading').classList.add('gone');document.body.classList.add('lit');},250);
   if(reduce){ coverPivot.rotation.z=Math.PI; camera.position.copy(camA); camera.lookAt(lookA); renderer.render(scene,camera); }
-  else requestAnimationFrame(frame);
+  else { document.body.classList.add('intro-run'); requestAnimationFrame(frame); }
 })();
 });
 </script>

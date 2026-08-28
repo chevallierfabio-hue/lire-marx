@@ -157,6 +157,36 @@ du tout — mobile étroit ou reduced-motion). CSS de l'accueil = **inline**
 (critique LCP) ; JS = **externe + `defer`**. Ne pas réintroduire de
 Three.js bloquant. `SHELL.commune` vient de `shell.js` (déjà chargé).
 
+**On entre dans le site par le haut, et sans rien déclencher — `body.intro-run`.**
+À `p>0.6`, l'intro pose `.show` sur `#sheet`, qui passe donc en
+`pointer-events:auto` alors qu'il reste un bon tiers d'animation. Deux dégâts,
+tous deux corrigés par une classe posée sur `<body>` pendant l'intro :
+
+1. **Le clic ouvrait « Une page réelle du manuscrit ».** `#sheet` porte pourtant
+   `pointer-events:none` — mais `#hero-bg` le REPREND avec un
+   `pointer-events:auto` explicite, et **une déclaration sur l'enfant annule le
+   `none` de l'ancêtre**. Le canvas du héros était donc cliquable dès la
+   première image, et `heroBg()` y attache son raycaster sans attendre
+   `shell-active`. D'où `body.intro-run #hero-bg{pointer-events:none}`.
+2. **On débouchait sur l'accueil déjà descendu.** La molette qui sert à entrer
+   se mettait à faire défiler `.hw` dès `.show`. `frame()` épingle donc
+   `hw.scrollTop = 0` à chaque image tant que l'intro tourne.
+
+**L'épinglage est une remise à zéro par image, pas un `overflow:hidden` à
+retirer** : si la boucle mourait, un verrou CSS ne se rouvrirait jamais et la
+page resterait bloquée en haut — pire que le bug corrigé. Même raison pour le
+filet de `releaseIntro()`, appelé à `p>0.995` **et au plus tard 8 s après
+l'entrée** : un rAF ralenti ne doit pas pouvoir sceller la page. La classe
+n'est posée que si la boucle démarre vraiment (jamais en `no-anim` ni sous
+reduced-motion), et si elle restait par accident on ne perdrait que le
+raccourci souris — `#msCartel` est le chemin d'ouverture officiel du panneau.
+
+**Pour tester tout ceci, la sonde est obligatoire.** Le rAF est si bridé dans
+un onglet piloté que l'intro n'avance pas du tout : `p` reste à 0, rien n'est
+observable, et on croit à tort que le clic ne marche plus. Exposer
+temporairement `{enter, frame, getP, setP, getLocked}` sur `window`, avancer
+`frame()` en pas-à-pas, **et retirer la sonde avant le commit**.
+
 **Piège de spécificité sur l'entrée du héros — déjà tombé dedans une
 fois.** Les éléments du héros sont cachés par
 `html:not(.no-anim) .hs-hero .hs-left>*, html:not(.no-anim) .hs-hero .hs-right`
