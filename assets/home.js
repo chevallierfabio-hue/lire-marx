@@ -1740,6 +1740,35 @@
   }
 
   /* --------------------------------------------------------------------- */
+  /* — L'invite à descendre : elle s'efface dès qu'on entre dans la page.
+       Pilotée par la POSITION de défilement (donc réversible : on remonte
+       en haut, elle revient), sur le pilote commun. Rien à faire sous
+       no-motion — l'élément est alors simplement affiché, et il n'y a pas
+       de mal à le laisser : il ne recouvre rien et le CSS le masque en
+       dessous de 720 px. — */
+  function heroHint() {
+    var hint = document.querySelector('.hs-hint');
+    if (!hint) return;
+    var hero = hint.closest ? hint.closest('.hs-hero') : null;
+    function cl01(v) { return v < 0 ? 0 : (v > 1 ? 1 : v); }
+    addScrollSub(function (y, vh) {
+      /* PIÈGE : un style inline bat le gating CSS de l'entrée
+         (`html:not(.no-anim) .hs-hero .hs-hint{opacity:0}`). Tant que le
+         héros n'est pas `.lit`, on n'écrit RIEN — sinon l'invite
+         s'allumait par-dessus l'intro cinématique. Même famille que le
+         `pointer-events` de #hero-bg qui reprenait celui de #sheet. */
+      if (hero && !hero.classList.contains('lit')) {
+        if (hint.style.opacity) hint.style.opacity = '';
+        return true;
+      }
+      /* éteinte sur le premier dixième d'écran parcouru : le geste est
+         fait, l'invite n'a plus lieu d'être */
+      var o = 1 - cl01(y / (vh * 0.1));
+      hint.style.opacity = o.toFixed(3);
+      return true;
+    });
+  }
+
   function init() {
     window.__homeReady = true;   // désarme le filet inline de index.html
     scroller = document.querySelector('.hw');
@@ -1758,6 +1787,7 @@
     try { magneticButtons(); } catch (e) { /* non bloquant */ }
     try { communeScrub(); } catch (e) { /* non bloquant */ }
     try { closerCandle(); } catch (e) { /* non bloquant */ }
+    try { heroHint(); } catch (e) { /* non bloquant */ }
     /* timelineStrip() et libraryScrub() sont appelés par catalogue(),
        une fois les cartes du catalogue réellement rendues */
   }

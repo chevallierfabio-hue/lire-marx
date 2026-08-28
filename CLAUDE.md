@@ -200,6 +200,26 @@ observable, et on croit à tort que le clic ne marche plus. Exposer
 temporairement `{enter, frame, getP, setP, getLocked}` sur `window`, avancer
 `frame()` en pas-à-pas, **et retirer la sonde avant le commit**.
 
+**L'invite à descendre (`.hs-hint`, `heroHint()` dans home.js).**
+L'accueil s'ouvre sur un héros plein écran et ne disait pas qu'il
+fallait faire défiler. L'invite reprend le vocabulaire des deux autres
+pages (filet vertical dégradé + « Faire défiler » en capitales
+espacées), au pied du héros ; son opacité est pilotée par la POSITION
+de défilement — éteinte sur le premier dixième d'écran, et elle revient
+si l'on remonte. Masquée sous 720 px (le héros y perd sa hauteur plein
+écran, et le geste va de soi). L'intro cinématique garde SA propre
+invite (« Cliquez ou faites défiler pour ouvrir la page ») : deux
+moments, deux invites.
+
+**Un style INLINE bat le gating CSS de l'entrée — piège de la même
+famille que le `pointer-events` de `#hero-bg`.** `heroHint()` écrivait
+`style.opacity` dès l'inscription de son abonné ; cet inline passe
+devant `html:not(.no-anim) .hs-hero .hs-hint{opacity:0}`, et l'invite
+s'allumait donc PAR-DESSUS l'intro cinématique. L'abonné n'écrit rien
+tant que `.hs-hero` n'a pas `.lit`, et efface l'inline sinon. Toute
+nouvelle fonction qui pilote en inline une propriété par ailleurs gatée
+par `.lit` doit faire pareil.
+
 **Piège de spécificité sur l'entrée du héros — déjà tombé dedans une
 fois.** Les éléments du héros sont cachés par
 `html:not(.no-anim) .hs-hero .hs-left>*, html:not(.no-anim) .hs-hero .hs-right`
