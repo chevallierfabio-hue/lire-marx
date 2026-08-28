@@ -422,6 +422,29 @@
     liveTimer = setTimeout(function(){ liveEl.textContent = msg; }, 60);
   }
 
+  /* ══ Reprise de lecture ══
+     Il n'y en avait aucune : un rechargement ramenait à l'accueil, le
+     chapitre n'était pas rechargé et la position était perdue — alors que
+     les annotations, elles, sont bien persistées. Le lecteur qui revenait
+     au chapitre XV devait refaire cinq gestes puis chercher son passage à
+     la main dans une section de trois chapitres.
+     Volontairement LOCAL et sans compte, comme les annotations. */
+  var RKEY = 'liremarx.resume.';
+  function resumeSet(workId, data){
+    if(!workId || !data) return;
+    try{
+      data.t = Date.now();
+      localStorage.setItem(RKEY + workId, JSON.stringify(data));
+    }catch(e){}
+  }
+  function resumeGet(workId){
+    try{
+      var v = localStorage.getItem(RKEY + workId);
+      return v ? JSON.parse(v) : null;
+    }catch(e){ return null; }
+  }
+  function resumeClear(workId){ try{ localStorage.removeItem(RKEY + workId); }catch(e){} }
+
   function buildSkip(){
     return el('<a class="skip-link" href="#contenu">Aller au contenu</a>');
   }
@@ -509,6 +532,7 @@
     S.announce = announce;
     S.tabs = wireTabs;
     S.setWorkTab = setWorkTab;
+    S.resume = { set: resumeSet, get: resumeGet, clear: resumeClear };
     var sidebar = buildSidebar(cfg);
     document.querySelector('header.topbar').after(sidebar);
     sidebar.after(buildBackdrop());

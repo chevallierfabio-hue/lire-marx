@@ -827,6 +827,53 @@ plus loin dans la cascade. Corriger à la source, pas dans le socle.
   captures noires sur un document très haut, `getComputedStyle` périmé que
   seul un `cloneNode` départage.
 
+### Architecture et placement (mission `ateliers-architecture`)
+
+Deuxième volet de la même demande, mené après l'accessibilité.
+
+- **Le seuil ne se franchit qu'une fois.** `body.at-inner` (posé par
+  `syncTabsA11y` dès que le panneau actif n'est pas `accueil`) replie le
+  héros de 406/483 px à **101 px** — fil d'Ariane + titre. Le `<h1>` reste
+  dans le document. Première ligne utile : y=589 → **y=165**.
+- **`body.at-reading`** (posé par `mountReader` de reader-tools, avec un
+  filet dans `attach()` de shell-annotations, et retiré par `syncTabsA11y`
+  quand on quitte `lire`) décolle les deux rangées d'onglets et masque le
+  héros : en lecture, la coquille est la **barre de lecture**, désormais
+  `sticky` sous la topbar. C'est aussi ce qui gate les deux pastilles de
+  notes, qui restaient visibles sur les neuf panneaux.
+- **Les deux rangées d'onglets sont collantes et de hauteur CONSTANTE.**
+  `#subnav` est toujours rendu, groupes à panneau unique compris :
+  l'escamoter faisait sauter la page de 63 px et déplaçait sous le curseur
+  la barre qu'on venait de cliquer. Ne pas réintroduire
+  `#subnav:has(...){display:none}`.
+- **État d'URL.** `syncTabsA11y` écrit `history.replaceState('#'+pid)` ;
+  `bootFromHash()` lit groupes ET panneaux. **Le panneau l'emporte sur le
+  groupe** : `lire`, `accueil` et `ressources` nomment les deux, et le
+  groupe renvoyait à sa page de garde. Un hash de panneau désigne aussi un
+  élément réel du document, donc le navigateur y saute — on remet en haut
+  juste après. Un deep-link `#note=` / `#s=` n'est jamais écrasé.
+- **Reprise de lecture** — `SHELL.resume.get/set/clear(workId)`,
+  localStorage, sans compte comme les annotations. Elle se fait au
+  **chapitre**, pas à la position en pixels : la liseuse recharge son HTML
+  à chaque ouverture, une position ne survivrait pas fidèlement, et une
+  reprise qui tombe à côté est pire que pas de reprise. La proposition
+  s'affiche dans la carte de démarrage (`#resumeSlot`) — **jamais de saut
+  d'office**. Sur manuscrits, `renderResume` vit dans l'IIFE de la page :
+  il est exposé en `window.renderResume` pour le rappel post-`installShell`,
+  qui est dans un autre bloc `<script>`.
+
+**Deux pièges de cascade rencontrés** : un override placé AVANT la règle de
+base dans la même feuille perd (`.rd-row` dans reader-tools.css — mettre les
+overrides en fin de fichier) ; et le pane sert parfois un CSS d'une édition
+en retard, ce qui fait croire qu'une règle ne s'applique pas — buster les
+`href` des `<link>` avant de conclure.
+
+**Reste à faire, volontairement non fait** : rendre cliquables les trois
+cartes « Trois idées pour entrer dans le livre » (aujourd'hui un cul-de-sac
+pédagogique). Il faut décider ÉDITORIALEMENT vers quoi chacune pointe —
+chapitre, glossaire ou instrument du laboratoire — et ce n'est pas à
+deviner.
+
 ### Ce qui reste hors périmètre
 
 Le détecteur signale encore 58 constats **esthétiques** — filet d'accent sur

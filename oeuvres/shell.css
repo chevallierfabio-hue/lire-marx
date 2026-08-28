@@ -223,8 +223,13 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
 /* Boutons flottants « Mes notes » + « Notes partagées » (empilés). */
 .notes-fab{position:fixed;right:18px;bottom:18px;z-index:95;font-family:var(--f-ui);font-weight:600;font-size:.84rem;color:var(--paper);background:var(--ink);border:0;border-radius:30px;padding:10px 16px;cursor:pointer;box-shadow:0 12px 32px rgba(0,0,0,.32);transition:background .15s,transform .15s;}
 .notes-fab:hover{background:var(--red);transform:translateY(-1px);}
-.notes-fab.notes-fab-pub{bottom:64px;background:var(--red);}
-.notes-fab.notes-fab-pub:hover{background:var(--red);}
+/* Les deux pastilles ne se distinguaient par AUCUN signe : même forme,
+   même taille, l'une sous l'autre. Le rouge plein appartient à l'action
+   primaire, pas à un compteur — et --paper sur --red ne donnait que
+   4,1:1. « Notes partagées » devient une pilule à contour. */
+.notes-fab.notes-fab-pub{bottom:64px;background:transparent;
+  color:var(--red-text,#e5644f);border:1px solid var(--red);}
+.notes-fab.notes-fab-pub:hover{background:rgba(213,64,47,.14);color:var(--red-text,#e5644f);}
 @media(max-width:560px){.notes-panel{right:8px;left:8px;bottom:70px;width:auto;}.notes-fab{right:12px;bottom:12px;font-size:.8rem;padding:9px 14px;}.notes-fab.notes-fab-pub{bottom:56px;}}
 
 /* ----- Forum public par passage (.pub-* + .pub-compose + .pub-flash) ----- */
@@ -290,3 +295,15 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
   font-size:.86rem;padding:10px 18px;border-radius:100px;text-decoration:none;
   box-shadow:0 8px 24px -8px rgba(0,0,0,.7);transition:transform .18s;}
 .skip-link:focus{transform:translateY(0);}
+
+
+/* ══ Les boutons de notes ne suivent plus le lecteur partout ══
+   Ils restaient visibles sur les NEUF panneaux — Ressources, Chronologie,
+   Explorations compris, où il n'y a rien à annoter. Deux affordances
+   permanentes, fausses huit fois sur neuf, dans le coin où l'œil retourne
+   le plus. Ils n'apparaissent qu'en mode lecture, quand un texte est
+   réellement monté. */
+.notes-fab{display:none;}
+body.at-reading .notes-fab{display:inline-flex;}
+/* Les deux pilules partagent enfin leur arête droite. */
+.notes-fab{right:18px;}

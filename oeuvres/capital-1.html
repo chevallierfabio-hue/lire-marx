@@ -944,6 +944,7 @@ nav.subnav{position:sticky;top:85px;z-index:61;background:var(--bg);
         <div class="cap-card-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><g class="s"><path d="M12 6.4C10 4.6 7.2 3.9 3.6 4.1v13.2c3.6-.2 6.4.5 8.4 2.3 2-1.8 4.8-2.5 8.4-2.3V4.1c-3.6-.2-6.4.5-8.4 2.3Z"/><path d="M12 6.4v13.2"/></g></svg></div>
         <div class="cap-card-title">Commencer la lecture</div>
         <div class="cap-card-desc">Le texte intégral du Livre I en 33 chapitres — traduction Joseph Roy (1872), revue par Marx, domaine public.</div>
+        <div id="resumeSlot"></div>
         <button class="cap-btn-dark" onclick="goLire(1,'I','La marchandise');window.scrollTo({top:0,behavior:'smooth'});">Lire →</button>
       </div>
       <!-- Carte 2 : Ton parcours -->
@@ -1558,6 +1559,23 @@ function syncGraphLabels(){
 document.addEventListener('input', function(e){
   if(e.target && e.target.type==='range') setTimeout(syncGraphLabels, 0);
 });
+/* ── Reprise de lecture : la carte de démarrage propose de repartir d'où
+   l'on s'est arrêté, plutôt que de renvoyer au chapitre I. On ne saute
+   JAMAIS d'office — c'est une proposition, pas une redirection. ── */
+function renderResume(){
+  var slot=document.getElementById('resumeSlot');
+  if(!slot||!window.SHELL||!SHELL.resume)return;
+  var r=SHELL.resume.get('capital-1');
+  if(!r||!r.sel){ slot.innerHTML=''; return; }
+  slot.innerHTML='<button class="cap-btn-dark" type="button" id="resumeBtn">Reprendre : chapitre '+r.num+' →</button>'
+    +'<button class="cap-btn-outline" type="button" id="resumeClr" style="margin-left:8px">Oublier</button>';
+  document.getElementById('resumeBtn').onclick=function(){
+    document.getElementById('chapSelect').value=r.sel;
+    showSelection(true);
+  };
+  document.getElementById('resumeClr').onclick=function(){ SHELL.resume.clear('capital-1'); renderResume(); };
+}
+
 /* ---- navigation onglets ---- */
 /* ── Sémantique d'onglets et repérage — voir SHELL.tabs dans shell.js ──
    Rejoué à chaque bascule parce que #subnav est reconstruit en innerHTML. */
@@ -2166,6 +2184,11 @@ async function showSelection(doScroll){
       +'<div class="rdr-mark-done-wrap" id="capMarkDoneWrap"></div>'
     +'</div>';
     if(window.SHELL&&SHELL.announce)SHELL.announce('Texte chargé : chapitre '+num+', '+title);
+    /* Reprise au CHAPITRE. La position fine dans le texte n'est pas
+       mémorisée : la liseuse recharge le HTML à chaque ouverture et une
+       position en pixels n'y survivrait pas de façon fiable — mieux vaut
+       pas de reprise du tout qu'une reprise qui tombe à côté. */
+    if(window.SHELL&&SHELL.resume) SHELL.resume.set('capital-1',{sel:n+'|'+num+'|'+title,num:num,title:title});
     updateCapMarkDone(gnum);
     installCapScrollTracker(out,gnum);
     if(doScroll)scrollToAnchor(out,title);
@@ -3089,6 +3112,7 @@ installShell({
 (function(){
   var p=document.querySelector('.panel.active');
   if(p&&typeof syncTabsA11y==='function')syncTabsA11y(p.id);
+  if(typeof renderResume==='function')renderResume();
 })();
 // Le bouton « Confidentialité & données » du pied de page ouvre la modale RGPD
 // fournie par SHELL.auth (shell.js).

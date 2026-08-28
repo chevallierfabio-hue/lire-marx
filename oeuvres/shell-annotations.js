@@ -886,6 +886,10 @@
     curSection = section;
     curLabel = label;
     box = container;
+    /* Filet : le mode lecture est normalement posé par reader-tools au
+       montage de sa barre. Une liseuse déclarée sans lui laisserait les
+       deux pastilles de notes invisibles — c'est le CSS qui les gate. */
+    if(container.getClientRects().length) document.body.classList.add('at-reading');
     ensureFab();
     ensurePubFab();
     // setTimeout(0) : laisse la page hôte finir ses mises à jour DOM

@@ -367,6 +367,7 @@ nav.subnav{position:sticky;top:85px;z-index:61;background:var(--bg);
         <div class="cap-card-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><g class="s"><path d="M12 6.4C10 4.6 7.2 3.9 3.6 4.1v13.2c3.6-.2 6.4.5 8.4 2.3 2-1.8 4.8-2.5 8.4-2.3V4.1c-3.6-.2-6.4.5-8.4 2.3Z"/><path d="M12 6.4v13.2"/></g></svg></div>
         <div class="cap-card-title">Commencer la lecture</div>
         <div class="cap-card-desc">Le texte intégral des trois manuscrits — traduction J.-M. Palmier, domaine public.</div>
+        <div id="resumeSlot"></div>
         <button class="cap-btn-dark" onclick="activateTab('lire');document.getElementById('partSelect').value='2';loadPart(2);window.scrollTo({top:0,behavior:'smooth'});">Lire →</button>
       </div>
       <div class="cap-card">
@@ -762,6 +763,26 @@ nav.subnav{position:sticky;top:85px;z-index:61;background:var(--bg);
     ]}
   ];
 
+/* ── Reprise de lecture : la carte de démarrage repart d'où l'on s'est
+   arrêté. C'est une proposition, jamais une redirection d'office. ── */
+function renderResume(){
+  var slot=document.getElementById('resumeSlot');
+  if(!slot||!window.SHELL||!SHELL.resume)return;
+  var r=SHELL.resume.get('manuscrits-1844');
+  if(!r||r.i==null){ slot.innerHTML=''; return; }
+  slot.innerHTML='<button class="cap-btn-dark" type="button" id="resumeBtn">Reprendre : '+r.title+' →</button>'
+    +'<button class="cap-btn-outline" type="button" id="resumeClr" style="margin-left:8px">Oublier</button>';
+  document.getElementById('resumeBtn').onclick=function(){
+    window.activateTab('lire');
+    document.getElementById('partSelect').value=String(r.i);
+    loadPart(r.i);
+  };
+  document.getElementById('resumeClr').onclick=function(){ SHELL.resume.clear('manuscrits-1844'); renderResume(); };
+}
+/* Tout le script de la page vit dans une IIFE : le rappel qui suit
+   installShell est dans un AUTRE bloc <script> et n'y verrait rien. */
+window.renderResume = renderResume;
+
 /* ── Sémantique d'onglets et repérage — voir SHELL.tabs dans shell.js ──
    Rejoué à chaque bascule parce que #subnav est reconstruit en innerHTML. */
 function panelLabel(pid){
@@ -930,6 +951,9 @@ function syncTabsA11y(pid){
       .then(function(html){
         byId('readerContent').innerHTML=cleanLocalHtml(html)||'<div class="reader-error" role="alert"><b>Texte introuvable.</b><p>Le fichier local a été chargé, mais son contenu n’a pas pu être extrait.</p></div>';
         if(window.SHELL&&SHELL.announce)SHELL.announce('Texte chargé : '+(parts[i]&&parts[i].title||''));
+        /* Reprise au MANUSCRIT — pas à la position en pixels, que le
+           rechargement du HTML ne restituerait pas fidèlement. */
+        if(window.SHELL&&SHELL.resume) SHELL.resume.set('manuscrits-1844',{i:i,title:(parts[i]&&parts[i].title)||''});
         // Injecter le bouton mark-done (manuscrits 2-4 seulement)
         if(i>=2 && i<=4){
           var wrap=document.createElement('div');
@@ -1532,6 +1556,7 @@ installShell({
 (function(){
   var p=document.querySelector('.panel.active');
   if(p&&typeof syncTabsA11y==='function')syncTabsA11y(p.id);
+  if(typeof renderResume==='function')renderResume();
 })();
 </script>
 </body>
