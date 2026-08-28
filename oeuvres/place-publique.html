@@ -274,13 +274,17 @@ html.pp-anim.pp-lit .pp-head{
 
 /* 1. l'auteur d'abord — un forum se lit par ses voix */
 .fl-top{display:flex;flex-wrap:wrap;align-items:center;gap:6px 9px;margin-bottom:8px;}
-.fl-seal{flex:0 0 auto;width:26px;height:26px;
+.fl-seal{flex:0 0 auto;width:26px;height:26px;position:relative;overflow:hidden;
   border-radius:48% 52% 50% 46%;transform:rotate(-7deg);
   display:flex;align-items:center;justify-content:center;
   font-family:'Fraunces',serif;font-weight:700;font-size:.6rem;
   color:rgba(255,240,214,.92);
   box-shadow:inset 0 1px 2px rgba(255,255,255,.3),
     inset 0 -2px 3px rgba(0,0,0,.32),0 1px 2px rgba(0,0,0,.35);}
+/* la photo de profil couvre le cachet ; l'initiale reste dessous en
+   repli si l'image ne charge pas */
+.fl-seal img,.ct-seal img{position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;transform:rotate(7deg) scale(1.15);}
 .fl-name{font-family:'Caveat',cursive;font-weight:700;
   font-size:1.24rem;line-height:1;color:var(--enc);}
 .fl-meta{font-family:var(--f-ui);font-size:.58rem;font-weight:600;
@@ -453,6 +457,11 @@ html.pp-anim.pp-lit .pp-head{
   text-transform:uppercase;color:var(--const);text-shadow:0 1px 10px rgba(0,0,0,.95);}
 .pt-tag .tg-q{margin-top:5px;font-family:'Spectral',Georgia,serif;font-style:italic;
   font-size:.85rem;color:var(--gold);text-shadow:0 1px 12px rgba(0,0,0,.95);}
+.pt-tag .tg-ava{width:36px;height:36px;border-radius:50%;object-fit:cover;
+  border:2px solid rgba(216,173,76,.55);box-shadow:0 2px 14px rgba(0,0,0,.8);
+  margin-bottom:5px;}
+.pt-tag .tg-a{margin-top:6px;font:600 .58rem/1 var(--f-ui);letter-spacing:.16em;
+  text-transform:uppercase;color:var(--const);text-shadow:0 1px 10px rgba(0,0,0,.95);}
 
 /* Le rail : une entrée par œuvre, pour sauter le long de la table */
 .pt-rail{position:fixed;z-index:11;left:50%;bottom:0;transform:translateX(-50%);
@@ -497,7 +506,8 @@ html.pp-anim.pp-lit .pp-head{
   color:var(--ink);font-size:1.25rem;line-height:1;cursor:pointer;}
 .pt-x:hover{border-color:var(--gold);}
 .ct-top{display:flex;align-items:center;gap:9px;margin-bottom:4px;padding-right:30px;}
-.ct-seal{flex:0 0 auto;width:28px;height:28px;border-radius:48% 52% 50% 46%;
+.ct-seal{flex:0 0 auto;width:30px;height:30px;border-radius:48% 52% 50% 46%;
+  position:relative;overflow:hidden;
   transform:rotate(-7deg);display:flex;align-items:center;justify-content:center;
   font-family:'Fraunces',serif;font-weight:700;font-size:.62rem;
   color:rgba(255,240,214,.92);
@@ -621,9 +631,9 @@ html.pp-anim.pp-lit .pp-head{
      (leçon d'accessibilité de la bibliothèque). Seule l'étiquette de
      survol, redondante avec la fiche, est masquée aux lecteurs. -->
 <div class="pt-ui pt-intro" id="ptIntro">
-  <div class="pt-label">Lire Marx</div>
+  <div class="pt-label">Lire Marx — le forum des lecteurs</div>
   <p class="pt-h1">Place publique</p>
-  <p class="pt-lede">La table commune des lecteurs&nbsp;: chaque feuillet posé là est une note laissée dans un texte&nbsp;— soulevez-en un pour lire le fil, et répondez.</p>
+  <p class="pt-lede">Chaque feuillet posé sur la table est une discussion ouverte dans un texte&nbsp;: soulevez-en un pour lire le fil, et répondez-y.</p>
   <p class="pt-count" id="ptCount"></p>
   <div class="pt-alt"><button type="button" id="ptToFlat">Préférer la version liste</button></div>
 </div>
@@ -733,6 +743,11 @@ installShell({
   function seal(n){
     return SEALS[(((+n || 1) - 1) % 4 + 4) % 4];
   }
+  /* la photo de profil par-dessus le cachet — l'initiale reste le repli */
+  function avaImg(note){
+    var u = note.profiles && note.profiles.avatar_url;
+    return u ? '<img src="' + esc(u) + '" alt="" loading="lazy">' : '';
+  }
   function uid(){
     try { if(window.crypto && crypto.randomUUID) return crypto.randomUUID(); } catch(e){}
     return 'a' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
@@ -777,12 +792,12 @@ installShell({
     var c = await auth.getClient();
     if(!c) return { mode: 'no-client' };
     var rt = await c.from('public_notes')
-      .select('id,author_id,work,section,quote,body,parent_id,created,profiles(username)')
+      .select('id,author_id,work,section,quote,body,parent_id,created,profiles(username,avatar_url)')
       .eq('hidden', false).is('parent_id', null)
       .order('created', { ascending: false }).limit(200);
     if(rt.error) throw rt.error;
     var rr = await c.from('public_notes')
-      .select('id,author_id,work,section,body,parent_id,created,profiles(username)')
+      .select('id,author_id,work,section,body,parent_id,created,profiles(username,avatar_url)')
       .eq('hidden', false).not('parent_id', 'is', null)
       .order('created', { ascending: true }).limit(800);
     if(rr.error) throw rr.error;
@@ -819,7 +834,8 @@ installShell({
     return (
       '<article class="fl" data-id="' + esc(note.id) + '" data-work="' + esc(w.id) + '">' +
         '<div class="fl-top">' +
-          '<span class="fl-seal" style="background:' + seal(note.section) + '">' + esc(initials(name)) + '</span>' +
+          '<span class="fl-seal" style="background:' + seal(note.section) + '">' + esc(initials(name)) +
+            avaImg(note) + '</span>' +
           '<span class="fl-name">' + esc(name) + '</span>' +
           '<span class="fl-meta">' + esc(title + sec) + '</span>' +
           '<span class="fl-when">' + esc(ago(note.created)) + '</span>' +
@@ -1175,6 +1191,22 @@ installShell({
        texte principal (hiérarchie voulue) ; le passage cité tient en une
        ligne italique de contexte. Tons et pose déterministes par id. */
     var TONES = ['#e8dab9', '#dccc9f', '#e3d0a4', '#d5c193'];
+    /* Les photos de profil, chargées UNE fois par URL et dessinées dans
+       la texture du feuillet. crossOrigin obligatoire : un canvas
+       terni par une image sans CORS ferait échouer l'upload WebGL —
+       si l'image ne se charge pas ainsi, le cachet reste. */
+    var AVA_CACHE = {};
+    function avaFor(note, onReady){
+      var u = note.profiles && note.profiles.avatar_url;
+      if(!u) return;
+      var c = AVA_CACHE[u];
+      if(c){ if(c.ok && onReady) onReady(); return; }
+      c = AVA_CACHE[u] = { ok: false, img: null };
+      var im = new Image();
+      im.crossOrigin = 'anonymous';
+      im.onload = function(){ c.ok = true; c.img = im; if(onReady) onReady(); };
+      im.src = u;
+    }
     function sheetTexture(note){
       var W = 256, H = 340;
       var cv = document.createElement('canvas'); cv.width = W; cv.height = H;
@@ -1194,13 +1226,26 @@ installShell({
       var title = (w.meta && w.meta.title) || 'Œuvre';
       var sec = (note.section != null && note.section !== '') ? (' · sect. ' + note.section) : '';
       g.textAlign = 'left'; g.textBaseline = 'alphabetic';
-      /* la signature en tête — un forum se lit par ses voix */
+      /* la signature en tête — un forum se lit par ses voix ; la photo
+         du rédacteur, quand il en a une, prend la place du cachet */
+      var avU = note.profiles && note.profiles.avatar_url;
+      var avC = avU && AVA_CACHE[avU];
+      var tx = 18;
+      if(avC && avC.ok){
+        g.save();
+        g.beginPath(); g.arc(35, 34, 17, 0, 7); g.closePath(); g.clip();
+        g.drawImage(avC.img, 18, 17, 34, 34);
+        g.restore();
+        g.strokeStyle = 'rgba(58,42,22,.55)'; g.lineWidth = 1.4;
+        g.beginPath(); g.arc(35, 34, 17, 0, 7); g.stroke();
+        tx = 60;
+      }
       g.fillStyle = 'rgba(30,17,4,.92)';
       g.font = '700 27px Caveat, cursive';
-      g.fillText(name, 18, 38);
+      g.fillText(name, tx, 38);
       g.fillStyle = 'rgba(58,42,22,.85)';
       g.font = '600 11px Inter, sans-serif';
-      g.fillText((title + sec).toUpperCase(), 18, 58);
+      g.fillText((title + sec).toUpperCase(), tx, 58);
       g.strokeStyle = 'rgba(30,17,4,.35)'; g.lineWidth = 1;
       g.beginPath(); g.moveTo(18, 68); g.lineTo(W - 18, 68); g.stroke();
       var y = 92;
@@ -1216,7 +1261,7 @@ installShell({
       g.fillStyle = 'rgba(58,42,22,.8)';
       g.font = '600 11px Inter, sans-serif';
       g.fillText(reps.length
-        ? (reps.length + ' RÉPONSE' + (reps.length > 1 ? 'S' : '')).toUpperCase()
+        ? reps.length + ' RÉPONSE' + (reps.length > 1 ? 'S' : '') + ' — SOULEVEZ POUR RÉPONDRE'
         : 'RÉPONDRE — SOULEVEZ LE FEUILLET', 18, H - 18);
       return tex(cv);
     }
@@ -1498,6 +1543,10 @@ installShell({
           m.material.map = sheetTexture(note);
           m.material.needsUpdate = true;
         });
+        avaFor(note, function(){
+          m.material.map = sheetTexture(note);
+          m.material.needsUpdate = true;
+        });
       });
     });
     /* la scène répercute une réponse postée depuis la fiche : la
@@ -1532,8 +1581,11 @@ installShell({
     })();
 
     /* ── Le travelling ── */
-    var CAMY = 2.3, CAMZ = 3.15, LOOKZ = -0.32, LEAD = 1.05;
-    var TFOV = 46, EST_FOV = 70, WIDE_Y = 4.3;
+    /* Le travelling lit par-dessus l'épaule : caméra plus HAUTE et plus
+       PROCHE du bord (plongée ~55°) — à l'oblique d'avant, l'encre des
+       feuillets ne se lisait pas (retour du propriétaire). */
+    var CAMY = 3.0, CAMZ = 1.78, LOOKZ = -0.26, LEAD = 0.8;
+    var TFOV = 44, EST_FOV = 70, WIDE_Y = 4.3;
     var zFar = 12, sbShift = 0, x0 = 1, x1 = 2;
     var T_IN = 0.14, T_TRAVEL = 0.9;
 
@@ -1688,11 +1740,14 @@ installShell({
         var name = (note.profiles && note.profiles.username) || 'anonyme';
         var w = workOf(note);
         var reps = repsBy[note.id] || [];
+        var ava = note.profiles && note.profiles.avatar_url;
         elTag.innerHTML =
+          (ava ? '<img class="tg-ava" src="' + esc(ava) + '" alt="">' : '') +
           '<div class="tg-t">' + esc(name) + '</div>' +
           '<div class="tg-m">' + esc(((w.meta && w.meta.title) || 'Œuvre') + ' · ' + ago(note.created) +
             (reps.length ? ' · ' + reps.length + ' rép.' : '')) + '</div>' +
-          (note.body ? '<div class="tg-q">' + esc(trunc(note.body, 70)) + '</div>' : '');
+          (note.body ? '<div class="tg-q">' + esc(trunc(note.body, 70)) + '</div>' : '') +
+          '<div class="tg-a">cliquer&nbsp;: lire le fil · répondre</div>';
       }
       elTag.style.opacity = mesh ? 1 : 0;
     }
@@ -1726,7 +1781,8 @@ installShell({
       var sec = (note.section != null && note.section !== '') ? (' · section ' + note.section) : '';
       elCartelIn.innerHTML =
         '<div class="ct-top">' +
-          '<span class="ct-seal" style="background:' + seal(note.section) + '">' + esc(initials(name)) + '</span>' +
+          '<span class="ct-seal" style="background:' + seal(note.section) + '">' + esc(initials(name)) +
+            avaImg(note) + '</span>' +
           '<span class="ct-name">' + esc(name) + '</span>' +
         '</div>' +
         '<div class="ct-meta">' + esc(title + sec + ' · ' + ago(note.created)) + '</div>' +

@@ -1021,6 +1021,19 @@ reste la version des lecteurs d'écran — c'est LUI qui porte filtres et
   TOMBENT se ranger l'un après l'autre — c'est la réponse à la
   demande « des feuillets qui s'animent comme sur l'accueil ».
   Temporelle et jouée une fois ; le reste du mouvement est du scrub.
+- **La caméra du travelling lit par-dessus l'épaule** (CAMY 3.0,
+  CAMZ 1.78, plongée ~55°) : à l'oblique d'origine l'encre ne se
+  lisait pas — retour du propriétaire, ne pas raplatir.
+- **Les photos de profil** (`profiles.avatar_url`) sont partout : dans
+  l'encre du feuillet 3D (cache par URL, `crossOrigin='anonymous'`
+  OBLIGATOIRE — un canvas terni ferait échouer l'upload WebGL ; si le
+  CORS échoue, le cachet d'initiales reste), sur le cachet du registre
+  et de la fiche (`avaImg()`, img par-dessus l'initiale, motif
+  `avaHtml` du shell), et dans l'étiquette de survol.
+- **Le forum se dit partout** : label « le forum des lecteurs »,
+  lede « une discussion ouverte… répondez-y », pied de feuillet
+  « N réponses — soulevez pour répondre », étiquette « cliquer :
+  lire le fil · répondre ».
 - **Survol** = le feuillet se soulève (outT easé) + étiquette
   projetée ; **clic** = la caméra vient se poser devant (scrollToX —
   le pilotage reste le défilement) et la FICHE s'ouvre
