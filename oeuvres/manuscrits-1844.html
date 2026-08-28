@@ -35,7 +35,7 @@
 .cap-breadcrumb a{color:var(--muted);text-decoration:none;transition:color .15s;}
 .cap-breadcrumb a:hover{color:var(--ink);}
 .cap-badge{display:inline-flex;font-size:.7rem;font-weight:700;letter-spacing:.1em;
-  text-transform:uppercase;color:var(--accent);background:rgba(213,64,47,.10);
+  text-transform:uppercase;color:var(--red-text);background:rgba(213,64,47,.10);
   border:1px solid rgba(213,64,47,.24);border-radius:999px;padding:4px 12px;margin-bottom:16px;}
 .cap-h1{font-family:'Fraunces',serif;font-weight:900;
   font-size:clamp(2.1rem,4.6vw,3.1rem);letter-spacing:-.025em;
@@ -53,7 +53,7 @@
 .cap-cover::after{content:'';position:absolute;inset:0;
   background:rgba(213,64,47,.20);mix-blend-mode:multiply;pointer-events:none;}
 .cap-cover-caption{position:absolute;bottom:0;left:0;right:0;
-  padding:26px 12px 10px;font-size:10px;letter-spacing:.06em;text-transform:uppercase;
+  padding:26px 12px 10px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;
   color:rgba(247,245,240,.52);
   background:linear-gradient(to top,rgba(23,22,20,.65),transparent);
   font-family:var(--f-ui);}
@@ -96,7 +96,7 @@ nav.tabs.cap-tabs-bar .tab .num{display:none;}
   font-family:var(--f-ui);}
 .cap-btn-outline:hover{border-color:rgba(243,233,212,.32);background:rgba(243,233,212,.06);}
 /* ── Trois idées ── */
-.cap-section-label{font-size:.68rem;font-weight:700;letter-spacing:.22em;
+.cap-section-label{font-size:.72rem;font-weight:700;letter-spacing:.22em;
   text-transform:uppercase;color:var(--muted);margin-bottom:16px;
   display:block;font-family:var(--f-ui);}
 .cap-ideas-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:36px;}
@@ -112,7 +112,7 @@ nav.tabs.cap-tabs-bar .tab .num{display:none;}
   background:radial-gradient(ellipse at 40% 30%,rgba(213,64,47,.22) 0%,transparent 60%);}
 .cap-idea-body{padding:18px 18px 16px;}
 .cap-idea-title{font-family:'Fraunces',serif;font-weight:700;font-size:1rem;
-  line-height:1.25;color:var(--ink);margin-bottom:7px;letter-spacing:-.01em;}
+  line-height:1.32;color:var(--ink);margin-bottom:7px;letter-spacing:-.01em;}
 .cap-idea-desc{font-size:.84rem;line-height:1.55;color:var(--ink-soft);font-family:'Spectral',Georgia,serif;}
 /* ── Blocs d'action ── */
 .cap-actions-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:4px;}
@@ -123,7 +123,7 @@ nav.tabs.cap-tabs-bar .tab .num{display:none;}
   transform:translate(-50%,-50%);
   background:radial-gradient(ellipse at center,rgba(216,173,76,.16) 0%,transparent 65%);pointer-events:none;}
 .cap-action-light{background:var(--surface);border:1px solid var(--line);}
-.cap-action-eyebrow{font-size:.68rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;
+.cap-action-eyebrow{font-size:.72rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;
   margin-bottom:10px;display:block;font-family:var(--f-ui);}
 .cap-action-dark .cap-action-eyebrow{color:var(--gold);}
 .cap-action-light .cap-action-eyebrow{color:var(--muted);}
@@ -145,7 +145,7 @@ nav.tabs.cap-tabs-bar .tab .num{display:none;}
 .atl-header-body{display:flex;align-items:flex-start;justify-content:space-between;gap:40px;position:relative;z-index:1;}
 .atl-h1{font-family:'Fraunces',serif;font-weight:900;font-size:clamp(2.2rem,5vw,3.4rem);
   letter-spacing:-.025em;color:var(--text);line-height:1.02;}
-.atl-h1 em{font-style:italic;font-weight:500;color:var(--accent);}
+.atl-h1 em{font-style:italic;font-weight:500;color:var(--red-text);}
 .atl-prog-widget{flex:none;text-align:right;min-width:180px;}
 .atl-pct{font-family:'Fraunces',serif;font-weight:900;font-size:3.2rem;
   letter-spacing:-.04em;color:var(--text);line-height:1;}
@@ -154,7 +154,7 @@ nav.tabs.cap-tabs-bar .tab .num{display:none;}
 .atl-bar-fill{height:100%;border-radius:999px;background:var(--accent);transition:width .55s cubic-bezier(.16,1,.3,1);width:0%;}
 .atl-count{font-size:.76rem;color:var(--muted);font-family:var(--f-ui);}
 #man-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;align-items:start;}
-.atl-grid-sec{grid-column:1/3;font-size:.67rem;font-weight:700;letter-spacing:.22em;
+.atl-grid-sec{grid-column:1/3;font-size:.72rem;font-weight:700;letter-spacing:.22em;
   text-transform:uppercase;color:var(--muted);padding:16px 0 8px;border-bottom:1px solid var(--line);}
 .atl-card{border-radius:18px;padding:20px 20px 18px;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s;}
 .atl-card.atl-done{background:var(--surface);cursor:pointer;border:1px solid transparent;}
@@ -171,18 +171,18 @@ nav.tabs.cap-tabs-bar .tab .num{display:none;}
 .atl-done .atl-card-ind svg{width:15px;height:15px;stroke:#fff;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;}
 .atl-current .atl-card-ind{border:2px solid var(--accent);}
 .atl-current .atl-card-ind span,.atl-upcoming .atl-card-ind span{font-family:'Fraunces',serif;font-weight:700;font-size:.9rem;}
-.atl-current .atl-card-ind span{color:var(--accent);}
+.atl-current .atl-card-ind span{color:var(--red-text);}
 .atl-upcoming .atl-card-ind{border:1.5px solid rgba(243,233,212,.20);}
 .atl-upcoming .atl-card-ind span{color:var(--muted);}
 .atl-card-chap{font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;}
 .atl-done .atl-card-chap,.atl-upcoming .atl-card-chap{color:var(--muted);}
 .atl-current .atl-card-chap{color:var(--muted);}
-.atl-card-title{font-family:'Fraunces',serif;font-weight:700;line-height:1.22;margin-bottom:8px;}
+.atl-card-title{font-family:'Fraunces',serif;font-weight:700;line-height:1.3;margin-bottom:8px;}
 .atl-done .atl-card-title,.atl-upcoming .atl-card-title{font-size:1rem;color:var(--text);}
 .atl-current .atl-card-title{font-size:1.28rem;color:var(--text);}
 .atl-card-status{font-size:.7rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;}
 .atl-done .atl-card-status{color:var(--ok);}
-.atl-current .atl-card-status{color:var(--accent);}
+.atl-current .atl-card-status{color:var(--red-text);}
 .atl-card-foot{display:flex;align-items:center;justify-content:space-between;margin-top:18px;gap:12px;}
 .atl-card-sim{font-size:.76rem;font-style:italic;color:var(--muted);}
 .atl-continue{font-family:var(--f-ui);font-size:.8rem;font-weight:700;
@@ -196,22 +196,22 @@ nav.tabs.cap-tabs-bar .tab .num{display:none;}
 .atl-done .atl-done-toggle:hover{color:var(--muted);}
 .atl-upcoming .atl-done-toggle{display:none;}
 /* ── Ressources ── */
-.rss-section-label{font-size:.67rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;
+.rss-section-label{font-size:.72rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;
   color:var(--muted);margin-bottom:14px;display:block;font-family:var(--f-ui);padding-top:4px;}
 .rss-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:36px;}
 .rss-card{display:flex;flex-direction:column;gap:8px;background:var(--surface);border-radius:16px;
   padding:18px 20px;text-decoration:none;color:inherit;border:1px solid transparent;
   transition:transform .2s,box-shadow .2s;position:relative;}
 .rss-card:hover{transform:translateY(-3px);box-shadow:0 14px 34px -12px rgba(0,0,0,.65);border-color:rgba(243,233,212,.16);}
-.rss-badge{font-size:.67rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
-  color:var(--accent);font-family:var(--f-ui);}
-.rss-title{font-family:'Fraunces',serif;font-weight:700;font-size:.97rem;line-height:1.28;color:var(--text);}
+.rss-badge{font-size:.72rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--red-text);font-family:var(--f-ui);}
+.rss-title{font-family:'Fraunces',serif;font-weight:700;font-size:.97rem;line-height:1.32;color:var(--text);}
 .rss-meta{font-size:.79rem;color:var(--muted);font-family:var(--f-ui);line-height:1.4;}
 /* ── Overrides ── */
 .anno-hint{font-family:var(--f-ui);font-size:.84rem;color:var(--muted);line-height:1.55;margin-bottom:14px;font-style:normal;}
 .anno-hint b{color:var(--text);font-style:normal;font-weight:600;}
-.reader.theme-dark .rd-btn.on{background:var(--accent);color:var(--bg);border-color:var(--accent);}
-.reader.theme-dark .rd-seg button.on{background:var(--accent);color:var(--bg);}
+.reader.theme-dark .rd-btn.on{background:var(--accent);color:#fff;border-color:var(--accent);}
+.reader.theme-dark .rd-seg button.on{background:var(--accent);color:#fff;}
 /* Reader body paper theme */
 .reader.theme-paper .ws-text p,.reader.theme-paper .ws-text dd{color:var(--text);}
 /* ── Responsive ── */
@@ -267,7 +267,7 @@ nav.tabs.cap-tabs-bar .tab .num{display:none;}
 .cap-cover-caption{position:absolute;bottom:0;left:0;right:0;z-index:1;}
 @media(max-width:740px){
   .cap-cover-caption{position:static;background:none;padding:8px 0 0;
-    color:var(--muted);font-size:9.5px;line-height:1.45;letter-spacing:.05em;}
+    color:var(--muted);font-size:11px;line-height:1.45;letter-spacing:.05em;}
 }
 </style>
 <script type="application/ld+json">

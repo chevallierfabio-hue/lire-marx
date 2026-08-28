@@ -41,7 +41,7 @@
 .rd-pop{margin-top:12px;border:1px solid var(--line);background:var(--card);border-radius:10px;padding:14px 16px;}
 .reader.theme-dark .rd-pop{background:#26211b;border-color:#473c30;}
 .rd-pop[hidden]{display:none;}
-.rd-pop h5{font-family:'Fraunces',serif;font-size:.74rem;letter-spacing:.16em;text-transform:uppercase;color:var(--red);margin:0 0 10px;font-weight:600;}
+.rd-pop h5{font-family:'Fraunces',serif;font-size:.74rem;letter-spacing:.16em;text-transform:uppercase;color:var(--red-text,#e5644f);margin:0 0 10px;font-weight:600;}
 .rd-setrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:11px;}
 .rd-setrow > span.lab{min-width:104px;font-size:.82rem;color:var(--ink-soft);font-style:italic;}
 .reader.theme-dark .rd-setrow > span.lab{color:#b6aa94;}

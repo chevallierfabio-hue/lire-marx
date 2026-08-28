@@ -745,6 +745,100 @@ sombre (texte foncé sur crème = fort contraste) : le bandeau de chapitre
 `.rdr-header` n'a été repéré qu'à l'œil.
 
 
+## Les pages d'atelier — accessibilité (mission `ateliers-accessibilite`)
+
+Mission demandée après le socle sombre : « c'est l'endroit où les
+utilisateurs vont passer le plus de temps, il faut une UI UX parfaite, une
+accessibilité parfaite, et retravailler la position des éléments. »
+**Ce commit ne traite que l'accessibilité** — le propriétaire a arbitré
+l'ordre. L'architecture et le placement (héros qui se replie, navigation
+unifiée, état d'URL, barre de lecture collante, reprise de lecture) restent
+à faire dans une mission dédiée, et le diagnostic est déjà écrit :
+`.impeccable/critique/` (16/40 aux heuristiques de Nielsen, non versionné).
+
+**Arbitrages du propriétaire, à ne pas rouvrir sans lui :**
+1. **Wikisource reste la source du texte intégral.** Les 33 fichiers
+   `oeuvres/capital-1/textes/ch*.html` totalisent **21 000 mots** quand le
+   Livre I en fait ~300 000 : ce sont des **abrégés à ~7 %**, malgré leur
+   mention « Chapitre intégral ». `CHAP_AVAIL`/`CHAP_BASE`/`CHAP_CACHE`
+   (capital-1.html:1681) décrivent la bonne architecture et ne sont appelés
+   nulle part — **ne pas les brancher** : ça remplacerait le texte intégral
+   par une anthologie sous un onglet nommé « Texte intégral ».
+2. **Les correctifs vont jusque dans le shell**, partagé par les quatre
+   pages. Toute retouche du shell impose de revérifier accueil,
+   bibliothèque et Place publique.
+3. **Les 33 chapitres de « Parcourir » sont tous cliquables** : lu / en
+   cours / à lire est un STATUT, pas un verrou.
+
+### Le socle (atelier.css + shell.css + shell.js)
+
+- `SHELL.announce(msg)` et `#srStatus` — **aucune page du site n'avait la
+  moindre région live**. Le fetch de 8 s du texte intégral, les erreurs
+  d'authentification, le nombre de résultats de recherche et les filtres
+  changeaient tous en silence. Y passer tout nouveau changement d'état.
+- `SHELL.tabs(list, getPanelId)` — pose tablist/tab/tabpanel, le tabindex
+  roulant et les flèches. **Réentrant**, parce que `#subnav` est reconstruit
+  en innerHTML à chaque bascule. `getPanelId` vient de la page : `data-top`
+  désigne un GROUPE dont le panneau courant varie, `data-panel` un panneau.
+  **Le bloc d'onglets s'initialise AVANT le chargement de shell.js** : les
+  pages rejouent `syncTabsA11y` après `installShell`, sinon la barre haute
+  reste nue au premier rendu.
+- `SHELL.setWorkTab(id)` — `.on` + `aria-current` sur l'entrée d'œuvre.
+- `SHELL.auth._enterModal / _leaveModal` — focus initial, piège Tab,
+  `inert` sur topbar/sidebar/main/footer, restauration au déclencheur.
+- **`.skip-link` et `.sr-only` vivent dans `shell.css`, PAS dans
+  `atelier.css`** : ils sont injectés par shell.js, et l'accueil — qui ne
+  charge pas atelier.css — affichait sinon le lien d'évitement en clair en
+  haut à gauche. Piège rencontré et corrigé en cours de mission.
+
+### Les tokens de couleur, et pourquoi il y en a deux rouges
+
+`--red` (#d5402f) plafonne à **4,14:1** sur `--bg` et 3,76:1 sur `--card` :
+il ne peut porter **aucun texte** sous 18,66 px (WCAG 1.4.3 exige 4,5:1).
+Il reste aux **fonds** et aux **traits**, où 3:1 suffit.
+**Tout texte rouge passe par `--red-text` (#e5644f, 5,64:1)** — 37 règles
+repointées. Symétriquement, du texte SOMBRE sur un aplat `--red` ne donne
+que 4,1:1 : sur un fond rouge c'est le **blanc** qui passe (4,56:1). Les
+deux erreurs sont inverses, ne pas corriger l'une en créant l'autre.
+`--line-strong` (34 % de crème, ~3,1:1) pour toute bordure qui IDENTIFIE un
+contrôle (1.4.11) ; `--line` reste aux séparateurs décoratifs.
+
+**Les règles inline d'une page battent `atelier.css`** : neuf overrides du
+socle ont été annulés par les `<style>` des pages, à spécificité égale mais
+plus loin dans la cascade. Corriger à la source, pas dans le socle.
+
+### Pièges de méthode rencontrés
+
+- **Une sonde de contraste maison a rendu un faux « zéro défaut ».** Elle
+  mesurait le rendu et n'a pas vu ce que le détecteur statique a trouvé.
+  Faire tourner **les deux** : `node ~/.claude/skills/impeccable/scripts/detect.mjs --json <fichiers>`
+  (il lui faut `htmlparser2 css-select css-tree domutils` dans le dossier du
+  skill, sinon il tourne en mode dégradé et n'évalue NI les propriétés
+  personnalisées NI les contrastes).
+- **44 × 44 px n'est pas le seuil AA.** C'est 2.5.5, niveau AAA. Le seuil AA
+  est 2.5.8 : **24 × 24**. Un rapport qui annonce « 100 % des cibles
+  échouent » mesure contre le mauvais critère — ici trois éléments
+  échouaient réellement.
+- **`:focus` ne matche pas dans un onglet piloté** si le document n'a pas le
+  focus au niveau du système : `document.activeElement` est bon mais
+  `el.matches(':focus')` est faux et le style ne s'applique pas. Cliquer
+  dans la page d'abord, sinon on croit le lien d'évitement cassé.
+- Les pièges déjà documentés valent toujours : `behavior:'instant'`,
+  captures noires sur un document très haut, `getComputedStyle` périmé que
+  seul un `cloneNode` départage.
+
+### Ce qui reste hors périmètre
+
+Le détecteur signale encore 58 constats **esthétiques** — filet d'accent sur
+l'onglet actif, halos radiaux, capitales des micro-libellés, Fraunces +
+Inter, tirets cadratins. Ce sont des choix de DA documentés plus haut, pas
+des défauts : ne pas les « corriger ».
+Non testé faute d'environnement : lecteur d'écran réel, `forced-colors`,
+et tout ce qui exige une session Supabase authentifiée (modale Contacts,
+popovers Messages et Notifications — le motif de modale y est identique,
+donc les correctifs de focus s'y appliquent, mais restent à vérifier).
+
+
 ## La page Bibliothèque — « la pièce aux rayonnages » (refonte août 2026)
 
 `oeuvres/bibliotheque.html` (CSS et JS inlinés, motif de `place-publique.html`).
