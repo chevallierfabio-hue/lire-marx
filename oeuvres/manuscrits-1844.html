@@ -393,33 +393,36 @@ nav.subnav{position:sticky;top:85px;z-index:61;background:var(--bg);
     <span class="cap-section-label">Trois idées pour entrer dans les Manuscrits</span>
     <div class="cap-ideas-grid">
 
-      <article class="cap-idea-card">
+      <article class="cap-idea-card" role="link" tabindex="0" aria-label="L'aliénation — lire le Premier manuscrit" onclick="activateTab('lire');document.getElementById('partSelect').value='2';loadPart(2);window.scrollTo({top:0,behavior:'smooth'});" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
         <div class="cap-idea-vignette">
           <img src="../assets/img/archive/sortie-usine.jpg" alt="La Sortie de l'usine Lumière à Lyon, 1895" loading="lazy">
         </div>
         <div class="cap-idea-body">
           <div class="cap-idea-title">Ce que tu produis te domine — c'est l'aliénation</div>
           <div class="cap-idea-desc">Plus l'ouvrier produit de richesse, plus son produit lui échappe et le domine comme une puissance étrangère. Son propre travail se retourne contre lui.</div>
+          <div class="cap-idea-cta" aria-hidden="true">Lire le Premier manuscrit →</div>
         </div>
       </article>
 
-      <article class="cap-idea-card">
+      <article class="cap-idea-card" role="link" tabindex="0" aria-label="La propriété privée conséquence — suivre le cheminement" onclick="activateTab('deriv');window.scrollTo({top:0,behavior:'smooth'});" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
         <div class="cap-idea-vignette">
           <img src="../assets/img/archive/manufacture.jpg" alt="Manufactures et travail collectif au XIXe siècle" loading="lazy">
         </div>
         <div class="cap-idea-body">
           <div class="cap-idea-title">La propriété privée n'est pas la cause — c'est la conséquence</div>
           <div class="cap-idea-desc">Les économistes posent la propriété comme un fait premier. Marx l'inverse : c'est le travail aliéné qui l'engendre, dont elle n'est que la forme consolidée.</div>
+          <div class="cap-idea-cta" aria-hidden="true">Suivre le cheminement →</div>
         </div>
       </article>
 
-      <article class="cap-idea-card">
+      <article class="cap-idea-card" role="link" tabindex="0" aria-label="Récupérer son humanité — lire le Troisième manuscrit" onclick="activateTab('lire');document.getElementById('partSelect').value='4';loadPart(4);window.scrollTo({top:0,behavior:'smooth'});" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
         <div class="cap-idea-vignette">
           <img src="../assets/img/archive/halles-paris.jpg" alt="Les Halles de Paris, carte postale ancienne" loading="lazy">
         </div>
         <div class="cap-idea-body">
           <div class="cap-idea-title">Récupérer son humanité n'est pas une utopie</div>
           <div class="cap-idea-desc">Le communisme des Manuscrits n'est pas un partage des richesses : c'est l'abolition de l'aliénation et la réappropriation par l'homme de ses puissances propres.</div>
+          <div class="cap-idea-cta" aria-hidden="true">Lire le Troisième manuscrit →</div>
         </div>
       </article>
 

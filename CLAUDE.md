@@ -929,11 +929,14 @@ overrides en fin de fichier) ; et le pane sert parfois un CSS d'une édition
 en retard, ce qui fait croire qu'une règle ne s'applique pas — buster les
 `href` des `<link>` avant de conclure.
 
-**Reste à faire, volontairement non fait** : rendre cliquables les trois
-cartes « Trois idées pour entrer dans le livre » (aujourd'hui un cul-de-sac
-pédagogique). Il faut décider ÉDITORIALEMENT vers quoi chacune pointe —
-chapitre, glossaire ou instrument du laboratoire — et ce n'est pas à
-deviner.
+**Les trois cartes « Trois idées » sont des portes** (mission
+`trois-idees-cliquables`, arbitrage du propriétaire : « l'endroit qui
+incarne l'idée ») : sur Capital — profit → simulation Journée de travail
+(`goLabo('s-jour')`), prix/valeur → lecture ch. I, salarié libre →
+lecture ch. VI ; sur Manuscrits — aliénation → Premier manuscrit
+(`loadPart(2)`), propriété privée → Cheminement, humanité → Troisième
+manuscrit (`loadPart(4)`). Chaque carte DIT sa destination
+(`.cap-idea-cta`) et s'ouvre au clavier (role="link" + Entrée/Espace).
 
 ### Ce qui reste hors périmètre
 

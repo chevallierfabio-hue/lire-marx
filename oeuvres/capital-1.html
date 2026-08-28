@@ -930,7 +930,7 @@ nav.subnav{position:sticky;top:85px;z-index:61;background:var(--bg);
     <div class="cap-ideas-grid">
 
       <!-- Idée 1 — filature de coton, 1909 (domaine public) -->
-      <article class="cap-idea-card">
+      <article class="cap-idea-card" role="link" tabindex="0" aria-label="Le profit vient du travail — ouvrir la simulation de la journée de travail" onclick="goLabo('s-jour')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();goLabo('s-jour');}">
         <div class="cap-idea-vignette">
           <img src="../assets/img/archive/filature.jpg" alt="Intérieur d'une filature de coton, 1909" loading="lazy">
           <figcaption class="hs-img-caption">Filature de coton, 1909 · domaine public</figcaption>
@@ -938,11 +938,12 @@ nav.subnav{position:sticky;top:85px;z-index:61;background:var(--bg);
         <div class="cap-idea-body">
           <div class="cap-idea-title">Le profit vient du travail — pas du talent des patrons</div>
           <div class="cap-idea-desc">Chaque heure travaillée crée plus de valeur qu'elle ne coûte au patron. Cette différence, c'est la source de tout profit : Marx l'appelle la plus-value.</div>
+          <div class="cap-idea-cta" aria-hidden="true">Ouvrir la simulation — la journée de travail →</div>
         </div>
       </article>
 
       <!-- Idée 2 — Halles de Paris, carte postale ancienne (CC0) -->
-      <article class="cap-idea-card">
+      <article class="cap-idea-card" role="link" tabindex="0" aria-label="Le prix cache du temps de vie — lire le chapitre premier, La marchandise" onclick="goLire(1,'I','La marchandise');window.scrollTo({top:0,behavior:'smooth'});" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
         <div class="cap-idea-vignette">
           <img src="../assets/img/archive/halles-paris.jpg" alt="Marchandes de poissons aux Halles centrales de Paris" loading="lazy">
           <figcaption class="hs-img-caption">Les Halles de Paris · carte postale ancienne · CC0</figcaption>
@@ -950,11 +951,12 @@ nav.subnav{position:sticky;top:85px;z-index:61;background:var(--bg);
         <div class="cap-idea-body">
           <div class="cap-idea-title">Le prix d'un objet cache du temps de vie humain</div>
           <div class="cap-idea-desc">Ce qui fait la valeur d'une marchandise, ce n'est pas son utilité ni son prix de marché — c'est le temps de travail social qu'il a fallu pour la produire.</div>
+          <div class="cap-idea-cta" aria-hidden="true">Lire le chapitre I — La marchandise →</div>
         </div>
       </article>
 
       <!-- Idée 3 — La Sortie de l'usine Lumière, 1895 (domaine public) -->
-      <article class="cap-idea-card">
+      <article class="cap-idea-card" role="link" tabindex="0" aria-label="Le salarié est libre — lire le chapitre six, Achat et vente de la force de travail" onclick="goLire(2,'VI','Achat et vente de la force de travail');window.scrollTo({top:0,behavior:'smooth'});" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
         <div class="cap-idea-vignette">
           <img src="../assets/img/archive/sortie-usine.jpg" alt="La Sortie de l'usine Lumière à Lyon, 1895" loading="lazy">
           <figcaption class="hs-img-caption">La Sortie de l'usine Lumière, 1895 · domaine public</figcaption>
@@ -962,6 +964,7 @@ nav.subnav{position:sticky;top:85px;z-index:61;background:var(--bg);
         <div class="cap-idea-body">
           <div class="cap-idea-title">Le salarié est libre — et c'est là le piège</div>
           <div class="cap-idea-desc">Le travailleur vend librement sa force de travail, contrairement au serf ou à l'esclave. Mais il n'a que ça à vendre : sa liberté est aussi sa dépossession.</div>
+          <div class="cap-idea-cta" aria-hidden="true">Lire le chapitre VI — la force de travail →</div>
         </div>
       </article>
 

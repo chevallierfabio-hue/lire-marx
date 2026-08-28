@@ -276,3 +276,13 @@ h2.sec em{font-style:italic;font-weight:500;color:var(--red-text);}
   .panel-meta .prog-no-auth{align-items:flex-start;text-align:left;}
   .pg-prog{text-align:left;}
 }
+
+/* ═══ Les cartes « Trois idées » sont des portes (trois-idees-cliquables) ═══
+   Chaque idée mène à l'endroit qui l'incarne — chapitre, simulation ou
+   cheminement — et la carte le DIT (.cap-idea-cta) : pas de cul-de-sac,
+   pas de clic mystère. */
+.cap-idea-card[role="link"]{cursor:pointer;}
+.cap-idea-cta{margin-top:12px;font-family:var(--f-ui);font-size:.78rem;
+  font-weight:700;color:var(--red-text);}
+.cap-idea-card[role="link"]:hover .cap-idea-cta{text-decoration:underline;
+  text-underline-offset:3px;}
