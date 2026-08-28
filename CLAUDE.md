@@ -211,7 +211,18 @@ décalage de quelques pixels entre les deux qui donne l'épaisseur. Un laiton
 se lit à sa BANDE SPÉCULAIRE, d'où les dégradés horizontaux à sept arrêts
 plutôt qu'un aplat. Et l'éclat de la coupelle ne va **pas** au centre — la
 douille l'occulte et y porte son ombre : ce qu'on voit du plateau, c'est la
-couronne entre les deux, et c'est là que le métal doit briller. **Tout est en CSS** — un troisième contexte WebGL sur la page (il y a
+couronne entre les deux, et c'est là que le métal doit briller.
+
+**Mais on ne le voit plus.** Le propriétaire a ensuite demandé la bougie
+**collée au pied de page, comme posée juste en dessous** : elle est
+enfoncée sous le bord bas de la bande (`bottom:-28px`, et `-18px` sur
+mobile — l'enfoncement suit l'échelle `.66`, sinon la même valeur en pixels
+mangerait une part bien plus grande d'une bougie réduite), que
+`.hs-closer{overflow:hidden}` coupe net. On ne voit d'elle que la cire et
+la flamme, qui sortent du pied de page comme d'un bureau qu'on ne montre
+pas. Le bougeoir reste dessiné : il est simplement hors champ, et le
+redescendre suffirait à le retrouver. Ne pas le supprimer, et ne pas
+s'étonner de ne pas le voir. **Tout est en CSS** — un troisième contexte WebGL sur la page (il y a
 déjà `#hero-bg` et `#circuit-bg`, plus celui de l'intro) pour un décor de
 130 px ne se justifiait pas. Elle se tient **à droite, près du feuillet**,
 qu'elle éclaire : à gauche elle tombait derrière le bouton. `--candle-r`
