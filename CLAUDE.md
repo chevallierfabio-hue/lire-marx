@@ -40,6 +40,9 @@ L'accueil du site est `oeuvres/index.html` (la bibliothèque), pilotée par
 À côté de la bibliothèque, deux autres pages « de site » (pas des
 œuvres) partagent le shell :
 
+- `oeuvres/bibliotheque.html` — la page dédiée du corpus (cible du clic
+  sidebar « Bibliothèque »). Voir « La page Bibliothèque » plus bas.
+
 - `oeuvres/place-publique.html` — page dédiée du flux Place publique
   (clic sidebar « Place publique » sur toutes les pages). Elle se
   contente d'appeler `SHELL.commune.mount(#placeFull, {})`. L'aperçu
@@ -548,8 +551,128 @@ dans ces cas — et le CSS masque fiche, bandeau et voile sous 768 px.
 - 🔲 Onglets Parcourir / Cheminement / Modèles / Explorations /
   Chronologie : **jugés satisfaisants tels quels, ne pas retoucher**
   sans demande explicite.
-- 🔲 Page Bibliothèque à part : **abandonnée** — le menu déroulant de
-  la sidebar suffit, ne pas la recréer.
+- ✅ Page Bibliothèque à part (`oeuvres/bibliotheque.html`) — voir
+  « La page Bibliothèque » ci-dessous. Elle avait été jugée inutile puis
+  **rouverte sur demande explicite du propriétaire** ; la note qui disait
+  « abandonnée, ne pas la recréer » ne vaut plus.
+
+## La page Bibliothèque — « Par où commencer »
+
+`oeuvres/bibliotheque.html` (CSS et JS inlinés, motif de `place-publique.html`).
+Cible du clic sidebar « Bibliothèque ». **DA sombre-chaude** : son `:root`
+redéfinit les tokens du shell comme le fait `/index.html`, sinon
+topbar / sidebar / modales resteraient en clair.
+
+**Ce n'est pas un catalogue.** Le catalogue existe déjà sur l'accueil, et
+c'est pour cette raison qu'une page Bibliothèque avait été jugée inutile une
+première fois. Sa vocation est autre : **remettre les douze œuvres dans un
+ordre de lecture** plutôt que dans l'ordre des dates. Trois niveaux :
+
+1. **Le seuil** — les portes d'entrée, une question par porte.
+2. **Le fil** — les enchaînements « ce qui prépare quoi ».
+3. **Le corpus** — les douze œuvres, filtrables (statut) et triables
+   (par parcours / par année), avec `readingGuide` et `sourceNote` — deux
+   champs qui dormaient dans le JSON sans être affichés nulle part.
+
+**La section catalogue de l'accueil n'a pas bougé** : arbitrage explicite du
+propriétaire, la redondance est assumée. Ne pas « nettoyer » l'un au nom de
+l'autre.
+
+**Pas d'image sur cette page**, volontairement : les photos d'archive sont le
+langage du catalogue de l'accueil, et les reprendre ici aurait fait de la
+page un doublon visuel. Sa matière, c'est le diagramme des fils.
+
+### L'ordre de lecture vit dans `bibliotheque.json`
+
+La règle de la **source centrale unique** s'applique : le graphe n'est PAS
+codé dans la page. Deux ajouts au fichier :
+
+- `readingGroups[]` — `{id, label, note}`, quatre groupes : `seuils`,
+  `jeune-marx`, `critique`, `interventions`.
+- `reading` par œuvre — `{group, after[], primer[], entry}` ; `after` et
+  `primer` sont omis quand vides, `entry` quand l'œuvre n'est pas une porte.
+
+`after` = prérequis réel (« à lire après »), trait plein. `primer` =
+conseillé en amont sans obligation, trait tireté. **La distinction n'est pas
+cosmétique** : *Le Capital I* est lisible aujourd'hui alors que ses deux
+`primer` ne le sont pas — les mettre en `after` l'aurait fait paraître
+verrouillé derrière deux textes qui n'existent pas.
+
+**Ce qui vient des `readingGuide` d'origine** (donc non négociable) : Livre II
+après le I, Livre III après I et II, *Travail salarié* et *Salaire, prix et
+profit* en amont du *Capital*. **Ce qui est un arbitrage éditorial** validé
+par le propriétaire : *Grundrisse* placé après *Capital I*, les trois
+`primer` (*Manuscrits* → *Idéologie*, *Manifeste* → *18 Brumaire* et
+*Gotha*), la *Contribution* laissée hors de tout fil, et le libellé des
+portes.
+
+### Tout se compte, rien ne s'écrit en dur
+
+Le nombre de portes, le nombre de fils, le nom de chaque fil et les décomptes
+des filtres sont **dérivés des données à l'exécution**. Conséquence voulue :
+le jour où le *Manifeste* passera en `available`, sa porte s'ouvrira seule et
+le titre passera de « Deux portes » à « Trois portes » **sans toucher au
+code**. Ne jamais réintroduire un nombre écrit dans le HTML — le premier jet
+annonçait « Trois portes » alors que deux existaient.
+
+**Une porte n'existe que si son œuvre est disponible** : c'est l'arbitrage
+retenu contre une porte qui n'ouvrirait sur rien. Les portes en attente sont
+nommées en dessous, en prose.
+
+**Un fil se nomme par son pivot** (`Le fil — Capital I`) : l'œuvre la mieux
+reliée du groupe, ex æquo départagé par l'année. Le tiret n'est pas un tic de
+style — « Le fil de Manifeste » ne se dit pas, et aucun article contracté ne
+peut être produit correctement à partir d'un titre quelconque. Même raison
+pour le point médian entre titres dans « Préparé par » : plusieurs titres du
+corpus contiennent déjà un « et » (*Travail salarié **et** capital*), et
+l'énumération devenait illisible. Le « et » reste en prose, où il est juste.
+
+### Sidebar : « Accueil » et « Bibliothèque » sont deux choses
+
+Avant, « Bibliothèque » menait à l'accueil et le site n'avait aucun retour
+explicite vers sa page d'accueil. Désormais, dans `shell.js` :
+
+- **Accueil** (`data-act="home"`) → `/?skip-anim` — l'accueil sans rejouer
+  l'intro cinématique, comme le brandmark.
+- **Bibliothèque** (`data-act="biblio"`) → `/oeuvres/bibliotheque.html`.
+
+L'entrée correspondant à la page courante prend `.on`. Noter que les pages de
+livre ont **elles aussi** un onglet « Accueil » dans leur `sb-work` : c'est
+l'accueil de l'œuvre, pas celui du site, et le titre de section au-dessus
+(`LE CAPITAL — LIVRE I`) est ce qui les distingue.
+
+### Quatre pièges rencontrés sur cette page
+
+1. **`.bx-hero>*` écrasait le `position:absolute` du halo.** Les deux
+   sélecteurs pèsent (0,1,0) ; à égalité, la dernière règle gagne, et le halo
+   repassait dans le flux — 360 px de vide poussant tout le héros vers le bas.
+   Corrigé par `.bx-hero .bx-hero-halo`, à (0,2,0). C'est le **même genre de
+   piège que sur le héros de l'accueil** : sur ce dépôt, toute règle qui
+   annule une autre doit être vérifiée à la spécificité, pas à l'ordre.
+
+2. **`scrollIntoView()` hérite de `scroll-behavior:smooth`**, posé par
+   `atelier.css` sur `<html>`. Pour une ancre à l'arrivée on veut un saut sec,
+   pas un travelling — et dans un onglet piloté, dont le rAF est bridé,
+   l'animation ne progresse **jamais** : le scroll paraît simplement ignoré.
+   Utiliser `window.scrollTo({top, behavior:'instant'})`.
+
+3. **Une ancre profonde doit être reposée plusieurs fois.** Les trois sections
+   sont peuplées par un `fetch` : au moment où le navigateur résout `#corpus`,
+   elles sont vides. Et une seule mesure après le rendu ne suffit pas non plus,
+   parce que Fraunces et Inter arrivent ensuite et décalent encore tout. D'où
+   `rAF + setTimeout(400) + window.load + document.fonts.ready`, avec abandon
+   si le lecteur défile lui-même — le **même triptyque que `libraryScrub()`**
+   sur l'accueil, pour la même raison.
+
+4. **Le fondu de révélation ne doit pas rejouer sur un changement de filtre.**
+   `renderCorpus(false)` pose `.in` directement : refaire apparaître en fondu
+   une liste déjà sous les yeux du lecteur la fait clignoter. Le fondu ne sert
+   qu'à la première traversée de la page.
+
+Un cinquième, pour mémoire : le halo faisait **déborder la page de 53 px
+horizontalement** sous 400 px de large. Un élément en `position:absolute`
+compte dans le `scrollWidth` du document. `overflow:hidden` sur `.bx-hero`,
+comme `.pp-hero` sur la Place publique.
 
 ## Shell partagé : atelier.css + shell.css + shell.js (+ shell-social.js)
 
