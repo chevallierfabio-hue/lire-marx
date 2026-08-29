@@ -286,3 +286,54 @@ h2.sec em{font-style:italic;font-weight:500;color:var(--red-text);}
   font-weight:700;color:var(--red-text);}
 .cap-idea-card[role="link"]:hover .cap-idea-cta{text-decoration:underline;
   text-underline-offset:3px;}
+
+/* ═══ Le mouvement des ateliers (mission `ateliers-mouvement`) ═══════════
+   Le vocabulaire de l'accueil, porté aux pages d'atelier par
+   atelier-motion.js. RÈGLE : chaque geste doit dire ce que la section
+   dit — pas de mouvement décoratif. Et le DÉFAUT de chaque variable est
+   l'état POSÉ : sans JS, sous reduced-motion ou en dessous de 768 px,
+   rien de tout ceci ne s'arme et la page s'affiche finie. Les classes
+   js-at* sont posées par le module, jamais écrites dans le HTML. */
+
+/* A. Le titre de section PREND L'ENCRE, mot à mot — on est dans un
+      atelier d'écriture : le titre s'écrit. (Le geste de .hs-sec-h sur
+      l'accueil.) */
+.js-atviv .panel-head h2.sec .atw{display:inline-block;white-space:pre;
+  opacity:calc(.14 + .86 * var(--wp,1));
+  filter:blur(calc((1 - var(--wp,1)) * 5px));
+  transform:translateY(calc((1 - var(--wp,1)) * .18em));}
+
+/* B. Le bandeau de départ S'ALLUME — on allume la lampe pour se mettre à
+      lire. La lueur monte du BAS (une bougie éclaire d'en bas, jamais du
+      plafond), et le texte sort de la pénombre avec elle. */
+.js-atlum .cap-start{position:relative;overflow:hidden;}
+.js-atlum .cap-start::after{content:'';position:absolute;left:8%;bottom:-40%;
+  width:min(560px,80%);height:180%;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse at center,rgba(216,173,76,.20) 0%,rgba(213,64,47,.09) 42%,transparent 68%);
+  opacity:var(--lum,1);
+  transform:translateY(calc((1 - var(--lum,1)) * 40px));}
+.js-atlum .cap-start-main,.js-atlum .cap-start-side{position:relative;z-index:1;
+  opacity:calc(.5 + .5 * var(--lum,1));}
+
+/* C. Les trois idées passent au RÉVÉLATEUR — ce sont des tirages
+      d'archive : l'image vient au bain, sous la barre dorée, et l'idée
+      apparaît avec elle. (Le geste des photos du catalogue de l'accueil.) */
+.js-atdev .cap-idea-vignette img{clip-path:inset(0 calc((1 - var(--dev,1)) * 100%) 0 0);}
+.js-atdev .cap-idea-vignette::before{content:'';position:absolute;top:0;bottom:0;
+  width:3px;z-index:5;pointer-events:none;
+  left:calc(var(--dev,0) * 100%);transform:translateX(-2px);
+  opacity:var(--bar,0);
+  background:linear-gradient(transparent,var(--gold) 28%,var(--gold) 72%,transparent);
+  box-shadow:0 0 18px 5px rgba(216,173,76,.5);}
+/* la carte n'est qu'un cadre vide tant que rien n'est tiré */
+.js-atdev .cap-idea-card{opacity:calc(.24 + .76 * var(--in,1));}
+/* la légende du tirage et le corps de la carte arrivent DERRIÈRE la barre */
+.js-atdev .cap-idea-vignette .hs-img-caption{opacity:var(--txt,1);}
+.js-atdev .cap-idea-body{opacity:var(--txt,1);
+  transform:translateY(calc((1 - var(--txt,1)) * 14px));}
+
+/* D. Les deux blocs d'action SE POSENT, comme des feuillets sur le
+      bureau : ils arrivent plus haut et de biais, puis s'aplatissent. */
+.js-atpose .cap-actions-row .cap-action{--drop:0px;--tilt:0deg;--pose:1;
+  transform:translateY(var(--drop)) rotate(var(--tilt));
+  opacity:calc(.3 + .7 * var(--pose,1));}
