@@ -244,7 +244,124 @@
     });
   }
 
-  /* ── E. Remesurer quand un onglet s'ouvre ────────────────────────────
+  /* ── E. Le cheminement SE DÉDUIT ─────────────────────────────────────
+     La section dit : « Le Capital ne juxtapose pas des thèmes : il
+     DÉDUIT. Chaque catégorie révèle une contradiction qui rend la
+     suivante nécessaire. » Le mouvement le dit donc littéralement : le
+     fil descend au défilement (`--draw`), sa tête éclaire ce qu'elle
+     atteint (`--head`), et rien n'existe devant elle — une marche ne
+     s'allume (`--lit`) que lorsque la déduction parvient à SON point sur
+     l'axe, le moteur (la contradiction) n'apparaît qu'au moment de
+     pousser vers la suivante.
+
+     La position de chaque marche est mesurée SUR L'AXE, en pourcentage
+     de la hauteur du fil — pas sur un simple index : les cartes n'ont
+     pas la même hauteur, un échelonnement régulier aurait allumé des
+     marches que le fil n'a pas encore atteintes. */
+  function walkDeduce() {
+    var walk = document.querySelector('#deriv .walk');
+    if (!walk) return;
+
+    /* Les deux pages n'ont pas le même serpentin : sur Capital la marche
+       est une carte posée à côté d'un axe central, sur les Manuscrits
+       elle EST le bloc, le long d'un fil à gauche. La variante se pose
+       en classe (jamais en :has(), pas acquis partout) et l'axe suit. */
+    var cards = !!walk.querySelector('.walk-card');
+    walk.classList.add(cards ? 'walk-cards' : 'walk-thread');
+    if (!cards) walk.style.setProperty('--axis', '8px');
+    document.documentElement.classList.add('js-atwalk');
+
+    /* Le serpentin est construit par le script de la page. Il l'est avant
+       nous (script inline pendant le parse, ce module en defer), mais on
+       ne s'y fie pas : la liste se relit tant qu'elle est vide. */
+    var parts = [];
+    function collect() {
+      parts = [].slice.call(walk.querySelectorAll('.walk-step, .walk-motor'));
+      return parts.length;
+    }
+    collect();
+
+    addSub(function (y, vh) {
+      if (!shown(walk)) return;
+      if (!parts.length && !collect()) return;
+      var r = walk.getBoundingClientRect();
+      if (!r.height) return;
+      /* le fil se trace pendant que la section traverse la fenêtre : il
+         part quand le haut du bloc atteint les deux tiers de l'écran, il
+         est complet quand le bas du bloc passe le tiers bas */
+      var a = vh * 0.66, b = -r.height + vh * 0.78;
+      var p = clamp01((a - r.top) / (a - b));
+      walk.style.setProperty('--draw', (p * 100).toFixed(2) + '%');
+      walk.style.setProperty('--head', (p > 0.004 && p < 0.996 ? 1 : 0));
+
+      /* où en est la déduction, en pixels écran. La position de chaque
+         marche est mesurée SUR L'AXE et non déduite d'un index : les
+         cartes n'ont pas la même hauteur, un échelonnement régulier
+         allumerait des marches que le fil n'a pas encore atteintes. */
+      var front = r.top + p * r.height;
+      for (var i = 0; i < parts.length; i++) {
+        var er = parts[i].getBoundingClientRect();
+        var anchor = er.top + (cards ? er.height / 2 : 14);
+        /* la lumière arrive AVEC le fil, elle ne le devance pas */
+        parts[i].style.setProperty('--lit',
+          clamp01((front - anchor + 90) / 110).toFixed(3));
+      }
+    });
+  }
+
+  /* ── F. Le SOMMAIRE s'inscrit ────────────────────────────────────────
+     Ce que la section dit : c'est le plan du livre. Le geste : les lignes
+     s'inscrivent dans l'ordre de lecture à mesure qu'on descend — le
+     sommaire s'écrit, section par section. Chaque ligne est mesurée à sa
+     propre position (jamais un échelonnement par index : les sections
+     n'ont pas le même nombre de chapitres, et un décalage régulier
+     allumerait des lignes encore hors champ). */
+  function tocInscribe() {
+    var lists = [].slice.call(document.querySelectorAll('#navlist, #atlNavlist, #man-grid'));
+    if (!lists.length) return;
+    document.documentElement.classList.add('js-attoc');
+
+    addSub(function (y, vh) {
+      for (var l = 0; l < lists.length; l++) {
+        var list = lists[l];
+        if (!shown(list)) continue;
+        var rows = list.querySelectorAll('.atl-card, .atl-grid-sec');
+        for (var i = 0; i < rows.length; i++) {
+          var top = rows[i].getBoundingClientRect().top;
+          /* la ligne s'inscrit sur les 120 px qui précèdent sa place */
+          rows[i].style.setProperty('--ink',
+            clamp01((vh * 0.94 - top) / 120).toFixed(3));
+        }
+      }
+    });
+  }
+
+  /* ── G. Les instruments et les cartes SE POSENT ──────────────────────
+     Laboratoire, explorations, chronologie, ressources : partout où un
+     panneau pose des blocs (un instrument, un encart de mode d'emploi,
+     une fiche de ressource), ils arrivent d'un souffle plus bas et se
+     posent — le même geste que les feuillets du bureau, tenu à travers
+     toute la page pour que l'atelier ait UN rythme et non cinq. */
+  function poseParts() {
+    var sel = '.howto, .method-note, .lab > .controls, .lab > .readout,' +
+              ' .chartbox, .rss-card, .ccard, .concepts-wrap, .chrono-track,' +
+              ' .explore-card, .stairmap-wrap';
+    var parts = [].slice.call(document.querySelectorAll(sel));
+    if (!parts.length) return;
+    document.documentElement.classList.add('js-atparts');
+
+    addSub(function (y, vh) {
+      for (var i = 0; i < parts.length; i++) {
+        if (!shown(parts[i])) continue;
+        var top = parts[i].getBoundingClientRect().top;
+        var p = clamp01((vh * 0.96 - top) / (vh * 0.34));
+        var e = 1 - Math.pow(1 - p, 3);
+        parts[i].style.setProperty('--set', e.toFixed(3));
+      }
+    });
+  }
+
+  /* ── H. Remesurer quand un onglet s'ouvre ────────────────────────────
      Un panneau qui devient actif apparaît à sa place définitive sans
      qu'aucun défilement n'ait lieu : sans ce rappel, ses sections
      resteraient figées à la valeur qu'elles avaient en étant masquées.
@@ -271,6 +388,9 @@
     startBand();
     developIdeas();
     poseBlocks();
+    walkDeduce();
+    tocInscribe();
+    poseParts();
     watchPanels();
     /* Le contenu arrive par fetch (catalogue, listes) et le navigateur peut
        sauter sur une ancre : on remesure après coup, comme sur l'accueil. */

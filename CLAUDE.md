@@ -752,6 +752,79 @@ sombre (texte foncé sur crème = fort contraste) : le bandeau de chapitre
 `.rdr-header` n'a été repéré qu'à l'œil.
 
 
+## Les pages d'atelier — le mouvement (mission `ateliers-mouvement`)
+
+Demande du propriétaire : « styliser et animer les blocs et sections des
+ateliers, au même niveau que la page d'accueil — le scroll peut et doit
+jouer un rôle », avec une exigence qui commande tout : **« il faut
+qu'elles soient pertinentes vis-à-vis de ce qu'elles expriment »**. Aucun
+mouvement décoratif : chaque geste dit ce que sa section dit. Références
+citées : l'accueil du site, et zonixlab.com (dont le motif « journey »,
+une lumière qui parcourt un tracé, est en keyframes CSS pures — même
+contrainte que nous, et nous en avions déjà l'équivalent maison avec le
+curseur-comète du circuit).
+
+**`oeuvres/atelier-motion.js`** (chargé `defer` par les deux pages) porte
+le vocabulaire de `assets/home.js` : pilote de défilement par POSITION
+(donc réversible), défaut CSS posé, filet sur toute entrée temporelle.
+**Le pilote est DUPLIQUÉ, pas partagé** — home.js ne se charge que sur
+l'accueil, et la règle maison est de dupliquer les petits outils plutôt
+que de coupler. Les classes `js-at*` sont posées par le module, jamais
+écrites dans le HTML ; le CSS vit en fin d'`atelier.css`.
+
+**Les gestes, et ce qu'ils disent** :
+- `inkTitles` — le titre de section PREND L'ENCRE : on est dans un
+  atelier d'écriture. Joué à l'OUVERTURE du panneau, une fois.
+- `startBand` — le bandeau de départ S'ALLUME, la lueur montant du bas
+  (une bougie n'éclaire pas du plafond) : on arrive au bureau.
+- `developIdeas` — les trois idées passent au RÉVÉLATEUR : ce sont des
+  tirages d'archive, l'image vient au bain sous la barre dorée
+  (échelonnée de 0,14), et l'idée apparaît avec elle. Le geste du
+  catalogue de l'accueil, ici sur la même matière.
+- `poseBlocks` / `poseParts` — les blocs SE POSENT comme des feuillets
+  sur le bureau. `poseParts` tient ce rythme sur tous les panneaux
+  (howto, instruments du labo, ccard, ressources, frise) pour que
+  l'atelier ait UNE respiration et non cinq.
+- `walkDeduce` — le cheminement SE DÉDUIT : le fil descend, sa tête
+  éclaire ce qu'elle atteint, et rien n'existe devant elle. C'est
+  littéralement ce que dit la section (« chaque catégorie révèle une
+  contradiction qui rend la suivante nécessaire ») : une marche ne
+  s'allume que quand la déduction l'atteint, le moteur n'apparaît qu'au
+  moment de pousser.
+- `tocInscribe` — le sommaire S'INSCRIT ligne à ligne : c'est le plan du
+  livre qui s'écrit.
+
+**Ce que la mesure a imposé — à ne pas re-tenter en scrub** : sur une
+page à ONGLETS, le titre de panneau et le bandeau de départ sont
+TOUJOURS en position de lecture au moment où ils apparaissent (mesuré :
+`--wp` saturait à 1 dès la bascule, `--lum` partait à 0,94). Scrubbés,
+ces deux gestes ne se seraient JAMAIS vus. Ils sont donc des entrées
+orchestrées, déclenchées par l'ouverture du panneau. Le scrub reste pour
+tout ce qui vit sous le pli.
+
+**Trois pièges propres à ces pages** :
+1. **Un panneau inactif est en `display:none`** : ses éléments mesurent 0
+   et ne doivent RIEN recevoir — d'où `shown()` (`getClientRects().length`,
+   le test qui ne ment pas sur un ancêtre masqué) avant toute écriture.
+2. **Un panneau qui s'ouvre apparaît à sa place définitive sans qu'aucun
+   défilement n'ait lieu** : c'est « le piège de la mesure unique » de
+   l'accueil, rejoué à CHAQUE clic d'onglet. Un `MutationObserver` sur la
+   classe des panneaux remesure (et rejoue les titres) — on observe la
+   classe plutôt que de se brancher sur `activateTab`, qui n'a pas le
+   même code sur les deux pages.
+3. **Les deux serpentins de cheminement sont différents** : sur Capital
+   la marche est une CARTE à côté d'un axe central, sur les Manuscrits
+   elle EST le bloc le long d'un fil à gauche. La variante se pose en
+   classe (`walk-cards` / `walk-thread`) — jamais en `:has()`. Et la
+   position de chaque marche se mesure SUR L'AXE, jamais par un
+   échelonnement d'index : les cartes n'ont pas la même hauteur, un
+   décalage régulier allumerait des marches que le fil n'a pas atteintes.
+
+Vérifié à la sonde (le rAF est GELÉ dans un onglet piloté — sans elle on
+croit à tort que rien ne bouge) : scrub réversible et progressif sur les
+deux pages, bascule d'onglet, interpolation CSS, et à 375 px aucune
+classe `js-at*` — la page s'affiche finie.
+
 ## Les pages d'atelier — la passe moderne (mission `atelier-moderne`)
 
 Demande du propriétaire : « une page stylisée pour l'atelier lui-même —

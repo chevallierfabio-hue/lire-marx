@@ -337,3 +337,81 @@ h2.sec em{font-style:italic;font-weight:500;color:var(--red-text);}
 .js-atpose .cap-actions-row .cap-action{--drop:0px;--tilt:0deg;--pose:1;
   transform:translateY(var(--drop)) rotate(var(--tilt));
   opacity:calc(.3 + .7 * var(--pose,1));}
+
+/* E. Le CHEMINEMENT se déduit sous les yeux ─────────────────────────────
+      Ce que la section dit : « Le Capital ne juxtapose pas des thèmes :
+      il DÉDUIT. Chaque catégorie révèle une contradiction qui rend la
+      suivante nécessaire. » (Et sur les Manuscrits : « le ressort qui
+      fait passer de l'un à l'autre ».) Le geste le dit littéralement —
+      le fil descend, et rien n'existe devant lui : une marche ne
+      s'allume que quand la déduction l'atteint, le moteur (la
+      contradiction) n'apparaît qu'au moment de pousser vers la suivante.
+      C'est le motif du curseur-comète du circuit de l'accueil, ici sur
+      une chaîne de nécessités.
+
+      Les deux pages n'ont pas le même serpentin : sur Capital la marche
+      est une CARTE posée à côté d'un axe central (.walk-card, .walk-dot,
+      .walk-motor), sur les Manuscrits elle EST le bloc, le long d'un fil
+      à gauche (.walk-step::before pour la pastille). D'où les deux
+      variantes, distinguées par une classe que pose le module —
+      jamais par :has(), qui n'est pas acquis partout. */
+.js-atwalk .walk{position:relative;}
+/* le fil ne se peint que jusqu'au front de la déduction */
+.js-atwalk .walk::before{
+  -webkit-mask-image:linear-gradient(to bottom,#000 0,#000 var(--draw,100%),transparent var(--draw,100%));
+  mask-image:linear-gradient(to bottom,#000 0,#000 var(--draw,100%),transparent var(--draw,100%));}
+/* la tête du fil : ce qui avance, et qui éclaire ce qu'elle atteint */
+.js-atwalk .walk::after{content:"";position:absolute;left:var(--axis,50%);top:var(--draw,100%);
+  width:13px;height:13px;margin-left:-6.5px;margin-top:-6.5px;border-radius:50%;
+  pointer-events:none;z-index:3;opacity:var(--head,0);
+  background:radial-gradient(circle,rgba(255,241,208,.95) 0%,var(--gold) 42%,rgba(216,173,76,0) 72%);
+  box-shadow:0 0 22px 7px rgba(216,173,76,.45);}
+
+/* — variante « cartes » (Le Capital) : la marche arrive de SON côté,
+     l'alternance gauche/droite devient un mouvement — */
+.js-atwalk .walk-cards .walk-step .walk-card{
+  opacity:calc(.12 + .88 * var(--lit,1));
+  transform:translateX(calc((1 - var(--lit,1)) * var(--from,0px)));}
+.js-atwalk .walk-cards .walk-step.left .walk-card{--from:-34px;}
+.js-atwalk .walk-cards .walk-step.right .walk-card{--from:34px;}
+.js-atwalk .walk-cards .walk-dot{transform:scale(calc(.55 + .45 * var(--lit,1)));
+  opacity:calc(.25 + .75 * var(--lit,1));}
+.js-atwalk .walk-cards .walk-card::after{opacity:var(--lit,1);}
+/* le moteur ne se dit qu'au moment où il pousse */
+.js-atwalk .walk-cards .walk-motor{opacity:calc(.06 + .94 * var(--lit,1));
+  transform:translateY(calc((1 - var(--lit,1)) * -7px));}
+
+/* — variante « fil » (les Manuscrits) : la marche est le bloc, elle
+     arrive de la gauche, sa pastille prend le rouge quand on l'atteint — */
+.js-atwalk .walk-thread .walk-step{
+  opacity:calc(.12 + .88 * var(--lit,1));
+  transform:translateX(calc((1 - var(--lit,1)) * -22px));}
+.js-atwalk .walk-thread .walk-step::before{
+  transform:scale(calc(.5 + .5 * var(--lit,1)));}
+
+@media(max-width:720px){
+  .js-atwalk .walk-cards{--axis:19px;}
+}
+
+/* F. Le SOMMAIRE s'inscrit — c'est le plan du livre : les lignes
+      s'écrivent dans l'ordre de lecture à mesure qu'on descend. */
+.js-attoc #navlist .atl-card,.js-attoc #atlNavlist .atl-card,
+.js-attoc #man-grid .atl-card{
+  opacity:calc(.2 + .8 * var(--ink,1));
+  transform:translateY(calc((1 - var(--ink,1)) * 10px));}
+.js-attoc .atl-grid-sec{opacity:calc(.25 + .75 * var(--ink,1));}
+/* le numéro prend l'or une fois la ligne inscrite — la rime des années
+   de la frise, et le geste des blocs « Ce que vous pouvez faire » */
+.js-attoc .atl-card .atl-num{opacity:calc(.35 + .65 * var(--ink,1));}
+
+/* G. Les instruments et les cartes SE POSENT — un seul rythme tenu à
+      travers tout l'atelier, pour qu'il ait UNE respiration et non cinq. */
+.js-atparts .howto,.js-atparts .method-note,.js-atparts .lab>.controls,
+.js-atparts .lab>.readout,.js-atparts .chartbox,.js-atparts .rss-card,
+.js-atparts .ccard,.js-atparts .concepts-wrap,.js-atparts .chrono-track,
+.js-atparts .explore-card,.js-atparts .stairmap-wrap{
+  opacity:calc(.22 + .78 * var(--set,1));
+  transform:translateY(calc((1 - var(--set,1)) * 16px));}
+/* la carte de ressource garde son propre survol : on ne compose pas deux
+   transforms sur la même propriété */
+.js-atparts .rss-card:hover{transform:translateY(-3px);}
