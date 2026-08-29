@@ -568,13 +568,20 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
   margin:12px 0 0;}
 
 /* ── La barre d'onglets : une seule rangée, collante ──────────────── */
-nav.tabs.worktabs{display:flex;gap:2px;flex-wrap:wrap;margin:0;
+/* La barre ne se replie JAMAIS sur deux lignes : sa hauteur doit rester
+   constante, sinon la page saute sous le curseur d'un onglet à l'autre
+   (le défaut déjà corrigé du temps des deux rangées). Les neuf entrées
+   tiennent à 1016 px ; en dessous, la barre défile horizontalement. */
+nav.tabs.worktabs{display:flex;gap:2px;flex-wrap:nowrap;margin:0;
   justify-content:flex-start;text-align:left;
+  overflow-x:auto;scrollbar-width:none;
   background:transparent;border-top:none;
   border-bottom:1px solid var(--line);}
+nav.tabs.worktabs::-webkit-scrollbar{display:none;}
 nav.tabs.worktabs .tab{font-family:var(--f-ui);font-weight:600;
-  font-size:.88rem;color:var(--muted);background:none;border:none;
-  border-bottom:2px solid transparent;padding:11px 15px;cursor:pointer;
+  font-size:.86rem;color:var(--muted);background:none;border:none;
+  border-bottom:2px solid transparent;padding:11px 11px;cursor:pointer;
+  white-space:nowrap;flex:0 0 auto;
   transition:color .15s,border-color .15s;}
 nav.tabs.worktabs .tab:hover{color:var(--ink);}
 nav.tabs.worktabs .tab.active{color:var(--ink);border-bottom-color:var(--accent);}
@@ -753,11 +760,7 @@ nav.tabs.worktabs .tab.active{color:var(--ink);border-bottom-color:var(--accent)
    de 63 px d'un onglet à l'autre a disparu avec la seconde rangée. */
 nav.tabs.worktabs{position:sticky;top:44px;z-index:62;
   background:var(--bg);padding-top:2px;}
-@media(max-width:740px){
-  nav.tabs.worktabs{overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none;}
-  nav.tabs.worktabs::-webkit-scrollbar{display:none;}
-  nav.tabs.worktabs .tab{white-space:nowrap;flex:0 0 auto;}
-}
+
 </style>
 <script src="../config.js"></script>
 <script src="shell.js"></script>
@@ -830,11 +833,19 @@ nav.tabs.worktabs{position:sticky;top:44px;z-index:62;
 
     <div id="dashSlot"></div>
 
-    <!-- Trois idées pour entrer dans le livre -->
-    <section class="at-sec">
-      <span class="at-sec-label">Pour entrer</span>
-      <h2 class="at-sec-h">Trois idées qui ouvrent <em>Le Capital</em></h2>
-      <p class="at-sec-lede">Chacune mène à l'endroit du livre où elle se démontre — un chapitre, ou l'instrument qui la met en mouvement.</p>
+
+  </section>
+
+  <!-- POUR ENTRER — trois portes vers le livre. C'était une section de
+       l'accueil ; elle en sort : l'accueil dit où l'on en est, celui-ci
+       dit par où commencer à comprendre. -->
+  <section class="panel" id="entrer">
+    <div class="panel-head">
+      <div class="panel-head-main">
+        <h2 class="sec">Trois idées qui ouvrent <em>Le Capital</em></h2>
+        <p class="lead">Chacune mène à l'endroit du livre où elle se démontre — un chapitre, ou l'instrument qui la met en mouvement.</p>
+      </div>
+    </div>
     <div class="cap-ideas-grid">
 
       <!-- Idée 1 — filature de coton, 1909 (domaine public) -->
@@ -877,8 +888,6 @@ nav.tabs.worktabs{position:sticky;top:44px;z-index:62;
       </article>
 
     </div>
-    </section>
-
   </section>
 
   <!-- NAVIGATEUR -->
@@ -1596,6 +1605,7 @@ function syncTabsA11y(pid){
    panneau, et un doublon (#atelier-accueil refaisait « Parcourir »). */
 const PANELS=[
  {id:'accueil',    label:'Commencer'},
+ {id:'entrer',     label:'Pour entrer'},
  {id:'nav',        label:'Parcourir'},
  {id:'lire',       label:'Texte intégral'},
  {id:'deriv',      label:'Cheminement'},
@@ -3053,6 +3063,7 @@ installShell({
   workTitle: 'Le Capital — Livre I',
   tabs: [
     {id:'accueil', label:'Accueil'},
+    {id:'entrer',  label:'Pour entrer'},
     {id:'nav',     label:'Parcourir'},
     {id:'lire',    label:'Texte intégral'},
     {id:'deriv',   label:'Cheminement'},

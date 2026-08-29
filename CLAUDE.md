@@ -806,9 +806,9 @@ bibliothèque montrait déjà sur sa carte.
    **`body.at-inner` ne pilote plus rien** — il repliait le héros, qui
    n'existe plus ; l'en-tête est à sa taille définitive sur les huit
    panneaux, donc plus de saut entre onglets.
-2. **Une seule rangée d'onglets, collante** (`#worktabs`), avec les huit
-   destinations à plat — **exactement celles que la sidebar listait
-   déjà**. Le niveau « groupe » (Lire / Atelier / Ressources) a disparu :
+2. **Une seule rangée d'onglets, collante** (`#worktabs`), avec les
+   destinations à plat — **exactement celles que la sidebar liste**
+   (neuf depuis que « Pour entrer » a son panneau). Le niveau « groupe » (Lire / Atelier / Ressources) a disparu :
    il coûtait une rangée, un clic de plus pour atteindre un panneau, et
    il portait un DOUBLON — `#atelier-accueil` refaisait la table des
    matières de « Parcourir », avec son propre widget de progression.
@@ -825,6 +825,18 @@ d'être rejoué à chaque bascule (c'est `#subnav`, reconstruit en
 innerHTML, qui l'imposait) — mais il le reste, c'est sans effet.
 Le hash ne peut plus désigner un « groupe » : l'ambiguïté qui faisait
 ouvrir la page de garde quand on demandait `#lire` a disparu avec eux.
+
+**La barre ne se replie JAMAIS sur deux lignes** : `flex-wrap:nowrap` +
+défilement horizontal. Sa hauteur doit rester constante (44 px), sinon
+la page saute sous le curseur d'un onglet à l'autre — c'est le défaut
+déjà corrigé du temps des deux rangées, qui revenait par la fenêtre dès
+qu'un neuvième onglet ne tenait plus.
+
+**« Pour entrer » est un panneau, plus une section de l'accueil**
+(mission `section-pour-entrer`) : les trois idées sont trois portes vers
+le livre, l'accueil dit où l'on en est. Le panneau suit la grammaire
+commune (`.panel-head` > `h2.sec` + `.lead`), donc son titre prend
+l'encre à l'ouverture comme les autres.
 
 **Piège rencontré** : `nav.tabs` (atelier.css) centre son contenu, et
 `.work-head` en héritait — titre à gauche, métadonnées au milieu. Poser
