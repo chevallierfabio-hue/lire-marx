@@ -1605,8 +1605,10 @@ function renderDashboard(){
       });
       h+='</ul>';
     }
+    h+='<div class="dash-acts"><a class="cap-btn-outline" href="carnet.html">Ouvrir mon carnet →</a></div>';
   } else {
-    h+='<div class="dash-chap-t dash-none">Sélectionnez un passage dans le texte pour le surligner : vos passages se rassembleront ici.</div>';
+    h+='<div class="dash-chap-t dash-none">Sélectionnez un passage dans le texte pour le surligner : vos passages se rassembleront ici.</div>'
+      +'<div class="dash-acts"><a class="lk" href="carnet.html">Voir mon carnet</a></div>';
   }
   h+='</div>';
 

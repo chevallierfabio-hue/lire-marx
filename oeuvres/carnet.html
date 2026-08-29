@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Mon carnet — Vos passages surlignés | Lire Marx</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Tous les passages que vous avez surlignés dans les œuvres de Marx, rassemblés par livre et par section — chacun ramène à son endroit dans le texte.">
+<meta name="robots" content="noindex">
+<link rel="canonical" href="https://liremarx.com/oeuvres/carnet.html">
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="atelier.css">
+<link rel="stylesheet" href="shell.css">
+<style>
+/* ═══════════════════════════════════════════════════════════════════
+   Mon carnet — le pendant PRIVÉ de la Place publique.
+   Là-bas, les notes partagées ; ici, les vôtres. La page ne fait que
+   LIRE le carnet (SHELL.annotations.allNotes) et le remettre en ordre :
+   par œuvre, puis par section, du plus récent au plus ancien. Chaque
+   passage ramène à son endroit dans le texte par le contrat de
+   deep-link de la maison (#s=<section>&q=<citation>).
+   Aucune donnée ne naît ici — on n'écrit pas dans son carnet depuis le
+   carnet, on écrit en lisant.
+   ═══════════════════════════════════════════════════════════════════ */
+.cn-wrap{max-width:920px;}
+.cn-head{margin-bottom:34px;padding-bottom:22px;border-bottom:1px solid var(--line);}
+.cn-label{display:block;font-family:var(--f-ui);font-size:.72rem;font-weight:600;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;}
+.cn-h1{font-family:'Fraunces',serif;font-weight:900;
+  font-size:clamp(1.9rem,4vw,2.7rem);letter-spacing:-.03em;color:var(--text);
+  line-height:1.05;margin:0 0 12px;}
+.cn-lede{font-family:'Spectral',Georgia,serif;font-style:italic;font-size:1.04rem;
+  line-height:1.6;color:var(--ink-soft);max-width:62ch;margin:0;}
+.cn-count{font-family:var(--f-ui);font-size:.8rem;color:var(--muted);margin-top:14px;}
+
+/* une œuvre = une travée du carnet */
+.cn-work{margin-bottom:46px;}
+.cn-work-head{display:flex;align-items:baseline;justify-content:space-between;
+  gap:18px;flex-wrap:wrap;margin-bottom:6px;}
+.cn-work-t{font-family:'Fraunces',serif;font-weight:700;font-size:1.32rem;
+  color:var(--text);margin:0;}
+.cn-work-n{font-family:var(--f-ui);font-size:.78rem;color:var(--muted);}
+.cn-sec{margin-top:22px;}
+.cn-sec-t{font-family:var(--f-ui);font-size:.7rem;font-weight:700;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--gold);
+  padding-bottom:8px;border-bottom:1px solid var(--line);margin-bottom:4px;}
+
+/* un passage */
+.cn-note{display:grid;grid-template-columns:10px 1fr auto;gap:14px;
+  align-items:start;padding:15px 8px 15px 2px;border-bottom:1px solid var(--line);}
+.cn-dot{width:10px;height:10px;border-radius:50%;margin-top:7px;}
+.cn-gold{background:var(--gold);}
+.cn-red{background:var(--accent);}
+.cn-blue{background:var(--blue,#5c8aa3);}
+.cn-green{background:var(--ok,#7fa855);}
+.cn-q{font-family:'Spectral',Georgia,serif;font-style:italic;font-size:1rem;
+  line-height:1.55;color:var(--text);margin:0;}
+.cn-n{font-family:var(--f-ui);font-size:.87rem;line-height:1.55;
+  color:var(--ink-soft);margin:7px 0 0;padding-left:13px;
+  border-left:2px solid var(--line-strong,var(--line));}
+.cn-when{font-family:var(--f-ui);font-size:.72rem;color:var(--muted);margin-top:8px;}
+.cn-go{flex:none;font-family:var(--f-ui);font-size:.76rem;font-weight:600;
+  color:var(--red-text);text-decoration:none;white-space:nowrap;padding-top:4px;}
+.cn-go:hover{text-decoration:underline;text-underline-offset:3px;}
+.cn-go-soon{font-family:var(--f-ui);font-size:.72rem;color:var(--muted);
+  font-style:italic;white-space:nowrap;padding-top:4px;}
+
+/* l'état vide : il explique le geste plutôt que de constater le vide */
+.cn-empty{background:var(--surface);border:1px solid var(--line);
+  border-radius:16px;padding:28px 30px;max-width:64ch;}
+.cn-empty-t{font-family:'Fraunces',serif;font-weight:700;font-size:1.2rem;
+  color:var(--text);margin:0 0 10px;}
+.cn-empty p{font-family:'Spectral',Georgia,serif;font-size:.98rem;line-height:1.65;
+  color:var(--ink-soft);margin:0 0 16px;}
+.cn-empty .cap-btn-light{margin-top:2px;}
+.cn-state{font-family:var(--f-ui);font-size:.9rem;color:var(--muted);padding:18px 0;}
+@media(max-width:640px){
+  .cn-note{grid-template-columns:10px 1fr;}
+  .cn-go,.cn-go-soon{grid-column:2;padding-top:8px;}
+}
+</style>
+</head>
+<body>
+<main class="wrap" id="contenu" tabindex="-1">
+  <div class="cn-wrap">
+
+    <header class="cn-head">
+      <span class="cn-label">Vos lectures</span>
+      <h1 class="cn-h1">Mon carnet</h1>
+      <p class="cn-lede">Tous les passages que vous avez surlignés, rassemblés par livre et par section. Chacun ramène à son endroit dans le texte.</p>
+      <div class="cn-count" id="cnCount"></div>
+    </header>
+
+    <div id="cnBody"><div class="cn-state">Ouverture du carnet…</div></div>
+
+  </div>
+</main>
+
+<script src="../config.js"></script>
+<script src="shell.js"></script>
+<script src="shell-annotations.js"></script>
+<script>
+installShell({
+  workTitle: 'Mon carnet',
+  tabs: []
+});
+
+(function(){
+  'use strict';
+  var body = document.getElementById('cnBody');
+  var countEl = document.getElementById('cnCount');
+
+  /* Alias hérité 'capital' → 'capital-1' : les premières annotations du
+     site ont été écrites avec l'id court. Il est déjà codé en dur dans
+     SHELL.commune et dans place-publique ; on le redit ici plutôt que de
+     coupler cette page à l'un des deux (règle maison : petits outils
+     dupliqués). */
+  var ALIAS = { 'capital': 'capital-1' };
+  var biblio = {};
+
+  function esc(s){
+    return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){
+      return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c];
+    });
+  }
+  function ago(t){
+    if(!t) return '';
+    var d = Math.max(0, Date.now() - t), j = Math.floor(d / 86400000);
+    if(j === 0) return "aujourd'hui";
+    if(j === 1) return 'hier';
+    if(j < 31) return 'il y a ' + j + ' jours';
+    var m = Math.floor(j / 30);
+    return 'il y a ' + m + ' mois';
+  }
+
+  async function loadBiblio(){
+    try {
+      var r = await fetch('bibliotheque.json', { cache: 'no-cache' });
+      var d = await r.json();
+      (d.works || []).forEach(function(w){ biblio[w.id] = w; });
+    } catch(e){}
+  }
+
+  function workMeta(rawId){
+    var id = ALIAS[rawId] || rawId;
+    var w = biblio[id];
+    /* Les `path` de bibliotheque.json sont relatifs à la RACINE
+       ('oeuvres/capital-1.html') alors que cette page vit DANS oeuvres/ :
+       sans le '/' de tête, le lien résoudrait en oeuvres/oeuvres/…
+       Place publique, dans le même dossier, fait la même normalisation. */
+    var path = (w && w.status === 'available' && w.path) ? String(w.path) : null;
+    if(path && path.indexOf('/') !== 0) path = '/' + path;
+    return { id: id, title: (w && w.title) || id, path: path };
+  }
+
+  /* Le contrat de deep-link au passage, variante explicite :
+     #s=<section>&q=<citation>&b=<avant>&a=<après>. SHELL.reader le lit à
+     l'ouverture de la page d'œuvre et surligne le passage. */
+  function passageHref(meta, n){
+    if(!meta.path) return null;
+    return meta.path + '#s=' + encodeURIComponent(n.section) +
+      '&q=' + encodeURIComponent(n.quote) +
+      (n.before ? '&b=' + encodeURIComponent(n.before) : '') +
+      (n.after ? '&a=' + encodeURIComponent(n.after) : '');
+  }
+
+  function noteHtml(meta, n){
+    var href = passageHref(meta, n);
+    return '<div class="cn-note">' +
+      '<span class="cn-dot cn-' + esc(n.color) + '"></span>' +
+      '<div>' +
+        '<p class="cn-q">« ' + esc(n.quote) + ' »</p>' +
+        (n.note ? '<p class="cn-n">' + esc(n.note) + '</p>' : '') +
+        '<div class="cn-when">' + esc(ago(n.created)) + '</div>' +
+      '</div>' +
+      (href
+        ? '<a class="cn-go" href="' + esc(href) + '">Aller au passage&nbsp;→</a>'
+        : '<span class="cn-go-soon">atelier à venir</span>') +
+      '</div>';
+  }
+
+  function render(){
+    var all = (window.SHELL && SHELL.annotations && SHELL.annotations.allNotes)
+      ? SHELL.annotations.allNotes() : [];
+
+    if(!all.length){
+      countEl.textContent = '';
+      body.innerHTML =
+        '<div class="cn-empty">' +
+          '<p class="cn-empty-t">Votre carnet est encore vierge.</p>' +
+          '<p>En lisant un chapitre, sélectionnez un passage : il se surligne, et vous pouvez y attacher une note. Tout reste sur cet appareil — connectez-vous pour retrouver vos passages d\'un appareil à l\'autre.</p>' +
+          '<button class="cap-btn-light" type="button" onclick="location.href=\'capital-1.html\'">Ouvrir Le Capital →</button>' +
+        '</div>';
+      return;
+    }
+
+    /* par œuvre, puis par section — l'ordre des œuvres suit la
+       bibliothèque, l'ordre des passages reste le plus récent d'abord */
+    var byWork = {};
+    all.forEach(function(n){
+      var meta = workMeta(n.work);
+      (byWork[meta.id] = byWork[meta.id] || { meta: meta, secs: {}, order: [], n: 0 });
+      var g = byWork[meta.id];
+      var key = String(n.section);
+      if(!g.secs[key]){ g.secs[key] = { label: n.label || ('Section ' + key), list: [] }; g.order.push(key); }
+      /* un libellé enregistré l'emporte sur le repli numérique */
+      if(n.label && g.secs[key].label.indexOf('Section ') === 0) g.secs[key].label = n.label;
+      g.secs[key].list.push(n);
+      g.n++;
+    });
+
+    countEl.textContent = all.length + ' passage' + (all.length > 1 ? 's' : '') +
+      ' dans ' + Object.keys(byWork).length + ' œuvre' + (Object.keys(byWork).length > 1 ? 's' : '');
+
+    var h = '';
+    Object.keys(byWork).forEach(function(id){
+      var g = byWork[id];
+      h += '<section class="cn-work">' +
+        '<div class="cn-work-head"><h2 class="cn-work-t">' + esc(g.meta.title) + '</h2>' +
+        '<span class="cn-work-n">' + g.n + ' passage' + (g.n > 1 ? 's' : '') + '</span></div>';
+      g.order.sort(function(a, b){ return (+a) - (+b); }).forEach(function(key){
+        var sec = g.secs[key];
+        h += '<div class="cn-sec"><div class="cn-sec-t">' + esc(sec.label) + '</div>';
+        sec.list.forEach(function(n){ h += noteHtml(g.meta, n); });
+        h += '</div>';
+      });
+      h += '</section>';
+    });
+    body.innerHTML = h;
+  }
+
+  /* Connecté, on rapatrie d'abord ce qui a été surligné ailleurs : le
+     carnet doit dire la même chose d'un appareil à l'autre. pullAll sort
+     tout seul si la session n'est pas ouverte. */
+  async function syncThenRender(){
+    var works = {};
+    ((window.SHELL && SHELL.annotations && SHELL.annotations.allNotes)
+      ? SHELL.annotations.allNotes() : []).forEach(function(n){ works[n.work] = 1; });
+    /* et les œuvres disponibles, même sans note locale */
+    Object.keys(biblio).forEach(function(id){
+      if(biblio[id].status === 'available') works[id === 'capital-1' ? 'capital' : id] = 1;
+    });
+    for(var w in works){
+      try { await SHELL.annotations.pullAll(w); } catch(e){}
+    }
+    render();
+  }
+
+  (async function(){
+    await loadBiblio();
+    render();
+    if(window.SHELL && SHELL.auth && SHELL.auth.onChange){
+      SHELL.auth.onChange(function(st){
+        if(st && st.user) setTimeout(syncThenRender, 0);
+      });
+    }
+  })();
+})();
+</script>
+</body>
+</html>

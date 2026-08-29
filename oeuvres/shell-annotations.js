@@ -320,6 +320,11 @@
     var an = {
       id: uid(), work: curWork, section: curSection,
       before: ctx.before, quote: ctx.quote, after: ctx.after,
+      /* le libellé lisible voyage avec le passage : hors de la liseuse
+         (la page « Mon carnet »), rien ne permettrait de le retrouver —
+         une section n'est qu'un numéro dans le store. Les annotations
+         antérieures n'en ont pas : elles retombent sur « Section N ». */
+      label: curLabel || '',
       color: color, note: '', created: Date.now()
     };
     var k = keyOf(curWork, curSection);
@@ -1105,8 +1110,29 @@
     return out;
   }
 
+  /* Tout le carnet, à plat et trié du plus récent au plus ancien : c'est
+     ce que lit la page « Mon carnet ». Comme statsFor, cette lecture vit
+     DANS le module, qui possède le contrat de stockage. */
+  function allNotes(){
+    var out = [];
+    Object.keys(store).forEach(function(k){
+      var cut = k.lastIndexOf('|');
+      if (cut < 0) return;
+      var work = k.slice(0, cut), section = k.slice(cut + 1);
+      (store[k] || []).forEach(function(a){
+        out.push({ work: work, section: section, label: a.label || '',
+                   id: a.id, quote: a.quote || '', note: a.note || '',
+                   before: a.before || '', after: a.after || '',
+                   color: a.color || 'gold', created: a.created || 0 });
+      });
+    });
+    out.sort(function(a, b){ return b.created - a.created; });
+    return out;
+  }
+
   SHELL.annotations = {
     _init: _init,
+    allNotes: allNotes,
     pullAll: pullAll,
     exportAll: exportAll,
     importAll: importAll,

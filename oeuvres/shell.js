@@ -89,6 +89,10 @@
         '<button class="sb-item" type="button" data-act="home"><span class="sb-dot" style="background:var(--gold)"></span>Accueil</button>' +
         '<button class="sb-item" type="button" data-act="biblio"><span class="sb-dot" style="background:var(--ink-soft)"></span>Bibliothèque</button>' +
         '<button class="sb-item" type="button" data-act="commune"><span class="sb-dot" style="background:var(--red)"></span>Place publique</button>' +
+        /* le carnet est le pendant PRIVÉ de la Place publique : là-bas
+           les notes partagées, ici les vôtres — d'où sa place juste en
+           dessous. */
+        '<button class="sb-item" type="button" data-act="carnet"><span class="sb-dot" style="background:var(--gold)"></span>Mon carnet</button>' +
         '<button class="sb-item" type="button" data-act="contacts"><span class="sb-dot" style="background:var(--blue)"></span>Contacts</button>' +
         '<button class="sb-item sb-soon" type="button" disabled><span class="sb-dot" style="background:var(--gold)"></span>Jeux<span class="sb-soon-tag">à venir</span></button>' +
         '<button class="sb-item sb-soon" type="button" disabled><span class="sb-dot" style="background:var(--blue)"></span>À propos<span class="sb-soon-tag">à venir</span></button>' +
@@ -176,6 +180,8 @@
     // Place publique : marquer l'entrée quand on est sur sa page dédiée.
     var communeBtn = sb.querySelector('[data-act="commune"]');
     if(communeBtn && /\/place-publique\.html$/.test(here)) communeBtn.classList.add('on');
+    var carnetBtn = sb.querySelector('[data-act="carnet"]');
+    if(carnetBtn && /\/carnet\.html$/.test(here)) carnetBtn.classList.add('on');
 
     // Items de navigation inter-pages
     sb.querySelectorAll('.sb-item[data-act]').forEach(function(b){
@@ -191,6 +197,13 @@
             document.body.classList.remove('sb-open');
           }
           location.href = '/oeuvres/place-publique.html';
+          return;
+        }
+        if(act === 'carnet'){
+          if(window.matchMedia('(max-width:860px)').matches){
+            document.body.classList.remove('sb-open');
+          }
+          location.href = '/oeuvres/carnet.html';
           return;
         }
         // CGU & règles / Confidentialité : modale RGPD de SHELL.auth.

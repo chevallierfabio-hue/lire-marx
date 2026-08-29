@@ -752,6 +752,38 @@ sombre (texte foncé sur crème = fort contraste) : le bandeau de chapitre
 `.rdr-header` n'a été repéré qu'à l'œil.
 
 
+## La page « Mon carnet » (mission `carnet-page`)
+
+`oeuvres/carnet.html` — **le pendant PRIVÉ de la Place publique** : là-bas
+les notes partagées, ici les vôtres. Entrée de sidebar juste sous « Place
+publique » (`data-act="carnet"` dans shell.js, marquage `.on` sur sa
+page). La carte « Votre carnet » du tableau de bord y renvoie.
+
+- La page ne fait que LIRE et remettre en ordre : par œuvre (ordre de
+  `bibliotheque.json`), puis par section, du plus récent au plus ancien.
+  **Aucune donnée n'y naît** — on n'écrit pas dans son carnet depuis le
+  carnet, on écrit en lisant.
+- **`SHELL.annotations.allNotes()`** a été ajouté pour elle, à côté de
+  `statsFor()` : le module possède le contrat de stockage, c'est lui qui
+  le lit. La page ne parse jamais le localStorage.
+- **L'annotation retient désormais `label`**, le libellé lisible de sa
+  section (« Section I · Marchandise et monnaie »). Sans lui, hors de la
+  liseuse, une section n'est qu'un numéro dans le store et rien ne
+  permettrait de la nommer. Les annotations antérieures n'en ont pas :
+  elles retombent sur « Section N ».
+- Chaque passage ramène au texte par le **contrat de deep-link** maison,
+  variante explicite : `#s=<section>&q=<citation>&b=&a=`.
+- Connecté, `pullAll` rapatrie d'abord ce qui a été surligné ailleurs :
+  le carnet doit dire la même chose d'un appareil à l'autre.
+
+**Piège (déjà tombé dedans sur Place publique)** : les `path` de
+`bibliotheque.json` sont relatifs à la RACINE (`oeuvres/capital-1.html`)
+alors que ces deux pages vivent DANS `oeuvres/` — sans un `/` de tête,
+le lien résout en `oeuvres/oeuvres/…`. Normaliser à l'entrée.
+
+L'alias hérité `'capital'` → `'capital-1'` est redit ici (comme dans
+place-publique) plutôt que de coupler la page à `SHELL.commune`.
+
 ## L'accueil de l'atelier — le tableau de bord (mission `atelier-tableau-de-bord`)
 
 Diagnostic posé avec le propriétaire (« là ça ne va pas ») : le panneau
