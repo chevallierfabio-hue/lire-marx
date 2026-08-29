@@ -784,6 +784,56 @@ le lien résout en `oeuvres/oeuvres/…`. Normaliser à l'entrée.
 L'alias hérité `'capital'` → `'capital-1'` est redit ici (comme dans
 place-publique) plutôt que de coupler la page à `SHELL.commune`.
 
+## L'en-tête d'œuvre et la barre plate (mission `entete-et-barre-plate`)
+
+Diagnostic mesuré avec le propriétaire : **77 % du premier écran passait
+avant le moindre contenu** (héros 394 px + deux rangées d'onglets 85 px,
+premier contenu à 556 px sur 720). Et l'en-tête était une AFFICHE pour un
+livre que le lecteur venait de choisir dans la bibliothèque : fil
+d'Ariane doublonnant la sidebar, pastille au-dessus du titre, accroche
+publicitaire qui n'était **pas le nom du livre** (celui-ci n'apparaissait
+en grand nulle part), chapô de vente, bouton doublé par le tableau de
+bord, et la page de titre de 1867 en 280 px — l'image que la
+bibliothèque montrait déjà sur sa carte.
+
+**Deux arbitrages du propriétaire :**
+
+1. **L'en-tête, c'est l'identité de l'œuvre et rien d'autre.**
+   `.work-head` : « Le Capital » en Fraunces 900 + « Livre premier » en
+   italique rouge (le motif `h2.sec em` de la maison), puis UNE ligne de
+   métadonnées (auteur · année · traduction · domaine public). ~139 px.
+   Pas de bouton : le tableau de bord juste dessous porte l'action.
+   **`body.at-inner` ne pilote plus rien** — il repliait le héros, qui
+   n'existe plus ; l'en-tête est à sa taille définitive sur les huit
+   panneaux, donc plus de saut entre onglets.
+2. **Une seule rangée d'onglets, collante** (`#worktabs`), avec les huit
+   destinations à plat — **exactement celles que la sidebar listait
+   déjà**. Le niveau « groupe » (Lire / Atelier / Ressources) a disparu :
+   il coûtait une rangée, un clic de plus pour atteindre un panneau, et
+   il portait un DOUBLON — `#atelier-accueil` refaisait la table des
+   matières de « Parcourir », avec son propre widget de progression.
+   Panneau supprimé.
+
+Résultat mesuré : premier contenu à **30 % du premier écran** au lieu de
+77 %.
+
+**La mécanique s'en trouve très simplifiée** : `GROUPS`, `curPanel`,
+`panelTop`, `activateTop` et `#subnav` n'existent plus. Il reste
+`PANELS[]` (id + label), `buildTabs()` qui rend la barre UNE fois, et
+`activateTab(id)` comme entrée unique. `SHELL.tabs` n'a plus besoin
+d'être rejoué à chaque bascule (c'est `#subnav`, reconstruit en
+innerHTML, qui l'imposait) — mais il le reste, c'est sans effet.
+Le hash ne peut plus désigner un « groupe » : l'ambiguïté qui faisait
+ouvrir la page de garde quand on demandait `#lire` a disparu avec eux.
+
+**Piège rencontré** : `nav.tabs` (atelier.css) centre son contenu, et
+`.work-head` en héritait — titre à gauche, métadonnées au milieu. Poser
+`text-align:left` explicitement sur l'en-tête et `justify-content:
+flex-start` sur la barre.
+
+**Fait sur Capital seulement** — les Manuscrits gardent l'ancien héros et
+les deux rangées ; à porter quand la forme est validée.
+
 ## L'accueil de l'atelier — le tableau de bord (mission `atelier-tableau-de-bord`)
 
 Diagnostic posé avec le propriétaire (« là ça ne va pas ») : le panneau

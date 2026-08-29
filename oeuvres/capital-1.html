@@ -548,54 +548,36 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
 .reader.theme-dark .rd-seg button.on{background:var(--accent);color:#fff;}
 
 /* ── Hero de l'œuvre (Le Capital, Livre I) ── */
-.cap-hero{position:relative;overflow:hidden;display:grid;
-  grid-template-columns:1fr auto;gap:clamp(28px,5vw,56px);align-items:start;
-  padding:clamp(36px,5vh,52px) 0 clamp(28px,4vh,44px);}
-.cap-hero-halo{position:absolute;top:40%;left:32%;width:560px;height:340px;
-  pointer-events:none;
-  background:radial-gradient(ellipse at center,rgba(213,64,47,0.095) 0%,transparent 64%);
-  transform:translate(-50%,-50%);}
-.cap-hero-left{position:relative;z-index:1;}
-.cap-breadcrumb{display:flex;align-items:center;gap:6px;font-size:.75rem;
-  color:var(--muted);margin-bottom:14px;
-  font-family:var(--f-ui);}
-.cap-breadcrumb a{color:var(--muted);text-decoration:none;transition:color .15s;}
-.cap-breadcrumb a:hover{color:var(--ink);}
-.cap-badge{display:inline-flex;font-size:.7rem;font-weight:700;letter-spacing:.1em;
-  text-transform:uppercase;color:var(--red-text);
-  background:rgba(213,64,47,0.108);border:1px solid rgba(213,64,47,0.243);
-  border-radius:999px;padding:4px 12px;margin-bottom:16px;}
-.cap-h1{font-family:'Fraunces',serif;font-weight:900;
-  font-size:clamp(2.1rem,4.6vw,3.1rem);letter-spacing:-.025em;
-  color:var(--ink);line-height:1.04;margin-bottom:14px;}
-.cap-desc{font-size:.96rem;line-height:1.7;color:var(--ink-soft);max-width:50ch;
-  font-family:'Spectral',Georgia,serif;}
-.cap-hero-right{position:relative;z-index:1;flex:none;}
-.cap-cover{width:210px;aspect-ratio:3/4;border-radius:18px;overflow:hidden;
-  background:linear-gradient(155deg,#2A2724 0%,#1a1410 55%,#0f0c0a 100%);
-  position:relative;border:1px solid rgba(243,233,212,.10);
-  box-shadow:0 22px 50px -22px rgba(0,0,0,.85);}
-.cap-cover::before{content:'';position:absolute;inset:0;
-  background:radial-gradient(ellipse at 40% 28%,rgba(213,64,47,0.162) 0%,transparent 55%);}
-.cap-cover-caption{position:absolute;bottom:0;left:0;right:0;
-  padding:26px 12px 10px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;
-  color:rgba(247,245,240,.52);
-  background:linear-gradient(to top,rgba(23,22,20,.65),transparent);
-  font-family:var(--f-ui);}
+/* (Le héros de l'œuvre — halo, fil d'Ariane, pastille, accroche, chapô,
+   page de titre — a été remplacé par .work-head : l'identité, et rien
+   d'autre. Ses styles partent avec lui.) */
+
 
 /* ── Tab bar redesignée ── */
-nav.tabs.cap-tabs-bar{position:static;background:transparent;border-top:none;
-  border-bottom:1px solid var(--line);padding:0;justify-content:flex-start;
-  display:flex;flex-wrap:wrap;margin:0 0 0;z-index:1;}
-nav.tabs.cap-tabs-bar .tab{font-family:var(--f-ui);
-  font-size:.88rem;font-weight:600;color:var(--muted);background:transparent;
-  border:none;border-bottom:2px solid transparent;margin-bottom:-1px;
-  padding:11px 18px;cursor:pointer;transition:color .15s,border-color .15s;
-  position:static;}
-nav.tabs.cap-tabs-bar .tab:hover{color:var(--ink);}
-nav.tabs.cap-tabs-bar .tab::after{display:none;}/* remove old underline */
-nav.tabs.cap-tabs-bar .tab.active{color:var(--ink);border-bottom-color:var(--accent);}
-nav.tabs.cap-tabs-bar .tab .num{display:none;}
+/* ── L'en-tête d'œuvre : son identité, sobre ──────────────────────── */
+/* text-align explicite : la classe .tabs de base centre, et l'en-tête en
+   héritait — titre à gauche, métadonnées au milieu. */
+.work-head{padding:clamp(26px,4vh,38px) 0 clamp(18px,2.4vh,24px);text-align:left;}
+.work-title{font-family:'Fraunces',serif;font-weight:900;
+  font-size:clamp(2rem,4.4vw,3rem);letter-spacing:-.03em;line-height:1.02;
+  color:var(--text);margin:0;display:flex;align-items:baseline;
+  gap:.45em;flex-wrap:wrap;}
+.work-vol{font-style:italic;font-weight:500;font-size:.55em;
+  letter-spacing:-.01em;color:var(--red-text);}
+.work-meta{font-family:var(--f-ui);font-size:.82rem;color:var(--muted);
+  margin:12px 0 0;}
+
+/* ── La barre d'onglets : une seule rangée, collante ──────────────── */
+nav.tabs.worktabs{display:flex;gap:2px;flex-wrap:wrap;margin:0;
+  justify-content:flex-start;text-align:left;
+  background:transparent;border-top:none;
+  border-bottom:1px solid var(--line);}
+nav.tabs.worktabs .tab{font-family:var(--f-ui);font-weight:600;
+  font-size:.88rem;color:var(--muted);background:none;border:none;
+  border-bottom:2px solid transparent;padding:11px 15px;cursor:pointer;
+  transition:color .15s,border-color .15s;}
+nav.tabs.worktabs .tab:hover{color:var(--ink);}
+nav.tabs.worktabs .tab.active{color:var(--ink);border-bottom-color:var(--accent);}
 /* Masquer le sous-nav quand "Commencer" (accueil) est actif */
 
 /* ── Onglet "Lire Le Capital" — 2 cartes ── */
@@ -632,20 +614,14 @@ nav.tabs.cap-tabs-bar .tab .num{display:none;}
 .cap-btn-outline:hover{border-color:rgba(243,233,212,.32);background:rgba(243,233,212,.06);}
 /* Responsive hero + cards */
 @media(max-width:740px){
-  .cap-hero{grid-template-columns:1fr;}
-  .cap-hero-right{order:-1;}
-  .cap-cover{width:130px;}
   /* Sur une couverture réduite à 130 px, la mention de source débordait
      sur trois lignes en travers du portrait. */
-  .cap-cover-caption{font-size:8.5px;padding:16px 8px 6px;letter-spacing:.04em;}
   .cap-lire-grid{grid-template-columns:1fr;}
 }
 
 /* ── Image de couverture avec duotone ── */
-.cap-cover-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
-  filter:grayscale(1) contrast(1.05);display:block;}
-.cap-cover::after{content:'';position:absolute;inset:0;
-  background:rgba(213,64,47,0.243);mix-blend-mode:multiply;pointer-events:none;}
+
+
 
 /* ── Section "Trois idées" ── */
 .cap-section-label{font-size:.72rem;font-weight:700;letter-spacing:.22em;
@@ -755,22 +731,12 @@ nav.tabs.cap-tabs-bar .tab .num{display:none;}
    Duotone + assombrissement : à pleine luminosité ces tirages étaient l'objet
    le plus clair de la page et crevaient la pénombre. Ils doivent être DANS la
    lumière de la bougie, pas devant. */
-.cap-cover-img,.cap-idea-vignette img{
+.cap-idea-vignette img{
   filter:grayscale(1) contrast(1.06) sepia(.30) brightness(.66)!important;}
 
 /* ── Liseuse : les titres en rouge profond s'enfonçaient dans le brun-nuit ── */
 .reader .rkicker,.reader .rsrc,.reader h4,
 .ws-text h2,.ws-text h3,.ws-text h4{color:var(--bright);}
-
-/* La légende de source est sortie de .cap-cover : dans l'image, elle
-   recouvrait la moitié du fac-similé sur une couverture réduite à 130 px.
-   Elle reste superposée sur grand écran (.cap-hero-right est en
-   position:relative) et se pose SOUS la couverture en mobile. */
-.cap-cover-caption{position:absolute;bottom:0;left:0;right:0;z-index:1;}
-@media(max-width:740px){
-  .cap-cover-caption{position:static;background:none;padding:8px 0 0;
-    color:var(--muted);font-size:11px;line-height:1.45;letter-spacing:.05em;}
-}
 
 /* Libellés des barres du laboratoire : #fff donnait 3,33:1 sur --const et
    3,74:1 sur --blue, sous le seuil AA à 13,4 px — le fond de page en texte
@@ -779,42 +745,18 @@ nav.tabs.cap-tabs-bar .tab .num{display:none;}
 .compbar .seg-pl,.daybar .sur,.gauge .g-cap{color:#fff;}
 
 /* ══════════ La coquille de travail ══════════
-   Trois défauts tenaient ensemble : le héros occupait 406 à 483 px en tête
-   des NEUF panneaux (première ligne utile à 65-74 % du viewport), les deux
-   rangées d'onglets défilaient hors de portée, et #subnav disparaissait sur
-   deux onglets — ce qui faisait sauter la page de 63 px et déplaçait sous le
-   curseur la barre qu'on venait de cliquer. */
-
-/* Le seuil ne se franchit qu'une fois : hors de l'accueil de l'œuvre, le
-   héros se replie sur son fil d'Ariane et son titre. Le <h1> reste dans le
-   document — c'est le titre de la page — il change seulement d'échelle. */
-body.at-inner .cap-hero{grid-template-columns:1fr;gap:0;
-  padding:14px 0 12px;border-bottom:1px solid var(--line-soft);}
-body.at-inner .cap-hero-right,
-body.at-inner .cap-hero-halo,
-body.at-inner .cap-badge,
-body.at-inner .cap-desc,
-body.at-inner .cap-hero .cap-btn-dark{display:none;}
-body.at-inner .cap-h1{font-size:1.12rem;line-height:1.25;margin-bottom:0;letter-spacing:-.005em;}
-body.at-inner .cap-breadcrumb{margin-bottom:5px;}
-body.at-inner .cap-hero-left{display:flex;flex-direction:column;}
-
-/* Les deux rangées collent sous la topbar (44 px) et gardent une hauteur
-   CONSTANTE, quel que soit le groupe actif. */
-nav.tabs.cap-tabs-bar{position:sticky;top:44px;z-index:62;
+   Elle tenait en trois étages : un héros de 394 px, une rangée de groupes,
+   une rangée de panneaux — 77 % du premier écran avant le moindre contenu.
+   Il n'en reste que deux : l'identité de l'œuvre, puis UNE rangée
+   d'onglets qui colle sous la topbar. Plus de repli du héros à gérer
+   (body.at-inner) : l'en-tête est déjà à sa taille définitive, et le saut
+   de 63 px d'un onglet à l'autre a disparu avec la seconde rangée. */
+nav.tabs.worktabs{position:sticky;top:44px;z-index:62;
   background:var(--bg);padding-top:2px;}
-nav.subnav{position:sticky;top:85px;z-index:61;background:var(--bg);
-  min-height:42px;align-items:center;margin:0;justify-content:flex-start;
-  border-bottom:1px solid var(--line-soft);}
-/* La rangée subordonnée était plus GROSSE que sa rangée parente (15,4 px
-   contre 14,1) et centrée quand celle-ci est alignée à gauche. */
-.subnavbtn{font-size:.83rem;padding:9px 14px;}
-.subnavbtn.active::after{left:14px;right:14px;bottom:4px;}
 @media(max-width:740px){
-  nav.tabs.cap-tabs-bar,nav.subnav{overflow-x:auto;flex-wrap:nowrap;
-    scrollbar-width:none;}
-  nav.tabs.cap-tabs-bar::-webkit-scrollbar,nav.subnav::-webkit-scrollbar{display:none;}
-  .tab,.subnavbtn{white-space:nowrap;flex:0 0 auto;}
+  nav.tabs.worktabs{overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none;}
+  nav.tabs.worktabs::-webkit-scrollbar{display:none;}
+  nav.tabs.worktabs .tab{white-space:nowrap;flex:0 0 auto;}
 }
 </style>
 <script src="../config.js"></script>
@@ -860,35 +802,22 @@ nav.subnav{position:sticky;top:85px;z-index:61;background:var(--bg);
 
   <!-- ===================== ŒUVRE — LE CAPITAL ===================== -->
   <div id="work-capital" class="work-view">
-  <!-- Hero de l'œuvre -->
-  <section class="cap-hero">
-    <div class="cap-hero-halo"></div>
-    <div class="cap-hero-left">
-      <nav class="cap-breadcrumb" aria-label="Fil d'Ariane">
-        <a href="/?skip-anim">Œuvres</a>
-        <span aria-hidden="true">›</span>
-        <span>Le Capital</span>
-      </nav>
-      <span class="cap-badge">Pour commencer sans rien connaître</span>
-      <h1 class="cap-h1">Le livre qui a mis à nu<br>le capitalisme</h1>
-      <p class="cap-desc">Publié en 1867, <em>Le Capital</em> part d'un simple objet en vente pour reconstruire, étape par étape, toute la mécanique de l'exploitation.</p>
-      <button class="cap-btn-dark" style="margin-top:20px" onclick="goLire(1,'I','La marchandise');window.scrollTo({top:0,behavior:'smooth'});">Commencer la lecture →</button>
-    </div>
-    <div class="cap-hero-right">
-      <div class="cap-cover">
-        <img class="cap-cover-img" src="../assets/img/archive/das-kapital-titre-1867.jpg" alt="Das Kapital, page de titre de l'édition originale, Hambourg 1867" loading="lazy">
-      </div>
-        <div class="cap-cover-caption">Page de titre · Hambourg, 1867 · Zentralbibliothek Zürich</div>
-    </div>
-  </section>
+  <!-- L'en-tête d'œuvre : SON IDENTITÉ, et rien d'autre.
+       L'ancien héros (fil d'Ariane, pastille, accroche publicitaire,
+       chapô, bouton, page de titre en 280 px) mangeait 394 px et vendait
+       le livre à quelqu'un qui venait de le choisir dans la bibliothèque.
+       Il ne disait d'ailleurs jamais son nom en grand. -->
+  <header class="work-head">
+    <h1 class="work-title">Le Capital<span class="work-vol">Livre premier</span></h1>
+    <p class="work-meta">Karl Marx · 1867 · traduction Joseph Roy revue par l'auteur · domaine public</p>
+  </header>
 
-  <!-- Barre d'onglets redesignée (logique JS préservée) -->
-  <nav class="tabs cap-tabs-bar">
-    <button class="tab active" data-top="lire">Lire Le Capital</button>
-    <button class="tab" data-top="atelier">Atelier</button>
-    <button class="tab" data-top="ressources">Ressources</button>
-  </nav>
-  <nav class="subnav" id="subnav" aria-label="Sections de l'onglet"></nav>
+  <!-- Une seule rangée d'onglets, collante : les huit destinations, à plat
+       et dans le même ordre que la sidebar. Le niveau « groupe » (Lire /
+       Atelier / Ressources) n'existait que pour regrouper — il coûtait une
+       rangée, un clic, et un panneau doublon (#atelier-accueil, qui
+       refaisait « Parcourir »). -->
+  <nav class="tabs worktabs" id="worktabs" aria-label="Sections de l'œuvre"></nav>
 
   <!-- ACCUEIL — onglet "Lire Le Capital" (2 cartes de départ) -->
   <!-- ACCUEIL — le tableau de bord du lecteur.
@@ -1216,30 +1145,9 @@ nav.subnav{position:sticky;top:85px;z-index:61;background:var(--bg);
   </section>
 
   <!-- ATELIER — LISTE DES CHAPITRES -->
-  <section class="panel" id="atelier-accueil">
-
-    <!-- Tête de panneau (grammaire commune) -->
-    <div class="panel-head">
-      <div class="panel-head-main">
-        <h2 class="sec">Le procès de production <em>du capital</em></h2>
-        <p class="lead">Le Livre I chapitre par chapitre — coche ce que tu as lu, reprends où tu t'étais arrêté.</p>
-      </div>
-      <div class="panel-meta">
-        <div id="atlProg2" class="pg-prog" style="display:none">
-          <div class="pg-bar"><div class="pg-fill" id="atlFill2"></div></div>
-          <div class="pg-count" id="atlCount2">0 sur 33 chapitres</div>
-        </div>
-        <div id="atlProgNA2" class="prog-no-auth">
-          <span>Connecte-toi pour suivre ta progression</span>
-          <button class="prog-no-auth-btn" type="button" onclick="window.SHELL&&window.SHELL.auth&&window.SHELL.auth.openModal()">Se connecter</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Grille de cartes chapitres -->
-    <div id="atlNavlist"></div>
-
-  </section>
+  <!-- (#atelier-accueil a été supprimé : il refaisait la table des
+       matières de « Parcourir », avec son propre widget de progression.
+       La barre plate ne l'expose plus, la sidebar ne l'a jamais exposé.) -->
 
   <!-- DÉRIVATION -->
   <section class="panel" id="deriv">
@@ -1646,28 +1554,12 @@ function renderDashboard(){
 function renderResume(){ renderDashboard(); }
 
 /* ---- navigation onglets ---- */
-/* ── Sémantique d'onglets et repérage — voir SHELL.tabs dans shell.js ──
-   Rejoué à chaque bascule parce que #subnav est reconstruit en innerHTML. */
-function panelLabel(pid){
-  for(const t in GROUPS){
-    const i=GROUPS[t].panels.indexOf(pid);
-    if(i<0)continue;
-    /* Un groupe à panneau unique n'a pas de libellé de sous-onglet
-       (GROUPS.ressources.labels est vide) : on retombe sur l'intitulé de
-       l'onglet haut plutôt que sur la clé technique du groupe. */
-    if(GROUPS[t].labels[i])return GROUPS[t].labels[i];
-    const tb=document.querySelector('.cap-tabs-bar .tab[data-top="'+t+'"]');
-    return tb?tb.textContent.trim():pid;
-  }
-  return pid;
-}
+function panelExists(id){ return PANELS.some(p=>p.id===id); }
+/* ── Sémantique d'onglets et repérage — voir SHELL.tabs dans shell.js ── */
 let a11yBooted=false;
 function syncTabsA11y(pid){
   const S=window.SHELL;if(!S)return;
-  if(S.tabs){
-    S.tabs(document.querySelector('.cap-tabs-bar'),b=>curPanel[b.dataset.top]);
-    S.tabs(document.getElementById('subnav'),b=>b.dataset.panel);
-  }
+  if(S.tabs) S.tabs(document.getElementById('worktabs'),b=>b.dataset.panel);
   if(S.setWorkTab)S.setWorkTab(pid);
   /* Le focus RESTE sur l'onglet (motif ARIA APG) ; c'est la région live qui
      dit que le panneau a changé. Rien n'est annoncé au tout premier rendu :
@@ -1681,7 +1573,9 @@ function syncTabsA11y(pid){
   if(a11yBooted && !/^#(note=|s=)/.test(location.hash)){
     try{ history.replaceState(null,'','#'+pid); }catch(e){}
   }
-  document.body.classList.toggle('at-inner', pid!=='accueil');
+  /* body.at-inner ne pilote plus rien : il repliait le héros, qui n'existe
+     plus — l'en-tête est désormais à sa taille définitive sur les huit
+     panneaux. */
   if(pid!=='lire') document.body.classList.remove('at-reading');
   /* Changer d'onglet en cours de lecture laissait le lecteur au milieu de la
      page précédente, sur un panneau dont le haut était 250 px plus bas. On
@@ -1696,29 +1590,43 @@ function syncTabsA11y(pid){
   a11yBooted=true;
 }
 
-const GROUPS={
- lire:{panels:['accueil','nav','lire'],labels:['Commencer','Parcourir','Texte intégral']},
- atelier:{panels:['atelier-accueil','deriv','labo','explore','chrono'],labels:['Chapitres','Cheminement','Modèles','Explorations','Chronologie']},
- ressources:{panels:['ressources'],labels:['Ressources']}
-};
-const curPanel={lire:'accueil',atelier:'atelier-accueil',ressources:'ressources'};
-function panelTop(id){for(const t in GROUPS)if(GROUPS[t].panels.indexOf(id)>=0)return t;return 'lire';}
-function activateTop(top){
-  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.top===top));
-  const g=GROUPS[top]||GROUPS.accueil,sn=document.getElementById('subnav');
-  /* La seconde rangée est TOUJOURS rendue, même pour un groupe à panneau
-     unique : l'escamoter faisait sauter la page de 63 px d'un onglet à
-     l'autre et déplaçait sous le curseur la barre qu'on venait de cliquer. */
-  sn.innerHTML=g.panels.map((pid,i)=>`<button type="button" class="subnavbtn${pid===curPanel[top]?' active':''}" data-panel="${pid}">${g.labels[i]||pid}</button>`).join('');
-  sn.querySelectorAll('.subnavbtn').forEach(b=>b.addEventListener('click',()=>{curPanel[top]=b.dataset.panel;activateTop(top);}));
-  const pid=curPanel[top];document.querySelectorAll('.panel').forEach(x=>x.classList.toggle('active',x.id===pid));
+/* Les huit destinations de l'œuvre, à plat — dans le même ordre que la
+   sidebar, qui les listait déjà ainsi. Le niveau « groupe » a disparu :
+   il coûtait une rangée d'onglets, un clic de plus pour atteindre un
+   panneau, et un doublon (#atelier-accueil refaisait « Parcourir »). */
+const PANELS=[
+ {id:'accueil',    label:'Commencer'},
+ {id:'nav',        label:'Parcourir'},
+ {id:'lire',       label:'Texte intégral'},
+ {id:'deriv',      label:'Cheminement'},
+ {id:'labo',       label:'Modèles'},
+ {id:'explore',    label:'Explorations'},
+ {id:'chrono',     label:'Chronologie'},
+ {id:'ressources', label:'Ressources'}
+];
+function panelLabel(id){for(const p of PANELS)if(p.id===id)return p.label;return id;}
+/* La barre est rendue UNE fois : plus rien ne la reconstruit à chaque
+   bascule (c'est #subnav qui l'imposait, et qui obligeait SHELL.tabs à
+   être réentrant). Seule la classe active change ensuite. */
+function buildTabs(){
+  const bar=document.getElementById('worktabs');
+  if(!bar)return;
+  bar.innerHTML=PANELS.map(p=>
+    `<button type="button" class="tab" data-panel="${p.id}">${p.label}</button>`).join('');
+  bar.querySelectorAll('.tab').forEach(b=>
+    b.addEventListener('click',()=>activateTab(b.dataset.panel)));
+}
+function activateTab(id){
+  if(!panelExists(id))id='accueil';
+  document.querySelectorAll('#worktabs .tab').forEach(b=>
+    b.classList.toggle('active',b.dataset.panel===id));
+  document.querySelectorAll('.panel').forEach(x=>x.classList.toggle('active',x.id===id));
   /* Différé d'un tick : au boot d'un deep-link #labo, cet appel partait
      AVANT le `const re0` du même bloc script (TDZ) — l'exception tuait
      tout le reste du script de la page. */
-  if(pid==='labo')setTimeout(drawTRPF,0);
-  syncTabsA11y(pid);
+  if(id==='labo')setTimeout(drawTRPF,0);
+  syncTabsA11y(id);
 }
-function activateTab(id){const t=panelTop(id);curPanel[t]=id;activateTop(t);}
 function activateSub(s){document.querySelectorAll('.subtab').forEach(x=>{const on=x.dataset.sub===s;x.classList.toggle('active',on);x.setAttribute('aria-pressed',on?'true':'false');});
   document.querySelectorAll('.subpanel').forEach(x=>x.classList.toggle('active',x.id===s));if(s==='s-trpf')drawTRPF();setTimeout(syncGraphLabels,0);}
 function goLabo(s){activateTab('labo');activateSub(s);window.scrollTo({top:0,behavior:'smooth'});}
@@ -1726,31 +1634,17 @@ function goDeriv(n){activateTab('deriv');window.scrollTo({top:0,behavior:'smooth
   setTimeout(()=>{const el=document.querySelector('.walk-step[data-step="'+n+'"]');if(!el)return;
     el.classList.add('flash');el.scrollIntoView({behavior:'smooth',block:'center'});setTimeout(()=>el.classList.remove('flash'),1600);},150);}
 function goLire(n,num,title){activateTab('lire');document.getElementById('chapSelect').value=n+'|'+num+'|'+title;showSelection(true);window.scrollTo({top:0,behavior:'smooth'});}
-document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{activateTop(t.dataset.top);window.scrollTo({top:0,behavior:'smooth'});}));
 document.querySelectorAll('.subtab').forEach(t=>t.addEventListener('click',()=>activateSub(t.dataset.sub)));
 
 /* ── Init synchrone : active l'onglet par défaut dès le chargement.
    Permet aussi un override via hash URL (ex: #atelier, #ressources). ── */
 (function(){
-  /* Le hash n'acceptait que les trois GROUPES : un lien vers un panneau
-     précis (#labo, #chrono) était ignoré, et le rechargement ramenait
-     toujours à l'accueil. Il accepte maintenant les deux. */
-  function panelExists(id){
-    for(var t in GROUPS){ if(GROUPS[t].panels.indexOf(id)>=0) return true; }
-    return false;
-  }
-  function bootFromHash(){
-    var h=(location.hash||'').replace(/^#/,'');
-    /* « lire », « accueil » et « ressources » nomment À LA FOIS un groupe et
-       un panneau. Le panneau est le plus précis des deux et doit gagner :
-       sinon #lire ouvrait le GROUPE, dont le panneau par défaut est
-       l'accueil — on demandait le texte intégral, on obtenait la page de
-       garde. activateTab active de toute façon le groupe qui le contient. */
-    if(panelExists(h)) activateTab(h);
-    else if(h in GROUPS) activateTop(h);
-    else activateTop('lire');
-  }
-  bootFromHash();
+  buildTabs();
+  /* Un panneau par nom, et c'est tout : le hash ne peut plus désigner un
+     « groupe » puisqu'il n'y en a plus — l'ambiguïté qui faisait ouvrir la
+     page de garde quand on demandait #lire a disparu avec eux. */
+  var h=(location.hash||'').replace(/^#/,'');
+  activateTab(panelExists(h)?h:'accueil');
   /* Un hash qui désigne un panneau désigne AUSSI un élément réel du
      document : le navigateur y saute tout seul et l'on débarque à 369 px du
      haut, sous la coquille collante. On remet en haut. */
@@ -1772,7 +1666,7 @@ function showWork(id){
   document.querySelectorAll('.work-view').forEach(w=>{w.style.display='none';});
   const w=document.getElementById(id);
   if(w){w.style.display='block';}
-  activateTop('lire');
+  activateTab('accueil');
   window.scrollTo(0, 0);
   setTimeout(function(){ window.scrollTo(0, 0); }, 0);
 }
@@ -3169,7 +3063,7 @@ installShell({
   ]
 });
 /* Le bloc d'onglets s'initialise AVANT que shell.js ne soit chargé : au
-   premier activateTop, SHELL.tabs n'existe pas encore et syncTabsA11y sort
+   premier activateTab, SHELL.tabs n'existe pas encore et syncTabsA11y sort
    sans rien poser. On rejoue donc une fois le shell installé. */
 (function(){
   var p=document.querySelector('.panel.active');
