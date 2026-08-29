@@ -1576,16 +1576,17 @@ function renderDashboard(){
 
   /* 2. la progression — chiffrée seulement si on peut la chiffrer */
   h+='<div class="dash-card">';
+  h+='<div class="dash-k">Progression</div>';
   if(d.logged){
     var pct=Math.round(d.done/d.total*100);
-    h+='<div class="dash-k">Progression</div>'
-      +'<div class="dash-num">'+d.done+'<span> / '+d.total+'</span></div>'
+    h+='<div class="dash-num">'+d.done+'<span> / '+d.total+'</span></div>'
       +'<div class="pg-bar"><div class="pg-fill" style="width:'+pct+'%"></div></div>'
-      +'<div class="dash-sub">chapitres marqués comme lus'+(pct?' · '+pct+'\u00a0%':'')+'</div>';
+      +'<div class="dash-sub">chapitres marqués comme lus'+(pct?' · '+pct+'\u00a0%':'')+'</div>'
+      +'<div class="dash-acts"><button class="cap-btn-outline" type="button" id="dashNav">Parcourir les chapitres →</button></div>';
   } else {
-    h+='<div class="dash-k">Progression</div>'
-      +'<div class="dash-chap-t dash-none">Suivre votre avancée chapitre par chapitre demande un compte — vos notes, elles, restent sur cet appareil.</div>'
-      +'<div class="dash-acts"><button class="lk" type="button" onclick="window.SHELL&&SHELL.auth&&SHELL.auth.openModal()">Se connecter</button></div>';
+    h+='<div class="dash-chap-t dash-none">Suivre votre avancée chapitre par chapitre demande un compte — vos notes, elles, restent sur cet appareil.</div>'
+      +'<div class="dash-acts"><button class="cap-btn-outline" type="button" id="dashNav">Parcourir les chapitres →</button>'
+      +'<button class="lk" type="button" onclick="window.SHELL&&SHELL.auth&&SHELL.auth.openModal()">Se connecter</button></div>';
   }
   h+='</div>';
 
@@ -1612,10 +1613,34 @@ function renderDashboard(){
   h+='</div></section>';
   slot.innerHTML=h;
 
+  var dn=document.getElementById('dashNav');
+  if(dn)dn.onclick=function(){
+    activateTab('nav');
+    window.scrollTo({top:0,behavior:'smooth'});
+  };
+
   var rb=document.getElementById('resumeBtn');
   if(rb)rb.onclick=function(){
-    document.getElementById('chapSelect').value=d.resume.sel;
+    /* Il FAUT basculer sur l'onglet « Texte intégral » avant de rendre :
+       showSelection() écrit dans #readerOut, qui vit dans ce panneau. Sans
+       activateTab, le texte se chargeait dans un panneau masqué et le clic
+       paraissait sans effet. Même chemin que goLire(). */
+    activateTab('lire');
+    var sl=document.getElementById('chapSelect');
+    sl.value=d.resume.sel;
+    /* Une reprise enregistrée peut ne plus correspondre à aucune option
+       (liste de chapitres retouchée, valeur d'une ancienne version) :
+       poser .value ne prend alors pas, et showSelection partait en
+       TypeError sans rien dire. On retombe sur le premier chapitre et on
+       oublie la reprise périmée plutôt que d'échouer en silence. */
+    if(!sl.value){
+      if(window.SHELL&&SHELL.resume)SHELL.resume.clear('capital-1');
+      sl.selectedIndex=0;
+      if(window.SHELL&&SHELL.announce)
+        SHELL.announce('Reprise introuvable — ouverture du premier chapitre.');
+    }
     showSelection(true);
+    window.scrollTo({top:0,behavior:'smooth'});
   };
 }
 
