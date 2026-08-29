@@ -846,6 +846,37 @@ flex-start` sur la barre.
 **Fait sur Capital seulement** — les Manuscrits gardent l'ancien héros et
 les deux rangées ; à porter quand la forme est validée.
 
+## L'accueil a disparu, la reprise est montée (mission `reprise-en-bandeau`)
+
+Suite logique du tableau de bord et de la sortie de « Pour entrer » : à
+force de bien répartir, **l'accueil s'était vidé**. Inventaire fait avec
+le propriétaire de ce qu'il disait encore en propre :
+
+- l'identité de l'œuvre → elle est dans l'en-tête ;
+- les trois portes → elles ont leur panneau (« Pour entrer ») ;
+- la progression → elle est dans « Parcourir », où elle sert ;
+- le carnet → il a sa page, et son entrée de sidebar ;
+- l'incipit → il accueillait le nouveau venu, mais c'est « Pour entrer »
+  qui fait ce travail désormais, avec trois portes au lieu d'une phrase ;
+- **la reprise** → la seule chose qu'aucun autre endroit ne donnait.
+
+Deux boutons du tableau de bord doublonnaient d'ailleurs la navigation
+(« Parcourir les chapitres → » = l'onglet Parcourir ; « Ouvrir mon
+carnet → » = l'entrée de sidebar).
+
+**Arbitrage du propriétaire : le panneau est supprimé, la reprise monte
+en bandeau** (`.resume-band`, `renderResumeBand()`), posé entre
+l'en-tête et la barre d'onglets — donc **hors des panneaux, visible
+depuis n'importe quel onglet**, alors qu'il était jusque-là caché
+derrière celui qu'un lecteur qui revient ne rouvre pas. Rien ne
+s'affiche s'il n'y a rien à reprendre : pas de bandeau qui s'excuse
+d'être vide. La page s'ouvre désormais sur « Pour entrer ».
+
+`renderResume()` reste l'alias appelé après `installShell` et à chaque
+changement de session. Sous 640 px le titre du chapitre s'efface (son
+numéro suffit) : sans quoi le bandeau se dépliait sur trois lignes et
+repoussait le contenu de 156 px.
+
 ## L'accueil de l'atelier — le tableau de bord (mission `atelier-tableau-de-bord`)
 
 Diagnostic posé avec le propriétaire (« là ça ne va pas ») : le panneau
