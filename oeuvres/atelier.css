@@ -502,3 +502,9 @@ h2.sec em{font-style:italic;font-weight:500;color:var(--red-text);}
   .dash-grid{grid-template-columns:1fr;}
   .dash-card.dash-notes{grid-column:1;}
 }
+
+/* Un lien qui porte un habit de bouton n'est pas souligné. Ces classes
+   ont été écrites pour des <button>, qui ne soulignent rien ; posées sur
+   un <a> (« Ouvrir mon carnet → »), le navigateur ajoutait son trait. */
+a.btn,a.lk,a.cap-btn-dark,a.cap-btn-light,a.cap-btn-outline,a.prog-no-auth-btn{
+  text-decoration:none;}
