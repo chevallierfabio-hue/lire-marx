@@ -599,23 +599,8 @@ nav.tabs.cap-tabs-bar .tab .num{display:none;}
 /* Masquer le sous-nav quand "Commencer" (accueil) est actif */
 
 /* ── Onglet "Lire Le Capital" — 2 cartes ── */
-/* Le bandeau de départ (remplace .cap-lire-grid / les deux .cap-card) */
-.cap-start{display:grid;grid-template-columns:1.55fr 1fr;margin-bottom:44px;
-  background:linear-gradient(150deg,#2c2117 0%,#211a12 58%,#1b150e 100%);
-  border:1px solid rgba(216,173,76,.20);border-radius:18px;}
-.cap-start-main{padding:26px 32px 26px;}
-.cap-start-side{padding:26px 32px 26px;border-left:1px solid var(--border);
-  display:flex;flex-direction:column;}
-.cap-start-title{font-family:'Fraunces',serif;font-weight:900;font-size:1.6rem;
-  letter-spacing:-.015em;color:var(--text);margin:6px 0 10px;}
-.cap-start .cap-card-desc{max-width:52ch;}
-.cap-start #resumeSlot{margin-top:12px;}
-.cap-start button{margin-top:14px;}
-.cap-start-side .cap-card-desc{margin-top:6px;}
-@media(max-width:900px){
-  .cap-start{grid-template-columns:1fr;}
-  .cap-start-side{border-left:0;border-top:1px solid var(--border);}
-}
+/* (Le bandeau de départ .cap-start a été retiré avec l'ancien panneau
+   d'accueil : le tableau de bord l'a remplacé. Voir renderDashboard.) */
 .cap-lire-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:28px;}
 .cap-card{background:var(--surface);border-radius:18px;padding:22px 22px 20px;
   border:1px solid transparent;transition:transform .2s,box-shadow .2s;}
@@ -906,28 +891,15 @@ nav.subnav{position:sticky;top:85px;z-index:61;background:var(--bg);
   <nav class="subnav" id="subnav" aria-label="Sections de l'onglet"></nav>
 
   <!-- ACCUEIL — onglet "Lire Le Capital" (2 cartes de départ) -->
-  <section class="panel" id="accueil">
+  <!-- ACCUEIL — le tableau de bord du lecteur.
+       Ce panneau ne ROUTE plus : la barre d'onglets et la sidebar s'en
+       chargent déjà, et il redisait « Commencer la lecture » que le héros
+       porte juste au-dessus. Il dit maintenant OÙ L'ON EN EST — reprise,
+       progression, carnet — et, pour qui arrive, il ouvre le livre par
+       ses propres mots. Rendu par renderDashboard(). -->
+  <section class="panel active" id="accueil">
 
-    <!-- Le bandeau de départ : une seule surface éclairée (le dégradé
-         chaud d'emphase du socle), le texte à gauche, le parcours à
-         droite derrière un filet. Les deux cartes jumelles à icône se
-         disputaient le même geste. -->
-    <section class="at-sec">
-      <span class="at-sec-label">Le texte</span>
-      <h2 class="at-sec-h">Commencer la lecture</h2>
-      <p class="at-sec-lede">Le Livre I en trente-trois chapitres, dans la traduction que Marx a lui-même revue — à lire d'un bout à l'autre, ou à reprendre où vous vous êtes arrêté.</p>
-    <div class="cap-start" id="capLireGrid">
-      <div class="cap-start-main">
-        <div class="cap-card-desc">Le texte intégral du Livre I en 33 chapitres — traduction Joseph Roy (1872), revue par Marx, domaine public.</div>
-        <div id="resumeSlot"></div>
-        <button class="cap-btn-light" onclick="goLire(1,'I','La marchandise');window.scrollTo({top:0,behavior:'smooth'});">Lire →</button>
-      </div>
-      <div class="cap-start-side">
-        <span class="cap-action-eyebrow">Ton parcours</span>
-        <div id="capProgCard"><!-- rempli dynamiquement par syncProgUI() --></div>
-      </div>
-    </div>
-    </section>
+    <div id="dashSlot"></div>
 
     <!-- Trois idées pour entrer dans le livre -->
     <section class="at-sec">
@@ -976,22 +948,6 @@ nav.subnav{position:sticky;top:85px;z-index:61;background:var(--bg);
       </article>
 
     </div>
-
-    <!-- Deux blocs d'action -->
-    </section>
-
-    <!-- Aller plus loin. Le bloc « Lecture guidée — Rejoindre → » qui
-         tenait ici doublonnait l'onglet « Parcourir » de la barre, à
-         deux rangées au-dessus : retiré. -->
-    <section class="at-sec">
-      <span class="at-sec-label">Aller plus loin</span>
-      <h2 class="at-sec-h">Autour du livre</h2>
-      <div class="at-more">
-        <div class="at-more-txt">
-          <div class="cap-action-desc">Cours de David Harvey, émissions de radio, conférences et lectures complémentaires — en libre accès, pour préparer la lecture ou la prolonger.</div>
-        </div>
-        <button class="cap-btn-outline" onclick="activateTab('ressources');window.scrollTo({top:0,behavior:'smooth'});">Voir les ressources →</button>
-      </div>
     </section>
 
   </section>
@@ -1556,22 +1512,119 @@ function syncGraphLabels(){
 document.addEventListener('input', function(e){
   if(e.target && e.target.type==='range') setTimeout(syncGraphLabels, 0);
 });
-/* ── Reprise de lecture : la carte de démarrage propose de repartir d'où
-   l'on s'est arrêté, plutôt que de renvoyer au chapitre I. On ne saute
-   JAMAIS d'office — c'est une proposition, pas une redirection. ── */
-function renderResume(){
-  var slot=document.getElementById('resumeSlot');
-  if(!slot||!window.SHELL||!SHELL.resume)return;
-  var r=SHELL.resume.get('capital-1');
-  if(!r||!r.sel){ slot.innerHTML=''; return; }
-  slot.innerHTML='<button class="cap-btn-dark" type="button" id="resumeBtn">Reprendre : chapitre '+r.num+' →</button>'
-    +'<button class="cap-btn-outline" type="button" id="resumeClr" style="margin-left:8px">Oublier</button>';
-  document.getElementById('resumeBtn').onclick=function(){
-    document.getElementById('chapSelect').value=r.sel;
+/* ── Le tableau de bord du lecteur ────────────────────────────────────
+   Ce panneau ne route plus (la barre d'onglets et la sidebar le font, et
+   il redisait le bouton du héros) : il dit OÙ L'ON EN EST. Deux états —
+   et l'état vide n'est pas une coquille, c'est le livre qui s'ouvre par
+   ses propres mots. Tout ce qu'il affiche vient de données RÉELLES :
+   SHELL.resume et le carnet d'annotations vivent en localStorage (donc
+   sans compte), la progression chapitre par chapitre demande une
+   session. On n'affiche jamais une ligne qu'on ne peut pas remplir. ── */
+var INCIPIT='La richesse des sociétés dans lesquelles règne le mode de production capitaliste s\'annonce comme une « immense accumulation de marchandises ».';
+
+function dashData(){
+  var r=(window.SHELL&&SHELL.resume)?SHELL.resume.get('capital-1'):null;
+  var pg=window.SHELL&&SHELL.progress;
+  var logged=!!(pg&&pg.isLoggedIn());
+  var done=(logged&&pg)?pg.getSet().size:0;
+  var an=(window.SHELL&&SHELL.annotations&&SHELL.annotations.statsFor)
+    ?SHELL.annotations.statsFor('capital'):{count:0,sections:0,latest:[]};
+  return {resume:(r&&r.sel)?r:null, logged:logged, done:done, total:33, anno:an,
+          started:!!((r&&r.sel)||done||an.count)};
+}
+
+function dEsc(x){return String(x==null?'':x).replace(/[&<>"]/g,function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+
+function renderDashboard(){
+  var slot=document.getElementById('dashSlot');
+  if(!slot)return;
+  var d=dashData(), h='';
+
+  if(!d.started){
+    /* On arrive : le livre s'ouvre par sa première phrase. Pas de bouton
+       « commencer » ici — le héros le porte déjà, à trois centimètres. */
+    h+='<section class="at-sec dash-open">'
+      +'<span class="at-sec-label">Les premiers mots</span>'
+      +'<blockquote class="dash-incipit">'+dEsc(INCIPIT)+'</blockquote>'
+      +'<p class="dash-incipit-src">Le Capital, Livre I, chapitre premier — traduction Joseph Roy, 1872</p>'
+      +'<p class="dash-hint">Votre progression et vos notes s\'afficheront ici dès que vous aurez commencé à lire.</p>'
+      +'</section>';
+    slot.innerHTML=h;
+    return;
+  }
+
+  /* On lit déjà : où l'on en est. */
+  h+='<section class="at-sec">'
+    +'<span class="at-sec-label">Votre lecture</span>'
+    +'<h2 class="at-sec-h">Où vous en êtes</h2>'
+    +'<div class="dash-grid">';
+
+  /* 1. la reprise — la seule action du panneau, et elle est personnelle */
+  h+='<div class="dash-card dash-resume">';
+  if(d.resume){
+    h+='<div class="dash-k">Reprendre</div>'
+      +'<div class="dash-chap">Chapitre '+dEsc(d.resume.num)+'</div>'
+      +'<div class="dash-chap-t">'+dEsc(d.resume.title||'')+'</div>'
+      +'<div class="dash-acts"><button class="cap-btn-light" type="button" id="resumeBtn">Reprendre la lecture →</button>'
+      +'<button class="lk" type="button" id="resumeClr">Oublier</button></div>';
+  } else {
+    h+='<div class="dash-k">Reprendre</div>'
+      +'<div class="dash-chap-t dash-none">Aucun chapitre en cours — la lecture reprendra ici.</div>'
+      +'<div class="dash-acts"><button class="cap-btn-light" type="button" onclick="goLire(1,\'I\',\'La marchandise\');window.scrollTo({top:0,behavior:\'smooth\'});">Ouvrir le chapitre I →</button></div>';
+  }
+  h+='</div>';
+
+  /* 2. la progression — chiffrée seulement si on peut la chiffrer */
+  h+='<div class="dash-card">';
+  if(d.logged){
+    var pct=Math.round(d.done/d.total*100);
+    h+='<div class="dash-k">Progression</div>'
+      +'<div class="dash-num">'+d.done+'<span> / '+d.total+'</span></div>'
+      +'<div class="pg-bar"><div class="pg-fill" style="width:'+pct+'%"></div></div>'
+      +'<div class="dash-sub">chapitres marqués comme lus'+(pct?' · '+pct+'\u00a0%':'')+'</div>';
+  } else {
+    h+='<div class="dash-k">Progression</div>'
+      +'<div class="dash-chap-t dash-none">Suivre votre avancée chapitre par chapitre demande un compte — vos notes, elles, restent sur cet appareil.</div>'
+      +'<div class="dash-acts"><button class="lk" type="button" onclick="window.SHELL&&SHELL.auth&&SHELL.auth.openModal()">Se connecter</button></div>';
+  }
+  h+='</div>';
+
+  /* 3. le carnet — ce que le lecteur a écrit, sans compte */
+  h+='<div class="dash-card dash-notes">'
+    +'<div class="dash-k">Votre carnet</div>';
+  if(d.anno.count){
+    h+='<div class="dash-num">'+d.anno.count+'<span> passage'+(d.anno.count>1?'s':'')+'</span></div>'
+      +'<div class="dash-sub">dans '+d.anno.sections+' chapitre'+(d.anno.sections>1?'s':'')+'</div>';
+    if(d.anno.latest.length){
+      h+='<ul class="dash-last">';
+      d.anno.latest.forEach(function(a){
+        var q=a.quote.length>90?a.quote.slice(0,90)+'…':a.quote;
+        h+='<li><span class="dash-dot dash-'+dEsc(a.color)+'"></span>'
+          +'<span class="dash-q">'+dEsc(q)+'</span></li>';
+      });
+      h+='</ul>';
+    }
+  } else {
+    h+='<div class="dash-chap-t dash-none">Sélectionnez un passage dans le texte pour le surligner : vos passages se rassembleront ici.</div>';
+  }
+  h+='</div>';
+
+  h+='</div></section>';
+  slot.innerHTML=h;
+
+  var rb=document.getElementById('resumeBtn');
+  if(rb)rb.onclick=function(){
+    document.getElementById('chapSelect').value=d.resume.sel;
     showSelection(true);
   };
-  document.getElementById('resumeClr').onclick=function(){ SHELL.resume.clear('capital-1'); renderResume(); };
+  var rc=document.getElementById('resumeClr');
+  if(rc)rc.onclick=function(){ SHELL.resume.clear('capital-1'); renderDashboard(); };
 }
+
+/* l'ancien nom reste : il est rappelé après installShell et à chaque
+   changement de session */
+function renderResume(){ renderDashboard(); }
 
 /* ---- navigation onglets ---- */
 /* ── Sémantique d'onglets et repérage — voir SHELL.tabs dans shell.js ──
@@ -2013,20 +2066,9 @@ function syncProgUI(){
   var done=p?p.getSet():new Set();
   var total=33;var cnt=loggedIn?done.size:0;var pct=total?Math.round(cnt/total*100):0;
 
-  /* Carte "Ton parcours" */
-  var pc=document.getElementById('capProgCard');
-  if(pc){
-    if(loggedIn){
-      pc.innerHTML='<div class="cap-card-desc">Suis ta progression chapitre par chapitre dans l\'atelier de lecture.</div>'
-        +'<div class="cap-prog-wrap"><div class="cap-prog-bg"><div class="cap-prog-fill" style="width:'+pct+'%"></div></div>'
-        +'<div class="cap-prog-txt">'+cnt+' sur '+total+' chapitres'+(pct?' — '+pct+'% complété':'')+'</div></div>'
-        +'<button class="cap-btn-outline" onclick="activateTab(\'nav\');window.scrollTo({top:0,behavior:\'smooth\'});">Continuer l\'atelier →</button>';
-    } else {
-      pc.innerHTML='<div class="cap-card-desc">Connecte-toi pour suivre ta progression de lecture chapitre par chapitre.</div>'
-        +'<button class="cap-btn-dark" style="margin-top:8px" type="button" '
-        +'onclick="window.SHELL&&window.SHELL.auth&&window.SHELL.auth.openModal()">Se connecter →</button>';
-    }
-  }
+  /* Le tableau de bord de l'accueil : la progression n'y est chiffrée
+     qu'une fois la session ouverte — il se re-rend donc ici. */
+  if(typeof renderDashboard==='function')renderDashboard();
 
   /* Widget de progression de l'onglet Atelier-accueil */
   var na2=document.getElementById('atlProgNA2');

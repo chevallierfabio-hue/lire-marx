@@ -752,6 +752,52 @@ sombre (texte foncé sur crème = fort contraste) : le bandeau de chapitre
 `.rdr-header` n'a été repéré qu'à l'œil.
 
 
+## L'accueil de l'atelier — le tableau de bord (mission `atelier-tableau-de-bord`)
+
+Diagnostic posé avec le propriétaire (« là ça ne va pas ») : le panneau
+d'accueil **disait trois fois la même chose**. « Commencer la lecture »
+existait en trois exemplaires — le bouton du héros, l'onglet
+« Commencer », et le titre + bouton de la première section ; « Aller
+plus loin » doublonnait l'onglet Ressources exactement comme le bloc
+« Rejoindre → » qu'on venait de retirer ; et le seul contenu propre du
+panneau, c'étaient les trois idées. Le reste était de la navigation
+déguisée en contenu, par-dessus trois navigations concurrentes (6
+onglets + 8 entrées de sidebar).
+
+**Arbitrage du propriétaire : le panneau devient un TABLEAU DE BORD.**
+Il ne route plus — la barre d'onglets et la sidebar s'en chargent — il
+dit OÙ L'ON EN EST. Deux états, tous deux nourris de données réelles :
+
+- **Qui arrive** (rien en mémoire) : le livre s'ouvre par sa PREMIÈRE
+  PHRASE (`INCIPIT`, en dur — pas de fetch : la page d'accueil ne doit
+  pas dépendre du réseau), sourcée, plus une ligne disant que
+  progression et notes s'afficheront ici. **Aucun bouton « commencer »**
+  — le héros le porte à trois centimètres au-dessus.
+- **Qui lit déjà** : trois cartes — la reprise (`SHELL.resume`), la
+  progression (`SHELL.progress`, chiffrée seulement si la session est
+  ouverte, sinon on dit pourquoi), et le carnet (les surlignages, avec
+  les trois derniers passages et la pastille à la couleur du
+  surlignage).
+
+**Règle tenue : on n'affiche jamais une ligne qu'on ne peut pas
+remplir.** La progression demande un compte, les notes et la reprise non
+(localStorage) — chaque carte le dit dans son propre état vide au lieu
+de montrer un zéro.
+
+**`SHELL.annotations.statsFor(work)`** a été ajouté pour ça : le module
+possède le contrat de stockage, c'est donc LUI qui le lit et le résume
+(`{count, sections, withNote, latest[3]}`) — la page ne parse jamais le
+localStorage elle-même, sinon la forme du store vivrait à deux endroits
+qui divergeraient.
+
+`renderResume()` reste comme alias de `renderDashboard()` : c'est le nom
+que rappellent `installShell` et les changements de session.
+`syncProgUI()` ne pilote plus de carte « Ton parcours » (disparue) et se
+contente de re-rendre le tableau.
+
+**Fait sur Capital seulement** — les Manuscrits gardent l'ancien
+accueil ; à porter quand la forme est validée.
+
 ## Les pages d'atelier — le mouvement (mission `ateliers-mouvement`)
 
 Demande du propriétaire : « styliser et animer les blocs et sections des

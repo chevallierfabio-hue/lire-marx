@@ -1081,11 +1081,36 @@
   });
 
   // ----- API exposée -----
+  /* Lecture du carnet, pour qui veut le RÉSUMER sans le rendre (le
+     tableau de bord de l'atelier). Le module possède le contrat de
+     stockage : c'est lui qui le lit, jamais la page — sinon la forme du
+     store serait dupliquée en deux endroits qui divergeraient. */
+  function statsFor(work){
+    var out = { count: 0, sections: 0, withNote: 0, latest: [] };
+    var seen = {};
+    Object.keys(store).forEach(function(k){
+      var cut = k.lastIndexOf('|');
+      if (cut < 0 || k.slice(0, cut) !== work) return;
+      var sec = k.slice(cut + 1);
+      (store[k] || []).forEach(function(a){
+        out.count++;
+        if (!seen[sec]) { seen[sec] = 1; out.sections++; }
+        if (a.note) out.withNote++;
+        out.latest.push({ section: sec, quote: a.quote || '', note: a.note || '',
+                          color: a.color || 'gold', created: a.created || 0 });
+      });
+    });
+    out.latest.sort(function(a, b){ return b.created - a.created; });
+    out.latest = out.latest.slice(0, 3);
+    return out;
+  }
+
   SHELL.annotations = {
     _init: _init,
     pullAll: pullAll,
     exportAll: exportAll,
     importAll: importAll,
+    statsFor: statsFor,
     // forum (5b)
     loadPublic: function(){ return loadPublic(curWork, curSection); },
     flashAnchor: flashAnchor
