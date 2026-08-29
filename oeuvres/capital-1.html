@@ -1566,8 +1566,7 @@ function renderDashboard(){
     h+='<div class="dash-k">Reprendre</div>'
       +'<div class="dash-chap">Chapitre '+dEsc(d.resume.num)+'</div>'
       +'<div class="dash-chap-t">'+dEsc(d.resume.title||'')+'</div>'
-      +'<div class="dash-acts"><button class="cap-btn-light" type="button" id="resumeBtn">Reprendre la lecture →</button>'
-      +'<button class="lk" type="button" id="resumeClr">Oublier</button></div>';
+      +'<div class="dash-acts"><button class="cap-btn-light" type="button" id="resumeBtn">Reprendre la lecture →</button></div>';
   } else {
     h+='<div class="dash-k">Reprendre</div>'
       +'<div class="dash-chap-t dash-none">Aucun chapitre en cours — la lecture reprendra ici.</div>'
@@ -1618,8 +1617,6 @@ function renderDashboard(){
     document.getElementById('chapSelect').value=d.resume.sel;
     showSelection(true);
   };
-  var rc=document.getElementById('resumeClr');
-  if(rc)rc.onclick=function(){ SHELL.resume.clear('capital-1'); renderDashboard(); };
 }
 
 /* l'ancien nom reste : il est rappelé après installShell et à chaque
