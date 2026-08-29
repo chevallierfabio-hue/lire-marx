@@ -491,18 +491,9 @@ h2.sec em{font-style:italic;font-weight:500;color:var(--red-text);}
 .dash-card .pg-bar{margin-top:12px;}
 .dash-sub{font-family:var(--f-ui);font-size:.78rem;color:var(--muted);margin-top:8px;}
 .dash-acts{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:16px;}
-/* les derniers passages surlignés : la pastille reprend la couleur du
-   surlignage, c'est le lien visible avec le texte */
-.dash-last{list-style:none;margin:14px 0 0;padding:0;display:flex;
-  flex-direction:column;gap:9px;}
-.dash-last li{display:flex;gap:9px;align-items:flex-start;}
-.dash-q{font-family:'Spectral',Georgia,serif;font-style:italic;font-size:.88rem;
-  line-height:1.45;color:var(--ink-soft);}
-.dash-dot{flex:none;width:9px;height:9px;border-radius:50%;margin-top:6px;}
-.dash-gold{background:var(--gold);}
-.dash-red{background:var(--accent);}
-.dash-blue{background:var(--blue,#5c8aa3);}
-.dash-green{background:var(--ok,#7fa855);}
+/* (L'aperçu des derniers passages a été retiré de la carte « Votre
+   carnet » : depuis que le carnet a sa page, la carte compte et la page
+   montre. Ses styles .dash-last / .dash-q / .dash-dot partent avec lui.) */
 @media(max-width:980px){
   .dash-grid{grid-template-columns:1fr 1fr;}
   .dash-card.dash-notes{grid-column:1/-1;}

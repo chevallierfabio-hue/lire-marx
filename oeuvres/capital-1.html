@@ -1596,15 +1596,10 @@ function renderDashboard(){
   if(d.anno.count){
     h+='<div class="dash-num">'+d.anno.count+'<span> passage'+(d.anno.count>1?'s':'')+'</span></div>'
       +'<div class="dash-sub">dans '+d.anno.sections+' chapitre'+(d.anno.sections>1?'s':'')+'</div>';
-    if(d.anno.latest.length){
-      h+='<ul class="dash-last">';
-      d.anno.latest.forEach(function(a){
-        var q=a.quote.length>90?a.quote.slice(0,90)+'…':a.quote;
-        h+='<li><span class="dash-dot dash-'+dEsc(a.color)+'"></span>'
-          +'<span class="dash-q">'+dEsc(q)+'</span></li>';
-      });
-      h+='</ul>';
-    }
+    /* Plus d'aperçu des derniers passages ici : depuis que le carnet a sa
+       page, ces citations tronquées à 90 caractères faisaient doublon —
+       et une citation coupée en plein mot ne dit rien. La carte compte,
+       la page montre. */
     h+='<div class="dash-acts"><a class="cap-btn-outline" href="carnet.html">Ouvrir mon carnet →</a></div>';
   } else {
     h+='<div class="dash-chap-t dash-none">Sélectionnez un passage dans le texte pour le surligner : vos passages se rassembleront ici.</div>'
