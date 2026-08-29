@@ -843,8 +843,25 @@ l'encre à l'ouverture comme les autres.
 `text-align:left` explicitement sur l'en-tête et `justify-content:
 flex-start` sur la barre.
 
-**Fait sur Capital seulement** — les Manuscrits gardent l'ancien héros et
-les deux rangées ; à porter quand la forme est validée.
+**Porté sur les Manuscrits** (mission `manuscrits-meme-structure`), avec
+trois différences dictées par l'œuvre :
+- la ligne d'identité dit **« écrits en 1844, publiés en 1932 »** — ce
+  n'est pas une coquetterie de notice : le texte est resté inconnu 88 ans,
+  et c'est ce qui lui donne sa place à part dans le corpus ;
+- **« Sections » et « Parcourir » ne doublonnent PAS ici**, contrairement
+  à Capital où `#atelier-accueil` refaisait `#nav` : le premier liste les
+  trois cahiers avec la progression, le second donne le plan détaillé
+  partie par partie. Les deux panneaux restent, la barre en compte neuf ;
+- le lede de « Sections » dit désormais que **du deuxième cahier il ne
+  subsiste qu'un fragment** — le lecteur voyait « Manuscrit II · 1 partie »
+  sans savoir que la lacune est celle du manuscrit, pas de l'édition.
+
+**Piège rencontré au portage** : `manuscrits-1844.css` définissait déjà un
+`header.work-head{text-align:center}` — vestige d'un en-tête disparu (ses
+classes compagnes `work-kicker`/`work-sub` n'étaient plus dans le HTML).
+Sa spécificité (0,1,1) recentrait le nouvel en-tête quoi qu'on écrive
+dans la page. Règle supprimée. **Avant de réutiliser un nom de classe sur
+une page qui a son propre CSS, vérifier qu'il n'y est pas déjà pris.**
 
 ## L'accueil a disparu, la reprise est montée (mission `reprise-en-bandeau`)
 

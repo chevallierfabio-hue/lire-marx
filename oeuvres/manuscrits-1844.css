@@ -1,6 +1,10 @@
 a{color:inherit;}
 .wrap{max-width:1120px;padding:38px 22px 84px;}
-header.work-head{text-align:center;margin:6px auto 26px;max-width:880px;}
+/* (L'ancien en-tête centré de la page a été retiré : ses classes
+   compagnes work-kicker/work-sub avaient déjà disparu du HTML, et le nom
+   .work-head désigne maintenant l'en-tête d'identité commun aux deux
+   ateliers — défini dans la page, aligné à gauche. Cette règle, avec sa
+   spécificité (0,1,1), le recentrait.) */
 .card,.chapter,.model,.explore-card,.event{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:20px;}
 .card h3,.chapter h3,.model h3,.explore-card h3{font-family:'Fraunces',Georgia,serif;font-size:1.22rem;line-height:1.12;margin-bottom:10px;}
 .card p,.chapter p,.model p,.explore-card p,.event p{color:var(--ink-soft);margin-top:8px;}

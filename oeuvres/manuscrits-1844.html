@@ -23,69 +23,56 @@
    cette page du reste du site. */
 .wrap{max-width:1060px;padding:0 22px 90px;}
 /* ── Hero ── */
-.cap-hero{position:relative;overflow:hidden;display:grid;
-  grid-template-columns:1fr auto;gap:clamp(28px,5vw,56px);align-items:start;
-  padding:clamp(36px,5vh,52px) 0 clamp(28px,4vh,44px);}
-.cap-hero-halo{position:absolute;top:40%;left:32%;width:560px;height:340px;pointer-events:none;
-  background:radial-gradient(ellipse at center,rgba(213,64,47,.13) 0%,transparent 64%);
-  transform:translate(-50%,-50%);}
-.cap-hero-left{position:relative;z-index:1;}
-.cap-breadcrumb{display:flex;align-items:center;gap:6px;font-size:.75rem;color:var(--muted);
-  margin-bottom:14px;font-family:var(--f-ui);}
-.cap-breadcrumb a{color:var(--muted);text-decoration:none;transition:color .15s;}
-.cap-breadcrumb a:hover{color:var(--ink);}
-.cap-badge{display:inline-flex;font-size:.7rem;font-weight:700;letter-spacing:.1em;
-  text-transform:uppercase;color:var(--red-text);background:rgba(213,64,47,.10);
-  border:1px solid rgba(213,64,47,.24);border-radius:999px;padding:4px 12px;margin-bottom:16px;}
-.cap-h1{font-family:'Fraunces',serif;font-weight:900;
-  font-size:clamp(2.1rem,4.6vw,3.1rem);letter-spacing:-.025em;
-  color:var(--ink);line-height:1.04;margin-bottom:14px;}
-.cap-desc{font-size:.96rem;line-height:1.7;color:var(--ink-soft);max-width:50ch;
-  font-family:'Spectral',Georgia,serif;}
-.cap-hero-right{position:relative;z-index:1;flex:none;}
-.cap-cover{width:210px;aspect-ratio:3/4;border-radius:18px;overflow:hidden;
-  background:linear-gradient(155deg,#2A2724 0%,#1a1410 55%,#0f0c0a 100%);position:relative;
-  border:1px solid rgba(243,233,212,.10);box-shadow:0 22px 50px -22px rgba(0,0,0,.85);}
-.cap-cover::before{content:'';position:absolute;inset:0;
-  background:radial-gradient(ellipse at 40% 28%,rgba(196,30,58,.12) 0%,transparent 55%);}
-.cap-cover-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
-  filter:grayscale(1) contrast(1.05);display:block;}
-.cap-cover::after{content:'';position:absolute;inset:0;
-  background:rgba(213,64,47,.20);mix-blend-mode:multiply;pointer-events:none;}
-.cap-cover-caption{position:absolute;bottom:0;left:0;right:0;
-  padding:26px 12px 10px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;
-  color:rgba(247,245,240,.52);
-  background:linear-gradient(to top,rgba(23,22,20,.65),transparent);
-  font-family:var(--f-ui);}
-/* ── Tab bar ── */
-nav.tabs.cap-tabs-bar{position:static;background:transparent;border-top:none;
-  border-bottom:1px solid var(--line);padding:0;justify-content:flex-start;
-  display:flex;flex-wrap:wrap;margin:0;z-index:1;}
-nav.tabs.cap-tabs-bar .tab{font-family:var(--f-ui);
-  font-size:.88rem;font-weight:600;color:var(--muted);background:transparent;
-  border:none;border-bottom:2px solid transparent;margin-bottom:-1px;
-  padding:11px 18px;cursor:pointer;transition:color .15s,border-color .15s;position:static;}
-nav.tabs.cap-tabs-bar .tab:hover{color:var(--ink);}
-nav.tabs.cap-tabs-bar .tab::after{display:none;}
-nav.tabs.cap-tabs-bar .tab.active{color:var(--ink);border-bottom-color:var(--accent);}
-nav.tabs.cap-tabs-bar .tab .num{display:none;}
-/* ── Cartes démarrage ── */
-/* Le bandeau de départ (remplace les deux cartes jumelles) */
-.cap-start{display:grid;grid-template-columns:1.55fr 1fr;margin-bottom:44px;
+/* ── L'en-tête d'œuvre : son identité, sobre ──────────────────────── */
+.work-head{padding:clamp(26px,4vh,38px) 0 clamp(18px,2.4vh,24px);text-align:left;}
+.work-title{font-family:'Fraunces',serif;font-weight:900;
+  font-size:clamp(2rem,4.4vw,3rem);letter-spacing:-.03em;line-height:1.02;
+  color:var(--text);margin:0;display:flex;align-items:baseline;
+  gap:.45em;flex-wrap:wrap;}
+.work-vol{font-style:italic;font-weight:500;font-size:.55em;
+  letter-spacing:-.01em;color:var(--red-text);}
+.work-meta{font-family:var(--f-ui);font-size:.82rem;color:var(--muted);
+  margin:12px 0 0;}
+
+/* ── Le bandeau de reprise : une ligne, hors des panneaux ─────────── */
+.resume-band{display:flex;align-items:center;gap:14px;flex-wrap:wrap;
   background:linear-gradient(150deg,#2c2117 0%,#211a12 58%,#1b150e 100%);
-  border:1px solid rgba(216,173,76,.20);border-radius:18px;}
-.cap-start-main{padding:26px 32px 26px;}
-.cap-start-side{padding:26px 32px 26px;border-left:1px solid var(--border);
-  display:flex;flex-direction:column;}
-.cap-start-title{font-family:'Fraunces',serif;font-weight:900;font-size:1.6rem;
-  letter-spacing:-.015em;color:var(--text);margin:6px 0 10px;}
-.cap-start .cap-card-desc{max-width:52ch;}
-.cap-start #resumeSlot{margin-top:12px;}
-.cap-start button{margin-top:14px;}
-.cap-start-side .cap-card-desc{margin-top:6px;}
+  border:1px solid rgba(216,173,76,.20);border-radius:12px;
+  padding:12px 16px;margin:0 0 14px;}
+.resume-band[hidden]{display:none;}
+.rb-k{font-family:var(--f-ui);font-size:.66rem;font-weight:700;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--gold);}
+.rb-t{font-family:'Fraunces',serif;font-weight:600;font-size:1rem;
+  color:var(--text);flex:1;min-width:min(100%,240px);}
+.resume-band .cap-btn-outline{flex:none;}
+@media(max-width:640px){
+  .resume-band{gap:8px 12px;padding:11px 14px;}
+  .rb-t{flex:0 0 auto;min-width:0;font-size:.95rem;white-space:nowrap;
+    overflow:hidden;text-overflow:ellipsis;max-width:52vw;}
+  .resume-band .cap-btn-outline{margin-left:auto;}
+}
+
+/* ── La barre d'onglets : une seule rangée, collante, jamais repliée ── */
+nav.tabs.worktabs{display:flex;gap:2px;flex-wrap:nowrap;margin:0;
+  justify-content:flex-start;text-align:left;
+  overflow-x:auto;scrollbar-width:none;
+  position:sticky;top:44px;z-index:62;padding-top:2px;
+  background:var(--bg);border-top:none;
+  border-bottom:1px solid var(--line);}
+nav.tabs.worktabs::-webkit-scrollbar{display:none;}
+nav.tabs.worktabs .tab{font-family:var(--f-ui);font-weight:600;
+  font-size:.86rem;color:var(--muted);background:none;border:none;
+  border-bottom:2px solid transparent;padding:11px 11px;cursor:pointer;
+  white-space:nowrap;flex:0 0 auto;
+  transition:color .15s,border-color .15s;}
+nav.tabs.worktabs .tab:hover{color:var(--ink);}
+nav.tabs.worktabs .tab.active{color:var(--ink);border-bottom-color:var(--accent);}
+
+/* ── Tab bar ── */
+/* (L'ancienne barre de groupes et le bandeau de départ .cap-start sont
+   partis avec le panneau d'accueil : voir .work-head, .resume-band et
+   .worktabs plus haut.) */
 @media(max-width:900px){
-  .cap-start{grid-template-columns:1fr;}
-  .cap-start-side{border-left:0;border-top:1px solid var(--border);}
 }
 .cap-lire-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:28px;}
 .cap-card{background:var(--surface);border-radius:18px;padding:22px 22px 20px;
@@ -222,12 +209,8 @@ nav.tabs.cap-tabs-bar .tab .num{display:none;}
 .reader.theme-paper .ws-text p,.reader.theme-paper .ws-text dd{color:var(--text);}
 /* ── Responsive ── */
 @media(max-width:740px){
-  .cap-hero{grid-template-columns:1fr;}
-  .cap-hero-right{order:-1;}
-  .cap-cover{width:130px;}
   /* Sur une couverture réduite à 130 px, la mention de source débordait
      sur trois lignes en travers du portrait. */
-  .cap-cover-caption{font-size:8.5px;padding:16px 8px 6px;letter-spacing:.04em;}
   .cap-lire-grid{grid-template-columns:1fr;}
   .atl-card{grid-template-columns:40px 1fr auto;column-gap:10px;}
   .atl-card.atl-current{grid-template-columns:40px 1fr;padding:16px 14px;align-items:start;}
@@ -263,61 +246,21 @@ nav.tabs.cap-tabs-bar .tab .num{display:none;}
    Duotone + assombrissement : à pleine luminosité ces tirages étaient l'objet
    le plus clair de la page et crevaient la pénombre. Ils doivent être DANS la
    lumière de la bougie, pas devant. */
-.cap-cover-img,.cap-idea-vignette img{
+.cap-idea-vignette img{
   filter:grayscale(1) contrast(1.06) sepia(.30) brightness(.66)!important;}
 
 /* ── Liseuse : les titres en rouge profond s'enfonçaient dans le brun-nuit ── */
 .reader .rkicker,.reader .rsrc,.reader h4,
 .ws-text h2,.ws-text h3,.ws-text h4{color:var(--bright);}
 
-/* La légende de source est sortie de .cap-cover : dans l'image, elle
-   recouvrait la moitié du fac-similé sur une couverture réduite à 130 px.
-   Elle reste superposée sur grand écran (.cap-hero-right est en
-   position:relative) et se pose SOUS la couverture en mobile. */
-.cap-cover-caption{position:absolute;bottom:0;left:0;right:0;z-index:1;}
-@media(max-width:740px){
-  .cap-cover-caption{position:static;background:none;padding:8px 0 0;
-    color:var(--muted);font-size:11px;line-height:1.45;letter-spacing:.05em;}
-}
+
 
 /* ══════════ La coquille de travail ══════════
-   Trois défauts tenaient ensemble : le héros occupait 406 à 483 px en tête
-   des NEUF panneaux (première ligne utile à 65-74 % du viewport), les deux
-   rangées d'onglets défilaient hors de portée, et #subnav disparaissait sur
-   deux onglets — ce qui faisait sauter la page de 63 px et déplaçait sous le
-   curseur la barre qu'on venait de cliquer. */
-
-/* Le seuil ne se franchit qu'une fois : hors de l'accueil de l'œuvre, le
-   héros se replie sur son fil d'Ariane et son titre. Le <h1> reste dans le
-   document — c'est le titre de la page — il change seulement d'échelle. */
-body.at-inner .cap-hero{grid-template-columns:1fr;gap:0;
-  padding:14px 0 12px;border-bottom:1px solid var(--line-soft);}
-body.at-inner .cap-hero-right,
-body.at-inner .cap-hero-halo,
-body.at-inner .cap-badge,
-body.at-inner .cap-desc,
-body.at-inner .cap-hero .cap-btn-dark{display:none;}
-body.at-inner .cap-h1{font-size:1.12rem;line-height:1.25;margin-bottom:0;letter-spacing:-.005em;}
-body.at-inner .cap-breadcrumb{margin-bottom:5px;}
-body.at-inner .cap-hero-left{display:flex;flex-direction:column;}
-
-/* Les deux rangées collent sous la topbar (44 px) et gardent une hauteur
-   CONSTANTE, quel que soit le groupe actif. */
-nav.tabs.cap-tabs-bar{position:sticky;top:44px;z-index:62;
-  background:var(--bg);padding-top:2px;}
-nav.subnav{position:sticky;top:85px;z-index:61;background:var(--bg);
-  min-height:42px;align-items:center;margin:0;justify-content:flex-start;
-  border-bottom:1px solid var(--line-soft);}
-/* La rangée subordonnée était plus GROSSE que sa rangée parente (15,4 px
-   contre 14,1) et centrée quand celle-ci est alignée à gauche. */
-.subnavbtn{font-size:.83rem;padding:9px 14px;}
-.subnavbtn.active::after{left:14px;right:14px;bottom:4px;}
-@media(max-width:740px){
-  nav.tabs.cap-tabs-bar,nav.subnav{overflow-x:auto;flex-wrap:nowrap;
-    scrollbar-width:none;}
-  nav.tabs.cap-tabs-bar::-webkit-scrollbar,nav.subnav::-webkit-scrollbar{display:none;}
-  .tab,.subnavbtn{white-space:nowrap;flex:0 0 auto;}
-}
+   Elle tenait en trois étages : un héros, une rangée de groupes, une
+   rangée de panneaux. Il n'en reste que deux — l'identité de l'œuvre,
+   puis UNE rangée d'onglets collante (voir .work-head et .worktabs plus
+   haut). Plus de repli du héros à gérer (body.at-inner) : l'en-tête est
+   déjà à sa taille définitive sur tous les panneaux. */
 </style>
 <script type="application/ld+json">
 {
@@ -339,64 +282,33 @@ nav.subnav{position:sticky;top:85px;z-index:61;background:var(--bg);
 <body>
 <main class="wrap" id="contenu" tabindex="-1">
 
-  <!-- Hero -->
-  <section class="cap-hero">
-    <div class="cap-hero-halo"></div>
-    <div class="cap-hero-left">
-      <nav class="cap-breadcrumb" aria-label="Fil d'Ariane">
-        <a href="/?skip-anim">Œuvres</a>
-        <span aria-hidden="true">›</span>
-        <span>Manuscrits de 1844</span>
-      </nav>
-      <span class="cap-badge">Pour commencer sans rien connaître</span>
-      <h1 class="cap-h1">Les cahiers où l'homme découvre qu'il travaille contre lui-même</h1>
-      <p class="cap-desc">Rédigés à Paris en 1844 par un Marx de vingt-six ans, publiés à titre posthume seulement en 1932 — les <em>Manuscrits</em> forgent le concept d'aliénation : le travail qui devrait exprimer l'homme se retourne contre lui.</p>
-      <button class="cap-btn-dark" style="margin-top:20px" onclick="activateTab('lire');document.getElementById('partSelect').value='2';loadPart(2);window.scrollTo({top:0,behavior:'smooth'});">Commencer la lecture →</button>
-    </div>
-    <div class="cap-hero-right">
-      <div class="cap-cover">
-        <img class="cap-cover-img" src="../assets/img/archive/marx-jeune.jpg" alt="Karl Marx jeune, vers 1843" loading="lazy">
-      </div>
-        <div class="cap-cover-caption">Karl Marx vers 1843 · domaine public</div>
-    </div>
-  </section>
+  <!-- L'en-tête d'œuvre : SON IDENTITÉ, et rien d'autre. « Écrits en
+       1844, publiés en 1932 » n'est pas une coquetterie de notice : c'est
+       le fait qui situe l'œuvre — le texte est resté inconnu 88 ans, et
+       c'est ce qui lui donne sa place à part dans le corpus. -->
+  <header class="work-head">
+    <h1 class="work-title">Manuscrits<span class="work-vol">de 1844</span></h1>
+    <p class="work-meta">Karl Marx · écrits en 1844, publiés en 1932 · traduction J.-M. Palmier · domaine public</p>
+  </header>
 
-  <!-- Barre d'onglets (Lire / Atelier / Ressources) -->
-  <nav class="tabs cap-tabs-bar" aria-label="Onglets principaux">
-    <button class="tab active" data-top="lire">Lire les Manuscrits</button>
-    <button class="tab" data-top="atelier">Atelier</button>
-    <button class="tab" data-top="ressources">Ressources</button>
-  </nav>
-  <nav class="subnav" id="subnav" aria-label="Sections de l'onglet"></nav>
+  <!-- La reprise de lecture, hors des panneaux : visible depuis n'importe
+       quel onglet. Rendue par renderResumeBand() ; absente s'il n'y a rien
+       à reprendre. -->
+  <div class="resume-band" id="resumeBand" hidden></div>
+
+  <nav class="tabs worktabs" id="worktabs" aria-label="Sections de l'œuvre"></nav>
 
   <!-- ACCUEIL — onglet "Lire les Manuscrits" (2 cartes de départ) -->
-  <section class="panel active" id="accueil">
-
-    <!-- Le bandeau de départ : une seule surface éclairée (le dégradé
-         chaud d'emphase du socle), le texte à gauche, le parcours à
-         droite derrière un filet. -->
-    <section class="at-sec">
-      <span class="at-sec-label">Le texte</span>
-      <h2 class="at-sec-h">Commencer la lecture</h2>
-      <p class="at-sec-lede">Les trois cahiers de 1844, dans leur suite — à lire d'un bout à l'autre, ou à reprendre où vous vous êtes arrêté.</p>
-    <div class="cap-start">
-      <div class="cap-start-main">
-        <div class="cap-card-desc">Le texte intégral des trois manuscrits — traduction J.-M. Palmier, domaine public.</div>
-        <div id="resumeSlot"></div>
-        <button class="cap-btn-light" onclick="activateTab('lire');document.getElementById('partSelect').value='2';loadPart(2);window.scrollTo({top:0,behavior:'smooth'});">Lire →</button>
-      </div>
-      <div class="cap-start-side">
-        <span class="cap-action-eyebrow">Ton parcours</span>
-        <div id="manProgCard"><!-- rempli dynamiquement par syncManProgUI() --></div>
+  <!-- POUR ENTRER — trois portes vers les cahiers. C'était une section
+       de l'accueil ; l'accueil lui-même a disparu (il redisait le bouton
+       du héros, et « Aller plus loin » doublonnait l'onglet Ressources). -->
+  <section class="panel" id="entrer">
+    <div class="panel-head">
+      <div class="panel-head-main">
+        <h2 class="sec">Trois idées qui ouvrent <em>les Manuscrits</em></h2>
+        <p class="lead">Chacune mène à l'endroit des cahiers où elle se dit — un manuscrit, ou le fil qui la fait passer d'une idée à la suivante.</p>
       </div>
     </div>
-    </section>
-
-    <!-- Trois idées pour entrer dans les Manuscrits -->
-    <section class="at-sec">
-      <span class="at-sec-label">Pour entrer</span>
-      <h2 class="at-sec-h">Trois idées qui ouvrent <em>les Manuscrits</em></h2>
-      <p class="at-sec-lede">Chacune mène à l'endroit des cahiers où elle se dit — un manuscrit, ou le fil qui la fait passer d'une idée à la suivante.</p>
     <div class="cap-ideas-grid">
 
       <article class="cap-idea-card" role="link" tabindex="0" aria-label="L'aliénation — lire le Premier manuscrit" onclick="activateTab('lire');document.getElementById('partSelect').value='2';loadPart(2);window.scrollTo({top:0,behavior:'smooth'});" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
@@ -435,22 +347,6 @@ nav.subnav{position:sticky;top:85px;z-index:61;background:var(--bg);
     </div>
 
     <!-- Deux blocs d'action -->
-    </section>
-
-    <!-- Aller plus loin. Le bloc « Lecture guidée — Rejoindre → » qui
-         tenait ici doublonnait l'onglet « Sections » de la barre, à deux
-         rangées au-dessus : retiré. -->
-    <section class="at-sec">
-      <span class="at-sec-label">Aller plus loin</span>
-      <h2 class="at-sec-h">Autour des cahiers</h2>
-      <div class="at-more">
-        <div class="at-more-txt">
-          <div class="cap-action-desc">Jean Salem, Christophe Dejours, France Culture, articles en libre accès — pour approfondir avant ou après la lecture.</div>
-        </div>
-        <button class="cap-btn-outline" onclick="activateTab('ressources');window.scrollTo({top:0,behavior:'smooth'});">Voir les ressources →</button>
-      </div>
-    </section>
-
   </section>
 
   <section class="panel" id="nav">
@@ -501,7 +397,7 @@ nav.subnav{position:sticky;top:85px;z-index:61;background:var(--bg);
     <div class="panel-head">
       <div class="panel-head-main">
         <h2 class="sec">Les trois cahiers <em>de 1844</em></h2>
-        <p class="lead">Manuscrit par manuscrit — coche ce que tu as lu, reprends où tu t'étais arrêté.</p>
+        <p class="lead">Les trois cahiers, manuscrit par manuscrit. Ils sont inégaux : du deuxième il ne subsiste qu'un fragment de quelques pages — la lacune est celle du manuscrit, pas de cette édition.</p>
       </div>
       <div class="panel-meta">
         <div id="manAtlProg" class="pg-prog" style="display:none">
@@ -814,45 +710,39 @@ nav.subnav{position:sticky;top:85px;z-index:61;background:var(--bg);
 
 /* ── Reprise de lecture : la carte de démarrage repart d'où l'on s'est
    arrêté. C'est une proposition, jamais une redirection d'office. ── */
-function renderResume(){
-  var slot=document.getElementById('resumeSlot');
-  if(!slot||!window.SHELL||!SHELL.resume)return;
-  var r=SHELL.resume.get('manuscrits-1844');
-  if(!r||r.i==null){ slot.innerHTML=''; return; }
-  slot.innerHTML='<button class="cap-btn-dark" type="button" id="resumeBtn">Reprendre : '+r.title+' →</button>'
-    +'<button class="cap-btn-outline" type="button" id="resumeClr" style="margin-left:8px">Oublier</button>';
+function renderResumeBand(){
+  var band=document.getElementById('resumeBand');
+  if(!band)return;
+  var r=(window.SHELL&&SHELL.resume)?SHELL.resume.get('manuscrits-1844'):null;
+  if(!r||r.i==null){ band.hidden=true; band.innerHTML=''; return; }
+  band.hidden=false;
+  band.innerHTML='<span class="rb-k">Reprendre</span>'
+    +'<span class="rb-t">'+esc(r.title||'')+'</span>'
+    +'<button class="cap-btn-outline" type="button" id="resumeBtn">Reprendre la lecture →</button>';
   document.getElementById('resumeBtn').onclick=function(){
     window.activateTab('lire');
     document.getElementById('partSelect').value=String(r.i);
     loadPart(r.i);
   };
-  document.getElementById('resumeClr').onclick=function(){ SHELL.resume.clear('manuscrits-1844'); renderResume(); };
 }
+/* l'ancien nom reste : c'est lui que rappellent installShell et les
+   changements de session */
+function renderResume(){ renderResumeBand(); }
 /* Tout le script de la page vit dans une IIFE : le rappel qui suit
    installShell est dans un AUTRE bloc <script> et n'y verrait rien. */
 window.renderResume = renderResume;
+window.renderResumeBand = renderResumeBand;
 
-/* ── Sémantique d'onglets et repérage — voir SHELL.tabs dans shell.js ──
-   Rejoué à chaque bascule parce que #subnav est reconstruit en innerHTML. */
+/* ── Sémantique d'onglets et repérage — voir SHELL.tabs dans shell.js ── */
 function panelLabel(pid){
-  for(var t in GROUPS){
-    var i=GROUPS[t].panels.indexOf(pid);
-    if(i<0)continue;
-    /* Un groupe à panneau unique n'a pas de libellé de sous-onglet
-       (GROUPS.ressources.labels est vide) : on retombe sur l'intitulé de
-       l'onglet haut plutôt que sur la clé technique du groupe. */
-    if(GROUPS[t].labels[i])return GROUPS[t].labels[i];
-    var tb=document.querySelector('.cap-tabs-bar .tab[data-top="'+t+'"]');
-    return tb?tb.textContent.trim():pid;
-  }
+  for(var i=0;i<PANELS.length;i++){ if(PANELS[i].id===pid) return PANELS[i].label; }
   return pid;
 }
 var a11yBooted=false;
 function syncTabsA11y(pid){
   var S=window.SHELL;if(!S)return;
   if(S.tabs){
-    S.tabs(document.querySelector('.cap-tabs-bar'),function(b){return curPanel[b.dataset.top];});
-    S.tabs(document.getElementById('subnav'),function(b){return b.dataset.panel;});
+    S.tabs(document.getElementById('worktabs'),function(b){return b.dataset.panel;});
   }
   if(S.setWorkTab)S.setWorkTab(pid);
   /* Le focus RESTE sur l'onglet (motif ARIA APG) ; c'est la région live qui
@@ -867,7 +757,8 @@ function syncTabsA11y(pid){
   if(a11yBooted && !/^#(note=|s=)/.test(location.hash)){
     try{ history.replaceState(null,'','#'+pid); }catch(e){}
   }
-  document.body.classList.toggle('at-inner', pid!=='accueil');
+  /* body.at-inner ne pilote plus rien : il repliait le héros, qui n'existe
+     plus. */
   if(pid!=='lire') document.body.classList.remove('at-reading');
   /* Changer d'onglet en cours de lecture laissait le lecteur au milieu de la
      page précédente, sur un panneau dont le haut était 250 px plus bas. On
@@ -881,26 +772,44 @@ function syncTabsA11y(pid){
   if(a11yBooted&&S.announce)S.announce('Panneau '+panelLabel(pid));
   a11yBooted=true;
 }
-  var GROUPS={
-    lire:{panels:['accueil','nav','lire'],labels:['Commencer','Parcourir','Texte intégral']},
-    atelier:{panels:['atelier-accueil','deriv','labo','explore','chrono'],labels:['Sections','Cheminement','Concepts','Explorations','Chronologie']},
-    ressources:{panels:['ressources'],labels:['Ressources']}
-  };
-  var curPanel={lire:'accueil',atelier:'atelier-accueil',ressources:'ressources'};
+  /* Les destinations de l'œuvre, à plat — dans le même ordre que la
+     sidebar. Le niveau « groupe » a disparu : il coûtait une rangée
+     d'onglets et un clic de plus pour atteindre un panneau. Noter que
+     « Sections » et « Parcourir » ne doublonnent PAS ici (contrairement
+     à Capital) : le premier liste les trois cahiers avec la progression,
+     le second donne le plan détaillé partie par partie. */
+  var PANELS=[
+    {id:'entrer',         label:'Pour entrer'},
+    {id:'atelier-accueil',label:'Sections'},
+    {id:'nav',            label:'Parcourir'},
+    {id:'lire',           label:'Texte intégral'},
+    {id:'deriv',          label:'Cheminement'},
+    {id:'labo',           label:'Concepts'},
+    {id:'explore',        label:'Explorations'},
+    {id:'chrono',         label:'Chronologie'},
+    {id:'ressources',     label:'Ressources'}
+  ];
+  function panelExists(id){return PANELS.some(function(p){return p.id===id;});}
   function byId(id){return document.getElementById(id);}
   function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
-  function panelTop(id){for(var t in GROUPS){if(GROUPS[t].panels.indexOf(id)>=0)return t;}return 'lire';}
-  window.activateTop=function(top){
-    document.querySelectorAll('.tab').forEach(function(b){b.classList.toggle('active',b.dataset.top===top);});
-    var g=GROUPS[top]||GROUPS.accueil,sn=byId('subnav');
-    /* Toujours rendue : l'escamoter faisait sauter la page de 63 px. */
-    sn.innerHTML=g.panels.map(function(pid,i){return '<button class="subnavbtn'+(pid===curPanel[top]?' active':'')+'" type="button" data-panel="'+pid+'">'+(g.labels[i]||pid)+'</button>';}).join('');
-    sn.querySelectorAll('.subnavbtn').forEach(function(b){b.addEventListener('click',function(){curPanel[top]=b.dataset.panel;activateTop(top);});});
-    var pid=curPanel[top];
-    document.querySelectorAll('.panel').forEach(function(x){x.classList.toggle('active',x.id===pid);});
-    syncTabsA11y(pid);
+  /* La barre est rendue UNE fois ; seule la classe active change ensuite. */
+  function buildTabs(){
+    var bar=byId('worktabs');
+    if(!bar)return;
+    bar.innerHTML=PANELS.map(function(p){
+      return '<button type="button" class="tab" data-panel="'+p.id+'">'+p.label+'</button>';}).join('');
+    bar.querySelectorAll('.tab').forEach(function(b){
+      b.addEventListener('click',function(){window.activateTab(b.dataset.panel);});});
+  }
+  window.buildTabs=buildTabs;
+  window.activateTab=function(id){
+    if(!panelExists(id))id='entrer';
+    document.querySelectorAll('#worktabs .tab').forEach(function(b){
+      b.classList.toggle('active',b.dataset.panel===id);});
+    document.querySelectorAll('.panel').forEach(function(x){x.classList.toggle('active',x.id===id);});
+    syncTabsA11y(id);
+    window.scrollTo({top:0,behavior:'smooth'});
   };
-  window.activateTab=function(id){var t=panelTop(id);curPanel[t]=id;activateTop(t);window.scrollTo({top:0,behavior:'smooth'});};
   function preparePart(i){
     var p=parts[i]||parts[0];
     byId('readerTitle').textContent=p.title;
@@ -1306,7 +1215,7 @@ function syncTabsA11y(pid){
   }
 
   function init(){
-    document.querySelectorAll('.tab').forEach(function(t){t.addEventListener('click',function(){activateTop(t.dataset.top);window.scrollTo({top:0,behavior:'smooth'});});});
+
     var navlist=byId('navlist');
     MAN_STRUCT.forEach(function(sec){
       var secEl=document.createElement('div');secEl.className='section';
@@ -1426,19 +1335,8 @@ function syncTabsA11y(pid){
       var cnt=loggedIn?MAN_SECTIONS.filter(function(s){return doneSet.has(s.part);}).length:0;
       var pct=_manTotal?Math.round(cnt/_manTotal*100):0;
       /* Carte "Ton parcours" */
-      var pc=byId('manProgCard');
-      if(pc){
-        if(loggedIn){
-          pc.innerHTML='<div class="cap-card-desc">Suis ta progression manuscrit par manuscrit dans l\'atelier de lecture.</div>'
-            +'<div class="cap-prog-wrap"><div class="cap-prog-bg"><div class="cap-prog-fill" style="width:'+pct+'%"></div></div>'
-            +'<div class="cap-prog-txt">'+cnt+' sur '+_manTotal+' manuscrits'+(pct?' — '+pct+'% complété':'')+'</div></div>'
-            +'<button class="cap-btn-outline" onclick="activateTab(\'atelier-accueil\');window.scrollTo({top:0,behavior:\'smooth\'});">Voir l\'atelier →</button>';
-        } else {
-          pc.innerHTML='<div class="cap-card-desc">Connecte-toi pour suivre ta progression de lecture manuscrit par manuscrit.</div>'
-            +'<button class="cap-btn-dark" style="margin-top:8px" type="button" '
-            +'onclick="window.SHELL&&window.SHELL.auth&&window.SHELL.auth.openModal()">Se connecter →</button>';
-        }
-      }
+      /* La carte « Ton parcours » de l'accueil a disparu avec le panneau :
+         la progression vit dans « Sections », où elle sert. */
       /* Widget de progression de l'onglet Atelier-accueil */
       var na=byId('manAtlProgNA'),pr=byId('manAtlProg');
       if(na)na.style.display=loggedIn?'none':'flex';
@@ -1533,22 +1431,11 @@ function syncTabsA11y(pid){
     /* Le hash n'acceptait que les trois GROUPES : un lien vers un panneau
      précis (#labo, #chrono) était ignoré, et le rechargement ramenait
      toujours à l'accueil. Il accepte maintenant les deux. */
-  function panelExists(id){
-    for(var t in GROUPS){ if(GROUPS[t].panels.indexOf(id)>=0) return true; }
-    return false;
-  }
-  function bootFromHash(){
-    var h=(location.hash||'').replace(/^#/,'');
-    /* « lire », « accueil » et « ressources » nomment À LA FOIS un groupe et
-       un panneau. Le panneau est le plus précis des deux et doit gagner :
-       sinon #lire ouvrait le GROUPE, dont le panneau par défaut est
-       l'accueil — on demandait le texte intégral, on obtenait la page de
-       garde. activateTab active de toute façon le groupe qui le contient. */
-    if(panelExists(h)) activateTab(h);
-    else if(h in GROUPS) activateTop(h);
-    else activateTop('lire');
-  }
-  bootFromHash();
+  buildTabs();
+  /* Un panneau par nom, et c'est tout : le hash ne peut plus désigner un
+     « groupe » puisqu'il n'y en a plus. */
+  var _h=(location.hash||'').replace(/^#/,'');
+  activateTab(panelExists(_h)?_h:'entrer');
   /* Un hash qui désigne un panneau désigne AUSSI un élément réel du
      document : le navigateur y saute tout seul et l'on débarque à 369 px du
      haut, sous la coquille collante. On remet en haut. */
@@ -1595,11 +1482,13 @@ function syncTabsA11y(pid){
 installShell({
   workId: 'manuscrits-1844',
   workTitle: 'Manuscrits de 1844',
+  /* Même ordre que PANELS : la sidebar et la barre d'onglets doivent dire
+     la même chose, et dans le même ordre. */
   tabs: [
-    {id:'accueil',         label:'Commencer'},
+    {id:'entrer',          label:'Pour entrer'},
+    {id:'atelier-accueil', label:'Sections'},
     {id:'nav',             label:'Parcourir'},
     {id:'lire',            label:'Texte intégral'},
-    {id:'atelier-accueil', label:'Sections'},
     {id:'deriv',           label:'Cheminement'},
     {id:'labo',            label:'Concepts'},
     {id:'explore',         label:'Explorations'},
@@ -1609,7 +1498,7 @@ installShell({
 });
 
 /* Le bloc d'onglets s'initialise AVANT que shell.js ne soit chargé : au
-   premier activateTop, SHELL.tabs n'existe pas encore et syncTabsA11y sort
+   premier activateTab, SHELL.tabs n'existe pas encore et syncTabsA11y sort
    sans rien poser. On rejoue donc une fois le shell installé. */
 (function(){
   var p=document.querySelector('.panel.active');
