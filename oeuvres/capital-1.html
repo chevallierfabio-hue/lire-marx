@@ -912,10 +912,12 @@ nav.subnav{position:sticky;top:85px;z-index:61;background:var(--bg);
          chaud d'emphase du socle), le texte à gauche, le parcours à
          droite derrière un filet. Les deux cartes jumelles à icône se
          disputaient le même geste. -->
+    <section class="at-sec">
+      <span class="at-sec-label">Le texte</span>
+      <h2 class="at-sec-h">Commencer la lecture</h2>
+      <p class="at-sec-lede">Le Livre I en trente-trois chapitres, dans la traduction que Marx a lui-même revue — à lire d'un bout à l'autre, ou à reprendre où vous vous êtes arrêté.</p>
     <div class="cap-start" id="capLireGrid">
       <div class="cap-start-main">
-        <span class="cap-action-eyebrow">Le texte</span>
-        <div class="cap-start-title">Commencer la lecture</div>
         <div class="cap-card-desc">Le texte intégral du Livre I en 33 chapitres — traduction Joseph Roy (1872), revue par Marx, domaine public.</div>
         <div id="resumeSlot"></div>
         <button class="cap-btn-light" onclick="goLire(1,'I','La marchandise');window.scrollTo({top:0,behavior:'smooth'});">Lire →</button>
@@ -925,9 +927,13 @@ nav.subnav{position:sticky;top:85px;z-index:61;background:var(--bg);
         <div id="capProgCard"><!-- rempli dynamiquement par syncProgUI() --></div>
       </div>
     </div>
+    </section>
 
     <!-- Trois idées pour entrer dans le livre -->
-    <span class="cap-section-label">Trois idées pour entrer dans le livre</span>
+    <section class="at-sec">
+      <span class="at-sec-label">Pour entrer</span>
+      <h2 class="at-sec-h">Trois idées qui ouvrent <em>Le Capital</em></h2>
+      <p class="at-sec-lede">Chacune mène à l'endroit du livre où elle se démontre — un chapitre, ou l'instrument qui la met en mouvement.</p>
     <div class="cap-ideas-grid">
 
       <!-- Idée 1 — filature de coton, 1909 (domaine public) -->
@@ -972,25 +978,21 @@ nav.subnav{position:sticky;top:85px;z-index:61;background:var(--bg);
     </div>
 
     <!-- Deux blocs d'action -->
-    <div class="cap-actions-row">
+    </section>
 
-      <!-- Bloc mis en avant : Lecture guidée -->
-      <div class="cap-action cap-action-dark">
-        <span class="cap-action-eyebrow">Lecture guidée</span>
-        <div class="cap-action-title">L'atelier, chapitre par chapitre</div>
-        <div class="cap-action-desc">Suis le texte section par section, marque ta progression, accède aux simulations économiques associées.</div>
-        <button class="cap-btn-light" onclick="activateTab('nav');window.scrollTo({top:0,behavior:'smooth'});">Rejoindre →</button>
+    <!-- Aller plus loin. Le bloc « Lecture guidée — Rejoindre → » qui
+         tenait ici doublonnait l'onglet « Parcourir » de la barre, à
+         deux rangées au-dessus : retiré. -->
+    <section class="at-sec">
+      <span class="at-sec-label">Aller plus loin</span>
+      <h2 class="at-sec-h">Autour du livre</h2>
+      <div class="at-more">
+        <div class="at-more-txt">
+          <div class="cap-action-desc">Cours de David Harvey, émissions de radio, conférences et lectures complémentaires — en libre accès, pour préparer la lecture ou la prolonger.</div>
+        </div>
+        <button class="cap-btn-outline" onclick="activateTab('ressources');window.scrollTo({top:0,behavior:'smooth'});">Voir les ressources →</button>
       </div>
-
-      <!-- Bloc secondaire : Aller plus loin -->
-      <div class="cap-action cap-action-light">
-        <span class="cap-action-eyebrow">Aller plus loin</span>
-        <div class="cap-action-title">Vidéos, conférences, ressources</div>
-        <div class="cap-action-desc">Cours de David Harvey, émissions, lectures complémentaires — pour approfondir avant ou après avoir lu le texte.</div>
-        <button class="cap-btn-outline" onclick="activateTab('ressources');window.scrollTo({top:0,behavior:'smooth'});">Voir →</button>
-      </div>
-
-    </div>
+    </section>
 
   </section>
 

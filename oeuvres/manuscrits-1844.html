@@ -375,10 +375,12 @@ nav.subnav{position:sticky;top:85px;z-index:61;background:var(--bg);
     <!-- Le bandeau de départ : une seule surface éclairée (le dégradé
          chaud d'emphase du socle), le texte à gauche, le parcours à
          droite derrière un filet. -->
+    <section class="at-sec">
+      <span class="at-sec-label">Le texte</span>
+      <h2 class="at-sec-h">Commencer la lecture</h2>
+      <p class="at-sec-lede">Les trois cahiers de 1844, dans leur suite — à lire d'un bout à l'autre, ou à reprendre où vous vous êtes arrêté.</p>
     <div class="cap-start">
       <div class="cap-start-main">
-        <span class="cap-action-eyebrow">Le texte</span>
-        <div class="cap-start-title">Commencer la lecture</div>
         <div class="cap-card-desc">Le texte intégral des trois manuscrits — traduction J.-M. Palmier, domaine public.</div>
         <div id="resumeSlot"></div>
         <button class="cap-btn-light" onclick="activateTab('lire');document.getElementById('partSelect').value='2';loadPart(2);window.scrollTo({top:0,behavior:'smooth'});">Lire →</button>
@@ -388,9 +390,13 @@ nav.subnav{position:sticky;top:85px;z-index:61;background:var(--bg);
         <div id="manProgCard"><!-- rempli dynamiquement par syncManProgUI() --></div>
       </div>
     </div>
+    </section>
 
     <!-- Trois idées pour entrer dans les Manuscrits -->
-    <span class="cap-section-label">Trois idées pour entrer dans les Manuscrits</span>
+    <section class="at-sec">
+      <span class="at-sec-label">Pour entrer</span>
+      <h2 class="at-sec-h">Trois idées qui ouvrent <em>les Manuscrits</em></h2>
+      <p class="at-sec-lede">Chacune mène à l'endroit des cahiers où elle se dit — un manuscrit, ou le fil qui la fait passer d'une idée à la suivante.</p>
     <div class="cap-ideas-grid">
 
       <article class="cap-idea-card" role="link" tabindex="0" aria-label="L'aliénation — lire le Premier manuscrit" onclick="activateTab('lire');document.getElementById('partSelect').value='2';loadPart(2);window.scrollTo({top:0,behavior:'smooth'});" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
@@ -429,20 +435,21 @@ nav.subnav{position:sticky;top:85px;z-index:61;background:var(--bg);
     </div>
 
     <!-- Deux blocs d'action -->
-    <div class="cap-actions-row">
-      <div class="cap-action cap-action-dark">
-        <span class="cap-action-eyebrow">Lecture guidée</span>
-        <div class="cap-action-title">L'atelier, manuscrit par manuscrit</div>
-        <div class="cap-action-desc">Suis les trois cahiers section par section, marque ta progression, explore les instruments du laboratoire.</div>
-        <button class="cap-btn-light" onclick="activateTab('atelier-accueil');window.scrollTo({top:0,behavior:'smooth'});">Rejoindre →</button>
+    </section>
+
+    <!-- Aller plus loin. Le bloc « Lecture guidée — Rejoindre → » qui
+         tenait ici doublonnait l'onglet « Sections » de la barre, à deux
+         rangées au-dessus : retiré. -->
+    <section class="at-sec">
+      <span class="at-sec-label">Aller plus loin</span>
+      <h2 class="at-sec-h">Autour des cahiers</h2>
+      <div class="at-more">
+        <div class="at-more-txt">
+          <div class="cap-action-desc">Jean Salem, Christophe Dejours, France Culture, articles en libre accès — pour approfondir avant ou après la lecture.</div>
+        </div>
+        <button class="cap-btn-outline" onclick="activateTab('ressources');window.scrollTo({top:0,behavior:'smooth'});">Voir les ressources →</button>
       </div>
-      <div class="cap-action cap-action-light">
-        <span class="cap-action-eyebrow">Aller plus loin</span>
-        <div class="cap-action-title">Conférences, podcasts, articles</div>
-        <div class="cap-action-desc">Jean Salem, Christophe Dejours, France Culture, articles en libre accès — pour approfondir avant ou après la lecture.</div>
-        <button class="cap-btn-outline" onclick="activateTab('ressources');window.scrollTo({top:0,behavior:'smooth'});">Voir →</button>
-      </div>
-    </div>
+    </section>
 
   </section>
 

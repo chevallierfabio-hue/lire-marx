@@ -772,6 +772,19 @@ l'accueil, et la règle maison est de dupliquer les petits outils plutôt
 que de coupler. Les classes `js-at*` sont posées par le module, jamais
 écrites dans le HTML ; le CSS vit en fin d'`atelier.css`.
 
+**Le rythme de sections** (mission `accueil-aere`, dans la foulée) :
+l'accueil de l'atelier empilait des blocs serrés sans titres — on ne
+savait pas où l'on était. Il prend le rythme de l'accueil du site :
+`.at-sec` (56–84 px d'air entre sections) > `.at-sec-label` (capitales
+or) + `.at-sec-h` (Fraunces 900) + `.at-sec-lede`. Trois sections
+nommées : « Le texte », « Pour entrer », « Aller plus loin ».
+**Le bandeau de départ a perdu son titre interne** : un titre par
+section, pas deux. Et le bloc « Lecture guidée — Rejoindre → » a été
+**supprimé des deux pages** : il doublonnait l'onglet « Parcourir » /
+« Sections » de la barre, à deux rangées au-dessus. « Aller plus loin »
+est devenu une bande pleine largeur (`.at-more`) plutôt qu'une demi-carte
+orpheline.
+
 **Les gestes, et ce qu'ils disent** :
 - `inkTitles` — le titre de section PREND L'ENCRE : on est dans un
   atelier d'écriture. Joué à l'OUVERTURE du panneau, une fois.
@@ -793,6 +806,11 @@ que de coupler. Les classes `js-at*` sont posées par le module, jamais
   moment de pousser.
 - `tocInscribe` — le sommaire S'INSCRIT ligne à ligne : c'est le plan du
   livre qui s'écrit.
+- `inkSections` — les titres de SECTION s'écrivent au défilement. Même
+  encre qu'`inkTitles`, autre déclencheur : un titre de section vit sous
+  le pli, on l'atteint en descendant — c'est un vrai scrub réversible, là
+  où un titre de PANNEAU apparaît toujours en position de lecture (d'où
+  son entrée orchestrée). Le petit label le précède d'un souffle.
 
 **Ce que la mesure a imposé — à ne pas re-tenter en scrub** : sur une
 page à ONGLETS, le titre de panneau et le bandeau de départ sont

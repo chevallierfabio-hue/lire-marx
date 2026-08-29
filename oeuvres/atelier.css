@@ -415,3 +415,42 @@ h2.sec em{font-style:italic;font-weight:500;color:var(--red-text);}
 /* la carte de ressource garde son propre survol : on ne compose pas deux
    transforms sur la même propriété */
 .js-atparts .rss-card:hover{transform:translateY(-3px);}
+
+/* ═══ Le rythme de sections de l'atelier (mission `accueil-aere`) ═══════
+   L'accueil de l'atelier était un empilement serré de blocs sans titres :
+   on ne savait pas où l'on était. Il prend le rythme de l'accueil du
+   site — petit label en capitales, GRAND titre Fraunces, et de l'air —
+   et chaque section devient une adresse repérable, pas un pavé de plus. */
+.at-sec{margin:0 0 clamp(56px,7vh,84px);}
+.at-sec:last-child{margin-bottom:12px;}
+.at-sec-label{display:block;font-family:var(--f-ui);font-size:.72rem;
+  font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:10px;}
+.at-sec-h{font-family:'Fraunces',serif;font-weight:900;
+  font-size:clamp(1.55rem,3vw,2.15rem);letter-spacing:-.025em;
+  color:var(--text);line-height:1.08;margin:0 0 12px;}
+.at-sec-h em{font-style:italic;font-weight:500;color:var(--red-text);}
+.at-sec-lede{font-family:'Spectral',Georgia,serif;font-style:italic;
+  font-size:1.02rem;line-height:1.6;color:var(--ink-soft);
+  max-width:62ch;margin:0 0 26px;}
+
+/* la bande « Aller plus loin » : pleine largeur, une seule adresse */
+.at-more{display:flex;align-items:center;justify-content:space-between;
+  gap:28px;flex-wrap:wrap;background:var(--surface);
+  border:1px solid var(--line);border-radius:18px;padding:24px 28px;}
+.at-more-txt{flex:1;min-width:min(100%,320px);}
+.at-more-txt .cap-action-desc{margin-bottom:0;max-width:64ch;}
+.at-more .cap-btn-outline{flex:none;}
+
+/* De l'air dans le panneau d'accueil : les blocs ne se touchent plus. */
+#accueil .cap-start{margin-bottom:0;}
+#accueil .cap-ideas-grid{gap:18px;margin-bottom:0;}
+
+/* le titre de section prend l'encre comme celui du panneau — mais lui,
+   il vit SOUS LE PLI : c'est un vrai scrub, pas une entrée orchestrée */
+.js-atviv .at-sec-h .atw{display:inline-block;white-space:pre;
+  opacity:calc(.14 + .86 * var(--wp,1));
+  filter:blur(calc((1 - var(--wp,1)) * 5px));
+  transform:translateY(calc((1 - var(--wp,1)) * .18em));}
+.js-atviv .at-sec-label{opacity:var(--lab,1);
+  transform:translateY(calc((1 - var(--lab,1)) * 8px));}

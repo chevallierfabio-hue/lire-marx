@@ -91,6 +91,10 @@
      orchestrée du héros de l'accueil. */
   var titles = [];
   function inkTitles() {
+    /* seulement les titres de PANNEAU : eux apparaissent toujours en
+       position de lecture, d'où l'entrée orchestrée. Les titres de
+       SECTION (.at-sec-h) vivent sous le pli — ils sont scrubbés par
+       inkSections(). */
     var heads = [].slice.call(document.querySelectorAll('.panel-head h2.sec'));
     if (!heads.length) return;
     document.documentElement.classList.add('js-atviv');
@@ -151,6 +155,53 @@
     for (var i = 0; i < titles.length; i++) {
       if (!titles[i].played && shown(titles[i].el)) playTitle(titles[i]);
     }
+  }
+
+  /* ── A bis. Les titres de SECTION s'écrivent au défilement ───────────
+     Même encre, autre déclencheur : un titre de section vit SOUS LE PLI,
+     on l'atteint en descendant — c'est donc un vrai scrub, réversible,
+     et le petit label le précède d'un souffle. */
+  function inkSections() {
+    var heads = [].slice.call(document.querySelectorAll('.at-sec-h'));
+    var labels = [].slice.call(document.querySelectorAll('.at-sec-label'));
+    if (!heads.length) return;
+    document.documentElement.classList.add('js-atviv');
+
+    var INLINE = { EM: 1, I: 1, B: 1, STRONG: 1, SPAN: 1 };
+    var items = heads.map(function (h) {
+      var words = [];
+      [].slice.call(h.childNodes).forEach(function (node) {
+        if (node.nodeType === 3) {
+          var frag = document.createDocumentFragment();
+          node.textContent.split(/(\s+)/).forEach(function (p) {
+            if (!p) return;
+            if (/^\s+$/.test(p)) { frag.appendChild(document.createTextNode(p)); return; }
+            var sp = document.createElement('span');
+            sp.className = 'atw'; sp.textContent = p;
+            frag.appendChild(sp); words.push(sp);
+          });
+          h.replaceChild(frag, node);
+        } else if (node.nodeType === 1 && INLINE[node.tagName]) {
+          node.classList.add('atw'); words.push(node);
+        }
+      });
+      return { el: h, words: words };
+    });
+
+    addSub(function (y, vh) {
+      items.forEach(function (it) {
+        if (!shown(it.el)) return;
+        var p = through(it.el, vh, 0.94, 0.55), n = it.words.length || 1;
+        for (var i = 0; i < it.words.length; i++) {
+          it.words[i].style.setProperty('--wp',
+            clamp01((p - (i / n) * 0.5) / 0.5).toFixed(3));
+        }
+      });
+      labels.forEach(function (el) {
+        if (!shown(el)) return;
+        el.style.setProperty('--lab', through(el, vh, 0.96, 0.66).toFixed(3));
+      });
+    });
   }
 
   /* ── B. Le bandeau de départ s'allume ────────────────────────────────
@@ -385,6 +436,7 @@
 
   function init() {
     inkTitles();
+    inkSections();
     startBand();
     developIdeas();
     poseBlocks();
