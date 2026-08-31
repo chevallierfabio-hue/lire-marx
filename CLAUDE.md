@@ -752,34 +752,81 @@ sombre (texte foncé sur crème = fort contraste) : le bandeau de chapitre
 `.rdr-header` n'a été repéré qu'à l'œil.
 
 
-## La page « Mon carnet » (mission `carnet-page`)
+## La page « Mon carnet » (mission `carnet-page`, refondue `carnet-veritable` août 2026)
 
 `oeuvres/carnet.html` — **le pendant PRIVÉ de la Place publique** : là-bas
 les notes partagées, ici les vôtres. Entrée de sidebar juste sous « Place
 publique » (`data-act="carnet"` dans shell.js, marquage `.on` sur sa
 page). La carte « Votre carnet » du tableau de bord y renvoie.
 
-- La page ne fait que LIRE et remettre en ordre : par œuvre (ordre de
-  `bibliotheque.json`), puis par section, du plus récent au plus ancien.
-  **Aucune donnée n'y naît** — on n'écrit pas dans son carnet depuis le
-  carnet, on écrit en lisant.
-- **`SHELL.annotations.allNotes()`** a été ajouté pour elle, à côté de
-  `statsFor()` : le module possède le contrat de stockage, c'est lui qui
-  le lit. La page ne parse jamais le localStorage.
-- **L'annotation retient désormais `label`**, le libellé lisible de sa
-  section (« Section I · Marchandise et monnaie »). Sans lui, hors de la
-  liseuse, une section n'est qu'un numéro dans le store et rien ne
-  permettrait de la nommer. Les annotations antérieures n'en ont pas :
-  elles retombent sur « Section N ».
+**Refonte « le carnet ouvert » (arbitrage du propriétaire, août 2026)** :
+la page n'est plus une liste sombre mais **un vrai carnet posé sur le
+bureau de la pièce sombre**. Papier crème continu (dégradé en
+`background-image` — voir le piège de sonde plus bas), palette d'encre de
+la feuille volante de la bibliothèque, reliure cousue à gauche, signet
+rouge, page de titre à la grammaire de la feuille volante (rubrique entre
+filets, fleuron SVG, envoi **en toutes lettres** via `numFr`, sommaire
+d'une ligne par cahier), un **cahier par œuvre** avec onglet de tranche
+(décoratif, `aria-hidden` — c'est le sommaire qui navigue ; le compte du
+cahier suit le TITRE en `flex-start`, la droite appartient à l'onglet).
+Les citations sont imprimées en Spectral sous un **vrai trait de
+surligneur** (`mark` teinté à la couleur de l'annotation), **vos notes
+sont manuscrites en Caveat**, la date vit dans la marge. Tout est
+DOM + CSS — pas de WebGL, le contenu est du texte vivant.
+
+**CHANGEMENT DE DOCTRINE (explicitement arbitré)** : l'ancienne règle
+« aucune donnée n'y naît » est abrogée. Depuis le carnet on peut :
+**modifier** la note et la couleur d'un passage (édition en place :
+textarea Caveat sur réglure, échantillons de couleur, Échap annule,
+Cmd/Ctrl+Entrée enregistre), **supprimer** (confirmation INLINE, jamais
+de modale), et **écrire des pages libres** sans citation (cahier
+« Feuilles libres » ; une page libre vidée à l'enregistrement est
+supprimée). On ne crée toujours pas de SURLIGNAGE ici — ça, c'est en
+lisant.
+
+- **Le module possède toujours le contrat de stockage.**
+  `SHELL.annotations.update(id, {note, color})`, `.remove(id)` et
+  `.addFree(body)` ont été ajoutés pour cette page, à côté d'`allNotes()`
+  et `statsFor()` ; ils cherchent dans TOUT le store (le carnet n'a ni
+  curWork ni curSection) et rafraîchissent la liseuse si le passage
+  touché est affiché ailleurs. La page ne parse jamais le localStorage.
+- **Une page libre = une annotation `work='carnet'`, `section 0`,
+  `quote` vide.** `locate()` sort tôt sur une quote vide, donc aucune
+  liseuse ne tentera jamais de la surligner ; elle voyage par la même
+  table `annotations` (syncUpsert), et le carnet ajoute `'carnet'` à la
+  liste des works de son `pullAll`.
+- **Praticité** : recherche plein texte (citations + notes), filtres par
+  couleur (une page libre, sans surligneur, tombe dès qu'un filtre
+  couleur est actif), « Avec note », deux vues **Par œuvre / Par date**
+  (le journal, à plat, plus récent d'abord, œuvre·section en marge),
+  **export Markdown lisible** + JSON (`exportAll`), et une feuille
+  `@media print` (le carnet s'imprime sans la coquille).
+- La barre d'outils est SOMBRE (c'est le bureau, pas le carnet), sticky
+  sous la topbar (`top:52px`) ; **statique sous 680 px** — repliée sur
+  trois rangées elle mangeait un sixième de l'écran.
+- Changements d'état annoncés via `SHELL.announce` (résultats de
+  recherche débouncés, enregistrement, suppression).
+- **L'annotation retient `label`**, le libellé lisible de sa section.
+  Les annotations antérieures n'en ont pas : repli « Section N ».
 - Chaque passage ramène au texte par le **contrat de deep-link** maison,
   variante explicite : `#s=<section>&q=<citation>&b=&a=`.
-- Connecté, `pullAll` rapatrie d'abord ce qui a été surligné ailleurs :
-  le carnet doit dire la même chose d'un appareil à l'autre.
+- Connecté, `pullAll` rapatrie d'abord ce qui a été écrit ailleurs ;
+  déconnecté, la page de titre porte la ligne « Votre carnet vit sur cet
+  appareil » avec le bouton de connexion.
 
-**Piège (déjà tombé dedans sur Place publique)** : les `path` de
-`bibliotheque.json` sont relatifs à la RACINE (`oeuvres/capital-1.html`)
-alors que ces deux pages vivent DANS `oeuvres/` — sans un `/` de tête,
-le lien résout en `oeuvres/oeuvres/…`. Normaliser à l'entrée.
+**Pièges de cette page** :
+1. Les `path` de `bibliotheque.json` sont relatifs à la RACINE alors que
+   la page vit DANS `oeuvres/` — sans `/` de tête, le lien résout en
+   `oeuvres/oeuvres/…`. Normaliser à l'entrée (déjà vécu sur Place
+   publique).
+2. **La sonde de contraste ment sur le carnet** : le papier est un
+   `background-image` (dégradé), donc `backgroundColor` est transparent
+   et une sonde générique compare l'encre au brun-nuit de la pièce —
+   tout semble en échec. Donner à la sonde le papier réel, au PIRE du
+   dégradé (`#e2d2ad`) : tout passe alors ≥ 5:1.
+3. Les textes fonctionnels restent ≥ 11 px (constats detect.mjs
+   corrigés) ; seul l'onglet de tranche, décoratif et `aria-hidden`,
+   descend en dessous.
 
 L'alias hérité `'capital'` → `'capital-1'` est redit ici (comme dans
 place-publique) plutôt que de coupler la page à `SHELL.commune`.

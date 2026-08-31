@@ -2,9 +2,9 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<title>Mon carnet — Vos passages surlignés | Lire Marx</title>
+<title>Mon carnet — Vos passages et vos notes | Lire Marx</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="Tous les passages que vous avez surlignés dans les œuvres de Marx, rassemblés par livre et par section — chacun ramène à son endroit dans le texte.">
+<meta name="description" content="Votre carnet de lecture : les passages surlignés dans les œuvres de Marx, vos notes en marge et vos pages libres — chaque passage ramène à son endroit dans le texte.">
 <meta name="robots" content="noindex">
 <link rel="canonical" href="https://liremarx.com/oeuvres/carnet.html">
 <link rel="stylesheet" href="fonts/fonts.css">
@@ -12,85 +12,264 @@
 <link rel="stylesheet" href="shell.css">
 <style>
 /* ═══════════════════════════════════════════════════════════════════
-   Mon carnet — le pendant PRIVÉ de la Place publique.
-   Là-bas, les notes partagées ; ici, les vôtres. La page ne fait que
-   LIRE le carnet (SHELL.annotations.allNotes) et le remettre en ordre :
-   par œuvre, puis par section, du plus récent au plus ancien. Chaque
-   passage ramène à son endroit dans le texte par le contrat de
-   deep-link de la maison (#s=<section>&q=<citation>).
-   Aucune donnée ne naît ici — on n'écrit pas dans son carnet depuis le
-   carnet, on écrit en lisant.
+   Mon carnet — un VRAI carnet posé sur le bureau de la pièce sombre.
+   Le papier est crème (la palette d'encre de la feuille volante de la
+   bibliothèque), les citations y sont imprimées en Spectral sous leur
+   trait de surligneur, VOS notes y sont manuscrites en Caveat, les
+   dates vivent dans la marge. Depuis la refonte d'août 2026 le carnet
+   se TIENT : on y modifie et supprime ses passages, on y écrit des
+   pages libres (work='carnet' dans le store), on le fouille et on
+   l'exporte. Toute écriture passe par SHELL.annotations
+   (update / remove / addFree) — la page ne parse jamais le store.
    ═══════════════════════════════════════════════════════════════════ */
-.cn-wrap{max-width:920px;}
-.cn-head{margin-bottom:34px;padding-bottom:22px;border-bottom:1px solid var(--line);}
-.cn-label{display:block;font-family:var(--f-ui);font-size:.72rem;font-weight:600;
-  letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;}
-.cn-h1{font-family:'Fraunces',serif;font-weight:900;
-  font-size:clamp(1.9rem,4vw,2.7rem);letter-spacing:-.03em;color:var(--text);
-  line-height:1.05;margin:0 0 12px;}
-.cn-lede{font-family:'Spectral',Georgia,serif;font-style:italic;font-size:1.04rem;
-  line-height:1.6;color:var(--ink-soft);max-width:62ch;margin:0;}
-.cn-count{font-family:var(--f-ui);font-size:.8rem;color:var(--muted);margin-top:14px;}
+.cnb{max-width:960px;padding:26px 18px 70px;margin:0 auto;}
 
-/* une œuvre = une travée du carnet */
-.cn-work{margin-bottom:46px;}
-.cn-work-head{display:flex;align-items:baseline;justify-content:space-between;
-  gap:18px;flex-wrap:wrap;margin-bottom:6px;}
-.cn-work-t{font-family:'Fraunces',serif;font-weight:700;font-size:1.32rem;
-  color:var(--text);margin:0;}
-.cn-work-n{font-family:var(--f-ui);font-size:.78rem;color:var(--muted);}
-.cn-sec{margin-top:22px;}
-.cn-sec-t{font-family:var(--f-ui);font-size:.7rem;font-weight:700;
-  letter-spacing:.16em;text-transform:uppercase;color:var(--gold);
-  padding-bottom:8px;border-bottom:1px solid var(--line);margin-bottom:4px;}
+/* ── la table à outils (sombre : c'est le bureau, pas le carnet) ── */
+.cnb-tools{position:sticky;top:52px;z-index:60;display:flex;flex-wrap:wrap;
+  align-items:center;gap:9px;background:var(--surface);
+  border:1px solid var(--line);border-radius:14px;padding:9px 12px;
+  margin-bottom:30px;box-shadow:0 10px 30px rgba(0,0,0,.35);}
+.cnb-tools[hidden]{display:none;}
+.cnb-find{flex:1 1 170px;min-width:150px;height:32px;font-family:var(--f-ui);
+  font-size:.84rem;color:var(--ink);background:var(--card);
+  border:1px solid var(--line-strong);border-radius:9px;padding:0 12px;}
+.cnb-find::placeholder{color:var(--const);}
+.cnb-find:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(216,173,76,.28);}
+.cnb-dots{display:flex;gap:7px;align-items:center;}
+.cnb-dot{width:22px;height:22px;border-radius:50%;border:1px solid rgba(0,0,0,.3);
+  cursor:pointer;padding:0;opacity:.5;transition:opacity .15s,box-shadow .15s;}
+.cnb-dot[aria-pressed="true"]{opacity:1;
+  box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--text);}
+.cnb-dot.d-gold{background:var(--gold);}
+.cnb-dot.d-red{background:var(--accent);}
+.cnb-dot.d-blue{background:var(--blue);}
+.cnb-dot.d-green{background:var(--ok);}
+.cnb-pill{font-family:var(--f-ui);font-weight:600;font-size:.76rem;line-height:1;
+  color:var(--text);background:transparent;border:1px solid var(--line-strong);
+  border-radius:999px;padding:8px 13px;cursor:pointer;white-space:nowrap;
+  transition:background .15s,color .15s,border-color .15s;}
+.cnb-pill:hover{background:var(--hover);}
+.cnb-pill[aria-pressed="true"]{background:var(--text);color:var(--bg);border-color:var(--text);}
+.cnb-views{display:flex;gap:3px;border:1px solid var(--line-strong);border-radius:999px;padding:2px;}
+.cnb-view{font-family:var(--f-ui);font-weight:700;font-size:.73rem;line-height:1;
+  color:var(--ink-soft);background:transparent;border:0;border-radius:999px;
+  padding:7px 11px;cursor:pointer;white-space:nowrap;}
+.cnb-view[aria-pressed="true"]{background:var(--text);color:var(--bg);}
+.cnb-exp{position:relative;}
+.cnb-exp>summary{list-style:none;display:inline-block;}
+.cnb-exp>summary::-webkit-details-marker{display:none;}
+.cnb-exp-menu{position:absolute;top:calc(100% + 7px);right:0;z-index:80;
+  background:var(--card);border:1px solid var(--line);border-radius:11px;
+  box-shadow:0 12px 36px rgba(0,0,0,.35);padding:6px;min-width:190px;}
+.cnb-exp-it{display:block;width:100%;text-align:left;background:transparent;border:0;
+  border-radius:8px;padding:9px 11px;cursor:pointer;font-family:var(--f-ui);
+  font-size:.8rem;color:var(--ink);}
+.cnb-exp-it:hover{background:var(--hover);}
+.cnb-exp-it small{display:block;font-size:.7rem;color:var(--const);margin-top:2px;}
+.cnb-write{background:var(--text);color:var(--bg);border-color:var(--text);}
+.cnb-write:hover{background:var(--ink-soft);}
+.cnb-tally{margin-left:auto;font-family:var(--f-ui);font-size:.72rem;color:var(--muted);white-space:nowrap;}
+.cnb-tools :focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
 
-/* un passage */
-.cn-note{display:grid;grid-template-columns:10px 1fr auto;gap:14px;
-  align-items:start;padding:15px 8px 15px 2px;border-bottom:1px solid var(--line);}
-.cn-dot{width:10px;height:10px;border-radius:50%;margin-top:7px;}
-.cn-gold{background:var(--gold);}
-.cn-red{background:var(--accent);}
-.cn-blue{background:var(--blue,#5c8aa3);}
-.cn-green{background:var(--ok,#7fa855);}
-.cn-q{font-family:'Spectral',Georgia,serif;font-style:italic;font-size:1rem;
-  line-height:1.55;color:var(--text);margin:0;}
-.cn-n{font-family:var(--f-ui);font-size:.87rem;line-height:1.55;
-  color:var(--ink-soft);margin:7px 0 0;padding-left:13px;
-  border-left:2px solid var(--line-strong,var(--line));}
-.cn-when{font-family:var(--f-ui);font-size:.72rem;color:var(--muted);margin-top:8px;}
-.cn-go{flex:none;font-family:var(--f-ui);font-size:.76rem;font-weight:600;
-  color:var(--red-text);text-decoration:none;white-space:nowrap;padding-top:4px;}
-.cn-go:hover{text-decoration:underline;text-underline-offset:3px;}
-.cn-go-soon{font-family:var(--f-ui);font-size:.72rem;color:var(--muted);
-  font-style:italic;white-space:nowrap;padding-top:4px;}
+/* ── le carnet lui-même ── */
+.cnb-book{position:relative;color:var(--pk);
+  --pp:#eee2c4;--pk:#2b1c0e;--pk2:#57432a;--pk3:#6d4b12;
+  --pkred:#8f2a1c;--pkline:rgba(43,28,14,.16);--pkline2:rgba(43,28,14,.09);
+  background:
+    linear-gradient(105deg,#e5d7b6 0%,#f0e5c9 16%,#eee2c4 58%,#e2d2ad 100%);
+  border-radius:4px 12px 12px 4px;
+  box-shadow:0 30px 70px rgba(0,0,0,.55),0 4px 16px rgba(0,0,0,.4);
+  font-family:var(--f-serif);}
+/* la reliure : ombre du pli + couture */
+.cnb-book::before{content:"";position:absolute;top:0;bottom:0;left:0;width:34px;
+  border-radius:4px 0 0 4px;pointer-events:none;
+  background:linear-gradient(90deg,rgba(43,28,14,.30),rgba(43,28,14,.10) 40%,transparent);}
+.cnb-book::after{content:"";position:absolute;top:16px;bottom:16px;left:13px;width:0;
+  border-left:2px dashed rgba(43,28,14,.30);pointer-events:none;}
+.cnb-book ::selection{background:#2b1c0e;color:#efe4c8;}
+.cnb-book :focus-visible{outline:2px solid var(--pkred);outline-offset:2px;border-radius:2px;}
+/* le signet */
+.cnb-ribbon{position:absolute;top:-7px;right:64px;width:24px;height:118px;z-index:2;
+  background:linear-gradient(100deg,#8f2a1c,#a83a29 55%,#7c2416);
+  clip-path:polygon(0 0,100% 0,100% 100%,50% calc(100% - 11px),0 100%);
+  box-shadow:3px 6px 12px rgba(0,0,0,.35);pointer-events:none;}
 
-/* l'état vide : il explique le geste plutôt que de constater le vide */
-.cn-empty{background:var(--surface);border:1px solid var(--line);
-  border-radius:16px;padding:28px 30px;max-width:64ch;}
-.cn-empty-t{font-family:'Fraunces',serif;font-weight:700;font-size:1.2rem;
-  color:var(--text);margin:0 0 10px;}
-.cn-empty p{font-family:'Spectral',Georgia,serif;font-size:.98rem;line-height:1.65;
-  color:var(--ink-soft);margin:0 0 16px;}
-.cn-empty .cap-btn-light{margin-top:2px;}
-.cn-state{font-family:var(--f-ui);font-size:.9rem;color:var(--muted);padding:18px 0;}
-@media(max-width:640px){
-  .cn-note{grid-template-columns:10px 1fr;}
-  .cn-go,.cn-go-soon{grid-column:2;padding-top:8px;}
+/* page de titre — la grammaire de la feuille volante */
+.cnb-title{text-align:center;padding:66px 52px 20px;}
+.cnb-rub{display:inline-block;font-family:var(--f-ui);font-size:.7rem;font-weight:600;
+  letter-spacing:.34em;text-transform:uppercase;color:var(--pk3);
+  border-top:1px solid var(--pkline);border-bottom:1px solid var(--pkline);
+  padding:8px 20px 7px;text-indent:.34em;}
+.cnb-h1{font-family:'Fraunces',serif;font-weight:900;color:var(--pk);
+  font-size:clamp(2.3rem,5vw,3.3rem);letter-spacing:-.03em;line-height:1;
+  margin:24px 0 0;}
+.cnb-fleuron{display:block;margin:20px auto 0;color:var(--pk3);}
+.cnb-envoi{font-style:italic;font-size:1.02rem;color:var(--pk2);margin:18px auto 0;max-width:52ch;}
+.cnb-toc{list-style:none;margin:22px auto 0;padding:0;max-width:46ch;}
+.cnb-toc li{padding:4px 0;font-size:.98rem;color:var(--pk2);}
+.cnb-toc a{color:var(--pkred);text-decoration:none;font-style:italic;}
+.cnb-toc a:hover{text-decoration:underline;text-underline-offset:3px;}
+.cnb-toc .n{color:var(--pk2);font-size:.88rem;}
+.cnb-sync{font-family:var(--f-ui);font-size:.76rem;color:var(--pk2);margin:24px auto 0;max-width:52ch;}
+.cnb-sync button{background:none;border:0;padding:0;cursor:pointer;font:inherit;
+  font-weight:600;color:var(--pkred);text-decoration:underline;text-underline-offset:3px;}
+
+/* un cahier = une œuvre */
+.cnb-cahier{position:relative;padding:26px 52px 30px;}
+.cnb-cahier+.cnb-cahier{border-top:1px solid var(--pkline2);}
+/* le compte suit le titre (à droite, l'onglet de tranche occupe la place) */
+.cnb-cahier-head{display:flex;align-items:baseline;justify-content:flex-start;
+  gap:16px;flex-wrap:wrap;padding-bottom:4px;}
+.cnb-cahier-t{font-family:'Fraunces',serif;font-weight:700;font-size:1.42rem;
+  letter-spacing:-.015em;color:var(--pk);margin:0;}
+.cnb-cahier-n{font-style:italic;font-size:.86rem;color:var(--pk2);}
+/* l'onglet qui déborde de la tranche */
+.cnb-tab{position:absolute;right:-11px;top:26px;font-family:var(--f-ui);
+  font-size:.62rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:#f6ecd8;padding:6px 12px 5px 14px;border-radius:0 6px 6px 0;
+  box-shadow:2px 3px 8px rgba(0,0,0,.35);pointer-events:none;}
+.cnb-tab.t-0{background:#a03427;}
+.cnb-tab.t-1{background:#8a672a;}
+.cnb-tab.t-2{background:#4e6e83;}
+.cnb-tab.t-3{background:#5c7a44;}
+
+.cnb-sec-t{font-family:var(--f-ui);font-size:.7rem;font-weight:700;
+  letter-spacing:.18em;text-transform:uppercase;color:var(--pk3);
+  border-bottom:1px solid var(--pkline);padding:20px 0 7px;}
+
+/* une entrée : marge (date) + corps (citation surlignée, note à la main) */
+.cnb-entry{display:grid;grid-template-columns:92px 1fr;gap:20px;
+  padding:16px 0;border-bottom:1px solid var(--pkline2);}
+.cnb-entry:last-child{border-bottom:0;}
+.cnb-marge{text-align:right;padding-top:3px;}
+.cnb-marge time{display:block;font-style:italic;font-size:.8rem;color:var(--pk2);}
+.cnb-loc{display:block;font-family:var(--f-ui);font-size:.7rem;font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--pk3);margin-top:5px;line-height:1.5;}
+.cnb-q{font-size:1.02rem;line-height:1.7;color:var(--pk);margin:0;}
+.cnb-q mark{background:none;color:inherit;padding:.05em .16em;margin:0 -.06em;
+  border-radius:3px;-webkit-box-decoration-break:clone;box-decoration-break:clone;
+  background-image:linear-gradient(100deg,transparent 0%,var(--mk) 2.5%,var(--mk) 97.5%,transparent 100%);}
+.mk-gold{--mk:rgba(216,173,76,.46);}
+.mk-red{--mk:rgba(213,64,47,.26);}
+.mk-blue{--mk:rgba(92,138,163,.32);}
+.mk-green{--mk:rgba(127,168,85,.36);}
+.cnb-hand{font-family:var(--f-hand);font-weight:500;font-size:1.32rem;line-height:1.32;
+  color:#3a2513;margin:7px 0 0;white-space:pre-line;overflow-wrap:break-word;}
+.cnb-acts{display:flex;flex-wrap:wrap;align-items:center;gap:4px 16px;margin-top:9px;
+  font-family:var(--f-ui);font-size:.73rem;}
+.cnb-act{background:none;border:0;padding:0;cursor:pointer;font:inherit;
+  font-weight:600;color:var(--pk2);text-decoration:none;transition:color .15s;}
+a.cnb-act{font-weight:600;}
+.cnb-act:hover{color:var(--pkred);text-decoration:underline;text-underline-offset:3px;}
+.cnb-act-soon{font:inherit;font-style:italic;color:var(--pk2);opacity:.75;}
+.cnb-confirm{font-family:var(--f-ui);font-size:.76rem;color:var(--pkred);font-weight:600;
+  display:flex;align-items:center;gap:12px;}
+.cnb-confirm .cnb-act{color:var(--pkred);}
+
+/* le mode écriture : la note redevient un champ, à la main, sur réglure */
+.cnb-edit{margin-top:9px;}
+.cnb-ta{display:block;width:100%;min-height:104px;resize:vertical;
+  font-family:var(--f-hand);font-weight:500;font-size:1.3rem;line-height:34px;
+  color:#2b1c0e;background-color:rgba(255,252,240,.55);
+  background-image:repeating-linear-gradient(transparent 0,transparent 33px,rgba(43,28,14,.16) 33px,rgba(43,28,14,.16) 34px);
+  background-attachment:local;
+  border:1px solid rgba(43,28,14,.32);border-radius:6px;padding:2px 12px 6px;}
+.cnb-ta::placeholder{color:rgba(43,28,14,.4);}
+.cnb-edit-row{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:11px;}
+.cnb-sw{width:24px;height:24px;border-radius:50%;border:1px solid rgba(43,28,14,.35);
+  cursor:pointer;padding:0;}
+.cnb-sw[aria-pressed="true"]{box-shadow:0 0 0 2px var(--pp),0 0 0 4px var(--pk);}
+.cnb-sw.d-gold{background:#d8ad4c;}
+.cnb-sw.d-red{background:#c8503d;}
+.cnb-sw.d-blue{background:#5c8aa3;}
+.cnb-sw.d-green{background:#7fa855;}
+.cnb-btn{font-family:var(--f-ui);font-weight:600;font-size:.78rem;line-height:1;
+  background:var(--pk);color:#f0e5c9;border:1px solid var(--pk);
+  border-radius:999px;padding:9px 16px;cursor:pointer;}
+.cnb-btn:hover{background:#4a3018;}
+.cnb-btn-ghost{background:transparent;color:var(--pk);}
+.cnb-btn-ghost:hover{background:rgba(43,28,14,.08);}
+.cnb-edit-sp{flex:1;}
+
+/* pages vides, recherche vide, chargement */
+.cnb-blank{padding:34px 52px 60px;}
+.cnb-blank .cnb-hand{font-size:1.42rem;max-width:46ch;}
+.cnb-blank-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:22px;}
+.cnb-blank-row .cnb-btn{text-decoration:none;display:inline-block;}
+.cnb-state{padding:30px 52px 60px;font-style:italic;color:var(--pk2);}
+
+@media(max-width:900px){.cnb-tab{display:none;}.cnb-ribbon{right:34px;}}
+@media(max-width:860px){.cnb-tools{top:48px;}}
+@media(max-width:680px){
+  .cnb{padding:16px 8px 50px;}
+  /* repliée sur trois rangées, la barre collante mangerait un sixième
+     de l'écran : elle redevient un simple bloc qui défile */
+  .cnb-tools{position:static;}
+  .cnb-title{padding:48px 24px 16px;}
+  .cnb-cahier,.cnb-blank,.cnb-state{padding-left:26px;padding-right:24px;}
+  .cnb-entry{grid-template-columns:1fr;gap:4px;}
+  .cnb-marge{text-align:left;display:flex;gap:12px;align-items:baseline;}
+  .cnb-marge time,.cnb-loc{display:inline;margin:0;}
+  .cnb-tally{display:none;}
+  .cnb-book::before{width:22px;}
+  .cnb-book::after{left:8px;}
+}
+@media print{
+  .topbar,.sidebar,.sb-backdrop,.cnb-tools,.cnb-acts,.cnb-ribbon,.cnb-sync,
+  .notes-fab,.pub-fab{display:none!important;}
+  .wrap{margin-left:0!important;}
+  body{background:#fff!important;}
+  .cnb-book{box-shadow:none;background:#fff;--pk:#000;--pk2:#333;--pk3:#5a4008;}
 }
 </style>
 </head>
 <body>
 <main class="wrap" id="contenu" tabindex="-1">
-  <div class="cn-wrap">
+  <div class="cnb">
 
-    <header class="cn-head">
-      <span class="cn-label">Vos lectures</span>
-      <h1 class="cn-h1">Mon carnet</h1>
-      <p class="cn-lede">Tous les passages que vous avez surlignés, rassemblés par livre et par section. Chacun ramène à son endroit dans le texte.</p>
-      <div class="cn-count" id="cnCount"></div>
-    </header>
+    <div class="cnb-tools" id="cnTools" hidden>
+      <label class="sr-only" for="cnFind">Chercher dans le carnet</label>
+      <input class="cnb-find" id="cnFind" type="search" placeholder="Chercher dans le carnet…" autocomplete="off">
+      <div class="cnb-dots" role="group" aria-label="Filtrer par couleur de surligneur">
+        <button class="cnb-dot d-gold" type="button" data-color="gold" aria-pressed="false" aria-label="Surlignages or" title="Or"></button>
+        <button class="cnb-dot d-red" type="button" data-color="red" aria-pressed="false" aria-label="Surlignages rouges" title="Rouge"></button>
+        <button class="cnb-dot d-blue" type="button" data-color="blue" aria-pressed="false" aria-label="Surlignages bleus" title="Bleu"></button>
+        <button class="cnb-dot d-green" type="button" data-color="green" aria-pressed="false" aria-label="Surlignages verts" title="Vert"></button>
+      </div>
+      <button class="cnb-pill" id="cnNoted" type="button" aria-pressed="false">Avec note</button>
+      <div class="cnb-views" role="group" aria-label="Ordre du carnet">
+        <button class="cnb-view" id="cnViewC" type="button" aria-pressed="true">Par œuvre</button>
+        <button class="cnb-view" id="cnViewJ" type="button" aria-pressed="false">Par date</button>
+      </div>
+      <details class="cnb-exp" id="cnExp">
+        <summary class="cnb-pill">Exporter</summary>
+        <div class="cnb-exp-menu">
+          <button class="cnb-exp-it" id="cnExpMd" type="button">Texte lisible (Markdown)<small>citations et notes, par œuvre et section</small></button>
+          <button class="cnb-exp-it" id="cnExpJson" type="button">Sauvegarde (JSON)<small>le carnet complet, ré-importable</small></button>
+        </div>
+      </details>
+      <button class="cnb-pill cnb-write" id="cnWrite" type="button">Écrire une page</button>
+      <span class="cnb-tally" id="cnTally"></span>
+    </div>
 
-    <div id="cnBody"><div class="cn-state">Ouverture du carnet…</div></div>
+    <div class="cnb-book" id="cnBook">
+      <span class="cnb-ribbon" aria-hidden="true"></span>
+
+      <header class="cnb-title">
+        <span class="cnb-rub">Carnet de lecture</span>
+        <h1 class="cnb-h1">Mon carnet</h1>
+        <svg class="cnb-fleuron" width="150" height="12" viewBox="0 0 150 12" aria-hidden="true" focusable="false">
+          <line x1="0" y1="6" x2="63" y2="6" stroke="currentColor" stroke-width="1"/>
+          <rect x="70" y="1" width="10" height="10" transform="rotate(45 75 6)" fill="currentColor"/>
+          <line x1="87" y1="6" x2="150" y2="6" stroke="currentColor" stroke-width="1"/>
+        </svg>
+        <p class="cnb-envoi" id="cnCount">Ouverture du carnet…</p>
+        <ul class="cnb-toc" id="cnToc" hidden></ul>
+        <p class="cnb-sync" id="cnSync" hidden>Votre carnet vit sur cet appareil. <button type="button" id="cnLogin">Connectez-vous</button> pour le retrouver d'un appareil à l'autre.</p>
+      </header>
+
+      <div id="cnBody"><div class="cnb-state">Un instant, le carnet s'ouvre…</div></div>
+    </div>
 
   </div>
 </main>
@@ -106,8 +285,13 @@ installShell({
 
 (function(){
   'use strict';
-  var body = document.getElementById('cnBody');
-  var countEl = document.getElementById('cnCount');
+  var body   = document.getElementById('cnBody');
+  var countEl= document.getElementById('cnCount');
+  var tocEl  = document.getElementById('cnToc');
+  var syncEl = document.getElementById('cnSync');
+  var tools  = document.getElementById('cnTools');
+  var tally  = document.getElementById('cnTally');
+  var findEl = document.getElementById('cnFind');
 
   /* Alias hérité 'capital' → 'capital-1' : les premières annotations du
      site ont été écrites avec l'id court. Il est déjà codé en dur dans
@@ -115,28 +299,68 @@ installShell({
      coupler cette page à l'un des deux (règle maison : petits outils
      dupliqués). */
   var ALIAS = { 'capital': 'capital-1' };
-  var biblio = {};
+  var FREE  = 'carnet';        // pseudo-œuvre des pages libres (contrat addFree)
+  var biblio = {}, biblioOrder = [];
+
+  var state = {
+    q: '', colors: {}, noted: false,
+    view: 'carnet',            // 'carnet' (par œuvre) | 'journal' (par date)
+    editing: null,             // id du passage en cours d'édition
+    draft: null,               // { note, color } du formulaire ouvert
+    confirm: null,             // id en attente de confirmation de suppression
+    writing: false             // formulaire « nouvelle page libre » ouvert
+  };
 
   function esc(s){
-    return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){
-      return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c];
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+      return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
     });
   }
-  function ago(t){
+  function announce(msg){
+    if(window.SHELL && SHELL.announce) SHELL.announce(msg);
+  }
+
+  /* Un document écrit ses nombres en toutes lettres (règle de la feuille
+     volante de la bibliothèque). Au-delà de cent, les chiffres reprennent. */
+  function numFr(n){
+    var U = ['zéro','un','deux','trois','quatre','cinq','six','sept','huit','neuf','dix',
+      'onze','douze','treize','quatorze','quinze','seize','dix-sept','dix-huit','dix-neuf'];
+    if(n < 20) return U[n];
+    if(n > 100) return String(n);
+    if(n === 100) return 'cent';
+    var T = { 20:'vingt', 30:'trente', 40:'quarante', 50:'cinquante', 60:'soixante', 80:'quatre-vingt' };
+    var d = Math.floor(n / 10) * 10, r = n - d;
+    if(d === 70 || d === 90){ d -= 10; r += 10; }
+    var t = T[d];
+    if(r === 0) return d === 80 ? 'quatre-vingts' : t;
+    if(r === 1 && d !== 80) return t + '-et-un';
+    if(r === 11 && d === 60) return 'soixante-et-onze';
+    return t + '-' + U[r];
+  }
+  var MONTHS = ['janvier','février','mars','avril','mai','juin','juillet',
+    'août','septembre','octobre','novembre','décembre'];
+  function fmtDate(t){
     if(!t) return '';
     var d = Math.max(0, Date.now() - t), j = Math.floor(d / 86400000);
     if(j === 0) return "aujourd'hui";
     if(j === 1) return 'hier';
-    if(j < 31) return 'il y a ' + j + ' jours';
-    var m = Math.floor(j / 30);
-    return 'il y a ' + m + ' mois';
+    var dt = new Date(t), now = new Date();
+    var s = dt.getDate() + (dt.getDate() === 1 ? 'er' : '') + ' ' + MONTHS[dt.getMonth()];
+    if(dt.getFullYear() !== now.getFullYear()) s += ' ' + dt.getFullYear();
+    return s;
+  }
+  function fmtDateLong(t){
+    if(!t) return '';
+    var dt = new Date(t);
+    return dt.getDate() + (dt.getDate() === 1 ? 'er' : '') + ' ' +
+      MONTHS[dt.getMonth()] + ' ' + dt.getFullYear();
   }
 
   async function loadBiblio(){
     try {
       var r = await fetch('bibliotheque.json', { cache: 'no-cache' });
       var d = await r.json();
-      (d.works || []).forEach(function(w){ biblio[w.id] = w; });
+      (d.works || []).forEach(function(w){ biblio[w.id] = w; biblioOrder.push(w.id); });
     } catch(e){}
   }
 
@@ -145,97 +369,459 @@ installShell({
     var w = biblio[id];
     /* Les `path` de bibliotheque.json sont relatifs à la RACINE
        ('oeuvres/capital-1.html') alors que cette page vit DANS oeuvres/ :
-       sans le '/' de tête, le lien résoudrait en oeuvres/oeuvres/…
-       Place publique, dans le même dossier, fait la même normalisation. */
+       sans le '/' de tête, le lien résoudrait en oeuvres/oeuvres/… */
     var path = (w && w.status === 'available' && w.path) ? String(w.path) : null;
     if(path && path.indexOf('/') !== 0) path = '/' + path;
-    return { id: id, title: (w && w.title) || id, path: path };
+    return { id: id, title: (w && w.title) || id,
+      short: (w && (w.shortTitle || w.title)) || id, path: path };
   }
 
   /* Le contrat de deep-link au passage, variante explicite :
-     #s=<section>&q=<citation>&b=<avant>&a=<après>. SHELL.reader le lit à
-     l'ouverture de la page d'œuvre et surligne le passage. */
+     #s=<section>&q=<citation>&b=<avant>&a=<après>. */
   function passageHref(meta, n){
-    if(!meta.path) return null;
+    if(!meta.path || !n.quote) return null;
     return meta.path + '#s=' + encodeURIComponent(n.section) +
       '&q=' + encodeURIComponent(n.quote) +
       (n.before ? '&b=' + encodeURIComponent(n.before) : '') +
       (n.after ? '&a=' + encodeURIComponent(n.after) : '');
   }
 
-  function noteHtml(meta, n){
-    var href = passageHref(meta, n);
-    return '<div class="cn-note">' +
-      '<span class="cn-dot cn-' + esc(n.color) + '"></span>' +
-      '<div>' +
-        '<p class="cn-q">« ' + esc(n.quote) + ' »</p>' +
-        (n.note ? '<p class="cn-n">' + esc(n.note) + '</p>' : '') +
-        '<div class="cn-when">' + esc(ago(n.created)) + '</div>' +
-      '</div>' +
-      (href
-        ? '<a class="cn-go" href="' + esc(href) + '">Aller au passage&nbsp;→</a>'
-        : '<span class="cn-go-soon">atelier à venir</span>') +
-      '</div>';
+  // ───────────────────────── lecture + filtres ─────────────────────────
+
+  function allNotes(){
+    return (window.SHELL && SHELL.annotations && SHELL.annotations.allNotes)
+      ? SHELL.annotations.allNotes() : [];
+  }
+  function colorFilterOn(){
+    return !!(state.colors.gold || state.colors.red || state.colors.blue || state.colors.green);
+  }
+  function matches(n, isFree){
+    if(state.q){
+      var hay = ((n.quote || '') + ' ' + (n.note || '')).toLowerCase();
+      if(hay.indexOf(state.q) < 0) return false;
+    }
+    if(isFree) return !colorFilterOn();          // une page libre n'a pas de surligneur
+    if(colorFilterOn() && !state.colors[n.color]) return false;
+    if(state.noted && !n.note) return false;
+    return true;
+  }
+  function split(){
+    var passages = [], frees = [];
+    allNotes().forEach(function(n){
+      if((ALIAS[n.work] || n.work) === FREE) frees.push(n); else passages.push(n);
+    });
+    return { passages: passages, frees: frees };
   }
 
-  function render(){
-    var all = (window.SHELL && SHELL.annotations && SHELL.annotations.allNotes)
-      ? SHELL.annotations.allNotes() : [];
+  // ───────────────────────── gabarits ─────────────────────────
 
-    if(!all.length){
-      countEl.textContent = '';
-      body.innerHTML =
-        '<div class="cn-empty">' +
-          '<p class="cn-empty-t">Votre carnet est encore vierge.</p>' +
-          '<p>En lisant un chapitre, sélectionnez un passage : il se surligne, et vous pouvez y attacher une note. Tout reste sur cet appareil — connectez-vous pour retrouver vos passages d\'un appareil à l\'autre.</p>' +
-          '<button class="cap-btn-light" type="button" onclick="location.href=\'capital-1.html\'">Ouvrir Le Capital →</button>' +
-        '</div>';
-      return;
+  function editFormHtml(n, isFree){
+    var d = state.draft || { note: n.note || '', color: n.color || 'gold' };
+    var sw = '';
+    if(!isFree){
+      [['gold','or'],['red','rouge'],['blue','bleu'],['green','vert']].forEach(function(c){
+        sw += '<button class="cnb-sw d-' + c[0] + '" type="button" data-sw="' + c[0] +
+          '" aria-pressed="' + (d.color === c[0] ? 'true' : 'false') +
+          '" aria-label="Surligneur ' + c[1] + '" title="' + c[1] + '"></button>';
+      });
     }
+    return '<div class="cnb-edit">' +
+      '<textarea class="cnb-ta" data-ta placeholder="' +
+        (isFree ? 'Écrivez, la page est à vous…' : 'Votre note sur ce passage…') + '">' +
+        esc(d.note) + '</textarea>' +
+      '<div class="cnb-edit-row">' + sw +
+        '<span class="cnb-edit-sp"></span>' +
+        '<button class="cnb-btn-ghost cnb-btn" type="button" data-act="cancel">Annuler</button>' +
+        '<button class="cnb-btn" type="button" data-act="save">Enregistrer</button>' +
+      '</div></div>';
+  }
 
-    /* par œuvre, puis par section — l'ordre des œuvres suit la
-       bibliothèque, l'ordre des passages reste le plus récent d'abord */
-    var byWork = {};
-    all.forEach(function(n){
+  function actsHtml(n, meta, isFree){
+    if(state.confirm === n.id){
+      return '<div class="cnb-confirm" role="alert">' +
+        (isFree ? 'Déchirer cette page ?' : 'Effacer ce passage du carnet ?') +
+        ' <button class="cnb-act" type="button" data-act="del-yes">Oui, effacer</button>' +
+        ' <button class="cnb-act" type="button" data-act="del-no">Garder</button></div>';
+    }
+    var h = '<div class="cnb-acts">';
+    if(!isFree){
+      var href = passageHref(meta, n);
+      h += href
+        ? '<a class="cnb-act" href="' + esc(href) + '">Aller au passage&nbsp;→</a>'
+        : '<span class="cnb-act-soon">atelier à venir</span>';
+    }
+    h += '<button class="cnb-act" type="button" data-act="edit">' +
+        (isFree ? 'Reprendre la plume' : (n.note ? 'Modifier' : 'Annoter')) + '</button>' +
+      '<button class="cnb-act" type="button" data-act="del">Effacer</button></div>';
+    return h;
+  }
+
+  function entryHtml(n, meta, opts){
+    opts = opts || {};
+    var isFree = !!opts.free;
+    var marge = '<time datetime="' + new Date(n.created || 0).toISOString().slice(0, 10) + '">' +
+      esc(fmtDate(n.created)) + '</time>';
+    if(opts.loc) marge += '<span class="cnb-loc">' + esc(opts.loc) + '</span>';
+    var corps;
+    if(state.editing === n.id){
+      corps = (isFree ? '' :
+        '<p class="cnb-q">«&nbsp;<mark class="mk-' + esc(n.color) + '">' + esc(n.quote) + '</mark>&nbsp;»</p>') +
+        editFormHtml(n, isFree);
+    } else {
+      corps = isFree
+        ? '<p class="cnb-hand">' + esc(n.note) + '</p>'
+        : '<p class="cnb-q">«&nbsp;<mark class="mk-' + esc(n.color) + '">' + esc(n.quote) + '</mark>&nbsp;»</p>' +
+          (n.note ? '<p class="cnb-hand">' + esc(n.note) + '</p>' : '');
+      corps += actsHtml(n, meta, isFree);
+    }
+    return '<article class="cnb-entry" data-id="' + esc(n.id) + '"' +
+      (isFree ? ' data-free="1"' : '') + '>' +
+      '<div class="cnb-marge">' + marge + '</div>' +
+      '<div class="cnb-corps">' + corps + '</div></article>';
+  }
+
+  function newPageHtml(){
+    return '<article class="cnb-entry" data-new="1">' +
+      '<div class="cnb-marge"><time>' + esc(fmtDate(Date.now())) + '</time></div>' +
+      '<div class="cnb-corps">' + editFormHtml({ note: '', color: 'gold' }, true) + '</div></article>';
+  }
+
+  // ───────────────────────── rendu ─────────────────────────
+
+  function groupPassages(list){
+    var byWork = {}, order = [];
+    list.forEach(function(n){
       var meta = workMeta(n.work);
-      (byWork[meta.id] = byWork[meta.id] || { meta: meta, secs: {}, order: [], n: 0 });
-      var g = byWork[meta.id];
-      var key = String(n.section);
+      if(!byWork[meta.id]){ byWork[meta.id] = { meta: meta, secs: {}, order: [], n: 0 }; order.push(meta.id); }
+      var g = byWork[meta.id], key = String(n.section);
       if(!g.secs[key]){ g.secs[key] = { label: n.label || ('Section ' + key), list: [] }; g.order.push(key); }
-      /* un libellé enregistré l'emporte sur le repli numérique */
       if(n.label && g.secs[key].label.indexOf('Section ') === 0) g.secs[key].label = n.label;
       g.secs[key].list.push(n);
       g.n++;
     });
-
-    countEl.textContent = all.length + ' passage' + (all.length > 1 ? 's' : '') +
-      ' dans ' + Object.keys(byWork).length + ' œuvre' + (Object.keys(byWork).length > 1 ? 's' : '');
-
-    var h = '';
-    Object.keys(byWork).forEach(function(id){
-      var g = byWork[id];
-      h += '<section class="cn-work">' +
-        '<div class="cn-work-head"><h2 class="cn-work-t">' + esc(g.meta.title) + '</h2>' +
-        '<span class="cn-work-n">' + g.n + ' passage' + (g.n > 1 ? 's' : '') + '</span></div>';
-      g.order.sort(function(a, b){ return (+a) - (+b); }).forEach(function(key){
-        var sec = g.secs[key];
-        h += '<div class="cn-sec"><div class="cn-sec-t">' + esc(sec.label) + '</div>';
-        sec.list.forEach(function(n){ h += noteHtml(g.meta, n); });
-        h += '</div>';
-      });
-      h += '</section>';
+    /* l'ordre des œuvres suit la bibliothèque, les inconnues à la fin */
+    order.sort(function(a, b){
+      var ia = biblioOrder.indexOf(a), ib = biblioOrder.indexOf(b);
+      return (ia < 0 ? 999 : ia) - (ib < 0 ? 999 : ib);
     });
-    body.innerHTML = h;
+    return { byWork: byWork, order: order };
   }
 
-  /* Connecté, on rapatrie d'abord ce qui a été surligné ailleurs : le
-     carnet doit dire la même chose d'un appareil à l'autre. pullAll sort
-     tout seul si la session n'est pas ouverte. */
-  async function syncThenRender(){
+  function renderTitle(passages, frees){
     var works = {};
-    ((window.SHELL && SHELL.annotations && SHELL.annotations.allNotes)
-      ? SHELL.annotations.allNotes() : []).forEach(function(n){ works[n.work] = 1; });
-    /* et les œuvres disponibles, même sans note locale */
+    passages.forEach(function(n){ works[ALIAS[n.work] || n.work] = 1; });
+    var nw = Object.keys(works).length;
+    var bits = [];
+    if(passages.length) bits.push(numFr(passages.length) + ' passage' + (passages.length > 1 ? 's' : '') +
+      ' surligné' + (passages.length > 1 ? 's' : '') + ' dans ' + numFr(nw) + ' œuvre' + (nw > 1 ? 's' : ''));
+    if(frees.length) bits.push((frees.length === 1 ? 'une' : numFr(frees.length)) + ' page' + (frees.length > 1 ? 's' : '') + ' libre' + (frees.length > 1 ? 's' : ''));
+    countEl.textContent = bits.length
+      ? '— ' + bits.join(', et ') + ' —'
+      : '— encore vierge —';
+
+    /* le sommaire de première page : une ligne par cahier */
+    var lines = [];
+    if(state.view === 'carnet' && (passages.length || frees.length)){
+      var g = groupPassages(passages);
+      g.order.forEach(function(id){
+        var grp = g.byWork[id];
+        lines.push('<li><a href="#cw-' + esc(id) + '">' + esc(grp.meta.title) + '</a>' +
+          ' <span class="n">· ' + numFr(grp.n) + ' passage' + (grp.n > 1 ? 's' : '') + '</span></li>');
+      });
+      if(frees.length) lines.push('<li><a href="#cw-libres">Feuilles libres</a>' +
+        ' <span class="n">· ' + (frees.length === 1 ? 'une' : numFr(frees.length)) + ' page' + (frees.length > 1 ? 's' : '') + '</span></li>');
+    }
+    tocEl.innerHTML = lines.join('');
+    tocEl.hidden = lines.length < 2;
+  }
+
+  function render(){
+    var s = split();
+    var passages = s.passages.filter(function(n){ return matches(n, false); });
+    var frees = s.frees.filter(function(n){ return matches(n, true); });
+    var totalAll = s.passages.length + s.frees.length;
+    var shown = passages.length + frees.length;
+
+    tools.hidden = !totalAll && !state.writing;
+    renderTitle(s.passages, s.frees);
+
+    /* carnet entièrement vierge : la première page explique le geste */
+    if(!totalAll && !state.writing){
+      body.innerHTML = '<div class="cnb-blank">' +
+        '<p class="cnb-hand">Ce carnet est encore vierge.\nEn lisant, sélectionnez un passage : il se surligne, et vient se ranger ici avec vos notes. Vous pouvez aussi y écrire des pages libres, sans citation.</p>' +
+        '<div class="cnb-blank-row">' +
+          '<a class="cnb-btn" href="bibliotheque.html">Choisir une œuvre&nbsp;→</a>' +
+          '<button class="cnb-btn cnb-btn-ghost" type="button" data-act="write-first">Écrire une première page</button>' +
+        '</div></div>';
+      tally.textContent = '';
+      return;
+    }
+
+    var h = '';
+    if(state.view === 'journal'){
+      /* le fil : tout, du plus récent au plus ancien, l'œuvre en marge */
+      var flat = passages.concat(frees).sort(function(a, b){ return b.created - a.created; });
+      h += '<section class="cnb-cahier">';
+      flat.forEach(function(n){
+        var isFree = (ALIAS[n.work] || n.work) === FREE;
+        var meta = isFree ? null : workMeta(n.work);
+        var loc = isFree ? 'Page libre'
+          : meta.short + ' · ' + (n.label || 'Section ' + n.section);
+        h += entryHtml(n, meta, { free: isFree, loc: loc });
+      });
+      h += '</section>';
+    } else {
+      var g = groupPassages(passages);
+      var ti = 0;
+      g.order.forEach(function(id){
+        var grp = g.byWork[id];
+        h += '<section class="cnb-cahier" id="cw-' + esc(id) + '">' +
+          '<span class="cnb-tab t-' + (ti++ % 4) + '" aria-hidden="true">' + esc(grp.meta.short) + '</span>' +
+          '<div class="cnb-cahier-head"><h2 class="cnb-cahier-t">' + esc(grp.meta.title) + '</h2>' +
+          '<span class="cnb-cahier-n">' + numFr(grp.n) + ' passage' + (grp.n > 1 ? 's' : '') + '</span></div>';
+        grp.order.sort(function(a, b){ return (+a) - (+b); }).forEach(function(key){
+          var sec = grp.secs[key];
+          h += '<h3 class="cnb-sec-t">' + esc(sec.label) + '</h3>';
+          sec.list.sort(function(a, b){ return a.created - b.created; }).forEach(function(n){
+            h += entryHtml(n, grp.meta);
+          });
+        });
+        h += '</section>';
+      });
+      if(frees.length || state.writing){
+        h += '<section class="cnb-cahier" id="cw-libres">' +
+          '<span class="cnb-tab t-' + (ti % 4) + '" aria-hidden="true">Feuilles libres</span>' +
+          '<div class="cnb-cahier-head"><h2 class="cnb-cahier-t">Feuilles libres</h2>' +
+          '<span class="cnb-cahier-n">vos pages, sans citation</span></div>';
+        frees.sort(function(a, b){ return a.created - b.created; }).forEach(function(n){
+          h += entryHtml(n, null, { free: true });
+        });
+        if(state.writing) h += newPageHtml();
+        h += '</section>';
+      }
+    }
+
+    /* recherche ou filtres sans résultat : une page l'écrit à la main */
+    if(!shown && !state.writing){
+      h = '<div class="cnb-blank">' +
+        '<p class="cnb-hand">Rien à cette page — aucun passage ne répond à ' +
+        (state.q ? 'la recherche « ' + esc(state.q) + ' »' : 'ces filtres') + '.</p>' +
+        '<div class="cnb-blank-row"><button class="cnb-btn cnb-btn-ghost" type="button" data-act="clear-filters">Tout réafficher</button></div>' +
+        '</div>';
+    }
+
+    body.innerHTML = h;
+    tally.textContent = (state.q || colorFilterOn() || state.noted)
+      ? shown + ' sur ' + totalAll : totalAll + ' entrée' + (totalAll > 1 ? 's' : '');
+
+    if(state.editing || state.writing){
+      var ta = body.querySelector('[data-ta]');
+      if(ta && document.activeElement !== ta){
+        ta.focus();
+        try { ta.setSelectionRange(ta.value.length, ta.value.length); } catch(e){}
+      }
+    }
+  }
+
+  var announceTimer = null;
+  function renderAndAnnounce(){
+    render();
+    clearTimeout(announceTimer);
+    announceTimer = setTimeout(function(){
+      var n = body.querySelectorAll('.cnb-entry').length;
+      announce(n + ' entrée' + (n > 1 ? 's' : '') + ' affichée' + (n > 1 ? 's' : '') + ' dans le carnet');
+    }, 400);
+  }
+
+  // ───────────────────────── écriture ─────────────────────────
+
+  function closeEdit(){
+    state.editing = null; state.writing = false; state.draft = null; state.confirm = null;
+  }
+  function saveEdit(entry){
+    var ta = entry.querySelector('[data-ta]');
+    var noteVal = ta ? ta.value.trim() : '';
+    if(entry.dataset.new){
+      if(noteVal) SHELL.annotations.addFree(noteVal);
+      closeEdit(); render();
+      if(noteVal) announce('Page ajoutée au carnet');
+      return;
+    }
+    var id = entry.dataset.id;
+    var fields = { note: noteVal };
+    if(state.draft && state.draft.color) fields.color = state.draft.color;
+    if(entry.dataset.free && !noteVal){
+      /* une page libre vidée n'a plus de raison d'être */
+      SHELL.annotations.remove(id);
+    } else {
+      SHELL.annotations.update(id, fields);
+    }
+    closeEdit(); render();
+    announce('Note enregistrée');
+  }
+
+  body.addEventListener('click', function(ev){
+    var btn = ev.target.closest('[data-act], [data-sw]');
+    if(!btn) return;
+    var entry = btn.closest('.cnb-entry');
+    var id = entry ? entry.dataset.id : null;
+    if(btn.dataset.sw){
+      state.draft = state.draft || {};
+      var taNow = entry.querySelector('[data-ta]');
+      if(taNow) state.draft.note = taNow.value;
+      state.draft.color = btn.dataset.sw;
+      entry.querySelectorAll('.cnb-sw').forEach(function(x){
+        x.setAttribute('aria-pressed', x === btn ? 'true' : 'false');
+      });
+      return;
+    }
+    switch(btn.dataset.act){
+      case 'edit': {
+        var s = split(), all = s.passages.concat(s.frees), cur = null;
+        all.forEach(function(n){ if(n.id === id) cur = n; });
+        closeEdit();
+        state.editing = id;
+        state.draft = { note: (cur && cur.note) || '', color: (cur && cur.color) || 'gold' };
+        render();
+        break;
+      }
+      case 'cancel': closeEdit(); render(); break;
+      case 'save': saveEdit(entry); break;
+      case 'del': state.confirm = id; render(); break;
+      case 'del-no': state.confirm = null; render(); break;
+      case 'del-yes':
+        SHELL.annotations.remove(id);
+        closeEdit(); render();
+        announce('Passage effacé du carnet');
+        break;
+      case 'write-first':
+      case 'write':
+        openWrite();
+        break;
+      case 'clear-filters':
+        state.q = ''; findEl.value = '';
+        state.colors = {}; state.noted = false;
+        document.querySelectorAll('.cnb-dot').forEach(function(d){ d.setAttribute('aria-pressed', 'false'); });
+        document.getElementById('cnNoted').setAttribute('aria-pressed', 'false');
+        renderAndAnnounce();
+        break;
+    }
+  });
+  body.addEventListener('keydown', function(ev){
+    var ta = ev.target.closest && ev.target.closest('[data-ta]');
+    if(!ta) return;
+    if(ev.key === 'Escape'){ closeEdit(); render(); }
+    if((ev.metaKey || ev.ctrlKey) && ev.key === 'Enter'){
+      var entry = ta.closest('.cnb-entry');
+      if(entry) saveEdit(entry);
+    }
+  });
+  body.addEventListener('input', function(ev){
+    if(ev.target.matches && ev.target.matches('[data-ta]')){
+      state.draft = state.draft || {};
+      state.draft.note = ev.target.value;
+    }
+  });
+
+  function openWrite(){
+    closeEdit();
+    state.view = 'carnet'; syncViewButtons();
+    state.writing = true;
+    render();
+    var sec = document.getElementById('cw-libres');
+    if(sec) sec.scrollIntoView({ block: 'end', behavior: 'smooth' });
+  }
+
+  // ───────────────────────── outils ─────────────────────────
+
+  findEl.addEventListener('input', function(){
+    state.q = findEl.value.trim().toLowerCase();
+    renderAndAnnounce();
+  });
+  document.querySelectorAll('.cnb-dot').forEach(function(d){
+    d.addEventListener('click', function(){
+      var c = d.dataset.color, on = d.getAttribute('aria-pressed') === 'true';
+      d.setAttribute('aria-pressed', on ? 'false' : 'true');
+      state.colors[c] = !on;
+      renderAndAnnounce();
+    });
+  });
+  document.getElementById('cnNoted').addEventListener('click', function(){
+    state.noted = !state.noted;
+    this.setAttribute('aria-pressed', state.noted ? 'true' : 'false');
+    renderAndAnnounce();
+  });
+  function syncViewButtons(){
+    document.getElementById('cnViewC').setAttribute('aria-pressed', state.view === 'carnet' ? 'true' : 'false');
+    document.getElementById('cnViewJ').setAttribute('aria-pressed', state.view === 'journal' ? 'true' : 'false');
+  }
+  document.getElementById('cnViewC').addEventListener('click', function(){
+    state.view = 'carnet'; syncViewButtons(); render();
+  });
+  document.getElementById('cnViewJ').addEventListener('click', function(){
+    state.view = 'journal'; syncViewButtons(); render();
+  });
+  document.getElementById('cnWrite').addEventListener('click', openWrite);
+
+  /* export lisible : le carnet recopié en Markdown, par œuvre et section */
+  function download(name, text, mime){
+    var blob = new Blob([text], { type: mime || 'text/plain;charset=utf-8' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    a.click();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); }, 2000);
+  }
+  function exportMd(){
+    var s = split();
+    var out = '# Mon carnet — Lire Marx\n\n_Exporté le ' + fmtDateLong(Date.now()) + '._\n';
+    var g = groupPassages(s.passages);
+    g.order.forEach(function(id){
+      var grp = g.byWork[id];
+      out += '\n## ' + grp.meta.title + '\n';
+      grp.order.sort(function(a, b){ return (+a) - (+b); }).forEach(function(key){
+        var sec = grp.secs[key];
+        out += '\n### ' + sec.label + '\n';
+        sec.list.sort(function(a, b){ return a.created - b.created; }).forEach(function(n){
+          out += '\n> « ' + n.quote + ' »\n';
+          if(n.note) out += '\n' + n.note + '\n';
+          out += '\n_' + fmtDateLong(n.created) + '_\n';
+        });
+      });
+    });
+    if(s.frees.length){
+      out += '\n## Feuilles libres\n';
+      s.frees.sort(function(a, b){ return a.created - b.created; }).forEach(function(n){
+        out += '\n' + n.note + '\n\n_' + fmtDateLong(n.created) + '_\n';
+      });
+    }
+    download('mon-carnet-lire-marx.md', out, 'text/markdown;charset=utf-8');
+  }
+  document.getElementById('cnExpMd').addEventListener('click', function(){
+    exportMd();
+    document.getElementById('cnExp').open = false;
+  });
+  document.getElementById('cnExpJson').addEventListener('click', function(){
+    if(SHELL.annotations.exportAll) SHELL.annotations.exportAll();
+    document.getElementById('cnExp').open = false;
+  });
+  document.addEventListener('click', function(ev){
+    var exp = document.getElementById('cnExp');
+    if(exp.open && !exp.contains(ev.target)) exp.open = false;
+  });
+
+  // ───────────────────────── session & synchro ─────────────────────────
+
+  document.getElementById('cnLogin').addEventListener('click', function(){
+    if(window.SHELL && SHELL.auth && SHELL.auth.openModal) SHELL.auth.openModal();
+  });
+
+  /* Connecté, on rapatrie d'abord ce qui a été écrit ailleurs : le carnet
+     doit dire la même chose d'un appareil à l'autre. pullAll sort tout
+     seul si la session n'est pas ouverte. */
+  async function syncThenRender(){
+    var works = { carnet: 1 };
+    allNotes().forEach(function(n){ works[n.work] = 1; });
     Object.keys(biblio).forEach(function(id){
       if(biblio[id].status === 'available') works[id === 'capital-1' ? 'capital' : id] = 1;
     });
@@ -250,8 +836,12 @@ installShell({
     render();
     if(window.SHELL && SHELL.auth && SHELL.auth.onChange){
       SHELL.auth.onChange(function(st){
-        if(st && st.user) setTimeout(syncThenRender, 0);
+        var logged = !!(st && st.user);
+        syncEl.hidden = logged;
+        if(logged) setTimeout(syncThenRender, 0);
       });
+    } else {
+      syncEl.hidden = false;
     }
   })();
 })();

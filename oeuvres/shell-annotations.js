@@ -1130,9 +1130,67 @@
     return out;
   }
 
+  /* Écriture depuis le carnet (page « Mon carnet »). Le module reste le
+     seul à toucher le store : la page appelle update/remove/addFree et ne
+     connaît ni les clés ni la forme des lignes. Contrairement à delAnn,
+     ces fonctions cherchent dans TOUT le store — le carnet n'a ni curWork
+     ni curSection. Si le passage touché est celui de la section affichée
+     par une liseuse (même module, autre page), on rafraîchit ses marques. */
+  function findAnywhere(id){
+    var keys = Object.keys(store);
+    for(var i = 0; i < keys.length; i++){
+      var list = store[keys[i]] || [];
+      for(var j = 0; j < list.length; j++)
+        if(list[j].id === id) return { key: keys[i], index: j, an: list[j] };
+    }
+    return null;
+  }
+  function refreshIfShown(key){
+    if(box && curWork && key === keyOf(curWork, curSection)){
+      clearMarks(); renderHighlights();
+      if(panel && !panel.hidden) renderPanel();
+    }
+  }
+  function updateNote(id, fields){
+    var loc = findAnywhere(id);
+    if(!loc) return false;
+    if(fields && typeof fields.note === 'string') loc.an.note = fields.note.trim();
+    if(fields && fields.color) loc.an.color = fields.color;
+    persist();
+    syncUpsert(loc.an);
+    refreshIfShown(loc.key);
+    return true;
+  }
+  function removeNote(id){
+    var loc = findAnywhere(id);
+    if(!loc) return false;
+    store[loc.key] = (store[loc.key] || []).filter(function(a){ return a.id !== id; });
+    persist();
+    syncDelete(id);
+    refreshIfShown(loc.key);
+    return true;
+  }
+  /* Une page libre est une annotation SANS passage : work='carnet',
+     section 0, quote vide — locate() sort tôt sur une quote vide, donc
+     aucune liseuse ne tentera jamais de la surligner. Elle voyage par la
+     même table `annotations` (syncUpsert/pullAll('carnet')). */
+  function addFree(body){
+    var an = { id: uid(), work: 'carnet', section: 0,
+      before: '', quote: '', after: '',
+      color: 'gold', note: String(body || '').trim(), created: Date.now() };
+    var k = keyOf('carnet', 0);
+    (store[k] = store[k] || []).push(an);
+    persist();
+    syncUpsert(an);
+    return an.id;
+  }
+
   SHELL.annotations = {
     _init: _init,
     allNotes: allNotes,
+    update: updateNote,
+    remove: removeNote,
+    addFree: addFree,
     pullAll: pullAll,
     exportAll: exportAll,
     importAll: importAll,
