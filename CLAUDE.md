@@ -43,9 +43,9 @@ L'accueil du site est `oeuvres/index.html` (la bibliothèque), pilotée par
 - `oeuvres/bibliotheque.html` — la page dédiée du corpus (cible du clic
   sidebar « Bibliothèque »). Voir « La page Bibliothèque » plus bas.
 
-- `oeuvres/place-publique.html` — page dédiée du flux Place publique
-  (clic sidebar « Place publique » sur toutes les pages). Elle se
-  contente d'appeler `SHELL.commune.mount(#placeFull, {})`. L'aperçu
+- `oeuvres/place-publique.html` — LE FORUM des lecteurs (clic sidebar
+  « Place publique » sur toutes les pages) : discussions, réponses en
+  fil, soutiens — voir « La page Place publique » plus bas. L'aperçu
   des 6 dernières notes est aussi monté dans la colonne droite de
   `oeuvres/index.html` (`SHELL.commune.mount(#placeCommuneFlux,
   {limit:6, compact:true})`) — avec un lien « Voir toutes les notes → »
@@ -606,8 +606,9 @@ dans ces cas — et le CSS masque fiche, bandeau et voile sous 768 px.
   première tentative de restylage ; vérifier que la restauration +
   réapplication progressive s'est bien terminée avant de reconstruire
   dessus.
-- ✅ Place publique — **refondue en « table commune » (forum), portée
-  en scène 3D** (août 2026), voir « La page Place publique » ci-dessous.
+- ✅ Place publique — **refondue en FORUM à l'anatomie Reddit** (août
+  2026, 3e passe — la salle 3D est remplacée), voir « La page Place
+  publique » ci-dessous.
 - ✅ Barre latérale générale + barre horizontale du haut
 - ✅ Accueil de l'œuvre Manuscrits de 1844 — même structure que Le
   Capital (aliénation du travail, propriété privée, dépassement
@@ -1610,188 +1611,109 @@ d'origine (Livre II après le I, etc.) et les arbitrages éditoriaux validés
 (Grundrisse après Capital I, les trois primer, la Contribution hors de
 tout fil) sont documentés dans l'historique git de la version précédente.
 
-## La page Place publique — « la table commune » (refonte août 2026, 3D)
+## La page Place publique — LE FORUM (refonte août 2026, 3e passe, mission `place-forum`)
 
 `oeuvres/place-publique.html` (CSS et JS inlinés, motif de la page).
-**Ce lieu est un FORUM** — décision du propriétaire, 2e passe de la
-refonte : la 1re passe (« le mur d'affiches » : palissade la nuit,
-réverbère à gaz, placards en lecture seule) a été REMPLACÉE sur ses
-retours. Ne pas y revenir. Ce qui a changé et pourquoi :
+**Ce lieu est un FORUM à l'anatomie d'un Reddit** — décision du
+propriétaire, 3e passe. Historique des passes, à ne PAS ressusciter :
+1re « mur d'affiches » (palissade, réverbère), 2e « table commune »
+(feuillets DOM+CSS puis **salle 3D Three.js** complète — table, bancs,
+chandeliers, travelling au défilement). La salle 3D a été REMPLACÉE par
+le forum (elle reste dans l'historique git, commit d9979d2 et avant) ;
+`three.min.js` n'est plus chargé par la page. Le propriétaire a demandé
+« une UI/UX proche de Reddit, que ça fasse forum », la DA vivant dans
+les détails.
 
-- **La scène est une TABLE de bois vue en plongée** (planches
-  horizontales — c'est ce qui distingue un plateau d'une palissade),
-  et les notes sont des **feuillets qui volent et se posent dessus**,
-  comme la liasse du héros de l'accueil — demande explicite. Ici tout
-  est DOM + CSS, pas de WebGL : le contenu est du texte vivant.
-- **Le commentaire prime sur la citation.** Le passage cité est en
-  petit, encre passée, filet rouge discret, AU-DESSUS du corps — c'est
-  le contexte, pas la manchette (l'inverse de la 1re passe, corrigé
-  sur demande).
-- **Les réponses s'affichent et se composent sur place** : billets
-  glissés sous le feuillet parent, et un billet à écrire — textarea
-  en Caveat, on répond à la main.
-- **La bougie de l'accueil éclaire la table** (mêmes classes cd-*,
-  mêmes couleurs, même règle coupelle + douille), posée au bord
-  droit, à demi hors cadre par le bas. Masquée < 768 px.
+**Anatomie.** Deux colonnes (`.pf-cols` : fil + rail de 300 px, rail
+masqué < 1020 px) sous un en-tête sobre. Dans le fil : la carte
+« Ouvrir une discussion… » (lance le composeur), la barre collante de
+tris (Récentes / Soutenues / Discutées) + filtres par œuvre (chips
+comptées, construites sur les DONNÉES), puis les cartes. Une carte =
+colonne de soutien à gauche (flèche dessinée + compte), méta (pilule
+œuvre, cachet + **signature Caveat**, ancienneté), titre Fraunces,
+citation éventuelle (filet rouge gauche — la règle typographique
+maison), extrait clampé à 3 lignes, pied (réponses, « Aller au
+passage »). Clic sur la carte = la **vue de fil** ; le rail porte
+« La place commune » (+ stats) et « Les usages ». Icônes DESSINÉES
+(flèche, bulle, va-à) — jamais d'emoji.
 
-**Le rendu du flux est PROPRE À CETTE PAGE** (fetch + rendu inlinés —
-précédent : l'ancienne vue riche de capital-1 avant retrait-shell-host).
-`SHELL.commune` reste la vue compacte en lecture seule des autres pages
-(aperçus de l'accueil et de la bibliothèque) : **ne pas le modifier**
-pour les besoins du forum. La page partage seulement ses conventions :
-`public_notes.work` = id de bibliotheque.json, alias hérité
-`'capital'` → `'capital-1'` (à l'AFFICHAGE **et** à l'ÉCRITURE : une
-réponse à une note héritée s'écrit avec l'id résolu, jamais l'alias),
-jamais de second client Supabase (toujours `SHELL.auth.getClient()`),
-petits outils dupliqués plutôt que couplés (esc/ago/toast — shell-social
-fait pareil et le commente).
+**Doctrine (arbitrages explicites du propriétaire) :**
+- **On ouvre une discussion depuis la page** (le geste Reddit de base) :
+  œuvre obligatoire (toutes celles de bibliotheque.json, planned
+  comprises), titre, texte facultatif. INSERT `{id, author_id, work
+  (résolu, jamais l'alias), section: 0, body, parent_id: null,
+  created}` — **section 0 = discussion générale sur l'œuvre**, aucun
+  risque de schéma (la colonne existe), et l'affichage ne montre la
+  section que si > 0.
+- **Le « titre » n'est PAS une colonne** : c'est la première ligne du
+  `body` quand elle fait ≤ 160 caractères (`partsOf()`), dérivée à
+  l'affichage. Zéro migration, et les notes nées en lisant restent
+  telles quelles partout ailleurs (SHELL.commune, panneau de liseuse).
+  Le composeur écrit `titre + '\n\n' + texte` — le contrat boucle.
+- **Les soutiens** : un vote d'appui par lecteur et par note, PAS de
+  vote négatif (« on appuie une lecture, on n'enterre personne » —
+  affiché dans Les usages). Table **`note_votes`** (schema.sql, blocs
+  idempotents en fin de fichier — table NEUVE, le piège des tables
+  préexistantes ne s'applique pas) : `{note_id text, voter_id uuid
+  default auth.uid(), created bigint, pk(note_id, voter_id)}`, RLS
+  select ouvert / insert et delete sur son propre vote. **Tant que le
+  SQL n'est pas rejoué, la page dégrade** : PGRST205 attrapé →
+  `votesOK=false`, comptes cachés, clic → toast (chemin prévu, comme
+  la modération à son époque). Bascule optimiste, revert si erreur.
+- **Les réponses sont IMBRIQUÉES** : `parent_id` = le parent DIRECT
+  (racine ou réponse). Les réponses héritées pointent la racine et
+  s'affichent à plat — rien à migrer. L'indentation plafonne à 3
+  niveaux (`.pf-kids`, ligne de fil à gauche), au-delà le fil continue
+  à plat. **Divergence assumée** : le panneau « Notes partagées » de la
+  liseuse ne liste que les réponses DIRECTES à la racine — une réponse
+  de réponse n'y apparaît pas.
+- **Supprimer** : ses propres notes seulement, et seulement SANS
+  réponse (pas d'orphelines) — même policy RLS que `delPublic` du
+  panneau de liseuse. Confirmation INLINE, jamais de modale.
+- **Modération conservée telle quelle** (SHELL.mod) : signalement avec
+  motif facultatif, Masquer/Rétablir pour un modérateur, fils masqués
+  visibles ESTOMPÉS (le fetch retire le filtre `hidden=false` si
+  `isMod()`), rechargement sur `SHELL.mod.onChange`.
 
-**Le contrat de réponse reprend EXACTEMENT `addReply()` de
-shell-annotations.js** : ligne `{id: uid(), author_id: SHELL.auth.user.id,
-work, section, body, parent_id, created: Date.now()}` (une réponse n'a
-pas de quote), et le même gating : configuré + connecté + pseudo choisi,
-sinon toast + `SHELL.auth.openModal()`. Après l'INSERT, le billet est
-ajouté en optimiste (pas de re-rendu complet de la table — le
-défilement ne doit pas sauter). Deux requêtes au chargement : racines
-(`parent_id is null`, desc, 200) et réponses (`parent_id not null`,
-asc, 800), groupées côté client. La modération est FAITE (voir
-« Modération » plus bas) : un modérateur reçoit aussi les fils masqués,
-mais la salle 3D ne les pose JAMAIS sur la table — le registre et la
-fiche les portent, estompés.
+**Navigation.** La vue de fil est routée par le hash **`#d=<id>`**
+(pushState + popstate : le bouton retour du navigateur marche, un
+deep-link arrive directement sur le fil). Le focus va au titre du fil
+(`#pfDetailH`, tabindex -1). `#liste` n'existe plus (le fil EST la
+page) ; aucun lien externe ne le visait (vérifié).
 
-**Les mouvements** (tous sous les règles maison — réversibles, défaut
-posé, périodes non multiples) :
+**Mécanique.** UN écouteur délégué sur `#pfMain` (`data-act` partout) ;
+les brouillons survivent aux re-rendus (`drafts{}` alimenté par
+`input`/`change` sur `data-draft`) ; `paintVotes()` met à jour les
+compteurs EN PLACE (pas de re-rendu, le focus reste sur le bouton).
+Gating d'écriture = `ensurePoster()` (configuré + connecté + pseudo,
+sinon toast + modale compte) ; voter ne demande que la connexion.
+Reconnexion/déconnexion → refetch (mes soutiens et mes droits
+changent) ; le premier appel d'`onChange` (rappel immédiat) est
+ignoré.
 
-- **`--k` (0 = en l'air : haut, dérive `--fx`, sur-rotation `--rr`,
-  ombre de vol sur `::before` ; 1 = posé)** est piloté par DEUX
-  mouvements : la CASCADE au chargement (chaque feuillet a son
-  `_born`, ils tombent l'un après l'autre — une seule fois, dans le
-  sens du temps) et le SCRUB au défilement (réversible). La règle de
-  composition : `k = min(cible de défilement, avancement de cascade)`
-  — la cascade ne fait que RETENIR un feuillet, jamais le poser plus
-  tôt que le défilement ne le permet. Défaut CSS `var(--k,1)` : sans
-  JS / reduced-motion / < 768 px, tout est posé.
-- **L'allumage de la bougie** : même mécanique `pp-boot`/`pp-anim`/
-  `pp-lit` que la passe précédente (script inline en tête de body,
-  filet setTimeout 2,5 s, `--lum` sur flamme/halo/voile chaud,
-  en-tête gaté par `pp-lit`, fill-mode backwards).
-- Le tick **ignore les hauteurs nulles** (`if(!vh) return`) et les
-  feuillets filtrés (`display:none`) ; ouvrir/fermer un billet ou
-  filtrer change les hauteurs → rappeler `ppTick()`.
+**Pièges de cette page (à ne pas refaire) :**
+1. **Un override média écrit AVANT la règle de base perd** à
+   spécificité égale : `.pf-rail{display:none}` (média) vivait avant
+   `.pf-rail{display:flex}` (base) et le rail restait visible à
+   375 px. Les overrides média vivent en FIN de leur section.
+2. **Pas de `.in()` sur mille ids** : lire `note_votes` filtré sur les
+   notes affichées ferait une URL de ~36 Ko. À l'échelle du site on
+   lit TOUT (limit 5000) et on compte côté client.
+3. `atelier.css` pose `scroll-behavior:smooth` : tout `scrollTo`
+   programmatique passe `behavior:'instant'` (piège déjà documenté).
 
-**L'en-tête reste sobre** (grammaire des autres pages : label Inter en
-capitales, titre Fraunces 900 crème, lede d'une phrase) — l'affiche-
-héros de la 1re passe avait déjà été retirée sur demande (trop de
-texte, pas de renvoi à la bibliothèque) : ne re-proposer ni l'une ni
-l'autre. Filtres par œuvre = retailles de kraft (tampon rouge sur
-l'actif), désormais construits sur les DONNÉES (id d'œuvre résolu),
-plus sur le texte du DOM. Décor : rond de tasse, feuillets vierges —
-aria-hidden, jamais des données.
+**SHELL.commune n'est PAS modifié** (aperçus compacts de l'accueil et
+de la bibliothèque, lecture seule, filtrés `hidden=false`). Les
+conventions partagées tiennent : `public_notes.work` = id de
+bibliotheque.json, alias `'capital'` → `'capital-1'` à l'affichage ET à
+l'écriture, jamais de second client Supabase, petits outils dupliqués
+(esc/ago/toast). Le portrait Mayall reste l'og:image de la page — ne
+pas supprimer ses fichiers.
 
-### La salle en trois dimensions (mission `salle-commune-3d`)
+**À REJOUER dans Supabase** : le bloc `note_votes` de
+`supabase/schema.sql`. Tant que ce n'est pas fait, les soutiens sont
+inactifs (chemin prévu) ; tout le reste fonctionne.
 
-Sur demande du propriétaire (« passer un cap en qualité et en
-immersion, comme pour la biblio »), la page est devenue une **salle de
-réunion Three.js** au motif exact de la bibliothèque : canvas fixe,
-cale de défilement (#ppRun), le défilement pour seul travelling
-(réversible), plan large d'entrée → approche → travée → léger recul
-final. **Le registre à plat décrit ci-dessus est devenu le repli**
-(mobile, reduced-motion, sans WebGL, `#liste`, ou aucun feuillet) et
-reste la version des lecteurs d'écran — c'est LUI qui porte filtres et
-états ; la 3D n'existe que s'il y a des feuillets à poser.
-
-- **La scène** : une longue table de bois (longueur dérivée du nombre
-  de fils), deux bancs, chandeliers posés tous les 4 m (flammes
-  billboards, blobs dessinés — jamais de plans croisés), encrier en
-  haut de table, pile de feuilles vierges au bout, poussière,
-  bougeoir porté enfant de la caméra (ancré au coin du cadre EN
-  FONCTION DE LA FOCALE), fog couleur du fond. Tout est dérivé des
-  données ou du décor — jamais l'inverse.
-- **Un fil = un feuillet posé sur la table**, texture canvas
-  (signature Caveat, œuvre·section, citation en petit italique, le
-  COMMENTAIRE en texte principal, compte de réponses) redessinée sur
-  `document.fonts.ready` ET après chaque réponse postée ; **les
-  réponses sont des billets qui dépassent de sous le feuillet** (3
-  max). Tons et poses déterministes par hash de l'id. Les feuillets
-  sont groupés PAR ŒUVRE (ordre de bibliotheque.json), cartouche de
-  laiton incliné vers le regard par groupe, rail en bas = les œuvres.
-- **La cascade d'entrée** : au chargement (et seulement en haut de
-  page — une restauration de défilement la saute), les feuillets
-  TOMBENT se ranger l'un après l'autre — c'est la réponse à la
-  demande « des feuillets qui s'animent comme sur l'accueil ».
-  Temporelle et jouée une fois ; le reste du mouvement est du scrub.
-- **La caméra du travelling lit par-dessus l'épaule** (CAMY 3.0,
-  CAMZ 1.78, plongée ~55°) : à l'oblique d'origine l'encre ne se
-  lisait pas — retour du propriétaire, ne pas raplatir.
-- **Les photos de profil** (`profiles.avatar_url`) sont partout : dans
-  l'encre du feuillet 3D (cache par URL, `crossOrigin='anonymous'`
-  OBLIGATOIRE — un canvas terni ferait échouer l'upload WebGL ; si le
-  CORS échoue, le cachet d'initiales reste), sur le cachet du registre
-  et de la fiche (`avaImg()`, img par-dessus l'initiale, motif
-  `avaHtml` du shell), et dans l'étiquette de survol.
-- **Le forum se dit partout** : label « le forum des lecteurs »,
-  lede « une discussion ouverte… répondez-y », pied de feuillet
-  « N réponses — soulevez pour répondre », étiquette « cliquer :
-  lire le fil · répondre ».
-- **Survol** = le feuillet se soulève (outT easé) + étiquette
-  projetée ; **clic** = la caméra vient se poser devant (scrollToX —
-  le pilotage reste le défilement) et la FICHE s'ouvre
-  (`.pt-cartel`, meuble du cartel de la biblio) : fil complet,
-  citation, réponses, **composer** (textarea Caveat + « Publier la
-  réponse » via le cœur partagé `postReply`), « Aller au passage → ».
-  `onReplyPosted` répercute une réponse postée depuis la fiche sur le
-  feuillet 3D ; `teardown()` re-rend le registre pour la même raison.
-- **L'échelle est prévue pour cent fils et plus** (demande du
-  propriétaire) : (a) les feuillets vont DEUX DE FRONT, en quinconce
-  (rangées z≈+0.42 / −0.72, pas horizontal 0.78 + désordre en x — le
-  quinconce strict se lisait comme une fermeture éclair) ; (b) **les
-  deux dernières réponses s'écrivent SUR le feuillet** (« ↳ nom — début
-  de la réponse », le corps se réduit à 4 lignes quand il y en a) — la
-  conversation se voit sans soulever ; (c) **encre paresseuse** : les
-  feuillets naissent PAPIER NU (matériaux partagés par ton) et ne sont
-  encrés qu'à l'approche de la caméra (INK_DIST 20, budget 3/image,
-  pré-encrage autour de la CIBLE dans scrollToX — sans lui, un saut de
-  rail débouchait sur du papier nu) ; (d) au-delà de GROUP_MAX (80) par
-  œuvre, **la pile des feuillets plus anciens** au bout de la table —
-  cliquable, elle ouvre le registre qui garde tout ; (e) cale de
-  défilement 0.3·vh par feuillet, rail qui replie
-  (`flex-wrap`). Testé à 100 et 150 fils (sonde `?stress=`, retirée).
-- **`material.visible:false` est IGNORÉ par le raycaster**
-  (Mesh.raycast sort tôt) : le plan de prise de la pile est en
-  `transparent:true, opacity:0` — invisible ET levable.
-- Tous les pièges déjà documentés de la biblio ont été appliqués
-  d'office : canvas élément remplacé, resize à tailles nulles ignoré,
-  clic à coordonnées propres, distance-pour-contenir à la focale
-  large, compensation sidebar (`sbShift`), rendez-vous
-  DOMContentLoaded pour three.min.js en defer, `#liste`,
-  `location.reload()` si une scène a déjà été démontée.
-
-**Pièges rencontrés sur cette page (à ne pas refaire)** :
-
-1. **`innerWidth` vaut 0 dans un onglet chargé en arrière-plan** : le
-   test « mobile » du boot est `innerWidth > 0 && innerWidth < 768` —
-   une largeur NULLE n'est pas « étroit », c'est « inconnu », on prend
-   le chemin animé. Même famille : le tick ignore `innerHeight` nul.
-2. **Spécificité des variantes nth-child** : les poses
-   `.fl:nth-child(5n+1){--x:…}` pèsent (0,2,0) ; le correctif mobile
-   doit s'écrire `.fl:nth-child(n){--x:0px}` pour les égaler.
-3. **Le gating `.pt-ui{display:none}` ne survit pas à un `display`
-   posé dans la règle de base d'un élément** : `.pt-hint{display:flex}`
-   l'écrasait et l'invite 3D fuyait dans la version liste. Les
-   `display` des éléments d'interface 3D vivent SOUS `.js-pp3d`.
-4. **`#liste` cliqué depuis la page est une navigation same-document**
-   — rien ne recharge, la scène reste. Les boutons « version liste »
-   appellent `teardown()` directement ; le hash ne sert qu'à ARRIVER
-   en liste.
-5. **Pour tester : la sonde, toujours.** Dans un onglet piloté le rAF
-   est gelé (cascade et scrub ne posent rien), les captures d'une pane
-   masquée sont noires ou périmées, et `scroll-behavior:smooth` (posé
-   par atelier.css) fait qu'un `window.scrollTo(0,y)` ne progresse
-   PAS — passer `{behavior:'instant'}`. Exposer temporairement le
-   tick, avancer à la main, retirer la sonde avant le commit.
-
-La sidebar marque « Place publique » `.on` sur cette page (une ligne
-dans `shell.js`, à côté du marquage Accueil/Bibliothèque).
 
 ## Shell partagé : atelier.css + shell.css + shell.js (+ shell-social.js)
 
@@ -1974,28 +1896,23 @@ chapitre par chapitre. C'est le rôle attendu d'une page de livre.
   `setHidden(noteId, bool)`. Le cache se rafraîchit sur
   `SHELL.auth.onChange` **en différé** (`setTimeout 0` — jamais d'await
   Supabase dans un callback onChange, règle deadlock GoTrue).
-- **Trois surfaces** : le panneau « Notes partagées » par passage
-  (shell-annotations.js), le registre de la Place publique et sa fiche
-  (place-publique.html). Partout : « Signaler » sur toute note qui n'est
-  pas la sienne (gating `ensurePoster` — toast + modale si déconnecté),
-  motif facultatif dans une petite boîte inline ; pour un modérateur,
-  « Masquer »/« Rétablir » et les notes masquées visibles ESTOMPÉES avec
-  l'étiquette « Masquée ». Le fetch retire le filtre `hidden=false`
-  seulement si `isMod()` ; comme le statut arrive en différé, chaque
-  surface s'abonne à `SHELL.mod.onChange` pour recharger.
-- **La salle 3D ne pose JAMAIS un fil masqué sur la table** — même pour
-  un modérateur : la table est la salle publique, la modération se fait
-  au registre et dans la fiche. Un fil masqué depuis la fiche quitte la
-  table sur-le-champ via le crochet `onNoteHidden` (motif jumeau
-  d'`onReplyPosted`) : mesh et billets `visible=false` ET retirés de
-  `hitMeshes` — le raycaster de three ignore `visible:false`, piège
-  cousin du `material.visible` déjà documenté.
+- **Deux surfaces** (depuis la refonte forum d'août 2026) : le panneau
+  « Notes partagées » par passage (shell-annotations.js) et le forum de
+  la Place publique — fil ET vue de fil (place-publique.html). Partout :
+  « Signaler » sur toute note qui n'est pas la sienne (gating
+  `ensurePoster` — toast + modale si déconnecté), motif facultatif dans
+  une petite boîte inline ; pour un modérateur, « Masquer »/« Rétablir »
+  et les notes masquées visibles ESTOMPÉES avec l'étiquette « Masquée ».
+  Le fetch retire le filtre `hidden=false` seulement si `isMod()` ;
+  comme le statut arrive en différé, chaque surface s'abonne à
+  `SHELL.mod.onChange` pour recharger. (Les crochets 3D `onNoteHidden` /
+  `hitMeshes` ont disparu avec la salle.)
 - `SHELL.commune` (aperçus lecture seule) reste filtré `hidden=false` et
   sans actions — ne pas l'équiper.
-- **Validé en production par le propriétaire** (août 2026) : SQL rejoué,
-  sa ligne insérée dans `moderators`, puis signalement, masquage
-  (registre ET fiche 3D — le feuillet quitte la table) et
-  rétablissement testés en vrai. Tout fonctionne.
+- **Validé en production par le propriétaire** (août 2026, sur la
+  2e passe) : SQL rejoué, sa ligne insérée dans `moderators`, puis
+  signalement, masquage et rétablissement testés en vrai. La 3e passe
+  (forum) reprend les mêmes appels `SHELL.mod` à l'identique.
 
 ## Conventions de travail
 

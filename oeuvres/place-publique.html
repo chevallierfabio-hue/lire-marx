@@ -2,11 +2,11 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<title>Place publique — La table commune des lecteurs | Lire Marx</title>
+<title>Place publique — Le forum des lecteurs | Lire Marx</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="Le forum des lecteurs de Marx : chaque note est un feuillet posé sur la table commune — on lit les réponses, on écrit la sienne, et chaque feuillet mène au passage qu'il commente.">
-<meta property="og:title" content="Place publique — La table commune des lecteurs">
-<meta property="og:description" content="Le forum des lecteurs de Marx : des feuillets posés sur la table commune — on lit, on répond, chaque feuillet mène au passage qu'il commente.">
+<meta name="description" content="Le forum des lecteurs de Marx : des discussions par œuvre, des réponses en fil, des soutiens — et chaque fil né d'une lecture ramène à son passage dans le texte.">
+<meta property="og:title" content="Place publique — Le forum des lecteurs">
+<meta property="og:description" content="Le forum des lecteurs de Marx : discussions par œuvre, réponses en fil, soutiens — chaque fil né d'une lecture ramène à son passage.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://liremarx.com/oeuvres/place-publique.html">
 <meta property="og:image" content="https://liremarx.com/assets/img/archive/marx-portrait.png">
@@ -16,694 +16,266 @@
 <link rel="stylesheet" href="fonts/fonts.css">
 <link rel="stylesheet" href="atelier.css">
 <link rel="stylesheet" href="shell.css">
-<script src="../vendor/three.min.js" defer></script>
 <style>
 /* ═══════════════════════════════════════════════════════════════════
-   Place publique — « la table commune » (refonte août 2026, 2e passe)
+   Place publique — LE FORUM (refonte août 2026, 3e passe)
    -------------------------------------------------------------------
-   La page EST une table de bois vue en plongée : chaque note de
-   lecteur est un FEUILLET qui vole et vient se poser dessus (comme la
-   liasse du héros de l'accueil — ici en DOM + CSS, la course pilotée
-   par le défilement, réversible). Les réponses sont des BILLETS
-   glissés sous le feuillet, et l'on répond sur place, à la main
-   (textarea en Caveat) : ce lieu est un FORUM, décision du
-   propriétaire — la vue en lecture seule ne suffit plus ici.
-   Le COMMENTAIRE est le texte principal du feuillet ; le passage cité
-   est en petit au-dessus, en contexte — l'inverse de la 1re passe.
-   La bougie de l'accueil éclaire, posée au bord de la table.
-   Le rendu du flux est PROPRE À CETTE PAGE (fetch + rendu inlinés,
-   précédent : l'ancienne vue riche de capital-1) ; SHELL.commune reste
-   la vue compacte en lecture seule des autres pages, inchangée.
+   Anatomie d'un Reddit, habillée dans la DA sombre-chaude : un fil de
+   discussions dense (colonne de soutien à gauche, méta, titre, extrait,
+   pied), tris Récentes / Soutenues / Discutées, filtres par œuvre,
+   vue de fil avec réponses IMBRIQUÉES, et l'on OUVRE une discussion
+   depuis la page — arbitrages du propriétaire. La salle 3D des passes
+   précédentes est REMPLACÉE (elle reste dans l'historique git).
+   La DA vit dans les détails : titres Fraunces, corps Spectral,
+   signatures manuscrites en Caveat sur cachet, pilules, filet rouge
+   des citations, icônes dessinées — jamais d'emoji.
+   Conventions inchangées : public_notes.work = id de bibliotheque.json,
+   alias hérité 'capital' → 'capital-1' (affichage ET écriture), jamais
+   de second client Supabase (SHELL.auth.getClient()), petits outils
+   dupliqués (esc/ago/toast). SHELL.commune (aperçus compacts des
+   autres pages) n'est PAS modifié.
+   Les SOUTIENS s'appuient sur la table `note_votes` (schema.sql, à
+   rejouer dans Supabase) : tant qu'elle n'existe pas, la page dégrade
+   proprement (comptes cachés, clic → toast). Un « titre » de
+   discussion n'est PAS une colonne : c'est la première ligne du body
+   (≤ 160 caractères), dérivée à l'affichage — zéro migration, et les
+   notes nées en lisant restent telles quelles partout ailleurs.
    Comme sur /index.html et bibliotheque.html, le :root redéfinit AUSSI
-   les tokens du shell, sinon topbar/sidebar/modales resteraient en
-   palette claire.
+   les tokens du shell, sinon topbar/sidebar/modales resteraient
+   claires.
    ═══════════════════════════════════════════════════════════════════ */
 :root{
-  /* tokens de page */
   --bg:#15100b;--surface:#1e1710;--text:#f3e9d4;
   --muted:#b7a888;--accent:#d5402f;--border:rgba(243,233,212,.13);
 
-  /* shell.css → palette sombre */
   --paper:#15100b;--paper-2:#1e1710;--card:#221a12;
   --ink:#f3e9d4;--ink-soft:#c7b599;
-  --red:#d5402f;--red-deep:#b5372a;--bright:#e5644f;
+  --red:#d5402f;--red-deep:#b5372a;--bright:#e5644f;--red-text:#e5644f;
   --gold:#d8ad4c;--gold-deep:#bd8f38;--blue:#5c8aa3;--const:#9a8b72;
-  --line:rgba(243,233,212,.13);--line-soft:rgba(243,233,212,.07);--ok:#7fa855;
+  --line:rgba(243,233,212,.13);--line-soft:rgba(243,233,212,.07);
+  --line-strong:rgba(243,233,212,.34);--ok:#7fa855;
+  --hover:rgba(243,233,212,.05);
   --f-ui:'Inter',system-ui,sans-serif;--f-serif:'Spectral',Georgia,serif;
-
-  /* les encres du papier — en ALPHA (règle de la feuille volante de la
-     bibliothèque) : le papier transparaît DANS la lettre */
-  --enc:rgba(30,17,4,.92);        /* encre noire principale */
-  --enc-2:rgba(58,42,22,.8);      /* encre passée, texte secondaire */
-  --enc-r:rgba(146,30,17,.92);    /* encre rouge d'imprimeur */
-  --filet:rgba(30,17,4,.4);       /* filets typographiques */
+  --f-hand:'Caveat',cursive;
 }
+.pf{max-width:1120px;margin:0 auto;padding:24px 20px 90px;}
+.pf :focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
 
-html,body{background:var(--bg);}
-body{color:var(--text);font-family:'Inter',system-ui,sans-serif;}
-::selection{background:rgba(216,173,76,.32);color:var(--text);}
+/* ── en-tête sobre (grammaire des autres pages) ── */
+.pf-head{margin:4px 0 22px;}
+.pf-label{font-family:var(--f-ui);font-size:.72rem;font-weight:600;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;}
+.pf-h1{font-family:'Fraunces',serif;font-weight:900;color:var(--text);
+  font-size:clamp(1.8rem,3.4vw,2.5rem);letter-spacing:-.03em;line-height:1.05;margin:0 0 10px;}
+.pf-lede{font-family:var(--f-serif);font-style:italic;font-size:1.02rem;
+  color:var(--ink-soft);max-width:64ch;margin:0;}
 
-/* ── Shell : correctifs de couleurs pour le thème sombre ── */
-.brandmark{color:var(--ink);}
-.tb-btn,.acct-chip,#tbSearch,.tb-tabs{background:rgba(255,255,255,.05);border-color:var(--line);color:var(--ink);}
-.tb-btn:hover,.acct-chip:hover{border-color:var(--gold);}
-.acct-chip.guest{background:var(--gold-deep);border-color:var(--gold-deep);color:#1a130c;}
-.tb-tab.on,.ac-t.on{color:#1a130c;}
-header.topbar{background:rgba(21,16,11,.96);border-bottom-color:var(--line);}
-.sidebar{background:rgba(21,16,11,.97);border-right-color:var(--line);}
-.sb-item{color:var(--ink);}
-.sb-item:hover{background:rgba(255,255,255,.05);}
-.sb-item.on{background:rgba(213,64,47,.16);color:var(--bright);}
-.tb-pop,.tb-results{background:var(--card);border-color:var(--line);box-shadow:0 18px 50px rgba(0,0,0,.7);}
-.tb-res:hover,.tb-res.active{background:var(--paper-2);}
-.acct-modal{background:rgba(6,4,3,.7);}
-.ac-card,.ac-card input,.msg-add input,.ac-bio{background:var(--paper);border-color:var(--line);color:var(--ink);}
-.ac-card code,.ac-p code,.ac-note code{background:rgba(255,255,255,.08);}
+/* ── deux colonnes : fil + rail ── */
+.pf-cols{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:24px;align-items:start;}
+@media(max-width:1020px){.pf-cols{grid-template-columns:1fr;}}
 
-/* ═══ LA TABLE ═════════════════════════════════════════════════════
-   Fond fixe : le plateau de bois vu en plongée — planches HORIZONTALES
-   (le mur d'affiches de la 1re passe les avait verticales : c'est ce
-   qui distingue un plateau d'une palissade), grain par bruit SVG
-   embarqué, rond de tasse et feuillets vierges en décor discret. */
-.pp-table{position:fixed;inset:0;z-index:0;pointer-events:none;
-  background:linear-gradient(180deg,#241709 0%,#1c1208 50%,#150e06 100%);}
-.pp-table::before{content:"";position:absolute;inset:0;
-  background:
-    repeating-linear-gradient(0deg,
-      rgba(255,225,180,.018) 0 2px,transparent 2px 168px,
-      rgba(0,0,0,.26) 168px 171px),
-    repeating-linear-gradient(0deg,
-      transparent 0 171px,rgba(0,0,0,.05) 171px 342px),
-    /* les veines du bois, très légères, dans le sens des planches */
-    repeating-linear-gradient(90deg,
-      transparent 0 7px,rgba(0,0,0,.05) 7px 8px,transparent 8px 23px);}
-.pp-table::after{content:"";position:absolute;inset:0;
-  background:
-    url("data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='160'%20height='160'%3E%3Cfilter%20id='n'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='.9'%20numOctaves='2'%20stitchTiles='stitch'/%3E%3CfeColorMatrix%20type='saturate'%20values='0'/%3E%3C/filter%3E%3Crect%20width='160'%20height='160'%20filter='url(%23n)'%20opacity='.06'/%3E%3C/svg%3E"),
-    radial-gradient(58% 42% at 16% 104%,rgba(0,0,0,.32),transparent 66%),
-    radial-gradient(50% 38% at 84% -6%,rgba(0,0,0,.26),transparent 66%);}
+/* ── ouvrir une discussion ── */
+.pf-launch{display:flex;gap:10px;align-items:center;background:var(--surface);
+  border:1px solid var(--line);border-radius:14px;padding:10px 12px;}
+.pf-launch-input{flex:1;text-align:left;font-family:var(--f-ui);font-size:.86rem;
+  color:var(--muted);background:var(--card);border:1px solid var(--line-strong);
+  border-radius:999px;padding:10px 16px;cursor:text;transition:border-color .15s;}
+.pf-launch-input:hover{border-color:var(--gold);}
+.pf-composer{background:var(--surface);border:1px solid var(--line);
+  border-radius:14px;padding:16px;}
+.pf-composer[hidden]{display:none;}
+.pf-comp-h{font-family:'Fraunces',serif;font-weight:700;font-size:1.05rem;
+  color:var(--text);margin:0 0 12px;}
+.pf-field{display:block;margin-bottom:10px;}
+.pf-field span{display:block;font-family:var(--f-ui);font-size:.72rem;font-weight:600;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
+.pf-sel,.pf-inp{width:100%;font-family:var(--f-ui);font-size:.9rem;color:var(--ink);
+  background:var(--card);border:1px solid var(--line-strong);border-radius:9px;
+  padding:9px 12px;}
+.pf-inp::placeholder{color:var(--const);}
+.pf-ta{width:100%;min-height:96px;resize:vertical;font-family:var(--f-hand);
+  font-weight:500;font-size:1.22rem;line-height:1.4;color:var(--ink);
+  background:var(--card);border:1px solid var(--line-strong);border-radius:9px;
+  padding:9px 12px;}
+.pf-ta::placeholder{color:var(--const);font-family:var(--f-ui);font-size:.86rem;}
+.pf-comp-row{display:flex;gap:10px;justify-content:flex-end;margin-top:4px;}
 
-/* ═══ LA NUIT ══════════════════════════════════════════════════════
-   Pénombre fixe par-dessus le contenu (motif .bx3-lamp). La part
-   chaude vient de la BOUGIE, en bas à droite — elle suit --lum. */
-.pp-nuit{position:fixed;inset:0;z-index:5;pointer-events:none;
-  background:
-    radial-gradient(110% 80% at 50% -12%,rgba(0,0,0,.34),transparent 54%),
-    radial-gradient(70% 120% at -8% 55%,rgba(0,0,0,.26),transparent 54%);}
-.pp-nuit::before{content:"";position:absolute;inset:0;
-  background:radial-gradient(52% 46% at 82% 98%,rgba(255,170,80,.13),transparent 64%);
-  opacity:var(--lum,1);transition:opacity 1.6s ease .15s;}
+/* ── boutons pilule maison ── */
+.pf-btn{font-family:var(--f-ui);font-weight:600;font-size:.78rem;line-height:1;
+  background:var(--text);color:var(--bg);border:1px solid var(--text);
+  border-radius:999px;padding:9px 16px;cursor:pointer;transition:background .15s;}
+.pf-btn:hover{background:var(--ink-soft);}
+.pf-btn-ghost{background:transparent;color:var(--text);border-color:var(--line-strong);}
+.pf-btn-ghost:hover{background:var(--hover);}
 
-/* ═══ LA BOUGIE ════════════════════════════════════════════════════
-   Celle de la bande finale de l'accueil, aux mêmes couleurs et à la
-   même règle : posée au bord, à demi hors cadre par le bas, tout en
-   CSS. Coupelle + douille (le bougeoir n'est pas une pastille), bande
-   spéculaire du laiton, flamme #fff6d8/#ffd27a/#ff9c3a. */
-.pp-bougie{position:fixed;right:clamp(20px,7vw,110px);bottom:-26px;
-  z-index:6;pointer-events:none;width:52px;height:132px;
-  transform-origin:50% 100%;}
-.pp-bougie,.pp-nuit{--lum:1;}
-html.pp-boot:not(.pp-lit) .pp-bougie,
-html.pp-boot:not(.pp-lit) .pp-nuit{--lum:0;}
-.pp-bougie span{position:absolute;left:50%;transform:translateX(-50%);}
-.cd-pan{bottom:2px;width:52px;height:11px;border-radius:50% / 46%;
-  background:linear-gradient(90deg,#1d1505 0%,#4e3d13 17%,#856820 41%,
-    #a3843a 50%,#7a5f1e 61%,#463710 84%,#1d1505 100%);
-  box-shadow:0 4px 10px -3px rgba(0,0,0,.85);}
-.cd-pan::before{content:"";position:absolute;left:1px;right:1px;top:-4px;height:10px;
-  border-radius:50%;
-  background:radial-gradient(ellipse at 50% 52%,
-    #3f3110 0%,#5c4816 28%,#a3843a 52%,#ead79e 72%,#c2a253 86%,#6a5320 100%);
-  box-shadow:inset 0 0 0 1px rgba(255,240,205,.2);}
-.cd-socket{bottom:8px;width:27px;height:13px;border-radius:50% / 26%;
-  background:linear-gradient(90deg,#1d1505 0%,#5a4717 15%,#a3843a 33%,
-    #d9bd77 46%,#a3843a 60%,#4e3d13 85%,#1d1505 100%);}
-.cd-socket::before{content:"";position:absolute;left:-1px;right:-1px;top:-3px;height:8px;
-  border-radius:50%;
-  background:radial-gradient(ellipse at 50% 58%,
-    #2b2109 0%,#2b2109 30%,#7d6226 62%,#dcc687 86%,#fff3d2 100%);}
-.cd-wax{bottom:9px;width:23px;height:80px;border-radius:4px 4px 2px 2px;
-  background:linear-gradient(90deg,#a2926f 0%,#e9ddc2 42%,#f5ecd6 58%,#8d7d5c 100%);}
-.cd-wick{bottom:88px;width:2px;height:7px;border-radius:1px;background:#2a2016;}
-.cd-flame{bottom:92px;width:14px;height:32px;
-  border-radius:50% 50% 46% 46% / 66% 66% 34% 34%;
-  background:radial-gradient(ellipse at 50% 72%,
-    #fff6d8 0%,#ffd27a 34%,#ff9c3a 66%,rgba(255,120,40,0) 100%);
-  filter:blur(.5px);transform-origin:50% 100%;
-  opacity:var(--lum,1);transition:opacity 1.4s ease .1s;}
-.cd-glow{bottom:52px;width:170px;height:170px;border-radius:50%;
-  background:radial-gradient(circle,rgba(255,156,58,.3) 0%,
-    rgba(255,156,58,.1) 38%,transparent 68%);
-  opacity:var(--lum,1);transition:opacity 1.6s ease .15s;}
-.cd-smoke{bottom:120px;width:3px;height:54px;
-  background:linear-gradient(to top,rgba(184,178,166,.2),transparent 78%);
-  filter:blur(2.5px);opacity:calc(.55 * var(--lum,1));}
-/* Le vacillement : périodes NON multiples, le halo sur brightness —
-   jamais sur l'opacité, que --lum occupe déjà (règles maison). */
-.pp-anim .cd-flame{animation:pp-flamme 3.1s ease-in-out infinite;}
-.pp-anim .cd-glow{animation:pp-lueur 8.4s ease-in-out infinite;}
-@keyframes pp-flamme{
-  0%,100%{transform:translateX(-50%) scaleY(1) skewX(0);}
-  23%{transform:translateX(-50%) scaleY(1.07) skewX(-2.4deg);}
-  41%{transform:translateX(-50%) scaleY(.94) skewX(1.6deg);}
-  67%{transform:translateX(-50%) scaleY(1.05) skewX(2deg);}
-  82%{transform:translateX(-50%) scaleY(.97) skewX(-1.3deg);}}
-@keyframes pp-lueur{
-  0%,100%{filter:brightness(1);}
-  19%{filter:brightness(1.09);}
-  37%{filter:brightness(.93);}
-  58%{filter:brightness(1.06);}
-  79%{filter:brightness(.96);}}
-@media(max-width:767px){.pp-bougie{display:none;}}
-@media (prefers-reduced-motion:reduce){
-  .cd-flame,.cd-glow,.pp-head{animation:none !important;}}
+/* ── barre de tris + filtres (collante comme l'outillage du carnet) ── */
+.pf-bar{position:sticky;top:52px;z-index:60;display:flex;flex-wrap:wrap;gap:8px;
+  align-items:center;background:var(--bg);padding:10px 0;margin:12px 0 10px;
+  border-bottom:1px solid var(--line);}
+.pf-sorts{display:flex;gap:3px;border:1px solid var(--line-strong);border-radius:999px;padding:2px;}
+.pf-sort{font-family:var(--f-ui);font-weight:700;font-size:.74rem;line-height:1;
+  color:var(--ink-soft);background:transparent;border:0;border-radius:999px;
+  padding:7px 12px;cursor:pointer;white-space:nowrap;}
+.pf-sort[aria-pressed="true"]{background:var(--text);color:var(--bg);}
+.pf-chips{display:flex;flex-wrap:wrap;gap:6px;margin-left:auto;}
+.pf-chip{font-family:var(--f-ui);font-weight:600;font-size:.74rem;line-height:1;
+  color:var(--ink-soft);background:transparent;border:1px solid var(--line-strong);
+  border-radius:999px;padding:7px 12px;cursor:pointer;white-space:nowrap;
+  transition:background .15s,color .15s;}
+.pf-chip:hover{background:var(--hover);color:var(--ink);}
+.pf-chip[aria-pressed="true"]{background:var(--text);color:var(--bg);border-color:var(--text);}
+@media(max-width:680px){.pf-bar{position:static;}.pf-chips{margin-left:0;}}
 
-/* ═══ LE CONTENU ═══════════════════════════════════════════════════ */
-.wrap{position:relative;z-index:1;max-width:1060px;
-  padding:0 clamp(20px,4vw,60px) 110px;}
+/* ── le fil ── */
+.pf-feed{display:flex;flex-direction:column;gap:10px;}
+.pf-post{display:grid;grid-template-columns:46px minmax(0,1fr);
+  background:var(--surface);border:1px solid var(--line);border-radius:14px;
+  overflow:hidden;transition:border-color .15s,background .15s;
+  animation:pfIn .3s ease backwards;}
+.pf-feed .pf-post{cursor:pointer;}
+.pf-feed .pf-post:hover{border-color:var(--line-strong);background:#241b13;}
+.pf-feed .pf-post:nth-child(2){animation-delay:.04s;}
+.pf-feed .pf-post:nth-child(3){animation-delay:.08s;}
+.pf-feed .pf-post:nth-child(4){animation-delay:.12s;}
+.pf-feed .pf-post:nth-child(5){animation-delay:.16s;}
+.pf-feed .pf-post:nth-child(n+6){animation-delay:.2s;}
+@keyframes pfIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+@media(prefers-reduced-motion:reduce){.pf-post{animation:none;}}
+.pf-post.pf-hiddenpost{opacity:.45;}
 
-/* Décor posé sur la table, derrière les feuillets : un rond de tasse,
-   deux feuillets vierges. aria-hidden, jamais des données. */
-.pp-rond{position:absolute;z-index:0;pointer-events:none;
-  width:104px;height:104px;border-radius:50%;
-  border:7px solid rgba(140,95,35,.09);
-  top:430px;left:6%;}
-.pp-vierge{position:absolute;z-index:0;pointer-events:none;
-  background:rgba(226,206,164,.05);
-  box-shadow:inset 0 0 16px rgba(0,0,0,.25);}
-.pp-vierge-1{top:900px;right:3%;width:140px;height:190px;transform:rotate(4deg);}
-.pp-vierge-2{top:1700px;left:2%;width:120px;height:165px;transform:rotate(-6deg);}
-@media(max-width:900px){.pp-rond,.pp-vierge{display:none;}}
+/* la colonne de soutien */
+.pf-vote{display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:14px 4px;background:rgba(0,0,0,.16);}
+.pf-vote-btn{display:inline-flex;align-items:center;justify-content:center;
+  width:28px;height:26px;background:none;border:0;border-radius:7px;cursor:pointer;
+  color:var(--muted);transition:color .15s,background .15s;}
+.pf-vote-btn:hover{color:var(--gold);background:var(--hover);}
+.pf-vote-btn[aria-pressed="true"]{color:var(--gold);}
+.pf-vote-btn svg{width:16px;height:16px;display:block;}
+.pf-vote-n{font-family:var(--f-ui);font-weight:700;font-size:.8rem;color:var(--text);}
+.pf-vote-n:empty{display:none;}
 
-/* ── L'en-tête : la grammaire des autres pages, inchangée. ── */
-.pp-head{position:relative;z-index:1;text-align:center;max-width:640px;
-  margin:clamp(34px,6vh,60px) auto 34px;}
-.pp-label{font-family:var(--f-ui);font-size:.72rem;font-weight:600;
-  letter-spacing:.11em;text-transform:uppercase;color:var(--muted);
-  margin-bottom:10px;}
-.pp-head h1{font-family:'Fraunces',serif;font-weight:900;
-  font-size:clamp(2.1rem,4.6vw,3.2rem);letter-spacing:-.03em;
-  line-height:1.04;color:var(--text);margin:0 0 12px;}
-.pp-lede{font-family:'Spectral',Georgia,serif;font-size:.95rem;
-  line-height:1.65;color:var(--muted);max-width:46ch;margin:0 auto;}
-html.pp-boot:not(.pp-lit) .pp-head{opacity:0;}
-html.pp-anim.pp-lit .pp-head{
-  animation:pp-head-in .8s ease .1s backwards;}
-@keyframes pp-head-in{
-  from{opacity:0;transform:translateY(14px);}
-  to{opacity:1;transform:none;}}
+.pf-post-body{padding:12px 16px 11px;min-width:0;}
+.pf-meta{display:flex;flex-wrap:wrap;align-items:center;gap:8px;
+  font-family:var(--f-ui);font-size:.74rem;color:var(--muted);}
+.pf-tag{font-weight:600;font-size:.72rem;background:rgba(213,64,47,.10);
+  color:var(--red-text);border-radius:999px;padding:3px 10px;white-space:nowrap;}
+.pf-tag-soon{background:rgba(216,173,76,.10);color:var(--gold);}
+.pf-seal{position:relative;width:20px;height:20px;border-radius:50%;overflow:hidden;
+  display:inline-flex;align-items:center;justify-content:center;flex:none;
+  font-family:var(--f-ui);font-weight:700;font-size:.5rem;color:#f6ecd8;}
+.pf-seal img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.pf-name{font-family:var(--f-hand);font-weight:700;font-size:1.08rem;color:var(--ink);line-height:1;}
+.pf-title{font-family:'Fraunces',serif;font-weight:600;font-size:1.08rem;
+  letter-spacing:-.01em;color:var(--text);line-height:1.35;margin:7px 0 0;}
+/* la citation garde son filet de gauche — règle typographique maison */
+.pf-quote{font-family:var(--f-serif);font-style:italic;font-size:.9rem;line-height:1.55;
+  color:var(--ink-soft);border-left:3px solid var(--red);padding:2px 0 2px 12px;margin:8px 0 0;}
+.pf-excerpt{font-family:var(--f-serif);font-size:.94rem;line-height:1.6;
+  color:var(--ink-soft);margin:6px 0 0;display:-webkit-box;-webkit-line-clamp:3;
+  -webkit-box-orient:vertical;overflow:hidden;}
+.pf-full{font-family:var(--f-serif);font-size:1rem;line-height:1.7;color:var(--ink);
+  margin:8px 0 0;white-space:pre-line;overflow-wrap:break-word;}
+.pf-foot{display:flex;flex-wrap:wrap;align-items:center;gap:4px 16px;
+  margin-top:10px;font-family:var(--f-ui);font-size:.74rem;font-weight:600;color:var(--muted);}
+.pf-act{display:inline-flex;align-items:center;gap:5px;background:none;border:0;
+  padding:0;cursor:pointer;font:inherit;color:var(--muted);text-decoration:none;
+  transition:color .15s;}
+.pf-act:hover{color:var(--text);}
+.pf-act svg{width:14px;height:14px;display:block;}
+.pf-hidden-tag{font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--red-text);border:1px solid rgba(213,64,47,.4);border-radius:999px;padding:2px 8px;}
+.pf-confirm{display:inline-flex;gap:12px;align-items:center;color:var(--red-text);}
+.pf-confirm .pf-act{color:var(--red-text);}
 
-/* ── Filtres par œuvre : retailles de kraft, le tampon rouge pour
-   l'actif (repris de la passe précédente). ── */
-.pp-filters{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;
-  max-width:680px;margin:0 auto 30px;position:relative;z-index:1;}
-.pp-filter{font-family:var(--f-ui);font-size:.62rem;font-weight:600;
-  letter-spacing:.18em;text-transform:uppercase;padding:7px 14px;
-  background:#c9b088;color:rgba(30,17,4,.82);border:none;cursor:pointer;
-  transform:rotate(-.6deg);box-shadow:0 2px 6px rgba(0,0,0,.45);
-  transition:filter .14s;}
-.pp-filter:nth-child(2n){transform:rotate(.7deg);}
-.pp-filter:hover{filter:brightness(1.08);}
-.pp-filter:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
-.pp-filter.active{box-shadow:inset 0 0 0 2px rgba(146,30,17,.75),
-  0 2px 6px rgba(0,0,0,.45);color:rgba(122,20,10,.95);}
+/* ── la vue de fil ── */
+.pf-back{margin-bottom:12px;}
+.pf-detail .pf-post{cursor:default;}
+.pf-comments-h{font-family:var(--f-ui);font-size:.74rem;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin:20px 0 10px;}
+.pf-replybox{margin-top:14px;}
+.pf-replybox .pf-ta{min-height:72px;}
+.pf-inlinebox{margin:10px 0 4px;}
+.pf-inlinebox .pf-ta{min-height:60px;background:var(--surface);}
+.pf-inlinebox textarea{font-size:1.14rem;}
+/* les fils de réponses : la ligne de fil à gauche, indentation plafonnée */
+.pf-com{padding:12px 0 2px 0;border-top:1px solid var(--line-soft);}
+.pf-kids{margin-left:14px;padding-left:14px;border-left:1px solid var(--line);}
+.pf-com.pf-hiddenpost{opacity:.45;}
+.pf-com .pf-full{font-size:.95rem;margin-top:5px;}
+.pf-com .pf-foot{margin-top:7px;}
+.pf-report{margin-top:10px;}
+.pf-report textarea{width:100%;min-height:56px;resize:vertical;font-family:var(--f-ui);
+  font-size:.84rem;color:var(--ink);background:var(--card);
+  border:1px solid var(--line-strong);border-radius:9px;padding:8px 11px;}
 
-/* ═══ LES FEUILLETS ════════════════════════════════════════════════
-   Un fil = un feuillet posé sur la table, ses réponses en billets
-   glissés dessous. Hiérarchie voulue par le propriétaire : le
-   COMMENTAIRE est le texte principal ; le passage cité est en petit,
-   en contexte, au-dessus.
-   --k (0→1) est le scrub de POSE : à 0 le feuillet est en l'air
-   (haut, décalé, incliné, ombre portée loin), à 1 il est posé. Écrit
-   par le JS au défilement — réversible — et par la cascade d'entrée
-   au chargement. Défaut CSS 1 : sans JS, sous reduced-motion ou sous
-   768 px, tout est déjà posé. */
-#placeFull{position:relative;z-index:1;max-width:660px;margin:0 auto;
-  display:flex;flex-direction:column;gap:30px;}
-.fl{position:relative;padding:18px 24px 14px;color:var(--enc);
-  background:
-    url("data:image/svg+xml;utf8,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='160'%20height='160'%3E%3Cfilter%20id='n'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='.9'%20numOctaves='2'%20stitchTiles='stitch'/%3E%3CfeColorMatrix%20type='saturate'%20values='0'/%3E%3C/filter%3E%3Crect%20width='160'%20height='160'%20filter='url(%23n)'%20opacity='.05'/%3E%3C/svg%3E"),
-    radial-gradient(110% 80% at 50% 0%,rgba(255,248,225,.5),transparent 58%),
-    radial-gradient(88% 66% at 88% 102%,rgba(92,62,22,.16),transparent 62%),
-    var(--pap,#e6d8b7);
-  box-shadow:inset 0 0 22px rgba(96,66,24,.22),
-    0 2px 8px rgba(0,0,0,.5),0 12px 28px -12px rgba(0,0,0,.55);
-  opacity:calc(.06 + .94 * var(--k,1));
-  transform:translate(calc(var(--fx,0px) * (1 - var(--k,1)) + var(--x,0px)),
-      calc((1 - var(--k,1)) * -54px))
-    rotate(calc(var(--r,0deg) + (1 - var(--k,1)) * var(--rr,7deg)))
-    scale(calc(1 + (1 - var(--k,1)) * .04));}
-/* l'ombre de VOL — sur un ::before, on n'interpole pas un box-shadow */
-.fl::before{content:"";position:absolute;inset:0;z-index:-1;
-  box-shadow:0 34px 54px -10px rgba(0,0,0,.8);
-  opacity:calc(1 - var(--k,1));}
-/* papiers inégaux : quatre tons × cinq poses (rotation, décalage
-   horizontal au repos --x, dérive de vol --fx, sur-rotation --rr) */
-.fl:nth-child(4n+1){--pap:#e8dab9;}
-.fl:nth-child(4n+2){--pap:#dccc9f;}
-.fl:nth-child(4n+3){--pap:#e3d0a4;}
-.fl:nth-child(4n){--pap:#d5c193;}
-.fl:nth-child(5n+1){--r:-.85deg;--x:-12px;--fx:70px;--rr:8deg;}
-.fl:nth-child(5n+2){--r:.6deg;--x:9px;--fx:-56px;--rr:-6deg;}
-.fl:nth-child(5n+3){--r:-.35deg;--x:14px;--fx:44px;--rr:5deg;}
-.fl:nth-child(5n+4){--r:.95deg;--x:-7px;--fx:-72px;--rr:-8deg;}
-.fl:nth-child(5n){--r:-.55deg;--x:3px;--fx:58px;--rr:7deg;}
-.fl:nth-child(3n+2)::after{content:"";position:absolute;top:0;right:0;
-  width:22px;height:22px;
-  background:linear-gradient(225deg,rgba(0,0,0,.2) 0%,rgba(0,0,0,.07) 32%,transparent 55%);}
+/* ── le rail ── */
+.pf-rail{display:flex;flex-direction:column;gap:14px;position:sticky;top:62px;}
+.pf-rail-card{background:var(--surface);border:1px solid var(--line);
+  border-radius:14px;padding:16px 18px;}
+.pf-rail-h{font-family:'Fraunces',serif;font-weight:700;font-size:1rem;
+  color:var(--text);margin:0 0 8px;}
+.pf-rail-card p{font-family:var(--f-serif);font-size:.9rem;line-height:1.6;
+  color:var(--ink-soft);margin:0 0 8px;}
+.pf-rail-card p:last-child{margin-bottom:0;}
+.pf-stats{font-family:var(--f-ui);font-size:.78rem;color:var(--muted);
+  border-top:1px solid var(--line);padding-top:10px;margin-top:10px;}
+.pf-rules{list-style:none;margin:0;padding:0;}
+.pf-rules li{font-family:var(--f-serif);font-size:.88rem;line-height:1.55;
+  color:var(--ink-soft);padding:6px 0;border-top:1px solid var(--line-soft);}
+.pf-rules li:first-child{border-top:0;padding-top:0;}
+.pf-rules b{color:var(--ink);font-weight:600;}
+/* l'override vit APRÈS la règle de base : à spécificité égale, c'est la
+   position dans la cascade qui tranche (piège déjà documenté) */
+@media(max-width:1020px){.pf-rail{display:none;}}
 
-/* 1. l'auteur d'abord — un forum se lit par ses voix */
-.fl-top{display:flex;flex-wrap:wrap;align-items:center;gap:6px 9px;margin-bottom:8px;}
-.fl-seal{flex:0 0 auto;width:26px;height:26px;position:relative;overflow:hidden;
-  border-radius:48% 52% 50% 46%;transform:rotate(-7deg);
-  display:flex;align-items:center;justify-content:center;
-  font-family:'Fraunces',serif;font-weight:700;font-size:.6rem;
-  color:rgba(255,240,214,.92);
-  box-shadow:inset 0 1px 2px rgba(255,255,255,.3),
-    inset 0 -2px 3px rgba(0,0,0,.32),0 1px 2px rgba(0,0,0,.35);}
-/* la photo de profil couvre le cachet ; l'initiale reste dessous en
-   repli si l'image ne charge pas */
-.fl-seal img,.ct-seal img{position:absolute;inset:0;width:100%;height:100%;
-  object-fit:cover;transform:rotate(7deg) scale(1.15);}
-.fl-name{font-family:'Caveat',cursive;font-weight:700;
-  font-size:1.24rem;line-height:1;color:var(--enc);}
-.fl-meta{font-family:var(--f-ui);font-size:.58rem;font-weight:600;
-  letter-spacing:.14em;text-transform:uppercase;color:var(--enc-2);
-  border:1px solid rgba(58,42,22,.35);border-radius:2px;padding:2px 8px;
-  white-space:nowrap;}
-.fl-when{margin-left:auto;font-family:'Spectral',Georgia,serif;
-  font-style:italic;font-size:.76rem;color:rgba(58,42,22,.72);}
-/* 2. le passage cité — EN RETRAIT du commentaire : petit, encre
-   passée, filet rouge discret. C'est le contexte, pas la manchette. */
-.fl-quote{font-family:'Spectral',Georgia,serif;font-style:italic;
-  font-size:.8rem;line-height:1.5;color:var(--enc-2);
-  border-left:2px solid rgba(146,30,17,.32);padding:1px 0 1px 10px;
-  margin:0 0 9px;}
-/* 3. le commentaire — LE texte du feuillet */
-.fl-body{font-family:'Spectral',Georgia,serif;font-size:1.01rem;
-  line-height:1.66;color:var(--enc);white-space:pre-wrap;
-  margin:0 0 4px;}
-/* 4. les billets de réponse, glissés sous le feuillet */
-.fl-reps{margin:10px 0 2px;}
-.fl-rep{position:relative;margin:10px 0 0 clamp(14px,5%,34px);
-  padding:9px 14px 8px;background:#d8c69c;
-  box-shadow:0 2px 6px rgba(0,0,0,.35),inset 0 0 14px rgba(96,66,24,.18);
-  transform:rotate(.4deg);}
-.fl-rep:nth-child(2n){transform:rotate(-.45deg);background:#dfcfa8;}
-.fl-rep-top{display:flex;align-items:baseline;gap:8px;margin-bottom:3px;}
-.fl-rep-name{font-family:'Caveat',cursive;font-weight:700;
-  font-size:1.05rem;line-height:1;color:var(--enc);}
-.fl-rep-when{margin-left:auto;font-family:'Spectral',Georgia,serif;
-  font-style:italic;font-size:.7rem;color:rgba(58,42,22,.68);}
-.fl-rep-body{font-family:'Spectral',Georgia,serif;font-size:.9rem;
-  line-height:1.58;color:rgba(44,28,10,.9);white-space:pre-wrap;}
-/* 5. le billet à écrire — on répond À LA MAIN */
-.fl-compose{margin:12px 0 4px clamp(14px,5%,34px);padding:10px 14px;
-  background:#e4d5ae;box-shadow:0 2px 6px rgba(0,0,0,.35),
-    inset 0 0 14px rgba(96,66,24,.18);transform:rotate(-.3deg);}
-.fl-compose[hidden]{display:none;}
-.fl-compose textarea{display:block;width:100%;min-height:58px;
-  background:transparent;border:none;outline:none;resize:vertical;
-  font-family:'Caveat',cursive;font-weight:500;font-size:1.18rem;
-  line-height:1.4;color:var(--enc);}
-.fl-compose textarea::placeholder{color:rgba(58,42,22,.5);}
-.fl-compose-row{display:flex;gap:10px;justify-content:flex-end;
-  border-top:1px solid var(--filet);padding-top:8px;margin-top:6px;}
-.fl-btn{font-family:var(--f-ui);font-size:.6rem;font-weight:600;
-  letter-spacing:.18em;text-transform:uppercase;cursor:pointer;
-  background:transparent;border:1px solid rgba(58,42,22,.45);
-  border-radius:2px;padding:5px 12px;color:var(--enc-2);}
-.fl-btn:hover{border-color:var(--enc);color:var(--enc);}
-.fl-btn-pub{border-color:rgba(146,30,17,.6);color:var(--enc-r);}
-.fl-btn-pub:hover{background:rgba(146,30,17,.85);color:#ead9b3;
-  border-color:rgba(146,30,17,.85);}
-.fl-btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
-/* 6. le pied : répondre, compte, aller au passage */
-.fl-foot{display:flex;align-items:baseline;gap:14px;
-  border-top:1px solid var(--filet);padding-top:8px;margin-top:6px;}
-.fl-reply{font-family:var(--f-ui);font-size:.62rem;font-weight:600;
-  letter-spacing:.18em;text-transform:uppercase;cursor:pointer;
-  background:transparent;border:none;padding:0;color:var(--enc-2);}
-.fl-reply:hover{color:var(--enc-r);}
-.fl-reply:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
-/* ── modération (moderation-5c) ── */
-.fl-report,.fl-modbtn{font-family:var(--f-ui);font-size:.62rem;font-weight:600;
-  letter-spacing:.1em;text-transform:uppercase;background:none;border:0;
-  padding:2px 0;cursor:pointer;color:rgba(58,42,22,.62);}
-.fl-report:hover,.fl-modbtn:hover{color:var(--enc-r);}
-.fl-report:focus-visible,.fl-modbtn:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
-.fl-hidden .fl-quote,.fl-hidden .fl-body,.fl-hidden .fl-reps{opacity:.45;}
-.fl-hidden-tag{font-family:var(--f-ui);font-size:.58rem;font-weight:700;
-  letter-spacing:.1em;text-transform:uppercase;color:#8a1d10;
-  background:rgba(146,30,17,.12);border-radius:999px;padding:2px 8px;}
-.fl-repbox textarea{display:block;width:100%;min-height:44px;
-  font-family:'Caveat',cursive;font-size:1.05rem;color:var(--enc);
-  background:transparent;border:0;border-bottom:1px dashed rgba(58,42,22,.35);
-  padding:6px 2px;resize:vertical;}
-.fl-repbox{margin-top:8px;}
-.ct-modrow{display:flex;gap:16px;margin-top:14px;}
-.ct-report,.ct-modbtn{font:600 .68rem/1 var(--f-ui);letter-spacing:.12em;
-  text-transform:uppercase;background:none;border:0;padding:2px 0;
-  cursor:pointer;color:var(--muted);}
-.ct-report:hover,.ct-modbtn:hover{color:var(--red-text,#e5644f);}
-.ct-report:focus-visible,.ct-modbtn:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
-.ct-repbox textarea{display:block;width:100%;min-height:44px;
-  font-family:var(--f-ui);font-size:.85rem;color:var(--text);
-  background:var(--card);border:1px solid var(--border);border-radius:8px;
-  padding:8px 10px;resize:vertical;margin-top:8px;}
-.fl-rc{font-family:var(--f-ui);font-size:.6rem;font-weight:600;
-  letter-spacing:.14em;text-transform:uppercase;color:rgba(58,42,22,.62);}
-.fl-go{margin-left:auto;font-family:var(--f-ui);font-size:.64rem;
-  font-weight:600;letter-spacing:.2em;text-transform:uppercase;
-  color:var(--enc-r);text-decoration:none;}
-.fl-go:hover{text-decoration:underline;text-underline-offset:3px;}
-.fl-go:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
-.fl-go-soon{margin-left:auto;font-family:'Spectral',Georgia,serif;
-  font-style:italic;font-size:.76rem;color:rgba(58,42,22,.6);}
+/* ── états ── */
+.pf-state{background:var(--surface);border:1px solid var(--line);border-radius:14px;
+  padding:26px 24px;font-family:var(--f-serif);font-style:italic;font-size:.98rem;
+  color:var(--ink-soft);}
+.pf-state .pf-btn{margin-top:14px;font-style:normal;}
 
-/* États (chargement / vide / erreur) : un billet de kraft */
-.fl-state{align-self:center;max-width:400px;background:#c9b088;
-  color:rgba(30,17,4,.85);font-family:'Spectral',Georgia,serif;
-  font-style:italic;font-size:.92rem;line-height:1.6;text-align:center;
-  padding:18px 24px;transform:rotate(-.6deg);
-  box-shadow:0 2px 8px rgba(0,0,0,.5),inset 0 0 16px rgba(96,66,24,.22);}
-.fl-retry{display:inline-block;font-family:var(--f-ui);font-style:normal;
-  font-size:.64rem;font-weight:600;letter-spacing:.18em;
-  text-transform:uppercase;color:var(--enc-r);background:transparent;
-  border:1px solid rgba(146,30,17,.6);border-radius:2px;
-  padding:5px 12px;margin-top:8px;cursor:pointer;}
-.fl-retry:hover{background:rgba(146,30,17,.85);color:#ead9b3;}
-
-/* le bout de la table */
-.pp-fin{position:relative;z-index:1;text-align:center;
-  font-family:'Spectral',Georgia,serif;font-style:italic;
-  font-size:.88rem;line-height:1.6;color:var(--muted);
-  max-width:46ch;margin:48px auto 0;}
-.pp-fin b{color:var(--gold);font-weight:500;}
-
-/* ═══ LA SALLE (scène 3D) ══════════════════════════════════════════
-   Quand tout le permet (>= 768 px, pas de reduced-motion, WebGL,
-   des feuillets à poser), la page devient une SALLE DE RÉUNION en
-   trois dimensions : une longue table de bois éclairée de
-   chandeliers, les feuillets du forum posés dessus, le défilement
-   pour seul travelling — motif exact de la bibliothèque. Le forum à
-   plat ci-dessus devient alors le REPLI (#liste, mobile,
-   reduced-motion, sans WebGL) et reste la version des lecteurs
-   d'écran. Sous .js-pp3d, le décor CSS et le flux à plat s'effacent
-   devant le canvas. */
-/* canvas = élément REMPLACÉ : inset:0 ne l'étire pas (piège documenté),
-   width/height:100% obligatoires */
-#pp3d{display:none;}
-.js-pp3d #pp3d{display:block;position:fixed;inset:0;width:100%;height:100%;z-index:1;}
-#ppRun{height:0;}
-.js-pp3d .wrap,.js-pp3d .pp-table,.js-pp3d .pp-nuit,.js-pp3d .pp-bougie{display:none;}
-
-/* la pénombre par-dessus le canvas, sous l'interface (motif .bx3-lamp) */
-.pt-lamp{display:none;}
-.js-pp3d .pt-lamp{display:block;position:fixed;inset:0;z-index:2;pointer-events:none;
-  background:
-    radial-gradient(74% 54% at 50% 12%,rgba(216,173,76,.06),transparent 66%),
-    radial-gradient(130% 82% at 50% 118%,rgba(0,0,0,.3),transparent 56%),
-    radial-gradient(80% 130% at -8% 50%,rgba(0,0,0,.24),transparent 52%),
-    radial-gradient(80% 130% at 108% 50%,rgba(0,0,0,.24),transparent 52%);}
-
-.pt-ui{display:none;}
-.js-pp3d .pt-ui{display:block;}
-.js-pp3d .pt-hint,.js-pp3d .pt-rail{display:flex;}
-
-/* Le carton d'entrée : posé sur le plan large, s'efface au premier
-   défilement (opacité pilotée par p dans la boucle). */
-.pt-intro{position:fixed;z-index:10;left:50%;top:32%;transform:translate(-50%,-50%);
-  text-align:center;max-width:620px;padding:0 22px;pointer-events:none;}
-.pt-intro .pt-label{font-family:var(--f-ui);font-size:.72rem;font-weight:600;
-  letter-spacing:.11em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
-.pt-intro .pt-h1{font-family:'Fraunces',serif;font-weight:900;
-  font-size:clamp(2.2rem,4.8vw,3.4rem);letter-spacing:-.03em;line-height:1.03;
-  color:var(--text);margin:0 0 12px;text-shadow:0 2px 26px rgba(0,0,0,.8);}
-.pt-intro .pt-lede{font-family:'Spectral',Georgia,serif;font-size:.97rem;
-  line-height:1.66;color:var(--muted);max-width:46ch;margin:0 auto;
-  text-shadow:0 1px 14px rgba(0,0,0,.85);}
-.pt-intro .pt-count{margin-top:14px;font-family:var(--f-ui);font-size:.64rem;
-  font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--const);}
-.pt-intro .pt-count b{color:var(--gold);font-weight:600;}
-.pt-alt{margin-top:16px;pointer-events:auto;}
-.pt-alt button{font:italic 500 .84rem/1 'Spectral',Georgia,serif;color:var(--muted);
-  background:none;border:0;border-bottom:1px solid rgba(183,168,136,.4);
-  padding:0 0 3px;cursor:pointer;}
-.pt-alt button:hover{color:var(--ink);border-color:var(--ink);}
-/* les lignes se posent en cascade — backwards, jamais both (règle maison) */
-@keyframes pt-rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
-.js-pp3d .pt-intro>*{animation:pt-rise .8s cubic-bezier(.2,.9,.25,1) backwards;}
-.js-pp3d .pt-intro>*:nth-child(2){animation-delay:.1s}
-.js-pp3d .pt-intro>*:nth-child(3){animation-delay:.2s}
-.js-pp3d .pt-intro>*:nth-child(4){animation-delay:.32s}
-.js-pp3d .pt-intro>*:nth-child(5){animation-delay:.44s}
-
-/* L'invite à descendre */
-.pt-hint{position:fixed;z-index:10;left:50%;bottom:26px;transform:translateX(-50%);
-  /* le display vit sous .js-pp3d : posé ici, il écraserait le
-     display:none de .pt-ui et l'invite fuirait dans la version liste */
-  flex-direction:column;align-items:center;gap:8px;pointer-events:none;
-  font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:var(--const);
-  transition:opacity .2s linear;}
-.pt-hint i{display:block;width:1px;height:34px;
-  background:linear-gradient(to bottom,transparent,var(--gold));
-  animation:pt-drip 1.8s ease-out infinite;}
-@keyframes pt-drip{0%{transform:scaleY(.2);transform-origin:top}
-  60%{transform:scaleY(1);transform-origin:top}100%{transform:scaleY(1)}}
-
-/* L'étiquette de survol, projetée au-dessus du feuillet */
-.pt-tag{position:fixed;z-index:12;pointer-events:none;opacity:0;
-  transform:translate(-50%,-100%);max-width:34ch;text-align:center;
-  transition:opacity .14s linear;}
-.pt-tag .tg-t{font-family:'Caveat',cursive;font-weight:700;font-size:1.35rem;
-  line-height:1.1;color:var(--ink);text-shadow:0 2px 16px rgba(0,0,0,.95);}
-.pt-tag .tg-m{margin-top:2px;font-size:.68rem;letter-spacing:.07em;
-  text-transform:uppercase;color:var(--const);text-shadow:0 1px 10px rgba(0,0,0,.95);}
-.pt-tag .tg-q{margin-top:5px;font-family:'Spectral',Georgia,serif;font-style:italic;
-  font-size:.85rem;color:var(--gold);text-shadow:0 1px 12px rgba(0,0,0,.95);}
-.pt-tag .tg-ava{width:36px;height:36px;border-radius:50%;object-fit:cover;
-  border:2px solid rgba(216,173,76,.55);box-shadow:0 2px 14px rgba(0,0,0,.8);
-  margin-bottom:5px;}
-.pt-tag .tg-a{margin-top:6px;font:600 .58rem/1 var(--f-ui);letter-spacing:.16em;
-  text-transform:uppercase;color:var(--const);text-shadow:0 1px 10px rgba(0,0,0,.95);}
-
-/* Le rail : une entrée par œuvre, pour sauter le long de la table */
-.pt-rail{position:fixed;z-index:11;left:50%;bottom:0;transform:translateX(-50%);
-  flex-wrap:wrap;justify-content:center;max-width:min(92vw,880px);
-  gap:2px;padding:6px 8px calc(10px + env(safe-area-inset-bottom,0px));
-  opacity:0;transition:opacity .28s linear;}
-.pt-rail button{font:600 .72rem/1 var(--f-ui);letter-spacing:.06em;
-  color:var(--const);background:rgba(21,16,11,.62);border:1px solid transparent;
-  border-radius:999px;padding:8px 13px;cursor:pointer;white-space:nowrap;
-  backdrop-filter:blur(4px);transition:color .15s,border-color .15s;}
-.pt-rail button:hover{color:var(--ink);}
-.pt-rail button.on{color:var(--gold);border-color:rgba(216,173,76,.4);}
-.pt-rail button:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
-
-/* La fin de table */
-.pt-end{position:fixed;z-index:10;left:50%;top:30%;transform:translate(-50%,-50%);
-  text-align:center;max-width:560px;padding:0 22px;opacity:0;pointer-events:none;
-  transition:opacity .25s linear;}
-.pt-end .pt-h1{font-family:'Fraunces',serif;font-weight:900;font-size:1.9rem;
-  letter-spacing:-.02em;color:var(--text);margin:0 0 10px;
-  text-shadow:0 2px 22px rgba(0,0,0,.85);}
-.pt-end .pt-lede{font-family:'Spectral',Georgia,serif;font-size:.94rem;
-  line-height:1.66;color:var(--muted);text-shadow:0 1px 14px rgba(0,0,0,.85);}
-.pt-end-acts{margin-top:18px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
-.pt-btn{display:inline-block;font:600 .8rem/1 var(--f-ui);border-radius:100px;
-  padding:11px 20px;cursor:pointer;transition:transform .15s,opacity .15s;}
-.pt-btn.full{background:var(--text);color:var(--bg);border:0;}
-.pt-btn.ghost{background:transparent;color:var(--muted);border:1px solid var(--border);}
-.pt-btn:hover{transform:translateY(-1px);}
-.pt-btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
-
-/* ── La fiche du feuillet soulevé : le FIL COMPLET, et l'on y répond.
-   Même meuble que le cartel de la bibliothèque. ── */
-.pt-cartel{position:fixed;z-index:90;top:60px;right:16px;bottom:16px;
-  width:min(420px,calc(100vw - 32px));overflow:auto;overscroll-behavior:contain;
-  background:#1c150e;border:1px solid rgba(243,233,212,.12);border-radius:18px;
-  box-shadow:0 30px 80px rgba(0,0,0,.75);padding:24px 24px 20px;
-  transform:translateX(calc(100% + 24px));transition:transform .32s cubic-bezier(.2,.9,.25,1);}
-.pt-cartel.open{transform:none;}
-.pt-cartel:focus{outline:none;}
-.pt-x{position:absolute;top:12px;right:12px;width:34px;height:34px;
-  border-radius:50%;border:1px solid var(--line);background:rgba(255,255,255,.04);
-  color:var(--ink);font-size:1.25rem;line-height:1;cursor:pointer;}
-.pt-x:hover{border-color:var(--gold);}
-.ct-top{display:flex;align-items:center;gap:9px;margin-bottom:4px;padding-right:30px;}
-.ct-seal{flex:0 0 auto;width:30px;height:30px;border-radius:48% 52% 50% 46%;
-  position:relative;overflow:hidden;
-  transform:rotate(-7deg);display:flex;align-items:center;justify-content:center;
-  font-family:'Fraunces',serif;font-weight:700;font-size:.62rem;
-  color:rgba(255,240,214,.92);
-  box-shadow:inset 0 1px 2px rgba(255,255,255,.3),inset 0 -2px 3px rgba(0,0,0,.32);}
-.ct-name{font-family:'Caveat',cursive;font-weight:700;font-size:1.5rem;
-  line-height:1;color:var(--ink);}
-.ct-meta{font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;
-  color:var(--const);margin:2px 0 14px;}
-.ct-quote{font-family:'Spectral',Georgia,serif;font-style:italic;font-size:.84rem;
-  line-height:1.55;color:var(--ink-soft);border-left:2px solid rgba(213,64,47,.4);
-  padding:2px 0 2px 11px;margin:0 0 12px;}
-.ct-body{font-family:'Spectral',Georgia,serif;font-size:.99rem;line-height:1.7;
-  color:var(--ink);white-space:pre-wrap;margin:0 0 6px;}
-.ct-h{font:600 .68rem/1 var(--f-ui);letter-spacing:.1em;text-transform:uppercase;
-  color:var(--const);margin:18px 0 8px;}
-.ct-rep{border-left:2px solid var(--line);padding:2px 0 2px 12px;margin:0 0 12px;}
-.ct-rep-top{display:flex;align-items:baseline;gap:8px;margin-bottom:2px;}
-.ct-rep-name{font-family:'Caveat',cursive;font-weight:700;font-size:1.12rem;
-  line-height:1;color:var(--ink);}
-.ct-rep-when{margin-left:auto;font-family:'Spectral',Georgia,serif;font-style:italic;
-  font-size:.72rem;color:var(--const);}
-.ct-rep-body{font-family:'Spectral',Georgia,serif;font-size:.88rem;line-height:1.6;
-  color:var(--ink-soft);white-space:pre-wrap;}
-.ct-compose textarea{display:block;width:100%;min-height:64px;
-  background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:10px;
-  outline:none;resize:vertical;padding:10px 12px;
-  font-family:'Caveat',cursive;font-weight:500;font-size:1.22rem;line-height:1.4;
-  color:var(--ink);}
-.ct-compose textarea::placeholder{color:var(--const);}
-.ct-compose textarea:focus{border-color:var(--gold);}
-.ct-send{margin-top:9px;font:600 .72rem/1 var(--f-ui);letter-spacing:.14em;
-  text-transform:uppercase;color:#1a130c;background:var(--gold);
-  border:0;border-radius:100px;padding:10px 18px;cursor:pointer;}
-.ct-send:hover{background:var(--gold-deep);}
-.ct-send:focus-visible{outline:2px solid var(--ink);outline-offset:2px;}
-.ct-go{display:inline-block;margin-top:16px;font:600 .74rem/1 var(--f-ui);
-  letter-spacing:.12em;text-transform:uppercase;color:var(--bright);
-  text-decoration:none;border-bottom:1px solid rgba(229,100,79,.4);padding-bottom:3px;}
-.ct-go:hover{border-color:var(--bright);}
-.ct-soon{margin-top:16px;font:italic 400 .82rem/1.5 'Spectral',Georgia,serif;
-  color:var(--const);}
-
-/* Le bouton du registre : rejoindre la salle depuis la version liste */
-.pp-3d{margin:26px auto 0;text-align:center;position:relative;z-index:1;}
-.pp-3d[hidden]{display:none;}
-.pp-3d button{font:600 .8rem/1 var(--f-ui);color:var(--bg);background:var(--gold);
-  border:0;border-radius:100px;padding:12px 22px;cursor:pointer;}
-.pp-3d button:hover{background:var(--gold-deep);}
-
-@media (prefers-reduced-motion:reduce){
-  .pt-cartel{transition:none;}
-  .pt-hint i{animation:none;}
-}
-
-@media(max-width:760px){
-  .pp-head{margin-top:22px;}
-  /* :nth-child(n) pour égaler la spécificité (0,2,0) des variantes de
-     pose (piège documenté) */
-  .fl:nth-child(n){--x:0px;--fx:34px;}
-  .fl{padding:16px 16px 12px;}
+@media(max-width:680px){
+  .pf{padding:16px 12px 60px;}
+  .pf-post{grid-template-columns:38px minmax(0,1fr);}
+  .pf-post-body{padding:10px 12px 10px;}
+  .pf-kids{margin-left:6px;padding-left:10px;}
 }
 </style>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "WebPage",
-  "name": "Place publique",
-  "url": "https://liremarx.com/oeuvres/place-publique.html",
-  "description": "Le forum des lecteurs de Marx : notes partagées, passages commentés, réponses — la table commune de la communauté Lire Marx.",
-  "isPartOf": {
-    "@type": "WebSite",
-    "name": "Lire Marx",
-    "url": "https://liremarx.com/oeuvres/"
-  }
-}
-</script>
 </head>
 <body>
+<main class="wrap" id="contenu" tabindex="-1">
+  <div class="pf">
 
-<script>
-/* L'allumage de la bougie : la page arrive dans la pénombre et la
-   flamme prend. Posé AVANT le premier rendu. Jamais sous
-   reduced-motion ni sous 768 px (tout est alors posé et allumé
-   d'emblée). ATTENTION : un onglet chargé en arrière-plan peut
-   annoncer innerWidth 0 (piège documenté) — une largeur NULLE n'est
-   pas « étroit », c'est « inconnu », on prend le chemin animé. */
-(function(){try{
-  if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  if(innerWidth > 0 && innerWidth < 768) return;
-  var h = document.documentElement;
-  h.classList.add('pp-boot','pp-anim');
-  var lit = function(){ h.classList.add('pp-lit'); };
-  if(document.readyState !== 'loading'){ requestAnimationFrame(lit); }
-  else document.addEventListener('DOMContentLoaded', function(){ requestAnimationFrame(lit); });
-  /* filet : quoi qu'il arrive, jamais plus de 2,5 s dans le noir */
-  setTimeout(lit, 2500);
-}catch(e){ document.documentElement.classList.add('pp-lit'); }})();
-</script>
+    <header class="pf-head">
+      <div class="pf-label">Lire Marx</div>
+      <h1 class="pf-h1">Place publique</h1>
+      <p class="pf-lede">Le forum des lecteurs&nbsp;: ouvrez une discussion, répondez en fil, soutenez ce qui éclaire — et chaque fil né d'une lecture ramène à son passage.</p>
+    </header>
 
-<!-- Le décor : la table, la nuit, la bougie -->
-<div class="pp-table" aria-hidden="true"></div>
-<div class="pp-nuit" aria-hidden="true"></div>
-<div class="pp-bougie" aria-hidden="true">
-  <span class="cd-smoke"></span>
-  <span class="cd-glow"></span>
-  <span class="cd-flame"></span>
-  <span class="cd-wick"></span>
-  <span class="cd-wax"></span>
-  <span class="cd-pan"></span>
-  <span class="cd-socket"></span>
-</div>
+    <div class="pf-cols">
+      <div class="pf-main" id="pfMain" aria-live="polite">
+        <div class="pf-state">La place s'ouvre…</div>
+      </div>
 
-<!-- La salle en trois dimensions : le canvas est fixe, le document ne
-     contient qu'une cale de défilement (motif bibliotheque.html) -->
-<canvas id="pp3d" aria-hidden="true"></canvas>
-<div id="ppRun" aria-hidden="true"></div>
-<div class="pt-lamp" aria-hidden="true"></div>
+      <aside class="pf-rail" aria-label="À propos de la Place publique">
+        <div class="pf-rail-card">
+          <h2 class="pf-rail-h">La place commune</h2>
+          <p>Ici se discute ce qui se lit dans les ateliers. Une discussion s'attache à une œuvre&nbsp;; celles nées d'un passage surligné y ramènent d'un clic.</p>
+          <div class="pf-stats" id="pfStats"></div>
+        </div>
+        <div class="pf-rail-card">
+          <h2 class="pf-rail-h">Les usages</h2>
+          <ul class="pf-rules">
+            <li><b>On parle du texte.</b> Citez, sourcez, ramenez au passage.</li>
+            <li><b>On soutient, on n'enterre pas.</b> Le soutien appuie une lecture&nbsp;; il n'y a pas de vote négatif.</li>
+            <li><b>On se répond, pas on ne s'attaque.</b> Le désaccord est bienvenu, l'invective se signale.</li>
+          </ul>
+        </div>
+      </aside>
+    </div>
 
-<!-- Interface posée sur la scène. Pas de aria-hidden global : quand la
-     scène tourne, ces blocs portent le SEUL texte visible de la page
-     (leçon d'accessibilité de la bibliothèque). Seule l'étiquette de
-     survol, redondante avec la fiche, est masquée aux lecteurs. -->
-<div class="pt-ui pt-intro" id="ptIntro">
-  <div class="pt-label">Lire Marx — le forum des lecteurs</div>
-  <p class="pt-h1">Place publique</p>
-  <p class="pt-lede">Chaque feuillet posé sur la table est une discussion ouverte dans un texte&nbsp;: soulevez-en un pour lire le fil, et répondez-y.</p>
-  <p class="pt-count" id="ptCount"></p>
-  <div class="pt-alt"><button type="button" id="ptToFlat">Préférer la version liste</button></div>
-</div>
-<div class="pt-ui pt-hint" id="ptHint"><i></i>descendre le long de la table</div>
-<div class="pt-ui pt-tag" id="ptTag" aria-hidden="true"></div>
-<nav class="pt-ui pt-rail" id="ptRail" aria-label="Œuvres sur la table"></nav>
-<div class="pt-ui pt-end" id="ptEnd">
-  <p class="pt-h1">Le bout de la table</p>
-  <p class="pt-lede" id="ptEndLede"></p>
-  <div class="pt-end-acts">
-    <button type="button" class="pt-btn full" id="ptBack">Remonter la table</button>
-    <button type="button" class="pt-btn ghost" id="ptToFlat2">Version liste</button>
   </div>
-</div>
-<aside class="pt-ui pt-cartel" id="ptCartel" hidden tabindex="-1" role="dialog" aria-label="Fil de discussion">
-  <button type="button" class="pt-x" id="ptCartelX" aria-label="Fermer">&times;</button>
-  <div id="ptCartelIn"></div>
-</aside>
-
-<main class="wrap">
-
-  <div class="pp-rond" aria-hidden="true"></div>
-  <div class="pp-vierge pp-vierge-1" aria-hidden="true"></div>
-  <div class="pp-vierge pp-vierge-2" aria-hidden="true"></div>
-
-  <!-- ── En-tête ── -->
-  <header class="pp-head">
-    <div class="pp-label">Lire Marx</div>
-    <h1>Place publique</h1>
-    <p class="pp-lede">Le forum des lecteurs&nbsp;: des feuillets posés sur la table commune&nbsp;— on lit, on répond, chacun mène à son passage.</p>
-  </header>
-
-  <!-- ── Filtres par œuvre (peuplés dynamiquement) ── -->
-  <div class="pp-filters" id="ppFilters" role="group" aria-label="Filtrer par œuvre" style="display:none"></div>
-
-  <!-- ── La table : fils de discussion ── -->
-  <section id="placeFull" aria-live="polite" aria-label="Notes des lecteurs"></section>
-
-  <p class="pp-fin">La table s'allonge à mesure qu'on lit. <b>Sélectionnez un passage dans une liseuse</b> pour y déposer un nouveau feuillet.</p>
-
-  <div class="pp-3d" id="pp3dJoin" hidden>
-    <button type="button" id="pp3dBtn">Entrer dans la salle en trois dimensions</button>
-  </div>
-
 </main>
 
 <script src="../config.js"></script>
@@ -715,32 +287,35 @@ installShell({
   tabs: []
 });
 
-/* ═══ LE FORUM ══════════════════════════════════════════════════════
-   Rendu propre à cette page (précédent : la vue riche de capital-1
-   avant retrait-shell-host). SHELL.commune reste la vue compacte en
-   lecture seule des autres pages — on ne le modifie pas, on partage
-   seulement ses conventions : public_notes.work = id de
-   bibliotheque.json, alias hérité 'capital' → 'capital-1', jamais de
-   second client Supabase (toujours SHELL.auth.getClient()).
-   L'INSERT de réponse reprend EXACTEMENT la forme de addReply() de
-   shell-annotations.js : {id, author_id, work, section, body,
-   parent_id, created:Date.now()} — et le même gating (connecté +
-   pseudo choisi, sinon on ouvre Mon compte). */
 (function(){
-  var feed = document.getElementById('placeFull');
-  var filtersEl = document.getElementById('ppFilters');
+  'use strict';
+  var main = document.getElementById('pfMain');
+  var statsEl = document.getElementById('pfStats');
   var WORK_ALIAS = { 'capital': 'capital-1' };
   var SEALS = ['#a52a21', '#39596b', '#9a7b35', '#52742f'];
 
-  var biblio = {};          // id → {title, path, status}
-  var biblioOrder = [];     // l'ordre des œuvres dans bibliotheque.json
-  var tops = [];            // notes racines, plus récentes d'abord
-  var repsBy = {};          // parent_id → [réponses, chronologiques]
-  var filter = 'all';       // id d'œuvre (résolu) ou 'all'
-  var openCompose = null;   // id du fil dont le billet est ouvert
+  var biblio = {}, biblioOrder = [];
+  var tops = [];            // notes racines (plus récentes d'abord au fetch)
+  var byId = {};            // toute note (racine ou réponse) par id
+  var repsBy = {};          // parent_id → [réponses directes, chronologiques]
+  var votes = {};           // note_id → nombre de soutiens
+  var myVotes = {};         // note_id → true (mes soutiens)
+  var votesOK = false;      // la table note_votes répond-elle ?
+  var loaded = false;
 
-  // ----- petits outils (duplication précédentée : shell-social fait
-  // de même plutôt que de coupler les modules) -----
+  var state = {
+    view: 'feed',           // 'feed' | 'detail'
+    detailId: null,
+    sort: 'recent',         // 'recent' | 'top' | 'talk'
+    filter: 'all',          // id d'œuvre résolu ou 'all'
+    composing: false,       // composeur « Ouvrir une discussion » ouvert
+    replyOpen: null,        // id de la note dont la boîte de réponse est ouverte ('root' = le fil)
+    reportOpen: null,       // id de la note dont la boîte de signalement est ouverte
+    confirmDel: null        // id en attente de confirmation de suppression
+  };
+  var drafts = {};          // id de boîte → brouillon (survit aux re-rendus)
+
+  // ── petits outils (duplication précédentée : shell-social pareil) ──
   function esc(s){
     return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
       return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
@@ -766,13 +341,10 @@ installShell({
     var s = String(name || '?').replace(/[^A-Za-zÀ-ÿ0-9]/g, '').slice(0, 2).toUpperCase();
     return s || '?';
   }
-  function seal(n){
-    return SEALS[(((+n || 1) - 1) % 4 + 4) % 4];
-  }
-  /* la photo de profil par-dessus le cachet — l'initiale reste le repli */
-  function avaImg(note){
-    var u = note.profiles && note.profiles.avatar_url;
-    return u ? '<img src="' + esc(u) + '" alt="" loading="lazy">' : '';
+  function sealColor(id){
+    var h = 0, s = String(id || '');
+    for(var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+    return SEALS[h % 4];
   }
   function uid(){
     try { if(window.crypto && crypto.randomUUID) return crypto.randomUUID(); } catch(e){}
@@ -787,8 +359,14 @@ installShell({
     clearTimeout(toastT);
     toastT = setTimeout(function(){ t.classList.remove('on'); }, 3800);
   }
+  function announce(m){ if(window.SHELL && SHELL.announce) SHELL.announce(m); }
 
-  // ----- données -----
+  // icônes dessinées — un trait, jamais d'emoji
+  var IC_UP = '<svg viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M9 2.5 L15.5 9.5 H11.6 V15.5 H6.4 V9.5 H2.5 Z" fill="currentColor"/></svg>';
+  var IC_COM = '<svg viewBox="0 0 18 18" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M2.5 3.5 h13 v8.5 h-8 l-3.5 3 v-3 h-1.5 Z"/></svg>';
+  var IC_GO = '<svg viewBox="0 0 18 18" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9 h11 M10 4.5 L14.5 9 L10 13.5"/></svg>';
+
+  // ── données ──
   async function loadBiblio(){
     try {
       var r = await fetch('bibliotheque.json', { cache: 'no-cache' });
@@ -796,10 +374,13 @@ installShell({
       var json = await r.json();
       (json.works || []).forEach(function(w){
         if(!w || !w.id) return;
+        /* les path de bibliotheque.json sont relatifs à la RACINE : sans
+           le '/' de tête, le lien résoudrait en oeuvres/oeuvres/… */
         var path = String(w.path || '');
         if(path && path.indexOf('/') !== 0) path = '/' + path;
         biblio[w.id] = {
           title: w.shortTitle || w.title || 'Œuvre',
+          full: w.title || w.shortTitle || 'Œuvre',
           path: path,
           status: w.status || 'planned'
         };
@@ -814,9 +395,9 @@ installShell({
   }
   async function fetchAll(){
     var auth = window.SHELL && window.SHELL.auth;
-    if(!auth) return { mode: 'no-client' };
+    if(!auth) throw new Error('no-client');
     var c = await auth.getClient();
-    if(!c) return { mode: 'no-client' };
+    if(!c) throw new Error('no-client');
     var isMod = !!(window.SHELL && SHELL.mod && SHELL.mod.isMod());
     var qt = c.from('public_notes')
       .select('id,author_id,work,section,quote,body,parent_id,hidden,created,profiles(username,avatar_url)')
@@ -825,118 +406,344 @@ installShell({
     var rt = await qt.order('created', { ascending: false }).limit(200);
     if(rt.error) throw rt.error;
     var qr = c.from('public_notes')
-      .select('id,author_id,work,section,body,parent_id,hidden,created,profiles(username,avatar_url)')
+      .select('id,author_id,work,section,quote,body,parent_id,hidden,created,profiles(username,avatar_url)')
       .not('parent_id', 'is', null);
     if(!isMod) qr = qr.eq('hidden', false);
     var rr = await qr.order('created', { ascending: true }).limit(800);
     if(rr.error) throw rr.error;
     tops = rt.data || [];
-    repsBy = {};
+    byId = {}; repsBy = {};
+    tops.forEach(function(n){ byId[n.id] = n; });
     (rr.data || []).forEach(function(r){
+      byId[r.id] = r;
       if(!r.parent_id) return;
       (repsBy[r.parent_id] = repsBy[r.parent_id] || []).push(r);
     });
-    return { mode: 'ok' };
+    /* les soutiens — à l'échelle du site, on lit TOUT (un .in() sur mille
+       ids ferait une URL de 36 Ko). Si la table n'existe pas encore
+       (schema.sql pas rejoué), on dégrade sans casser la page. */
+    votes = {}; myVotes = {}; votesOK = false;
+    try {
+      var rv = await c.from('note_votes').select('note_id,voter_id').limit(5000);
+      if(rv.error) throw rv.error;
+      var me = auth.user && auth.user.id;
+      (rv.data || []).forEach(function(v){
+        votes[v.note_id] = (votes[v.note_id] || 0) + 1;
+        if(me && v.voter_id === me) myVotes[v.note_id] = true;
+      });
+      votesOK = true;
+    } catch(e){ /* chemin prévu : soutiens inactifs tant que le SQL n'est pas rejoué */ }
   }
 
-  // ----- rendu -----
-  function repHtml(r){
-    var name = (r.profiles && r.profiles.username) || 'anonyme';
-    return (
-      '<div class="fl-rep">' +
-        '<div class="fl-rep-top">' +
-          '<span class="fl-rep-name">' + esc(name) + '</span>' +
-          '<span class="fl-rep-when">' + esc(ago(r.created)) + '</span>' +
-        '</div>' +
-        '<div class="fl-rep-body">' + esc(r.body || '') + '</div>' +
-      '</div>'
-    );
+  // ── forme des notes ──
+  /* Le « titre » d'une discussion est la première ligne du body quand
+     elle fait ≤ 160 caractères — pas de colonne, pas de migration. Les
+     notes nées en lisant (un commentaire d'un seul tenant) passent par
+     le même chemin : leur première phrase courte devient le titre du
+     fil, sinon on affiche un extrait en guise de titre. */
+  function partsOf(note){
+    var b = String(note.body || '').trim();
+    var nl = b.indexOf('\n');
+    var first = (nl < 0 ? b : b.slice(0, nl)).trim();
+    if(first && first.length <= 160){
+      return { title: first, rest: nl < 0 ? '' : b.slice(nl).trim() };
+    }
+    return { title: '', rest: b };
   }
-  function flHtml(note){
-    var w = workOf(note);
-    var title = (w.meta && w.meta.title) || 'Œuvre';
-    var open = w.meta && w.meta.status === 'available' && w.meta.path;
+  function rootOf(note){
+    var n = note, guard = 0;
+    while(n && n.parent_id && byId[n.parent_id] && guard++ < 50) n = byId[n.parent_id];
+    return n;
+  }
+  function countReplies(id){
+    var kids = repsBy[id] || [], n = kids.length;
+    kids.forEach(function(k){ n += countReplies(k.id); });
+    return n;
+  }
+  function isMine(note){
+    var a = window.SHELL && SHELL.auth;
+    return !!(a && a.user && note.author_id === a.user.id);
+  }
+  function isModNow(){ return !!(window.SHELL && SHELL.mod && SHELL.mod.isMod()); }
+
+  // ── gabarits ──
+  function sealHtml(note){
     var name = (note.profiles && note.profiles.username) || 'anonyme';
-    var reps = repsBy[note.id] || [];
-    var rcTxt = reps.length ? (reps.length + ' réponse' + (reps.length > 1 ? 's' : '')) : '';
-    var sec = (note.section != null && note.section !== '') ? (' · section ' + note.section) : '';
-    return (
-      '<article class="fl' + (note.hidden ? ' fl-hidden' : '') + '" data-id="' + esc(note.id) + '" data-work="' + esc(w.id) + '">' +
-        '<div class="fl-top">' +
-          '<span class="fl-seal" style="background:' + seal(note.section) + '">' + esc(initials(name)) +
-            avaImg(note) + '</span>' +
-          '<span class="fl-name">' + esc(name) + '</span>' +
-          '<span class="fl-meta">' + esc(title + sec) + '</span>' +
-          '<span class="fl-when">' + esc(ago(note.created)) + '</span>' +
-        '</div>' +
-        (note.quote ? '<div class="fl-quote">«&nbsp;' + esc(trunc(note.quote, 130)) + '&nbsp;»</div>' : '') +
-        '<div class="fl-body">' + esc(note.body || '') + '</div>' +
-        (reps.length ? '<div class="fl-reps">' + reps.map(repHtml).join('') + '</div>' : '<div class="fl-reps"></div>') +
-        '<div class="fl-compose" hidden>' +
-          '<textarea rows="2" placeholder="Votre réponse…" aria-label="Votre réponse"></textarea>' +
-          '<div class="fl-compose-row">' +
-            '<button type="button" class="fl-btn fl-btn-ann">Annuler</button>' +
-            '<button type="button" class="fl-btn fl-btn-pub">Publier</button>' +
-          '</div>' +
-        '</div>' +
-        '<div class="fl-repbox" hidden>' +
-          '<textarea rows="2" placeholder="Pourquoi signaler ce fil ? (facultatif)" aria-label="Motif du signalement (facultatif)"></textarea>' +
-          '<div class="fl-compose-row">' +
-            '<button type="button" class="fl-btn fl-rep-ann">Annuler</button>' +
-            '<button type="button" class="fl-btn fl-btn-pub fl-rep-send">Signaler</button>' +
-          '</div>' +
-        '</div>' +
-        '<div class="fl-foot">' +
-          '<button type="button" class="fl-reply">Répondre</button>' +
-          (isMine(note) ? '' : '<button type="button" class="fl-report">Signaler</button>') +
-          (isModNow() ? '<button type="button" class="fl-modbtn">' + (note.hidden ? 'Rétablir' : 'Masquer') + '</button>' : '') +
-          (note.hidden ? '<span class="fl-hidden-tag">Masquée</span>' : '') +
-          (rcTxt ? '<span class="fl-rc">' + esc(rcTxt) + '</span>' : '') +
-          (open
-            ? '<a class="fl-go" href="' + esc(w.meta.path) + '#note=' + encodeURIComponent(note.id) + '">Aller au passage&nbsp;→</a>'
-            : '<span class="fl-go-soon">atelier à venir</span>') +
-        '</div>' +
-      '</article>'
-    );
+    var u = note.profiles && note.profiles.avatar_url;
+    return '<span class="pf-seal" style="background:' + sealColor(note.author_id || note.id) + '">' +
+      esc(initials(name)) + (u ? '<img src="' + esc(u) + '" alt="" loading="lazy">' : '') + '</span>';
   }
-  function stateHtml(msg, retry){
-    return '<div class="fl-state">' + msg +
-      (retry ? '<br><button type="button" class="fl-retry">Réessayer</button>' : '') +
+  function metaHtml(note, opts){
+    opts = opts || {};
+    var w = workOf(note);
+    var name = (note.profiles && note.profiles.username) || 'anonyme';
+    var h = '';
+    if(!opts.noTag && w.meta){
+      h += '<span class="pf-tag' + (w.meta.status === 'available' ? '' : ' pf-tag-soon') + '">' +
+        esc(w.meta.title) + '</span>';
+    }
+    h += sealHtml(note) +
+      '<span class="pf-name">' + esc(name) + '</span>' +
+      '<span>' + esc(ago(note.created)) + '</span>';
+    if(opts.section && note.section != null && +note.section > 0){
+      h += '<span>· section ' + esc(note.section) + '</span>';
+    }
+    return '<div class="pf-meta">' + h + '</div>';
+  }
+  function voteColHtml(note){
+    var n = votes[note.id] || 0;
+    return '<div class="pf-vote">' +
+      '<button type="button" class="pf-vote-btn" data-act="vote" data-id="' + esc(note.id) + '"' +
+        ' aria-pressed="' + (myVotes[note.id] ? 'true' : 'false') + '"' +
+        ' aria-label="Soutenir cette discussion">' + IC_UP + '</button>' +
+      '<span class="pf-vote-n" data-vote-n="' + esc(note.id) + '">' + (votesOK ? n : '') + '</span>' +
       '</div>';
   }
+  function goHtml(note, w){
+    if(!note.quote) return '';
+    return (w.meta && w.meta.status === 'available' && w.meta.path)
+      ? '<a class="pf-act" href="' + esc(w.meta.path) + '#note=' + encodeURIComponent(note.id) + '">' +
+          IC_GO + 'Aller au passage</a>'
+      : '';
+  }
 
-  function buildFilters(){
+  function cardHtml(note){
+    var w = workOf(note);
+    var p = partsOf(note);
+    var rc = countReplies(note.id);
+    var title = p.title || trunc(p.rest, 140);
+    return '<article class="pf-post' + (note.hidden ? ' pf-hiddenpost' : '') + '"' +
+      ' data-open="' + esc(note.id) + '" data-work="' + esc(w.id) + '">' +
+      voteColHtml(note) +
+      '<div class="pf-post-body">' +
+        metaHtml(note) +
+        '<h2 class="pf-title"><a class="pf-title-a" href="#d=' + encodeURIComponent(note.id) + '" data-open-link="1" style="color:inherit;text-decoration:none;">' + esc(title) + '</a></h2>' +
+        (note.quote ? '<div class="pf-quote">«&nbsp;' + esc(trunc(note.quote, 150)) + '&nbsp;»</div>' : '') +
+        (p.title && p.rest ? '<p class="pf-excerpt">' + esc(trunc(p.rest, 240)) + '</p>' : '') +
+        '<div class="pf-foot">' +
+          '<span class="pf-act">' + IC_COM + (rc ? rc + ' réponse' + (rc > 1 ? 's' : '') : 'Répondre') + '</span>' +
+          goHtml(note, w) +
+          (note.hidden ? '<span class="pf-hidden-tag">Masquée</span>' : '') +
+        '</div>' +
+      '</div></article>';
+  }
+
+  function boxesHtml(note, isRoot){
+    var h = '';
+    var boxId = isRoot ? 'root' : note.id;
+    if(state.replyOpen === boxId){
+      h += '<div class="pf-inlinebox">' +
+        '<textarea class="pf-ta" data-draft="rep-' + esc(note.id) + '" placeholder="Votre réponse…" aria-label="Votre réponse">' +
+          esc(drafts['rep-' + note.id] || '') + '</textarea>' +
+        '<div class="pf-comp-row">' +
+          '<button type="button" class="pf-btn pf-btn-ghost" data-act="reply-cancel">Annuler</button>' +
+          '<button type="button" class="pf-btn" data-act="reply-send" data-id="' + esc(note.id) + '">Publier la réponse</button>' +
+        '</div></div>';
+    }
+    if(state.reportOpen === note.id){
+      h += '<div class="pf-report">' +
+        '<textarea data-draft="sig-' + esc(note.id) + '" placeholder="Pourquoi signaler ? (facultatif)" aria-label="Motif du signalement (facultatif)">' +
+          esc(drafts['sig-' + note.id] || '') + '</textarea>' +
+        '<div class="pf-comp-row">' +
+          '<button type="button" class="pf-btn pf-btn-ghost" data-act="report-cancel">Annuler</button>' +
+          '<button type="button" class="pf-btn" data-act="report-send" data-id="' + esc(note.id) + '">Signaler</button>' +
+        '</div></div>';
+    }
+    return h;
+  }
+  function actsHtml(note){
+    if(state.confirmDel === note.id){
+      return '<span class="pf-confirm">Supprimer définitivement ?' +
+        ' <button type="button" class="pf-act" data-act="del-yes" data-id="' + esc(note.id) + '">Oui</button>' +
+        ' <button type="button" class="pf-act" data-act="del-no">Non</button></span>';
+    }
+    var h = '<button type="button" class="pf-act" data-act="vote-txt" data-id="' + esc(note.id) + '"' +
+      ' aria-pressed="' + (myVotes[note.id] ? 'true' : 'false') + '">' + IC_UP +
+      '<span data-vote-t="' + esc(note.id) + '">' +
+      (myVotes[note.id] ? 'Soutenu' : 'Soutenir') + ((votesOK && votes[note.id]) ? ' · ' + votes[note.id] : '') +
+      '</span></button>';
+    h += '<button type="button" class="pf-act" data-act="reply" data-id="' + esc(note.id) + '">Répondre</button>';
+    if(!isMine(note)) h += '<button type="button" class="pf-act" data-act="report" data-id="' + esc(note.id) + '">Signaler</button>';
+    if(isMine(note) && !(repsBy[note.id] || []).length)
+      h += '<button type="button" class="pf-act" data-act="del" data-id="' + esc(note.id) + '">Supprimer</button>';
+    if(isModNow())
+      h += '<button type="button" class="pf-act" data-act="mod" data-id="' + esc(note.id) + '">' +
+        (note.hidden ? 'Rétablir' : 'Masquer') + '</button>';
+    if(note.hidden) h += '<span class="pf-hidden-tag">Masquée</span>';
+    return h;
+  }
+
+  function comHtml(note, depth){
+    var kids = repsBy[note.id] || [];
+    var h = '<div class="pf-com' + (note.hidden ? ' pf-hiddenpost' : '') + '" data-id="' + esc(note.id) + '">' +
+      metaHtml(note, { noTag: true }) +
+      '<div class="pf-full">' + esc(note.body || '') + '</div>' +
+      '<div class="pf-foot">' + actsHtml(note) + '</div>' +
+      boxesHtml(note, false) +
+      '</div>';
+    if(kids.length){
+      /* l'indentation plafonne à 3 niveaux : au-delà, le fil continue à
+         plat — la ligne de fil suffit à dire la filiation */
+      var wrap = depth < 3;
+      h += (wrap ? '<div class="pf-kids">' : '') +
+        kids.map(function(k){ return comHtml(k, depth + 1); }).join('') +
+        (wrap ? '</div>' : '');
+    }
+    return h;
+  }
+
+  function detailHtml(note){
+    var w = workOf(note);
+    var p = partsOf(note);
+    var rc = countReplies(note.id);
+    return '<div class="pf-detail">' +
+      '<button type="button" class="pf-btn pf-btn-ghost pf-back" data-act="back">← Retour au fil</button>' +
+      '<article class="pf-post' + (note.hidden ? ' pf-hiddenpost' : '') + '">' +
+        voteColHtml(note) +
+        '<div class="pf-post-body">' +
+          metaHtml(note, { section: true }) +
+          (p.title ? '<h2 class="pf-title" id="pfDetailH" tabindex="-1">' + esc(p.title) + '</h2>'
+                   : '<h2 class="pf-title sr-only" id="pfDetailH" tabindex="-1">Discussion</h2>') +
+          (note.quote ? '<div class="pf-quote">«&nbsp;' + esc(note.quote) + '&nbsp;»</div>' : '') +
+          (p.rest ? '<div class="pf-full">' + esc(p.rest) + '</div>' : '') +
+          '<div class="pf-foot">' + actsHtml(note) + goHtml(note, w) + '</div>' +
+          boxesHtml(note, true) +
+        '</div>' +
+      '</article>' +
+      '<div class="pf-comments-h">' + (rc ? rc + ' réponse' + (rc > 1 ? 's' : '') : 'Pas encore de réponse') + '</div>' +
+      '<div class="pf-comments">' +
+        (repsBy[note.id] || []).map(function(k){ return comHtml(k, 1); }).join('') +
+      '</div></div>';
+  }
+
+  function composerHtml(){
+    if(!state.composing){
+      return '<div class="pf-launch">' +
+        '<button type="button" class="pf-launch-input" data-act="compose">Ouvrir une discussion…</button>' +
+        '<button type="button" class="pf-btn" data-act="compose">Écrire</button>' +
+        '</div>';
+    }
+    var opts = biblioOrder.map(function(id){
+      return '<option value="' + esc(id) + '"' + (drafts['comp-work'] === id ? ' selected' : '') + '>' +
+        esc(biblio[id].full) + '</option>';
+    }).join('');
+    return '<div class="pf-composer">' +
+      '<h2 class="pf-comp-h">Ouvrir une discussion</h2>' +
+      '<label class="pf-field"><span>Œuvre</span>' +
+        '<select class="pf-sel" data-draft="comp-work">' + opts + '</select></label>' +
+      '<label class="pf-field"><span>Titre</span>' +
+        '<input class="pf-inp" type="text" maxlength="160" data-draft="comp-title" ' +
+        'placeholder="La question ou la thèse, en une ligne" value="' + esc(drafts['comp-title'] || '') + '"></label>' +
+      '<label class="pf-field"><span>Texte (facultatif)</span>' +
+        '<textarea class="pf-ta" data-draft="comp-body" placeholder="Développez, citez, questionnez…">' +
+        esc(drafts['comp-body'] || '') + '</textarea></label>' +
+      '<div class="pf-comp-row">' +
+        '<button type="button" class="pf-btn pf-btn-ghost" data-act="compose-cancel">Annuler</button>' +
+        '<button type="button" class="pf-btn" data-act="compose-send">Publier la discussion</button>' +
+      '</div></div>';
+  }
+
+  function barHtml(){
+    var sorts = [['recent','Récentes'],['top','Soutenues'],['talk','Discutées']];
+    var h = '<div class="pf-bar"><div class="pf-sorts" role="group" aria-label="Trier le fil">' +
+      sorts.map(function(s){
+        return '<button type="button" class="pf-sort" data-act="sort" data-sort="' + s[0] + '"' +
+          ' aria-pressed="' + (state.sort === s[0] ? 'true' : 'false') + '">' + s[1] + '</button>';
+      }).join('') + '</div>';
     var counts = {};
     tops.forEach(function(n){
       var id = workOf(n).id;
       if(id) counts[id] = (counts[id] || 0) + 1;
     });
-    var ids = Object.keys(counts);
-    if(ids.length < 2){ filtersEl.style.display = 'none'; return; }
-    var html = '<button type="button" class="pp-filter' + (filter === 'all' ? ' active' : '') + '" data-w="all">Toutes</button>';
-    ids.forEach(function(id){
-      var t = (biblio[id] && biblio[id].title) || id;
-      html += '<button type="button" class="pp-filter' + (filter === id ? ' active' : '') + '" data-w="' + esc(id) + '">' +
-        esc(t) + ' (' + counts[id] + ')</button>';
-    });
-    filtersEl.innerHTML = html;
-    filtersEl.style.display = 'flex';
-    filtersEl.querySelectorAll('.pp-filter').forEach(function(b){
-      b.addEventListener('click', function(){
-        filter = b.dataset.w;
-        filtersEl.querySelectorAll('.pp-filter').forEach(function(x){ x.classList.toggle('active', x === b); });
-        applyFilter();
-      });
-    });
-  }
-  function applyFilter(){
-    feed.querySelectorAll('.fl').forEach(function(el){
-      el.style.display = (filter === 'all' || el.dataset.work === filter) ? '' : 'none';
-    });
-    ppTick(); // les rects ont changé : reposer les feuillets restants
+    var ids = biblioOrder.filter(function(id){ return counts[id]; });
+    if(ids.length > 1){
+      h += '<div class="pf-chips" role="group" aria-label="Filtrer par œuvre">' +
+        '<button type="button" class="pf-chip" data-act="filter" data-w="all"' +
+          ' aria-pressed="' + (state.filter === 'all' ? 'true' : 'false') + '">Toutes</button>' +
+        ids.map(function(id){
+          return '<button type="button" class="pf-chip" data-act="filter" data-w="' + esc(id) + '"' +
+            ' aria-pressed="' + (state.filter === id ? 'true' : 'false') + '">' +
+            esc(biblio[id].title) + ' (' + counts[id] + ')</button>';
+        }).join('') + '</div>';
+    }
+    return h + '</div>';
   }
 
-  // ----- répondre -----
+  function sortedTops(){
+    var list = tops.slice();
+    if(state.filter !== 'all') list = list.filter(function(n){ return workOf(n).id === state.filter; });
+    if(state.sort === 'top'){
+      list.sort(function(a, b){ return (votes[b.id] || 0) - (votes[a.id] || 0) || b.created - a.created; });
+    } else if(state.sort === 'talk'){
+      list.sort(function(a, b){ return countReplies(b.id) - countReplies(a.id) || b.created - a.created; });
+    } else {
+      list.sort(function(a, b){ return b.created - a.created; });
+    }
+    return list;
+  }
+
+  function renderStats(){
+    var nr = 0;
+    Object.keys(repsBy).forEach(function(k){ nr += repsBy[k].length; });
+    statsEl.textContent = tops.length + ' discussion' + (tops.length > 1 ? 's' : '') +
+      ' · ' + nr + ' réponse' + (nr > 1 ? 's' : '');
+  }
+
+  function render(){
+    if(!loaded) return;
+    if(state.view === 'detail'){
+      var note = byId[state.detailId];
+      if(!note || (note.hidden && !isModNow() && !isMine(note))){
+        state.view = 'feed';
+      } else {
+        main.innerHTML = detailHtml(note);
+        return;
+      }
+    }
+    var list = sortedTops();
+    var h = composerHtml() + barHtml();
+    if(!tops.length){
+      var conf = !!(window.SHELL && SHELL.auth && SHELL.auth.isConfigured && SHELL.auth.isConfigured());
+      h += '<div class="pf-state">' + (conf
+        ? 'La place est encore silencieuse. Ouvrez la première discussion, ou surlignez un passage en lisant — il deviendra un fil.'
+        : 'La Place publique s\'anime en ligne, une fois la synchronisation des comptes activée.') + '</div>';
+    } else if(!list.length){
+      h += '<div class="pf-state">Aucune discussion pour cette œuvre.</div>';
+    } else {
+      h += '<div class="pf-feed">' + list.map(cardHtml).join('') + '</div>';
+    }
+    main.innerHTML = h;
+    renderStats();
+  }
+
+  // ── navigation fil ↔ discussion (le bouton retour du navigateur marche) ──
+  function openDetail(id, push){
+    state.view = 'detail'; state.detailId = id;
+    state.replyOpen = null; state.reportOpen = null; state.confirmDel = null;
+    if(push){
+      try { history.pushState({ d: id }, '', '#d=' + encodeURIComponent(id)); } catch(e){}
+    }
+    render();
+    /* atelier.css pose scroll-behavior:smooth — 'instant' le court-circuite */
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    var hd = document.getElementById('pfDetailH');
+    if(hd) hd.focus({ preventScroll: true });
+  }
+  function backToFeed(push){
+    state.view = 'feed'; state.detailId = null;
+    state.replyOpen = null; state.reportOpen = null; state.confirmDel = null;
+    if(push){
+      try { history.pushState({}, '', location.pathname); } catch(e){}
+    }
+    render();
+  }
+  window.addEventListener('popstate', function(){
+    var m = /^#d=(.+)$/.exec(location.hash);
+    if(m && byId[decodeURIComponent(m[1])]) openDetail(decodeURIComponent(m[1]), false);
+    else backToFeed(false);
+  });
+
+  // ── écriture ──
   function ensurePoster(){
     var a = window.SHELL && window.SHELL.auth;
     if(!a || !a.isConfigured || !a.isConfigured()){ toast('Le compte n\'est pas configuré.'); return false; }
@@ -948,70 +755,101 @@ installShell({
     }
     return true;
   }
-  /* Cœur partagé entre le registre à plat et la fiche de la scène :
-     poste la réponse et met à jour l'ÉTAT (repsBy) ; chaque rendu met
-     ensuite à jour son propre DOM. `onReplyPosted` est le crochet de la
-     scène (régénérer la texture du feuillet, glisser un billet). */
-  var onReplyPosted = null;
-  async function postReply(note, body){
-    body = (body || '').trim();
-    if(!body){ toast('Écris ta réponse.'); return null; }
-    if(!ensurePoster()) return null;
+  async function postDiscussion(){
+    var work = drafts['comp-work'] || biblioOrder[0];
+    var title = (drafts['comp-title'] || '').trim();
+    var text = (drafts['comp-body'] || '').trim();
+    if(!title){ toast('Donne un titre à la discussion.'); return; }
+    if(!ensurePoster()) return;
     var a = window.SHELL.auth;
     var c = await a.getClient();
+    /* le titre est la première ligne du body (contrat partsOf) ; section
+       0 = discussion générale sur l'œuvre, pas de passage */
     var row = {
       id: uid(), author_id: a.user.id,
-      // convention : work = id de bibliotheque.json, JAMAIS l'alias
-      // hérité 'capital' — même si le parent le porte encore
-      work: WORK_ALIAS[note.work] || note.work, section: note.section,
-      body: body, parent_id: note.id, created: Date.now()
+      work: WORK_ALIAS[work] || work, section: 0,
+      body: title + (text ? '\n\n' + text : ''),
+      parent_id: null, created: Date.now()
     };
     var res = await c.from('public_notes').insert(row);
-    if(res.error){ toast('Réponse : ' + res.error.message); return null; }
-    row.profiles = { username: a.profile.username };
-    (repsBy[note.id] = repsBy[note.id] || []).push(row);
+    if(res.error){ toast('Publication : ' + res.error.message); return; }
+    row.profiles = { username: a.profile.username, avatar_url: a.profile.avatar_url };
+    tops.unshift(row);
+    byId[row.id] = row;
+    drafts['comp-title'] = ''; drafts['comp-body'] = '';
+    state.composing = false;
+    state.sort = 'recent';
+    toast('Discussion ouverte.');
+    announce('Discussion publiée');
+    render();
+  }
+  async function postReply(parent){
+    var body = (drafts['rep-' + parent.id] || '').trim();
+    if(!body){ toast('Écris ta réponse.'); return; }
+    if(!ensurePoster()) return;
+    var a = window.SHELL.auth;
+    var c = await a.getClient();
+    var root = rootOf(parent);
+    /* même forme qu'addReply() de shell-annotations : work/section du
+       FIL (résolus, jamais l'alias), parent_id = la note à laquelle on
+       répond — racine ou réponse, le fil est arborescent */
+    var row = {
+      id: uid(), author_id: a.user.id,
+      work: WORK_ALIAS[root.work] || root.work, section: root.section,
+      body: body, parent_id: parent.id, created: Date.now()
+    };
+    var res = await c.from('public_notes').insert(row);
+    if(res.error){ toast('Réponse : ' + res.error.message); return; }
+    row.profiles = { username: a.profile.username, avatar_url: a.profile.avatar_url };
+    byId[row.id] = row;
+    (repsBy[parent.id] = repsBy[parent.id] || []).push(row);
+    drafts['rep-' + parent.id] = '';
+    state.replyOpen = null;
     toast('Réponse publiée.');
-    if(onReplyPosted){ try { onReplyPosted(note, row); } catch(e){} }
-    return row;
+    render();
   }
-  async function sendReply(card, note){
-    var ta = card.querySelector('.fl-compose textarea');
-    var row = await postReply(note, ta.value);
-    if(!row) return;
-    // billet glissé sous le feuillet sans re-rendre toute la table
-    card.querySelector('.fl-reps').insertAdjacentHTML('beforeend', repHtml(row));
-    var rc = card.querySelector('.fl-rc');
-    var n = repsBy[note.id].length;
-    var txt = n + ' réponse' + (n > 1 ? 's' : '');
-    if(rc){ rc.textContent = txt; }
-    else {
-      card.querySelector('.fl-reply').insertAdjacentHTML('afterend', '<span class="fl-rc">' + esc(txt) + '</span>');
-    }
-    ta.value = '';
-    toggleCompose(card, false);
-    ppTick();
-  }
-  function toggleCompose(card, on){
-    var box = card.querySelector('.fl-compose');
-    if(openCompose && openCompose !== box) openCompose.hidden = true;
-    box.hidden = !on;
-    openCompose = on ? box : null;
-    if(on) box.querySelector('textarea').focus();
-    ppTick(); // la hauteur du feuillet a changé
-  }
-  /* ── modération (moderation-5c) ── */
-  function isMine(note){
+  async function toggleVote(id){
+    if(!votesOK){ toast('Les soutiens s\'activeront à la prochaine mise à jour de la base.'); return; }
     var a = window.SHELL && SHELL.auth;
-    return !!(a && a.user && note.author_id === a.user.id);
+    if(!a || !a.isConfigured || !a.isConfigured()){ toast('Le compte n\'est pas configuré.'); return; }
+    if(!a.user){ a.openModal(); return; }
+    var c = await a.getClient();
+    var had = !!myVotes[id];
+    /* optimiste — on revient en arrière si la base refuse */
+    myVotes[id] = !had;
+    votes[id] = (votes[id] || 0) + (had ? -1 : 1);
+    if(votes[id] < 0) votes[id] = 0;
+    paintVotes(id);
+    var res = had
+      ? await c.from('note_votes').delete().eq('note_id', id).eq('voter_id', a.user.id)
+      : await c.from('note_votes').insert({ note_id: id, created: Date.now() });
+    if(res.error){
+      myVotes[id] = had;
+      votes[id] = (votes[id] || 0) + (had ? 1 : -1);
+      if(votes[id] < 0) votes[id] = 0;
+      paintVotes(id);
+      toast('Soutien : ' + res.error.message);
+    }
   }
-  function isModNow(){ return !!(window.SHELL && SHELL.mod && SHELL.mod.isMod()); }
-  /* crochet 3D : quand un fil est masqué, son feuillet quitte la table */
-  var onNoteHidden = null;
-  async function reportNote(note, reason, done){
+  function paintVotes(id){
+    main.querySelectorAll('[data-act="vote"][data-id="' + CSS.escape(id) + '"],[data-act="vote-txt"][data-id="' + CSS.escape(id) + '"]')
+      .forEach(function(b){ b.setAttribute('aria-pressed', myVotes[id] ? 'true' : 'false'); });
+    main.querySelectorAll('[data-vote-n="' + CSS.escape(id) + '"]').forEach(function(el){
+      el.textContent = votesOK ? (votes[id] || 0) : '';
+    });
+    main.querySelectorAll('[data-vote-t="' + CSS.escape(id) + '"]').forEach(function(el){
+      el.textContent = (myVotes[id] ? 'Soutenu' : 'Soutenir') +
+        ((votesOK && votes[id]) ? ' · ' + votes[id] : '');
+    });
+  }
+  async function reportNote(note){
+    var reason = (drafts['sig-' + note.id] || '').trim();
     var res = await SHELL.mod.report(note.id, reason);
     if(res.error){ toast('Signalement : ' + res.error.message); return; }
+    drafts['sig-' + note.id] = '';
+    state.reportOpen = null;
     toast('Merci — le fil a été signalé à la modération.');
-    if(done) done();
+    render();
   }
   async function modToggle(note){
     var to = !note.hidden;
@@ -1019,1274 +857,137 @@ installShell({
     if(res.error){ toast('Modération : ' + res.error.message); return; }
     note.hidden = to;
     toast(to ? 'Fil masqué.' : 'Fil rétabli.');
-    if(to && onNoteHidden){ try { onNoteHidden(note.id); } catch(e){} }
-    renderFlat();
+    render();
+  }
+  async function deleteNote(note){
+    /* seulement les siennes, et seulement sans réponse : une suppression
+       ne doit pas laisser d'orphelines (même policy RLS que le panneau
+       « Notes partagées » de la liseuse) */
+    var a = window.SHELL.auth;
+    var c = await a.getClient();
+    var res = await c.from('public_notes').delete().eq('id', note.id);
+    if(res.error){ toast('Suppression : ' + res.error.message); return; }
+    delete byId[note.id];
+    if(note.parent_id){
+      repsBy[note.parent_id] = (repsBy[note.parent_id] || []).filter(function(r){ return r.id !== note.id; });
+    } else {
+      tops = tops.filter(function(n){ return n.id !== note.id; });
+      if(state.detailId === note.id){ backToFeed(true); toast('Discussion supprimée.'); return; }
+    }
+    state.confirmDel = null;
+    toast('Supprimé.');
+    render();
   }
 
-  function wire(){
-    feed.querySelectorAll('.fl').forEach(function(card){
-      var note = tops.filter(function(n){ return n.id === card.dataset.id; })[0];
-      if(!note) return;
-      card.querySelector('.fl-reply').addEventListener('click', function(){
-        var box = card.querySelector('.fl-compose');
-        if(!box.hidden){ toggleCompose(card, false); return; }
-        if(!ensurePoster()) return;
-        toggleCompose(card, true);
-      });
-      card.querySelector('.fl-btn-ann').addEventListener('click', function(){ toggleCompose(card, false); });
-      card.querySelector('.fl-btn-pub').addEventListener('click', function(){ sendReply(card, note); });
-      var rb = card.querySelector('.fl-report');
-      if(rb) rb.addEventListener('click', function(){
-        if(!ensurePoster()) return;
-        var box = card.querySelector('.fl-repbox');
-        box.hidden = !box.hidden;
-        if(!box.hidden) box.querySelector('textarea').focus();
-        ppTick();
-      });
-      var ra = card.querySelector('.fl-rep-ann');
-      if(ra) ra.addEventListener('click', function(){
-        card.querySelector('.fl-repbox').hidden = true; ppTick();
-      });
-      var rs = card.querySelector('.fl-rep-send');
-      if(rs) rs.addEventListener('click', function(){
-        var ta = card.querySelector('.fl-repbox textarea');
-        reportNote(note, ta.value, function(){
-          card.querySelector('.fl-repbox').hidden = true; ppTick();
-        });
-      });
-      var mb = card.querySelector('.fl-modbtn');
-      if(mb) mb.addEventListener('click', function(){ modToggle(note); });
-    });
-  }
+  // ── un seul écouteur pour tout le forum ──
+  main.addEventListener('input', function(ev){
+    var k = ev.target.getAttribute && ev.target.getAttribute('data-draft');
+    if(k) drafts[k] = ev.target.value;
+  });
+  main.addEventListener('change', function(ev){
+    var k = ev.target.getAttribute && ev.target.getAttribute('data-draft');
+    if(k) drafts[k] = ev.target.value;
+  });
+  main.addEventListener('click', function(ev){
+    var btn = ev.target.closest('[data-act]');
+    if(btn){
+      var id = btn.dataset.id;
+      var note = id ? byId[id] : null;
+      switch(btn.dataset.act){
+        case 'compose':
+          if(!ensurePoster()) return;
+          state.composing = true; render();
+          var t = main.querySelector('[data-draft="comp-title"]');
+          if(t) t.focus();
+          return;
+        case 'compose-cancel': state.composing = false; render(); return;
+        case 'compose-send': postDiscussion(); return;
+        case 'sort':
+          state.sort = btn.dataset.sort; render();
+          announce('Fil trié : ' + btn.textContent);
+          return;
+        case 'filter':
+          state.filter = btn.dataset.w; render();
+          return;
+        case 'back': backToFeed(true); return;
+        case 'vote': case 'vote-txt': if(note) toggleVote(id); return;
+        case 'reply':
+          if(!note) return;
+          if(!ensurePoster()) return;
+          var boxId = (state.detailId === id) ? 'root' : id;
+          state.replyOpen = (state.replyOpen === boxId) ? null : boxId;
+          state.reportOpen = null;
+          render();
+          var ta = main.querySelector('[data-draft="rep-' + (CSS.escape ? CSS.escape(id) : id) + '"]');
+          if(ta) ta.focus();
+          return;
+        case 'reply-cancel': state.replyOpen = null; render(); return;
+        case 'reply-send': if(note) postReply(note); return;
+        case 'report':
+          if(!note) return;
+          if(!ensurePoster()) return;
+          state.reportOpen = (state.reportOpen === id) ? null : id;
+          state.replyOpen = null;
+          render();
+          return;
+        case 'report-cancel': state.reportOpen = null; render(); return;
+        case 'report-send': if(note) reportNote(note); return;
+        case 'del': state.confirmDel = id; render(); return;
+        case 'del-no': state.confirmDel = null; render(); return;
+        case 'del-yes': if(note) deleteNote(note); return;
+        case 'mod': if(note) modToggle(note); return;
+      }
+    }
+    /* clic sur la carte = ouvrir le fil (sauf sur un contrôle) */
+    var card = ev.target.closest('[data-open]');
+    if(card && !ev.target.closest('button, a, textarea, input, select')){
+      openDetail(card.dataset.open, true);
+    }
+    var link = ev.target.closest('[data-open-link]');
+    if(link){
+      ev.preventDefault();
+      openDetail(link.closest('[data-open]').dataset.open, true);
+    }
+  });
 
-  // ----- chargement -----
+  // ── chargement ──
   async function load(){
-    feed.innerHTML = stateHtml('La table se dresse…');
+    main.innerHTML = '<div class="pf-state">La place s\'ouvre…</div>';
     await loadBiblio();
     try { await fetchAll(); }
     catch(e){
-      feed.innerHTML = stateHtml('Notes momentanément indisponibles.', true);
-      feed.querySelector('.fl-retry').addEventListener('click', load);
+      main.innerHTML = '<div class="pf-state">Discussions momentanément indisponibles.' +
+        '<br><button type="button" class="pf-btn" data-act="__retry">Réessayer</button></div>';
+      main.querySelector('[data-act="__retry"]').addEventListener('click', load);
       return;
     }
-    if(!tops.length && !(window.SHELL && SHELL.auth && SHELL.auth.isConfigured && SHELL.auth.isConfigured())){
-      feed.innerHTML = stateHtml('La Place publique est disponible en ligne, une fois la synchronisation des comptes activée.');
-      return;
-    }
-    if(!tops.length){
-      feed.innerHTML = stateHtml('Aucun feuillet sur la table pour l\'instant. Ouvre un chapitre et sois la première personne à annoter un passage.');
-      return;
-    }
-    renderFlat();
-    decide();
-  }
-  /* le registre à plat — re-rendu aussi quand on quitte la salle 3D,
-     pour refléter les réponses postées depuis la fiche */
-  function renderFlat(){
-    feed.innerHTML = tops.map(flHtml).join('');
-    wire();
-    buildFilters();
-    applyFilter();
-    armPose();
+    loaded = true;
+    /* deep-link #d=<id> : on arrive directement sur un fil */
+    var m = /^#d=(.+)$/.exec(location.hash);
+    if(m && byId[decodeURIComponent(m[1])]){ openDetail(decodeURIComponent(m[1]), false); }
+    else render();
   }
   load();
-  /* le statut modérateur arrive en différé : on recharge alors le flux
-     pour faire apparaître les fils masqués (estompés) et les actions */
+
+  /* le statut modérateur arrive en différé : recharger fait apparaître
+     les fils masqués (estompés) et les actions de modération */
   if(window.SHELL && SHELL.mod && SHELL.mod.onChange){
     SHELL.mod.onChange(function(){
-      fetchAll().then(renderFlat).catch(function(){});
+      fetchAll().then(render).catch(function(){});
     });
   }
-
-  /* ── La pose des feuillets ────────────────────────────────────────
-     Deux mouvements sur le même --k :
-     1. au chargement, la CASCADE — les feuillets visibles tombent l'un
-        après l'autre sur la table (comme la liasse de l'accueil se
-        range), une seule fois, dans le sens du temps ;
-     2. ensuite, le SCRUB au défilement — réversible : on remonte, le
-        feuillet redécolle.
-     k = min(cible de défilement, avancement de la cascade) : la
-     cascade ne fait que RETENIR le feuillet, jamais le poser plus tôt
-     que le défilement ne le permet. Rien ne tourne sous no-motion :
-     --k vaut 1 par défaut dans le CSS. */
-  var ppTick = function(){};
-  var armPose = function(){};
-  (function(){
-    if(!document.documentElement.classList.contains('pp-anim')) return;
-    var armed = [];
-    var queued = false;
-    var casc = false; // une boucle de cascade tourne
-
-    function smooth(t){ return t <= 0 ? 0 : t >= 1 ? 1 : t * t * (3 - 2 * t); }
-    function tick(){
-      queued = false;
-      var vh = innerHeight;
-      if(!vh) return; // onglet en arrière-plan : tailles nulles, on ne mesure pas
-      var now = performance.now();
-      var pending = false;
-      for(var i = 0; i < armed.length; i++){
-        var c = armed[i];
-        if(!c.isConnected || c.style.display === 'none') continue;
-        var r = c.getBoundingClientRect();
-        var f = smooth((vh * .94 - r.top) / (vh * .30));
-        var e = smooth((now - c._born) / 640);
-        if(e < 1) pending = true;
-        var k = Math.min(f, e);
-        c.style.setProperty('--k', k.toFixed(3));
+  /* connexion/déconnexion : mes soutiens et mes droits changent */
+  if(window.SHELL && SHELL.auth && SHELL.auth.onChange){
+    var lastUser = null, first = true;
+    SHELL.auth.onChange(function(st){
+      var u = st && st.user ? st.user.id : null;
+      if(first){ first = false; lastUser = u; return; }
+      if(u !== lastUser){
+        lastUser = u;
+        setTimeout(function(){ fetchAll().then(render).catch(function(){}); }, 0);
       }
-      if(pending && !casc){
-        casc = true;
-        (function loop(){
-          requestAnimationFrame(function(){
-            casc = false;
-            schedule();
-          });
-        })();
-      }
-    }
-    function schedule(){ if(!queued){ queued = true; requestAnimationFrame(tick); } }
-    ppTick = schedule;
-
-    armPose = function(){
-      var now = performance.now();
-      var idx = 0;
-      feed.querySelectorAll('.fl:not([data-pose])').forEach(function(c){
-        c.dataset.pose = '1';
-        c._born = now + 140 * idx++; // la cascade : chacun son tour
-        c.style.setProperty('--k', '0');
-        armed.push(c);
-      });
-      armed = armed.filter(function(c){ return c.isConnected; });
-      // le piège de la mesure unique : re-mesurer après que la mise en
-      // page injectée par fetch s'est stabilisée
-      schedule();
-      setTimeout(schedule, 400);
-    };
-
-    addEventListener('scroll', schedule, { passive: true });
-    addEventListener('resize', schedule);
-    addEventListener('load', schedule);
-  })();
-
-  /* ═══ LA SALLE — la scène en trois dimensions ════════════════════
-     Motif exact de bibliotheque.html : le canvas est fixe, le document
-     ne contient qu'une cale (#ppRun), le défilement est le travelling,
-     strictement réversible. La décision 3D/liste se prend au moment de
-     décider (jamais au parse), se rejoue au resize, et le registre à
-     plat ci-dessus reste la version des lecteurs d'écran, des mobiles
-     et du choix #liste. */
-  var REDUCE = window.matchMedia &&
-               window.matchMedia('(prefers-reduced-motion:reduce)').matches;
-  function want3D(){
-    return !REDUCE && window.innerWidth >= 768 && location.hash !== '#liste';
+    });
   }
-  var scene3d = null, sceneTorn = false;
-
-  var NUMF = ['zéro','un','deux','trois','quatre','cinq','six','sept',
-              'huit','neuf','dix','onze','douze'];
-  function numFr(n, fem){
-    if(n === 1) return fem ? 'une' : 'un';
-    return (n >= 0 && n < NUMF.length) ? NUMF[n] : String(n);
-  }
-
-  function initScene(){
-    var canvas = document.getElementById('pp3d');
-    if(typeof THREE === 'undefined' || !canvas || !canvas.getContext ||
-       !(canvas.getContext('webgl') || canvas.getContext('experimental-webgl'))){
-      return null;
-    }
-    var BGC = 0x15100b;
-    var renderer;
-    try { renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true }); }
-    catch(e){ return null; }
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-    renderer.setClearColor(BGC, 1);
-
-    var scene = new THREE.Scene();
-    scene.fog = new THREE.Fog(BGC, 7.5, 22);
-    var camera = new THREE.PerspectiveCamera(46, 1, 0.1, 90);
-    /* Les chandeliers de la table sont les vraies sources ; l'ambiante
-       et l'hémisphérique débouchent la salle pour que le plan large se
-       lise sans attendre les flammes (leçon de la bibliothèque). */
-    var amb = new THREE.AmbientLight(0x4a3a28, 1.05); scene.add(amb);
-    var hemi = new THREE.HemisphereLight(0x87683e, 0x140d07, 0.5); scene.add(hemi);
-    scene.add(camera); /* la caméra porte le bougeoir : ses enfants doivent être dans la scène */
-
-    function cl01(v){ return v < 0 ? 0 : (v > 1 ? 1 : v); }
-    function sstep(a, b, v){ v = cl01((v - a) / (b - a)); return v * v * (3 - 2 * v); }
-    function hash01(str, salt){
-      var h = 2166136261 ^ (salt || 0);
-      for(var i = 0; i < str.length; i++){ h ^= str.charCodeAt(i); h = (h * 16777619) >>> 0; }
-      return (h % 1000) / 1000;
-    }
-
-    /* ── Textures dessinées ── */
-    function tex(cv){
-      var t = new THREE.CanvasTexture(cv);
-      t.generateMipmaps = false;
-      t.minFilter = THREE.LinearFilter;
-      t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping;
-      t.anisotropy = 4;
-      return t;
-    }
-    function woodCanvas(w, h, base, dark){
-      var cv = document.createElement('canvas'); cv.width = w; cv.height = h;
-      var g = cv.getContext('2d');
-      g.fillStyle = base; g.fillRect(0, 0, w, h);
-      for(var i = 0; i < 46; i++){
-        g.strokeStyle = 'rgba(' + (Math.random() < 0.5 ? '10,5,2' : '90,58,28') + ',' +
-          (0.05 + Math.random() * 0.1) + ')';
-        g.lineWidth = 0.6 + Math.random() * 2;
-        var y = Math.random() * h;
-        g.beginPath(); g.moveTo(0, y);
-        for(var x = 0; x <= w; x += 24){
-          g.lineTo(x, y + Math.sin(x * 0.02 + i) * 2 + (Math.random() - 0.5) * 2);
-        }
-        g.stroke();
-      }
-      var grad = g.createLinearGradient(0, 0, 0, h);
-      grad.addColorStop(0, 'rgba(0,0,0,.24)');
-      grad.addColorStop(0.5, 'rgba(0,0,0,0)');
-      grad.addColorStop(1, 'rgba(0,0,0,' + dark + ')');
-      g.fillStyle = grad; g.fillRect(0, 0, w, h);
-      return cv;
-    }
-    function woodTexRepeat(base, dark, repX){
-      var t = new THREE.CanvasTexture(woodCanvas(512, 256, base, dark));
-      t.generateMipmaps = false; t.minFilter = THREE.LinearFilter;
-      t.wrapS = THREE.RepeatWrapping; t.wrapT = THREE.ClampToEdgeWrapping;
-      t.repeat.set(repX, 1); t.anisotropy = 4;
-      return t;
-    }
-
-    /* le texte replié sur le canvas — retourne le y suivant */
-    function wrapText(g, text, x, y, maxW, lh, maxLines){
-      var words = String(text || '').replace(/\s+/g, ' ').trim().split(' ');
-      var line = '', lines = 0;
-      for(var i = 0; i < words.length; i++){
-        var t = line ? line + ' ' + words[i] : words[i];
-        if(g.measureText(t).width > maxW && line){
-          lines++;
-          if(lines >= maxLines){
-            while(line.length && g.measureText(line + '…').width > maxW) line = line.slice(0, -1);
-            g.fillText(line + '…', x, y); return y + lh;
-          }
-          g.fillText(line, x, y); y += lh; line = words[i];
-        } else line = t;
-      }
-      if(line){ g.fillText(line, x, y); y += lh; }
-      return y;
-    }
-
-    /* Le feuillet : papier + encre, tout dessiné. Le COMMENTAIRE est le
-       texte principal (hiérarchie voulue) ; le passage cité tient en une
-       ligne italique de contexte. Tons et pose déterministes par id. */
-    var TONES = ['#e8dab9', '#dccc9f', '#e3d0a4', '#d5c193'];
-    /* Les photos de profil, chargées UNE fois par URL et dessinées dans
-       la texture du feuillet. crossOrigin obligatoire : un canvas
-       terni par une image sans CORS ferait échouer l'upload WebGL —
-       si l'image ne se charge pas ainsi, le cachet reste. */
-    var AVA_CACHE = {};
-    function avaFor(note, onReady){
-      var u = note.profiles && note.profiles.avatar_url;
-      if(!u) return;
-      var c = AVA_CACHE[u];
-      if(c){ if(c.ok && onReady) onReady(); return; }
-      c = AVA_CACHE[u] = { ok: false, img: null };
-      var im = new Image();
-      im.crossOrigin = 'anonymous';
-      im.onload = function(){ c.ok = true; c.img = im; if(onReady) onReady(); };
-      im.src = u;
-    }
-    function sheetTexture(note){
-      var W = 256, H = 340;
-      var cv = document.createElement('canvas'); cv.width = W; cv.height = H;
-      var g = cv.getContext('2d');
-      var tone = TONES[(hash01(note.id, 1) * 4) | 0];
-      var gr = g.createLinearGradient(0, 0, W, H);
-      gr.addColorStop(0, tone); gr.addColorStop(1, '#cbb98f');
-      g.fillStyle = gr; g.fillRect(0, 0, W, H);
-      for(var i = 0; i < 210; i++){
-        g.fillStyle = 'rgba(120,90,50,' + (0.02 + Math.random() * 0.05) + ')';
-        g.fillRect(Math.random() * W, Math.random() * H, 1.3, 1.3);
-      }
-      g.strokeStyle = 'rgba(90,64,34,.22)'; g.lineWidth = 4;
-      g.strokeRect(1, 1, W - 2, H - 2);
-      var name = (note.profiles && note.profiles.username) || 'anonyme';
-      var w = workOf(note);
-      var title = (w.meta && w.meta.title) || 'Œuvre';
-      var sec = (note.section != null && note.section !== '') ? (' · sect. ' + note.section) : '';
-      g.textAlign = 'left'; g.textBaseline = 'alphabetic';
-      /* la signature en tête — un forum se lit par ses voix ; la photo
-         du rédacteur, quand il en a une, prend la place du cachet */
-      var avU = note.profiles && note.profiles.avatar_url;
-      var avC = avU && AVA_CACHE[avU];
-      var tx = 18;
-      if(avC && avC.ok){
-        g.save();
-        g.beginPath(); g.arc(35, 34, 17, 0, 7); g.closePath(); g.clip();
-        g.drawImage(avC.img, 18, 17, 34, 34);
-        g.restore();
-        g.strokeStyle = 'rgba(58,42,22,.55)'; g.lineWidth = 1.4;
-        g.beginPath(); g.arc(35, 34, 17, 0, 7); g.stroke();
-        tx = 60;
-      }
-      g.fillStyle = 'rgba(30,17,4,.92)';
-      g.font = '700 27px Caveat, cursive';
-      g.fillText(name, tx, 38);
-      g.fillStyle = 'rgba(58,42,22,.85)';
-      g.font = '600 11px Inter, sans-serif';
-      g.fillText((title + sec).toUpperCase(), tx, 58);
-      g.strokeStyle = 'rgba(30,17,4,.35)'; g.lineWidth = 1;
-      g.beginPath(); g.moveTo(18, 68); g.lineTo(W - 18, 68); g.stroke();
-      var y = 92;
-      if(note.quote){
-        g.fillStyle = 'rgba(58,42,22,.8)';
-        g.font = 'italic 400 13px Spectral, serif';
-        y = wrapText(g, '« ' + trunc(note.quote, 90) + ' »', 18, y, W - 36, 17, 2) + 8;
-      }
-      var reps = repsBy[note.id] || [];
-      g.fillStyle = 'rgba(30,17,4,.92)';
-      g.font = '400 17px Spectral, serif';
-      /* la place du corps se partage avec les réponses affichées */
-      y = wrapText(g, note.body || '', 18, y, W - 36, 24, reps.length ? 4 : 7);
-      /* LA CONVERSATION SE VOIT SANS SOULEVER : les deux dernières
-         réponses, en retrait, à l'encre plus claire */
-      if(reps.length){
-        y += 8;
-        reps.slice(-2).forEach(function(r){
-          if(y > H - 44) return;
-          var nm = (r.profiles && r.profiles.username) || 'anonyme';
-          g.fillStyle = 'rgba(44,28,10,.88)';
-          g.font = '700 15px Caveat, cursive';
-          var pre = '\u21b3 ' + nm;
-          g.fillText(pre, 26, y);
-          var wN = g.measureText(pre).width;
-          g.fillStyle = 'rgba(58,42,22,.8)';
-          g.font = 'italic 400 12px Spectral, serif';
-          var rest = '\u2014 ' + trunc(r.body || '', 34);
-          while(rest.length > 4 && g.measureText(rest).width > W - 44 - wN){
-            rest = rest.slice(0, -2);
-          }
-          g.fillText(rest, 26 + wN + 6, y);
-          y += 21;
-        });
-      }
-      g.fillStyle = 'rgba(58,42,22,.8)';
-      g.font = '600 11px Inter, sans-serif';
-      g.fillText(reps.length
-        ? reps.length + ' RÉPONSE' + (reps.length > 1 ? 'S' : '') + ' — SOULEVEZ POUR RÉPONDRE'
-        : 'RÉPONDRE — SOULEVEZ LE FEUILLET', 18, H - 18);
-      return tex(cv);
-    }
-    /* le billet de réponse qui dépasse de sous le feuillet */
-    function slipTexture(seed){
-      var W = 96, H = 64;
-      var cv = document.createElement('canvas'); cv.width = W; cv.height = H;
-      var g = cv.getContext('2d');
-      g.fillStyle = seed % 2 ? '#d8c69c' : '#cdb88d';
-      g.fillRect(0, 0, W, H);
-      for(var i = 0; i < 60; i++){
-        g.fillStyle = 'rgba(96,66,24,' + (0.03 + Math.random() * 0.05) + ')';
-        g.fillRect(Math.random() * W, Math.random() * H, 1.2, 1.2);
-      }
-      /* trois lignes d'écriture suggérées */
-      g.strokeStyle = 'rgba(44,28,10,.4)'; g.lineWidth = 1.4;
-      for(var l = 0; l < 3; l++){
-        var y = 18 + l * 14;
-        g.beginPath(); g.moveTo(10, y);
-        for(var x = 10; x < W - 10 - l * 16; x += 7){
-          g.lineTo(x, y + Math.sin(x * 0.6 + seed + l) * 1.6);
-        }
-        g.stroke();
-      }
-      return tex(cv);
-    }
-    var SLIP_TEXES = [slipTexture(1), slipTexture(2), slipTexture(3)];
-
-    /* le cartouche de laiton d'une œuvre (bande spéculaire, motif biblio) */
-    function plaqueTexture(label){
-      var W = 512, H = 96;
-      var cv = document.createElement('canvas'); cv.width = W; cv.height = H;
-      var g = cv.getContext('2d');
-      var grad = g.createLinearGradient(0, 0, W, 0);
-      grad.addColorStop(0, '#4e3d13'); grad.addColorStop(0.2, '#856820');
-      grad.addColorStop(0.45, '#c2a253'); grad.addColorStop(0.55, '#a3843a');
-      grad.addColorStop(0.8, '#6a5320'); grad.addColorStop(1, '#3f3110');
-      g.fillStyle = grad; g.fillRect(0, 0, W, H);
-      g.strokeStyle = 'rgba(30,20,6,.8)'; g.lineWidth = 4;
-      g.strokeRect(6, 6, W - 12, H - 12);
-      g.strokeStyle = 'rgba(255,240,205,.35)'; g.lineWidth = 1.5;
-      g.strokeRect(11, 11, W - 22, H - 22);
-      g.fillStyle = '#241505';
-      var size = 40;
-      g.font = '600 ' + size + 'px Fraunces, serif';
-      while(g.measureText(label).width > W - 60 && size > 18){
-        size -= 2; g.font = '600 ' + size + 'px Fraunces, serif';
-      }
-      g.textAlign = 'center'; g.textBaseline = 'middle';
-      g.fillText(label, W / 2, H / 2 + 2);
-      return tex(cv);
-    }
-
-    /* ── Flammes (blobs dessinés, un seul plan billboard — règles de la
-       bibliothèque : ne pas revenir aux plans croisés) ── */
-    function blob(g, cx, cy, rx, ry, yBias, stops){
-      g.save();
-      g.translate(cx, cy); g.scale(rx, ry);
-      var gr = g.createRadialGradient(0, yBias, 0.04, 0, 0, 1);
-      for(var i = 0; i < stops.length; i++) gr.addColorStop(stops[i][0], stops[i][1]);
-      g.fillStyle = gr;
-      g.beginPath(); g.arc(0, 0, 1, 0, 7); g.fill();
-      g.restore();
-    }
-    function flameTexture(){
-      var W = 128, H = 256;
-      var cv = document.createElement('canvas'); cv.width = W; cv.height = H;
-      var g = cv.getContext('2d');
-      blob(g, 64, 132, 44, 100, 0.35, [
-        [0, 'rgba(255,132,36,.5)'], [0.55, 'rgba(255,116,28,.22)'],
-        [1, 'rgba(255,104,20,0)']]);
-      blob(g, 64, 92, 15, 76, 0.5, [
-        [0, 'rgba(255,150,50,.5)'], [1, 'rgba(255,130,30,0)']]);
-      blob(g, 64, 150, 27, 74, 0.42, [
-        [0, 'rgba(255,208,116,.98)'], [0.55, 'rgba(255,172,62,.5)'],
-        [1, 'rgba(255,150,40,0)']]);
-      blob(g, 64, 176, 14, 40, 0.35, [
-        [0, 'rgba(255,251,235,1)'], [0.45, 'rgba(255,236,180,.85)'],
-        [1, 'rgba(255,210,120,0)']]);
-      blob(g, 64, 208, 13, 15, 0, [
-        [0, 'rgba(122,162,255,.4)'], [0.6, 'rgba(110,150,255,.18)'],
-        [1, 'rgba(110,150,255,0)']]);
-      return tex(cv);
-    }
-    function haloTexture(){
-      var S = 128;
-      var cv = document.createElement('canvas'); cv.width = S; cv.height = S;
-      var g = cv.getContext('2d');
-      var gr = g.createRadialGradient(S / 2, S / 2, 2, S / 2, S / 2, S / 2);
-      gr.addColorStop(0, 'rgba(255,178,88,.55)');
-      gr.addColorStop(0.5, 'rgba(255,150,60,.2)');
-      gr.addColorStop(1, 'rgba(255,140,50,0)');
-      g.fillStyle = gr; g.fillRect(0, 0, S, S);
-      return tex(cv);
-    }
-    var FLAME_TEX = flameTexture(), HALO_TEX = haloTexture();
-    var flames = [];   /* { grp, light, base, ph, bill } — tout ce qui brûle */
-    function makeFlame(sc){
-      var grp = new THREE.Group();
-      var halo = new THREE.Mesh(new THREE.PlaneGeometry(0.62 * sc, 0.62 * sc),
-        new THREE.MeshBasicMaterial({ map: HALO_TEX, transparent: true, opacity: 0.5,
-          blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }));
-      grp.add(halo);
-      var body = new THREE.Mesh(new THREE.PlaneGeometry(0.17 * sc, 0.34 * sc),
-        new THREE.MeshBasicMaterial({ map: FLAME_TEX, transparent: true,
-          blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }));
-      body.position.y = 0.02 * sc;
-      grp.add(body);
-      grp.userData.body = body;
-      grp.userData.halo = halo;
-      return grp;
-    }
-    function makeCandlestick(sc, lightIntensity, lightDist, bill){
-      var grp = new THREE.Group();
-      var brass = new THREE.MeshLambertMaterial({ color: 0x9a7b30 });
-      var pan = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.13 * sc, 0.15 * sc, 0.02 * sc, 18), brass);
-      grp.add(pan);
-      var socket = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.055 * sc, 0.065 * sc, 0.05 * sc, 12), brass);
-      socket.position.y = 0.03 * sc; grp.add(socket);
-      var wax = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.045 * sc, 0.05 * sc, 0.24 * sc, 12),
-        new THREE.MeshLambertMaterial({ color: 0xd8c8a8 }));
-      wax.position.y = 0.16 * sc; grp.add(wax);
-      var wick = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.006 * sc, 0.009 * sc, 0.035 * sc, 6),
-        new THREE.MeshBasicMaterial({ color: 0x1a120a }));
-      wick.position.y = 0.295 * sc; grp.add(wick);
-      var flame = makeFlame(sc);
-      flame.position.y = 0.46 * sc; grp.add(flame);
-      var light = null;
-      if(lightIntensity){
-        light = new THREE.PointLight(0xffb46a, lightIntensity, lightDist, 2);
-        light.position.y = 0.55 * sc; grp.add(light);
-      }
-      flames.push({ grp: flame, light: light, base: lightIntensity || 0,
-                    ph: Math.random() * 6.28, bill: !!bill });
-      return grp;
-    }
-    var carried = makeCandlestick(0.62, 1.6, 16, false);
-    carried.position.set(0.55, -0.43, -1.15);
-    camera.add(carried);
-
-    /* ── La table et ses feuillets ──────────────────────────────────
-       Un groupe = une œuvre (dans l'ordre de bibliotheque.json), ses
-       fils rangés le long de la table, plus récents d'abord. */
-    /* DEUX FEUILLETS DE FRONT, en quinconce (rangée proche z≈+0.42,
-       rangée lointaine z≈−0.72) : adaptation d'échelle — à cent fils,
-       la rangée unique faisait un couloir interminable. Le pas
-       HORIZONTAL est donc par demi-feuillet (0.78), deux fils par
-       colonne, et la table raccourcit de moitié. */
-    var SPX = 0.78, PADX = 1.9, GAP_G = 2.3;
-    var ROW_Z = [0.42, -0.72];
-    var GROUP_MAX = 80, hiddenCount = 0;
-    var tableL = 9;
-    var groups = [];
-    (function(){
-      var byW = {};
-      tops.forEach(function(n){
-        if(n.hidden) return;   /* un fil masqué ne se pose pas sur la table */
-        var id = workOf(n).id || 'autres';
-        (byW[id] = byW[id] || []).push(n);
-      });
-      var order = biblioOrder.filter(function(id){ return byW[id]; });
-      Object.keys(byW).forEach(function(id){ if(order.indexOf(id) < 0) order.push(id); });
-      var x = PADX;
-      order.forEach(function(id){
-        var all = byW[id];
-        var notes = all.slice(0, GROUP_MAX);
-        hiddenCount += all.length - notes.length;
-        var g = { id: id, label: (biblio[id] && biblio[id].title) || 'Autres textes',
-                  notes: notes, x0: x };
-        x += Math.max(notes.length * SPX, 1.6);
-        g.x1 = x; g.cx = (g.x0 + g.x1) / 2;
-        groups.push(g);
-        x += GAP_G;
-      });
-      tableL = Math.max(x - GAP_G + PADX + (hiddenCount ? 1.8 : 0), 9);
-    })();
-
-    var room = new THREE.Group();
-    scene.add(room);
-    var woodTop = new THREE.MeshLambertMaterial({
-      map: woodTexRepeat('#2b1a0d', 0.35, Math.max(2, tableL / 3)) });
-    var woodDark = new THREE.MeshLambertMaterial({
-      map: woodTexRepeat('#20120a', 0.5, Math.max(2, tableL / 4)) });
-
-    /* le plateau, ses pieds, les deux bancs */
-    var top = new THREE.Mesh(new THREE.BoxGeometry(tableL + 1.4, 0.16, 3.6), woodTop);
-    top.position.set(tableL / 2, -0.08, 0);
-    room.add(top);
-    for(var lx = 0.4; lx <= tableL - 0.2; lx += Math.max(3.4, tableL / 5)){
-      [-1.45, 1.45].forEach(function(lz){
-        var leg = new THREE.Mesh(new THREE.BoxGeometry(0.18, 1.7, 0.18), woodDark);
-        leg.position.set(lx, -1.0, lz);
-        room.add(leg);
-      });
-    }
-    [-2.35, 2.35].forEach(function(bz){
-      var bench = new THREE.Mesh(new THREE.BoxGeometry(tableL * 0.96, 0.09, 0.52), woodDark);
-      bench.position.set(tableL / 2, -0.98, bz);
-      room.add(bench);
-      for(var bx = 1.0; bx <= tableL - 0.6; bx += Math.max(3.4, tableL / 4)){
-        var bleg = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.85, 0.4), woodDark);
-        bleg.position.set(bx, -1.44, bz);
-        room.add(bleg);
-      }
-    });
-    var floor = new THREE.Mesh(new THREE.PlaneGeometry(tableL + 40, 34),
-      new THREE.MeshLambertMaterial({ color: 0x170f08 }));
-    floor.rotation.x = -Math.PI / 2;
-    floor.position.set(tableL / 2, -1.86, 0);
-    room.add(floor);
-
-    /* les chandeliers de la table — les billboards font face au regard */
-    for(var cx2 = 1.6; cx2 <= tableL - 1.0; cx2 += 4.0){
-      var cs = makeCandlestick(0.55, 1.1, 7.5, true);
-      cs.position.set(cx2, 0, -1.28);
-      room.add(cs);
-    }
-    /* l'encrier au haut de table, la pile de feuilles vierges au bout */
-    var ink = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.12, 0.14, 14),
-      new THREE.MeshLambertMaterial({ color: 0x14100c }));
-    ink.position.set(0.7, 0.07, 0.7);
-    room.add(ink);
-    for(var pv = 0; pv < 3; pv++){
-      var blank = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.012, 1.2),
-        new THREE.MeshLambertMaterial({ color: 0xcbb98f }));
-      blank.position.set(tableL - 0.7 + (pv % 2) * 0.05, 0.01 + pv * 0.013, 0.8 - pv * 0.04);
-      blank.rotation.y = (pv - 1) * 0.14;
-      room.add(blank);
-    }
-
-    /* les cartouches d'œuvre, inclinés vers le regard (à plat, la caméra
-       les verrait par la tranche — piège documenté sur la bibliothèque) */
-    var regenFns = [];
-    groups.forEach(function(gr){
-      var pl = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.34, 0.05),
-        new THREE.MeshLambertMaterial({ map: plaqueTexture(gr.label) }));
-      pl.position.set(gr.cx, 0.26, -1.62);
-      pl.rotation.x = -0.3;
-      room.add(pl);
-      regenFns.push(function(){
-        pl.material.map = plaqueTexture(gr.label);
-        pl.material.needsUpdate = true;
-      });
-    });
-
-    /* ── Les feuillets ── */
-    var SH_W = 1.04, SH_H = 1.38, TOP_Y = 0.015;
-    var sheets = [];      /* { note, mesh, rest{x,y,z,rz}, out, outT, born, slips, inked } */
-    var hitMeshes = [];
-    /* ENCRE PARESSEUSE — adaptation d'échelle : à cent fils, peindre
-       cent canvases au chargement coûtait cher. Chaque feuillet naît
-       PAPIER NU (matériau partagé par ton) et n'est encré que quand la
-       caméra approche (< INK_DIST, 2 par image dans la boucle) — de
-       loin et sous le fog, un papier nu est indiscernable. */
-    var INK_DIST = 20;
-    var BLANK_MATS = TONES.map(function(t){
-      return new THREE.MeshBasicMaterial({ color: t });
-    });
-    function ensureInk(sh){
-      if(sh.inked) return;
-      sh.inked = true;
-      sh.mesh.material = new THREE.MeshBasicMaterial({ map: sheetTexture(sh.note) });
-      avaFor(sh.note, function(){
-        sh.mesh.material.map = sheetTexture(sh.note);
-        sh.mesh.material.needsUpdate = true;
-      });
-    }
-    function addSlip(sh, i){
-      var sm = new THREE.Mesh(new THREE.PlaneGeometry(0.52, 0.36),
-        new THREE.MeshBasicMaterial({ map: SLIP_TEXES[i % 3] }));
-      sm.rotation.x = -Math.PI / 2;
-      sm.rotation.z = sh.rest.rz + (hash01(sh.note.id, 40 + i) - 0.5) * 0.5;
-      sm.position.set(
-        sh.rest.x + 0.3 - i * 0.22 + (hash01(sh.note.id, 50 + i) - 0.5) * 0.2,
-        TOP_Y - 0.006 - i * 0.0015,
-        sh.rest.z + SH_H / 2 + 0.06);
-      room.add(sm);
-      sh.slips.push(sm);
-    }
-    groups.forEach(function(gr){
-      gr.notes.forEach(function(note, i){
-        var mat = BLANK_MATS[(hash01(note.id, 1) * 4) | 0];
-        var m = new THREE.Mesh(new THREE.PlaneGeometry(SH_W, SH_H), mat);
-        m.rotation.x = -Math.PI / 2;
-        var rz = (hash01(note.id, 4) - 0.5) * 0.42;
-        m.rotation.z = rz;
-        var rest = {
-          /* un peu de désordre en x : le quinconce strict se lisait
-             comme une fermeture éclair, pas comme une table couverte */
-          x: gr.x0 + SPX / 2 + i * SPX + (hash01(note.id, 6) - 0.5) * 0.24,
-          y: TOP_Y + i * 0.0006,
-          z: ROW_Z[i % 2] + (hash01(note.id, 3) - 0.5) * 0.3,
-          rz: rz
-        };
-        m.position.set(rest.x, rest.y, rest.z);
-        m.userData.note = note;
-        room.add(m);
-        var sh = { note: note, mesh: m, rest: rest, out: 0, outT: 0,
-                   born: 0, slips: [], inked: false };
-        var reps = repsBy[note.id] || [];
-        for(var k = 0; k < Math.min(reps.length, 3); k++) addSlip(sh, k);
-        sheets.push(sh);
-        hitMeshes.push(m);
-        regenFns.push(function(){
-          if(!sh.inked) return;
-          m.material.map = sheetTexture(note);
-          m.material.needsUpdate = true;
-        });
-      });
-    });
-    /* Quand tout ne tient pas sur la table, LA PILE : les feuillets
-       plus anciens, rassemblés au bout — cliquable, elle ouvre le
-       registre à plat qui garde tout. Le forum reste donc entier,
-       la table ne montre que ce qu'une table peut porter. */
-    var pileMesh = null;
-    if(hiddenCount){
-      var pileG = new THREE.Group();
-      for(var pv2 = 0; pv2 < 7; pv2++){
-        var ps = new THREE.Mesh(new THREE.PlaneGeometry(SH_W, SH_H),
-          BLANK_MATS[pv2 % 4]);
-        ps.rotation.x = -Math.PI / 2;
-        ps.rotation.z = (hash01('pile', pv2) - 0.5) * 0.5;
-        ps.position.set((hash01('px', pv2) - 0.5) * 0.14,
-          TOP_Y + pv2 * 0.011, (hash01('pz', pv2) - 0.5) * 0.14);
-        pileG.add(ps);
-      }
-      pileG.position.set(tableL - PADX + 0.9, 0, -0.15);
-      room.add(pileG);
-      /* Le plan de prise du raycaster, un peu plus large. PAS
-         material.visible:false — Mesh.raycast IGNORE un matériau
-         invisible et le clic passait au travers ; opacity:0 est
-         invisible ET levable. */
-      pileMesh = new THREE.Mesh(new THREE.PlaneGeometry(SH_W * 1.3, SH_H * 1.3),
-        new THREE.MeshBasicMaterial({ transparent: true, opacity: 0,
-          depthWrite: false }));
-      pileMesh.rotation.x = -Math.PI / 2;
-      pileMesh.position.set(tableL - PADX + 0.9, TOP_Y + 0.1, -0.15);
-      pileMesh.userData.pile = true;
-      room.add(pileMesh);
-      hitMeshes.push(pileMesh);
-    }
-
-    /* la scène répercute une réponse postée depuis la fiche : la
-       texture du feuillet se redessine, un billet se glisse dessous */
-    onReplyPosted = function(note){
-      for(var i = 0; i < sheets.length; i++){
-        var sh = sheets[i];
-        if(sh.note.id !== note.id) continue;
-        if(!sh.inked){ ensureInk(sh); }
-        sh.mesh.material.map = sheetTexture(note);
-        sh.mesh.material.needsUpdate = true;
-        var n = (repsBy[note.id] || []).length;
-        if(sh.slips.length < Math.min(n, 3)) addSlip(sh, sh.slips.length);
-        break;
-      }
-    };
-    /* un fil masqué quitte la table sur-le-champ : mesh et billets
-       invisibles ET retirés de hitMeshes — le raycaster de three ne
-       respecte pas visible:false (piège cousin de material.visible) */
-    onNoteHidden = function(id){
-      for(var i = 0; i < sheets.length; i++){
-        var sh = sheets[i];
-        if(sh.note.id !== id) continue;
-        sh.mesh.visible = false;
-        sh.slips.forEach(function(sm){ sm.visible = false; });
-        var hi = hitMeshes.indexOf(sh.mesh);
-        if(hi >= 0) hitMeshes.splice(hi, 1);
-        if(selected === id) closeCartel();
-        break;
-      }
-    };
-
-    /* poussière dans la lumière */
-    var dust = (function(){
-      var N = 120, pos = new Float32Array(N * 3);
-      for(var i = 0; i < N; i++){
-        pos[i * 3]     = Math.random() * tableL;
-        pos[i * 3 + 1] = -1.5 + Math.random() * 4.5;
-        pos[i * 3 + 2] = -1.6 + Math.random() * 4.2;
-      }
-      var g = new THREE.BufferGeometry();
-      g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-      var m = new THREE.PointsMaterial({ color: 0xd8ad4c, size: 0.04,
-        transparent: true, opacity: 0.3, depthWrite: false });
-      var pts = new THREE.Points(g, m);
-      scene.add(pts);
-      return { pts: pts, pos: pos, n: N };
-    })();
-
-    /* ── Le travelling ── */
-    /* Le travelling lit par-dessus l'épaule : caméra plus HAUTE et plus
-       PROCHE du bord (plongée ~55°) — à l'oblique d'avant, l'encre des
-       feuillets ne se lisait pas (retour du propriétaire). */
-    var CAMY = 3.0, CAMZ = 1.9, LOOKZ = -0.15, LEAD = 0.8;
-    var TFOV = 44, EST_FOV = 70, WIDE_Y = 4.3;
-    var zFar = 12, sbShift = 0, x0 = 1, x1 = 2;
-    var T_IN = 0.14, T_TRAVEL = 0.9;
-
-    function computeFraming(){
-      /* distance-pour-contenir, calculée À LA FOCALE LARGE (piège n°4
-         de la bibliothèque : une erreur d'un facteur 2 noie tout) */
-      var t = Math.tan(EST_FOV * Math.PI / 360);
-      var dV = (5.4 / 2 + 1.1) / t;
-      var dW = (tableL / 2 + 2.4) / (t * Math.max(camera.aspect, 0.5));
-      zFar = Math.max(dV, dW, 8.5);
-      var sbw = 0, sb = document.querySelector('.sidebar');
-      if(sb){
-        var sr = sb.getBoundingClientRect();
-        if(sr.width && sr.right > 0) sbw = sr.right;
-      }
-      sbShift = t * Math.max(camera.aspect, 0.5) * zFar *
-                (sbw / Math.max(1, window.innerWidth));
-      scene.fog.far = zFar + 12;
-      x0 = PADX - 0.3;
-      x1 = Math.max(tableL - PADX + 0.3, x0 + 0.1);
-    }
-
-    function camPose(p, out){
-      var wcx = tableL / 2 - sbShift;
-      if(p < T_IN){
-        var t = sstep(0, T_IN, p);
-        out.x  = wcx + (x0 - wcx) * t;
-        out.y  = WIDE_Y + (CAMY - WIDE_Y) * t;
-        out.z  = zFar + (CAMZ - zFar) * t;
-        out.lx = wcx + (x0 + LEAD - wcx) * t;
-        out.ly = -1.0 * (1 - t);
-        out.fov = EST_FOV + (TFOV - EST_FOV) * t;
-      } else if(p < T_TRAVEL){
-        var tt = (p - T_IN) / (T_TRAVEL - T_IN);
-        out.x = x0 + (x1 - x0) * tt;
-        out.y = CAMY; out.z = CAMZ;
-        out.lx = out.x + LEAD; out.ly = 0;
-        out.fov = TFOV;
-      } else {
-        var to = sstep(T_TRAVEL, 1, p);
-        out.x  = x1 + (wcx - x1) * to * 0.6;
-        out.y  = CAMY + (WIDE_Y * 0.82 - CAMY) * to;
-        out.z  = CAMZ + (zFar * 0.8 - CAMZ) * to;
-        out.lx = x1 + LEAD + (wcx - x1 - LEAD) * to * 0.6;
-        out.ly = -1.0 * to;
-        out.fov = TFOV + (EST_FOV - TFOV) * to;
-      }
-      out.lz = LOOKZ;
-    }
-
-    var pT = 0, p = 0, docSpan = 1;
-    var run = document.getElementById('ppRun');
-    function layout(){
-      var vh = window.innerHeight || 1;
-      run.style.height = Math.round(vh * (1.5 + sheets.length * 0.3 + 1.0)) + 'px';
-      docSpan = Math.max(1, document.documentElement.scrollHeight - vh);
-    }
-    function onScroll(){
-      pT = cl01((window.pageYOffset || 0) / docSpan);
-    }
-    function scrollToX(x, smoothB){
-      /* pré-encrer autour de la CIBLE : sans ça, un saut de rail
-         débouchait sur du papier nu le temps que le budget par image
-         rattrape la caméra */
-      for(var i = 0, n = 0; i < sheets.length && n < 14; i++){
-        if(!sheets[i].inked && Math.abs(sheets[i].rest.x - x) < INK_DIST){
-          ensureInk(sheets[i]); n++;
-        }
-      }
-      var tt = cl01((x - x0) / (x1 - x0 || 1));
-      var pp2 = T_IN + tt * (T_TRAVEL - T_IN);
-      try {
-        window.scrollTo({ top: pp2 * docSpan, behavior: smoothB ? 'smooth' : 'instant' });
-      } catch(e){ window.scrollTo(0, pp2 * docSpan); }
-    }
-
-    /* ── Interface DOM pilotée par p ── */
-    var elIntro  = document.getElementById('ptIntro');
-    var elHint   = document.getElementById('ptHint');
-    var elRail   = document.getElementById('ptRail');
-    var elEnd    = document.getElementById('ptEnd');
-    var elTag    = document.getElementById('ptTag');
-    var curGroup = -1;
-
-    elRail.innerHTML = groups.map(function(g, i){
-      return '<button type="button" data-g="' + i + '">' +
-        esc(g.label) + ' (' + g.notes.length + ')</button>';
-    }).join('');
-    elRail.addEventListener('click', function(ev){
-      var b = ev.target.closest('button[data-g]');
-      if(!b) return;
-      scrollToX(groups[+b.dataset.g].x0 + SPX / 2 - LEAD * 0.4, true);
-    });
-
-    var nReps = 0;
-    Object.keys(repsBy).forEach(function(k){ nReps += repsBy[k].length; });
-    document.getElementById('ptCount').innerHTML =
-      '<b>' + numFr(tops.length) + '</b> feuillet' + (tops.length > 1 ? 's' : '') +
-      ' sur la table · <b>' + numFr(nReps, true) + '</b> réponse' + (nReps > 1 ? 's' : '');
-    document.getElementById('ptEndLede').textContent =
-      'Vous avez longé ' + numFr(tops.length) + ' feuillet' + (tops.length > 1 ? 's' : '') +
-      ' et ' + numFr(nReps, true) + ' réponse' + (nReps > 1 ? 's' : '') +
-      '. Le vôtre s\'écrit depuis une liseuse — sélectionnez un passage, il viendra se poser ici.';
-
-    function updateUI(){
-      var introO = 1 - sstep(0.004, T_IN * 0.6, p);
-      elIntro.style.opacity = introO.toFixed(3);
-      elIntro.style.visibility = introO < 0.02 ? 'hidden' : '';
-      elHint.style.opacity = cl01(1 - p / 0.05).toFixed(3);
-
-      var endO = sstep(0.955, 0.995, p);
-      elEnd.style.opacity = endO.toFixed(3);
-      elEnd.style.visibility = endO < 0.02 ? 'hidden' : '';
-      elEnd.style.pointerEvents = endO > 0.5 ? 'auto' : 'none';
-
-      var midO = sstep(0.07, 0.14, p) * (1 - sstep(0.9, 0.96, p));
-      elRail.style.opacity = midO.toFixed(3);
-      elRail.style.pointerEvents = midO > 0.2 ? '' : 'none';
-
-      var look = camera.position.x + LEAD, gi = -1;
-      for(var i = 0; i < groups.length; i++){
-        if(look >= groups[i].x0 - GAP_G / 2 && look < groups[i].x1 + GAP_G / 2){ gi = i; break; }
-      }
-      if(gi !== curGroup){
-        curGroup = gi;
-        var bs = elRail.querySelectorAll('button');
-        for(var k = 0; k < bs.length; k++) bs[k].classList.toggle('on', k === gi);
-      }
-    }
-
-    /* ── Survol et clic ── */
-    var ray = new THREE.Raycaster();
-    var ndc = new THREE.Vector2(-2, -2);
-    var moved = false, hovered = null;
-    var v3 = new THREE.Vector3();
-
-    canvas.addEventListener('pointermove', function(ev){
-      ndc.x = (ev.clientX / window.innerWidth) * 2 - 1;
-      ndc.y = -(ev.clientY / window.innerHeight) * 2 + 1;
-      moved = true;
-    });
-    canvas.addEventListener('pointerleave', function(){
-      ndc.set(-2, -2); moved = true;
-    });
-    function pickSheet(){
-      ray.setFromCamera(ndc, camera);
-      var hits = ray.intersectObjects(hitMeshes, false);
-      return hits.length ? hits[0].object : null;
-    }
-    function setHover(mesh){
-      if(hovered === mesh) return;
-      hovered = mesh;
-      canvas.style.cursor = mesh ? 'pointer' : '';
-      for(var i = 0; i < sheets.length; i++){
-        var sh = sheets[i];
-        sh.outT = (sh.mesh === mesh || (selected && sh.note.id === selected)) ? 1 : 0;
-      }
-      if(mesh && mesh.userData.pile){
-        elTag.innerHTML =
-          '<div class="tg-t">Les feuillets plus anciens</div>' +
-          '<div class="tg-m">encore ' + hiddenCount + ' sur cette table</div>' +
-          '<div class="tg-a">cliquer&nbsp;: ouvrir la version liste, qui garde tout</div>';
-      } else if(mesh){
-        var note = mesh.userData.note;
-        var name = (note.profiles && note.profiles.username) || 'anonyme';
-        var w = workOf(note);
-        var reps = repsBy[note.id] || [];
-        var ava = note.profiles && note.profiles.avatar_url;
-        elTag.innerHTML =
-          (ava ? '<img class="tg-ava" src="' + esc(ava) + '" alt="">' : '') +
-          '<div class="tg-t">' + esc(name) + '</div>' +
-          '<div class="tg-m">' + esc(((w.meta && w.meta.title) || 'Œuvre') + ' · ' + ago(note.created) +
-            (reps.length ? ' · ' + reps.length + ' rép.' : '')) + '</div>' +
-          (note.body ? '<div class="tg-q">' + esc(trunc(note.body, 70)) + '</div>' : '') +
-          '<div class="tg-a">cliquer&nbsp;: lire le fil · répondre</div>';
-      }
-      elTag.style.opacity = mesh ? 1 : 0;
-    }
-    function placeTag(){
-      if(!hovered) return;
-      v3.set(hovered.position.x, 0.95, hovered.position.z);
-      v3.project(camera);
-      elTag.style.left = ((v3.x * 0.5 + 0.5) * window.innerWidth) + 'px';
-      elTag.style.top  = ((-v3.y * 0.5 + 0.5) * window.innerHeight - 8) + 'px';
-    }
-
-    /* ── La fiche : le fil complet, et l'on y répond ── */
-    var elCartel   = document.getElementById('ptCartel');
-    var elCartelIn = document.getElementById('ptCartelIn');
-    var selected = null;
-
-    function ctRepHtml(r){
-      var nm = (r.profiles && r.profiles.username) || 'anonyme';
-      return '<div class="ct-rep">' +
-        '<div class="ct-rep-top"><span class="ct-rep-name">' + esc(nm) + '</span>' +
-        '<span class="ct-rep-when">' + esc(ago(r.created)) + '</span></div>' +
-        '<div class="ct-rep-body">' + esc(r.body || '') + '</div></div>';
-    }
-    function openCartel(note){
-      selected = note.id;
-      var w = workOf(note);
-      var title = (w.meta && w.meta.title) || 'Œuvre';
-      var openW = w.meta && w.meta.status === 'available' && w.meta.path;
-      var name = (note.profiles && note.profiles.username) || 'anonyme';
-      var reps = repsBy[note.id] || [];
-      var sec = (note.section != null && note.section !== '') ? (' · section ' + note.section) : '';
-      elCartelIn.innerHTML =
-        '<div class="ct-top">' +
-          '<span class="ct-seal" style="background:' + seal(note.section) + '">' + esc(initials(name)) +
-            avaImg(note) + '</span>' +
-          '<span class="ct-name">' + esc(name) + '</span>' +
-        '</div>' +
-        '<div class="ct-meta">' + esc(title + sec + ' · ' + ago(note.created)) + '</div>' +
-        (note.quote ? '<div class="ct-quote">«&nbsp;' + esc(trunc(note.quote, 220)) + '&nbsp;»</div>' : '') +
-        '<div class="ct-body">' + esc(note.body || '') + '</div>' +
-        '<div class="ct-h">' + (reps.length
-          ? reps.length + ' réponse' + (reps.length > 1 ? 's' : '')
-          : 'Pas encore de réponse') + '</div>' +
-        '<div class="ct-reps">' + reps.map(ctRepHtml).join('') + '</div>' +
-        '<div class="ct-h">Répondre</div>' +
-        '<div class="ct-compose">' +
-          '<textarea rows="3" placeholder="Votre réponse…" aria-label="Votre réponse"></textarea>' +
-          '<button type="button" class="ct-send">Publier la réponse</button>' +
-        '</div>' +
-        '<div class="ct-modrow">' +
-          (isMine(note) ? '' : '<button type="button" class="ct-report">Signaler ce fil</button>') +
-          (isModNow() ? '<button type="button" class="ct-modbtn">' + (note.hidden ? 'Rétablir' : 'Masquer') + '</button>' : '') +
-        '</div>' +
-        '<div class="ct-repbox" hidden>' +
-          '<textarea rows="2" placeholder="Pourquoi signaler ce fil ? (facultatif)" aria-label="Motif du signalement (facultatif)"></textarea>' +
-          '<button type="button" class="ct-send ct-rep-send">Signaler</button>' +
-        '</div>' +
-        (openW
-          ? '<a class="ct-go" href="' + esc(w.meta.path) + '#note=' +
-            encodeURIComponent(note.id) + '">Aller au passage&nbsp;→</a>'
-          : '<p class="ct-soon">L\'atelier de cette œuvre est en préparation — le passage s\'ouvrira ici le moment venu.</p>');
-      var ctR = elCartelIn.querySelector('.ct-report');
-      if(ctR) ctR.addEventListener('click', function(){
-        if(!ensurePoster()) return;
-        var box = elCartelIn.querySelector('.ct-repbox');
-        box.hidden = !box.hidden;
-        if(!box.hidden) box.querySelector('textarea').focus();
-      });
-      var ctRS = elCartelIn.querySelector('.ct-rep-send');
-      if(ctRS) ctRS.addEventListener('click', function(){
-        var ta = elCartelIn.querySelector('.ct-repbox textarea');
-        reportNote(note, ta.value, function(){
-          elCartelIn.querySelector('.ct-repbox').hidden = true;
-        });
-      });
-      var ctM = elCartelIn.querySelector('.ct-modbtn');
-      if(ctM) ctM.addEventListener('click', function(){ modToggle(note); });
-      elCartelIn.querySelector('.ct-send').addEventListener('click', function(){
-        var ta = elCartelIn.querySelector('.ct-compose textarea');
-        postReply(note, ta.value).then(function(row){
-          if(!row) return;
-          ta.value = '';
-          elCartelIn.querySelector('.ct-reps')
-            .insertAdjacentHTML('beforeend', ctRepHtml(row));
-          var n = (repsBy[note.id] || []).length;
-          elCartelIn.querySelector('.ct-h').textContent =
-            n + ' réponse' + (n > 1 ? 's' : '');
-        });
-      });
-      elCartel.hidden = false;
-      requestAnimationFrame(function(){ elCartel.classList.add('open'); });
-      for(var i = 0; i < sheets.length; i++){
-        sheets[i].outT = sheets[i].note.id === selected ? 1 : 0;
-      }
-      elCartel.focus({ preventScroll: true });
-    }
-    function closeCartel(){
-      selected = null;
-      elCartel.classList.remove('open');
-      setTimeout(function(){ if(!selected) elCartel.hidden = true; }, 340);
-      for(var i = 0; i < sheets.length; i++){
-        sheets[i].outT = sheets[i].mesh === hovered ? 1 : 0;
-      }
-    }
-    canvas.addEventListener('click', function(ev){
-      /* le clic porte ses propres coordonnées : au tactile il n'y a pas
-         eu de pointermove avant lui (piège documenté) */
-      ndc.x = (ev.clientX / window.innerWidth) * 2 - 1;
-      ndc.y = -(ev.clientY / window.innerHeight) * 2 + 1;
-      var m = pickSheet();
-      if(m && m.userData.pile){ teardown(); return; }
-      if(m){
-        openCartel(m.userData.note);
-        if(p > T_IN * 0.6) scrollToX(m.position.x - LEAD * 0.4, true);
-      } else if(selected){
-        closeCartel();
-      }
-    });
-    document.getElementById('ptCartelX').addEventListener('click', closeCartel);
-    document.addEventListener('keydown', function(ev){
-      if(ev.key === 'Escape' && selected) closeCartel();
-    });
-    document.getElementById('ptBack').addEventListener('click', function(){
-      try { window.scrollTo({ top: 0, behavior: 'smooth' }); }
-      catch(e){ window.scrollTo(0, 0); }
-    });
-
-    /* ── Boucle ── */
-    var raf = null, lastT = 0, hiddenTab = false, lastCamX = null, tilt = 0;
-    var fallStart = 0, fallDone = false;
-    function frame(now){
-      raf = requestAnimationFrame(frame);
-      var dt = Math.min(0.05, (now - lastT) / 1000 || 0.016);
-      lastT = now;
-      var tsec = now / 1000;
-
-      p += (pT - p) * (1 - Math.exp(-dt * 7));
-      if(Math.abs(pT - p) < 0.0004) p = pT;
-
-      var o = {};
-      camPose(p, o);
-      camera.position.set(o.x, o.y, o.z);
-      camera.lookAt(o.lx, o.ly, o.lz);
-      if(Math.abs(camera.fov - o.fov) > 0.01){
-        camera.fov = o.fov;
-        camera.updateProjectionMatrix();
-      }
-
-      /* les plans d'ensemble sont suréclairés : la salle se lit d'un
-         coup d'œil, les flammes reprennent la main au ras de la table */
-      var wideK = Math.max(1 - sstep(0, T_IN, p), sstep(T_TRAVEL, 1, p));
-      amb.intensity = 1.05 + 0.5 * wideK;
-      hemi.intensity = 0.5 + 0.4 * wideK;
-
-      /* la cascade d'entrée : les feuillets tombent se ranger, une
-         seule fois — puis chacun ne bouge plus que soulevé (survol ou
-         fiche ouverte). Sautée si l'on arrive en milieu de page. */
-      if(!fallDone){
-        if(!fallStart){
-          if(pT < 0.02) fallStart = now;
-          else fallDone = true;
-        }
-        if(fallStart){
-          var all = true;
-          for(var si = 0; si < sheets.length; si++){
-            if(!sheets[si].born) sheets[si].born = fallStart + si * 85;
-          }
-          if(now - fallStart > sheets.length * 85 + 800) fallDone = true;
-        }
-      }
-      /* l'encre se peint à l'approche — trois feuillets par image */
-      var inkBudget = 3;
-      for(var ik = 0; ik < sheets.length && inkBudget; ik++){
-        if(!sheets[ik].inked &&
-           Math.abs(sheets[ik].rest.x - camera.position.x) < INK_DIST){
-          ensureInk(sheets[ik]); inkBudget--;
-        }
-      }
-      for(var i2 = 0; i2 < sheets.length; i2++){
-        var sh = sheets[i2];
-        sh.out += (sh.outT - sh.out) * (1 - Math.exp(-dt * 10));
-        var e = 1;
-        if(!fallDone && sh.born){
-          e = sstep(0, 1, (now - sh.born) / 700);
-        } else if(!fallDone){ e = 0; }
-        var lift = sh.out;
-        sh.mesh.position.x = sh.rest.x;
-        sh.mesh.position.y = sh.rest.y + (1 - e) * 2.5 + lift * 0.3;
-        sh.mesh.position.z = sh.rest.z + lift * 0.28;
-        sh.mesh.rotation.x = -Math.PI / 2 + (1 - e) * 0.55 + lift * 0.34;
-        sh.mesh.rotation.z = sh.rest.rz + (1 - e) * 2.4;
-      }
-
-      /* tout ce qui brûle vacille — sommes de sinus à périodes non
-         multiples : une flamme ne bat pas la mesure */
-      for(var fi = 0; fi < flames.length; fi++){
-        var F = flames[fi];
-        var fl = Math.sin(tsec * 9.3 + F.ph) * 0.5 +
-                 Math.sin(tsec * 23.7 + F.ph) * 0.3 +
-                 Math.sin(tsec * 5.1 + F.ph) * 0.2;
-        var fl2 = Math.sin(tsec * 13.1 + F.ph) * 0.5 +
-                  Math.sin(tsec * 3.7 + F.ph) * 0.5;
-        var body = F.grp.userData.body, halo = F.grp.userData.halo;
-        body.scale.set(1 + fl * 0.09, 1 + fl * 0.2, 1);
-        body.rotation.z = fl2 * 0.055;
-        halo.material.opacity = 0.42 + fl * 0.12;
-        if(F.light) F.light.intensity = F.base * (1 + fl * 0.09);
-        if(F.bill) F.grp.lookAt(camera.position);
-      }
-      /* la main n'est pas un trépied ; et le bougeoir porté est ANCRÉ
-         au coin du cadre EN FONCTION DE LA FOCALE (piège documenté) */
-      var vx = lastCamX === null ? 0 : o.x - lastCamX;
-      lastCamX = o.x;
-      tilt += (Math.max(-0.22, Math.min(0.22, -vx * 5)) - tilt) *
-              (1 - Math.exp(-dt * 4));
-      carried.rotation.z = tilt;
-      var chh = Math.tan(camera.fov * Math.PI / 360) * 1.15;
-      carried.position.x = chh * camera.aspect * 0.7;
-      carried.position.y = -chh + 0.02 + Math.sin(tsec * 1.2) * 0.008;
-      camera.position.y += Math.sin(tsec * 0.9) * 0.012 +
-                           Math.sin(tsec * 1.63) * 0.007;
-      camera.position.x += Math.sin(tsec * 0.53) * 0.008;
-
-      var dp = dust.pos;
-      for(var di = 0; di < dust.n; di++){
-        dp[di * 3 + 1] += dt * 0.05 * (0.4 + (di % 5) * 0.2);
-        if(dp[di * 3 + 1] > 3.2) dp[di * 3 + 1] = -1.6;
-      }
-      dust.pts.geometry.attributes.position.needsUpdate = true;
-
-      if(moved){ moved = false; setHover(pickSheet()); }
-      placeTag();
-      updateUI();
-
-      renderer.render(scene, camera);
-    }
-
-    function resize(){
-      var w = window.innerWidth, h = window.innerHeight;
-      /* un onglet en arrière-plan peut annoncer 0×0 : on garde le
-         cadrage précédent plutôt que de réduire le tampon à néant */
-      if(!w || !h) return;
-      renderer.setSize(w, h, false);
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-      computeFraming();
-      layout();
-      onScroll();
-    }
-
-    /* les textures au texte se redessinent quand Caveat et Fraunces
-       arrivent — le premier tracé part sur la police système */
-    if(document.fonts && document.fonts.ready){
-      document.fonts.ready.then(function(){
-        regenFns.forEach(function(f){ try { f(); } catch(e){} });
-      });
-    }
-
-    window.addEventListener('resize', resize);
-    window.addEventListener('scroll', onScroll, { passive: true });
-    document.addEventListener('visibilitychange', function(){
-      hiddenTab = document.hidden;
-      if(hiddenTab && raf){ cancelAnimationFrame(raf); raf = null; }
-      else if(!hiddenTab && !raf && active){ lastT = performance.now(); raf = requestAnimationFrame(frame); }
-    });
-
-    var active = true;
-    function teardown(){
-      active = false;
-      if(raf){ cancelAnimationFrame(raf); raf = null; }
-      onReplyPosted = null;
-      onNoteHidden = null;
-      document.documentElement.classList.remove('js-pp3d');
-      run.style.height = '0px';
-      closeCartel();
-      elTag.style.opacity = 0;
-      try { window.scrollTo(0, 0); } catch(e){}
-      document.getElementById('pp3dJoin').hidden = false;
-      sceneTorn = true;
-      /* le registre reprend la main, avec les réponses postées depuis
-         la fiche */
-      renderFlat();
-    }
-    document.getElementById('ptToFlat').addEventListener('click', teardown);
-    document.getElementById('ptToFlat2').addEventListener('click', teardown);
-
-    document.documentElement.classList.add('js-pp3d');
-    resize();
-    onScroll();
-    p = pT;
-    lastT = performance.now();
-    raf = requestAnimationFrame(frame);
-
-    return { teardown: teardown };
-  }
-
-  /* ── Amorçage de la scène ── */
-  function start3d(){
-    var s = initScene();
-    if(s){
-      scene3d = s;
-      document.getElementById('pp3dJoin').hidden = true;
-      try { window.scrollTo(0, 0); } catch(e){}
-    }
-  }
-  function decide(){
-    if(scene3d && !sceneTorn) return;
-    if(sceneTorn) return;              /* on ne relance qu'en rechargeant */
-    if(!tops.length) return;           /* rien à poser : le registre suffit */
-    if(typeof THREE === 'undefined'){ armThreeWait(); return; }
-    if(want3D()) start3d();
-    else if(!REDUCE && window.innerWidth >= 768){
-      document.getElementById('pp3dJoin').hidden = false;
-    }
-  }
-  /* three.min.js est en defer : au moment où load() aboutit il peut ne
-     pas être là. DOMContentLoaded arrive après les scripts defer —
-     c'est le rendez-vous sûr (motif bibliotheque.html). */
-  var threeWaitArmed = false;
-  function armThreeWait(){
-    if(threeWaitArmed) return;
-    threeWaitArmed = true;
-    if(document.readyState === 'loading'){
-      document.addEventListener('DOMContentLoaded', decide);
-    } else {
-      window.addEventListener('load', decide);
-      if(document.readyState === 'complete') setTimeout(decide, 60);
-    }
-  }
-  window.addEventListener('resize', decide);
-  document.getElementById('pp3dBtn').addEventListener('click', function(){
-    if(sceneTorn){ location.hash = ''; location.reload(); return; }
-    if(location.hash === '#liste'){
-      try { history.replaceState(null, '', location.pathname); } catch(e){}
-    }
-    start3d();
-  });
 })();
 </script>
 </body>

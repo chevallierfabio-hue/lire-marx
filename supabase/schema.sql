@@ -177,3 +177,41 @@ do $$ begin
     ';
   end if;
 end $$;
+
+-- ═══════════════════════════════════════════════════════════════════
+-- Soutiens (mission place-forum, août 2026) — le vote d'appui du forum
+-- de la Place publique. UN vote par lecteur et par note (racine ou
+-- réponse), pas de vote négatif : on appuie une lecture, on n'enterre
+-- personne. Style maison : note_id = id client de public_notes,
+-- created en millisecondes, voter_id posé par DÉFAUT à auth.uid() —
+-- jamais écrit à l'INSERT. Les comptes de soutien sont publics (select
+-- ouvert) ; on n'insère et ne retire que son propre vote.
+-- Table NOUVELLE : `create table if not exists` est sûr ici (le piège
+-- des tables préexistantes ne concerne que moderators/reports).
+-- ═══════════════════════════════════════════════════════════════════
+
+create table if not exists public.note_votes (
+  note_id  text   not null,
+  voter_id uuid   not null default auth.uid(),
+  created  bigint,
+  primary key (note_id, voter_id)
+);
+
+alter table public.note_votes enable row level security;
+
+do $$ begin
+  if not exists (select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'note_votes' and policyname = 'nv_select_all') then
+    execute 'create policy nv_select_all on public.note_votes for select using (true)';
+  end if;
+  if not exists (select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'note_votes' and policyname = 'nv_insert_own') then
+    execute 'create policy nv_insert_own on public.note_votes for insert
+      with check (voter_id = auth.uid())';
+  end if;
+  if not exists (select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'note_votes' and policyname = 'nv_delete_own') then
+    execute 'create policy nv_delete_own on public.note_votes for delete
+      using (voter_id = auth.uid())';
+  end if;
+end $$;
