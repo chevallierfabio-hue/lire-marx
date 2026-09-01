@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Page introuvable — Lire Marx</title>
+<meta name="robots" content="noindex, follow">
+<meta name="description" content="Cette adresse ne mène à rien sur Lire Marx. Voici par où reprendre : la bibliothèque, Le Capital, les Manuscrits de 1844.">
+
+<!-- Cette page est servie par Cloudflare Pages pour TOUTE adresse inconnue,
+     donc à n'importe quelle profondeur (/x, /oeuvres/x/y/z). Tous les chemins
+     — feuille de style, polices, liens — sont donc ABSOLUS. Un chemin relatif
+     se résoudrait contre l'URL fautive et casserait la page.
+
+     Elle est volontairement autonome : ni shell.js, ni atelier.css. Une page
+     d'erreur doit s'afficher même quand quelque chose d'autre ne va pas, et
+     elle ne doit pas dépendre de ce qu'on n'a pas réussi à servir. -->
+<link rel="stylesheet" href="/oeuvres/fonts/fonts.css">
+<style>
+:root{
+  --bg:#15100b;--surface:#1e1710;--text:#f3e9d4;
+  --muted:#b7a888;--accent:#d5402f;--gold:#d8ad4c;
+  --border:rgba(243,233,212,.13);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  padding:32px 22px;line-height:1.6;
+  /* la bougie de la maison : une lueur chaude qui monte du bas */
+  background-image:radial-gradient(120% 74% at 50% 108%,
+    rgba(216,173,76,.10) 0%, rgba(213,64,47,.05) 42%, transparent 72%);
+}
+.e-wrap{width:100%;max-width:620px;}
+.e-code{
+  font-family:'Fraunces',Georgia,serif;font-weight:900;font-size:.78rem;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--gold);
+  margin:0 0 14px;
+}
+.e-h1{
+  font-family:'Fraunces',Georgia,serif;font-weight:900;
+  font-size:clamp(2rem,5.4vw,3rem);line-height:1.04;letter-spacing:-.03em;
+  margin:0 0 18px;
+}
+.e-h1 em{font-style:italic;font-weight:500;color:var(--accent);}
+.e-lede{color:var(--muted);font-size:1rem;margin:0 0 30px;max-width:46ch;}
+.e-label{
+  font-size:.72rem;font-weight:600;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--muted);margin:0 0 12px;
+}
+.e-list{list-style:none;margin:0 0 30px;padding:0;
+  border-top:1px solid var(--border);}
+.e-list li{border-bottom:1px solid var(--border);}
+.e-list a{
+  display:flex;align-items:baseline;gap:12px;padding:13px 2px;
+  color:var(--text);text-decoration:none;transition:color .15s,padding-left .15s;
+}
+.e-list a:hover,.e-list a:focus-visible{color:var(--gold);padding-left:6px;}
+.e-t{font-family:'Fraunces',Georgia,serif;font-weight:700;font-size:1.02rem;}
+.e-d{color:var(--muted);font-size:.86rem;margin-left:auto;text-align:right;}
+.e-back{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:11px 24px;border-radius:100px;
+  background:var(--text);color:var(--bg);
+  font-weight:600;font-size:.92rem;text-decoration:none;
+}
+.e-back:hover{background:var(--gold);}
+a:focus-visible{outline:2px solid var(--gold);outline-offset:3px;}
+@media (max-width:560px){
+  .e-d{display:none;}
+  .e-list a{padding:14px 2px;}
+}
+</style>
+</head>
+<body>
+<main class="e-wrap">
+  <p class="e-code">Erreur 404</p>
+  <h1 class="e-h1">Cette page <em>n'existe pas</em></h1>
+  <p class="e-lede">L'adresse que vous avez suivie ne mène à rien. Elle a peut-être
+    changé, ou n'a jamais existé. Voici par où reprendre.</p>
+
+  <p class="e-label">Les pages du site</p>
+  <ul class="e-list">
+    <li><a href="/oeuvres/bibliotheque">
+      <span class="e-t">La bibliothèque</span>
+      <span class="e-d">Les douze œuvres, dans un ordre de lecture</span></a></li>
+    <li><a href="/oeuvres/capital-1">
+      <span class="e-t">Le Capital — Livre I</span>
+      <span class="e-d">Texte intégral et atelier</span></a></li>
+    <li><a href="/oeuvres/manuscrits-1844">
+      <span class="e-t">Manuscrits de 1844</span>
+      <span class="e-d">Le travail aliéné</span></a></li>
+    <li><a href="/oeuvres/place-publique">
+      <span class="e-t">Place publique</span>
+      <span class="e-d">Le forum des lecteurs</span></a></li>
+  </ul>
+
+  <a class="e-back" href="/">Retour à l'accueil</a>
+</main>
+</body>
+</html>

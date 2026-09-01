@@ -3309,6 +3309,54 @@ coexiste avec le `noindex` : c'est redondant (une canonique dit « indexe
 cette URL-ci », le noindex dit « n'indexe pas ») mais sans conséquence
 pratique, et ça garde l'URL propre si le `noindex` tombait un jour.
 
+## La vraie 404 (mission `seo-vraie-404`, sept. 2026)
+
+**Le défaut, mesuré en production :** toute adresse inconnue répondait
+**200 avec la page d'accueil**.
+
+```
+/nimportequoi        → 200 + accueil
+/oeuvres/capital-99  → 200 + accueil
+/BingSiteAuth.xml    → 200 + accueil
+```
+
+C'est un *soft 404*. Un moteur y voit un nombre **infini** d'URL valides et
+indexables, toutes avec le même contenu : budget de crawl gaspillé, et un
+rapport « Pages » de Search Console qui se remplit d'URL fantômes. Trouvé
+par accident en testant si un fichier de vérification Bing existait — il
+« existait », comme tout le reste.
+
+Corrigé par un `404.html` à la racine, que Cloudflare Pages sert avec un
+vrai statut 404 pour les chemins non résolus.
+
+**Trois contraintes propres à une page d'erreur, à ne pas perdre :**
+
+1. **Tous les chemins sont ABSOLUS.** La page est servie à n'importe quelle
+   profondeur (`/x`, `/oeuvres/x/y/z`) : un chemin relatif se résoudrait
+   contre l'URL fautive et casserait la feuille de style comme les liens.
+   Vérifié : les cinq liens et le `<link>` de polices commencent par `/`.
+2. **Elle est autonome** — ni `shell.js`, ni `atelier.css`. Une page
+   d'erreur doit s'afficher même quand autre chose ne va pas ; la faire
+   dépendre de ce qu'on n'a pas réussi à servir serait absurde. Le CSS est
+   inline, seules les polices sont partagées.
+3. **`noindex, follow`** — on ne veut pas la voir en résultat, mais les
+   liens qu'elle porte restent utiles à suivre.
+
+**Les six constats de `detect.mjs` sur cette page sont tous documentés.**
+Deux méritent d'être nommés parce qu'ils reviendront : le `low-contrast`
+(`--accent` #d5402f sur `--bg`, 4,1:1) est un **faux positif** — le
+détecteur ignore la taille, or le texte concerné est le `em` du `<h1>`,
+**mesuré à 48 px**, donc du grand texte, dont le seuil est 3:1. C'est
+exactement l'usage de `.hs-h1 em` sur l'accueil. Et le `hero-eyebrow-chip`
+(« ERREUR 404 » en capitales espacées au-dessus du titre) est la grammaire
+de micro-libellé de la maison (`.hs-sec-label`, .72rem/600/.11em), déjà
+signalée comme choix de DA à ne pas « corriger ».
+
+**Si la 404 revenait à 200 après déploiement**, ce ne serait pas le fichier
+mais un réglage du projet Cloudflare Pages (routage « single-page
+application », qui rabat tout sur `index.html`). Cela se règle au tableau
+de bord, pas dans le dépôt.
+
 ## Conventions de travail
 
 - **Une mission par session.** Une demande utilisateur = un objectif clair,
