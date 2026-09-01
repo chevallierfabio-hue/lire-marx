@@ -3582,6 +3582,98 @@ mais un réglage du projet Cloudflare Pages (routage « single-page
 application », qui rabat tout sur `index.html`). Cela se règle au tableau
 de bord, pas dans le dépôt.
 
+## Le titre, la description et le logo (mission `titre-description-logo`, sept. 2026)
+
+Demande du propriétaire, à partir de ce que Google affichait : changer le
+titre de l'accueil, faire mentionner **le jeu** par la description, et
+**donner un logo au site** — le résultat de recherche montrait le globe
+générique, faute de favicon.
+
+**Le site n'avait AUCUN favicon.** Aucune balise `rel="icon"` sur les huit
+pages, aucun `/favicon.ico` à la racine. C'est ce globe que Google montrait.
+
+### Le logo
+
+Le mark reprend **le brandmark** (`Lire`**·**`Marx` de shell.js, Fraunces 900
+avec son point rouge) : carré brun-nuit à angles arrondis (18,75 %), dégradé
+radial chaud `#241a11 → #130f0a`, **M de Fraunces 900** en crème `#f3e9d4`,
+et le **point rouge** `#d5402f` collé à sa droite, sur la ligne de base.
+Aucun élément nouveau de vocabulaire : c'est la signature du site réduite à
+une lettre.
+
+- **Il est RASTER, et c'est délibéré.** Un M dessiné à la main en SVG
+  n'aurait pas été le M de Fraunces ; et rien dans l'environnement ne sait
+  extraire un contour de glyphe d'un woff2 (ni fontTools, ni rsvg, ni
+  ImageMagick). Le master a donc été rendu **au canvas dans le navigateur**,
+  avec la vraie Fraunces locale, à 512 px ; les autres tailles en descendent
+  par `sips -Z`.
+- **Une seule source pour toutes les tailles, angles arrondis compris.** Le
+  masque d'iOS pour l'`apple-touch-icon` arrondit à ~22,5 % — plus que nos
+  18,75 % — donc nos coins transparents tombent entièrement dans ce qu'iOS
+  découpe : pas d'artefact, pas de rendu carré séparé à maintenir.
+- Fichiers : `assets/img/logo/icon-{16,32,48,192,512}.png`,
+  `apple-touch-icon.png` (180), et `/favicon.ico` — un conteneur ICO
+  assemblé à la main qui **embarque les PNG 16/32/48 tels quels** (format
+  Vista+), les 16 et 32 ne servant qu'à ça.
+- Les balises vivent dans les **huit** pages (pas `oeuvres/index.html`, qui
+  n'est qu'une redirection) et leurs chemins sont **ABSOLUS** : elles servent
+  aussi `404.html`, rendue à n'importe quelle profondeur — même règle que ses
+  liens.
+- `Organization` gagne son `logo` (`icon-512.png`) : c'est ce que Google lit
+  pour un panneau de connaissance, pas le favicon.
+
+**Le M occupe 56 % de la boîte, pas davantage.** Vérifié à 16, 20, 24, 32 et
+48 px sur fond blanc ET sur fond sombre (canvas `image-rendering:pixelated`,
+agrandi ×5 — sans quoi on ne juge rien) : au-delà, il touche les angles
+arrondis. Le liseré or essayé autour du carré a été écarté, il boue à 16 px.
+
+### Le titre et la description
+
+- Titre : **« Lire Marx — Atelier numérique pour lire Marx »** (formulation
+  du propriétaire, gardée telle quelle).
+- Description : **« Le Capital et les Manuscrits de 1844 en texte intégral,
+  l'appareil critique en marge du chapitre — et bientôt Le circuit du
+  capital, le jeu de la plus-value. »** — 157 caractères, donc le jeu tient
+  **avant la troncature** de Google (~155-160). Trois rédactions plus riches
+  (« sans prérequis », le forum, les simulations) ont été mesurées à 169,
+  179 et 211 : dans toutes, le jeu passait à la trappe.
+- **Le jeu se dit « bientôt ».** Sa section porte `Le jeu · bientôt` et
+  l'étiquette `En développement` : une description qui le promettrait jouable
+  démentirait la page.
+- La description porte désormais **seule** les deux titres d'œuvres : le
+  nouveau titre ne les nomme plus, or ce sont les requêtes qui amènent.
+- `og:title` et `og:description` suivent. `og:image` reste le portrait Mayall
+  — pour un partage social, un portrait vaut mieux qu'une pastille.
+
+### Le piège : les balises de favicon ont effacé 779 lignes de Capital
+
+`tools/gen-seo.mjs` remplaçait le bloc `Book` avec
+`(?:<!--[^]*?-->\s*)?<script type="application/ld+json">…`. Le commentaire
+de tête, optionnel, pouvait **traverser d'autres commentaires** : dès qu'un
+commentaire quelconque apparaît plus haut dans le `<head>`, le moteur y
+démarre, la paresse rallonge la capture jusqu'au commentaire qui précède
+vraiment le script, et **tout ce qui est entre les deux disparaît**. Le
+commentaire d'en-tête du bloc favicon a suffi à déclencher ça :
+`capital-1.html` a perdu 779 lignes (tout son `<head>`), `manuscrits-1844`
+232. Corrigé en interdisant la traversée — `(?:(?!-->)[^])*?`.
+
+**La règle : un motif de remplacement non ancré qui commence par un
+commentaire HTML optionnel doit interdire à ce commentaire d'en contenir un
+autre.** Et le repère est facile : `--check` disait `PÉRIMÉ` sans raison
+apparente juste après un ajout dans le `<head>`.
+
+### Vérifié
+
+`gen-seo.mjs --check` à jour et **idempotent** après correction (« Rien à
+faire » au second passage). Les cinq fichiers du logo servis en 200 ;
+`favicon.ico` reconnu comme *MS Windows icon resource, 3 icons*. Accueil,
+Capital, Place publique et 404 chargées : console sans erreur, les quatre
+balises `rel=icon` présentes, Capital intacte (deux destinations, coquille
+montée, `Book` et canonique en place). `detect.mjs` sur `index.html` +
+`404.html` : **34 constats, 0 erreur** — exactement la somme des bases
+documentées (28 + 6). Aperçu du résultat Google reconstitué aux dimensions
+réelles, en thème clair et en thème sombre.
+
 ## Le poids de l'accueil (mission `perf-poids-accueil`, sept. 2026)
 
 Mesuré en production : **767 Ko, 32 requêtes**, DOM prêt à 506 ms. Rien

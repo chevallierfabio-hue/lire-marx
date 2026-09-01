@@ -161,8 +161,14 @@ for (const w of available) {
   const block = `${HEAD}\n${OPEN}\n${json}\n${CLOSE}`;
 
   // Remplace le bloc ld+json existant (avec son éventuel commentaire de tête).
+  // Le commentaire de tête ne doit PAS pouvoir traverser d'autres commentaires :
+  // avec un simple `[^]*?`, un commentaire quelconque situé PLUS HAUT dans le
+  // <head> devient un point de départ valide, la paresse rallonge la capture
+  // jusqu'au commentaire qui précède vraiment le script, et tout ce qui est
+  // entre les deux est effacé. Vécu : l'ajout des balises de favicon a fait
+  // disparaître 779 lignes de capital-1.html. D'où `(?:(?!-->)[^])*?`.
   const re = new RegExp(
-    '(?:<!--[^]*?-->\\s*)?<script type="application/ld\\+json">[^]*?</script>');
+    '(?:<!--(?:(?!-->)[^])*?-->\\s*)?<script type="application/ld\\+json">[^]*?</script>');
   if (!re.test(src)) throw new Error(`Aucun bloc JSON-LD trouvé dans ${file}`);
   writeIfNeeded(file, src.replace(re, () => block), file);
 }
