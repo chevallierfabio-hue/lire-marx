@@ -46,6 +46,37 @@
 
   var REDUCE = window.matchMedia &&
     window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+
+  /* ── Three.js ne se télécharge que s'il va SERVIR ──────────────────
+     Le décor WebGL (la liasse du héros, le chariot du circuit) est coupé
+     sous reduced-motion et sous 768 px — mais le SCRIPT, lui, se chargeait
+     quand même : 148 Ko transférés sur mobile, là précisément où les Core
+     Web Vitals se mesurent, pour un décor qui ne s'affiche pas.
+     `vendor/three.min.js` n'est donc plus dans le <head> de index.html ;
+     il est injecté ici, une seule fois, et seulement si les conditions du
+     décor sont réunies.
+     Les deux consommateurs gardent leur propre garde
+     `typeof THREE === 'undefined'` : si le chargement n'a pas lieu ou
+     échoue, ils se taisent — exactement le comportement d'avant. C'est
+     pourquoi on les appelle TOUJOURS, chargement ou pas. */
+  var threeState = 0, threeWaiting = [];   // 0 = pas commencé, 1 = en cours, 2 = fini
+  function withThree(fn) {
+    if (typeof THREE !== 'undefined' || threeState === 2) { fn(); return; }
+    if (REDUCE || window.innerWidth < 768) { fn(); return; }
+    threeWaiting.push(fn);
+    if (threeState === 1) return;
+    threeState = 1;
+    var s = document.createElement('script');
+    s.src = 'vendor/three.min.js';
+    s.onload = s.onerror = function () {
+      threeState = 2;
+      var q = threeWaiting; threeWaiting = [];
+      for (var i = 0; i < q.length; i++) {
+        try { q[i](); } catch (e) { /* non bloquant */ }
+      }
+    };
+    document.head.appendChild(s);
+  }
   /* Conteneur de défilement : .hw quand elle défile réellement (accueil
      immergé depuis l'intro), sinon le viewport (mode no-anim / mobile). */
   var scroller = null;
@@ -680,7 +711,7 @@
     /* si le viewport est trop court, le CSS dépingle : on rend statique. */
     if (window.innerHeight <= 640) { stat(); return; }
 
-    try { circuitChariot(); } catch (e) { /* non bloquant */ }
+    try { withThree(circuitChariot); } catch (e) { /* non bloquant */ }
 
     addScrollSub(function (y, vh) {
       var r = pin.getBoundingClientRect();
@@ -1846,7 +1877,7 @@
     try { topbarSolid(); } catch (e) { /* non bloquant */ }
     try { catalogue(); } catch (e) { /* non bloquant */ }
     try { msPanel(); } catch (e) { /* non bloquant */ }
-    try { heroBg(); } catch (e) { /* non bloquant */ }
+    try { withThree(heroBg); } catch (e) { /* non bloquant */ }
     try { scrubReveal(); } catch (e) { fallbackReveal(); }
     try { circuitScrub(); } catch (e) { /* non bloquant */ }
     try { countUp(); } catch (e) { /* non bloquant */ }
