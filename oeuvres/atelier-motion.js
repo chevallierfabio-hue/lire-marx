@@ -369,21 +369,25 @@
     var walk = document.querySelector('#deriv .walk');
     if (!walk) return;
 
-    /* Les deux pages n'ont pas le même serpentin : sur Capital la marche
-       est une carte posée à côté d'un axe central, sur les Manuscrits
-       elle EST le bloc, le long d'un fil à gauche. La variante se pose
-       en classe (jamais en :has(), pas acquis partout) et l'axe suit. */
-    var cards = !!walk.querySelector('.walk-card');
-    walk.classList.add(cards ? 'walk-cards' : 'walk-thread');
-    if (!cards) walk.style.setProperty('--axis', '8px');
+    /* Trois serpentins, désormais, et jamais un :has() pour les
+       distinguer : sur Capital la marche est une MARCHE d'ascension
+       (.wk-line, une colonne, le fil à gauche, une seule ouverte à la
+       fois), sur les Manuscrits elle EST le bloc le long d'un fil. La
+       variante « cartes » en zigzag n'existe plus sur Capital ; son CSS
+       reste pour qui la rendrait ailleurs. */
+    var rungs = !!walk.querySelector('.wk-line');
+    var cards = !rungs && !!walk.querySelector('.walk-card');
+    walk.classList.add(rungs ? 'walk-rungs' : cards ? 'walk-cards' : 'walk-thread');
+    if (!cards) walk.style.setProperty('--axis', rungs ? '23px' : '8px');
     document.documentElement.classList.add('js-atwalk');
 
     /* Le serpentin est construit par le script de la page. Il l'est avant
        nous (script inline pendant le parse, ce module en defer), mais on
        ne s'y fie pas : la liste se relit tant qu'elle est vide. */
-    var parts = [];
+    var parts = [], steps = [];
     function collect() {
       parts = [].slice.call(walk.querySelectorAll('.walk-step, .walk-motor'));
+      steps = [].slice.call(walk.querySelectorAll('.walk-step'));
       return parts.length;
     }
     collect();
@@ -412,6 +416,186 @@
         /* la lumière arrive AVEC le fil, elle ne le devance pas */
         parts[i].style.setProperty('--lit',
           clamp01((front - anchor + 90) / 110).toFixed(3));
+      }
+
+      /* L'ASCENSION : la marche ouverte est celle où l'on est. On ne
+         mesure pas contre le front du fil mais contre la LIGNE DE
+         LECTURE (38 % de la hauteur) — le fil, lui, court en avance sur
+         toute la section, et il aurait déplié la dernière marche bien
+         avant qu'on y arrive. Fonction de la POSITION, donc réversible :
+         on remonte, la marche précédente se rouvre.
+         Rien n'est piloté une fois que le lecteur a saisi l'objet (clic,
+         ou focus clavier dans la colonne) : refermer sous les yeux de
+         quelqu'un ce qu'il vient d'ouvrir serait le pire des services. */
+      if (!rungs || !window.walkOpen) return;
+      if (window.walkSeized && window.walkSeized()) return;
+      var line = vh * 0.38, best = 0;
+      for (var j = 0; j < steps.length; j++) {
+        if (steps[j].getBoundingClientRect().top <= line) best = j + 1;
+      }
+      /* au-dessus de la première marche, c'est encore la première qui
+         est « celle où l'on est » : on n'affiche jamais douze lignes
+         nues, ce serait un sommaire, pas une déduction */
+      window.walkOpen(best || 1, false);
+    });
+  }
+
+  /* ── E bis. L'INSTRUMENT SE DÉMONTRE ─────────────────────────────────
+     Treize pavés « Comment lire » disaient ce qu'on comprend en une
+     seconde à voir la chose bouger. Ils sont partis ; à leur place, la
+     station fait sa démonstration à l'arrivée : le curseur principal part
+     et revient, les chiffres suivent, puis elle rend la main. On ne
+     comprend pas qu'on peut jouer parce qu'on l'a lu — parce qu'on l'a vu.
+
+     Trois règles, toutes tirées d'un défaut évité :
+     1. UNE FOIS par station, jamais deux : une démonstration qui se
+        rejoue est un tic, pas une invite.
+     2. LE LECTEUR PASSE AVANT : au premier geste — souris, clavier,
+        tactile — la démonstration s'arrête net et la station est marquée
+        comme prise. On ne dispute jamais un curseur à celui qui le tient.
+     3. LA VALEUR EST RENDUE : l'aller-retour repose l'instrument sur son
+        réglage d'origine, et un filet le fait même si le rAF est bridé
+        (onglet en arrière-plan) — sinon la station resterait faussée par
+        une animation que personne n'a vue. ── */
+  function instDemo() {
+    var panels = [].slice.call(document.querySelectorAll('#labo .subpanel, #explore .xpane'));
+    if (!panels.length) return;
+    var played = {}, live = null;
+
+    function stop() {
+      if (!live) return;
+      cancelAnimationFrame(live.raf);
+      clearTimeout(live.net);
+      live.restore();
+      live = null;
+    }
+    function seized(e) {
+      var t = e.target, p = t && t.closest ? t.closest('.subpanel, .xpane') : null;
+      if (p) played[p.id] = 1;
+      stop();
+    }
+    document.addEventListener('pointerdown', seized, true);
+    document.addEventListener('keydown', seized, true);
+    document.addEventListener('wheel', function () { stop(); }, { capture: true, passive: true });
+
+    function nudge(r) {
+      var min = +r.min || 0, max = +r.max || 100, v0 = +r.value;
+      var span = (max - min) * 0.32;
+      var v1 = (v0 + span <= max) ? v0 + span : Math.max(min, v0 - span);
+      var t0 = 0, DUR = 1150;
+      var put = function (v) {
+        r.value = String(v);
+        r.dispatchEvent(new Event('input', { bubbles: true }));
+      };
+      var restore = function () { put(v0); };
+      function step(now) {
+        if (!live) return;
+        if (!t0) t0 = now;
+        var p = Math.min(1, (now - t0) / DUR);
+        /* aller-retour : on part vite, on revient posé */
+        var h = p < 0.5 ? p / 0.5 : (1 - p) / 0.5;
+        put(v0 + (v1 - v0) * (1 - Math.pow(1 - h, 3)));
+        if (p < 1) { live.raf = requestAnimationFrame(step); }
+        else { restore(); live = null; }
+      }
+      live = { raf: requestAnimationFrame(step), restore: restore, net: 0 };
+      live.net = setTimeout(function () { if (live) { stop(); } }, DUR + 900);
+    }
+
+    /* Une station qui n'a pas de curseur a des boutons : on ne clique pas
+       à la place du lecteur, on allume les commandes l'une après l'autre. */
+    function pulse(group) {
+      group.classList.remove('inst-pulse');
+      void group.offsetWidth;
+      group.classList.add('inst-pulse');
+      setTimeout(function () { group.classList.remove('inst-pulse'); }, 1500);
+    }
+
+    function play(panel) {
+      if (!panel || played[panel.id] || !shown(panel)) return;
+      played[panel.id] = 1;
+      var r = panel.querySelector('input[type=range]');
+      if (r) { nudge(r); return; }
+      var g = panel.querySelector('.forme-pick, .preset-row, .preset-bar');
+      if (g) pulse(g);
+    }
+    /* On ne joue QUE la station de la section concernée. Mesuré : un
+       playActive() global démontrait aussi la pièce des Explorations
+       pendant qu'on entrait dans le Laboratoire — deux instruments qui
+       bougent en même temps dans deux sections différentes, personne ne
+       sait plus lequel regarder. */
+    function playIn(sec) {
+      if (!sec) return;
+      play(sec.querySelector('.subpanel.active, .xpane.active'));
+    }
+
+    /* Deux déclencheurs, et il en faut deux : la section qui ENTRE dans
+       le champ (on descend jusqu'au laboratoire), et la station qu'on
+       CHANGE (elle apparaît alors en pleine position de lecture, sans
+       qu'aucun défilement n'ait lieu — le piège de la mesure unique). */
+    if (window.IntersectionObserver) {
+      var io = new IntersectionObserver(function (es) {
+        for (var i = 0; i < es.length; i++) if (es[i].isIntersecting) playIn(es[i].target);
+      }, { threshold: 0.25 });
+      ['labo', 'explore'].forEach(function (id) {
+        var e = document.getElementById(id); if (e) io.observe(e);
+      });
+    }
+    if (window.MutationObserver) {
+      var mo = new MutationObserver(function (recs) {
+        var secs = [];
+        for (var i = 0; i < recs.length; i++) {
+          var sec = recs[i].target.closest('#labo, #explore');
+          if (sec && secs.indexOf(sec) < 0) secs.push(sec);
+        }
+        setTimeout(function () { secs.forEach(playIn); }, 90);
+      });
+      panels.forEach(function (p) {
+        mo.observe(p, { attributes: true, attributeFilter: ['class'] });
+      });
+    }
+  }
+
+  /* ── E ter. LA FRISE SE REMPLIT DANS LE SENS DU TEMPS ────────────────
+     La section II est le pendant CONCRET de la section I : là un fil
+     descend et éclaire chaque catégorie qu'il atteint, ici une ligne
+     avance de 1450 vers 1867 et pose chaque événement au passage. C'est
+     la même idée dite deux fois — un front qui avance et allume ce qu'il
+     touche —, une fois dans l'ordre logique, une fois dans l'ordre de
+     l'histoire. Les deux se répondent ; ce n'est pas la même animation
+     recopiée, c'est la thèse du dossier.
+
+     Chaque couche a sa PROPRE avance : les deux bandes d'acte ne
+     commencent pas à la même date, un scaleX commun les aurait fait
+     partir ensemble depuis leur bord gauche. On calcule donc la fraction
+     locale à partir du `left`/`width` que la page a posés en pourcents. */
+  function chronoUnfold() {
+    var track = document.getElementById('chronoTrack');
+    if (!track) return;
+    document.documentElement.classList.add('js-atchrono');
+    var axis = track.querySelector('.chrono-axis');
+    var bands = [].slice.call(track.querySelectorAll('.chrono-actband'));
+    function pctOf(el, prop) { return parseFloat(el.style[prop]) || 0; }
+
+    addSub(function (y, vh) {
+      if (!shown(track)) return;
+      var p = through(track, vh, 0.92, 0.52);
+      track.style.setProperty('--drawx', p.toFixed(3));
+      if (axis) axis.style.setProperty('--fill', p.toFixed(3));
+      for (var i = 0; i < bands.length; i++) {
+        var l = pctOf(bands[i], 'left'), w = pctOf(bands[i], 'width') || 100;
+        bands[i].style.setProperty('--fill', clamp01((p * 100 - l) / w).toFixed(3));
+      }
+      /* pastilles et graduations : elles se posent quand le temps les
+         atteint, pas toutes ensemble. La liste est relue à chaque passage
+         — la frise est rendue par la page, et re-rendue à chaque année. */
+      var marks = track.querySelectorAll('.chrono-dot, .chrono-tick');
+      for (var j = 0; j < marks.length; j++) {
+        var x = pctOf(marks[j], 'left') / 100;
+        /* `p * 1.08` et non `p` : sans cette marge, la dernière pastille —
+           1867, à l'extrémité droite — n'était atteinte qu'à p = 1 exactement
+           et restait éteinte pour de bon (mesuré : 15 sur 16). */
+        marks[j].style.setProperty('--dot', clamp01((p * 1.08 - x) * 14).toFixed(3));
       }
     });
   }
@@ -450,6 +634,9 @@
      posent — le même geste que les feuillets du bureau, tenu à travers
      toute la page pour que l'atelier ait UN rythme et non cinq. */
   function poseParts() {
+    /* .howto et .method-note ont disparu de Capital (les pavés
+       explicatifs) ; ils vivent encore sur les Manuscrits, d'où le
+       sélecteur inchangé. */
     var sel = '.howto, .method-note, .lab > .controls, .lab > .readout,' +
               ' .chartbox, .rss-card, .ccard, .concepts-wrap, .chrono-track,' +
               ' .explore-card, .stairmap-wrap';
@@ -596,6 +783,8 @@
     inkSections();
     startBand();
     developIdeas();
+    instDemo();
+    chronoUnfold();
     poseBlocks();
     walkDeduce();
     tocInscribe();

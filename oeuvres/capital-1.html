@@ -142,29 +142,24 @@ svg.exchange{width:100%;height:auto;display:block;margin:22px 0 6px;font-family:
 .cc-icon svg{width:23px;height:23px;stroke:#fff;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;}
 .cc-term{font-family:'Fraunces',serif;font-weight:600;font-size:1.05rem;margin-bottom:4px;line-height:1.2;}
 .cc-def{font-size:.94rem;color:var(--ink-soft);line-height:1.5;}
+/* La formule du concept portait l'accent PUR de sa carte : 3,33:1 sur
+   les six teintes les plus sombres, treize fois dans le dossier. On garde
+   la teinte — c'est elle qui relie la formule à sa carte — en la relevant
+   vers l'encre. Repli sans color-mix : l'accent tel quel, comme avant. */
 .cc-formula{margin-top:7px;font-family:'Fraunces',serif;font-size:.85rem;color:var(--accent,var(--ink));background:rgba(243,233,212,.05);padding:4px 9px;border-radius:5px;display:inline-block;}
-.stair{position:relative;}.step{position:relative;margin-bottom:6px;}
-.step-card{border:1px solid var(--line);background:var(--card);border-radius:5px;overflow:hidden;}
-.step.flash .step-card{box-shadow:0 0 0 3px var(--red);}
-.step-head{display:flex;align-items:center;gap:16px;padding:16px 20px;cursor:pointer;transition:background .18s;width:100%;text-align:left;background:none;border:none;color:inherit;font:inherit;}
-.step-head:hover{background:var(--paper-2);}
-.step-head .sn{font-family:'Fraunces',serif;font-style:italic;font-weight:900;font-size:1.7rem;color:var(--red-text);min-width:42px;text-align:center;}
-.step-head .stt{font-family:'Fraunces',serif;font-weight:600;font-size:1.15rem;flex:1;}
-.step-head .chev{color:var(--ink-soft);transition:transform .25s;font-size:1.2rem;}.step.open .chev{transform:rotate(90deg);}
-.step-body{max-height:0;overflow:hidden;transition:max-height .4s ease;}.step-inner{padding:4px 20px 22px 78px;}
-.field-block{margin-bottom:14px;}.field-block .fl{font-size:.74rem;letter-spacing:.18em;text-transform:uppercase;font-weight:600;margin-bottom:4px;}
-.field-block.pose .fl{color:var(--blue);}.field-block.contra .fl{color:var(--red-text);}.field-block.pass .fl{color:var(--gold-deep);}
-.field-block p{color:var(--ink-soft);font-size:1rem;line-height:1.6;}.field-block p b{color:var(--ink);}
-.motor{margin:0 0 6px 78px;font-size:.84rem;font-style:italic;color:var(--red-text);display:flex;align-items:center;gap:8px;}.motor::before{content:"↓";font-style:normal;font-size:1.1rem;}
-.closing{margin-top:24px;text-align:center;font-style:italic;color:var(--ink-soft);font-size:.96rem;}
-.stairmap-wrap{margin-bottom:16px;}
-svg.stairmap{width:100%;height:auto;display:block;background:var(--card);border:1px solid var(--line);border-radius:8px;}
-.stair-node{cursor:pointer;}
-.stair-node circle{transition:r .15s ease;}
-.stair-node:hover circle{stroke:var(--ink);}
-.stair-node.on circle{stroke:var(--ink);stroke-width:3;}
-.stair-caption{text-align:center;font-family:'Fraunces',serif;font-size:.96rem;color:var(--ink-soft);margin:11px 0 2px;}
-.stair-caption b{color:var(--ink);}
+@supports (color:color-mix(in srgb,red,white)){
+  .cc-formula{color:color-mix(in srgb,var(--accent,var(--ink)) 58%,var(--ink));}
+}
+/* Vestiges retirés (mission « dossier-clair ») : .step/.step-card/
+   .step-head/.field-block/.motor/.stairmap — l'ancien cheminement en
+   accordéon puis en zigzag. Le serpentin actuel est .walk-rungs, plus
+   bas. Seuls restent le conteneur .stair et la ligne de fin .closing. */
+.stair{position:relative;}
+.closing{margin:24px 0 0;padding-left:61px;text-align:left;font-style:italic;
+  color:var(--ink-soft);font-size:.94rem;line-height:1.55;}
+#derivClose{display:grid;grid-template-columns:20px 1fr;gap:11px;align-items:start;}
+#derivClose .wk-mk{stroke:var(--gold);opacity:.75;}
+@media(max-width:720px){.closing{padding-left:45px;}}
 .step-links{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:14px;padding-top:13px;border-top:1px solid var(--line-soft);}
 .step-links-lab{font-size:.8rem;color:var(--ink-soft);font-style:italic;}
 .lk.expl{color:var(--blue);border-color:var(--blue);background:rgba(92,138,163,0.104);}
@@ -172,31 +167,133 @@ svg.stairmap{width:100%;height:auto;display:block;background:var(--card);border:
 .lk.chrono{color:var(--gold-deep);border-color:var(--gold-deep);background:rgba(216,173,76,0.100);}
 .lk.chrono:hover{background:var(--gold-deep);color:var(--bg);}
 
-/* ===== Cheminement en serpentin vertical ===== */
-.walk::before{content:"";position:absolute;left:50%;top:8px;bottom:8px;width:3px;transform:translateX(-50%);background:linear-gradient(var(--blue),var(--red));border-radius:2px;}
-.walk-axis{grid-column:2;display:flex;justify-content:center;z-index:2;}
-.walk-dot{width:18px;height:18px;border-radius:50%;border:3px solid var(--paper);box-shadow:0 0 0 1px var(--line);}
-.walk-card{grid-column:1;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:16px 18px;position:relative;}
-.walk-step.right .walk-card{grid-column:3;}
-.walk-card::after{content:"";position:absolute;top:50%;transform:translateY(-50%);width:18px;height:2px;background:var(--line);}
-.walk-step.left .walk-card::after{right:-19px;}
-.walk-step.right .walk-card::after{left:-19px;}
-.walk-head{display:flex;align-items:center;gap:11px;margin-bottom:12px;}
-.walk-num{flex:none;width:30px;height:30px;border-radius:50%;color:#fff;font-family:'Fraunces',serif;font-weight:900;display:flex;align-items:center;justify-content:center;font-size:.95rem;}
-.walk-title{font-family:'Fraunces',serif;font-weight:600;font-size:1.18rem;line-height:1.16;letter-spacing:-.01em;}
-.walk-card .field-block{margin-bottom:11px;}
-.walk-card .field-block:last-of-type{margin-bottom:0;}
-.walk-motor{display:flex;justify-content:center;padding:9px 0;position:relative;z-index:2;}
-.walk-motor span{background:var(--paper-2);border:1px solid var(--line-soft);color:var(--red-text);font-size:.82rem;font-style:italic;padding:4px 15px;border-radius:20px;}
-.walk-step.flash .walk-card{box-shadow:0 0 0 3px var(--red);}
+/* ══════════════════ LE CHEMINEMENT — l'ascension ══════════════════
+   Il y avait douze CARTES en zigzag, chacune répétant les trois mêmes
+   rubriques : trente-six micro-titres identiques, 4 833 px, et un œil qui
+   fait le va-et-vient d'un bord à l'autre. C'est devenu une ASCENSION :
+   une seule colonne, un fil à gauche, et douze marches qui ne montrent au
+   repos que ce que la catégorie POSE. La contradiction et le passage —
+   c'est-à-dire le mouvement — n'apparaissent que sur la marche où la
+   déduction se trouve. On ne lit plus la déduction : on la gravit.
+   Le défaut CSS est l'état OUVERT : sans le module, dans le tiroir ou à
+   l'impression, tout est là. C'est `.wk-fold` (posée par la page quand
+   elle a câblé le pli) qui autorise à refermer. */
+.walk-rungs{--axis:23px;position:relative;margin:4px 0 0;}
+.walk-rungs::before{content:"";position:absolute;left:var(--axis);top:18px;bottom:18px;width:2px;
+  transform:translateX(-1px);border-radius:2px;
+  background:linear-gradient(var(--blue),var(--red));opacity:.45;}
+.walk-rungs .walk-step{display:block;position:relative;}
+
+/* La marche au repos : son rang, son nom, ce qu'elle pose. Rien d'autre. */
+.wk-line{display:grid;grid-template-columns:46px 1fr 20px;align-items:start;gap:0 15px;
+  width:100%;text-align:left;font:inherit;color:inherit;background:none;border:0;
+  padding:15px 10px 15px 0;cursor:pointer;border-radius:12px;
+  transition:background .18s;}
+.wk-line:hover{background:var(--hover);}
+/* La pastille dit le rang ET l'état : ANNEAU tant que la marche est
+   fermée, PLEINE sur celle où l'on est. C'est la seule chose qui change
+   de nature entre les deux états, et c'est assez.
+   Elle n'est PAS estompée : le chiffre est du texte, et à 62 %
+   d'opacité il tombait à 2,6:1 sur les dernières marches (mesuré). Ce
+   qui distingue le repos, c'est le remplissage, jamais la lisibilité. */
+.wk-num{grid-column:1;justify-self:center;width:30px;height:30px;border-radius:50%;
+  background:transparent;color:var(--ink);font-family:'Fraunces',serif;font-weight:900;
+  font-size:.92rem;line-height:1;display:flex;align-items:center;justify-content:center;
+  box-shadow:inset 0 0 0 1.5px var(--rung,var(--blue)),0 0 0 5px var(--bg);
+  transition:background .3s,color .3s,box-shadow .3s;}
+.wk-on>.wk-line .wk-num{background:var(--rung,var(--blue));color:#fff;
+  box-shadow:inset 0 0 0 1.5px var(--rung,var(--blue)),0 0 0 5px var(--bg);}
+.wk-said{grid-column:2;min-width:0;}
+.wk-t{display:block;font-family:'Fraunces',serif;font-weight:600;font-size:1.16rem;
+  line-height:1.2;letter-spacing:-.01em;color:var(--ink);}
+.wk-pose{display:block;margin-top:5px;font-size:.95rem;line-height:1.5;color:var(--ink-soft);}
+.wk-pose b{color:var(--ink);font-weight:600;}
+/* le chevron dit qu'il y a un dessous, et de quel côté il s'ouvre */
+.wk-chev{grid-column:3;justify-self:end;margin-top:7px;width:16px;height:16px;
+  color:var(--ink-soft);transition:transform .32s cubic-bezier(.16,1,.3,1),color .2s;}
+.wk-chev svg{width:16px;height:16px;display:block;fill:none;stroke:currentColor;
+  stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.wk-on>.wk-line .wk-chev{transform:rotate(90deg);color:var(--gold);}
+
+/* Le dessous : la contradiction, puis ce qu'elle force. Deux marques
+   dessinées et non deux rubriques — le libellé survit pour les lecteurs
+   d'écran (.sr-only), il ne mange plus la page. */
+.wk-body{padding:0 10px 4px 61px;}
+.wk-f{display:grid;grid-template-columns:20px 1fr;gap:11px;align-items:start;
+  margin:0 0 11px;font-size:.98rem;line-height:1.58;color:var(--ink-soft);}
+.wk-f b{color:var(--ink);font-weight:600;}
+.wk-mk{width:20px;height:20px;margin-top:1px;fill:none;stroke-width:1.9;
+  stroke-linecap:round;stroke-linejoin:round;}
+.wk-contra .wk-mk{stroke:var(--red-text);}
+.wk-pass .wk-mk{stroke:var(--gold);}
+.wk-body .step-links{margin-top:13px;}
+
+/* Le moteur : ce qui pousse d'une marche à l'autre. Il vit SUR le fil. */
+.walk-rungs .walk-motor{display:flex;align-items:center;gap:10px;
+  padding:2px 0 2px 46px;position:relative;z-index:2;min-height:26px;}
+.walk-rungs .walk-motor span{font-size:.84rem;font-style:italic;color:var(--red-text);
+  background:var(--bg);padding:2px 12px 2px 0;}
+.walk-step.flash>.wk-line{box-shadow:0 0 0 2px var(--red);}
+
+/* Le pli. Sans `.wk-fold`, tout est ouvert : c'est l'état de repli qui
+   est l'ajout, jamais l'inverse. `visibility` (et non un simple
+   écrasement de hauteur) sort vraiment le texte replié de l'arbre
+   d'accessibilité, sans quoi un lecteur d'écran lirait ce que l'œil ne
+   voit pas. */
+.wk-fold .wk-body{display:grid;grid-template-rows:0fr;opacity:0;visibility:hidden;
+  transition:grid-template-rows .38s cubic-bezier(.16,1,.3,1),opacity .26s,
+             padding-bottom .38s,visibility 0s .38s;}
+.wk-fold .wk-body>*{overflow:hidden;min-height:0;}
+.wk-fold .wk-body{grid-template-columns:1fr;padding-bottom:0;}
+.wk-fold .wk-on .wk-body{grid-template-rows:1fr;opacity:1;visibility:visible;
+  padding-bottom:6px;transition:grid-template-rows .38s cubic-bezier(.16,1,.3,1),
+             opacity .3s .06s,padding-bottom .38s,visibility 0s;}
+/* la marche ouverte prend l'encre ; les autres s'effacent d'un cran */
+.wk-fold .walk-step .wk-t{color:var(--ink-soft);transition:color .3s;}
+.wk-fold .wk-on .wk-t{color:var(--ink);}
+.wk-fold .walk-step .wk-num{transform:scale(.9);
+  transition:transform .3s cubic-bezier(.16,1,.3,1),background .3s,color .3s;}
+.wk-fold .wk-on .wk-num{transform:scale(1);}
+/* Dans le tiroir la marche est SEULE : la replier n'aurait aucun sens. */
+.atl-drawer-body .wk-body{grid-template-rows:1fr!important;opacity:1!important;
+  visibility:visible!important;padding-bottom:6px!important;}
+.atl-drawer-body .wk-line{cursor:default;}
+
 @media(max-width:720px){
-  .walk::before{left:19px;}
-  .walk-step{grid-template-columns:40px 1fr;}
-  .walk-axis{grid-column:1;justify-content:flex-start;}
-  .walk-step.left .walk-card,.walk-step.right .walk-card{grid-column:2;}
-  .walk-card::after{left:-21px !important;right:auto !important;}
-  .walk-motor{justify-content:flex-start;padding-left:4px;}
+  .walk-rungs{--axis:17px;}
+  .wk-line{grid-template-columns:34px 1fr 18px;gap:0 11px;padding:13px 4px 13px 0;}
+  .wk-num{width:26px;height:26px;font-size:.84rem;box-shadow:0 0 0 4px var(--bg);}
+  .wk-body{padding-left:45px;padding-right:2px;}
+  .walk-rungs .walk-motor{padding-left:34px;}
+  .wk-t{font-size:1.06rem;}
 }
+@media(prefers-reduced-motion:reduce){
+  .wk-fold .wk-body,.wk-fold .wk-on .wk-body,.wk-chev{transition:none;}
+}
+
+/* ══════════════ L'AMORCE — ce qui remplace les modes d'emploi ══════════
+   Treize pavés « Comment lire » (461 mots) expliquaient chaque instrument
+   avant qu'on l'ait touché. Il en reste UNE ligne impérative, qui nomme
+   le geste ; le reste se dit par le geste lui-même — à l'arrivée dans la
+   station, l'instrument fait sa démonstration tout seul (instDemo, dans
+   atelier-motion.js) puis rend la main. La ligne survit partout, y
+   compris là où le mouvement est coupé. */
+.inst-cue{font-family:var(--f-ui);font-size:.86rem;color:var(--ink-soft);
+  margin:0 0 16px;display:flex;align-items:center;gap:9px;}
+.inst-cue::before{content:"";flex:none;width:18px;height:1px;background:var(--gold);opacity:.7;}
+.inst-cue i,.inst-cue b{color:var(--ink);font-style:italic;}
+
+/* La démonstration des commandes qui ne sont pas des curseurs : elles
+   s'allument l'une après l'autre — on ne clique à la place de personne. */
+@keyframes lm-instpulse{
+  0%{box-shadow:0 0 0 0 rgba(216,173,76,0);}
+  22%{box-shadow:0 0 0 3px rgba(216,173,76,.34);}
+  100%{box-shadow:0 0 0 0 rgba(216,173,76,0);}}
+.inst-pulse>*{animation:lm-instpulse .95s cubic-bezier(.16,1,.3,1) both;}
+.inst-pulse>*:nth-child(2){animation-delay:.13s;}
+.inst-pulse>*:nth-child(3){animation-delay:.26s;}
+.inst-pulse>*:nth-child(4){animation-delay:.39s;}
+@media(prefers-reduced-motion:reduce){.inst-pulse>*{animation:none;}}
 
 /* ===== Outils ajoutés : forme de la valeur, circuits, accumulation ===== */
 .forme-pick{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;}
@@ -291,7 +388,27 @@ svg.circuits{width:100%;height:auto;display:block;margin:6px 0 4px;font-family:'
 /* .xsub partage désormais la règle de .subtab, plus haut : les deux
    strips sont le même objet et n'avaient aucune raison de diverger. */
 .xpane{display:none;}.xpane.active{display:block;animation:fade .35s;}
-svg.x-scene{width:100%;height:auto;display:block;background:var(--card);border:1px solid var(--line);border-radius:8px;margin-bottom:14px;font-family:'Fraunces',serif;}
+svg.x-scene{width:100%;height:auto;display:block;background:var(--card);border:1px solid var(--line);border-radius:12px 12px 0 0;margin-bottom:0;border-bottom:0;font-family:'Fraunces',serif;}
+/* ── LA PREUVE SOUS LE SCHÉMA ──────────────────────────────────────────
+   Le dossier n'avait pas une seule image. Ici l'image EST le sujet : le
+   dessin donne la structure du stade — cinq fois le même travail, puis
+   l'atelier parcellaire, puis la machine servie —, la photographie donne
+   le fait. Les deux changent ensemble, et la légende dit d'où elle vient.
+   Traitement de la maison : duotone dans la lumière, jamais devant. */
+.x-real{position:relative;margin:0 0 16px;height:150px;overflow:hidden;
+  border:1px solid var(--line);border-top:0;border-radius:0 0 12px 12px;background:#0f0c0a;}
+.x-real img{width:100%;height:100%;object-fit:cover;display:block;
+  filter:grayscale(1) contrast(1.04) sepia(.28) brightness(.62);
+  transform:scale(1.04);transition:transform 1.1s cubic-bezier(.16,1,.3,1),opacity .5s;}
+.x-real::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(to top,rgba(21,16,11,.72),rgba(21,16,11,.06) 62%);}
+.x-real .hs-img-caption{position:absolute;left:0;right:0;bottom:0;z-index:2;
+  padding:16px 14px 8px;font-family:var(--f-ui);font-size:11px;letter-spacing:.04em;
+  color:rgba(243,233,212,.74);line-height:1.3;}
+.x-real-in img{animation:lm-xreal 1.15s cubic-bezier(.16,1,.3,1) both;}
+@keyframes lm-xreal{from{opacity:0;transform:scale(1.09);}to{opacity:1;transform:scale(1.04);}}
+@media(max-width:720px){.x-real{height:118px;}}
+@media(prefers-reduced-motion:reduce){.x-real-in img{animation:none;}.x-real img{transition:none;}}
 .x-row{display:flex;justify-content:space-between;gap:14px;padding:10px 0;border-bottom:1px solid var(--line-soft);font-size:.93rem;align-items:baseline;}
 .x-row:last-child{border-bottom:none;}
 .x-row .x-k{color:var(--ink-soft);flex:1;}
@@ -761,25 +878,38 @@ nav.tabs.worktabs .tab:focus-visible{outline:2px solid var(--gold);
 
 /* ── Ressources : grille de cartes ── */
 .rss-section-label{font-size:.72rem;font-weight:700;letter-spacing:.22em;
-  text-transform:uppercase;color:var(--muted);margin-bottom:14px;display:block;
+  text-transform:uppercase;color:var(--gold-deep);margin:0 0 6px;display:block;
   font-family:var(--f-ui);padding-top:4px;}
-.rss-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:36px;}
-.rss-card{display:flex;flex-direction:column;gap:8px;background:var(--surface);
-  border-radius:16px;padding:18px 20px;text-decoration:none;color:inherit;
-  border:1px solid transparent;transition:transform .2s,box-shadow .2s;position:relative;}
-.rss-card:hover{transform:translateY(-3px);
-  box-shadow:0 14px 34px -12px rgba(0,0,0,.65);
-  border-color:rgba(243,233,212,.16);}
-.rss-card-top{display:flex;align-items:center;justify-content:space-between;}
-.rss-badge{font-size:.72rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
-  color:var(--red-text);font-family:var(--f-ui);}
-.rss-ext{color:var(--muted);opacity:.45;flex:none;}
+/* ── LES RESSOURCES — une bibliographie, pas douze cartes ──────────────
+   C'étaient douze cartes de même taille dans une grille : le conteneur
+   par défaut, qui donnait à une conférence d'une heure le même poids
+   visuel qu'à une autre et coûtait 1 346 px. C'est une LISTE de
+   références : deux colonnes de lignes réglées, le titre à gauche, la
+   nature à droite, la source dessous. Le filet prend l'or au survol —
+   c'est la seule chose qui bouge, et elle suffit. */
+.rss-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 40px;margin-bottom:30px;}
+.rss-card{display:grid;grid-template-columns:1fr auto;grid-template-areas:"t k" "m k";
+  align-items:baseline;gap:3px 16px;padding:13px 2px 13px 0;text-decoration:none;color:inherit;
+  background:none;border:0;border-bottom:1px solid var(--line);border-radius:0;
+  transition:border-color .2s;position:relative;}
+.rss-card::before{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;
+  background:var(--gold);transform:scaleX(0);transform-origin:left;
+  transition:transform .38s cubic-bezier(.16,1,.3,1);}
+.rss-card:hover{transform:none;box-shadow:none;}
+.rss-card:hover::before,.rss-card:focus-visible::before{transform:scaleX(1);}
+.rss-card-top{grid-area:k;display:flex;align-items:center;gap:8px;align-self:center;}
+.rss-badge{font-size:.72rem;font-weight:600;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--muted);font-family:var(--f-ui);transition:color .2s;}
+.rss-card:hover .rss-badge{color:var(--gold);}
+.rss-ext{color:var(--muted);opacity:.5;flex:none;transition:transform .3s cubic-bezier(.16,1,.3,1),opacity .2s;}
+.rss-card:hover .rss-ext{opacity:1;transform:translate(2px,-2px);}
 .rss-ext svg{width:13px;height:13px;display:block;}
-.rss-title{font-family:'Fraunces',serif;font-weight:700;font-size:.97rem;
-  line-height:1.32;color:var(--text);}
-.rss-meta{font-size:.79rem;color:var(--muted);
+.rss-title{grid-area:t;font-family:'Fraunces',serif;font-weight:700;font-size:.97rem;
+  line-height:1.32;color:var(--text);transition:color .2s;}
+.rss-meta{grid-area:m;font-size:.79rem;color:var(--muted);
   font-family:var(--f-ui);line-height:1.4;}
-@media(max-width:640px){.rss-grid{grid-template-columns:1fr;}}
+@media(max-width:760px){.rss-grid{grid-template-columns:1fr;gap:0;}}
+@media(prefers-reduced-motion:reduce){.rss-card::before,.rss-ext{transition:none;}}
 
 /* ── Marques imprimées, pas des pastilles d'interface ──
    Règle du site (cf. la légende du cartel de la bibliothèque) : les repères
@@ -1041,12 +1171,14 @@ nav.tabs.worktabs{position:sticky;top:44px;z-index:62;
         <div class="panel-head">
       <div class="panel-head-main">
   <h2 class="sec">L'ascension de l'abstrait au concret</h2>
-      <p class="lead">Le <i>Capital</i> ne juxtapose pas des thèmes : il <em>déduit</em>. Chaque catégorie révèle une contradiction qui rend la suivante nécessaire.</p>
+      <p class="lead">Chaque catégorie bute sur une contradiction qui rend la suivante nécessaire.</p>
       </div>
     </div>
-    <div class="method-note"><b>Ordre d'exposition ≠ ordre de recherche.</b> La marchandise est le point de départ logique dont tout découle. Le moteur, à chaque marche, est une <b>contradiction</b>.</div>
     <div class="stair" id="stair"></div>
-    <div class="closing">⟶ Les Livres II et III poursuivent l'ascension : circulation, puis procès d'ensemble — profit, prix de production, intérêt, rente, formule trinitaire.</div>
+    <!-- La fin de l'ascension parle la langue des marches : la même marque
+         dessinée que « ce qui force le passage », alignée sur la même
+         colonne. Le Livre I s'arrête, le mouvement non. -->
+    <div class="closing wk-f" id="derivClose"><span></span></div>
   </section>
 
   <!-- CHRONOLOGIE -->
@@ -1054,12 +1186,11 @@ nav.tabs.worktabs{position:sticky;top:44px;z-index:62;
         <div class="panel-head">
       <div class="panel-head-main">
   <h2 class="sec">La chronologie du Capital</h2>
-      <p class="lead">Le pendant <em>concret</em> de la Dérivation : non plus la marche logique des catégories, mais l'histoire réelle sur laquelle elles reposent — une frise qu'on ne lit pas, qu'on <b>joue</b>.</p>
+      <p class="lead">L'histoire réelle sous les catégories : la genèse violente du capital, puis la bataille de la journée de travail.</p>
       </div>
     </div>
-    <div class="method-note"><b>Deux actes, un seul mouvement.</b> D'abord la <b>genèse</b> violente du capital (l'accumulation primitive : expropriation, lois sanglantes, colonies) ; puis, une fois le rapport institué, la <b>bataille de la journée de travail</b>, où la loi vient enfin disputer au capital la durée du travail. Entre les deux, un passage de relais : ce qui fut imposé par la force se met à se reproduire de lui-même.</div>
-    <div class="howto"><span class="pin">i</span><div><b>Comment jouer :</b> appuie sur <b>Jouer</b> : la frise avance et <b>s'arrête sur chaque événement</b> le temps de le lire, puis repart. Tu peux aussi faire glisser le curseur ou cliquer une pastille pour aller directement à un moment. Le tableau de bord se met à jour en direct.</div></div>
 
+    <p class="inst-cue">Jouez la frise, ou saisissez le curseur.</p>
     <div class="chrono-controls">
       <button class="btn red" id="chronoPlay" type="button">▶ Jouer</button>
       <button class="btn" id="chronoReset" type="button">⟲ Début</button>
@@ -1087,7 +1218,7 @@ nav.tabs.worktabs{position:sticky;top:44px;z-index:62;
       </div>
     </div>
 
-    <div class="concepts-wrap"><h3>Comprendre les concepts</h3><div class="csub">Les notions de l'accumulation primitive et de la journée de travail.</div><div class="concept-cards" id="cc-chrono"></div></div>
+    <div class="concepts-wrap"><h3>Comprendre les concepts</h3><div class="concept-cards" id="cc-chrono"></div></div>
   </section>
 
   <!-- LABORATOIRE -->
@@ -1095,7 +1226,7 @@ nav.tabs.worktabs{position:sticky;top:44px;z-index:62;
         <div class="panel-head">
       <div class="panel-head-main">
   <h2 class="sec">Le laboratoire des lois</h2>
-      <p class="lead">L'appareil quantitatif rendu manipulable. Chaque station explique ses concepts puis te laisse les faire varier.</p>
+      <p class="lead">Neuf stations : les lois du <i>Capital</i>, rendues manipulables.</p>
       </div>
     </div>
     <span class="strip-lab">Les neuf stations</span>
@@ -1111,7 +1242,7 @@ nav.tabs.worktabs{position:sticky;top:44px;z-index:62;
       <button class="subtab" data-sub="s-monnaie">Circulation de la monnaie</button>
     </div>
     <div class="subpanel active" id="s-taux">
-      <div class="howto"><span class="pin">i</span><div><b>Comment lire :</b> déplace les curseurs. La barre montre la décomposition de la valeur ; les pastilles recalculent le taux d'exploitation et le taux de profit.</div></div>
+      <p class="inst-cue">Déplacez les trois curseurs.</p>
       <div class="lab">
         <div class="controls">
           <h3>Le capital avancé</h3>
@@ -1131,10 +1262,10 @@ nav.tabs.worktabs{position:sticky;top:44px;z-index:62;
         </div>
       </div>
       <div class="note"><b>À éprouver :</b> augmente <i>c</i> seul — le taux d'exploitation ne bouge pas, mais le taux de <em>profit</em> chute.</div>
-      <div class="concepts-wrap"><h3>Comprendre les concepts</h3><div class="csub">Les six notions de cette station.</div><div class="concept-cards" id="cc-taux"></div></div>
+      <div class="concepts-wrap"><h3>Comprendre les concepts</h3><div class="concept-cards" id="cc-taux"></div></div>
     </div>
     <div class="subpanel" id="s-trpf">
-      <div class="howto"><span class="pin">i</span><div><b>Comment lire :</b> l'axe horizontal = la mécanisation. Courbe pleine = ton taux de profit ; pointillée = la loi pure. Monte <i>k</i> pour voir les contre-tendances.</div></div>
+      <p class="inst-cue">Montez <i>k</i> pour réveiller les contre-tendances.</p>
       <div class="lab">
         <div class="controls">
           <h3>Loi et contre-tendances</h3>
@@ -1145,10 +1276,10 @@ nav.tabs.worktabs{position:sticky;top:44px;z-index:62;
         <div class="chartbox"><svg class="chart" id="trpfChart" viewBox="0 0 560 340" role="img" aria-label="courbe du taux de profit"></svg>
           <div class="chart-legend"><span><i style="border-color:var(--red)"></i> p′ avec tes réglages</span><span><i style="border-color:var(--ink-soft);border-top-style:dashed"></i> loi pure (k = 0)</span></div></div>
       </div>
-      <div class="concepts-wrap"><h3>Comprendre les concepts</h3><div class="csub">Ce que mesure chaque axe et chaque réglage.</div><div class="concept-cards" id="cc-trpf"></div></div>
+      <div class="concepts-wrap"><h3>Comprendre les concepts</h3><div class="concept-cards" id="cc-trpf"></div></div>
     </div>
     <div class="subpanel" id="s-jour">
-      <div class="howto"><span class="pin">i</span><div><b>Comment lire :</b> la barre est une journée. Le bleu (<b>nécessaire</b>) paie le salaire ; le rouge (<b>surtravail</b>) est gratuit pour le capital.</div></div>
+      <p class="inst-cue">Allongez la journée, ou montez la productivité.</p>
       <div class="lab">
         <div class="controls">
           <h3>Le partage de la journée</h3>
@@ -1166,10 +1297,10 @@ nav.tabs.worktabs{position:sticky;top:44px;z-index:62;
           <div class="note" id="dayNote"></div>
         </div>
       </div>
-      <div class="concepts-wrap"><h3>Comprendre les concepts</h3><div class="csub">Les six notions du partage de la journée.</div><div class="concept-cards" id="cc-jour"></div></div>
+      <div class="concepts-wrap"><h3>Comprendre les concepts</h3><div class="concept-cards" id="cc-jour"></div></div>
     </div>
     <div class="subpanel" id="s-repro">
-      <div class="howto"><span class="pin">i</span><div><b>Comment lire :</b> deux secteurs échangent leurs produits ; ils ne s'équilibrent que si <b>I(v+pl) = II(c)</b>.</div></div>
+      <p class="inst-cue">Changez les chiffres : l'équilibre tient, ou casse.</p>
       <div class="preset-bar"><button class="btn" id="presetSimple">Reproduction simple (Marx)</button><button class="btn" id="presetElargie">Reproduction élargie (Marx)</button></div>
       <div class="dept-grid">
         <div class="dept"><h4><span class="di"><svg viewBox="0 0 24 24"><path d="M3 21V11l5 3V11l5 3V8l6 3v9z"/><path d="M3 21h18"/></svg></span>Département I</h4><div class="dsub">Moyens de production</div>
@@ -1186,12 +1317,12 @@ nav.tabs.worktabs{position:sticky;top:44px;z-index:62;
       <div class="exch-cap">L'échange croisé entre les deux départements</div>
       <svg class="exchange" id="exchange" viewBox="0 0 560 210" role="img" aria-label="flux entre départements"></svg>
       <div class="verdict" id="reproVerdict"></div>
-      <div class="concepts-wrap"><h3>Comprendre les concepts</h3><div class="csub">Les notions des schémas de reproduction.</div><div class="concept-cards" id="cc-repro"></div></div>
+      <div class="concepts-wrap"><h3>Comprendre les concepts</h3><div class="concept-cards" id="cc-repro"></div></div>
     </div>
 
     <!-- Forme de la valeur -->
     <div class="subpanel" id="s-forme">
-      <div class="howto"><span class="pin">i</span><div><b>Comment lire :</b> avance d'une forme à l'autre. À gauche, la marchandise dont on exprime la valeur (<b>forme relative</b>, pôle actif) ; à droite, celle qui sert de miroir (<b>équivalent</b>, pôle passif). On voit la monnaie naître par simple déduction.</div></div>
+      <p class="inst-cue">Avancez d'une forme à l'autre.</p>
       <div class="forme-pick" id="formePick">
         <button class="formebtn active" data-f="0">A · simple</button>
         <button class="formebtn" data-f="1">B · développée</button>
@@ -1203,12 +1334,12 @@ nav.tabs.worktabs{position:sticky;top:44px;z-index:62;
         <div class="forme-read" id="formeRead"></div>
       </div>
       <div class="preset-row" style="margin-top:16px"><button class="btn" id="formePrev">‹ Forme précédente</button><button class="btn red" id="formeNext">Forme suivante ›</button></div>
-      <div class="concepts-wrap"><h3>Comprendre les concepts</h3><div class="csub">Les deux pôles de l'expression et les quatre formes.</div><div class="concept-cards" id="cc-forme"></div></div>
+      <div class="concepts-wrap"><h3>Comprendre les concepts</h3><div class="concept-cards" id="cc-forme"></div></div>
     </div>
 
     <!-- A-M-A' vs M-A-M -->
     <div class="subpanel" id="s-circuit">
-      <div class="howto"><span class="pin">i</span><div><b>Comment lire :</b> deux circuits. <b>M&#8209;A&#8209;M</b> : vendre pour acheter (circulation simple). <b>A&#8209;M&#8209;A&prime;</b> : acheter pour vendre (le capital). Fais varier le ΔA pour voir ce qui distingue le second du premier.</div></div>
+      <p class="inst-cue">Faites varier le ΔA.</p>
       <div class="lab">
         <div class="controls">
           <h3>Le mouvement de la valeur</h3>
@@ -1225,12 +1356,12 @@ nav.tabs.worktabs{position:sticky;top:44px;z-index:62;
         <div class="opp-title">Ce qui oppose les deux circuits</div>
         <table class="opp-table"><thead><tr><th></th><th>M — A — M</th><th>A — M — A′</th></tr></thead><tbody id="oppBody"></tbody></table>
       </div>
-      <div class="concepts-wrap"><h3>Comprendre les concepts</h3><div class="csub">Les notions des deux circulations.</div><div class="concept-cards" id="cc-circuit"></div></div>
+      <div class="concepts-wrap"><h3>Comprendre les concepts</h3><div class="concept-cards" id="cc-circuit"></div></div>
     </div>
 
     <!-- Accumulation & armée de réserve -->
     <div class="subpanel" id="s-accum">
-      <div class="howto"><span class="pin">i</span><div><b>Comment lire :</b> le capital s'accumule et se mécanise (<i>c/v</i> monte). Le travail vivant employé croît, mais <b>plus lentement</b> que le capital : l'écart est l'<b>armée industrielle de réserve</b> que l'accumulation engendre.</div></div>
+      <p class="inst-cue">Accumulez, et regardez l'écart se creuser.</p>
       <div class="lab">
         <div class="controls">
           <h3>Les ressorts de l'accumulation</h3>
@@ -1251,12 +1382,12 @@ nav.tabs.worktabs{position:sticky;top:44px;z-index:62;
         </div>
       </div>
       <div class="verdict" id="accumVerdict" style="margin-top:16px"></div>
-      <div class="concepts-wrap"><h3>Comprendre les concepts</h3><div class="csub">Les notions de la loi générale de l'accumulation.</div><div class="concept-cards" id="cc-accum"></div></div>
+      <div class="concepts-wrap"><h3>Comprendre les concepts</h3><div class="concept-cards" id="cc-accum"></div></div>
     </div>
 
     <!-- Procès de valorisation -->
     <div class="subpanel" id="s-valor">
-      <div class="howto"><span class="pin">i</span><div><b>Comment lire :</b> règle l'avance du capital, puis clique <b>Dérouler la journée</b>. On voit la valeur du produit se former heure par heure : le travail mort (c) reparaît, le travail vivant reproduit d'abord le salaire (v), puis produit du surtravail pur (pl).</div></div>
+      <p class="inst-cue">Déroulez la journée, heure par heure.</p>
       <div class="lab">
         <div class="controls">
           <h3>L'avance et la journée</h3>
@@ -1282,12 +1413,12 @@ nav.tabs.worktabs{position:sticky;top:44px;z-index:62;
           <div class="note" id="valNote"></div>
         </div>
       </div>
-      <div class="concepts-wrap"><h3>Comprendre les concepts</h3><div class="csub">Transfert et création de valeur dans la production.</div><div class="concept-cards" id="cc-valor"></div></div>
+      <div class="concepts-wrap"><h3>Comprendre les concepts</h3><div class="concept-cards" id="cc-valor"></div></div>
     </div>
 
     <!-- Circulation de la monnaie -->
     <div class="subpanel" id="s-monnaie">
-      <div class="howto"><span class="pin">i</span><div><b>Comment lire :</b> dans la circulation simple <b>M&#8209;A&#8209;M</b>, une même pièce sert à plusieurs achats. La masse de monnaie nécessaire n'est donc pas la somme des prix, mais cette somme <b>divisée par la vitesse</b> de circulation — le crédit la réduit encore.</div></div>
+      <p class="inst-cue">Accélérez la circulation.</p>
       <div class="lab">
         <div class="controls">
           <h3>Ce qu'il faut réaliser</h3>
@@ -1306,7 +1437,7 @@ nav.tabs.worktabs{position:sticky;top:44px;z-index:62;
           <div class="note" id="mNote"></div>
         </div>
       </div>
-      <div class="concepts-wrap"><h3>Comprendre les concepts</h3><div class="csub">La loi de la circulation et les fonctions de la monnaie.</div><div class="concept-cards" id="cc-monnaie"></div></div>
+      <div class="concepts-wrap"><h3>Comprendre les concepts</h3><div class="concept-cards" id="cc-monnaie"></div></div>
     </div>
   </section>
 
@@ -1320,7 +1451,7 @@ nav.tabs.worktabs{position:sticky;top:44px;z-index:62;
         <div class="panel-head">
       <div class="panel-head-main">
   <h2 class="sec">Explorations</h2>
-      <p class="lead">Deux pièces moins quantitatives que qualitatives : non des lois à régler, mais des transformations et des renversements à voir de ses propres yeux.</p>
+      <p class="lead">Trois pièces : non des lois à régler, mais des renversements à voir.</p>
       </div>
     </div>
     <span class="strip-lab">Les trois pièces</span>
@@ -1331,9 +1462,10 @@ nav.tabs.worktabs{position:sticky;top:44px;z-index:62;
     </div>
 
     <div class="xpane active" id="x-coop">
-      <div class="howto"><span class="pin">i</span><div><b>Comment lire :</b> change de stade. La scène de l'atelier se transforme, la force productive monte — et la place de l'ouvrier se réduit, jusqu'à n'être plus qu'un appendice de la machine. C'est toute la Section IV en trois temps.</div></div>
+      <p class="inst-cue">Changez de stade.</p>
       <div class="forme-pick" id="coopPick"><button class="formebtn active" type="button">Coopération</button><button class="formebtn" type="button">Manufacture</button><button class="formebtn" type="button">Grande industrie</button></div>
       <svg class="x-scene" id="coopScene" viewBox="0 0 520 165" role="img" aria-label="l'atelier selon le stade"></svg>
+      <figure class="x-real" id="coopReal"><img src="../assets/img/archive/halles-paris.jpg" alt="Marchandes aux Halles centrales de Paris, chacune à son étal" loading="lazy" decoding="async"><figcaption class="hs-img-caption">Les Halles de Paris · carte postale ancienne · CC0</figcaption></figure>
       <div class="lab">
         <div class="controls"><h3>Le stade</h3><div id="coopDesc"></div></div>
         <div class="readout" aria-live="polite"><h3>Ce qui change</h3>
@@ -1345,11 +1477,11 @@ nav.tabs.worktabs{position:sticky;top:44px;z-index:62;
           </div>
         </div>
       </div>
-      <div class="concepts-wrap"><h3>Comprendre les concepts</h3><div class="csub">De la coopération à la machine.</div><div class="concept-cards" id="cc-coop"></div></div>
+      <div class="concepts-wrap"><h3>Comprendre les concepts</h3><div class="concept-cards" id="cc-coop"></div></div>
     </div>
 
     <div class="xpane" id="x-feti">
-      <div class="howto"><span class="pin">i</span><div><b>Comment lire :</b> une marchandise et son prix. Clique <b>Révéler le rapport social</b> pour faire glisser de l'<b>apparence</b> (un rapport entre choses) à la <b>réalité</b> (un rapport entre des travaux humains). Puis explore les contre-mondes où ce rapport est transparent.</div></div>
+      <p class="inst-cue">Révélez le rapport social.</p>
       <svg class="x-scene" id="fetiScene" viewBox="0 0 520 205" role="img" aria-label="apparence et réalité de la marchandise"></svg>
       <div class="feti-toggle-row"><button class="btn red" id="fetiToggle" type="button">Révéler</button></div>
       <div class="x-caption" id="fetiCaption"></div>
@@ -1360,7 +1492,7 @@ nav.tabs.worktabs{position:sticky;top:44px;z-index:62;
         <div class="inst-lab"><span>Transparence du rapport social</span><b id="mondeMeterv"></b></div><div class="meter"><div class="transp-fill" id="mondeMeter"></div></div>
         <div class="x-caption" id="mondeDesc" style="margin-top:14px;border-left-color:var(--blue);background:rgba(92,138,163,0.091)"></div>
       </div>
-      <div class="concepts-wrap"><h3>Comprendre les concepts</h3><div class="csub">La marchandise comme hiéroglyphe social.</div><div class="concept-cards" id="cc-feti"></div></div>
+      <div class="concepts-wrap"><h3>Comprendre les concepts</h3><div class="concept-cards" id="cc-feti"></div></div>
       <a class="work-bridge" href="manuscrits-1844.html#anatomie">
         <div class="wb-eyebrow">Aux sources — 1844</div>
         <div class="wb-title">Le fétichisme, forme mûrie de l'aliénation</div>
@@ -1370,7 +1502,7 @@ nav.tabs.worktabs{position:sticky;top:44px;z-index:62;
     </div>
 
     <div class="xpane" id="x-salaire">
-      <div class="howto"><span class="pin">i</span><div><b>Comment lire :</b> une même journée de travail, sous deux descriptions. En « vérité » elle se partage en travail payé (le nécessaire) et travail gratuit (le surtravail) ; clique <b>Chausser les lunettes du salaire</b> et la ligne du surtravail s'efface — toute la journée paraît payée.</div></div>
+      <p class="inst-cue">Chaussez les lunettes du salaire.</p>
       <div class="lab">
         <div class="controls">
           <h3>La journée</h3>
@@ -1387,7 +1519,7 @@ nav.tabs.worktabs{position:sticky;top:44px;z-index:62;
           <div class="x-caption" id="salCaption" style="margin-top:14px"></div>
         </div>
       </div>
-      <div class="concepts-wrap"><h3>Comprendre les concepts</h3><div class="csub">La forme qui efface le partage du travail.</div><div class="concept-cards" id="cc-salaire"></div></div>
+      <div class="concepts-wrap"><h3>Comprendre les concepts</h3><div class="concept-cards" id="cc-salaire"></div></div>
     </div>
   </section>
 
@@ -1396,7 +1528,7 @@ nav.tabs.worktabs{position:sticky;top:44px;z-index:62;
     <div class="panel-head">
       <div class="panel-head-main">
         <h2 class="sec">Ressources</h2>
-        <p class="lead">Conférences, cours, podcasts et articles en libre accès — pour préparer la lecture, ou la prolonger.</p>
+        <p class="lead">Conférences, cours, podcasts et articles en libre accès.</p>
       </div>
     </div>
     <!-- VIDÉOS -->
@@ -1775,6 +1907,9 @@ function activateSub(s){document.querySelectorAll('.subtab').forEach(x=>{const o
 function goLabo(s){activateTab('dossier','labo');activateSub(s);}
 function goDeriv(n){activateTab('dossier','deriv');
   setTimeout(()=>{const el=document.querySelector('.walk-step[data-step="'+n+'"]');if(!el)return;
+    /* On vient chercher CETTE marche : elle s'ouvre, et le défilement ne
+       la refermera pas dans le dos de celui qui l'a demandée. */
+    if(window.walkOpen)walkOpen(+n,true);
     el.classList.add('flash');el.scrollIntoView({behavior:'smooth',block:'center'});setTimeout(()=>el.classList.remove('flash'),1600);},260);}
 function goLire(n,num,title){
   activateTab('lire');
@@ -2517,6 +2652,10 @@ function openDrawer(kind,target){
   }else if(kind==='step'){
     node=document.querySelector('.walk-step[data-step="'+target+'"]');
     title='Marche '+target+' — '+((STEPS[target-1]||{}).t||'');
+    /* Dans le tiroir la marche est seule : elle y est toujours dépliée
+       (le CSS le force), l'état annoncé doit dire la même chose. */
+    if(node){node.classList.add('wk-on');
+      const hb=node.querySelector('.wk-line');if(hb)hb.setAttribute('aria-expanded','true');}
   }
   if(!node)return;
   drawerNode=node; drawerHome=node.parentNode; drawerNext=node.nextSibling;
@@ -3308,15 +3447,21 @@ const COOP=[
  {n:'Coopération simple',chap:'chap. XI',
   pose:"Beaucoup d'ouvriers travaillent côte à côte à la même tâche, sous le même capital. De leur seule réunion naît une force productive nouvelle — la <b>force collective</b> — qui n'appartient à aucun pris isolément.",
   meca:"Économies sur les bâtiments et l'outillage, émulation, continuité : le tout dépasse la somme des parties. Mais chaque ouvrier reste un travailleur complet, maître de son métier.",
-  prod:34,savoir:"L'ouvrier — il possède tout son métier",rapport:"Il se sert de ses outils",subs:"Subsomption formelle"},
+  prod:34,savoir:"L'ouvrier — il possède tout son métier",rapport:"Il se sert de ses outils",subs:"Subsomption formelle",
+  img:'halles-paris.jpg',alt:"Marchandes aux Halles centrales de Paris, chacune à son étal",
+  leg:"Les Halles de Paris · carte postale ancienne · CC0"},
  {n:'Manufacture',chap:'chap. XII',
   pose:"La division du travail décompose le métier en opérations parcellaires, chacune confiée à vie à un ouvrier spécialisé. L'atelier devient un mécanisme dont les ouvriers sont les organes : le <b>travailleur collectif</b>.",
   meca:"La virtuosité parcellaire accélère le travail mais mutile l'ouvrier, qui perd la maîtrise du tout. Le savoir-faire passe de l'individu à l'atelier organisé.",
-  prod:64,savoir:"Le travailleur collectif — l'atelier, non l'individu",rapport:"Il devient l'organe partiel d'un mécanisme",subs:"Transition"},
+  prod:64,savoir:"Le travailleur collectif — l'atelier, non l'individu",rapport:"Il devient l'organe partiel d'un mécanisme",subs:"Transition",
+  img:'manufacture.jpg',alt:"Atelier de manufacture au XIXe siècle, ouvriers alignés à des postes distincts",
+  leg:"Manufacture, XIXᵉ siècle"},
  {n:'Grande industrie',chap:'chap. XV',
   pose:"La machine s'empare de l'outil. Ce n'est plus l'ouvrier qui manie l'instrument, mais la machine — mue par une force motrice propre — qui exécute, l'ouvrier la <b>servant</b>. Il devient un appendice vivant du système mécanique.",
   meca:"La force productive bondit ; l'outil, le savoir et le rythme sont incorporés au capital fixe. La subsomption devient réelle : le procès de travail lui-même est refondu par le capital.",
-  prod:100,savoir:"La machine — le savoir objectivé en capital fixe",rapport:"Il devient l'appendice de la machine",subs:"Subsomption réelle"}];
+  prod:100,savoir:"La machine — le savoir objectivé en capital fixe",rapport:"Il devient l'appendice de la machine",subs:"Subsomption réelle",
+  img:'filature.jpg',alt:"Intérieur d'une filature de coton : rangées de métiers mécaniques",
+  leg:"Filature de coton, 1909 · domaine public"}];
 let coopStage=0;
 function drawCoop(){
   const S=COOP[coopStage];
@@ -3332,6 +3477,20 @@ function drawCoop(){
     +workerSvg(405,98,'var(--red)')+workerSvg(455,98,'var(--red)')+`<text x="430" y="140" text-anchor="middle" font-size="10" fill="var(--red)">appendices</text>`
     +`<text x="265" y="42" text-anchor="middle" font-size="13" font-weight="600" fill="var(--red)">l'ouvrier sert la machine</text>`;}
   document.getElementById('coopScene').innerHTML=scene;
+  /* LA PREUVE À CÔTÉ DU SCHÉMA. Le dessin dit la structure du stade ; la
+     photographie dit qu'il a existé. Elles changent ensemble — c'est la
+     seule place du dossier où une image est le sujet et non le décor. */
+  const rp=document.getElementById('coopReal');
+  if(rp&&S.img){const im=rp.querySelector('img');
+    /* le premier stade est déjà dans le HTML (une image sans src est une
+       image cassée si le script ne tourne pas) : on ne le rejoue pas */
+    if(!im.getAttribute('data-src')&&(im.getAttribute('src')||'').indexOf(S.img)>=0)
+      im.setAttribute('data-src',S.img);
+    if(im.getAttribute('data-src')!==S.img){
+      rp.classList.remove('x-real-in');void rp.offsetWidth;
+      im.src='../assets/img/archive/'+S.img;im.alt=S.alt;im.setAttribute('data-src',S.img);
+      rp.querySelector('figcaption').textContent=S.leg;
+      rp.classList.add('x-real-in');}}
   document.getElementById('coopDesc').innerHTML=`<div class="forme-tag" style="text-align:left">${S.n} · ${S.chap}</div><div class="fr-role">${S.pose}</div><div class="fr-flaw"><span class="fr-k">Mécanisme</span>${S.meca}</div>`;
   document.getElementById('coopProd').style.width=S.prod+'%';
   document.getElementById('coopProdv').textContent=S.prod+' / 100';
@@ -3423,7 +3582,11 @@ const STEPS=[
  {t:"L'accumulation",pose:"La plus-value capitalisée : reproduction élargie.",contra:"Elle suppose des travailleurs déjà séparés des moyens de production.",pass:"La composition monte, une population de trop apparaît.",motor:"D'où vient le rapport supposé ?",links:[{k:'labo',t:'s-repro',label:'Reproduction'},{k:'labo',t:'s-accum',label:'Accumulation'}]},
  {t:"La loi générale",pose:"Une <b>armée industrielle de réserve</b> régule les salaires.",contra:"Tout suppose, comme donné, le rapport capitaliste.",pass:"Remonter au présupposé historique.",motor:"D'où vient ce point de départ ?",links:[{k:'labo',t:'s-accum',label:'Armée de réserve'},{k:'labo',t:'s-trpf',label:'Baisse tendancielle'}]},
  {t:"L'accumulation primitive",pose:"Genèse <b>violente</b> : expropriation, colonialisme.",contra:"Le présupposé est posé comme résultat d'une histoire.",pass:"L'exposition du Livre I est close.",motor:"Le commencement comme résultat",links:[{k:'chrono',label:'Chronologie'}]}];
-function stairColor(t){const a=[57,89,107],b=[165,42,33];return 'rgb('+a.map((v,k)=>Math.round(v+(b[k]-v)*t)).join(',')+')';}
+/* Le rouge d'arrivée est celui de la maison (#d5402f) et non le brique
+   sombre d'avant : la pastille de la marche porte du BLANC, et sur
+   #a52a21 il tombait à 3,6:1 — mesuré sur les marches X à XII. Sur le
+   rouge du site, le blanc passe (4,56:1), règle déjà écrite au socle. */
+function stairColor(t){const a=[57,89,107],b=[213,64,47];return 'rgb('+a.map((v,k)=>Math.round(v+(b[k]-v)*t)).join(',')+')';}
 /* Le Dossier est UNE page : remonter en haut du document ferait quitter
    la section qu'on vient de demander. On se pose sur elle. */
 function goExplore(xid){activateTab('dossier','explore');
@@ -3434,14 +3597,77 @@ function goExplore(xid){activateTab('dossier','explore');
    la LISEUSE, puis sautaient en haut de page. La destination est le
    Dossier, l'ancre est la section. */
 function goChrono(){activateTab('dossier','chrono');}
-const stair=document.getElementById('stair');stair.className='walk';const WN=STEPS.length;
-STEPS.forEach((s,i)=>{const side=i%2===0?'left':'right',col=stairColor(i/(WN-1));
+/* ══════════════════════════════════════════════════════════════════════
+   L'ASCENSION SE GRAVIT.
+   Douze cartes en zigzag, trois rubriques répétées douze fois, 4 833 px :
+   on lisait sept cent quarante-cinq mots pour une idée qui tient en une
+   phrase — chaque catégorie bute sur une contradiction qui rend la
+   suivante nécessaire. La marche ne montre donc plus au repos que son
+   rang, son nom et ce qu'elle POSE ; la contradiction et le passage — le
+   mouvement — n'apparaissent que sur la marche où l'on est.
+
+   Le PLI VIT ICI et non dans atelier-motion.js : ce n'est pas du
+   mouvement mais une affordance, et il doit fonctionner là où le module
+   s'éteint (reduced-motion, moins de 768 px) — c'est même là qu'il sert
+   le plus. Le module ne fait que DÉPLACER l'ouverture au défilement, par
+   walkOpen(). ══════════════════════════════════════════════════════════ */
+const MK_CONTRA='<svg class="wk-mk" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12h6.5"/><path d="M6 8.5L9.5 12 6 15.5"/><path d="M21.5 12H15"/><path d="M18 8.5L14.5 12 18 15.5"/></svg>';
+const MK_PASS='<svg class="wk-mk" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5v9.5a4 4 0 0 0 4 4h9.5"/><path d="M14.5 13l4 4-4 4"/></svg>';
+const MK_CHEV='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>';
+
+const stair=document.getElementById('stair');stair.className='walk walk-rungs';const WN=STEPS.length;
+STEPS.forEach((s,i)=>{const n=i+1,col=stairColor(i/(WN-1));
   const lh=(s.links||[]).map(l=>`<button class="lk ${l.k==='labo'?'labo':l.k==='explore'?'expl':'chrono'}" data-k="${l.k}" data-t="${l.t||''}">${l.label} →</button>`).join('');
-  const row=document.createElement('div');row.className='walk-step '+side;row.dataset.step=String(i+1);
-  row.innerHTML=`<div class="walk-card"><div class="walk-head"><span class="walk-num" style="background:${col}">${i+1}</span><span class="walk-title">${s.t}</span></div><div class="field-block pose"><div class="fl">Ce que la catégorie pose</div><p>${s.pose}</p></div><div class="field-block contra"><div class="fl">La contradiction interne</div><p>${s.contra}</p></div><div class="field-block pass"><div class="fl">Ce qui force le passage</div><p>${s.pass}</p></div>${lh?`<div class="step-links"><span class="step-links-lab">Voir à l'œuvre :</span>${lh}</div>`:''}</div><div class="walk-axis"><span class="walk-dot" style="background:${col}"></span></div>`;
+  const row=document.createElement('div');row.className='walk-step';row.dataset.step=String(n);
+  row.style.setProperty('--rung',col);
+  row.innerHTML=
+    `<button type="button" class="wk-line" id="wk-h${n}" aria-controls="wk-b${n}" aria-expanded="true">`+
+      `<span class="wk-num">${n}</span>`+
+      `<span class="wk-said"><span class="wk-t">${s.t}</span><span class="wk-pose">${s.pose}</span></span>`+
+      `<span class="wk-chev">${MK_CHEV}</span>`+
+    `</button>`+
+    `<div class="wk-body" id="wk-b${n}" role="region" aria-labelledby="wk-h${n}"><div>`+
+      `<p class="wk-f wk-contra">${MK_CONTRA}<span><span class="sr-only">La contradiction interne : </span>${s.contra}</span></p>`+
+      `<p class="wk-f wk-pass">${MK_PASS}<span><span class="sr-only">Ce qui force le passage : </span>${s.pass}</span></p>`+
+      (lh?`<div class="step-links"><span class="step-links-lab">Voir à l'œuvre :</span>${lh}</div>`:'')+
+    `</div></div>`;
   stair.appendChild(row);
   if(i<WN-1){const m=document.createElement('div');m.className='walk-motor';m.innerHTML=`<span>${s.motor} ↓</span>`;stair.appendChild(m);}});
-stair.querySelectorAll('.step-links .lk').forEach(btn=>btn.addEventListener('click',()=>{const k=btn.dataset.k,t=btn.dataset.t;if(k==='labo')goLabo(t);else if(k==='explore')goExplore(t);else goChrono();}));
+stair.querySelectorAll('.step-links .lk').forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();const k=btn.dataset.k,t=btn.dataset.t;if(k==='labo')goLabo(t);else if(k==='explore')goExplore(t);else goChrono();}));
+
+/* ── Le pli ────────────────────────────────────────────────────────────
+   `walkOpen(n)` est l'entrée UNIQUE : la page s'en sert au clic, le
+   module de mouvement pour suivre le défilement. Une seule marche
+   ouverte — c'est tout l'intérêt : à l'écran, une carte et onze lignes.
+   `walkSeized` est la règle de la maison : on lâche le pilotage dès que
+   le lecteur saisit l'objet (clic, ou simplement focus clavier dans la
+   colonne — sans quoi le défilement refermerait sous lui la marche qu'il
+   est en train de lire). ── */
+let walkOpenN=0,walkSeized=false;
+function walkOpen(n,seize){
+  if(seize)walkSeized=true;
+  if(n===walkOpenN)return;
+  walkOpenN=n;
+  stair.querySelectorAll('.walk-step').forEach(st=>{
+    const on=+st.dataset.step===n;
+    st.classList.toggle('wk-on',on);
+    const b=st.querySelector('.wk-line');
+    if(b)b.setAttribute('aria-expanded',on?'true':'false');
+  });
+}
+const dclose=document.getElementById('derivClose');
+if(dclose)dclose.innerHTML=MK_PASS+'<span>Les Livres II et III poursuivent l\'ascension : circulation, puis procès d\'ensemble — profit, prix de production, intérêt, rente, formule trinitaire.</span>';
+
+stair.classList.add('wk-fold');            /* le pli n'existe qu'une fois câblé */
+stair.addEventListener('click',e=>{
+  const b=e.target.closest('.wk-line');if(!b||!stair.contains(b))return;
+  const st=b.closest('.walk-step'),n=+st.dataset.step;
+  walkOpen(n===walkOpenN?0:n,true);
+});
+stair.addEventListener('focusin',()=>{walkSeized=true;});
+walkOpen(1);
+window.walkOpen=walkOpen;
+window.walkSeized=()=>walkSeized;
 
 drawTRPF();
 

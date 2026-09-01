@@ -387,6 +387,23 @@ h2.sec em{font-style:italic;font-weight:500;color:var(--red-text);}
 .js-atwalk .walk-cards .walk-motor{opacity:calc(.06 + .94 * var(--lit,1));
   transform:translateY(calc((1 - var(--lit,1)) * -7px));}
 
+/* — variante « ascension » (Le Capital) : la marche s'allume quand la
+     déduction l'atteint. Discrètement : la marche OUVERTE porte déjà
+     l'attention, une entrée trop forte se battrait avec elle. — */
+.js-atwalk .walk-rungs .walk-step>.wk-line{
+  /* Le plancher est HAUT (0,58) et ce n'est pas un réglage de goût : au
+     repos ces lignes portent tout le contenu de la section, et un texte
+     qu'on n'a pas encore atteint doit rester lisible — pas seulement
+     devinable. Ce qui dit « la déduction n'est pas encore ici », c'est le
+     décalage et la pastille éteinte, pas l'illisibilité. */
+  opacity:calc(.58 + .42 * var(--lit,1));
+  transform:translateX(calc((1 - var(--lit,1)) * -14px));}
+.js-atwalk .walk-rungs .wk-num{
+  box-shadow:0 0 0 5px var(--bg),0 0 calc(var(--lit,0) * 16px) calc(var(--lit,0) * 3px) rgba(216,173,76,.28);}
+/* le moteur ne se dit qu'au moment où il pousse */
+.js-atwalk .walk-rungs .walk-motor{opacity:calc(.06 + .94 * var(--lit,1));
+  transform:translateY(calc((1 - var(--lit,1)) * -7px));}
+
 /* — variante « fil » (les Manuscrits) : la marche est le bloc, elle
      arrive de la gauche, sa pastille prend le rouge quand on l'atteint — */
 .js-atwalk .walk-thread .walk-step{
@@ -398,6 +415,19 @@ h2.sec em{font-style:italic;font-weight:500;color:var(--red-text);}
 @media(max-width:720px){
   .js-atwalk .walk-cards{--axis:19px;}
 }
+
+/* E ter. LA FRISE SE REMPLIT — le temps avance et pose ce qu'il atteint.
+      Le défaut est l'état PLEIN (var(--fill,1), var(--dot,1)) : sans le
+      module, la frise s'affiche entière. La pastille garde son opacité de
+      « pas encore atteinte par la lecture » (.32) — les deux états se
+      multiplient au lieu de se disputer. */
+.js-atchrono .chrono-actband,.js-atchrono .chrono-axisline{
+  transform-origin:left center;transform:scaleX(var(--fill,1));}
+.js-atchrono .chrono-tick{opacity:var(--dot,1);}
+.js-atchrono .chrono-dot{opacity:var(--dot,1);
+  transform:translate(-50%,-50%) scale(calc(.5 + .5 * var(--dot,1)));}
+.js-atchrono .chrono-dot:not(.fired){opacity:calc(.32 * var(--dot,1));}
+.js-atchrono .chrono-dot.current{transform:translate(-50%,-50%) scale(1.55);opacity:1;}
 
 /* F. Le SOMMAIRE s'inscrit — c'est le plan du livre : les lignes
       s'écrivent dans l'ordre de lecture à mesure qu'on descend. */

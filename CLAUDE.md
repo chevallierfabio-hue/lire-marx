@@ -609,7 +609,9 @@ dans ces cas — et le CSS masque fiche, bandeau et voile sous 768 px.
   Chronologie : gel levé, puis **passe moderne** (août 2026, mission
   `atelier-moderne`) — grammaire de tête de panneau commune, table des
   matières, surfaces et pilules unifiées. Voir « La passe moderne »
-  ci-dessous.
+  ci-dessous. Puis **`dossier-clair`** (sept. 2026) : le Dossier de Capital
+  perd un tiers de son texte et gagne l'ascension, la démonstration des
+  instruments, la frise qui se remplit et ses premières images.
 - ✅ Page Bibliothèque à part (`oeuvres/bibliotheque.html`) — **refondue
   en scène 3D « la pièce aux rayonnages »** (août 2026), voir « La page
   Bibliothèque » ci-dessous. Elle avait été jugée inutile, rouverte sur
@@ -1369,6 +1371,161 @@ scopées `.atl-dossier`, et le filtre d'`inkTitles` ne matche rien là-bas.
 12 marches et 11 moteurs. Rien n'a été retiré (c'est la pièce signée de la
 section, et `walkDeduce` en dépend), mais si le Dossier doit encore
 raccourcir, c'est là.
+
+## Le Dossier se parcourt, il ne se lit plus (mission `dossier-clair`, sept. 2026)
+
+Demande du propriétaire, dans la foulée de `dossier-lisible` : « trop de
+texte, notamment explicatif — donner du sens par l'usage, les images,
+l'animation, une révélation au scroll singulière ». Diagnostic mesuré
+avant de toucher au code :
+
+| | avant | après |
+|---|---|---|
+| Le Dossier | 11 209 px · 2 084 mots | **7 283 px · 1 420 mots** |
+| I Le cheminement | 4 831 px · 745 mots | **1 639 px · 298 mots** |
+| V Les ressources | 1 346 px | **995 px** |
+
+Trois arbitrages du propriétaire au lancement (les trois recommandations) :
+une marche ouverte à la fois ; l'instrument se démontre au lieu de
+s'expliquer ; des images **seulement là où elles portent le sens**.
+
+### I. L'ascension se gravit (`.walk-rungs`)
+
+Douze cartes en zigzag répétaient **trente-six fois** les trois mêmes
+rubriques. C'est maintenant **une colonne**, un fil à gauche, douze
+marches qui ne montrent au repos que leur rang, leur nom et **ce que la
+catégorie pose** ; la contradiction et le passage n'apparaissent que sur
+la marche où l'on est.
+
+- **Le pli vit dans `capital-1.html`, PAS dans `atelier-motion.js`** : ce
+  n'est pas du mouvement mais une affordance, et il doit fonctionner là où
+  le module s'éteint (reduced-motion, < 768 px) — c'est même là qu'il sert
+  le plus. `walkOpen(n, seize)` est l'entrée unique ; le module ne fait que
+  déplacer l'ouverture au défilement.
+- **`walkSeized` — on lâche le pilotage dès que le lecteur saisit** : au
+  clic, et aussi au **focus clavier** dans la colonne. Sans ce second cas,
+  le défilement refermait sous les yeux d'un lecteur au clavier la marche
+  qu'il était en train de lire.
+- **Le repli sort vraiment le texte de l'arbre d'accessibilité**
+  (`visibility:hidden` en fin de transition, pas seulement une hauteur
+  écrasée) : sinon un lecteur d'écran lirait ce que l'œil ne voit pas, et
+  les liens des marches fermées resteraient dans le parcours de tabulation
+  (vérifié : 14 boutons atteignables, 14 hors d'atteinte).
+- **La ligne de lecture, pas le front du fil** : la marche ouverte se
+  choisit à 38 % de la hauteur. Mesuré contre `--draw`, la dernière marche
+  se dépliait bien avant qu'on l'atteigne — le fil court en avance sur
+  toute la section.
+- **Les trois rubriques deviennent deux marques DESSINÉES** (opposition,
+  passage) doublées d'un `.sr-only` : le libellé survit pour les lecteurs
+  d'écran, il ne mange plus la page.
+- **La pastille dit le rang ET l'état** : anneau quand la marche est
+  fermée, pleine sur celle où l'on est. Elle n'est **pas** estompée — à
+  62 % d'opacité le chiffre tombait à 2,6:1 sur les dernières marches. Et
+  `stairColor` arrive sur le rouge de la maison (`#d5402f`) et non sur le
+  brique sombre d'avant : la pastille pleine porte du blanc.
+- Le tiroir emprunte toujours une marche (`openDrawer('step', n)`) et l'y
+  affiche **toujours dépliée** — le CSS le force, et `aria-expanded` suit.
+  `goDeriv(n)` ouvre la marche demandée **et prend la main**.
+
+### Les instruments se démontrent (`instDemo`)
+
+Les **treize pavés « Comment lire »** (461 mots) ont disparu. À leur
+place : une `.inst-cue` impérative de cinq à huit mots, et une
+**démonstration** — à l'arrivée dans la station, le curseur principal part
+et revient (1,15 s), les chiffres suivent, puis l'instrument est **reposé
+sur sa valeur d'origine**. Une station sans curseur voit ses commandes
+s'allumer l'une après l'autre (`.inst-pulse`) : on ne clique jamais à la
+place du lecteur.
+
+Trois règles, chacune tirée d'un défaut évité : **une fois par station**
+(une démonstration qui se rejoue est un tic) ; **le lecteur passe avant**
+(premier geste souris/clavier/molette → arrêt net et station marquée
+prise) ; **la valeur est rendue**, y compris par un filet si le rAF est
+bridé. Et le déclencheur est **scopé à sa section** (`playIn(sec)`) :
+mesuré, un `playActive()` global démontrait la pièce des Explorations
+pendant qu'on entrait dans le Laboratoire.
+
+### II. La frise se remplit dans le sens du temps (`chronoUnfold`)
+
+La révélation propre à la chronologie, et elle **répond** à celle du
+cheminement : là un fil descend et éclaire chaque catégorie, ici une ligne
+avance de 1450 vers 1867 et pose chaque événement au passage. Ce n'est pas
+la même animation recopiée — c'est la thèse du dossier (l'ordre logique et
+l'ordre historique sont deux faces du même mouvement) dite deux fois.
+
+Chaque couche a **sa propre avance** (`--fill` calculé depuis le
+`left`/`width` en pourcents que la page a posés) : un `scaleX` commun
+aurait fait démarrer les deux bandes d'acte ensemble depuis leur bord
+gauche. Et le seuil des pastilles porte une marge (`p * 1.08`) : sans
+elle, 1867 — à l'extrémité droite — restait éteinte pour de bon.
+
+### IV. Les images, et seulement là où elles sont le sujet
+
+Le dossier n'avait **aucune** image. Les trois stades du machinisme en ont
+une chacun, sous la scène dessinée : le dessin donne la structure, la
+photographie donne le fait, et les deux changent ensemble
+(`.x-real`, données `img`/`alt`/`leg` dans `COOP`).
+**Coopération → `halles-paris.jpg`** (le même travail complet, côte à
+côte), **Manufacture → `manufacture.jpg`**, **Grande industrie →
+`filature.jpg`**. Le premier stade est **dans le HTML avec son `src`** :
+une image sans src est une image cassée si le script ne tourne pas.
+⚠️ `manufacture.jpg` reste la seule dont la licence est « à confirmer »
+(déjà noté plus haut, déjà en ligne sur les Manuscrits) : aucune mention
+de licence n'est affichée sous elle, seulement « Manufacture, XIXᵉ siècle ».
+
+Les autres sections n'en ont pas reçu, **volontairement** : aucune image du
+fonds ne dit l'expropriation des campagnes anglaises, et une photographie
+de 1909 sous « Acte I — 1450-1750 » aurait été du décor.
+
+### V. Les ressources sont une bibliographie, pas douze cartes
+
+Douze cartes de même taille dans une grille — le conteneur par défaut, qui
+donnait à une conférence d'une heure le même poids visuel qu'à une autre.
+C'est une **liste de références** : deux colonnes de lignes réglées, titre
+à gauche, nature à droite, source dessous, le filet qui prend l'or au
+survol. −351 px, et c'est plus scannable.
+
+### Ce qui a été coupé, et où c'est passé
+
+- Les deux `.method-note` de tête. Celle du cheminement (« ordre
+  d'exposition ≠ ordre de recherche ») disait ce que la section démontre ;
+  celle de la chronologie est passée dans son lede, qui nomme les deux
+  actes. La phrase du « passage de relais » entre les deux actes est
+  **supprimée** — la frise le montre par ses deux bandes.
+- Les treize `.csub` (« Les six notions de cette station », 99 mots qui ne
+  disaient rien).
+- Les cinq ledes, ramenés à ≤ 14 mots. Celui des Explorations disait
+  **« Deux pièces »** alors qu'il y en a trois : erreur corrigée au passage.
+- Vestiges CSS retirés de `capital-1.html` : `.step*`, `.field-block`,
+  `.motor`, `.stairmap*`, et tout le serpentin en zigzag.
+
+### Vérifié
+
+Sonde de contraste sur le rendu : **0 échec sur 317 mesures**, minimum
+4,52:1 (deux défauts trouvés et corrigés au passage : la pastille de marche,
+et `.cc-formula` qui portait l'accent pur de sa carte — 3,33:1, treize fois
+dans le dossier, relevé vers l'encre par `color-mix` avec repli).
+Détecteur statique : **20 constats, 0 erreur** — le niveau d'avant la
+mission. Testé à 1280 et 375 px, zéro débordement horizontal ; console
+sans erreur ; deep-links `#labo`, `#chrono`, `#explore` et les quatre
+renvois croisés ; tiroir qui emprunte et rend la marche à sa place exacte ;
+clavier (focus, Entrée, parcours de tabulation) ; **Manuscrits non touché**
+(vérifié : `walk-thread`, `--axis:8px`, son `.howto` intact).
+
+### Deux pièges d'outillage ajoutés à la liste
+
+1. **La sonde de contraste doit savoir lire `color(srgb …)`.** Depuis
+   `color-mix()`, `getComputedStyle().color` peut rendre
+   `color(srgb 0.75 0.70 0.61)` : une sonde qui parse les nombres comme du
+   0-255 lit du noir et déclare 29 faux échecs.
+2. **Une sonde qui filtre sur `getClientRects()` voit le texte replié** :
+   `visibility:hidden` garde des rects. Il faut remonter les ancêtres et
+   écarter `visibility:hidden`, `display:none` et `opacity:0` — sinon on
+   « corrige » le contraste d'un texte que personne ne voit.
+3. Rappel : dans la pane masquée, **les animations CSS aussi sont gelées**
+   (pas seulement les transitions) — un panneau resté à `opacity:0` n'est
+   pas un bug de cascade. Neutraliser `animation` ET `transition` avant de
+   mesurer.
 
 ### Le Dossier n'a plus de section « Pour entrer » (sept. 2026)
 
