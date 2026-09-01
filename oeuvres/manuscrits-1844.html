@@ -36,16 +36,7 @@
   margin:12px 0 0;}
 
 /* ── Le bandeau de reprise : une ligne, hors des panneaux ─────────── */
-.resume-band{display:flex;align-items:center;gap:14px;flex-wrap:wrap;
-  background:linear-gradient(150deg,#2c2117 0%,#211a12 58%,#1b150e 100%);
-  border:1px solid rgba(216,173,76,.20);border-radius:12px;
-  padding:12px 16px;margin:0 0 14px;}
-.resume-band[hidden]{display:none;}
-.rb-k{font-family:var(--f-ui);font-size:.66rem;font-weight:700;
-  letter-spacing:.14em;text-transform:uppercase;color:var(--gold);}
-.rb-t{font-family:'Fraunces',serif;font-weight:600;font-size:1rem;
-  color:var(--text);flex:1;min-width:min(100%,240px);}
-.resume-band .cap-btn-outline{flex:none;}
+/* .resume-band retirée : la page ouvre elle-même le cahier repris. */
 @media(max-width:640px){
   .resume-band{gap:8px 12px;padding:11px 14px;}
   .rb-t{flex:0 0 auto;min-width:0;font-size:.95rem;white-space:nowrap;
@@ -150,7 +141,8 @@ nav.tabs.worktabs .tab.active{color:var(--ink);border-bottom-color:var(--accent)
    statut à droite ; le manuscrit en cours est la SEULE carte, sur le
    dégradé chaud d'emphase du socle. Trois cahiers seulement : les
    lignes sont plus généreuses. */
-#man-grid{max-width:880px;}
+/* #man-grid retiré avec le panneau « Sections » : la progression vit
+   maintenant dans le sommaire de la colonne de gauche. */
 .atl-card{display:grid;grid-template-columns:52px 1fr auto;align-items:baseline;
   column-gap:16px;padding:18px 12px 18px 2px;border-bottom:1px solid var(--line);
   cursor:pointer;transition:background .15s;}
@@ -190,41 +182,8 @@ nav.tabs.worktabs .tab.active{color:var(--ink);border-bottom-color:var(--accent)
   color:var(--text);cursor:pointer;transition:background .15s;white-space:nowrap;}
 .atl-continue:hover,.atl-card.atl-current:hover .atl-continue{background:rgba(247,245,240,.22);}
 /* ── Ressources ── */
-.rss-section-label{font-size:.72rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;
-  color:var(--muted);margin-bottom:14px;display:block;font-family:var(--f-ui);padding-top:4px;}
-.rss-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:36px;}
-.rss-card{display:flex;flex-direction:column;gap:8px;background:var(--surface);border-radius:16px;
-  padding:18px 20px;text-decoration:none;color:inherit;border:1px solid transparent;
-  transition:transform .2s,box-shadow .2s;position:relative;}
-.rss-card:hover{transform:translateY(-3px);box-shadow:0 14px 34px -12px rgba(0,0,0,.65);border-color:rgba(243,233,212,.16);}
-.rss-badge{font-size:.72rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
-  color:var(--red-text);font-family:var(--f-ui);}
-.rss-title{font-family:'Fraunces',serif;font-weight:700;font-size:.97rem;line-height:1.32;color:var(--text);}
-.rss-meta{font-size:.79rem;color:var(--muted);font-family:var(--f-ui);line-height:1.4;}
-/* ── Overrides ── */
-.anno-hint{font-family:var(--f-ui);font-size:.84rem;color:var(--muted);line-height:1.55;margin-bottom:14px;font-style:normal;}
-.anno-hint b{color:var(--text);font-style:normal;font-weight:600;}
-.reader.theme-dark .rd-btn.on{background:var(--accent);color:#fff;border-color:var(--accent);}
-.reader.theme-dark .rd-seg button.on{background:var(--accent);color:#fff;}
-/* Reader body paper theme */
-.reader.theme-paper .ws-text p,.reader.theme-paper .ws-text dd{color:var(--text);}
-/* ── Responsive ── */
-@media(max-width:740px){
-  /* Sur une couverture réduite à 130 px, la mention de source débordait
-     sur trois lignes en travers du portrait. */
-  .cap-lire-grid{grid-template-columns:1fr;}
-  .atl-card{grid-template-columns:40px 1fr auto;column-gap:10px;}
-  .atl-card.atl-current{grid-template-columns:40px 1fr;padding:16px 14px;align-items:start;}
-  .atl-current .atl-num{margin-top:2px;}
-  .atl-current .atl-row-side{grid-column:2;justify-content:flex-start;margin-top:8px;}
-}
-@media(max-width:480px){
-  .atl-card{grid-template-columns:34px 1fr;}
-  .atl-row-side{grid-column:2;justify-content:flex-start;margin-top:6px;}
-}
-@media(max-width:860px){.cap-ideas-grid{grid-template-columns:1fr 1fr;}.cap-actions-row{grid-template-columns:1fr;}}
-@media(max-width:580px){.cap-ideas-grid{grid-template-columns:1fr;}}
-@media(max-width:640px){.rss-grid{grid-template-columns:1fr;}}
+/* Les ressources : la bibliographie vit dans atelier.css depuis que
+   les deux ateliers ont la même forme. */
 
 /* ── Marques imprimées, pas des pastilles d'interface ──
    Règle du site (cf. la légende du cartel de la bibliothèque) : les repères
@@ -304,7 +263,7 @@ nav.tabs.worktabs .tab.active{color:var(--ink);border-bottom-color:var(--accent)
 }
 </script>
 </head>
-<body>
+<body class="at-atelier">
 <main class="wrap" id="contenu" tabindex="-1">
 
   <!-- L'en-tête d'œuvre : SON IDENTITÉ, et rien d'autre. « Écrits en
@@ -316,145 +275,160 @@ nav.tabs.worktabs .tab.active{color:var(--ink);border-bottom-color:var(--accent)
     <p class="work-meta">Karl Marx · écrits en 1844, publiés en 1932 · traduction J.-M. Palmier · domaine public</p>
   </header>
 
-  <!-- La reprise de lecture, hors des panneaux : visible depuis n'importe
-       quel onglet. Rendue par renderResumeBand() ; absente s'il n'y a rien
-       à reprendre. -->
-  <div class="resume-band" id="resumeBand" hidden></div>
+  <!-- DEUX DESTINATIONS, ET LE TEXTE EST LA PREMIÈRE.
+       Il y en avait neuf, de même poids visuel, redites mot pour mot par
+       la sidebar. « Texte intégral » y avait le même rang que
+       « Chronologie », dans un site qui s'appelle Lire Marx. -->
+  <nav class="tabs worktabs" id="worktabs" aria-label="Destinations de l'œuvre"></nav>
 
-  <nav class="tabs worktabs" id="worktabs" aria-label="Sections de l'œuvre"></nav>
+  <!-- LE SEUIL — les trois idées, à la PREMIÈRE visite seulement, et
+       jamais à qui a déjà une reprise. Elles accueillaient tout le monde
+       à chaque retour, devant un livre qu'on venait de choisir. Même
+       arbitrage que sur Capital ; c'est ici leur seul emplacement. -->
+  <section class="atl-seuil" id="atlSeuil" hidden aria-labelledby="atlSeuilH">
+    <span class="atl-seuil-lab">Avant d'ouvrir les cahiers</span>
+    <h2 class="sec" id="atlSeuilH">Trois idées qui ouvrent <em>les Manuscrits</em></h2>
+    <p class="lead">Chacune mène à l'endroit des cahiers où elle se dit. Vous pouvez aussi entrer directement dans le texte.</p>
+  <div class="cap-ideas-grid">
 
-  <!-- ACCUEIL — onglet "Lire les Manuscrits" (2 cartes de départ) -->
-  <!-- POUR ENTRER — trois portes vers les cahiers. C'était une section
-       de l'accueil ; l'accueil lui-même a disparu (il redisait le bouton
-       du héros, et « Aller plus loin » doublonnait l'onglet Ressources). -->
-  <section class="panel" id="entrer">
-    <div class="panel-head">
-      <div class="panel-head-main">
-        <h2 class="sec">Trois idées qui ouvrent <em>les Manuscrits</em></h2>
-        <p class="lead">Chacune mène à l'endroit des cahiers où elle se dit — un manuscrit, ou le fil qui la fait passer d'une idée à la suivante.</p>
+        <article class="cap-idea-card" role="link" tabindex="0" aria-label="L'aliénation — lire le Premier manuscrit" onclick="goLire(2)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
+          <div class="cap-idea-vignette">
+            <img src="../assets/img/archive/sortie-usine.jpg" alt="La Sortie de l'usine Lumière à Lyon, 1895" loading="lazy">
+          </div>
+          <div class="cap-idea-body">
+            <div class="cap-idea-title">Ce que tu produis te domine — c'est l'aliénation</div>
+            <div class="cap-idea-desc">Plus l'ouvrier produit de richesse, plus son produit lui échappe et le domine comme une puissance étrangère. Son propre travail se retourne contre lui.</div>
+            <div class="cap-idea-cta" aria-hidden="true">Lire le Premier manuscrit →</div>
+          </div>
+        </article>
+
+        <article class="cap-idea-card" role="link" tabindex="0" aria-label="La propriété privée conséquence — suivre le cheminement" onclick="goDeriv(3)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
+          <div class="cap-idea-vignette">
+            <img src="../assets/img/archive/manufacture.jpg" alt="Manufactures et travail collectif au XIXe siècle" loading="lazy">
+          </div>
+          <div class="cap-idea-body">
+            <div class="cap-idea-title">La propriété privée n'est pas la cause — c'est la conséquence</div>
+            <div class="cap-idea-desc">Les économistes posent la propriété comme un fait premier. Marx l'inverse : c'est le travail aliéné qui l'engendre, dont elle n'est que la forme consolidée.</div>
+            <div class="cap-idea-cta" aria-hidden="true">Suivre le cheminement →</div>
+          </div>
+        </article>
+
+        <article class="cap-idea-card" role="link" tabindex="0" aria-label="Récupérer son humanité — lire le Troisième manuscrit" onclick="goLire(4)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
+          <div class="cap-idea-vignette">
+            <img src="../assets/img/archive/halles-paris.jpg" alt="Les Halles de Paris, carte postale ancienne" loading="lazy">
+          </div>
+          <div class="cap-idea-body">
+            <div class="cap-idea-title">Récupérer son humanité n'est pas une utopie</div>
+            <div class="cap-idea-desc">Le communisme des Manuscrits n'est pas un partage des richesses : c'est l'abolition de l'aliénation et la réappropriation par l'homme de ses puissances propres.</div>
+            <div class="cap-idea-cta" aria-hidden="true">Lire le Troisième manuscrit →</div>
+          </div>
+        </article>
+
       </div>
+    <div class="atl-seuil-go">
+      <button class="btn red" type="button" id="atlSeuilStart">Entrer dans le texte →</button>
+      <button class="btn" type="button" id="atlSeuilSkip">Ne plus afficher</button>
     </div>
-    <div class="cap-ideas-grid">
-
-      <article class="cap-idea-card" role="link" tabindex="0" aria-label="L'aliénation — lire le Premier manuscrit" onclick="activateTab('lire');document.getElementById('partSelect').value='2';loadPart(2);window.scrollTo({top:0,behavior:'smooth'});" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
-        <div class="cap-idea-vignette">
-          <img src="../assets/img/archive/sortie-usine.jpg" alt="La Sortie de l'usine Lumière à Lyon, 1895" loading="lazy">
-        </div>
-        <div class="cap-idea-body">
-          <div class="cap-idea-title">Ce que tu produis te domine — c'est l'aliénation</div>
-          <div class="cap-idea-desc">Plus l'ouvrier produit de richesse, plus son produit lui échappe et le domine comme une puissance étrangère. Son propre travail se retourne contre lui.</div>
-          <div class="cap-idea-cta" aria-hidden="true">Lire le Premier manuscrit →</div>
-        </div>
-      </article>
-
-      <article class="cap-idea-card" role="link" tabindex="0" aria-label="La propriété privée conséquence — suivre le cheminement" onclick="activateTab('deriv');window.scrollTo({top:0,behavior:'smooth'});" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
-        <div class="cap-idea-vignette">
-          <img src="../assets/img/archive/manufacture.jpg" alt="Manufactures et travail collectif au XIXe siècle" loading="lazy">
-        </div>
-        <div class="cap-idea-body">
-          <div class="cap-idea-title">La propriété privée n'est pas la cause — c'est la conséquence</div>
-          <div class="cap-idea-desc">Les économistes posent la propriété comme un fait premier. Marx l'inverse : c'est le travail aliéné qui l'engendre, dont elle n'est que la forme consolidée.</div>
-          <div class="cap-idea-cta" aria-hidden="true">Suivre le cheminement →</div>
-        </div>
-      </article>
-
-      <article class="cap-idea-card" role="link" tabindex="0" aria-label="Récupérer son humanité — lire le Troisième manuscrit" onclick="activateTab('lire');document.getElementById('partSelect').value='4';loadPart(4);window.scrollTo({top:0,behavior:'smooth'});" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
-        <div class="cap-idea-vignette">
-          <img src="../assets/img/archive/halles-paris.jpg" alt="Les Halles de Paris, carte postale ancienne" loading="lazy">
-        </div>
-        <div class="cap-idea-body">
-          <div class="cap-idea-title">Récupérer son humanité n'est pas une utopie</div>
-          <div class="cap-idea-desc">Le communisme des Manuscrits n'est pas un partage des richesses : c'est l'abolition de l'aliénation et la réappropriation par l'homme de ses puissances propres.</div>
-          <div class="cap-idea-cta" aria-hidden="true">Lire le Troisième manuscrit →</div>
-        </div>
-      </article>
-
-    </div>
-
-    <!-- Deux blocs d'action -->
   </section>
 
-  <section class="panel" id="nav">
-    <div class="panel-head">
-      <div class="panel-head-main">
-        <h2 class="sec">Parcourir les Manuscrits</h2>
-        <p class="lead">Le plan des trois manuscrits : chaque cahier donne son fil, chaque partie un résumé argumenté, et un clic mène au texte intégral.</p>
+  <!-- LA COQUILLE À TROIS COLONNES — la même que Le Capital.
+       Gauche : le sommaire (il a remplacé l'onglet « Parcourir », qui
+       redisait ce que la sidebar disait déjà, et « Sections », qui
+       portait la progression).
+       Centre : le texte.
+       Droite : « Dans ce cahier » — l'appareil indexé sur la partie qu'on
+       lit (renderMarge). -->
+  <div class="atl3" id="atl3">
+
+    <aside class="atl3-col atl3-toc" id="atl3Toc" aria-label="Sommaire des Manuscrits">
+      <button type="button" class="atl3-toc-toggle" id="atl3TocToggle"
+              aria-expanded="false" aria-controls="atl3TocList">
+        <span class="atl3-toc-toggle-k">Le sommaire</span>
+        <span class="atl3-toc-toggle-t" id="atl3TocToggleT">Choisir une partie</span>
+      </button>
+      <div class="atl3-toc-head">
+        <span class="atl3-lab">Le sommaire</span>
+        <div class="atl3-prog" id="atl3Prog"></div>
       </div>
-    </div>
-    <div class="edition-note"><b>Statut de l'édition.</b> Le texte provient de l'archive du Marxists Internet Archive.</div>
-    <div class="search"><input type="text" id="filter" placeholder="Filtrer : aliénation, argent, Hegel, communisme…" aria-label="Filtrer les chapitres"></div>
-    <div class="nores" id="nores">Aucune partie ne correspond.</div>
-    <div id="navlist"></div>
-  </section>
+      <input class="atl3-filter" id="filter" type="search" placeholder="Filtrer les parties…" aria-label="Filtrer les parties">
+      <div class="atl3-toc-list" id="atl3TocList"></div>
+      <p class="atl3-nores" id="nores" hidden>Aucune partie ne correspond.</p>
+    </aside>
 
-  <section class="panel" id="lire">
-    <div class="panel-head">
-      <div class="panel-head-main">
-        <h2 class="sec">Texte intégral</h2>
-        <p class="lead">Lecture complète des trois manuscrits, section par section, directement dans la page.</p>
-      </div>
-    </div>
-
-    <div class="method-note"><b>À quoi sert cet onglet.</b> C'est la <b>liseuse</b> de l'atelier : on y lit le texte intégral des manuscrits. Le <i>Parcourir</i> en donne des résumés et le <i>Cheminement</i> en suit la logique ; ici, ce sont les mots mêmes de Marx qui s'affichent.</div>
-
-    <div class="howto">
-      <div class="pin">i</div>
-      <div>Choisis un manuscrit, puis clique sur <b>« Charger le texte »</b>. Le cahier s'affiche en entier dans la page — ensuite, <b>Ctrl/Cmd + F</b> permet d'y chercher un terme.</div>
-    </div>
-
-    <div class="reader-bar">
-      <select id="partSelect" aria-label="Choisir un manuscrit"></select>
-      <button id="loadBtn" class="btn red" type="button">Charger le texte →</button>
-    </div>
-
-    <div class="anno-hint">Une fois le texte chargé : <b>sélectionne un passage</b> pour le surligner, puis <b>clique le surlignage</b> pour y attacher une note. Tout reste sur cet appareil ; connecte-toi pour synchroniser tes annotations entre tes appareils. Les boutons flottants « Mes notes » et « Notes partagées » apparaissent en bas à droite quand le texte est chargé.</div>
-
+    <div class="atl3-mid">
+      <!-- #partSelect et #loadBtn restent dans le document, MASQUÉS : ils
+           portent l'ÉTAT que toute la liseuse lit déjà (sel.value) et que
+           le contrat de deep-link pilote. Le sommaire de gauche est leur
+           VUE, pas un second système de navigation. -->
+      <section class="panel active" id="lire">
+        <select id="partSelect" class="atl3-shadow" tabindex="-1" aria-hidden="true"></select>
+        <button id="loadBtn" class="atl3-shadow" type="button" tabindex="-1" aria-hidden="true">Charger</button>
+        <div class="atl3-midbar" id="atlMidbar"></div>
     <div class="reader">
       <div class="reader-head"><div class="reader-title" id="readerTitle">Note du traducteur</div></div>
       <div class="placeholder" id="readerPlaceholder"><div><div class="pi"><svg viewBox="0 0 24 24" aria-hidden="true"><g class="s"><path d="M12 6.4C10 4.6 7.2 3.9 3.6 4.1v13.2c3.6-.2 6.4.5 8.4 2.3 2-1.8 4.8-2.5 8.4-2.3V4.1c-3.6-.2-6.4.5-8.4 2.3Z"/><path d="M12 6.4v13.2"/></g></svg></div><b>Choisis un manuscrit ci-dessus, puis clique sur « Charger le texte ».</b><br><span style="font-size:.9rem">Le manuscrit complet s'affichera ici.</span></div></div>
       <div class="reader-content" id="readerContent" hidden></div>
     </div>
-  </section>
-
-  <!-- ATELIER-ACCUEIL — grille de sections -->
-  <section class="panel" id="atelier-accueil">
-    <!-- Tête de panneau (grammaire commune) -->
-    <div class="panel-head">
-      <div class="panel-head-main">
-        <h2 class="sec">Les trois cahiers <em>de 1844</em></h2>
-        <p class="lead">Les trois cahiers, manuscrit par manuscrit. Ils sont inégaux : du deuxième il ne subsiste qu'un fragment de quelques pages — la lacune est celle du manuscrit, pas de cette édition.</p>
-      </div>
-      <div class="panel-meta">
-        <div id="manAtlProg" class="pg-prog" style="display:none">
-          <div class="pg-bar"><div class="pg-fill" id="manAtlFill"></div></div>
-          <div class="pg-count" id="manAtlCount">0 sur 3 manuscrits</div>
-        </div>
-        <div id="manAtlProgNA" class="prog-no-auth">
-          <span>Connecte-toi pour suivre ta progression</span>
-          <button class="prog-no-auth-btn" type="button" onclick="window.SHELL&&window.SHELL.auth&&window.SHELL.auth.openModal()">Se connecter</button>
-        </div>
-      </div>
+      </section>
     </div>
-    <div id="man-grid"></div>
-  </section>
 
-  <section class="panel" id="deriv">
+    <aside class="atl3-col atl3-marge" id="atl3Marge" aria-label="Dans ce cahier"></aside>
+  </div>
+
+  <!-- La sortie du plein écran, toujours visible pendant qu'il dure. -->
+  <button type="button" class="atl3-full-exit" id="atlFullExit" hidden>
+    Quitter le plein écran <kbd>Échap</kbd>
+  </button>
+
+  <!-- LE TIROIR — l'appareil vient au texte. Il DÉPLACE le nœud existant
+       (#instr-ana, une marche du cheminement) et le remet à sa place à la
+       fermeture ; rien n'est cloné, sans quoi tout le JS des instruments,
+       qui adresse ses contrôles par getElementById, verrait des doublons
+       muets. Même motif que sur Capital. -->
+  <div class="atl-drawer" id="atlDrawer" hidden role="dialog" aria-labelledby="atlDrawerT">
+    <div class="atl-drawer-bar">
+      <span class="atl-drawer-k">Dans ce cahier</span>
+      <span class="atl-drawer-t" id="atlDrawerT"></span>
+      <button type="button" class="atl-drawer-x" id="atlDrawerX" aria-label="Fermer le tiroir">×</button>
+    </div>
+    <div class="atl-drawer-body" id="atlDrawerBody"></div>
+  </div>
+
+  <!-- ===================== LE DOSSIER =====================
+       Ce qui était sept onglets de même rang que le texte est une seule
+       page d'annexe, avec une navigation d'ancres. Le lecteur rencontre
+       l'appareil en marge du texte, et vient ici quand il veut le
+       parcourir pour lui-même. -->
+  <div class="atl-dossier" id="dossier" hidden>
+  <nav class="atl-dossier-nav" id="dossierNav" aria-label="Sections du dossier"></nav>
+  <section class="panel active" id="deriv">
     <div class="panel-head">
       <div class="panel-head-main">
         <h2 class="sec">Le cheminement des Manuscrits</h2>
-        <p class="lead">Le texte n'avance pas comme une démonstration achevée, mais comme une série de déplacements. Voici le fil — non les concepts un à un, que dissèque le laboratoire, mais le ressort qui fait passer de l'un à l'autre, au long des trois cahiers.</p>
+        <p class="lead">Six déplacements : à chaque marche, ce qui force le passage à la suivante.</p>
       </div>
     </div>
     <div class="walk" id="walk"></div>
   </section>
 
-  <section class="panel" id="labo">
+  <section class="panel active" id="chrono">
+    <div class="panel-head">
+      <div class="panel-head-main">
+        <h2 class="sec">La chronologie des Manuscrits</h2>
+        <p class="lead">Le texte a deux âges : son écriture en 1844, et son exhumation en 1932.</p>
+      </div>
+    </div>
+    <div class="timeline" id="timeline"></div>
+  </section>
+
+  <section class="panel active" id="labo">
     <div class="panel-head">
       <div class="panel-head-main">
         <h2 class="sec">Le laboratoire des concepts</h2>
-        <p class="lead">Des instruments pour approcher les concepts non comme des définitions, mais comme des relations.</p>
+        <p class="lead">Six instruments : les concepts comme des relations, non des définitions.</p>
       </div>
     </div>
+    <span class="strip-lab">Les six instruments</span>
     <div class="lab-tabs" id="labTabs">
       <button class="lab-tab active" type="button" data-instr="ana">L'anatomie du travail aliéné</button>
       <button class="lab-tab" type="button" data-instr="carte">La carte des concepts</button>
@@ -464,6 +438,7 @@ nav.tabs.worktabs .tab.active{color:var(--ink);border-bottom-color:var(--accent)
       <button class="lab-tab" type="button" data-instr="lexique">Lexique allemand</button>
     </div>
     <div class="instr" id="instr-ana">
+      <p class="inst-cue">Touchez une séparation.</p>
       <div class="ana" id="ana">
         <div class="ana-schema" id="anaSchema"></div>
         <aside class="ana-detail" id="anaDetail"></aside>
@@ -471,18 +446,21 @@ nav.tabs.worktabs .tab.active{color:var(--ink);border-bottom-color:var(--accent)
       </div>
     </div>
     <div class="instr" id="instr-carte" hidden>
+      <p class="inst-cue">Touchez un concept, suivez ses liens.</p>
       <div class="carte" id="carte">
         <div class="carte-schema" id="carteSchema"></div>
         <aside class="carte-detail" id="carteDetail"></aside>
       </div>
     </div>
     <div class="instr" id="instr-sources" hidden>
+      <p class="inst-cue">Passez d'une source à l'autre.</p>
       <div class="sources" id="sources">
         <div class="src-pick" id="srcPick"></div>
         <div class="src-body" id="srcBody"></div>
       </div>
     </div>
     <div class="instr" id="instr-devenir" hidden>
+      <p class="inst-cue">Suivez un concept de 1844 au Capital.</p>
       <div class="devenir" id="devenir">
         <div class="dev-debat">
           <article class="dev-pos is-break">
@@ -502,6 +480,7 @@ nav.tabs.worktabs .tab.active{color:var(--ink);border-bottom-color:var(--accent)
       </div>
     </div>
     <div class="instr" id="instr-hegel" hidden>
+      <p class="inst-cue">Choisissez un point de rupture.</p>
       <div class="hegel" id="hegel">
         <div class="heg-dette">
           <h3>Ce que Marx reconnaît à Hegel</h3>
@@ -512,6 +491,7 @@ nav.tabs.worktabs .tab.active{color:var(--ink);border-bottom-color:var(--accent)
       </div>
     </div>
     <div class="instr" id="instr-lexique" hidden>
+      <p class="inst-cue">Comparez les mots allemands.</p>
       <div class="lexique" id="lexique">
         <div class="lex-pair">
           <h3>La paire décisive — <i lang="de">Entfremdung</i> vs <i lang="de">Entäußerung</i></h3>
@@ -522,89 +502,82 @@ nav.tabs.worktabs .tab.active{color:var(--ink);border-bottom-color:var(--accent)
     </div>
   </section>
 
-  <section class="panel" id="explore">
+  <section class="panel active" id="explore">
     <div class="panel-head">
       <div class="panel-head-main">
         <h2 class="sec">Explorations</h2>
-        <p class="lead">Non plus expliquer le texte — le laboratoire s'en charge — mais ouvrir : où va la pensée une fois les cahiers refermés. Trois sorties, de la plus proche à la plus lointaine.</p>
+        <p class="lead">Trois sorties : où va la pensée une fois les cahiers refermés.</p>
       </div>
     </div>
+    <span class="strip-lab">Les trois sorties</span>
     <div class="explore-grid">
-      <article class="explore-card"><small>La suite de l'œuvre</small><h3>De 1844 au Capital</h3><p>Les cahiers restent un chantier ; le fil se poursuit ailleurs. Les Thèses sur Feuerbach (1845) font de la praxis le critère, L'Idéologie allemande (1845-46) ancre la critique dans l'histoire matérielle, et la critique de l'économie politique aboutit, vingt ans plus tard, au Capital. L'aliénation n'y disparaît pas : elle s'y transforme.</p></article>
-      <a class="explore-card explore-link" href="capital-1.html#feti"><small>Un pont vers Le Capital</small><h3>L'aliénation devient le fétichisme</h3><p>Ce que les Manuscrits nomment aliénation, Le Capital le repense sous le nom de fétichisme de la marchandise : le rapport social entre les hommes y prend la figure d'un rapport entre les choses. Le même problème, mûri par vingt ans de critique économique.</p><span class="explore-cta">Ouvrir Le Capital →</span></a>
-      <article class="explore-card"><small>La postérité vivante</small><h3>Un concept qui a débordé Marx</h3><p>Exhumé en 1932, le concept a essaimé bien au-delà : la réification chez Lukács, la critique du travail et de la culture à l'École de Francfort, jusqu'à l'usage courant du mot pour dire le travail qui dépossède. Les Manuscrits sont devenus une boîte à outils du XXe siècle.</p></article>
+      <article class="explore-card" id="x-suite"><small>La suite de l'œuvre</small><h3>De 1844 au Capital</h3><p>Les cahiers restent un chantier ; le fil se poursuit ailleurs. Les Thèses sur Feuerbach (1845) font de la praxis le critère, L'Idéologie allemande (1845-46) ancre la critique dans l'histoire matérielle, et la critique de l'économie politique aboutit, vingt ans plus tard, au Capital. L'aliénation n'y disparaît pas : elle s'y transforme.</p></article>
+      <a class="explore-card explore-link" id="x-feti" href="capital-1.html#feti"><small>Un pont vers Le Capital</small><h3>L'aliénation devient le fétichisme</h3><p>Ce que les Manuscrits nomment aliénation, Le Capital le repense sous le nom de fétichisme de la marchandise : le rapport social entre les hommes y prend la figure d'un rapport entre les choses. Le même problème, mûri par vingt ans de critique économique.</p><span class="explore-cta">Ouvrir Le Capital →</span></a>
+      <article class="explore-card" id="x-post"><small>La postérité vivante</small><h3>Un concept qui a débordé Marx</h3><p>Exhumé en 1932, le concept a essaimé bien au-delà : la réification chez Lukács, la critique du travail et de la culture à l'École de Francfort, jusqu'à l'usage courant du mot pour dire le travail qui dépossède. Les Manuscrits sont devenus une boîte à outils du XXe siècle.</p></article>
     </div>
   </section>
 
-  <section class="panel" id="chrono">
-    <div class="panel-head">
-      <div class="panel-head-main">
-        <h2 class="sec">La chronologie des Manuscrits</h2>
-        <p class="lead">Le texte a deux âges : celui de son écriture, en 1844, et celui de sa découverte, près d'un siècle plus tard — quand son exhumation rouvre la lecture de tout Marx.</p>
-      </div>
-    </div>
-    <div class="timeline" id="timeline"></div>
-  </section>
-
-  <section class="panel" id="ressources">
+  <section class="panel active" id="ressources">
     <div class="panel-head">
       <div class="panel-head-main">
         <h2 class="sec">Ressources</h2>
-        <p class="lead">Conférences, podcasts et articles en libre accès autour des Manuscrits — pour approfondir avant ou après la lecture.</p>
+        <p class="lead">Conférences, podcasts et articles en libre accès.</p>
       </div>
     </div>
     <span class="rss-section-label">Vidéos &amp; conférences</span>
     <div class="rss-grid">
       <a class="rss-card" href="https://www.youtube.com/watch?v=mDvnEmgtk0Y" target="_blank" rel="noopener">
-        <div class="rss-badge">Conférence · YouTube</div>
+        <div class="rss-card-top"><span class="rss-badge">Conférence</span><span class="rss-ext"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12L12 2M12 2H7.5M12 2V6.5"/></svg></span></div>
         <div class="rss-title">Jean Salem — « Les Manuscrits de 1844 »</div>
-        <div class="rss-meta">présentation des cahiers de Paris</div>
+        <div class="rss-meta">YouTube · présentation des cahiers de Paris</div>
       </a>
       <a class="rss-card" href="https://www.youtube.com/watch?v=EN4C1uoQdao" target="_blank" rel="noopener">
-        <div class="rss-badge">Conférence · YouTube</div>
+        <div class="rss-card-top"><span class="rss-badge">Conférence</span><span class="rss-ext"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12L12 2M12 2H7.5M12 2V6.5"/></svg></span></div>
         <div class="rss-title">Christophe Dejours — « Le travail entre aliénation et émancipation »</div>
-        <div class="rss-meta">le pont avec la clinique du travail</div>
+        <div class="rss-meta">YouTube · le pont avec la clinique du travail</div>
       </a>
       <a class="rss-card" href="https://www.youtube.com/watch?v=a6KMzq144xE" target="_blank" rel="noopener">
-        <div class="rss-badge">Série · YouTube</div>
+        <div class="rss-card-top"><span class="rss-badge">Série</span><span class="rss-ext"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12L12 2M12 2H7.5M12 2V6.5"/></svg></span></div>
         <div class="rss-title">« Marx (1/5) : Rencontre avec Karl Marx »</div>
-        <div class="rss-meta">série en cinq volets</div>
+        <div class="rss-meta">YouTube · série en cinq volets</div>
       </a>
     </div>
 
     <span class="rss-section-label">Radio &amp; podcast</span>
     <div class="rss-grid">
       <a class="rss-card" href="https://www.youtube.com/watch?v=vrc31nIeNYU" target="_blank" rel="noopener">
-        <div class="rss-badge">France Culture · Les Chemins de la philosophie</div>
+        <div class="rss-card-top"><span class="rss-badge">Radio</span><span class="rss-ext"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12L12 2M12 2H7.5M12 2V6.5"/></svg></span></div>
         <div class="rss-title">« Marx et l'aliénation » (2012)</div>
-        <div class="rss-meta">avec Aymeric Monville · 59 min</div>
+        <div class="rss-meta">France Culture · Les Chemins de la philosophie · 59 min</div>
       </a>
       <a class="rss-card" href="https://spectremedia.org/en-avant-marx/" target="_blank" rel="noopener">
-        <div class="rss-badge">Podcast · Spectre · accès libre</div>
+        <div class="rss-card-top"><span class="rss-badge">Podcast</span><span class="rss-ext"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12L12 2M12 2H7.5M12 2V6.5"/></svg></span></div>
         <div class="rss-title">« En avant Marx ! » — le jeune Marx</div>
-        <div class="rss-meta">entretiens avec I. Garo, M. Löwy</div>
+        <div class="rss-meta">Spectre · entretiens avec I. Garo, M. Löwy · accès libre</div>
       </a>
     </div>
 
     <span class="rss-section-label">Articles en libre accès</span>
     <div class="rss-grid">
       <a class="rss-card" href="https://books.openedition.org/pusl/9743?lang=fr" target="_blank" rel="noopener">
-        <div class="rss-badge">OpenEdition · Presses univ. Saint-Louis</div>
+        <div class="rss-card-top"><span class="rss-badge">Livre</span><span class="rss-ext"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12L12 2M12 2H7.5M12 2V6.5"/></svg></span></div>
         <div class="rss-title">« La pensée du jeune Marx » — l'aliénation</div>
-        <div class="rss-meta">livre en ligne · accès libre</div>
+        <div class="rss-meta">OpenEdition · Presses univ. Saint-Louis · accès libre</div>
       </a>
       <a class="rss-card" href="https://journals.openedition.org/philosophique/129" target="_blank" rel="noopener">
-        <div class="rss-badge">OpenEdition · revue Philosophique</div>
+        <div class="rss-card-top"><span class="rss-badge">Article</span><span class="rss-ext"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12L12 2M12 2H7.5M12 2V6.5"/></svg></span></div>
         <div class="rss-title">« La critique de l'argent, des Manuscrits au Capital »</div>
-        <div class="rss-meta">de l'aliénation à l'exploitation · accès libre</div>
+        <div class="rss-meta">OpenEdition · revue Philosophique · accès libre</div>
       </a>
       <a class="rss-card" href="https://marcellomusto.org/wp-content/uploads/2012/01/Revisiter-le-concept-dalienation-chez-Marx.pdf" target="_blank" rel="noopener">
-        <div class="rss-badge">PDF · accès libre</div>
+        <div class="rss-card-top"><span class="rss-badge">PDF</span><span class="rss-ext"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12L12 2M12 2H7.5M12 2V6.5"/></svg></span></div>
         <div class="rss-title">M. Musto — « Revisiter le concept d'aliénation chez Marx »</div>
-        <div class="rss-meta">de 1844 au Capital</div>
+        <div class="rss-meta">PDF · de 1844 au Capital · accès libre</div>
       </a>
     </div>
   </section>
+
+  </div><!-- /#dossier -->
 
 </main>
 <footer class="wrap"><b>L'Atelier des Manuscrits de 1844</b> — texte établi d'après le Marxists Internet Archive ; parcours, concepts et organisation éditoriale Lire Marx.</footer>
@@ -719,7 +692,10 @@ nav.tabs.worktabs .tab.active{color:var(--ink);border-bottom-color:var(--accent)
      ressort:"Arrivé là, Marx doit régler ses comptes avec celui qui lui a tout appris du mouvement de l'aliénation — pour la ramener de la conscience au sol réel. Le texte s'achève sur ce face-à-face, et ouvre déjà sur la suite."}
   ];
   var timeline=[
-    {section:"L'écriture", events:[
+    {section:"L'écriture",
+     img:'marx-jeune.jpg', alt:"Portrait de Karl Marx à l'époque parisienne",
+     leg:"Marx à l'époque parisienne · domaine public",
+     events:[
       ['1843','Rupture et exil',"Après l'interdiction de la Rheinische Zeitung, Marx quitte la Prusse pour Paris, où il côtoie ouvriers, socialistes et économistes."],
       ['1844','Les cahiers de Paris',"Au printemps et à l'été, il lit intensément les économistes (Smith, Ricardo, Say) et rédige trois cahiers de travail, ni publiés ni achevés — le deuxième est presque entièrement perdu."],
       ['1844','Un chantier, pas un livre',"Le texte reste un manuscrit de travail : jamais de titre ni de forme définitive, et Marx passe bientôt à autre chose."]
@@ -727,7 +703,11 @@ nav.tabs.worktabs .tab.active{color:var(--ink);border-bottom-color:var(--accent)
     {section:"La maturation", events:[
       ['1845-46','Le déplacement',"Avec les Thèses sur Feuerbach puis L'Idéologie allemande, la critique glisse de l'essence de l'homme vers les rapports sociaux et l'histoire — ce qui nourrira le débat sur la coupure."]
     ]},
-    {section:"La postérité", events:[
+    {section:"La postérité",
+     img:'manuscrit-ideologie-1846.webp',
+     alt:"Page d'un manuscrit de Marx : son écriture à gauche, des profils griffonnés par Engels à droite",
+     leg:"Manuscrit de Marx et Engels, 1845-46 · IISG Amsterdam · domaine public",
+     events:[
       ['1932',"L'exhumation","Près de quatre-vingt-dix ans après leur rédaction, les manuscrits paraissent pour la première fois, dans la MEGA. On y découvre un Marx insoupçonné, philosophe de l'aliénation."],
       ['après 1932',"L'onde de choc","Le « jeune Marx » bouleverse la lecture de l'œuvre : relectures humanistes et existentialistes, et en retour la thèse althussérienne de la coupure. Un texte de jeunesse devient un enjeu majeur du XXe siècle."]
     ]}
@@ -736,19 +716,13 @@ nav.tabs.worktabs .tab.active{color:var(--ink);border-bottom-color:var(--accent)
 /* ── Reprise de lecture : la carte de démarrage repart d'où l'on s'est
    arrêté. C'est une proposition, jamais une redirection d'office. ── */
 function renderResumeBand(){
-  var band=document.getElementById('resumeBand');
-  if(!band)return;
-  var r=(window.SHELL&&SHELL.resume)?SHELL.resume.get('manuscrits-1844'):null;
-  if(!r||r.i==null){ band.hidden=true; band.innerHTML=''; return; }
-  band.hidden=false;
-  band.innerHTML='<span class="rb-k">Reprendre</span>'
-    +'<span class="rb-t">'+esc(r.title||'')+'</span>'
-    +'<button class="cap-btn-outline" type="button" id="resumeBtn">Reprendre la lecture →</button>';
-  document.getElementById('resumeBtn').onclick=function(){
-    window.activateTab('lire');
-    document.getElementById('partSelect').value=String(r.i);
-    loadPart(r.i);
-  };
+  /* Le bandeau de reprise a disparu avec la refonte : la page OUVRE
+     elle-même le cahier où l'on s'était arrêté (voir la fin d'init), un
+     bandeau qui l'annonce au-dessus du cahier déjà ouvert n'aurait fait
+     que le redire. SHELL.resume est inchangé et sert toujours. La
+     fonction reste parce qu'installShell et les changements de session
+     la rappellent par son nom. */
+  if(window.renderTocRail)window.renderTocRail();
 }
 /* l'ancien nom reste : c'est lui que rappellent installShell et les
    changements de session */
@@ -797,44 +771,696 @@ function syncTabsA11y(pid){
   if(a11yBooted&&S.announce)S.announce('Panneau '+panelLabel(pid));
   a11yBooted=true;
 }
-  /* Les destinations de l'œuvre, à plat — dans le même ordre que la
-     sidebar. Le niveau « groupe » a disparu : il coûtait une rangée
-     d'onglets et un clic de plus pour atteindre un panneau. Noter que
-     « Sections » et « Parcourir » ne doublonnent PAS ici (contrairement
-     à Capital) : le premier liste les trois cahiers avec la progression,
-     le second donne le plan détaillé partie par partie. */
-  var PANELS=[
-    {id:'entrer',         label:'Pour entrer'},
-    {id:'atelier-accueil',label:'Sections'},
-    {id:'nav',            label:'Parcourir'},
-    {id:'lire',           label:'Texte intégral'},
-    {id:'deriv',          label:'Cheminement'},
-    {id:'labo',           label:'Concepts'},
-    {id:'explore',        label:'Explorations'},
-    {id:'chrono',         label:'Chronologie'},
-    {id:'ressources',     label:'Ressources'}
-  ];
-  function panelExists(id){return PANELS.some(function(p){return p.id===id;});}
+  /* ══════════════════════════════════════════════════════════════════
+     DEUX DESTINATIONS, ET LE TEXTE EST LA PREMIÈRE.
+     Il y en avait neuf, de même poids visuel, redites mot pour mot par la
+     sidebar — la même navigation deux fois dans le même écran. Portage
+     exact de la forme arrêtée sur Capital (`atelier-texte-au-centre`).
+     ══════════════════════════════════════════════════════════════════ */
+  var TABS=[{id:'lire',label:'Lire le texte'},{id:'dossier',label:'Le dossier'}];
+  /* L'ORDRE DU DOSSIER VIT ICI, ET NULLE PART AILLEURS — le document le
+     suit. Celui du lecteur : on voit le texte se déduire (le cheminement),
+     puis les deux âges du texte (la chronologie), on manipule les concepts
+     (le laboratoire), on regarde où ça mène (les explorations), on va plus
+     loin (les ressources). */
+  var DOSSIER=['deriv','chrono','labo','explore','ressources'];
+  /* Le libellé de la barre est IMPRIMÉ à destination : on clique un mot,
+     on retrouve ce mot en tête de la section. */
+  var DOSSIER_LABELS={deriv:'Le cheminement',chrono:'La chronologie',
+    labo:'Le laboratoire',explore:'Les explorations',ressources:'Les ressources'};
+  var DOSSIER_ROM=['I','II','III','IV','V'];
+  var curTab='lire';
+
+  /* Les anciens hash (#labo, #chrono, #entrer…) vivent dans des liens
+     partagés : ils restent valides et ouvrent le Dossier à la bonne ancre
+     au lieu de tomber dans le vide. */
+  function tabForHash(h){
+    if(h==='lire'||h==='dossier')return h;
+    if(h==='nav'||h==='entrer'||h==='atelier-accueil')return 'lire';
+    return DOSSIER.indexOf(h)>=0?'dossier':null;
+  }
+  function panelExists(h){ return tabForHash(h)!==null; }
+  function panelLabel(id){ for(var i=0;i<TABS.length;i++) if(TABS[i].id===id) return TABS[i].label; return id; }
   function byId(id){return document.getElementById(id);}
   function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+
   /* La barre est rendue UNE fois ; seule la classe active change ensuite. */
   function buildTabs(){
     var bar=byId('worktabs');
     if(!bar)return;
-    bar.innerHTML=PANELS.map(function(p){
+    bar.innerHTML=TABS.map(function(p){
       return '<button type="button" class="tab" data-panel="'+p.id+'">'+p.label+'</button>';}).join('');
     bar.querySelectorAll('.tab').forEach(function(b){
       b.addEventListener('click',function(){window.activateTab(b.dataset.panel);});});
   }
   window.buildTabs=buildTabs;
-  window.activateTab=function(id){
-    if(!panelExists(id))id='entrer';
+
+  /* ── LE DOSSIER : une barre qui dit OÙ L'ON EST ─────────────────────
+     Le repère n'est PAS décoratif : il vit dans la page et non dans
+     atelier-motion.js, qui s'éteint sous reduced-motion et en dessous de
+     768 px — là où l'on a le plus besoin de savoir où l'on est. */
+  function dosOffset(){
+    var top=88;                     /* topbar 44 + barre d'onglets 44 */
+    var nav=byId('dossierNav');
+    return top+(nav?nav.getBoundingClientRect().height:0)+10;
+  }
+  function dosGo(id,smooth){
+    var el=byId(id);if(!el)return;
+    var y=el.getBoundingClientRect().top+window.scrollY-dosOffset();
+    var rm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+    window.scrollTo({top:Math.max(0,y),behavior:(smooth&&!rm)?'smooth':'instant'});
+  }
+  var dosPills=[],dosOn=null;
+  function buildDossier(){
+    var dn=byId('dossierNav');
+    if(!dn)return;
+    dn.innerHTML='<div class="dos-pills" id="dosPills">'+DOSSIER.map(function(id,i){
+        return '<button type="button" class="atl-dnav" data-go="'+id+'">'+
+          '<b class="dos-pn">'+DOSSIER_ROM[i]+'</b>'+DOSSIER_LABELS[id]+'</button>';}).join('')+
+      '</div><span class="dos-rail"><i class="dos-rail-fill" id="dosRail"></i></span>';
+    dosPills=[].slice.call(dn.querySelectorAll('[data-go]'));
+    dosPills.forEach(function(b){b.addEventListener('click',function(){dosGo(b.dataset.go,true);});});
+
+    /* L'ouverture de chaque section — numéro, nom de la barre, filet.
+       Générée ici pour que l'ordre et les noms n'existent qu'une fois. */
+    DOSSIER.forEach(function(id,i){
+      var sec=byId(id);
+      if(!sec||sec.querySelector('.dos-open'))return;
+      var o=document.createElement('div');
+      o.className='dos-open';
+      o.innerHTML='<span class="dos-no">'+DOSSIER_ROM[i]+'</span>'+
+                  '<span class="dos-rub">'+DOSSIER_LABELS[id]+'</span>'+
+                  '<span class="dos-fil" aria-hidden="true"></span>';
+      sec.insertBefore(o,sec.firstElementChild);
+      var h2=sec.querySelector('.panel-head h2.sec');
+      if(h2){ if(!h2.id)h2.id='dos-h-'+id; sec.setAttribute('aria-labelledby',h2.id); }
+    });
+
+    var rail=byId('dosRail');
+    var q=false;
+    function paint(){
+      q=false;
+      var dos=byId('dossier');
+      if(!dos||dos.hidden)return;
+      var line=dosOffset()+4;
+      var cur=DOSSIER[0];
+      DOSSIER.forEach(function(id){
+        var el=byId(id);
+        if(el&&el.getBoundingClientRect().top<=line)cur=id;
+      });
+      if(cur!==dosOn){
+        dosOn=cur;
+        dosPills.forEach(function(b){
+          var on=b.dataset.go===cur;
+          b.classList.toggle('on',on);
+          if(on)b.setAttribute('aria-current','true');else b.removeAttribute('aria-current');
+          if(on&&b.parentNode&&b.parentNode.scrollWidth>b.parentNode.clientWidth+2){
+            var pp=b.parentNode,l=b.offsetLeft,r=l+b.offsetWidth;
+            if(l<pp.scrollLeft+8)pp.scrollLeft=l-8;
+            else if(r>pp.scrollLeft+pp.clientWidth-8)pp.scrollLeft=r-pp.clientWidth+8;
+          }
+        });
+      }
+      if(rail){
+        var r2=dos.getBoundingClientRect(),run=r2.height-window.innerHeight;
+        var f=run>0?Math.min(1,Math.max(0,(line-r2.top)/run)):1;
+        rail.style.transform='scaleX('+f.toFixed(4)+')';
+      }
+    }
+    function ping(){if(q)return;q=true;requestAnimationFrame(paint);}
+    document.addEventListener('scroll',ping,{passive:true,capture:true});
+    window.addEventListener('resize',ping);
+    if(window.IntersectionObserver){
+      var io=new IntersectionObserver(ping,{threshold:[0,1]});
+      DOSSIER.forEach(function(id){var e=byId(id);if(e)io.observe(e);});
+    }
+    var box=byId('dossier');
+    if(box&&window.MutationObserver)
+      new MutationObserver(function(){dosOn=null;paint();}).observe(box,{attributes:true,attributeFilter:['hidden']});
+    paint();
+  }
+
+  /* Le Dossier est un CONTENEUR, pas un panneau : ses cinq sections
+     restent déployées en permanence et c'est #dossier qu'on montre ou
+     non. Un seul basculement, au lieu de sept. */
+  window.activateTab=function(id,anchor){
+    if(id!=='dossier')id='lire';
+    var _sc=byId('atlSeuil');
+    if(_sc&&!_sc.hidden&&typeof dismissSeuil==='function')dismissSeuil();
+    curTab=id; window.curTabId=id;
     document.querySelectorAll('#worktabs .tab').forEach(function(b){
       b.classList.toggle('active',b.dataset.panel===id);});
-    document.querySelectorAll('.panel').forEach(function(x){x.classList.toggle('active',x.id===id);});
+    var a3=byId('atl3'),dos=byId('dossier');
+    if(a3) a3.hidden=(id!=='lire')||!!document.body.classList.contains('atl-seuil-on');
+    if(dos) dos.hidden=(id!=='dossier');
+    document.body.classList.toggle('at-dossier',id==='dossier');
+    if(anchor){
+      var boot=!a11yBooted;
+      setTimeout(function(){ dosGo(anchor,!boot); },boot?90:60);
+    }else if(a11yBooted){
+      var _rm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      window.scrollTo({top:0,behavior:_rm?'auto':'smooth'});
+    }
     syncTabsA11y(id);
-    window.scrollTo({top:0,behavior:'smooth'});
   };
+  /* Les renvois croisés nomment leur destination ET leur ancre : coercés
+     en 'lire', ils tombaient dans la liseuse puis sautaient en haut. */
+  function goDossier(anchor){ window.activateTab('dossier',anchor); }
+  function goChrono(){ goDossier('chrono'); }
+  function goExplore(xid){ goDossier('explore');
+    if(xid)setTimeout(function(){var e=byId(xid);if(e)dosGo(xid,true);},220); }
+  function activateInstr(instr){
+    var bar=byId('labTabs'); if(!bar)return;
+    bar.querySelectorAll('.lab-tab').forEach(function(x){
+      x.classList.toggle('active',x.getAttribute('data-instr')===instr);});
+    document.querySelectorAll('.instr').forEach(function(pn){
+      if(pn.id==='instr-'+instr)pn.removeAttribute('hidden');else pn.setAttribute('hidden','');});
+  }
+  function goLabo(instr){ goDossier('labo'); if(instr)activateInstr(instr); }
+  function goDeriv(n){ goDossier('deriv');
+    setTimeout(function(){
+      var el=document.querySelector('.walk-step[data-step="'+n+'"]');if(!el)return;
+      if(window.walkOpen)window.walkOpen(+n,true);
+      el.classList.add('flash');el.scrollIntoView({behavior:'smooth',block:'center'});
+      setTimeout(function(){el.classList.remove('flash');},1600);},260);
+  }
+  function goLire(part){
+    window.activateTab('lire');
+    var sl=byId('partSelect'); if(sl)sl.value=String(part);
+    if(window.loadPart)window.loadPart(part);
+    window.scrollTo({top:0,behavior:'instant'});
+  }
+  window.goLire=goLire;
+  window.goDossier=goDossier;window.goChrono=goChrono;window.goExplore=goExplore;
+  window.goLabo=goLabo;window.goDeriv=goDeriv;window.activateInstr=activateInstr;
+
+  /* ══════════════════════════════════════════════════════════════════
+     L'INDEX PARTIE → APPAREIL.
+     C'est le point de toute la refonte, et la matière existait déjà sans
+     être lue : chaque partie des cahiers a son instrument dans le
+     laboratoire, sa marche dans le cheminement, parfois son exploration.
+     La clé est le TITRE de la partie tel que MAN_STRUCT l'écrit — source
+     unique des titres et des résumés, qu'on ne duplique pas ici.
+     ══════════════════════════════════════════════════════════════════ */
+  var MAN_APP={
+    'Salaire':                       {m:'Salaire',                        i:'sources', w:1},
+    'Profit du capital':             {m:'Profit du Capital',              i:'sources', w:1},
+    'Rente foncière':                {m:'Rente foncière',                 i:'sources', w:1},
+    'Le travail aliéné':             {m:'Le travail aliéné',              i:'ana',     w:2, x:'x-feti'},
+    'Le rapport de la propriété privée':{m:'Opposition du Capital',       i:'carte',   w:3},
+    'Propriété privée et communisme':{m:'Propriété privée et communisme', i:'carte',   w:4},
+    'Besoins, production et division du travail':{m:'Signification des besoins', i:'carte', w:5},
+    "L'argent":                      {m:'Pouvoir de l',                   i:'carte',   w:5},
+    'Critique de la dialectique et de la philosophie hégéliennes':
+                                     {m:'Critique de la dialectique',     i:'hegel',   w:6, x:'x-suite'}
+  };
+  var INSTR_LABELS={ana:"L'anatomie du travail aliéné",carte:'La carte des concepts',
+    sources:'Marx & ses sources',devenir:'Le devenir des concepts',
+    hegel:'Marx contre Hegel',lexique:'Lexique allemand'};
+  var EXPLO_LABELS={'x-suite':'De 1844 au Capital',
+    'x-feti':"L'aliénation devient le fétichisme",
+    'x-post':'Un concept qui a débordé Marx'};
+
+  /* Table plate du sommaire : les deux pièces d'ouverture, puis les neuf
+     parties des trois cahiers. */
+  var MAN_FLAT=[];
+  (function(){
+    var g=0;
+    [[0,'Note du traducteur'],[1,'Préface']].forEach(function(o){
+      g++;MAN_FLAT.push({gnum:g,part:o[0],grp:0,grpRn:'',grpTitle:'Ouverture',t:o[1],s:'',app:{}});
+    });
+    MAN_STRUCT.forEach(function(sec,si){
+      sec.chaps.forEach(function(c){
+        g++;MAN_FLAT.push({gnum:g,part:sec.part,grp:si+1,grpRn:sec.rn,grpTitle:sec.t,
+          t:c[0],s:c[1],app:MAN_APP[c[0]]||{}});
+      });
+    });
+  })();
+  var CHECK_SVG='<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><polyline points="2,9 6,13 14,3" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  /* ══════════════════════════════════════════════════════════════════
+     LE SOMMAIRE (colonne de gauche). Il a remplacé « Parcourir » — qui
+     listait les mêmes parties dans un panneau qu'il fallait QUITTER pour
+     lire — et « Sections », qui portait la progression. Ici il ne quitte
+     jamais l'écran.
+     ══════════════════════════════════════════════════════════════════ */
+  var viewGnum=0, loadedPart=-1, pendingChap=0;
+  function curGnum(){
+    if(viewGnum)return viewGnum;
+    var sl=byId('partSelect');
+    var pt=sl?(+sl.value||0):0;
+    for(var i=0;i<MAN_FLAT.length;i++) if(MAN_FLAT[i].part===pt) return MAN_FLAT[i].gnum;
+    return 1;
+  }
+  function curChap(){ return MAN_FLAT[curGnum()-1]||null; }
+
+  function renderTocRail(){
+    var list=byId('atl3TocList');
+    if(!list)return;
+    var pg=window.SHELL&&window.SHELL.progress;
+    var done=pg?pg.getSet():new Set();
+    var cur=curGnum(), grp=-1, h='';
+    MAN_FLAT.forEach(function(e){
+      if(e.grp!==grp){
+        grp=e.grp;
+        h+='<div class="atl3-sec" data-sec="'+e.grp+'">'
+          +(e.grpRn?'<span class="atl3-sec-rn">'+e.grpRn+'</span>':'')+esc(e.grpTitle)+'</div>';
+      }
+      var isDone=done.has(e.part), isCur=(e.gnum===cur);
+      h+='<button type="button" class="atl3-ch'+(isDone?' is-done':'')+(isCur?' is-cur':'')+'"'
+        +' data-g="'+e.gnum+'" data-sec="'+e.grp+'"'
+        +' data-text="'+esc((e.t+' '+e.grpTitle+' '+(e.s||'')).toLowerCase().replace(/<[^>]+>/g,''))+'"'
+        +(isCur?' aria-current="true"':'')+'>'
+        +'<span class="atl3-ch-n">'+(e.grpRn||'·')+'</span>'
+        +'<span class="atl3-ch-t">'+esc(e.t)+'</span>'
+        +'<span class="atl3-ch-st">'+(isDone?CHECK_SVG:'')+'</span>'
+      +'</button>';
+    });
+    list.innerHTML=h;
+    list.querySelectorAll('.atl3-ch').forEach(function(b){
+      b.addEventListener('click',function(){ closeTocDrop(); openChapter(+b.dataset.g); });});
+
+    /* La progression, chiffrée seulement si on peut la compter : sans
+       session il n'y a rien à afficher, et un « 0 sur 3 » serait faux.
+       Elle se compte en CAHIERS (les trois manuscrits), pas en parties :
+       c'est l'unité que SHELL.progress enregistre. */
+    var pr=byId('atl3Prog');
+    if(pr){
+      var total=3;
+      if(pg&&pg.isLoggedIn()){
+        var n=[2,3,4].filter(function(x){return done.has(x);}).length;
+        var pct=Math.round(n/total*100);
+        pr.innerHTML='<span class="atl3-prog-bar"><i style="width:'+pct+'%"></i></span>'
+          +'<span class="atl3-prog-n">'+n+' / '+total+'</span>';
+      }else{
+        pr.innerHTML='<button type="button" class="btn atl3-prog-log">Suivre ma progression</button>';
+        pr.querySelector('button').onclick=function(){
+          if(window.SHELL&&window.SHELL.auth)window.SHELL.auth.openModal();};
+      }
+    }
+    var c=curChap();
+    var tt=byId('atl3TocToggleT');
+    if(tt)tt.textContent=c?c.t:'Choisir une partie';
+    var f=byId('filter');
+    if(f&&f.value)applyAtlFilter(f.value.trim().toLowerCase());
+    var cel=list.querySelector('.atl3-ch.is-cur');
+    if(cel&&list.getClientRects().length&&list.scrollHeight>list.clientHeight+4)
+      list.scrollTop=Math.max(0,cel.offsetTop-list.clientHeight/2+cel.offsetHeight/2);
+  }
+  function applyAtlFilter(q){
+    var any=false,secVis={};
+    document.querySelectorAll('#atl3TocList .atl3-ch').forEach(function(r){
+      var match=!q||r.dataset.text.indexOf(q)>=0;
+      r.hidden=!match;
+      if(match){any=true;secVis[r.dataset.sec]=true;}
+    });
+    document.querySelectorAll('#atl3TocList .atl3-sec').forEach(function(hd){
+      hd.hidden=!secVis[hd.dataset.sec];});
+    var nr=byId('nores');
+    if(nr)nr.hidden=any;
+    if(window.SHELL&&SHELL.announce&&q)
+      SHELL.announce(any?'Parties filtrées.':'Aucune partie ne correspond.');
+  }
+  function closeTocDrop(){
+    var t=byId('atl3Toc'),b=byId('atl3TocToggle');
+    if(!t||!b)return;
+    t.classList.remove('is-open');
+    b.setAttribute('aria-expanded','false');
+  }
+
+  /* ══════════════════════════════════════════════════════════════════
+     L'APPAREIL SUIT LA LECTURE, PAS SEULEMENT LA SÉLECTION.
+     La liseuse charge un CAHIER entier (quatre parties pour le premier et
+     le troisième) : sans ce suivi, on descendait jusqu'à « L'argent »
+     pendant que la marge affichait encore « Propriété privée et
+     communisme ». Même mécanique que sur Capital.
+     ══════════════════════════════════════════════════════════════════ */
+  var READ_LINE=220, chapMarks=[], chapObs=null;
+  function normTxt(x){return (x||'').toLowerCase().normalize('NFD')
+    .replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]/g,'');}
+  /* On apparie par TITRE et non par rang : les intitulés du Marxists
+     Internet Archive sont des titres longs entre crochets (« [Pouvoir de
+     l'argent dans la société bourgeoise] ») qui ne ressemblent pas aux
+     titres courts de notre plan. D'où le champ `m` de MAN_APP : la
+     chaîne distinctive à chercher dans le texte. */
+  function buildChapMarks(){
+    chapMarks=[];
+    var box=byId('readerContent'); if(!box)return;
+    var hs=[].slice.call(box.querySelectorAll('h2,h3,h4'));
+    /* L'appariement se fait EN TÊTE du titre, pas n'importe où dedans.
+       Mesuré : le premier <h2> du cahier porte, collée au titre, la note
+       de l'éditeur — plusieurs centaines de mots où l'on retrouve
+       « salaire », « rente foncière »… Une recherche par sous-chaîne
+       épinglait donc les quatre parties du Premier manuscrit sur ce même
+       titre, et le suivi de lecture affichait « Rente foncière » dès la
+       première page. Le repli par sous-chaîne ne vaut que pour un titre
+       COURT, c'est-à-dire un vrai titre. */
+    function findMark(want){
+      var i,t;
+      for(i=0;i<hs.length;i++) if(normTxt(hs[i].textContent).indexOf(want)===0) return hs[i];
+      for(i=0;i<hs.length;i++){ t=hs[i].textContent.trim();
+        if(t.length<200&&normTxt(t).indexOf(want)>=0) return hs[i]; }
+      return null;
+    }
+    MAN_FLAT.filter(function(e){return e.part===loadedPart;}).forEach(function(e){
+      var want=normTxt(e.app.m||e.t);
+      if(want.length<5)return;
+      var el=findMark(want);
+      if(el)chapMarks.push({gnum:e.gnum,el:el});
+    });
+    chapMarks.sort(function(a,b){return a.el.offsetTop-b.el.offsetTop;});
+    armChapObserver();
+  }
+  function armChapObserver(){
+    if(chapObs){chapObs.disconnect();chapObs=null;}
+    if(!chapMarks.length||!window.IntersectionObserver)return;
+    chapObs=new IntersectionObserver(function(){followReading();},
+      {rootMargin:(-READ_LINE)+'px 0px 0px 0px',threshold:0});
+    chapMarks.forEach(function(m){chapObs.observe(m.el);});
+  }
+  function setViewChapter(g){
+    if(!g||g===viewGnum)return;
+    var c=MAN_FLAT[g-1]; if(!c)return;
+    viewGnum=g;
+    /* On ne RE-REND pas le sommaire : le filtre en cours de frappe et la
+       position de la colonne seraient perdus à chaque partie traversée. */
+    var list=byId('atl3TocList');
+    if(list){
+      list.querySelectorAll('.atl3-ch').forEach(function(b){
+        var on=(+b.dataset.g===g);
+        b.classList.toggle('is-cur',on);
+        if(on)b.setAttribute('aria-current','true');else b.removeAttribute('aria-current');
+      });
+      var cel=list.querySelector('.atl3-ch.is-cur');
+      if(cel&&list.getClientRects().length&&list.scrollHeight>list.clientHeight+4)
+        list.scrollTop=Math.max(0,cel.offsetTop-list.clientHeight/2+cel.offsetHeight/2);
+    }
+    var tt=byId('atl3TocToggleT'); if(tt)tt.textContent=c.t;
+    renderMarge();
+  }
+  function followReading(){
+    if(!chapMarks.length)return;
+    var g=chapMarks[0].gnum;
+    for(var i=0;i<chapMarks.length;i++){
+      if(chapMarks[i].el.getBoundingClientRect().top<READ_LINE)g=chapMarks[i].gnum; else break;
+    }
+    setViewChapter(g);
+  }
+  /* Étranglement au TEMPS et non au rAF : celui-ci est suspendu dans un
+     onglet en arrière-plan, et gelé dans un onglet piloté — ce qui fait
+     croire à un suivi mort quand on le teste. */
+  var followAt=0;
+  window.addEventListener('scroll',function(){
+    var now=Date.now();
+    if(now-followAt<120)return;
+    followAt=now; followReading();
+  },{passive:true});
+
+  function scrollToChap(g){
+    for(var i=0;i<chapMarks.length;i++){
+      if(chapMarks[i].gnum===g){
+        var y=window.scrollY+chapMarks[i].el.getBoundingClientRect().top-104;
+        window.scrollTo({top:Math.max(0,y),behavior:'instant'});
+        setViewChapter(g);
+        return true;
+      }
+    }
+    return false;
+  }
+  /* Ouvrir une partie = écrire dans #partSelect (l'état que toute la
+     liseuse lit déjà) puis rendre. Le sommaire est une VUE de ce
+     sélecteur, pas un second système de navigation. */
+  function openChapter(g){
+    var e=MAN_FLAT[g-1]; if(!e)return;
+    var sl=byId('partSelect'); if(!sl)return;
+    viewGnum=0;
+    sl.value=String(e.part);
+    if(loadedPart!==e.part){ pendingChap=g; loadPart(e.part); }
+    else { if(!scrollToChap(g))window.scrollTo({top:0,behavior:'instant'}); }
+    renderTocRail(); renderMarge();
+  }
+
+  /* Se poser sur un passage sans l'animation : flashAnchor fait son propre
+     scrollIntoView en `smooth`, inutilisable dans un cahier de plusieurs
+     dizaines de milliers de pixels. Petit outil dupliqué plutôt que
+     couplage au shell — la règle de la maison. */
+  function jumpToQuote(quote){
+    var box=byId('readerContent');
+    if(!box||!quote)return;
+    var probe=String(quote).replace(/\s+/g,' ').trim().slice(0,40);
+    if(!probe)return;
+    var els=box.querySelectorAll('p,h2,h3,h4,h5,li,blockquote'),target=null,i;
+    for(i=0;i<els.length;i++){ if(els[i].textContent.replace(/\s+/g,' ').indexOf(probe)>=0){target=els[i];break;} }
+    if(!target&&probe.length>14){
+      var short=probe.slice(0,16);
+      for(i=0;i<els.length;i++){ if(els[i].textContent.replace(/\s+/g,' ').indexOf(short)>=0){target=els[i];break;} }
+    }
+    if(!target)return;
+    var y=window.scrollY+target.getBoundingClientRect().top-150;
+    window.scrollTo({top:Math.max(0,y),behavior:'instant'});
+  }
+
+  /* La marge se recompose dès qu'on surligne : SHELL.annotations n'expose
+     aucun rappel de changement, on observe donc le DOM et l'on compare le
+     COMPTE — la liseuse produit des dizaines de mutations au montage. */
+  var annoObs=null,annoCount=-1,annoTimer=0;
+  function watchAnnos(){
+    var out=byId('readerContent');
+    if(!out||!window.MutationObserver)return;
+    annoCount=out.querySelectorAll('mark.anno').length;
+    if(annoObs)annoObs.disconnect();
+    annoObs=new MutationObserver(function(){
+      clearTimeout(annoTimer);
+      annoTimer=setTimeout(function(){
+        var n=out.querySelectorAll('mark.anno').length;
+        if(n!==annoCount){ annoCount=n; renderMarge(); }
+      },350);
+    });
+    annoObs.observe(out,{childList:true,subtree:true});
+  }
+
+  /* ══════════════════════════════════════════════════════════════════
+     LA MARGE — « Dans ce cahier ».
+     L'appareil critique n'est plus à un onglet de distance : il est
+     indexé sur la partie qu'on lit.
+     ══════════════════════════════════════════════════════════════════ */
+  var margeOpen=false, margeNotes=[];
+  function margeFade(){
+    var el=byId('atl3Marge'); if(!el)return;
+    var peut=el.scrollHeight>el.clientHeight+4;
+    el.classList.toggle('is-scrollable',peut);
+    el.classList.toggle('is-end',peut&&el.scrollTop+el.clientHeight>=el.scrollHeight-6);
+  }
+  function margeSection(k,body){
+    return '<section class="atl3-m-sec"><h3 class="atl3-m-h">'+k+'</h3>'+body+'</section>';
+  }
+  function renderMarge(){
+    var el=byId('atl3Marge'); if(!el)return;
+    var c=curChap();
+    if(!c){ el.innerHTML='<p class="atl3-m-empty">Choisissez une partie dans le sommaire.</p>'; return; }
+    var h='<button type="button" class="atl3-m-toggle" id="atl3MToggle"'
+      +' aria-expanded="'+(margeOpen?'true':'false')+'">'
+      +'<span class="atl3-m-toggle-k">Dans ce cahier</span>'
+      +'<span class="atl3-m-toggle-t">'+esc(c.t)+'</span></button>'
+      +'<div class="atl3-m-head"><span class="atl3-lab">Dans ce cahier</span>'
+      +'<p class="atl3-m-ch">'+(c.grpRn?'<em>'+c.grpRn+'</em> ':'')+esc(c.t)+'</p></div>';
+
+    /* VOS PASSAGES — en TÊTE, et en carte d'emphase : c'est l'outil
+       principal de la page. Il MONTRE les passages au lieu d'en annoncer
+       le nombre ; un clic ramène au passage dans le texte. */
+    margeNotes=[];
+    try{
+      var all=(window.SHELL&&SHELL.annotations&&SHELL.annotations.allNotes)?SHELL.annotations.allNotes():[];
+      margeNotes=all.filter(function(a){return a.work==='manuscrits-1844'&&+a.section===c.part+1;});
+    }catch(e){}
+    var nn=margeNotes.length, nNote=margeNotes.filter(function(a){return a.note;}).length;
+    var pub='';
+    try{
+      var pf=byId('pubFab'), mm=pf&&pf.textContent.match(/(\d+)/);
+      if(mm)pub=' · '+mm[1];
+    }catch(e){}
+    var ph='<div class="atl3-pass-top"><h3 class="atl3-m-h">Vos passages</h3>'
+      +(nn?'<span class="atl3-pass-n">'+nn+'</span>':'')+'</div>';
+    if(nn){
+      ph+='<p class="atl3-pass-sub">dans ce cahier'+(nNote?' · '+nNote+' avec note':'')+'</p>'
+        +'<ul class="atl3-pass-list">'
+        +margeNotes.slice(0,4).map(function(a,i){
+          return '<li><button type="button" class="atl3-pass-item" data-anno="'+i+'">'
+          +'<span class="atl3-pass-bar c-'+esc(a.color)+'"></span>'
+          +'<span class="atl3-pass-q">'+esc(a.quote.slice(0,86))+(a.quote.length>86?'…':'')+'</span>'
+          +(a.note?'<span class="atl3-pass-note">'+esc(a.note.slice(0,54))+'</span>':'')
+          +'</button></li>';}).join('')
+        +'</ul>'
+        +(nn>4?'<p class="atl3-pass-more">et '+(nn-4)+' de plus</p>':'');
+    }else{
+      ph+='<p class="atl3-pass-empty"><b>Sélectionnez un passage du texte</b>'
+        +' pour le surligner, puis cliquez le surlignage pour y attacher une note.</p>';
+    }
+    ph+='<div class="atl3-pass-acts">'
+      +'<button type="button" class="atl3-m-nb" data-fab="notesFab">Mes notes</button>'
+      +'<button type="button" class="atl3-m-nb" data-fab="pubFab">Notes partagées'+pub+'</button>'
+      +'</div><a class="atl3-m-carnet" href="carnet.html">Ouvrir mon carnet →</a>';
+    h+='<section class="atl3-m-sec atl3-pass">'+ph+'</section>';
+
+    /* En clair — le résumé argumenté. Il vivait dans l'onglet
+       « Parcourir », derrière deux accordéons. */
+    if(c.s) h+=margeSection('En clair','<div class="atl3-m-sum" id="atl3Sum">'+esc(c.s)+'</div>'
+      +'<button type="button" class="atl3-m-more" data-more="atl3Sum">Lire la suite</button>');
+
+    /* L'instrument du laboratoire qui met CETTE partie en mouvement. */
+    if(c.app.i && INSTR_LABELS[c.app.i])
+      h+=margeSection("L'instrument",
+        '<button type="button" class="atl3-m-go" data-drawer="'+c.app.i+'" data-kind="instr">'
+        +'<span class="atl3-m-go-t">'+esc(INSTR_LABELS[c.app.i])+'</span>'
+        +'<span class="atl3-m-go-k">Manipuler →</span></button>');
+
+    /* La marche du cheminement où cette partie se situe. */
+    if(c.app.w && walk[c.app.w-1])
+      h+=margeSection("Où l'on en est",
+        '<button type="button" class="atl3-m-go" data-drawer="'+c.app.w+'" data-kind="step">'
+        +'<span class="atl3-m-go-n">Marche '+c.app.w+' sur '+walk.length+'</span>'
+        +'<span class="atl3-m-go-t">'+esc(walk[c.app.w-1].titre)+'</span>'
+        +'<span class="atl3-m-go-k">Voir le fil →</span></button>');
+
+    /* Une exploration, quand cette partie en a une. */
+    if(c.app.x && EXPLO_LABELS[c.app.x])
+      h+=margeSection('À voir',
+        '<button type="button" class="atl3-m-go" data-drawer="'+c.app.x+'" data-kind="explo">'
+        +'<span class="atl3-m-go-t">'+esc(EXPLO_LABELS[c.app.x])+'</span>'
+        +'<span class="atl3-m-go-k">Ouvrir →</span></button>');
+
+    h+='<div class="atl3-marge-fade" aria-hidden="true"><span>Défiler</span></div>';
+    el.innerHTML=h;
+    el.classList.toggle('is-open',margeOpen);
+    margeFade();
+    var mt=byId('atl3MToggle');
+    if(mt)mt.addEventListener('click',function(){
+      margeOpen=!margeOpen;
+      el.classList.toggle('is-open',margeOpen);
+      mt.setAttribute('aria-expanded',margeOpen?'true':'false');
+    });
+    el.querySelectorAll('[data-more]').forEach(function(b){b.addEventListener('click',function(){
+      var t=byId(b.dataset.more);
+      var open=t.classList.toggle('is-open');
+      b.textContent=open?'Replier':'Lire la suite';
+    });});
+    el.querySelectorAll('[data-drawer]').forEach(function(b){b.addEventListener('click',function(){
+      openDrawer(b.dataset.kind,b.dataset.drawer);});});
+    el.querySelectorAll('[data-anno]').forEach(function(b){b.addEventListener('click',function(){
+      var a=margeNotes[+b.dataset.anno]; if(!a)return;
+      jumpToQuote(a.quote);
+      if(window.SHELL&&SHELL.annotations&&SHELL.annotations.flashAnchor)
+        SHELL.annotations.flashAnchor(a);
+    });});
+    el.querySelectorAll('[data-fab]').forEach(function(b){b.addEventListener('click',function(){
+      var f=byId(b.dataset.fab);
+      if(f)f.click();
+      else if(window.SHELL&&SHELL.announce)SHELL.announce('Chargez un cahier pour ouvrir vos notes.');
+    });});
+  }
+
+  /* ══════════════════════════════════════════════════════════════════
+     LE TIROIR — l'appareil vient au texte. Il DÉPLACE le nœud existant et
+     le remet exactement à sa place à la fermeture ; rien n'est cloné.
+     ══════════════════════════════════════════════════════════════════ */
+  var drawerNode=null,drawerHome=null,drawerNext=null,drawerOpener=null;
+  function openDrawer(kind,target){
+    closeDrawer(true);
+    var node=null,title='';
+    if(kind==='instr'){
+      node=byId('instr-'+target);
+      title=INSTR_LABELS[target]||'';
+      activateInstr(target);
+      if(node)node.removeAttribute('hidden');
+    }else if(kind==='explo'){
+      node=byId(target);
+      title=EXPLO_LABELS[target]||'';
+    }else if(kind==='step'){
+      node=document.querySelector('.walk-step[data-step="'+target+'"]');
+      title='Marche '+target+' — '+((walk[target-1]||{}).titre||'');
+      if(node){node.classList.add('wk-on');
+        var hb=node.querySelector('.wk-line');if(hb)hb.setAttribute('aria-expanded','true');}
+    }
+    if(!node)return;
+    drawerNode=node;drawerHome=node.parentNode;drawerNext=node.nextSibling;
+    drawerOpener=document.activeElement;
+    byId('atlDrawerBody').appendChild(node);
+    node.classList.add('atl-drawer-in');
+    byId('atlDrawerT').textContent=title;
+    byId('atlDrawer').hidden=false;
+    document.body.classList.add('atl-drawer-on');
+    var x=byId('atlDrawerX'); if(x)x.focus();
+    if(window.SHELL&&SHELL.announce)SHELL.announce('Ouvert : '+title);
+  }
+  function closeDrawer(silent){
+    var d=byId('atlDrawer');
+    if(!d||d.hidden){ if(!silent)return; }
+    if(drawerNode&&drawerHome){
+      drawerNode.classList.remove('atl-drawer-in');
+      /* L'instrument retourne à sa place ET à son état : masqué s'il
+         n'est pas celui que la barre du laboratoire montre. */
+      drawerHome.insertBefore(drawerNode,drawerNext);
+      if(drawerNode.classList.contains('instr')){
+        var act=document.querySelector('#labTabs .lab-tab.active');
+        var want=act?('instr-'+act.getAttribute('data-instr')):null;
+        if(drawerNode.id!==want)drawerNode.setAttribute('hidden','');
+      }
+    }
+    drawerNode=drawerHome=drawerNext=null;
+    if(d)d.hidden=true;
+    document.body.classList.remove('atl-drawer-on');
+    if(!silent&&drawerOpener&&drawerOpener.focus){try{drawerOpener.focus();}catch(e){}}
+    drawerOpener=null;
+  }
+
+  /* ══════════════════════════════════════════════════════════════════
+     LECTURE PLEIN ÉCRAN. Le mode CSS est la SOURCE DE VÉRITÉ ; le plein
+     écran du navigateur est demandé en plus, et sa demande est refusable.
+     ══════════════════════════════════════════════════════════════════ */
+  function pleinEcran(){ return document.body.classList.contains('at-plein'); }
+  function setPlein(on){
+    if(on===pleinEcran())return;
+    document.body.classList.toggle('at-plein',on);
+    var ex=byId('atlFullExit'); if(ex)ex.hidden=!on;
+    var b=byId('atlFullBtn'); if(b)b.setAttribute('aria-pressed',on?'true':'false');
+    if(on)closeDrawer(true);
+    try{
+      if(on&&!document.fullscreenElement&&document.documentElement.requestFullscreen)
+        document.documentElement.requestFullscreen().catch(function(){});
+      if(!on&&document.fullscreenElement&&document.exitFullscreen)
+        document.exitFullscreen().catch(function(){});
+    }catch(e){}
+    if(!on&&b)b.focus(); else if(on&&ex)ex.focus();
+    if(window.SHELL&&SHELL.announce)
+      SHELL.announce(on?'Lecture plein écran. Échap pour revenir à l’atelier.':'Retour à l’atelier.');
+    setTimeout(function(){try{followReading();}catch(e){}},80);
+  }
+  var FULL_SVG='<svg viewBox="0 0 24 24" aria-hidden="true" class="atl3-full-i">'
+    +'<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>';
+  /* Le bouton est RECONSTRUIT à chaque montage, jamais déplacé : la barre
+     de lecture est réécrite en innerHTML à chaque cahier. */
+  function installFullBtn(){
+    var old=byId('atlFullBtn'); if(old)old.remove();
+    var row=document.querySelector('#lire .rd-row');
+    var bar=byId('atlMidbar');
+    var host=row||bar;
+    if(!host)return;
+    if(bar)bar.hidden=!!row;
+    var b=document.createElement('button');
+    b.type='button'; b.id='atlFullBtn'; b.className='btn atl3-full';
+    b.setAttribute('aria-pressed',pleinEcran()?'true':'false');
+    b.innerHTML=FULL_SVG+' Plein écran';
+    b.addEventListener('click',function(){setPlein(!pleinEcran());});
+    if(!row){ host.appendChild(b); return; }
+    /* À GAUCHE et HORS de la rangée qui défile : ajouté à la fin il
+       tombait hors champ, mis en tête il poussait les outils dehors. */
+    var wrap=document.createElement('div');
+    wrap.className='atl3-toolhead';
+    row.parentNode.insertBefore(wrap,row);
+    wrap.appendChild(b); wrap.appendChild(row);
+  }
+  window.setPlein=setPlein;
+
   function preparePart(i){
     var p=parts[i]||parts[0];
     byId('readerTitle').textContent=p.title;
@@ -959,9 +1585,27 @@ function syncTabsA11y(pid){
               next: i<parts.length-1 ? function(){ byId('partSelect').value=i+1; loadPart(i+1); } : null
             },
             glossary:GLOSS_MAN,
-            xref:[{label:'Cheminement →', go:function(){ activateTab('deriv'); }}]
+            /* Plus de renvoi dans la barre de lecture : la marge porte
+               « Où l'on en est », qui mène à la MÊME marche du cheminement
+               et la nomme. Le bouton coûtait une rangée entière à une
+               barre qui en tenait déjà quatre. */
+            xref:[]
           });
         }
+        /* La coquille se recale sur ce qui vient d'être chargé : repères
+           de partie pour le suivi de lecture, bouton de plein écran
+           reconstruit (la barre de lecture est réécrite en innerHTML à
+           chaque cahier), sommaire, marge, veille sur les surlignages. */
+        loadedPart=i; viewGnum=0;
+        setTimeout(function(){
+          buildChapMarks();
+          installFullBtn();
+          renderTocRail();
+          renderMarge();
+          watchAnnos();
+          if(pendingChap){ scrollToChap(pendingChap); pendingChap=0; }
+          else followReading();
+        },0);
       })
       .catch(function(){showMissingLocal(path);});
   }
@@ -987,7 +1631,10 @@ function syncTabsA11y(pid){
       + '</g>'
       + nodes
       + '</svg>';
-    detail.innerHTML = '<div class="ana-empty">Touchez une séparation pour la déplier.</div>';
+    /* Plus d'état vide qui demande un geste avant de rien montrer :
+       l'instrument s'ouvre SUR une séparation, et l'amorce dit qu'on peut
+       en changer. C'est la règle du dossier — montrer par l'usage plutôt
+       que d'expliquer l'usage. */
     function activate(id){
       var sep=SEP.filter(function(s){return s.id===id;})[0]; if(!sep) return;
       schema.querySelectorAll('.ana-line').forEach(function(l){ l.classList.toggle('broken', l.getAttribute('data-sep')===id); });
@@ -1005,6 +1652,7 @@ function syncTabsA11y(pid){
     schema.querySelectorAll('.ana-line').forEach(function(l){
       l.addEventListener('click', function(){ activate(l.getAttribute('data-sep')); });
     });
+    activate(SEP[0].id);
     renv.innerHTML = '<button class="ana-renv-btn" type="button" aria-expanded="false">Voir le renversement →</button>'
       + '<div class="ana-renv-body" hidden>'
       +   '<h3 class="ana-renv-titre">'+esc(RENV.titre)+'</h3>'
@@ -1083,6 +1731,10 @@ function syncTabsA11y(pid){
     var svg=schema.querySelector('svg.carte-svg');
     if(svg) svg.addEventListener('click', function(e){ if(e.target===svg || e.target.classList.contains('carte-bg')) reset(); });
     reset();
+    /* La carte s'ouvre sur son concept CENTRAL — le travail aliéné — au
+       lieu d'un « touchez un concept » qui ne montre rien. */
+    var core=CONCEPTS.filter(function(c){return c.core;})[0];
+    if(core)activate(core.id);
   }
 
   var SOURCES=[
@@ -1241,79 +1893,8 @@ function syncTabsA11y(pid){
 
   function init(){
 
-    var navlist=byId('navlist');
-    MAN_STRUCT.forEach(function(sec){
-      var secEl=document.createElement('div');secEl.className='section';
-      var chaps='';
-      sec.chaps.forEach(function(c){
-        var title=c[0],summary=c[1];
-        var ftext=(title+' '+summary).toLowerCase().replace(/<[^>]+>/g,'');
-        var links='<button class="lk read chapter-read" type="button" data-part="'+sec.part+'">Lire le texte →</button>';
-        if(CHARNIERE_TITLES.indexOf(title)>=0){
-          links+='<button class="lk deriv" type="button">Cheminement →</button>';
-        }
-        chaps+='<div class="chap" data-text="'+esc(ftext)+'">'+
-          '<button class="chap-head" type="button" aria-expanded="false">'+
-          '<span class="ct">'+esc(title)+'</span><span class="chev">›</span></button>'+
-          '<div class="chap-body"><div class="chap-inner">'+
-          '<div class="summary">'+esc(summary)+'</div>'+
-          '<div class="links">'+links+'</div>'+
-          '</div></div></div>';
-      });
-      secEl.innerHTML='<button class="sec-head" type="button" aria-expanded="false">'+
-        '<span class="rn">'+esc(sec.rn)+'</span>'+
-        '<span class="st">'+esc(sec.t)+'</span>'+
-        '<span class="chev">›</span></button>'+
-        '<div class="sec-body"><div class="sec-inner">'+
-        (sec.intro?'<div class="sec-intro">'+esc(sec.intro)+'</div>':'')+
-        chaps+'</div></div>';
-      navlist.appendChild(secEl);
-    });
-    document.querySelectorAll('.chapter-read').forEach(function(b){
-      b.addEventListener('click',function(e){
-        e.stopPropagation();
-        activateTab('lire');
-        byId('partSelect').value=b.dataset.part;
-        loadPart(+b.dataset.part||0);
-      });
-    });
-    function toggleAcc(h,sel){
-      var p=h.parentElement,b=p.querySelector(sel),o=p.classList.contains('open');
-      p.classList.toggle('open');
-      h.setAttribute('aria-expanded',String(!o));
-      b.style.maxHeight=o?null:b.scrollHeight+'px';
-      if(!o){var s=h.closest('.section');if(s&&s.classList.contains('open'))s.querySelector('.sec-body').style.maxHeight='none';}
-    }
-    document.querySelectorAll('#navlist .sec-head').forEach(function(h){h.addEventListener('click',function(){toggleAcc(h,'.sec-body');});});
-    document.querySelectorAll('#navlist .chap-head').forEach(function(h){h.addEventListener('click',function(){toggleAcc(h,'.chap-body');});});
-    document.querySelectorAll('#navlist .lk.deriv').forEach(function(b){b.addEventListener('click',function(e){e.stopPropagation();activateTab('deriv');});});
-    var navFilter=byId('filter');
-    if(navFilter){
-      navFilter.addEventListener('input',function(){
-        var q=navFilter.value.trim().toLowerCase();var any=false;
-        document.querySelectorAll('#navlist .section').forEach(function(sec){
-          var ac=false;
-          sec.querySelectorAll('.chap').forEach(function(ch){
-            var mm=!q||ch.dataset.text.indexOf(q)>=0;
-            ch.style.display=mm?'':'none';
-            if(mm)ac=true;
-          });
-          sec.style.display=ac?'':'none';
-          if(ac)any=true;
-          if(q&&ac){
-            sec.classList.add('open');
-            sec.querySelector('.sec-head').setAttribute('aria-expanded','true');
-            sec.querySelector('.sec-body').style.maxHeight='none';
-          }else if(!q){
-            sec.classList.remove('open');
-            sec.querySelector('.sec-head').setAttribute('aria-expanded','false');
-            sec.querySelector('.sec-body').style.maxHeight=null;
-            sec.querySelectorAll('.chap').forEach(function(c){c.classList.remove('open');var b=c.querySelector('.chap-body');if(b)b.style.maxHeight=null;});
-          }
-        });
-        byId('nores').style.display=any?'none':'block';
-      });
-    }
+    buildTabs();
+    buildDossier();
     renderAnatomie();
     renderCarte();
     renderSources();
@@ -1321,160 +1902,192 @@ function syncTabsA11y(pid){
     renderHegel();
     renderLexique();
     initLabTabs();
-    byId('walk').innerHTML=walk.map(function(w){return '<article class="walk-step"><div class="walk-cahier">Cahier '+esc(w.cahier)+'</div><h3>'+esc(w.titre)+'</h3><p>'+esc(w.ressort)+'</p></article>';}).join('');
-    byId('timeline').innerHTML=timeline.map(function(g){return '<div class="tl-section">'+esc(g.section)+'</div>'+g.events.map(function(e){return '<article class="event"><div class="year">'+esc(e[0])+'</div><div><h3>'+esc(e[1])+'</h3><p>'+esc(e[2])+'</p></div></article>';}).join('');}).join('');
+    /* ══════════════════════════════════════════════════════════════
+       L'ASCENSION SE GRAVIT — la forme arrêtée sur Capital, portée ici.
+       Six marches qui ne montrent au repos que leur rang, leur cahier et
+       leur titre ; le ressort — ce qui fait passer à la suivante —
+       n'apparaît que sur la marche où l'on est.
+       Le PLI vit ici et non dans atelier-motion.js : ce n'est pas du
+       mouvement mais une affordance, et il doit tenir là où le module
+       s'éteint (reduced-motion, moins de 768 px). Le module ne fait que
+       déplacer l'ouverture au défilement, par walkOpen().
+       ══════════════════════════════════════════════════════════════ */
+    var MK_PASS='<svg class="wk-mk" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.5v9.5a4 4 0 0 0 4 4h9.5"/><path d="M14.5 13l4 4-4 4"/></svg>';
+    var MK_CHEV='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>';
+    function walkColor(t){var a=[57,89,107],b=[213,64,47];
+      return 'rgb('+a.map(function(v,k){return Math.round(v+(b[k]-v)*t);}).join(',')+')';}
+    var stair=byId('walk');
+    stair.className='walk walk-rungs';
+    var WN=walk.length;
+    walk.forEach(function(w,i){
+      var n=i+1,col=walkColor(WN>1?i/(WN-1):0);
+      var row=document.createElement('div');
+      row.className='walk-step';row.dataset.step=String(n);
+      row.style.setProperty('--rung',col);
+      row.innerHTML=
+        '<button type="button" class="wk-line" id="wk-h'+n+'" aria-controls="wk-b'+n+'" aria-expanded="true">'
+         +'<span class="wk-num">'+n+'</span>'
+         +'<span class="wk-said"><span class="wk-t">'+esc(w.titre)+'</span>'
+           +'<span class="wk-cahier">Cahier '+esc(w.cahier)+'</span></span>'
+         +'<span class="wk-chev">'+MK_CHEV+'</span>'
+        +'</button>'
+        +'<div class="wk-body" id="wk-b'+n+'" role="region" aria-labelledby="wk-h'+n+'"><div>'
+          +'<p class="wk-f wk-pass">'+MK_PASS+'<span><span class="sr-only">Le ressort : </span>'
+          +esc(w.ressort)+'</span></p>'
+        +'</div></div>';
+      stair.appendChild(row);
+    });
+    /* Le pli. walkOpen(n, seize) est l'entrée UNIQUE : la page s'en sert
+       au clic, atelier-motion.js pour suivre le défilement. On lâche le
+       pilotage dès que le lecteur saisit l'objet — clic, ou simplement
+       focus clavier dans la colonne, sans quoi le défilement refermerait
+       sous lui la marche qu'il est en train de lire. */
+    var walkOpenN=0,walkSeized=false;
+    function walkOpen(n,seize){
+      if(seize)walkSeized=true;
+      if(n===walkOpenN)return;
+      walkOpenN=n;
+      stair.querySelectorAll('.walk-step').forEach(function(st){
+        var on=+st.dataset.step===n;
+        st.classList.toggle('wk-on',on);
+        var b=st.querySelector('.wk-line');
+        if(b)b.setAttribute('aria-expanded',on?'true':'false');
+      });
+    }
+    stair.classList.add('wk-fold');      /* le pli n'existe qu'une fois câblé */
+    stair.addEventListener('click',function(e){
+      var b=e.target.closest('.wk-line');if(!b||!stair.contains(b))return;
+      var st=b.closest('.walk-step'),n=+st.dataset.step;
+      walkOpen(n===walkOpenN?0:n,true);
+    });
+    stair.addEventListener('focusin',function(){walkSeized=true;});
+    walkOpen(1);
+    window.walkOpen=walkOpen;
+    window.walkSeized=function(){return walkSeized;};
+    window.renderTocRail=renderTocRail;
+    /* Le dossier n'avait aucune image. Ici elles sont le SUJET : la
+       première section raconte l'écriture des cahiers à Paris en 1844 —
+       c'est le portrait de Marx à cette date même ; la dernière raconte
+       leur exhumation d'un fonds d'archives — c'est une page manuscrite
+       de sa main. Les trois autres sections n'en reçoivent pas : rien
+       dans le fonds ne dit « la maturation », et une image qui ne dit pas
+       sa section est du décor. */
+    byId('timeline').innerHTML=timeline.map(function(g){
+      return '<div class="tl-section">'+esc(g.section)+'</div>'
+        +(g.img?'<figure class="x-real tl-real"><img src="../assets/img/archive/'+g.img+'" alt="'+esc(g.alt)+'" loading="lazy" decoding="async"><figcaption class="hs-img-caption">'+esc(g.leg)+'</figcaption></figure>':'')
+        +g.events.map(function(e){return '<article class="event"><div class="year">'+esc(e[0])+'</div><div><h3>'+esc(e[1])+'</h3><p>'+esc(e[2])+'</p></div></article>';}).join('');}).join('');
     var sel=byId('partSelect');
     sel.innerHTML=parts.map(function(p,i){return '<option value="'+i+'">'+esc(p.title)+'</option>';}).join('');
     sel.addEventListener('change',function(){preparePart(+sel.value||0);});
     byId('loadBtn').addEventListener('click',function(){loadPart(+sel.value||0);});
     preparePart(0);
+
+    /* le sommaire, la marge et les deux replis de la coquille */
+    renderTocRail();
+    renderMarge();
+    installFullBtn();
+    var mg=byId('atl3Marge');
+    if(mg){ mg.addEventListener('scroll',margeFade,{passive:true});
+            window.addEventListener('resize',margeFade); }
+    var tb=byId('atl3TocToggle'),tc=byId('atl3Toc');
+    if(tb&&tc)tb.addEventListener('click',function(){
+      var open=tc.classList.toggle('is-open');
+      tb.setAttribute('aria-expanded',open?'true':'false');
+      if(open)renderTocRail();
+    });
+    var ft=byId('filter');
+    if(ft)ft.addEventListener('input',function(){applyAtlFilter(ft.value.trim().toLowerCase());});
+    var dx=byId('atlDrawerX');
+    if(dx)dx.addEventListener('click',function(){closeDrawer();});
+    var fx=byId('atlFullExit');
+    if(fx)fx.addEventListener('click',function(){setPlein(false);});
+    document.addEventListener('fullscreenchange',function(){
+      if(!document.fullscreenElement&&pleinEcran())setPlein(false);});
+    /* Échap : le tiroir d'abord (couche du dessus), le plein écran ensuite. */
+    document.addEventListener('keydown',function(e){
+      if(e.key!=='Escape')return;
+      var d=byId('atlDrawer');
+      if(d&&!d.hidden){ closeDrawer(); return; }
+      if(pleinEcran())setPlein(false);
+    });
+
     applyDeepLinkIfAny();
     window.addEventListener('hashchange', applyDeepLinkIfAny);
 
+    /* Les anciens hash restent valides : #anatomie ouvre le Dossier sur
+       l'instrument, et non un onglet qui n'existe plus. */
     function applyAtelierHash(){
       var h=(location.hash||'').replace(/^#/,'');
-      if(h==='anatomie'){
-        if(window.activateTab) activateTab('labo');
-        var b=document.querySelector('.lab-tab[data-instr="ana"]');
-        if(b) b.click();
-      }
+      if(h==='anatomie'){ goLabo('ana'); }
     }
     setTimeout(applyAtelierHash,0);
     window.addEventListener('hashchange', applyAtelierHash);
 
-    /* ── Atelier-accueil : grille des 3 manuscrits ── */
-    var MAN_SECTIONS=[
-      {rn:'I', t:'Premier manuscrit', part:2, chaps:4,
-       desc:'Salaire, profit, rente — et la découverte du travail aliéné.'},
-      {rn:'II', t:'Deuxième manuscrit', part:3, chaps:1,
-       desc:'Le fragment : la propriété privée comme rapport social.'},
-      {rn:'III', t:'Troisième manuscrit', part:4, chaps:4,
-       desc:'Communisme, besoins, argent, critique de Hegel.'}
-    ];
-    var _manTotal=MAN_SECTIONS.length;
-
-    function syncManProgUI(){
-      var p=window.SHELL&&window.SHELL.progress;
-      var loggedIn=!!(p&&p.isLoggedIn());
-      var doneSet=p?p.getSet():new Set();
-      var cnt=loggedIn?MAN_SECTIONS.filter(function(s){return doneSet.has(s.part);}).length:0;
-      var pct=_manTotal?Math.round(cnt/_manTotal*100):0;
-      /* Carte "Ton parcours" */
-      /* La carte « Ton parcours » de l'accueil a disparu avec le panneau :
-         la progression vit dans « Sections », où elle sert. */
-      /* Widget de progression de l'onglet Atelier-accueil */
-      var na=byId('manAtlProgNA'),pr=byId('manAtlProg');
-      if(na)na.style.display=loggedIn?'none':'flex';
-      if(pr)pr.style.display=loggedIn?'':'none';
-      if(loggedIn){
-        var fillEl=byId('manAtlFill'),countEl=byId('manAtlCount');
-        if(fillEl)fillEl.style.width=pct+'%';
-        if(countEl)countEl.textContent=cnt+' sur '+_manTotal+' manuscrits'+(pct?' \u00b7 '+pct+'\u00a0%':'');
-      }
-    }
-
-    function renderAtlGrid(){
-      var p=window.SHELL&&window.SHELL.progress;
-      var doneSet=p?p.getSet():new Set();
-      var grid=byId('man-grid'); if(!grid)return;
-      var firstActive=-1;
-      MAN_SECTIONS.forEach(function(s,i){if(!doneSet.has(s.part)&&firstActive<0)firstActive=i;});
-      var CHECK='<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><polyline points="2,9 6,13 14,3" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-      /* Trois gabarits de LIGNE de sommaire — mêmes classes qu'avant, la
-         mécanique (délégation par classe plus bas) ne bouge pas. */
-      var html='';
-      MAN_SECTIONS.forEach(function(s,i){
-        var isDone=doneSet.has(s.part); var isCur=!isDone&&i===firstActive;
-        var cls='atl-card '+(isDone?'atl-done':isCur?'atl-current':'atl-upcoming');
-        var sub='Manuscrit '+esc(s.rn)+' \u00b7 '+s.chaps+' partie'+(s.chaps>1?'s':'');
-        var a11y=' role="link" tabindex="0" aria-label="Manuscrit '+esc(s.rn)+' \u2014 '+esc(s.t)+' \u2014 '+(isDone?'lu':isCur?'en cours':'\u00e0 lire')+'"';
-        if(isCur){
-          html+='<div class="'+cls+'" data-part="'+s.part+'"'+a11y+'>'
-            +'<span class="atl-num" aria-hidden="true">'+esc(s.rn)+'</span>'
-            +'<span class="atl-row-main">'
-            +'<span class="atl-card-title">'+esc(s.t)+'</span>'
-            +'<span class="atl-card-sub">'+sub+' \u00b7 <span class="atl-card-status">En cours</span></span>'
-            +'<span class="atl-card-desc-line">'+esc(s.desc)+'</span>'
-            +'</span>'
-            +'<span class="atl-row-side"><button class="atl-continue" data-part="'+s.part+'">Commencer \u2192</button></span></div>';
-        } else {
-          html+='<div class="'+cls+'" data-part="'+s.part+'"'+a11y+'>'
-            +'<span class="atl-num" aria-hidden="true">'+esc(s.rn)+'</span>'
-            +'<span class="atl-row-main">'
-            +'<span class="atl-card-title">'+esc(s.t)+'</span>'
-            +'<span class="atl-card-sub">'+sub+'</span>'
-            +'</span>'
-            +'<span class="atl-row-side"><button class="atl-done-toggle" data-part="'+s.part+'">'
-            +(isDone?CHECK+'Lu':'Marquer comme lu')
-            +'</button></span></div>';
-        }
-      });
-      grid.innerHTML=html;
-      grid.querySelectorAll('.atl-continue,.atl-card.atl-current').forEach(function(el){
-        el.addEventListener('click',function(e){
-          var part=+(el.getAttribute('data-part')||el.closest('[data-part]').getAttribute('data-part'));
-          activateTab('lire');byId('partSelect').value=String(part);
-          loadPart(part);window.scrollTo({top:0,behavior:'smooth'});
-        });
-      });
-      grid.querySelectorAll('.atl-card.atl-done,.atl-card.atl-upcoming').forEach(function(card){
-        card.addEventListener('click',function(e){
-          if(e.target.closest('.atl-done-toggle'))return;
-          var part=+card.getAttribute('data-part');
-          activateTab('lire');byId('partSelect').value=String(part);
-          loadPart(part);window.scrollTo({top:0,behavior:'smooth'});
-        });
-      });
-      grid.querySelectorAll('.atl-card[role="link"]').forEach(function(card){
-        card.addEventListener('keydown',function(e){
-          if(e.key==='Enter'||e.key===' '){e.preventDefault();card.click();}
-        });
-      });
-      grid.querySelectorAll('.atl-done-toggle').forEach(function(btn){
-        btn.addEventListener('click',function(e){
-          e.stopPropagation();
-          var pg=window.SHELL&&window.SHELL.progress;
-          if(!pg||!pg.isLoggedIn()){ if(pg)pg.promptLogin(); return; }
-          pg.toggle(+btn.getAttribute('data-part'));
-        });
-      });
-    }
-
-    syncManProgUI();
-    renderAtlGrid();
-    /* Initialisation du suivi de progression */
+    /* La progression vit désormais dans le SOMMAIRE (atl3Prog) : c'est
+       là qu'elle sert, à côté des parties. La grille « Sections » et sa
+       carte de progression ont disparu avec le panneau. */
     if(window.SHELL&&window.SHELL.progress){
       window.SHELL.progress.init('manuscrits-1844',function(){
-        syncManProgUI();
-        renderAtlGrid();
+        renderTocRail();
         if(_manCurrentPart) updateManMarkDone(_manCurrentPart);
       });
     }
 
-    /* ── Init navigation synchrone (hash) ── */
-    (function(){
-    /* Le hash n'acceptait que les trois GROUPES : un lien vers un panneau
-     précis (#labo, #chrono) était ignoré, et le rechargement ramenait
-     toujours à l'accueil. Il accepte maintenant les deux. */
-  buildTabs();
-  /* Un panneau par nom, et c'est tout : le hash ne peut plus désigner un
-     « groupe » puisqu'il n'y en a plus. */
-  var _h=(location.hash||'').replace(/^#/,'');
-  activateTab(panelExists(_h)?_h:'entrer');
-  /* Un hash qui désigne un panneau désigne AUSSI un élément réel du
-     document : le navigateur y saute tout seul et l'on débarque à 369 px du
-     haut, sous la coquille collante. On remet en haut. */
-  if(/^#[a-z-]+$/.test(location.hash||'')){
-    window.scrollTo({top:0,behavior:'instant'});
-    requestAnimationFrame(function(){ window.scrollTo({top:0,behavior:'instant'}); });
+    /* ══════════════════════════════════════════════════════════════
+       L'OUVERTURE DES CAHIERS.
+       On tombait sur « Pour entrer » — trois cartes d'accroche — à chaque
+       visite, y compris la dixième. Désormais on tombe sur le TEXTE :
+       celui qu'on lisait, ou la première pièce. Les trois idées ne se
+       montrent qu'une fois, à qui n'a encore ni progression ni lecture en
+       cours. Même arbitrage que sur Capital.
+       ══════════════════════════════════════════════════════════════ */
+    var _h=(location.hash||'').replace(/^#/,'');
+    var _t=tabForHash(_h);
+    window.activateTab(_t||'lire',(_t==='dossier'&&_h!=='dossier')?_h:null);
+    if(/^#[a-z-]+$/.test(location.hash||'')&&!_t){
+      window.scrollTo({top:0,behavior:'instant'});
+    }
+    window.addEventListener('hashchange',function(){
+      var h=(location.hash||'').replace(/^#/,'');
+      var t=tabForHash(h);
+      if(t&&t!==curTab)window.activateTab(t,(t==='dossier'&&h!=='dossier')?h:null);
+    });
+
+    var r=(window.SHELL&&window.SHELL.resume)?window.SHELL.resume.get('manuscrits-1844'):null;
+    if(r&&r.i!=null){ byId('partSelect').value=String(r.i); renderTocRail(); renderMarge(); }
+    /* Un deep-link (#note=, #s=) a son propre aiguillage : on ne charge
+       pas par-dessus. */
+    if(!/^#(note=|s=)/.test(location.hash||'') && curTab==='lire'){
+      if(!seuilSeen() && !(r&&r.i!=null)) showSeuil();
+      else loadPart(r&&r.i!=null ? r.i : 0);
+    }
   }
-  /* Retour arrière et avance du navigateur. */
-  window.addEventListener('hashchange', function(){
-    var h=(location.hash||'').replace(/^#/,'');
-    if(panelExists(h) && document.querySelector('.panel.active').id!==h) activateTab(h);
-  });
-    })();
+
+  /* ── Le seuil ──────────────────────────────────────────────────── */
+  var SEUIL_KEY='liremarx.manuscrits.seuil.v1';
+  function seuilSeen(){ try{return localStorage.getItem(SEUIL_KEY)==='1';}catch(e){return true;} }
+  function markSeuil(){ try{localStorage.setItem(SEUIL_KEY,'1');}catch(e){} }
+  function dismissSeuil(){
+    var sc=byId('atlSeuil');
+    if(!sc||sc.hidden)return;
+    markSeuil();
+    document.body.classList.remove('atl-seuil-on');
+    sc.hidden=true;
+    var a3=byId('atl3');
+    if(a3)a3.hidden=(curTab!=='lire');
   }
+  function showSeuil(){
+    var sc=byId('atlSeuil');
+    if(!sc)return;
+    document.body.classList.add('atl-seuil-on');
+    sc.hidden=false;
+    var a3=byId('atl3'); if(a3)a3.hidden=true;
+    var go=function(open){ dismissSeuil(); if(open)loadPart(2); };
+    byId('atlSeuilStart').onclick=function(){go(true);};
+    byId('atlSeuilSkip').onclick=function(){go(false);};
+  }
+  window.dismissSeuil=dismissSeuil;
+
   // Contrat de deep-link au passage : si la page a été ouverte avec
   // #note=<id> (Place publique / notifications) ou #s=N&q=..., on
   // ouvre l'onglet « Texte intégral », on charge la bonne partie ;
@@ -1507,18 +2120,11 @@ function syncTabsA11y(pid){
 installShell({
   workId: 'manuscrits-1844',
   workTitle: 'Manuscrits de 1844',
-  /* Même ordre que PANELS : la sidebar et la barre d'onglets doivent dire
-     la même chose, et dans le même ordre. */
+  /* La sidebar listait les MÊMES neuf destinations que la barre
+     d'onglets, mot pour mot, dans le même écran. Elle en porte deux. */
   tabs: [
-    {id:'entrer',          label:'Pour entrer'},
-    {id:'atelier-accueil', label:'Sections'},
-    {id:'nav',             label:'Parcourir'},
-    {id:'lire',            label:'Texte intégral'},
-    {id:'deriv',           label:'Cheminement'},
-    {id:'labo',            label:'Concepts'},
-    {id:'explore',         label:'Explorations'},
-    {id:'chrono',          label:'Chronologie'},
-    {id:'ressources',      label:'Ressources'}
+    {id:'lire',    label:'Lire le texte'},
+    {id:'dossier', label:'Le dossier'}
   ]
 });
 
@@ -1526,8 +2132,10 @@ installShell({
    premier activateTab, SHELL.tabs n'existe pas encore et syncTabsA11y sort
    sans rien poser. On rejoue donc une fois le shell installé. */
 (function(){
-  var p=document.querySelector('.panel.active');
-  if(p&&typeof syncTabsA11y==='function')syncTabsA11y(p.id);
+  /* `.panel.active` retomberait TOUJOURS sur « lire » : les cinq sections
+     du Dossier restent actives en permanence et #lire les précède dans le
+     document. La destination courante est window.curTabId, et elle seule. */
+  if(typeof syncTabsA11y==='function')syncTabsA11y(window.curTabId||'lire');
   if(typeof renderResume==='function')renderResume();
 })();
 </script>

@@ -174,145 +174,10 @@ svg.exchange{width:100%;height:auto;display:block;margin:22px 0 6px;font-family:
    accordéon puis en zigzag. Le serpentin actuel est .walk-rungs, plus
    bas. Seuls restent le conteneur .stair et la ligne de fin .closing. */
 .stair{position:relative;}
-.closing{margin:24px 0 0;padding-left:61px;text-align:left;font-style:italic;
-  color:var(--ink-soft);font-size:.94rem;line-height:1.55;}
-#derivClose{display:grid;grid-template-columns:20px 1fr;gap:11px;align-items:start;}
-#derivClose .wk-mk{stroke:var(--gold);opacity:.75;}
-@media(max-width:720px){.closing{padding-left:45px;}}
-.step-links{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:14px;padding-top:13px;border-top:1px solid var(--line-soft);}
-.step-links-lab{font-size:.8rem;color:var(--ink-soft);font-style:italic;}
 .lk.expl{color:var(--blue);border-color:var(--blue);background:rgba(92,138,163,0.104);}
 .lk.expl:hover{background:var(--blue);color:var(--bg);}
 .lk.chrono{color:var(--gold-deep);border-color:var(--gold-deep);background:rgba(216,173,76,0.100);}
 .lk.chrono:hover{background:var(--gold-deep);color:var(--bg);}
-
-/* ══════════════════ LE CHEMINEMENT — l'ascension ══════════════════
-   Il y avait douze CARTES en zigzag, chacune répétant les trois mêmes
-   rubriques : trente-six micro-titres identiques, 4 833 px, et un œil qui
-   fait le va-et-vient d'un bord à l'autre. C'est devenu une ASCENSION :
-   une seule colonne, un fil à gauche, et douze marches qui ne montrent au
-   repos que ce que la catégorie POSE. La contradiction et le passage —
-   c'est-à-dire le mouvement — n'apparaissent que sur la marche où la
-   déduction se trouve. On ne lit plus la déduction : on la gravit.
-   Le défaut CSS est l'état OUVERT : sans le module, dans le tiroir ou à
-   l'impression, tout est là. C'est `.wk-fold` (posée par la page quand
-   elle a câblé le pli) qui autorise à refermer. */
-.walk-rungs{--axis:23px;position:relative;margin:4px 0 0;}
-.walk-rungs::before{content:"";position:absolute;left:var(--axis);top:18px;bottom:18px;width:2px;
-  transform:translateX(-1px);border-radius:2px;
-  background:linear-gradient(var(--blue),var(--red));opacity:.45;}
-.walk-rungs .walk-step{display:block;position:relative;}
-
-/* La marche au repos : son rang, son nom, ce qu'elle pose. Rien d'autre. */
-.wk-line{display:grid;grid-template-columns:46px 1fr 20px;align-items:start;gap:0 15px;
-  width:100%;text-align:left;font:inherit;color:inherit;background:none;border:0;
-  padding:15px 10px 15px 0;cursor:pointer;border-radius:12px;
-  transition:background .18s;}
-.wk-line:hover{background:var(--hover);}
-/* La pastille dit le rang ET l'état : ANNEAU tant que la marche est
-   fermée, PLEINE sur celle où l'on est. C'est la seule chose qui change
-   de nature entre les deux états, et c'est assez.
-   Elle n'est PAS estompée : le chiffre est du texte, et à 62 %
-   d'opacité il tombait à 2,6:1 sur les dernières marches (mesuré). Ce
-   qui distingue le repos, c'est le remplissage, jamais la lisibilité. */
-.wk-num{grid-column:1;justify-self:center;width:30px;height:30px;border-radius:50%;
-  background:transparent;color:var(--ink);font-family:'Fraunces',serif;font-weight:900;
-  font-size:.92rem;line-height:1;display:flex;align-items:center;justify-content:center;
-  box-shadow:inset 0 0 0 1.5px var(--rung,var(--blue)),0 0 0 5px var(--bg);
-  transition:background .3s,color .3s,box-shadow .3s;}
-.wk-on>.wk-line .wk-num{background:var(--rung,var(--blue));color:#fff;
-  box-shadow:inset 0 0 0 1.5px var(--rung,var(--blue)),0 0 0 5px var(--bg);}
-.wk-said{grid-column:2;min-width:0;}
-.wk-t{display:block;font-family:'Fraunces',serif;font-weight:600;font-size:1.16rem;
-  line-height:1.2;letter-spacing:-.01em;color:var(--ink);}
-.wk-pose{display:block;margin-top:5px;font-size:.95rem;line-height:1.5;color:var(--ink-soft);}
-.wk-pose b{color:var(--ink);font-weight:600;}
-/* le chevron dit qu'il y a un dessous, et de quel côté il s'ouvre */
-.wk-chev{grid-column:3;justify-self:end;margin-top:7px;width:16px;height:16px;
-  color:var(--ink-soft);transition:transform .32s cubic-bezier(.16,1,.3,1),color .2s;}
-.wk-chev svg{width:16px;height:16px;display:block;fill:none;stroke:currentColor;
-  stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
-.wk-on>.wk-line .wk-chev{transform:rotate(90deg);color:var(--gold);}
-
-/* Le dessous : la contradiction, puis ce qu'elle force. Deux marques
-   dessinées et non deux rubriques — le libellé survit pour les lecteurs
-   d'écran (.sr-only), il ne mange plus la page. */
-.wk-body{padding:0 10px 4px 61px;}
-.wk-f{display:grid;grid-template-columns:20px 1fr;gap:11px;align-items:start;
-  margin:0 0 11px;font-size:.98rem;line-height:1.58;color:var(--ink-soft);}
-.wk-f b{color:var(--ink);font-weight:600;}
-.wk-mk{width:20px;height:20px;margin-top:1px;fill:none;stroke-width:1.9;
-  stroke-linecap:round;stroke-linejoin:round;}
-.wk-contra .wk-mk{stroke:var(--red-text);}
-.wk-pass .wk-mk{stroke:var(--gold);}
-.wk-body .step-links{margin-top:13px;}
-
-/* Le moteur : ce qui pousse d'une marche à l'autre. Il vit SUR le fil. */
-.walk-rungs .walk-motor{display:flex;align-items:center;gap:10px;
-  padding:2px 0 2px 46px;position:relative;z-index:2;min-height:26px;}
-.walk-rungs .walk-motor span{font-size:.84rem;font-style:italic;color:var(--red-text);
-  background:var(--bg);padding:2px 12px 2px 0;}
-.walk-step.flash>.wk-line{box-shadow:0 0 0 2px var(--red);}
-
-/* Le pli. Sans `.wk-fold`, tout est ouvert : c'est l'état de repli qui
-   est l'ajout, jamais l'inverse. `visibility` (et non un simple
-   écrasement de hauteur) sort vraiment le texte replié de l'arbre
-   d'accessibilité, sans quoi un lecteur d'écran lirait ce que l'œil ne
-   voit pas. */
-.wk-fold .wk-body{display:grid;grid-template-rows:0fr;opacity:0;visibility:hidden;
-  transition:grid-template-rows .38s cubic-bezier(.16,1,.3,1),opacity .26s,
-             padding-bottom .38s,visibility 0s .38s;}
-.wk-fold .wk-body>*{overflow:hidden;min-height:0;}
-.wk-fold .wk-body{grid-template-columns:1fr;padding-bottom:0;}
-.wk-fold .wk-on .wk-body{grid-template-rows:1fr;opacity:1;visibility:visible;
-  padding-bottom:6px;transition:grid-template-rows .38s cubic-bezier(.16,1,.3,1),
-             opacity .3s .06s,padding-bottom .38s,visibility 0s;}
-/* la marche ouverte prend l'encre ; les autres s'effacent d'un cran */
-.wk-fold .walk-step .wk-t{color:var(--ink-soft);transition:color .3s;}
-.wk-fold .wk-on .wk-t{color:var(--ink);}
-.wk-fold .walk-step .wk-num{transform:scale(.9);
-  transition:transform .3s cubic-bezier(.16,1,.3,1),background .3s,color .3s;}
-.wk-fold .wk-on .wk-num{transform:scale(1);}
-/* Dans le tiroir la marche est SEULE : la replier n'aurait aucun sens. */
-.atl-drawer-body .wk-body{grid-template-rows:1fr!important;opacity:1!important;
-  visibility:visible!important;padding-bottom:6px!important;}
-.atl-drawer-body .wk-line{cursor:default;}
-
-@media(max-width:720px){
-  .walk-rungs{--axis:17px;}
-  .wk-line{grid-template-columns:34px 1fr 18px;gap:0 11px;padding:13px 4px 13px 0;}
-  .wk-num{width:26px;height:26px;font-size:.84rem;box-shadow:0 0 0 4px var(--bg);}
-  .wk-body{padding-left:45px;padding-right:2px;}
-  .walk-rungs .walk-motor{padding-left:34px;}
-  .wk-t{font-size:1.06rem;}
-}
-@media(prefers-reduced-motion:reduce){
-  .wk-fold .wk-body,.wk-fold .wk-on .wk-body,.wk-chev{transition:none;}
-}
-
-/* ══════════════ L'AMORCE — ce qui remplace les modes d'emploi ══════════
-   Treize pavés « Comment lire » (461 mots) expliquaient chaque instrument
-   avant qu'on l'ait touché. Il en reste UNE ligne impérative, qui nomme
-   le geste ; le reste se dit par le geste lui-même — à l'arrivée dans la
-   station, l'instrument fait sa démonstration tout seul (instDemo, dans
-   atelier-motion.js) puis rend la main. La ligne survit partout, y
-   compris là où le mouvement est coupé. */
-.inst-cue{font-family:var(--f-ui);font-size:.86rem;color:var(--ink-soft);
-  margin:0 0 16px;display:flex;align-items:center;gap:9px;}
-.inst-cue::before{content:"";flex:none;width:18px;height:1px;background:var(--gold);opacity:.7;}
-.inst-cue i,.inst-cue b{color:var(--ink);font-style:italic;}
-
-/* La démonstration des commandes qui ne sont pas des curseurs : elles
-   s'allument l'une après l'autre — on ne clique à la place de personne. */
-@keyframes lm-instpulse{
-  0%{box-shadow:0 0 0 0 rgba(216,173,76,0);}
-  22%{box-shadow:0 0 0 3px rgba(216,173,76,.34);}
-  100%{box-shadow:0 0 0 0 rgba(216,173,76,0);}}
-.inst-pulse>*{animation:lm-instpulse .95s cubic-bezier(.16,1,.3,1) both;}
-.inst-pulse>*:nth-child(2){animation-delay:.13s;}
-.inst-pulse>*:nth-child(3){animation-delay:.26s;}
-.inst-pulse>*:nth-child(4){animation-delay:.39s;}
-@media(prefers-reduced-motion:reduce){.inst-pulse>*{animation:none;}}
 
 /* ===== Outils ajoutés : forme de la valeur, circuits, accumulation ===== */
 .forme-pick{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;}
@@ -408,26 +273,6 @@ svg.circuits{width:100%;height:auto;display:block;margin:6px 0 4px;font-family:'
    strips sont le même objet et n'avaient aucune raison de diverger. */
 .xpane{display:none;}.xpane.active{display:block;animation:fade .35s;}
 svg.x-scene{width:100%;height:auto;display:block;background:var(--card);border:1px solid var(--line);border-radius:12px 12px 0 0;margin-bottom:0;border-bottom:0;font-family:'Fraunces',serif;}
-/* ── LA PREUVE SOUS LE SCHÉMA ──────────────────────────────────────────
-   Le dossier n'avait pas une seule image. Ici l'image EST le sujet : le
-   dessin donne la structure du stade — cinq fois le même travail, puis
-   l'atelier parcellaire, puis la machine servie —, la photographie donne
-   le fait. Les deux changent ensemble, et la légende dit d'où elle vient.
-   Traitement de la maison : duotone dans la lumière, jamais devant. */
-.x-real{position:relative;margin:0 0 16px;height:150px;overflow:hidden;
-  border:1px solid var(--line);border-top:0;border-radius:0 0 12px 12px;background:#0f0c0a;}
-.x-real img{width:100%;height:100%;object-fit:cover;display:block;
-  filter:grayscale(1) contrast(1.04) sepia(.28) brightness(.62);
-  transform:scale(1.04);transition:transform 1.1s cubic-bezier(.16,1,.3,1),opacity .5s;}
-.x-real::after{content:'';position:absolute;inset:0;pointer-events:none;
-  background:linear-gradient(to top,rgba(21,16,11,.72),rgba(21,16,11,.06) 62%);}
-.x-real .hs-img-caption{position:absolute;left:0;right:0;bottom:0;z-index:2;
-  padding:16px 14px 8px;font-family:var(--f-ui);font-size:11px;letter-spacing:.04em;
-  color:rgba(243,233,212,.74);line-height:1.3;}
-.x-real-in img{animation:lm-xreal 1.15s cubic-bezier(.16,1,.3,1) both;}
-@keyframes lm-xreal{from{opacity:0;transform:scale(1.09);}to{opacity:1;transform:scale(1.04);}}
-@media(max-width:720px){.x-real{height:118px;}}
-@media(prefers-reduced-motion:reduce){.x-real-in img{animation:none;}.x-real img{transition:none;}}
 .x-row{display:flex;justify-content:space-between;gap:14px;padding:10px 0;border-bottom:1px solid var(--line-soft);font-size:.93rem;align-items:baseline;}
 .x-row:last-child{border-bottom:none;}
 .x-row .x-k{color:var(--ink-soft);flex:1;}
@@ -873,39 +718,7 @@ nav.tabs.worktabs .tab:focus-visible{outline:2px solid var(--gold);
 }
 
 /* ── Ressources : grille de cartes ── */
-.rss-section-label{font-size:.72rem;font-weight:700;letter-spacing:.22em;
-  text-transform:uppercase;color:var(--gold-deep);margin:0 0 6px;display:block;
-  font-family:var(--f-ui);padding-top:4px;}
-/* ── LES RESSOURCES — une bibliographie, pas douze cartes ──────────────
-   C'étaient douze cartes de même taille dans une grille : le conteneur
-   par défaut, qui donnait à une conférence d'une heure le même poids
-   visuel qu'à une autre et coûtait 1 346 px. C'est une LISTE de
-   références : deux colonnes de lignes réglées, le titre à gauche, la
-   nature à droite, la source dessous. Le filet prend l'or au survol —
-   c'est la seule chose qui bouge, et elle suffit. */
-.rss-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 40px;margin-bottom:30px;}
-.rss-card{display:grid;grid-template-columns:1fr auto;grid-template-areas:"t k" "m k";
-  align-items:baseline;gap:3px 16px;padding:13px 2px 13px 0;text-decoration:none;color:inherit;
-  background:none;border:0;border-bottom:1px solid var(--line);border-radius:0;
-  transition:border-color .2s;position:relative;}
-.rss-card::before{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;
-  background:var(--gold);transform:scaleX(0);transform-origin:left;
-  transition:transform .38s cubic-bezier(.16,1,.3,1);}
-.rss-card:hover{transform:none;box-shadow:none;}
-.rss-card:hover::before,.rss-card:focus-visible::before{transform:scaleX(1);}
-.rss-card-top{grid-area:k;display:flex;align-items:center;gap:8px;align-self:center;}
-.rss-badge{font-size:.72rem;font-weight:600;letter-spacing:.13em;text-transform:uppercase;
-  color:var(--muted);font-family:var(--f-ui);transition:color .2s;}
-.rss-card:hover .rss-badge{color:var(--gold);}
-.rss-ext{color:var(--muted);opacity:.5;flex:none;transition:transform .3s cubic-bezier(.16,1,.3,1),opacity .2s;}
-.rss-card:hover .rss-ext{opacity:1;transform:translate(2px,-2px);}
-.rss-ext svg{width:13px;height:13px;display:block;}
-.rss-title{grid-area:t;font-family:'Fraunces',serif;font-weight:700;font-size:.97rem;
-  line-height:1.32;color:var(--text);transition:color .2s;}
-.rss-meta{grid-area:m;font-size:.79rem;color:var(--muted);
-  font-family:var(--f-ui);line-height:1.4;}
-@media(max-width:760px){.rss-grid{grid-template-columns:1fr;gap:0;}}
-@media(prefers-reduced-motion:reduce){.rss-card::before,.rss-ext{transition:none;}}
+
 
 /* ── Marques imprimées, pas des pastilles d'interface ──
    Règle du site (cf. la légende du cartel de la bibliothèque) : les repères

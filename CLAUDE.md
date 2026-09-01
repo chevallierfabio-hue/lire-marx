@@ -1354,13 +1354,10 @@ progresse pas du tout** — mesuré ici encore (41,5 → 42 px en 1,2 s, quand
 l'`instant` va à 600). Un « ça ne défile pas » n'est pas un bug tant qu'on
 ne l'a pas revérifié en `instant`.
 
-### Fait sur Capital seulement
+### Porté aux Manuscrits (sept. 2026)
 
-Les Manuscrits gardent l'ancienne forme à neuf onglets — **à porter quand
-le propriétaire aura validé celle-ci**, comme pour le tableau de bord. Le
-CSS de la coquille (`.atl3`, le tiroir, les replis) vit déjà dans
-`atelier.css` : le portage est surtout du câblage, plus une table
-d'index chapitre → appareil propre aux Manuscrits.
+Fait : voir « Les Manuscrits prennent la même forme » plus bas. Les deux
+ateliers ont désormais exactement la même présentation.
 
 ## Le Dossier remis en ordre (mission `dossier-lisible`, sept. 2026)
 
@@ -1483,6 +1480,129 @@ scopées `.atl-dossier`, et le filtre d'`inkTitles` ne matche rien là-bas.
 12 marches et 11 moteurs. Rien n'a été retiré (c'est la pièce signée de la
 section, et `walkDeduce` en dépend), mais si le Dossier doit encore
 raccourcir, c'est là.
+
+## Les Manuscrits prennent la même forme (mission `manuscrits-meme-atelier`, sept. 2026)
+
+Demande du propriétaire : « exactement la même présentation de l'atelier
+pour les Manuscrits que pour Le Capital ». Portage intégral de
+`atelier-texte-au-centre` + `dossier-lisible` + `dossier-clair`. Les
+Manuscrits gardaient les **neuf onglets** ; ils en ont **deux**.
+
+### Ce qui a changé de place
+
+| avant | après |
+|---|---|
+| 9 onglets (Pour entrer, Sections, Parcourir, Texte intégral, Cheminement, Concepts, Explorations, Chronologie, Ressources) | **2 destinations** : Lire le texte / Le dossier |
+| panneau « Pour entrer » | **le seuil** de première visite (`liremarx.manuscrits.seuil.v1`) |
+| panneau « Parcourir » (accordéons à deux niveaux) | **le sommaire** (colonne de gauche) + **« En clair »** dans la marge |
+| panneau « Sections » (grille + progression) | la **progression** vit dans le sommaire (`#atl3Prog`) |
+| bandeau de reprise | la page **ouvre elle-même** le cahier repris |
+| 5 panneaux d'appareil | **le Dossier**, cinq sections numérotées I–V |
+
+`MAN_FLAT` est la table plate du sommaire (2 pièces d'ouverture + 9
+parties des 3 cahiers) ; **`MAN_APP` est l'index partie → appareil** — la
+clé est le titre tel que `MAN_STRUCT` l'écrit, source unique des titres et
+des résumés. Chaque partie y trouve son instrument du laboratoire, sa
+marche du cheminement, parfois son exploration. **Pas de bloc « dates »
+dans la marge** : la chronologie des Manuscrits raconte l'écriture et
+l'exhumation du texte, pas le contenu d'une partie — un renvoi par partie
+y aurait été inventé.
+
+### Cinq pièges de portage, tous rencontrés
+
+1. **`.walk-step::before` existait déjà dans `manuscrits-1844.css`** (la
+   pastille du fil, variante « thread »). Le CSS propre d'une page passe
+   après atelier.css : on se retrouvait avec **deux pastilles par
+   marche**. Règle déjà écrite pour `.work-head`, revécue ici : avant de
+   réutiliser un nom de classe sur une page qui a son propre CSS, vérifier
+   qu'il n'y est pas déjà pris. L'ancien bloc a été supprimé.
+2. **La variante du serpentin se décidait trop tôt.** `walkDeduce`
+   choisissait `walk-rungs` / `walk-cards` / `walk-thread` à l'init du
+   module — or les Manuscrits construisent leur cheminement dans leur
+   `DOMContentLoaded`, donc APRÈS un module en `defer`. La variante restait
+   « fil » pour toujours et **le pilotage de l'ascension ne partait
+   jamais**. `detect()` est appelée depuis l'abonné, et revérifie que la
+   classe est encore là — la page écrit `stair.className='walk walk-rungs'`
+   en clair, ce qui efface ce que le module avait posé.
+3. **L'appariement partie ↔ titre dans le texte doit se faire EN TÊTE.**
+   Le premier `<h2>` d'un cahier porte, collée au titre, la note de
+   l'éditeur — plusieurs centaines de mots où l'on retrouve « salaire »,
+   « rente foncière »… Une recherche par sous-chaîne épinglait les quatre
+   parties du Premier manuscrit sur ce même titre et le suivi de lecture
+   affichait « Rente foncière » dès la première page. `findMark()` cherche
+   en préfixe, et ne se rabat sur la sous-chaîne que pour un titre COURT.
+   D'où le champ `m` de `MAN_APP` : les intitulés du Marxists Internet
+   Archive sont des titres longs entre crochets qui ne ressemblent pas aux
+   titres courts de notre plan.
+4. **`body.at-atelier` manquait.** Sans cette classe (que Capital porte
+   dans son `<body>`), la règle qui masque les pastilles flottantes
+   au-dessus de 1241 px ne s'appliquait pas : « Mes notes » et « Notes
+   partagées » flottaient **par-dessus la marge** qui les redit.
+5. **Les instruments basculent par `hidden`, pas par une classe.** Capital
+   a des `.subpanel.active` / `.xpane.active`, les Manuscrits des `.instr`
+   avec l'attribut `hidden`. `instDemo` observe désormais les deux
+   attributs et son sélecteur couvre les trois familles.
+
+### Ce que le dossier a gagné au passage
+
+- **L'ascension** (`walk-rungs`) : six marches qui ne montrent au repos que
+  leur rang, leur cahier et leur titre ; le **ressort** — ce qui force le
+  passage à la suivante — n'apparaît que sur la marche où l'on est.
+- **Les instruments s'ouvrent sur quelque chose.** L'anatomie affichait
+  « Touchez une séparation pour la déplier » et la carte « Touchez un
+  concept » : deux états vides qui ne montrent rien. Ils s'ouvrent
+  maintenant sur leur premier nœud (la première séparation, le concept
+  central), et une `.inst-cue` de cinq mots dit qu'on peut en changer.
+- **Deux images d'archive dans la chronologie**, et seulement là où elles
+  sont le sujet : `marx-jeune.jpg` ouvre « L'écriture » (Marx à l'époque
+  parisienne, c'est-à-dire au moment même des cahiers) et
+  `manuscrit-ideologie-1846.webp` ouvre « La postérité » (une page
+  manuscrite de sa main, ce qu'on a exhumé en 1932). Les trois autres
+  sections n'en reçoivent pas : rien dans le fonds ne dit « la
+  maturation ».
+- **Les ressources en bibliographie.** Au passage, les badges disaient la
+  SOURCE (« France Culture · Les Chemins de la philosophie ») et écrasaient
+  la colonne du titre : le badge dit la nature, la source descend dans la
+  ligne de méta.
+- **Le renvoi « Cheminement → » de la barre de lecture a été retiré** : la
+  marge porte « Où l'on en est », qui mène à la même marche et la nomme ;
+  le bouton coûtait une rangée à une barre qui en tient déjà quatre.
+
+### atelier.css devient vraiment le système de record
+
+Quatre composants vivaient dans le `<style>` de `capital-1.html` et sont
+montés dans `atelier.css` le jour où les deux ateliers ont pris la même
+forme : **l'ascension** (`.walk-rungs` / `.wk-*`), **l'amorce**
+(`.inst-cue`, `.inst-pulse`), **la bibliographie** (`.rss-*`) et **la bande
+photographique** (`.x-real`). Le CSS local des ressources a été supprimé
+des DEUX pages. C'est la règle du projet, et la duplication en tête de page
+est exactement ce qui avait fait diverger les deux ateliers la première
+fois.
+
+### Vérifié
+
+Sonde de contraste sur le rendu : **0 échec** — 140 mesures dans le
+Dossier (minimum 5,12:1), 50 dans le sommaire et la marge (minimum
+6,44:1). Détecteur statique : **13 constats, 0 erreur** sur les Manuscrits,
+**20 constats, 0 erreur** sur Capital (inchangé). Testé à 1280 et 375 px,
+zéro débordement horizontal ; console sans erreur sur les deux pages.
+Chargement du texte, **suivi de lecture** (Salaire → Profit → Rente → Le
+travail aliéné, réversible), sommaire, marge des neuf parties, **tiroir**
+sur les trois espèces de nœud avec retour à la place exacte, plein écran,
+seuil de première visite et ses trois portes, deep-links `#labo`,
+`#anatomie` (hérité), `#deriv`, renvois croisés, clavier (focus, Entrée,
+parcours de tabulation), ascension pilotée au défilement et réversible sur
+**les deux** ateliers.
+
+### Ce qui reste
+
+La barre de lecture tient sur **quatre rangées** dans la colonne du milieu
+(182 px de coquille collante) — sur les deux pages, à l'identique : c'est
+le comportement partagé de reader-tools à cette largeur, pas une
+régression du portage. Si on veut le corriger, c'est dans reader-tools et
+pour les deux ateliers à la fois. (La note de la mission
+`atelier-texte-au-centre` annonçait deux rangées : c'était vrai avant que
+la colonne ne se resserre.)
 
 ## Le Dossier se parcourt, il ne se lit plus (mission `dossier-clair`, sept. 2026)
 

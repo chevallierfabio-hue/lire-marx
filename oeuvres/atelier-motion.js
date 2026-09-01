@@ -375,10 +375,27 @@
        fois), sur les Manuscrits elle EST le bloc le long d'un fil. La
        variante « cartes » en zigzag n'existe plus sur Capital ; son CSS
        reste pour qui la rendrait ailleurs. */
-    var rungs = !!walk.querySelector('.wk-line');
-    var cards = !rungs && !!walk.querySelector('.walk-card');
-    walk.classList.add(rungs ? 'walk-rungs' : cards ? 'walk-cards' : 'walk-thread');
-    if (!cards) walk.style.setProperty('--axis', rungs ? '23px' : '8px');
+    var variant = null, rungs = false, cards = false;
+    /* La variante se décide QUAND le serpentin existe, pas à l'init du
+       module. Vécu : sur les Manuscrits le cheminement est construit dans
+       le `DOMContentLoaded` de la page, donc APRÈS ce module (qui est en
+       `defer`, et s'exécute avant l'événement). Décidée trop tôt, la
+       variante restait « fil » pour toujours et le pilotage de l'ascension
+       ne partait jamais — le cheminement s'affichait, mais la marche
+       ouverte ne bougeait plus au défilement.
+       On revérifie aussi que la classe est TOUJOURS là : la page écrit
+       `stair.className='walk walk-rungs'` en clair, ce qui efface tout ce
+       que le module avait posé. */
+    function detect() {
+      if (!walk.querySelector('.walk-step')) return false;
+      rungs = !!walk.querySelector('.wk-line');
+      cards = !rungs && !!walk.querySelector('.walk-card');
+      variant = rungs ? 'walk-rungs' : cards ? 'walk-cards' : 'walk-thread';
+      walk.classList.add(variant);
+      if (!cards) walk.style.setProperty('--axis', rungs ? '23px' : '8px');
+      return true;
+    }
+    detect();
     document.documentElement.classList.add('js-atwalk');
 
     /* Le serpentin est construit par le script de la page. Il l'est avant
@@ -395,6 +412,7 @@
     addSub(function (y, vh) {
       if (!shown(walk)) return;
       if (!parts.length && !collect()) return;
+      if (!variant || !walk.classList.contains(variant)) detect();
       var r = walk.getBoundingClientRect();
       if (!r.height) return;
       /* le fil se trace pendant que la section traverse la fenêtre : il
@@ -458,7 +476,12 @@
         (onglet en arrière-plan) — sinon la station resterait faussée par
         une animation que personne n'a vue. ── */
   function instDemo() {
-    var panels = [].slice.call(document.querySelectorAll('#labo .subpanel, #explore .xpane'));
+    /* Les deux ateliers ne nomment pas leurs stations de la même façon :
+       Capital a des .subpanel et des .xpane, les Manuscrits des .instr.
+       Un seul sélecteur pour les trois — la page ne connaît pas ce
+       module, et le module n'a pas à connaître la page. */
+    var panels = [].slice.call(document.querySelectorAll(
+      '#labo .subpanel, #explore .xpane, #labo .instr'));
     if (!panels.length) return;
     var played = {}, live = null;
 
@@ -516,7 +539,8 @@
       played[panel.id] = 1;
       var r = panel.querySelector('input[type=range]');
       if (r) { nudge(r); return; }
-      var g = panel.querySelector('.forme-pick, .preset-row, .preset-bar');
+      var g = panel.querySelector('.forme-pick, .preset-row, .preset-bar,'
+        + ' .src-pick, .dev-pick, .heg-pick');
       if (g) pulse(g);
     }
     /* On ne joue QUE la station de la section concernée. Mesuré : un
@@ -526,7 +550,7 @@
        sait plus lequel regarder. */
     function playIn(sec) {
       if (!sec) return;
-      play(sec.querySelector('.subpanel.active, .xpane.active'));
+      play(sec.querySelector('.subpanel.active, .xpane.active, .instr:not([hidden])'));
     }
 
     /* Deux déclencheurs, et il en faut deux : la section qui ENTRE dans
@@ -550,8 +574,11 @@
         }
         setTimeout(function () { secs.forEach(playIn); }, 90);
       });
+      /* Capital bascule ses stations par la CLASSE, les Manuscrits par
+         l'attribut `hidden` : on observe les deux, sans quoi la
+         démonstration ne partirait jamais sur l'un des deux ateliers. */
       panels.forEach(function (p) {
-        mo.observe(p, { attributes: true, attributeFilter: ['class'] });
+        mo.observe(p, { attributes: true, attributeFilter: ['class', 'hidden'] });
       });
     }
   }

@@ -30,14 +30,13 @@ a{color:inherit;}
 .explore-cta{display:block;margin-top:12px;font-family:'Fraunces',Georgia,serif;font-weight:700;font-size:.92rem;color:var(--bright);}
 .chapter small,.card small,.model small,.explore-card small{display:inline-flex;font-family:var(--f-ui);font-size:.7rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);background:rgba(216,173,76,.13);border-radius:999px;padding:3px 8px;margin-bottom:9px;}
 .concepts{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px;}
-.walk{position:relative;max-width:760px;margin-top:8px;padding-left:32px;}
-.walk::before{content:"";position:absolute;left:7px;top:6px;bottom:6px;width:2px;background:var(--line);}
-.walk-step{display:block;grid-template-columns:none;align-items:initial;position:relative;padding:0 0 26px;}
-.walk-step:last-child{padding-bottom:0;}
-.walk-step::before{content:"";position:absolute;left:-32px;top:4px;width:16px;height:16px;border-radius:50%;background:var(--paper);border:2px solid var(--red);box-sizing:border-box;}
-.walk-cahier{font-family:'Fraunces',Georgia,serif;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--red-deep);font-weight:700;margin-bottom:5px;}
-.walk-step h3{font-family:'Fraunces',Georgia,serif;font-size:1.16rem;line-height:1.2;margin:0 0 7px;color:var(--ink);}
-.walk-step p{color:var(--ink-soft);margin:0;line-height:1.6;}
+/* Le cheminement en fil à gauche a été remplacé par L'ASCENSION que les
+   deux ateliers partagent (.walk-rungs, dans atelier.css) : une colonne,
+   une marche ouverte à la fois. Les anciennes règles vivaient ici et
+   passaient devant celles du socle — c'est ainsi qu'on se retrouvait avec
+   DEUX pastilles par marche, celle du fil et celle du rang. Un nom de
+   classe déjà pris dans le CSS propre d'une page est le piège de portage
+   numéro un ; il avait déjà été rencontré avec .work-head. */
 .timeline{display:flex;flex-direction:column;gap:12px;margin-top:18px;}
 .tl-section{font-family:'Fraunces',Georgia,serif;font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--red-deep);font-weight:700;margin-top:16px;padding-bottom:6px;border-bottom:1px solid var(--line);}
 .tl-section:first-child{margin-top:0;}
