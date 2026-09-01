@@ -3459,8 +3459,11 @@ appelle. Pour les Manuscrits : `dateCreated` 1844 **et** `datePublished`
 porte `sameAs` vers Wikidata Q9061 (vérifié) : c'est l'ancrage d'entité qui
 vaut le plus pour un moteur de réponse.
 
-**Le silence est délibéré sur la licence des Manuscrits.** La page affiche
-« domaine public », mais la traduction est de **J.-M. Palmier**, une
+**Le silence est délibéré sur la licence des Manuscrits.** (Écrit avant la
+mission `affaire-palmier`, qui a établi que « Palmier » était une erreur
+d'attribution — voir plus bas. Le raisonnement ci-dessous reste juste, seul
+le nom était faux.) La page affichait alors
+« domaine public », mais la traduction est une
 traduction française du XXe siècle — elle n'est pas dans le domaine public
 du seul fait que l'original de 1844 l'est. Un `license:` en JSON-LD est une
 affirmation juridique lisible par machine : on l'omet plutôt que de l'écrire
@@ -3471,8 +3474,9 @@ sous les Manuscrits reste à vérifier — elle est hors périmètre de cette
 mission, mais elle est signalée.**
 
 Et le nom du traducteur est laissé tel que la page l'imprime (« J.-M.
-Palmier »), pas « complété » en Jean-Michel Palmier : le schéma ne doit rien
-affirmer de plus que ce qui est à l'écran.
+Palmier ») et non « complété » — le schéma ne doit rien affirmer de plus que
+ce qui est à l'écran. La mission `affaire-palmier` est allée plus loin : le
+nom lui-même étant faux, le champ `translator` a été retiré.
 
 ### Le carnet et la messagerie sont HORS du sitemap — c'est un choix
 
@@ -4309,31 +4313,65 @@ défaut. Tout ce que le site sert pour SON PROPRE fonctionnement doit le dire.
 Avant d'ajouter une page au sitemap, se demander d'abord ce qui y est déjà
 sans avoir été invité.
 
-### ⚠️ « Palmier · domaine public » est très probablement FAUX
+### ✅ L'AFFAIRE PALMIER, soldée (sept. 2026, mission `affaire-palmier`)
 
-Relevé en faisant cet inventaire, et **non corrigé** : c'est un arbitrage
-éditorial et juridique du propriétaire, pas une décision technique.
+`oeuvres/manuscrits-1844.html` affichait « traduction J.-M. Palmier ·
+domaine public ». **Les deux étaient faux**, et l'enquête a été tranchée par
+un document que le site sert lui-même.
 
-`oeuvres/manuscrits-1844.html` affiche « Palmier · domaine public ». Or la
-traduction est de **Jean-Michel Palmier, mort en 1998** : en France, une
-traduction est une œuvre protégée pour la vie du traducteur plus soixante-dix
-ans, soit **jusqu'en 2068**. L'original de 1844 est dans le domaine public,
-la traduction ne l'est pas du fait de l'original.
+**La preuve est dans `oeuvres/manuscrits-1844/textes/note-traducteur.html`.**
+Cette note est signée **« E. B. »** et décrit un travail établi d'après
+l'édition MEGA de 1932, achevé après des corrections reçues de l'Institut du
+Marxisme-Léninisme de Moscou **au printemps 1961**. Jean-Michel Palmier, né
+en 1944, avait alors **dix-sept ans** : ce n'est pas lui, et la question est
+close.
 
-La mission `seo-urls-reelles` avait déjà refusé d'écrire un `license:` dans
-le `Book` des Manuscrits pour cette raison exacte — « on l'omet plutôt que de
-l'écrire sans pouvoir l'établir » — mais **la mention reste VISIBLE dans la
-page**, ce qui est plus engageant qu'un JSON-LD.
+**Et la licence ne dépend pas de l'identification** — c'est le point élégant
+de l'affaire. Une traduction achevée après 1961 ne peut pas être dans le
+domaine public en 2026&nbsp;: il faudrait que son auteur soit mort avant
+1956 (vie + 70 ans en France). L'original de Marx est libre&nbsp;; **sa
+traduction ne l'est pas du fait de l'original**. On n'a donc pas eu besoin
+de savoir qui est « E. B. » pour savoir que la mention était fausse.
 
-Deux conséquences, dans cet ordre :
-1. la mention affichée est à revoir (« traduction J.-M. Palmier, Marxists
-   Internet Archive » sans revendication de domaine public) ;
-2. le `noindex` des fragments a donc aussi une vertu juridique — 59 000 mots
-   d'une traduction sous droits ne demandaient pas à être offerts au moteur.
+**Ce qui a été corrigé** :
+- la ligne d'identité de l'atelier → « Karl Marx · écrits en 1844, publiés en
+  1932 · traduction française · Marxists Internet Archive » ;
+- le `sourceNote` de `bibliotheque.json`, qui dit maintenant la provenance
+  ET le statut (affiché au cartel de la bibliothèque) ;
+- `translator: 'J.-M. Palmier'` **retiré** de la table `EDITION` de
+  `gen-seo.mjs` — donc du `Book` en JSON-LD. Le `license` n'y avait jamais
+  été mis, et c'était le bon réflexe.
 
-Et c'est l'argument décisif contre l'idée, séduisante, de **faire des
-fragments de vraies pages indexables** : ce serait publier plus largement un
-texte dont on ne peut pas établir les droits.
+**On n'a PAS écrit « Bottigelli » à la place.** Les initiales, la date et
+l'appui sur la MEGA de 1932 désignent très probablement Émile Bottigelli
+(Éditions sociales, 1962), mais c'est une **inférence** — et remplacer un
+nom invérifié par un autre aurait refait l'erreur qu'on corrige. Le champ
+reste vide tant qu'une source ne le dit pas noir sur blanc. **Si le nom est
+un jour établi, l'ajouter est un plaisir&nbsp;: un traducteur a droit à son
+nom.**
+
+### ⚠️ CE QUI RESTE, et qui n'est pas technique
+
+Le site **sert 59 000 mots d'une traduction sous droits** jusqu'en 2046 au
+plus tôt. Le `noindex` posé sur les fragments (mission `_headers`) limite
+l'exposition, il ne règle rien sur le fond. Trois issues, toutes éditoriales
+et toutes du ressort du propriétaire&nbsp;: obtenir une autorisation,
+basculer sur une traduction réellement libre, ou retirer le texte intégral
+en gardant l'appareil. **Ne pas trancher ça à sa place.**
+
+### Le lien de source tenait une promesse vide
+
+Trouvé en passant, même famille&nbsp;: les cinq fragments affichaient « Le
+bouton “Ouvrir la source” permet de comparer avec la page source » — or
+**aucun code ne lit `data-source`**, et ce bouton n'existe nulle part. La
+phrase promettait un contrôle absent.
+
+Corrigé en tenant la promesse plutôt qu'en la retirant&nbsp;: la mention
+porte maintenant un **vrai lien** vers la page MIA, plus la mention de
+licence. Les cinq URL répondent 200 (vérifié) — c'est l'URL d'index que
+j'avais devinée pour les tester qui n'existait pas, pas les leurs. **Se
+méfier d'un 404 obtenu sur une URL reconstruite&nbsp;: tester celle que le
+document donne.**
 
 ## L'abécédaire de Marx (mission `glossaire`, sept. 2026)
 
@@ -4595,10 +4633,10 @@ notion elles-mêmes** (les cinq restants sont sur l'index), les douze URL en
 - **Aucune citation de Marx n'est reproduite**, volontairement : voir
   ci-dessus. Les ajouter demanderait de les relever dans le texte servi par
   la liseuse, ce qui est faisable et serait un vrai gain.
-- ⚠️ La mention **« Palmier · domaine public »** des Manuscrits reste
-  affichée et reste très probablement fausse (voir la mission `_headers`).
-  Ces six pages neuves parlent des Manuscrits sans en reproduire une ligne,
-  donc rien n'y aggrave le problème — mais il est toujours là.
+- ✅ La mention « Palmier · domaine public » a été corrigée depuis, par la
+  mission `affaire-palmier` : les deux termes étaient faux. Ces six pages
+  parlent des Manuscrits sans en reproduire une ligne, donc elles n'ont rien
+  eu à changer.
 
 ### Ce qui reste
 

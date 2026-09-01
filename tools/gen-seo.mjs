@@ -53,22 +53,32 @@ const EDITION = {
   },
 
   'manuscrits-1844': {
-    // « Karl Marx · écrits en 1844, publiés en 1932 · traduction
-    //   J.-M. Palmier · domaine public » — <p class="work-meta"> de
+    // « Karl Marx · écrits en 1844, publiés en 1932 · traduction française ·
+    //   Marxists Internet Archive » — <p class="work-meta"> de
     //   oeuvres/manuscrits-1844.html
     dateCreated: '1844',
     datePublished: '1932',
-    // Le nom est laissé tel que la page l'imprime. Ne pas le « compléter »
-    // en Jean-Michel Palmier : le schéma ne doit rien affirmer de plus que
-    // ce qui est écrit à l'écran.
-    translator: 'J.-M. Palmier',
     alternateName: 'Manuscrits économico-philosophiques de 1844',
-    // PAS de license ici, DÉLIBÉRÉMENT. La page affiche « domaine public »,
-    // mais une traduction française du XXe siècle ne l'est pas
-    // automatiquement, et un license: en JSON-LD est une affirmation
-    // juridique lisible par machine. On préfère le silence à une donnée
-    // structurée invérifiable. À rouvrir si le statut de la traduction est
-    // établi. (isAccessibleForFree reste vrai : la page est bien gratuite.)
+    // PAS DE translator, et PAS DE license. La page affichait « traduction
+    // J.-M. Palmier · domaine public » : les deux étaient faux, et le second
+    // l'est nécessairement.
+    //
+    // Le traducteur : la note de traduction servie par le site (oeuvres/
+    // manuscrits-1844/textes/note-traducteur.html) est signée « E. B. » et
+    // décrit un travail achevé après des corrections reçues de l'Institut du
+    // Marxisme-Léninisme de Moscou au PRINTEMPS 1961. Jean-Michel Palmier,
+    // né en 1944, avait alors dix-sept ans : ce n'est pas lui. Les initiales,
+    // la date et l'appui sur l'édition MEGA de 1932 désignent très
+    // probablement Émile Bottigelli (Éditions sociales, 1962), mais c'est une
+    // INFÉRENCE — on ne remplace pas un nom invérifié par un autre. Le champ
+    // reste vide tant que la source ne le dit pas noir sur blanc.
+    //
+    // La licence : elle ne dépend pas de l'identification. Une traduction
+    // achevée après 1961 ne peut pas être dans le domaine public en 2026 —
+    // il faudrait que son auteur soit mort avant 1956 (vie + 70 ans en
+    // France). L'original de Marx est libre ; sa traduction ne l'est pas du
+    // fait de l'original. (isAccessibleForFree reste vrai : la page est bien
+    // gratuite, ce qui est une autre question que la licence.)
     source: { name: 'Manuscrits de 1844 — Marxists Internet Archive',
               url: 'https://www.marxists.org/francais/marx/works/1844/00/km18440000/' }
   }
