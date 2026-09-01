@@ -4424,14 +4424,68 @@ constats tous documentés, et `index.html` reste à **27**. Testé à 1280 et
 4, « zzz » → message de vide, champ vidé → les 82 reviennent). 82 ancres
 uniques, `DefinedTermSet` à 82 termes.
 
+### Le lexique — `oeuvres/lexique.json` (sept. 2026)
+
+Les fiches des ateliers sont des **légendes de carte** : onze mots de
+médiane, faites pour tenir sous une icône dans `.ccard`. Le glossaire, lui,
+doit **définir**. Deux métiers, donc deux champs — et surtout **on n'allonge
+pas `CONCEPTS`**, ce qui déformerait les cartes de l'atelier. Vérifié :
+`capital-1.html` n'a pas changé d'un octet.
+
+`oeuvres/lexique.json` ne porte QUE ce que `CONCEPTS` n'a pas : une
+définition longue et le terme allemand. Aucune recopie. Résultat mesuré :
+
+| | avant | après |
+|---|---|---|
+| définition moyenne | 11 mots | **27 mots** |
+| termes allemands | 7 (Manuscrits) | **69 sur 75** |
+| mots visibles de la page | 1 470 | **3 235** |
+
+**Trois règles de fabrication :**
+
+- **La clé est le titre, suffixe de station retiré** (« Capital constant »
+  et non « Capital constant (c) »). `gen-seo.mjs` **échoue** si une clé ne
+  correspond à aucune fiche : c'est ce qui rattrape un renommage dans
+  `CONCEPTS`, qui sinon perdrait la définition en silence.
+- **L'allemand n'est donné que s'il est CANONIQUE chez Marx.** Les intitulés
+  éditoriaux du site (« Les contre-mondes », « Le passage de relais ») et la
+  condition d'équilibre n'en ont pas — on n'invente pas d'allemand pour faire
+  savant. Six termes sur soixante-quinze n'en portent pas, et c'est voulu.
+- **Les Manuscrits ne sont PAS dans le lexique** : leurs fiches ont déjà une
+  définition longue et leur terme allemand, dans `manuscrits-1844.html`. Ne
+  pas les recopier — ce serait la seconde source qu'on évite partout.
+
+### Le dédoublonnage se fait sur l'IDENTITÉ, pas sur le titre
+
+Un abécédaire n'a qu'une entrée par mot. Les ateliers déclinent le même
+concept d'une station à l'autre — trois « Composition organique », deux
+« Taux de profit », « Journée de travail » et « La journée de travail ». La
+fusion se fait donc sur une identité qui ignore **l'article de tête** et le
+**suffixe entre parenthèses**, et les provenances sont toutes conservées :
+82 fiches → **75 notions**.
+
+⚠️ **Le discriminant du suffixe est l'ESPACE avant la parenthèse**, et une
+regex sur les parenthèses équilibrées ne suffit pas : elle échoue sur
+« Taux de profit (pl/(c+v)) », dont le suffixe est imbriqué. On coupe au
+DERNIER « espace + parenthèse », et seulement si le titre finit par une
+parenthèse — sinon « Condition I(v+pl)=II(c) », dont les parenthèses font
+corps avec le titre, perdrait son dernier terme.
+
+Le suffixe est retiré de l'affichage aussi : un abécédaire se lit comme un
+dictionnaire, et la pastille de formule porte déjà les symboles.
+
+**Effet secondaire heureux** : le filtre indexe toute la fiche, donc il
+cherche aussi dans l'allemand — « mehrwert » ramène six notions.
+
 ### Ce qui reste
 
-- Les **7 fiches des Manuscrits** ont une médiane de 26 mots contre 11 pour
-  Capital, et portent le terme allemand. C'est le bon gabarit ; les fiches
-  de Capital gagneraient à s'y aligner — travail d'écriture, dans
-  `capital-1.html`, d'où tout est dérivé.
 - Une **troisième œuvre** entrerait toute seule : il suffit qu'elle expose un
-  `CONCEPTS=` et que le générateur le lise, comme pour les deux autres.
+  `CONCEPTS=` et que le générateur le lise, comme pour les deux autres. Ses
+  définitions longues iraient dans `lexique.json`, ou dans ses propres fiches
+  si elle suit le gabarit des Manuscrits.
+- Les définitions font 27 mots. **C'est encore court pour une page par
+  notion** — le seuil est plutôt trois cents. L'abécédaire reste donc une
+  page, et c'est le bon choix tant qu'on n'aura pas écrit davantage.
 
 ## Conventions de travail
 

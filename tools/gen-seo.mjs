@@ -419,6 +419,31 @@ function slug(nom) {
   return cle(nom).replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 }
 
+/* L'IDENTITÉ d'une notion, pour le dédoublonnage : la clé de tri, moins un
+ * suffixe entre parenthèses en FIN de titre. Les ateliers déclinent le même
+ * concept d'une station à l'autre — « Composition organique », « Composition
+ * organique (c/v) », « Composition organique (→) » — et les parenthèses y
+ * disent la station, pas le concept. Dans un abécédaire ce sont trois fois
+ * du bruit. Même chose pour l'article : « Journée de travail » et « La
+ * journée de travail » sont un seul mot.
+ * Le suffixe doit être ÉQUILIBRÉ et terminal, sinon « Condition
+ * I(v+pl)=II(c) » perdrait son dernier terme. */
+function sansSuffixe(nom) {
+  const t = String(nom).trim();
+  /* On coupe au DERNIER « espace + parenthèse », et seulement si le titre se
+   * termine par une parenthèse. L'ESPACE est le discriminant : il sépare un
+   * suffixe de station — « Taux de profit (pl/(c+v)) » — d'une parenthèse qui
+   * fait corps avec le titre, comme dans « Condition I(v+pl)=II(c) », qui
+   * perdrait son dernier terme. Une regex sur les parenthèses équilibrées
+   * échouait d'ailleurs sur le suffixe imbriqué ci-dessus. */
+  if (!t.endsWith(')')) return t;
+  const i = t.lastIndexOf(' (');
+  return i > 0 ? t.slice(0, i).trim() : t;
+}
+function identite(nom) {
+  return cle(sansSuffixe(nom)) || cle(nom);
+}
+
 {
   /* — Le Capital : fiches groupées par station, chaque groupe pointant son
        instrument. Les libellés viennent des ONGLETS de la page. — */
@@ -428,7 +453,13 @@ function slug(nom) {
   const labo = Object.fromEntries([...capSrc.matchAll(/data-sub="(s-[a-z]+)">([^<]*)/g)].map((m) => [m[1], m[2]]));
   const expl = Object.fromEntries([...capSrc.matchAll(/data-x="(x-[a-z]+)">([^<]*)/g)].map((m) => [m[1], m[2]]));
 
-  const termes = [];
+  /* Le LEXIQUE : définitions longues et termes allemands. Il ne porte QUE ce
+   * que CONCEPTS n'a pas — les fiches des ateliers sont des légendes de
+   * carte (onze mots de médiane), le glossaire doit définir. Deux métiers,
+   * deux champs ; on n'allonge pas CONCEPTS, ce qui déformerait les cartes. */
+  const LEX = JSON.parse(readFileSync('oeuvres/lexique.json', 'utf8')).termes;
+
+  const brut = [];
   for (const cc of Object.keys(CAP)) {
     const suff = cc.slice(3);
     let groupe, ancre, cible = null;
@@ -437,28 +468,56 @@ function slug(nom) {
     else                        { groupe = 'la chronologie'; ancre = '#chrono'; }
     const chaps = Object.keys(META).filter((r) => META[r].labo && META[r].labo === cible);
     for (const c of CAP[cc]) {
-      termes.push({
-        nom: c.t, def: c.d || '', formule: c.f || '', de: '',
-        oeuvre: 'Le Capital', groupe, chaps,
-        url: '/oeuvres/capital-1' + ancre,
-      });
+      brut.push({ nom: c.t, legende: c.d || '', formule: c.f || '', de: '',
+                  oeuvre: 'Le Capital', groupe, chaps, url: '/oeuvres/capital-1' + ancre });
     }
   }
 
-  /* — Les Manuscrits : tableau plat, avec le terme allemand. Leurs concepts
-       alimentent la carte du laboratoire (instr-carte). — */
+  /* — Les Manuscrits : tableau plat, déjà pourvu du terme allemand et d'une
+       définition longue. Leurs concepts alimentent la carte du laboratoire. — */
   const manSrc = readFileSync('oeuvres/manuscrits-1844.html', 'utf8');
   for (const c of litteralJS(manSrc, 'CONCEPTS=', '[')) {
-    termes.push({
-      nom: c.t, def: c.def || '', formule: '', de: c.de || '',
-      oeuvre: 'Manuscrits de 1844', groupe: 'la carte des concepts', chaps: [],
-      url: '/oeuvres/manuscrits-1844#labo',
-    });
+    brut.push({ nom: c.t, legende: c.def || '', formule: '', de: c.de || '',
+                oeuvre: 'Manuscrits de 1844', groupe: 'la carte des concepts', chaps: [],
+                url: '/oeuvres/manuscrits-1844#labo' });
   }
+
+  /* Une clé du lexique qui ne correspond à AUCUNE fiche est une erreur, pas
+   * une donnée en trop : c'est le symptôme d'un renommage dans CONCEPTS, qui
+   * sans ce contrôle perdrait la définition en silence. */
+  const identitesExistantes = new Set(brut.map((t) => identite(t.nom)));
+  const orphelines = Object.keys(LEX).filter((k) => !identitesExistantes.has(identite(k)));
+  if (orphelines.length) throw new Error(
+    `Clés du lexique sans fiche correspondante : ${orphelines.map((o) => `« ${o} »`).join(', ')}.\n` +
+    `  Un titre a-t-il changé dans CONCEPTS ? Corrigez oeuvres/lexique.json.`);
+
+  /* DÉDOUBLONNAGE. Un abécédaire n'a qu'une entrée par mot : « Force de
+   * travail » figure dans deux stations de Capital, avec deux légendes
+   * complémentaires. On fusionne, et on garde LES DEUX provenances. */
+  const parNom = new Map();
+  for (const t of brut) {
+    const id = identite(t.nom);
+    if (!parNom.has(id)) parNom.set(id, { ...t, sources: [] });
+    const e = parNom.get(id);
+    /* On garde le nom le plus COURT : c'est celui sans le suffixe de station,
+     * donc celui qui se lit comme une entrée de dictionnaire. */
+    if (t.nom.length < e.nom.length) { e.legende = t.legende; }
+    e.sources.push({ oeuvre: t.oeuvre, groupe: t.groupe, chaps: t.chaps, url: t.url });
+    if (!e.de && t.de) e.de = t.de;
+    if (!e.formule && t.formule) e.formule = t.formule;
+  }
+
+  const termes = [...parNom.values()].map((t) => {
+    t.nom = sansSuffixe(t.nom);
+    const lex = LEX[t.nom] || Object.entries(LEX).find(([k]) => identite(k) === identite(t.nom))?.[1];
+    return { ...t,
+      de:  lex && lex.de ? lex.de : t.de,
+      def: lex && lex.def ? lex.def : t.legende,
+      enrichi: !!(lex && lex.def) };
+  });
 
   termes.sort((a, b) => cle(a.nom).localeCompare(cle(b.nom), 'fr'));
 
-  /* Slugs uniques : deux œuvres peuvent nommer la même notion. */
   const vus = new Set();
   for (const t of termes) {
     let id = slug(t.nom), n = 2;
@@ -466,7 +525,6 @@ function slug(nom) {
     vus.add(id); t.id = id;
   }
 
-  /* Regroupement par lettre initiale de la CLÉ DE TRI. */
   const lettres = new Map();
   for (const t of termes) {
     const L = (cle(t.nom)[0] || '#').toUpperCase();
@@ -481,23 +539,36 @@ function slug(nom) {
     : `<span aria-hidden="true">${L}</span>`).join('');
   const alphabet = `<nav class="gl-alpha" aria-label="Aller à une lettre">${nav}</nav>`;
 
+  /* La provenance se groupe par ŒUVRE : un terme qui figure dans deux
+   * stations du même livre ne doit pas le nommer deux fois. */
+  const provenance = (sources) => {
+    const parOeuvre = new Map();
+    for (const s of sources) {
+      if (!parOeuvre.has(s.oeuvre)) parOeuvre.set(s.oeuvre, { lieux: [], chaps: new Set() });
+      const e = parOeuvre.get(s.oeuvre);
+      e.lieux.push(`<a href="${s.url}">${s.groupe}</a>`);
+      s.chaps.forEach((c) => e.chaps.add(c));
+    }
+    return [...parOeuvre.entries()].map(([oeuvre, e]) => {
+      const ch = [...e.chaps];
+      const chaps = ch.length ? ` — ${ch.length > 1 ? 'chapitres' : 'chapitre'} ${ch.join(', ')}` : '';
+      return `<i>${oeuvre}</i>${chaps} · ${e.lieux.join(', ')}`;
+    }).join(' · ');
+  };
+
   let html = '';
   for (const [L, liste] of [...lettres.entries()].sort((a, b) => a[0].localeCompare(b[0], 'fr'))) {
     html += `  <section class="gl-bloc" aria-labelledby="lettre-${L}">\n`
           + `    <h2 class="gl-lettre" id="lettre-${L}">${L}</h2>\n`
           + `    <dl class="gl-liste">\n`;
     for (const t of liste) {
-      const chaps = t.chaps.length
-        ? ` — ${t.chaps.length > 1 ? 'chapitres' : 'chapitre'} ${t.chaps.join(', ')}`
-        : '';
       html += `      <div class="gl-terme" id="${t.id}">\n`
             + `        <dt class="gl-t">${t.nom}`
             + (t.de ? `<span class="gl-de" lang="de">${t.de}</span>` : '')
             + `</dt>\n`
             + `        <dd class="gl-d">${t.def}\n`
             + (t.formule ? `          <span class="gl-f">${t.formule}</span>\n` : '')
-            + `          <span class="gl-src"><i>${t.oeuvre}</i>${chaps} · `
-            + `<a href="${t.url}">${t.groupe}</a></span>\n`
+            + `          <span class="gl-src">${provenance(t.sources)}</span>\n`
             + `        </dd>\n      </div>\n`;
     }
     html += `    </dl>\n  </section>\n`;
@@ -515,10 +586,12 @@ function slug(nom) {
       name: decode(t.nom),
       description: decode(t.def),
       url: `${ORIGIN}/glossaire#${t.id}`,
+      ...(t.de ? { alternateName: decode(t.de) } : {}),
+      inLanguage: 'fr',
     })),
   }, null, 2);
 
-  const oeuvres = new Set(termes.map((t) => t.oeuvre)).size;
+  const oeuvres = new Set(termes.flatMap((t) => t.sources.map((s) => s.oeuvre))).size;
   const compte = `<p class="gl-compte">${termes.length} notions · ${lettres.size} lettres · ${oeuvres} œuvres</p>`;
 
   const fichier = 'glossaire.html';
@@ -540,6 +613,20 @@ function slug(nom) {
 
   writeIfNeeded(fichier, page, fichier);
   if (termes.length < 60) throw new Error(`Seulement ${termes.length} notions relevées — CONCEPTS a changé de forme.`);
+  if (!check) {
+    /* Le signal utile n'est pas « combien viennent du lexique » — les sept
+     * notions des Manuscrits ont leur définition longue dans leur propre
+     * fiche — mais « combien sont encore une légende de carte ». On mesure
+     * donc la LONGUEUR, pas la provenance. */
+    const courtes = termes.filter((t) => decode(t.def).split(/\s+/).length < 18);
+    const mots = termes.reduce((n, t) => n + decode(t.def).split(/\s+/).length, 0);
+    console.log(`  lexique : ${termes.length} notions, ${Math.round(mots / termes.length)} mots de définition en moyenne, `
+      + `${termes.filter((t) => t.de).length} avec leur terme allemand`
+      + (courtes.length
+          ? `\n  ⚠ ${courtes.length} encore sur une légende de carte : `
+            + courtes.map((t) => `« ${decode(t.nom)} »`).join(', ')
+          : '.'));
+  }
 }
 
 /* --------------------------- sitemap --------------------------- */

@@ -1,0 +1,275 @@
+{
+  "_": "LE LEXIQUE — définitions longues et termes allemands, pour /glossaire.",
+  "_pourquoi": "Les fiches CONCEPTS des ateliers sont des LÉGENDES DE CARTE : onze mots de médiane, faites pour tenir sous une icône. Le glossaire, lui, doit définir. Deux métiers, deux champs — on n'allonge donc pas CONCEPTS, ce qui déformerait les cartes de l'atelier, et on ne recopie rien : ce fichier ne porte QUE ce que CONCEPTS n'a pas.",
+  "_contrat": "La clé est le titre de la fiche, suffixe de station retiré (« Capital constant » et non « Capital constant (c) »). tools/gen-seo.mjs échoue si une clé ne correspond à aucune fiche — c'est ce qui rattrape un renommage, qui sinon perdrait la définition en silence.",
+  "_allemand": "Le terme allemand n'est donné que lorsqu'il est CANONIQUE chez Marx. Les intitulés éditoriaux du site — « Les contre-mondes », « Le passage de relais » — et les conditions d'équilibre n'en ont pas : on n'invente pas d'allemand pour faire savant.",
+  "_manuscrits": "Les sept notions des Manuscrits de 1844 ne figurent pas ici : leurs fiches portent DÉJÀ une définition longue et leur terme allemand, dans manuscrits-1844.html. Ne pas les recopier.",
+  "termes": {
+    "A — M — A′": {
+      "de": "G — W — G′",
+      "def": "La formule du capital : acheter pour vendre. À la différence de M—A—M elle n'a pas de terme, puisque l'argent en revient augmenté et repart aussitôt."
+    },
+    "ΔA — plus-value": {
+      "de": "Mehrwert",
+      "def": "L'accroissement qui sépare A′ de A. Sans lui, avancer de l'argent pour récupérer la même somme n'aurait aucun sens : c'est lui qui fait du mouvement un capital."
+    },
+    "Accumulation": {
+      "de": "Akkumulation",
+      "def": "La plus-value reconvertie en capital au lieu d'être consommée. Le capital ne se contente pas de se reproduire : il grandit, et sa croissance change à chaque tour sa composition."
+    },
+    "Accumulation primitive": {
+      "de": "ursprüngliche Akkumulation",
+      "def": "La séparation historique des producteurs d'avec leurs moyens de production. Non le péché originel d'une fable économique, mais l'expropriation, la conquête et la loi."
+    },
+    "Appendice de la machine": {
+      "de": "Zubehör der Maschine",
+      "def": "Renversement du rapport à l'outil : l'ouvrier ne manie plus l'instrument, il sert un mécanisme qui règle sa cadence et jusqu'à ses gestes."
+    },
+    "Composition organique": {
+      "de": "organische Zusammensetzung des Kapitals",
+      "def": "Le rapport du capital constant au capital variable, en tant qu'il reflète le rapport technique entre la masse des moyens de production et le travail vivant. Elle s'élève avec l'accumulation."
+    },
+    "Condition I(v+pl)=II(c)": {
+      "def": "La condition d'équilibre de la reproduction simple : ce que le secteur des moyens de production verse en salaires et en plus-value doit égaler ce que l'autre consomme en moyens de production."
+    },
+    "Les contre-mondes": {
+      "def": "Les situations que Marx oppose à la production marchande — Robinson, le servage, l'économie familiale, les producteurs associés — où le rapport social se voit sans avoir à être déchiffré."
+    },
+    "Contre-tendances": {
+      "de": "entgegenwirkende Ursachen",
+      "def": "Les forces qui freinent la baisse du taux de profit : hausse du taux d'exploitation, baisse du prix des éléments du capital constant, commerce extérieur, surpopulation."
+    },
+    "Coopération": {
+      "de": "Kooperation",
+      "def": "Le travail de plusieurs ouvriers réunis dans un même procès. Leur force collective n'est pas la somme des forces isolées — et le capital l'obtient sans la payer."
+    },
+    "Corvée · esclave · salarié": {
+      "def": "Trois formes du même partage entre travail payé et non payé. La corvée le montre en journées distinctes, l'esclavage fait tout paraître non payé, le salariat tout paraître payé."
+    },
+    "Demande de travail": {
+      "de": "Nachfrage nach Arbeitskraft",
+      "def": "Elle ne suit pas le capital total mais sa seule part variable. Le capital peut donc grossir vite pendant que la demande de bras croît lentement, ou recule."
+    },
+    "Département I": {
+      "de": "Abteilung I",
+      "def": "Le secteur qui produit les moyens de production. Dans les schémas de reproduction, son produit doit remplacer le capital constant usé des deux secteurs."
+    },
+    "Département II": {
+      "de": "Abteilung II",
+      "def": "Le secteur qui produit les moyens de consommation. Son produit doit couvrir ce que les salaires et la plus-value des deux secteurs dépensent."
+    },
+    "Division du travail": {
+      "de": "Teilung der Arbeit",
+      "def": "Dans la manufacture, le métier est décomposé en opérations parcellaires attachées à vie à un même ouvrier. La productivité monte ; l'ouvrier devient un organe."
+    },
+    "Expropriation / enclosures": {
+      "de": "Expropriation",
+      "def": "La clôture des terres communes et l'expulsion des paysans anglais. C'est là que se forme le prolétaire : libre de toute attache, et libre de tout moyen de subsistance."
+    },
+    "Factory Acts & inspecteurs": {
+      "de": "Fabrikgesetze",
+      "def": "Les lois anglaises qui limitent la journée de travail, et le corps d'inspecteurs chargé de les faire respecter. Leurs rapports fournissent à Marx l'essentiel de ses faits."
+    },
+    "Force productive": {
+      "de": "Produktivkraft",
+      "def": "Ce que le travail rend en une heure. Quand elle monte, la valeur des subsistances baisse, le travail nécessaire raccourcit — et le surtravail s'allonge d'autant."
+    },
+    "Forme argent": {
+      "de": "Geldform",
+      "def": "Le stade où une seule marchandise, l'or, monopolise la fonction d'équivalent général. La valeur reçoit alors sa figure autonome : le prix."
+    },
+    "Forme développée": {
+      "de": "entfaltete Wertform",
+      "def": "Une marchandise exprime sa valeur dans une série illimitée d'autres. L'expression gagne en généralité ce qu'elle perd en unité : la série n'a pas de fin."
+    },
+    "Forme équivalent": {
+      "de": "Äquivalentform",
+      "def": "Le rôle de la marchandise qui sert de miroir : sa valeur d'usage devient la forme d'apparition de la valeur d'une autre. C'est là qu'est le germe de l'énigme."
+    },
+    "Forme générale": {
+      "de": "allgemeine Wertform",
+      "def": "Toutes les marchandises expriment leur valeur dans une seule, exclue du lot. Le rapport devient social : la valeur a enfin une expression commune."
+    },
+    "Forme relative": {
+      "de": "relative Wertform",
+      "def": "Le pôle actif de l'équation : la marchandise dont on exprime la valeur dans le corps d'une autre. Aucune ne peut tenir les deux rôles à la fois."
+    },
+    "Forme simple": {
+      "de": "einfache Wertform",
+      "def": "x marchandise A = y marchandise B. La cellule de toute la forme valeur : isolée, accidentelle, et contenant pourtant déjà le secret du prix."
+    },
+    "La forme-salaire": {
+      "de": "Arbeitslohn",
+      "def": "Le paiement à la journée ou à la pièce efface la coupure entre travail payé et non payé. Toute la journée paraît rémunérée — et c'est de cette apparence que vit le rapport."
+    },
+    "Le hiéroglyphe social": {
+      "de": "gesellschaftliche Hieroglyphe",
+      "def": "La valeur ne s'annonce pas : les hommes l'ont déchiffrée sans savoir qu'ils lisaient. En découvrir le secret ne dissipe pas l'apparence, mais en explique la nécessité."
+    },
+    "Journée de travail": {
+      "de": "Arbeitstag",
+      "def": "Sa longueur n'est pas fixée par la nature : entre une limite physique et une limite morale, capital et ouvriers se disputent chaque heure. Entre deux droits égaux, c'est la force qui tranche."
+    },
+    "Législation sanglante": {
+      "de": "Blutgesetzgebung",
+      "def": "Les lois contre le vagabondage qui, du XVe au XVIIIe siècle, dressent les expropriés à la discipline de l'atelier — par le fouet, la marque et la potence."
+    },
+    "Lever le voile": {
+      "de": "mystischer Nebelschleier",
+      "def": "Le brouillard mystique ne se dissipe que le jour où la production devient l'affaire d'hommes librement associés, agissant sous leur contrôle conscient et selon un plan."
+    },
+    "Loi de la circulation": {
+      "def": "La masse de monnaie nécessaire égale la somme des prix divisée par le nombre de rotations d'une même pièce. Ce sont les prix qui commandent la quantité, non l'inverse."
+    },
+    "Loi générale": {
+      "de": "allgemeines Gesetz der kapitalistischen Akkumulation",
+      "def": "Plus le capital s'accumule, plus il produit de population superflue. Richesse à un pôle, misère à l'autre : les deux croissent d'un même mouvement."
+    },
+    "Loi tendancielle": {
+      "de": "Gesetz des tendenziellen Falls der Profitrate",
+      "def": "La hausse de la composition organique fait baisser le taux de profit à taux d'exploitation constant. Une tendance, contrariée par des forces inverses — pas un destin."
+    },
+    "M — A — M": {
+      "de": "W — G — W",
+      "def": "Vendre pour acheter. Le mouvement part d'une marchandise et s'achève dans une autre, consommée : le besoin y met un terme."
+    },
+    "Machine-outil": {
+      "de": "Werkzeugmaschine",
+      "def": "La partie de la machine qui s'empare de l'outil. C'est elle, et non le moteur, qui fait la révolution industrielle : le geste quitte la main de l'ouvrier."
+    },
+    "Mesure des valeurs": {
+      "de": "Maß der Werte",
+      "def": "Première fonction de l'argent : donner aux marchandises l'expression idéale de leur valeur. Le prix se pose avant tout échange réel, et sans un gramme d'or."
+    },
+    "Moyen de circulation": {
+      "de": "Zirkulationsmittel",
+      "def": "Dans M—A—M, la monnaie ne fait que passer. Les marchandises quittent la circulation pour être consommées ; l'argent y demeure et recommence."
+    },
+    "Moyen de paiement": {
+      "de": "Zahlungsmittel",
+      "def": "L'argent qui règle une dette contractée plus tôt. Les créances se compensent, et une masse d'échanges se dénoue sans qu'une pièce circule."
+    },
+    "Le passage de relais": {
+      "def": "Le moment où la contrainte ouverte cède la place à la contrainte muette des rapports économiques : le salarié reconduit lui-même, chaque jour, sa propre dépendance."
+    },
+    "Plus-value absolue": {
+      "de": "absoluter Mehrwert",
+      "def": "Celle qu'on obtient en allongeant la journée, la productivité restant la même. Sa limite est physique — et c'est la première forme que prend l'exploitation."
+    },
+    "Plus-value relative": {
+      "de": "relativer Mehrwert",
+      "def": "Celle qu'on obtient en raccourcissant le travail nécessaire par la hausse de la productivité. La journée ne bouge pas ; c'est son partage interne qui change."
+    },
+    "Le « prix du travail »": {
+      "de": "Preis der Arbeit",
+      "def": "Expression courante et pourtant impossible : le travail n'a pas de valeur, il en est la mesure. Ce qui se paie, c'est la force de travail."
+    },
+    "Régulation des salaires": {
+      "def": "La réserve de bras disponibles pèse sur le prix du travail. Ce n'est pas la population qui règle les salaires, mais l'accumulation qui règle la population disponible."
+    },
+    "Reproduction élargie": {
+      "de": "erweiterte Reproduktion",
+      "def": "Une part de la plus-value retourne au capital au lieu d'être consommée. Le procès reprend sur une échelle plus grande : c'est l'accumulation vue comme cycle."
+    },
+    "Reproduction simple": {
+      "de": "einfache Reproduktion",
+      "def": "Toute la plus-value est consommée et la production recommence à l'identique. Fiction utile : elle montre qu'au bout de quelques années, le capital avancé n'est plus que du travail non payé accumulé."
+    },
+    "Subsomption réelle": {
+      "de": "reelle Subsumtion",
+      "def": "Le capital ne se contente plus de commander un procès de travail hérité : il le refond de fond en comble, jusque dans sa technique, pour l'ajuster à sa valorisation."
+    },
+    "Surtravail": {
+      "de": "Mehrarbeit",
+      "def": "La part de la journée qui dépasse le travail nécessaire. Elle ne coûte rien au capital et ne rapporte rien à l'ouvrier : c'est la substance de la plus-value."
+    },
+    "Taux d'exploitation e₀": {
+      "de": "Rate des Mehrwerts",
+      "def": "Le rapport du surtravail au travail nécessaire. Il mesure ce que le capital tire de l'ouvrier, indépendamment de la taille du capital engagé."
+    },
+    "Taux de plus-value": {
+      "de": "Rate des Mehrwerts",
+      "def": "pl divisé par v : le rapport du travail non payé au travail payé. C'est l'expression exacte du degré d'exploitation — que le taux de profit, lui, dissimule."
+    },
+    "Taux de profit": {
+      "de": "Profitrate",
+      "def": "pl rapporté au capital total avancé, constant compris. Toujours inférieur au taux de plus-value, et d'autant plus bas que la part des machines est grande."
+    },
+    "Thésaurisation": {
+      "de": "Schatzbildung",
+      "def": "L'argent retiré de la circulation et gardé. Il cesse d'être moyen d'échange pour devenir représentant abstrait de la richesse — désir sans mesure, l'argent n'ayant pas de limite qualitative."
+    },
+    "Travail gratuit": {
+      "de": "unbezahlte Arbeit",
+      "def": "Les heures que la forme-salaire rend invisibles. Ce ne sont pas des heures volées à un contrat : le contrat est respecté, et c'est précisément le point."
+    },
+    "Travail mort": {
+      "de": "tote Arbeit",
+      "def": "Le travail passé, cristallisé dans les machines et les matières. Il ne crée rien : il reparaît dans le produit à la mesure de ce qui s'use."
+    },
+    "Travail nécessaire": {
+      "de": "notwendige Arbeit",
+      "def": "La portion de la journée pendant laquelle l'ouvrier reproduit la valeur de sa propre force de travail. Au-delà commence le surtravail."
+    },
+    "Travail payé": {
+      "de": "bezahlte Arbeit",
+      "def": "Les heures qui reproduisent la valeur de la force de travail. Elles ne sont pas les premières de la journée : la division est de valeur, non d'horloge."
+    },
+    "Travail vivant": {
+      "de": "lebendige Arbeit",
+      "def": "Le seul facteur actif du procès. Il conserve la valeur des moyens de production en s'en servant, et ajoute du même geste une valeur qui n'existait pas."
+    },
+    "Travailleur collectif": {
+      "de": "Gesamtarbeiter",
+      "def": "L'atelier tout entier devient le sujet productif. Aucun ouvrier ne fait plus le produit : la capacité de produire est passée à l'organisme qui les combine."
+    },
+    "Travaux privés": {
+      "de": "Privatarbeiten",
+      "def": "Chacun produit pour son compte, sans concertation. Leur caractère social ne se manifeste qu'après coup, dans l'échange — d'où la forme étrange que prend ce lien."
+    },
+    "Valeur d’usage vs valeur": {
+      "de": "Gebrauchswert / Wert",
+      "def": "L'utilité d'une chose n'a rien de mystérieux et ne varie pas d'une société à l'autre. Le mystère commence avec la forme valeur, qui n'appartient qu'à la production marchande."
+    },
+    "Valeur nouvelle": {
+      "de": "Neuwert",
+      "def": "Tout ce que le travail vivant ajoute pendant la journée, et rien d'autre. Elle se partage entre la valeur de la force de travail et la plus-value."
+    },
+    "La valeur qui se valorise": {
+      "de": "sich verwertender Wert",
+      "def": "Définition du capital : non une chose ni une somme, mais de la valeur en mouvement, qui traverse des formes pour revenir augmentée. Un sujet automate."
+    },
+    "Valeur transférée": {
+      "de": "Wertübertragung",
+      "def": "La valeur des moyens de production consommés reparaît intacte dans le produit. Rien ne s'y ajoute et rien ne s'y perd : c'est un simple déplacement."
+    },
+    "Vitesse de circulation": {
+      "de": "Umlaufsgeschwindigkeit",
+      "def": "Le nombre de fois qu'une même pièce sert dans une période donnée. Plus elle circule vite, moins il en faut : la masse nécessaire varie en raison inverse."
+    },
+    "Capital constant": {
+      "de": "konstantes Kapital",
+      "def": "La part du capital avancée en machines, bâtiments et matières. Le travail la conserve et la reporte sur le produit sans y ajouter un atome : sa grandeur ne change pas, d'où son nom."
+    },
+    "Capital variable": {
+      "de": "variables Kapital",
+      "def": "La part avancée en salaires. Elle change de grandeur au cours du procès, parce que la force de travail qu'elle achète produit plus de valeur qu'elle n'en coûte."
+    },
+    "Plus-value": {
+      "de": "Mehrwert",
+      "def": "L'excédent de valeur créé par le travail au-delà de ce que coûte la force de travail. Elle ne naît pas de l'échange, qui ne fait que déplacer de la valeur, mais de la production."
+    },
+    "Force de travail": {
+      "de": "Arbeitskraft",
+      "def": "La capacité de travailler, que l'ouvrier vend pour un temps déterminé. Marchandise unique : sa valeur est le coût de sa reproduction, son usage crée plus de valeur qu'elle n'en coûte."
+    },
+    "Fétichisme": {
+      "de": "Fetischcharakter der Ware",
+      "def": "Le rapport entre des travaux humains apparaît comme un rapport entre des choses. Ce n'est pas une illusion d'optique : la forme marchandise produit réellement cette apparence."
+    },
+    "Armée de réserve": {
+      "de": "industrielle Reservearmee",
+      "def": "La population ouvrière rendue superflue par l'accumulation elle-même. Elle n'est pas un accident du marché : le capital la produit, et s'en sert pour peser sur les salaires."
+    }
+  }
+}
