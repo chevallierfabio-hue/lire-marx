@@ -24,6 +24,7 @@
 <meta property="og:title" content="Lire Marx — Le Capital et les Manuscrits, lus et expliqués">
 <meta property="og:description" content="Le Capital et les Manuscrits de 1844 en texte intégral, l'appareil critique en marge du chapitre — et Le circuit du capital, le jeu de la plus-value.">
 <meta property="og:type" content="website">
+<meta property="og:site_name" content="Lire Marx">
 <meta property="og:url" content="https://liremarx.com/">
 <meta property="og:image" content="https://liremarx.com/assets/img/archive/marx-portrait.png">
 <meta property="og:locale" content="fr_FR">
@@ -1085,6 +1086,32 @@ html.no-motion header.topbar,html.no-motion header.topbar .topbar-in{transition:
 </style>
 <link rel="preload" href="oeuvres/shell.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="oeuvres/shell.css"></noscript>
+<!-- WebSite — C'EST ICI que Google lit le « nom de site » affiché au-dessus
+     de l'URL dans un résultat de recherche. PAS dans Organization : le site
+     déclarait « Lire Marx » depuis la mission titre-description-logo et le
+     résultat affichait quand même « liremarx.com », parce que la propriété
+     lue est celle de WebSite. Ce bloc ne vaut QUE sur la page d'accueil —
+     Google ignore un WebSite posé ailleurs, et le nom de site ne s'affiche
+     que sur le résultat de la racine du domaine.
+     Pas d'alternateName : « LireMarx » en un mot a été explicitement écarté
+     (voir titre-description-logo), et on n'invente pas un nom que la page
+     n'écrit nulle part.
+     Pas de SearchAction non plus : la sitelinks searchbox a été retirée par
+     Google, le balisage ne sert plus à rien.
+     Le `publisher` pointe l'Organization par son @id : c'est cet ancrage
+     d'entité, avec url et sameAs, qui distingue ce site de son homonyme
+     liremarx.noblogs.org — pas le nom, qu'ils partagent. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "@id": "https://liremarx.com/#site",
+  "name": "Lire Marx",
+  "url": "https://liremarx.com/",
+  "inLanguage": "fr",
+  "publisher": { "@id": "https://liremarx.com/#organisation" }
+}
+</script>
 <!-- Organization. Le nom reste « Lire Marx » : il est dans le brandmark, le
      H1 et le suffixe des titres de page — un schéma qui nommerait l'entité
      autrement mentirait sur ce que la page montre. Ce qui distingue ce site
@@ -1096,6 +1123,7 @@ html.no-motion header.topbar,html.no-motion header.topbar .topbar-in{transition:
 {
   "@context": "https://schema.org",
   "@type": "Organization",
+  "@id": "https://liremarx.com/#organisation",
   "name": "Lire Marx",
   "url": "https://liremarx.com/",
   "logo": "https://liremarx.com/assets/img/logo/icon-512.png",

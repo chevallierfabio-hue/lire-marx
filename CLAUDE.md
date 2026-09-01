@@ -3723,6 +3723,54 @@ première formulation, écartée après mesure) :
   l'homonyme `liremarx.noblogs.org` — lequel occupe déjà le terrain sur
   « par où commencer pour lire Marx ».
 
+### Le nom de site dans Google se lit dans `WebSite`, PAS dans `Organization`
+
+Ajouté en septembre 2026, après que le propriétaire eut constaté que le
+résultat Google affichait toujours **« liremarx.com »** au-dessus de l'URL
+plutôt que « Lire Marx ». Le site déclarait pourtant `Organization` avec
+`"name": "Lire Marx"` depuis cette mission-ci — mais **ce n'est pas la
+propriété que Google lit** pour le nom de site.
+
+Ce qu'il faut, et qui est désormais en place :
+
+- un bloc **`WebSite`** avec `name` et `url`, **sur la page d'accueil et
+  nulle part ailleurs** — Google ignore un `WebSite` posé sur une page
+  interne, et le nom de site ne s'affiche que sur le résultat de la RACINE
+  du domaine ;
+- **`og:site_name`**, le signal secondaire, sur les six pages qui portent
+  des balises Open Graph.
+
+Les autres signaux étaient déjà bons et n'ont pas eu à bouger : le `<title>`
+de l'accueil commence par « Lire Marx », le `<h1>` aussi.
+
+Trois choses délibérément ABSENTES du bloc :
+
+- **pas d'`alternateName`** — « LireMarx » en un mot a été explicitement
+  écarté plus haut dans cette section, et on n'invente pas un nom que la
+  page n'écrit nulle part ;
+- **pas de `SearchAction`** — la *sitelinks searchbox* a été retirée par
+  Google, ce balisage ne produit plus rien ;
+- **pas de second `sameAs`** — la règle « ne rien inventer » vaut toujours.
+
+Le `WebSite` désigne l'`Organization` par **`@id`**
+(`https://liremarx.com/#organisation`), ajouté au passage. C'est cet ancrage
+d'entité — `url` + `sameAs` + le lien entre les deux nœuds — qui distingue
+ce site de son homonyme `liremarx.noblogs.org`, et non le nom, qu'ils
+partagent.
+
+**La favicon, elle, n'avait aucun défaut** : `/favicon.ico`, `icon-48` et
+`icon-192` répondent 200, sont déclarés en `rel="icon"` aux tailles que
+Google exige (des multiples de 48) et rien ne les bloque dans `robots.txt`.
+Le globe générique du résultat signifiait seulement que **Google n'avait pas
+encore recrawlé** depuis leur mise en ligne. Ne pas « corriger » une favicon
+qui marche parce qu'un résultat de recherche est en retard — vérifier
+d'abord qu'elle est servie et crawlable.
+
+⏳ **Ces deux changements ne se voient pas tout de suite.** Le nom de site
+comme la favicon attendent un recrawl de l'accueil, ce qui peut prendre des
+jours à des semaines. Et Google reste libre de préférer le domaine s'il juge
+le nom peu clair : le balisage est une demande, pas un ordre.
+
 ### Le piège : les balises de favicon ont effacé 779 lignes de Capital
 
 `tools/gen-seo.mjs` remplaçait le bloc `Book` avec
