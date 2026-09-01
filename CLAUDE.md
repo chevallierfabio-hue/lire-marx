@@ -1481,6 +1481,103 @@ scopées `.atl-dossier`, et le filtre d'`inkTitles` ne matche rien là-bas.
 section, et `walkDeduce` en dépend), mais si le Dossier doit encore
 raccourcir, c'est là.
 
+## La marge remise d'aplomb (mission `marge-au-propre`, sept. 2026)
+
+Signalé par le propriétaire : « le panneau latéral droit bugue — il
+n'affiche pas tout le temps les notes et les notes publiques, et parfois
+des éléments qui n'ont pas de rapport avec le texte chargé ». Les deux
+symptômes étaient réels, avec **trois causes distinctes**, toutes mesurées.
+
+### 1. La marge lisait un chiffre dans une étiquette d'interface
+
+Le nombre de notes partagées était extrait du **libellé de la pastille
+flottante** (`#pubFab.textContent.match(/\d+/)`). Une interface qui lit une
+autre interface : au changement de chapitre, la pastille est encore une
+section en retard le temps du chargement, et la marge affichait donc — mesuré
+— « Notes partagées · 4 » de la section précédente pendant que le bandeau
+annonçait déjà le chapitre XI.
+
+**`SHELL.annotations` dit maintenant lui-même ce qu'il a** :
+`publicCount()`, `notesFor(work, section)` et `context()`. La marge ne
+montre le compte que si `context()` désigne bien la section qu'elle
+dessine — sinon elle affiche le bouton sans nombre. `publicCount()` compte
+les **fils**, pas les messages : c'est déjà ce que disent la pastille et
+l'en-tête du panneau, et trois chiffres différents pour la même chose dans
+le même écran ne s'expliquent pas.
+
+### 2. La marge devinait ses propres changements en comptant les `<mark>`
+
+`watchAnnos()` observait `#readerOut` et comparait le nombre de
+`mark.anno`. Trois choses lui échappaient : **modifier le texte d'une
+note** n'en change aucun, **changer sa couleur** non plus, et la
+**synchronisation d'un compte connecté** (`pullAll`) remplit le magasin
+sans rien poser dans la section affichée. D'où « n'affiche pas tout le
+temps les notes ».
+
+**`SHELL.annotations.onChange(cb)`** : le module prévient. Il émet sur
+toute écriture du magasin (un seul point de sortie, `persist()`), à
+l'arrivée des notes partagées (`loadPublic`) et **au changement de
+contexte** (`attach`, avant même d'avoir rechargé quoi que ce soit).
+Notification différée d'un tick et dédoublonnée — un `pullAll` en pose des
+dizaines d'affilée. Les deux ateliers s'y abonnent **avant** leur premier
+rendu de marge.
+
+### 3. Six chapitres sur trente-trois étaient invisibles au suivi de lecture
+
+C'est la cause des « éléments sans rapport avec le texte chargé », et la
+plus profonde. `buildChapMarks` cherchait les titres dans `h2, h3, h4`.
+Or **Wikisource ne titre pas ses chapitres d'une seule façon** : plusieurs
+sont composés en `<center><b>CHAPITRE VIII…</b></center>`. Et pour trois
+autres, **notre plan et la traduction Roy ne portent pas le même titre** —
+nous écrivons « Diverses formules du taux de la plus-value » là où la
+source écrit « FORMULES DIVERSES POUR LE TAUX DE LA PLUS-VALUE ».
+Mesuré avant correction : **VIII, IX, XII, XVII, XVIII** sans repère (et
+XII deux fois pour deux raisons). Conséquence : on lisait le chapitre VIII
+pendant que la marge, le sommaire et le bandeau annonçaient le VII — donc
+un appareil critique qui parlait d'autre chose — et un clic sur ces
+chapitres dans le sommaire déposait en haut de la section.
+
+Trois correctifs, dans `chapHeadings()` / `buildChapMarks()` :
+- **on accepte tout bloc court qui commence par « chapitre »**, quelle que
+  soit sa balise, et l'on retient le BLOC plutôt que le `<b>` qui est
+  dedans (le rectangle d'un élément en ligne est moins fiable) ;
+- **`headText()` lit le titre à travers le balisage**, en posant une espace
+  aux frontières d'éléments : `CHAPITRE XVII<br><br>VARIATIONS…` donne
+  « chapitre xvii variations… » là où `textContent` donne
+  « chapitre xviivariations… » — et un chiffre romain collé au premier mot
+  n'est plus lisible (le V de VARIATIONS appartient-il au nombre ?) ;
+- **repli sur le NUMÉRO** quand le titre ne correspond pas, en comparant un
+  **jeton entier** (`'xvii' === 'xvii'`) et jamais une sous-chaîne — « X »
+  est contenu dans « XVII ». `scrollToAnchor` reçoit le numéro pour la même
+  raison.
+
+Le tri des repères passe de `offsetTop` à la position réelle : `offsetTop`
+se mesure par rapport au premier ancêtre positionné, qui n'est pas le même
+pour un `<h3>` et pour un `<center>` — deux repères pouvaient se retrouver
+dans le désordre et le suivi sautait en arrière.
+
+### Vérifié
+
+**33 chapitres sur 33 retrouvés**, dans l'ordre, sur les huit sections du
+Livre I (27 avant). Suivi de lecture parcouru repère par repère sur la
+section III : marge et bandeau d'accord à chaque arrêt, VIII et IX compris.
+Clic sur le chapitre XVII (titre divergent) : on atterrit à 104 px de son
+titre, sommaire, bandeau et marge d'accord. Compte de notes partagées
+mesuré à 120 ms d'un changement de section, dans les deux sens : plus
+d'écart avec la pastille. Édition d'une note, changement de couleur,
+suppression : la marge suit immédiatement, sur les DEUX ateliers. Les neuf
+parties des Manuscrits sont toutes retrouvées. Console sans erreur ;
+`detect.mjs` inchangé (20 / 13 constats, 0 erreur).
+
+### La règle qui en sort
+
+**Une interface ne lit pas une autre interface.** Si une vue a besoin d'un
+compte ou d'un état, c'est au module qui le possède de l'exposer — et de
+dire quand il change. Le contrat de `SHELL.annotations` s'est enrichi de
+`onChange`, `context`, `publicCount` et `notesFor` pour cette raison ; la
+page « Mon carnet » continue d'utiliser `allNotes()`, qui reste le bon
+outil pour lire tout le carnet.
+
 ## Les Manuscrits prennent la même forme (mission `manuscrits-meme-atelier`, sept. 2026)
 
 Demande du propriétaire : « exactement la même présentation de l'atelier

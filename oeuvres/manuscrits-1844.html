@@ -1234,23 +1234,17 @@ function syncTabsA11y(pid){
     window.scrollTo({top:Math.max(0,y),behavior:'instant'});
   }
 
-  /* La marge se recompose dès qu'on surligne : SHELL.annotations n'expose
-     aucun rappel de changement, on observe donc le DOM et l'on compare le
-     COMPTE — la liseuse produit des dizaines de mutations au montage. */
-  var annoObs=null,annoCount=-1,annoTimer=0;
+  /* ══════════════════════════════════════════════════════════════════
+     LA MARGE SE RECOMPOSE QUAND LES NOTES CHANGENT — sur notification du
+     module, plus en surveillant les <mark> du texte : modifier une note,
+     en supprimer une ou recevoir la synchronisation d'un compte connecté
+     ne change aucun surlignage, et la marge restait en arrière.
+     ══════════════════════════════════════════════════════════════════ */
+  var annoUnsub=null;
   function watchAnnos(){
-    var out=byId('readerContent');
-    if(!out||!window.MutationObserver)return;
-    annoCount=out.querySelectorAll('mark.anno').length;
-    if(annoObs)annoObs.disconnect();
-    annoObs=new MutationObserver(function(){
-      clearTimeout(annoTimer);
-      annoTimer=setTimeout(function(){
-        var n=out.querySelectorAll('mark.anno').length;
-        if(n!==annoCount){ annoCount=n; renderMarge(); }
-      },350);
-    });
-    annoObs.observe(out,{childList:true,subtree:true});
+    var AN=window.SHELL&&SHELL.annotations;
+    if(!AN||!AN.onChange||annoUnsub)return;
+    annoUnsub=AN.onChange(function(){ renderMarge(); });
   }
 
   /* ══════════════════════════════════════════════════════════════════
@@ -1282,16 +1276,29 @@ function syncTabsA11y(pid){
     /* VOS PASSAGES — en TÊTE, et en carte d'emphase : c'est l'outil
        principal de la page. Il MONTRE les passages au lieu d'en annoncer
        le nombre ; un clic ramène au passage dans le texte. */
+    /* Les passages du CAHIER affiché, lus au module qui les possède. */
     margeNotes=[];
+    var AN=(window.SHELL&&SHELL.annotations)||null;
     try{
-      var all=(window.SHELL&&SHELL.annotations&&SHELL.annotations.allNotes)?SHELL.annotations.allNotes():[];
-      margeNotes=all.filter(function(a){return a.work==='manuscrits-1844'&&+a.section===c.part+1;});
+      if(AN&&AN.notesFor) margeNotes=AN.notesFor('manuscrits-1844',c.part+1)
+        .sort(function(a,b){return (b.created||0)-(a.created||0);});
+      else if(AN&&AN.allNotes) margeNotes=AN.allNotes()
+        .filter(function(a){return a.work==='manuscrits-1844'&&+a.section===c.part+1;});
     }catch(e){}
     var nn=margeNotes.length, nNote=margeNotes.filter(function(a){return a.note;}).length;
+    /* Le compte des notes partagées vient du module, et SEULEMENT s'il
+       parle bien du cahier qu'on dessine — il était lu dans le libellé de
+       la pastille flottante, qui reste une section en retard le temps du
+       chargement. */
     var pub='';
     try{
-      var pf=byId('pubFab'), mm=pf&&pf.textContent.match(/(\d+)/);
-      if(mm)pub=' · '+mm[1];
+      if(AN&&AN.context&&AN.publicCount){
+        var cx=AN.context();
+        if(cx.work==='manuscrits-1844'&&+cx.section===c.part+1){
+          var np=AN.publicCount();
+          if(np)pub=' · '+np;
+        }
+      }
     }catch(e){}
     var ph='<div class="atl3-pass-top"><h3 class="atl3-m-h">Vos passages</h3>'
       +(nn?'<span class="atl3-pass-n">'+nn+'</span>':'')+'</div>';
@@ -1997,6 +2004,7 @@ function syncTabsA11y(pid){
     preparePart(0);
 
     /* le sommaire, la marge et les deux replis de la coquille */
+    watchAnnos();          /* avant le premier rendu de la marge */
     renderTocRail();
     renderMarge();
     installFullBtn();

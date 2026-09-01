@@ -76,7 +76,55 @@
   function persist(){
     try { localStorage.setItem(KEY, JSON.stringify(store)); }
     catch(e){ persistOK = false; }
+    /* Un seul point de sortie pour toutes les écritures du magasin :
+       ajout, modification, suppression, synchronisation. */
+    emitChange();
   }
+  /* ══════════════════════════════════════════════════════════════════
+     CE QUE LE MODULE DIT DE LUI-MÊME.
+     La marge « Dans ce chapitre » des ateliers lisait le nombre de notes
+     partagées DANS LE LIBELLÉ de la pastille flottante, et devinait que
+     ses données avaient changé en comptant les <mark> du texte. Deux
+     indirections, deux défauts mesurés : au changement de chapitre elle
+     affichait une seconde durant le compte de la section précédente, et
+     une note écrite, modifiée ou supprimée ne s'y voyait qu'au prochain
+     surlignage — modifier une note ne change aucun <mark>.
+     Le module POSSÈDE le contrat de stockage : c'est donc à lui de dire
+     ce qu'il a, pour quelle section, et quand cela change. Personne ne
+     doit plus lire un chiffre dans une étiquette d'interface.
+     ══════════════════════════════════════════════════════════════════ */
+  var changeSubs = [];
+  function onChange(cb){
+    if(typeof cb !== 'function') return function(){};
+    changeSubs.push(cb);
+    return function(){ changeSubs = changeSubs.filter(function(f){ return f !== cb; }); };
+  }
+  /* Différé d'un tick et dédoublonné : une seule notification pour une
+     rafale d'écritures (un pullAll en pose des dizaines d'affilée). */
+  var changeQueued = false;
+  function emitChange(){
+    if(changeQueued) return;
+    changeQueued = true;
+    setTimeout(function(){
+      changeQueued = false;
+      var ctx = { work: curWork, section: curSection };
+      changeSubs.forEach(function(cb){ try{ cb(ctx); }catch(e){} });
+    }, 0);
+  }
+  /* Le contexte réellement attaché. La marge s'en sert pour vérifier que
+     les comptes qu'elle affiche parlent bien du chapitre qu'elle dessine :
+     entre deux sections, il y a une fraction de seconde où ils parlent
+     encore de la précédente. */
+  function context(){ return { work: curWork, section: curSection }; }
+  /* Le nombre de notes PARTAGÉES de la section attachée. On compte les
+     FILS, pas les messages : c'est déjà ce que disent la pastille
+     flottante et l'en-tête du panneau, et trois chiffres différents pour
+     la même chose dans le même écran ne s'expliquent pas. */
+  function publicCount(){ return pubNotes.length; }
+  /* Les notes privées d'une section, sans passer par allNotes() qui relit
+     tout le carnet pour en jeter la quasi-totalité. */
+  function notesFor(work, n){ return listFor(work, n).slice(); }
+
   function keyOf(work, n){ return work + '|' + n; }
   function listFor(work, n){ return store[keyOf(work, n)] || []; }
   function findAnn(id){
@@ -564,6 +612,7 @@
     }
     renderPublic();
     updatePubFab();
+    emitChange();
   }
 
   async function addPublic(anchor, body){
@@ -951,6 +1000,12 @@
     curSection = section;
     curLabel = label;
     box = container;
+    /* On prévient TOUT DE SUITE du changement de contexte, avant même
+       d'avoir rechargé quoi que ce soit : sans cela, la marge continue
+       d'afficher le compte de la section qu'on vient de quitter jusqu'à ce
+       qu'un autre événement la redessine — mesuré, une seconde entière. */
+    pubNotes = [];
+    emitChange();
     /* Filet : le mode lecture est normalement posé par reader-tools au
        montage de sa barre. Une liseuse déclarée sans lui laisserait les
        deux pastilles de notes invisibles — c'est le CSS qui les gate. */
@@ -1197,7 +1252,12 @@
     statsFor: statsFor,
     // forum (5b)
     loadPublic: function(){ return loadPublic(curWork, curSection); },
-    flashAnchor: flashAnchor
+    flashAnchor: flashAnchor,
+    /* Ce que les marges d'atelier lisaient jusqu'ici dans le DOM. */
+    onChange: onChange,
+    context: context,
+    publicCount: publicCount,
+    notesFor: notesFor
   };
   SHELL.reader = SHELL.reader || {};
   SHELL.reader.attach = attach;

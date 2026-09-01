@@ -2122,19 +2122,44 @@ function buildChapMarks(){
   const sec=ROY_STRUCT[n-1];
   if(!sec)return;
   let g0=0; for(let i=0;i<n-1;i++)g0+=ROY_STRUCT[i].chaps.length;
-  const hs=[].slice.call(document.querySelectorAll(
-    '#readerOut .ws-text h2,#readerOut .ws-text h3,#readerOut .ws-text h4'));
+  const out=document.getElementById('readerOut');
+  const hs=out?chapHeadings(out):[];
+  const pris=[];
+  /* Deux façons de reconnaître un chapitre, et il faut les deux.
+     PAR LE TITRE d'abord : c'est le plus sûr. Mais notre plan et la
+     traduction Roy de Wikisource ne titrent pas toujours pareil — nous
+     écrivons « Diverses formules du taux de la plus-value » là où la
+     source écrit « FORMULES DIVERSES POUR LE TAUX DE LA PLUS-VALUE ».
+     Mesuré : les chapitres XII, XVII et XVIII n'étaient jamais retrouvés.
+     PAR LE NUMÉRO ensuite, et en comparant un JETON entier (« xvii » ===
+     « xvii ») et non une sous-chaîne : « X » est contenu dans « XVII ». */
+  const numOf=function(el){
+    const m=headText(el).toLowerCase().normalize('NFD')
+      .replace(/[\u0300-\u036f]/g,'').match(/^chapitre\s+([ivxl]+)\b/);
+    return m?m[1]:'';
+  };
   sec.chaps.forEach(function(ch,i){
-    const want=normTxt(ch[1]);
+    const want=normTxt(ch[1]), rn=String(ch[0]||'').toLowerCase();
     if(want.length<5)return;
+    let el=null;
     for(const h of hs){
-      if(normTxt(h.textContent).indexOf(want)>=0){
-        chapMarks.push({gnum:g0+i+1,el:h});
-        break;
+      if(pris.indexOf(h)>=0)continue;
+      if(normTxt(headText(h)).indexOf(want)>=0){ el=h; break; }
+    }
+    if(!el&&rn){
+      for(const h of hs){
+        if(pris.indexOf(h)>=0)continue;
+        if(numOf(h)===rn){ el=h; break; }
       }
     }
+    if(el){ pris.push(el); chapMarks.push({gnum:g0+i+1,el:el}); }
   });
-  chapMarks.sort((a,b)=>a.el.offsetTop-b.el.offsetTop);
+  /* Tri sur la position RÉELLE : `offsetTop` se mesure par rapport au
+     premier ancêtre positionné, qui n'est pas le même pour un <h3> et
+     pour un <center> — deux repères pouvaient se retrouver dans le
+     désordre, et le suivi de lecture sautait en arrière. */
+  const topOf=el=>el.getBoundingClientRect().top+window.scrollY;
+  chapMarks.sort((a,b)=>topOf(a.el)-topOf(b.el));
   armChapObserver();
 }
 
@@ -2232,27 +2257,21 @@ function jumpToQuote(quote){
   window.scrollTo({top:Math.max(0,y),behavior:'instant'});
 }
 
-/* La marge doit se recomposer dès qu'on surligne, sinon « Vos passages »
-   annonce un compte périmé jusqu'au prochain changement de chapitre — sur
-   l'outil principal de la page, ce serait le pire endroit pour mentir.
-   SHELL.annotations n'expose pas de rappel de changement : on observe donc
-   le DOM, qui ne ment pas — un surlignage, c'est un `mark.anno` de plus
-   dans la liseuse. Comparaison du COMPTE et non réaction à chaque
-   mutation : la liseuse en produit des dizaines au montage. */
-let annoObs=null, annoCount=-1, annoTimer=0;
+/* ══════════════════════════════════════════════════════════════════════
+   LA MARGE SE RECOMPOSE QUAND LES NOTES CHANGENT — sur notification du
+   module, plus en surveillant le texte.
+   Elle observait les `mark.anno` de la liseuse et comparait leur COMPTE.
+   Trois choses lui échappaient, toutes visibles : modifier le texte d'une
+   note ou sa couleur ne change aucun mark ; supprimer la note sans le
+   surlignage non plus ; et la synchronisation d'un compte connecté remplit
+   le magasin sans rien poser dans la section affichée. `SHELL.annotations`
+   dit maintenant lui-même quand son contenu bouge.
+   ══════════════════════════════════════════════════════════════════════ */
+let annoUnsub=null;
 function watchAnnos(){
-  const out=document.getElementById('readerOut');
-  if(!out||!window.MutationObserver)return;
-  annoCount=out.querySelectorAll('mark.anno').length;
-  if(annoObs)return;                 /* #readerOut est stable : un seul suffit */
-  annoObs=new MutationObserver(function(){
-    clearTimeout(annoTimer);
-    annoTimer=setTimeout(function(){
-      const n=out.querySelectorAll('mark.anno').length;
-      if(n!==annoCount){ annoCount=n; renderMarge(); }
-    },350);
-  });
-  annoObs.observe(out,{childList:true,subtree:true});
+  const AN=window.SHELL&&SHELL.annotations;
+  if(!AN||!AN.onChange||annoUnsub)return;
+  annoUnsub=AN.onChange(function(){ renderMarge(); });
 }
 
 /* Ouvrir un chapitre = écrire dans #chapSelect (l'état que toute la
@@ -2337,19 +2356,31 @@ function renderMarge(){
      dès que le chapitre avait de la matière — autant dire caché. Il ouvre
      désormais la marge, et il MONTRE les passages au lieu d'en annoncer le
      nombre : un clic ramène au passage dans le texte. */
+  /* Les passages de la SECTION affichée, lus au module qui les possède.
+     `notesFor` évite de relire tout le carnet pour en jeter la quasi-
+     totalité — allNotes() sert au carnet, pas ici. */
   margeNotes=[];
+  const AN=(window.SHELL&&SHELL.annotations)||null;
   try{
-    const all=(window.SHELL&&SHELL.annotations&&SHELL.annotations.allNotes)?SHELL.annotations.allNotes():[];
-    margeNotes=all.filter(a=>a.work==='capital'&&+a.section===c.secNum);
+    if(AN&&AN.notesFor) margeNotes=AN.notesFor('capital',c.secNum)
+      .sort((a,b)=>(b.created||0)-(a.created||0));
+    else if(AN&&AN.allNotes) margeNotes=AN.allNotes()
+      .filter(a=>a.work==='capital'&&+a.section===c.secNum);
   }catch(e){}
   const nn=margeNotes.length, nNote=margeNotes.filter(a=>a.note).length;
-  /* Le compte des notes partagées est déjà tenu à jour par le shell sur sa
-     pastille : on le lit là plutôt que de refaire la requête. */
+  /* Le compte des notes partagées vient du module, et SEULEMENT s'il parle
+     bien de la section qu'on dessine. Il était lu dans le libellé de la
+     pastille flottante : au changement de chapitre, la marge affichait
+     pendant une seconde le compte de la section précédente — mesuré. */
   let pub='';
   try{
-    const pf=document.getElementById('pubFab');
-    const mm=pf&&pf.textContent.match(/(\d+)/);
-    if(mm)pub=' · '+mm[1];
+    if(AN&&AN.context&&AN.publicCount){
+      const cx=AN.context();
+      if(cx.work==='capital'&&+cx.section===c.secNum){
+        const np=AN.publicCount();
+        if(np)pub=' · '+np;
+      }
+    }
   }catch(e){}
   let ph='<div class="atl3-pass-top"><h3 class="atl3-m-h">Vos passages</h3>'
     +(nn?'<span class="atl3-pass-n">'+nn+'</span>':'')+'</div>';
@@ -2418,14 +2449,6 @@ function renderMarge(){
     +'<span class="atl3-m-go-t">'+dEsc(EXPLO_LABELS[x])+'</span>'
     +'<span class="atl3-m-go-k">Ouvrir →</span></button>');
 
-  /* Vos passages. Les annotations sont rangées par SECTION du livre (la
-     liseuse charge une section entière) : on le dit, plutôt que d'annoncer
-     un compte « du chapitre » qui n'en serait pas un. */
-  let n=0;
-  try{
-    const all=(window.SHELL&&SHELL.annotations&&SHELL.annotations.allNotes)?SHELL.annotations.allNotes():[];
-    n=all.filter(a=>a.work==='capital'&&+a.section===c.secNum).length;
-  }catch(e){}
   h+='<div class="atl3-marge-fade" aria-hidden="true"><span>Défiler</span></div>';
   el.innerHTML=h;
   el.classList.toggle('is-open',margeOpen);
@@ -2834,13 +2857,74 @@ async function loadSection(n){
    cherche dans le conteneur — un découpage ferait silencieusement
    disparaître tout surlignage posé dans un autre chapitre de la même
    section. */
-function scrollToAnchor(box,title){const norm=s=>(s||"").toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');
+/* ══════════════════════════════════════════════════════════════════════
+   LES TITRES DE CHAPITRE DANS LE TEXTE — et pourquoi il faut chercher
+   ailleurs que dans les <h>.
+   Wikisource n'a pas une seule façon de titrer un chapitre. La plupart
+   sont des <h3> (« CHAPITRE VIIPRODUCTION DE VALEURS… »), mais plusieurs
+   sont composés en <center><b>CHAPITRE VIIICAPITAL CONSTANT ET CAPITAL
+   VARIABLE</b></center>. Mesuré : sur les huit sections du Livre I, trois
+   chapitres n'étaient JAMAIS retrouvés — VIII, IX et XII. Conséquences
+   visibles, et c'est le défaut que le lecteur signalait : on descendait
+   dans le chapitre VIII pendant que la marge, le sommaire et le bandeau
+   continuaient d'annoncer le VII (donc un appareil sans rapport avec le
+   texte affiché), et un clic sur ces chapitres dans le sommaire déposait
+   en haut de la section au lieu du chapitre demandé.
+   On accepte donc aussi les blocs courts qui COMMENCENT par « chapitre »,
+   quelle que soit leur balise, et l'on retient le bloc plutôt que le <b>
+   qui est dedans : le rectangle d'un élément en ligne est moins fiable.
+   ══════════════════════════════════════════════════════════════════════ */
+/* Le texte d'un titre, avec une ESPACE aux frontières d'éléments.
+   « CHAPITRE XVII<br><br>VARIATIONS… » donne, par textContent, « CHAPITRE
+   XVIIVARIATIONS… » : le chiffre romain se colle au premier mot du titre
+   et devient illisible (le V de VARIATIONS appartient-il au nombre ?).
+   En passant par le balisage, les deux se séparent. */
+function headText(el){
+  return String(el.innerHTML||'').replace(/<[^>]*>/g,' ')
+    .replace(/&nbsp;|&[a-z]+;|&#\d+;/gi,' ')
+    .replace(/\s+/g,' ').trim();
+}
+function chapHeadings(box){
+  const root=box.querySelector('.ws-text')||box;
+  const flat=s=>(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  const out=[],seen=[];
+  const cand=root.querySelectorAll('h2,h3,h4,h5,center,p,b');
+  for(const e of cand){
+    const t=(e.textContent||'').replace(/\s+/g,' ').trim();
+    if(!t||t.length>140)continue;
+    if(!/^H[2-5]$/.test(e.tagName)&&!/^chapitre\b/.test(flat(t)))continue;
+    let el=e;
+    while(el!==root&&/^(B|I|SPAN|EM|STRONG)$/.test(el.tagName))el=el.parentElement;
+    if(seen.indexOf(el)<0){seen.push(el);out.push(el);}
+  }
+  return out;
+}
+function scrollToAnchor(box,title,rn){const norm=s=>(s||"").toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');
   const want=norm(title);if(want.length<5)return;
-  const hs=box.querySelectorAll('.ws-text h2,.ws-text h3,.ws-text h4,.ws-text p');
-  for(const h of hs){if(norm(h.textContent).includes(want)){
+  /* Le chapitre demandé peut ne pas porter, dans la source, le titre que
+     notre plan lui donne : on se rabat sur son numéro. */
+  if(rn){
+    const r=String(rn).toLowerCase();
+    for(const h of chapHeadings(box)){
+      const m=headText(h).toLowerCase().normalize('NFD')
+        .replace(/[\u0300-\u036f]/g,'').match(/^chapitre\s+([ivxl]+)\b/);
+      if(m&&m[1]===r&&norm(headText(h)).indexOf(want)<0){
+        const y=window.scrollY+h.getBoundingClientRect().top-104;
+        window.scrollTo({top:Math.max(0,y),behavior:'instant'});
+        return;}
+    }
+  }
+  for(const h of chapHeadings(box)){if(norm(headText(h)).includes(want)){
     const y=window.scrollY+h.getBoundingClientRect().top-104;
     window.scrollTo({top:Math.max(0,y),behavior:'instant'});
-    return;}}}
+    return;}}
+  /* Repli sur les paragraphes : certains intitulés ne sont ni un titre ni
+     un bloc « chapitre » (sous-parties, avant-propos). */
+  for(const h of (box.querySelector('.ws-text')||box).querySelectorAll('p')){
+    if(norm(h.textContent).includes(want)){
+      const y=window.scrollY+h.getBoundingClientRect().top-104;
+      window.scrollTo({top:Math.max(0,y),behavior:'instant'});
+      return;}}}
 
 /* Glossaire du Capital (passé à window.Reading.mount via cfg.glossary). */
 const TERMS=[
@@ -2902,7 +2986,7 @@ async function showSelection(doScroll){
        repères de chapitre sont relevés maintenant — le texte vient d'être
        posé, c'est le seul moment où ils sont mesurables. */
     try{viewGnum=gnum;buildChapMarks();renderTocRail();renderMarge();watchAnnos();}catch(e){}
-    if(doScroll)scrollToAnchor(out,title);
+    if(doScroll)scrollToAnchor(out,title,num);
     try{if(window.Anno)window.Anno.mount(n,out.querySelector('.ws-text'));}catch(e){}
     try{
       if(window.Reading){
@@ -3654,6 +3738,9 @@ function bootAtelier(){
     else { try{window.SHELL.resume.clear('capital-1');}catch(e){} }
   }
   sl.selectedIndex=g-1;
+  /* L'abonnement AVANT le premier rendu : une note synchronisée ou écrite
+     pendant le chargement doit se voir sans attendre le chapitre suivant. */
+  watchAnnos();
   renderTocRail();
   renderMarge();
 
