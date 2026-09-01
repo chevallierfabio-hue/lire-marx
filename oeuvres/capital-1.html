@@ -911,12 +911,25 @@ nav.tabs.worktabs{position:sticky;top:44px;z-index:62;
       <section class="panel active" id="lire">
         <select id="chapSelect" class="atl3-shadow" tabindex="-1" aria-hidden="true"></select>
         <button id="loadBtn" class="atl3-shadow" type="button" tabindex="-1" aria-hidden="true">Charger</button>
+        <!-- Le plein écran doit se VOIR et rester sous la main. Posé
+             au-dessus du texte, il défilait hors de l'écran dès qu'on
+             commençait à lire. Il est donc DÉPLACÉ dans la barre de
+             lecture — la seule chose de la colonne qui soit collante —
+             par installFullBtn(), à chaque montage de la liseuse. Ce
+             conteneur n'est que son point de départ. -->
+        <div class="atl3-midbar" id="atlMidbar"></div>
         <div id="readerOut"></div>
       </section>
     </div>
 
     <aside class="atl3-col atl3-marge" id="atl3Marge" aria-label="Dans ce chapitre"></aside>
   </div>
+
+  <!-- La sortie du plein écran, toujours visible pendant qu'il dure : on ne
+       laisse jamais quelqu'un dans un mode sans porte de sortie apparente. -->
+  <button type="button" class="atl3-full-exit" id="atlFullExit" hidden>
+    Quitter le plein écran <kbd>Échap</kbd>
+  </button>
 
   <!-- LE TIROIR — l'appareil vient au texte au lieu que le lecteur aille à
        lui. Il ne CLONE pas les stations : il DÉPLACE le nœud existant
@@ -1917,7 +1930,7 @@ function renderTocRail(){
       pr.innerHTML='<span class="atl3-prog-bar"><i style="width:'+pct+'%"></i></span>'
         +'<span class="atl3-prog-n">'+done.size+' / '+total+'</span>';
     }else{
-      pr.innerHTML='<button type="button" class="atl3-prog-log">Suivre ma progression</button>';
+      pr.innerHTML='<button type="button" class="btn atl3-prog-log">Suivre ma progression</button>';
       pr.querySelector('button').onclick=()=>{
         if(window.SHELL&&window.SHELL.auth)window.SHELL.auth.openModal();};
     }
@@ -2065,6 +2078,50 @@ window.addEventListener('scroll',function(){
   followReading();
 },{passive:true});
 
+/* Se poser sur un passage sans l'animation : même sonde que flashAnchor
+   (les premiers caractères de la citation, repli sur seize), mais un saut
+   instantané et décalé de la coquille collante. Petit outil dupliqué
+   plutôt que couplage au shell — la règle de la maison. */
+function jumpToQuote(quote){
+  const box=document.querySelector('#readerOut .ws-text');
+  if(!box||!quote)return;
+  const probe=String(quote).replace(/\s+/g,' ').trim().slice(0,40);
+  if(!probe)return;
+  const els=box.querySelectorAll('p,h2,h3,h4,h5,li,blockquote');
+  let target=null;
+  for(const e of els){ if(e.textContent.replace(/\s+/g,' ').indexOf(probe)>=0){target=e;break;} }
+  if(!target&&probe.length>14){
+    const short=probe.slice(0,16);
+    for(const e of els){ if(e.textContent.replace(/\s+/g,' ').indexOf(short)>=0){target=e;break;} }
+  }
+  if(!target)return;
+  const y=window.scrollY+target.getBoundingClientRect().top-150;
+  window.scrollTo({top:Math.max(0,y),behavior:'instant'});
+}
+
+/* La marge doit se recomposer dès qu'on surligne, sinon « Vos passages »
+   annonce un compte périmé jusqu'au prochain changement de chapitre — sur
+   l'outil principal de la page, ce serait le pire endroit pour mentir.
+   SHELL.annotations n'expose pas de rappel de changement : on observe donc
+   le DOM, qui ne ment pas — un surlignage, c'est un `mark.anno` de plus
+   dans la liseuse. Comparaison du COMPTE et non réaction à chaque
+   mutation : la liseuse en produit des dizaines au montage. */
+let annoObs=null, annoCount=-1, annoTimer=0;
+function watchAnnos(){
+  const out=document.getElementById('readerOut');
+  if(!out||!window.MutationObserver)return;
+  annoCount=out.querySelectorAll('mark.anno').length;
+  if(annoObs)return;                 /* #readerOut est stable : un seul suffit */
+  annoObs=new MutationObserver(function(){
+    clearTimeout(annoTimer);
+    annoTimer=setTimeout(function(){
+      const n=out.querySelectorAll('mark.anno').length;
+      if(n!==annoCount){ annoCount=n; renderMarge(); }
+    },350);
+  });
+  annoObs.observe(out,{childList:true,subtree:true});
+}
+
 /* Ouvrir un chapitre = écrire dans #chapSelect (l'état que toute la
    liseuse lit déjà) puis rendre. La colonne de gauche est une VUE de ce
    sélecteur, pas un second système de navigation. */
@@ -2100,7 +2157,7 @@ const EXPLO_FOR={'I':'x-feti','XIII':'x-coop','XIV':'x-coop','XV':'x-coop',
 const EXPLO_LABELS={'x-coop':'Coopération → machinisme','x-feti':'Le fétichisme',
   'x-salaire':'La forme-salaire'};
 
-let margeOpen=false;
+let margeOpen=false, margeNotes=[];
 function margeSection(k,title,body){
   return '<section class="atl3-m-sec"><h3 class="atl3-m-h">'+k+'</h3>'
     +(title?'<p class="atl3-m-t">'+title+'</p>':'')+body+'</section>';
@@ -2121,6 +2178,52 @@ function renderMarge(){
     +'<span class="atl3-m-toggle-t">'+dEsc(c.chapTitle)+'</span></button>'
     +'<div class="atl3-m-head"><span class="atl3-lab">Dans ce chapitre</span>'
     +'<p class="atl3-m-ch"><em>'+rn+'</em> '+dEsc(c.chapTitle)+'</p></div>';
+
+  /* VOS PASSAGES — en TÊTE, et en carte d'emphase.
+     C'est l'outil principal de la page : surligner, annoter, retrouver.
+     Il était rangé en dernier, sous cinq autres blocs, donc hors de l'écran
+     dès que le chapitre avait de la matière — autant dire caché. Il ouvre
+     désormais la marge, et il MONTRE les passages au lieu d'en annoncer le
+     nombre : un clic ramène au passage dans le texte. */
+  margeNotes=[];
+  try{
+    const all=(window.SHELL&&SHELL.annotations&&SHELL.annotations.allNotes)?SHELL.annotations.allNotes():[];
+    margeNotes=all.filter(a=>a.work==='capital'&&+a.section===c.secNum);
+  }catch(e){}
+  const nn=margeNotes.length, nNote=margeNotes.filter(a=>a.note).length;
+  /* Le compte des notes partagées est déjà tenu à jour par le shell sur sa
+     pastille : on le lit là plutôt que de refaire la requête. */
+  let pub='';
+  try{
+    const pf=document.getElementById('pubFab');
+    const mm=pf&&pf.textContent.match(/(\d+)/);
+    if(mm)pub=' · '+mm[1];
+  }catch(e){}
+  let ph='<div class="atl3-pass-top"><h3 class="atl3-m-h">Vos passages</h3>'
+    +(nn?'<span class="atl3-pass-n">'+nn+'</span>':'')+'</div>';
+  if(nn){
+    ph+='<p class="atl3-pass-sub">dans la section '+c.sectionRn
+      +(nNote?' · '+nNote+' avec note':'')+'</p>'
+      +'<ul class="atl3-pass-list">'
+      +margeNotes.slice(0,4).map((a,i)=>
+        '<li><button type="button" class="atl3-pass-item" data-anno="'+i+'">'
+        +'<span class="atl3-pass-bar c-'+dEsc(a.color)+'"></span>'
+        +'<span class="atl3-pass-q">'+dEsc(a.quote.slice(0,86))
+        +(a.quote.length>86?'…':'')+'</span>'
+        +(a.note?'<span class="atl3-pass-note">'+dEsc(a.note.slice(0,54))+'</span>':'')
+        +'</button></li>').join('')
+      +'</ul>'
+      +(nn>4?'<p class="atl3-pass-more">et '+(nn-4)+' de plus</p>':'');
+  }else{
+    ph+='<p class="atl3-pass-empty"><b>Sélectionnez un passage du texte</b>'
+      +' pour le surligner, puis cliquez le surlignage pour y attacher une note.</p>';
+  }
+  ph+='<div class="atl3-pass-acts">'
+    +'<button type="button" class="atl3-m-nb" data-fab="notesFab">Mes notes</button>'
+    +'<button type="button" class="atl3-m-nb" data-fab="pubFab">Notes partagées'+pub+'</button>'
+    +'</div>'
+    +'<a class="atl3-m-carnet" href="carnet.html">Ouvrir mon carnet →</a>';
+  h+='<section class="atl3-m-sec atl3-pass">'+ph+'</section>';
 
   /* En clair — le résumé argumenté. Il vivait dans un popover de la barre
      de lecture, derrière un bouton qu'il fallait connaître. */
@@ -2171,23 +2274,6 @@ function renderMarge(){
     const all=(window.SHELL&&SHELL.annotations&&SHELL.annotations.allNotes)?SHELL.annotations.allNotes():[];
     n=all.filter(a=>a.work==='capital'&&+a.section===c.secNum).length;
   }catch(e){}
-  /* Les deux pastilles flottantes vivent en bas à droite du viewport —
-     c'est-à-dire, sur cette mise en page, par-dessus le pied de la marge.
-     Plutôt que de les pousser sur le texte, on leur donne leur vraie
-     place : ici. Elles restent dans le document (le shell les possède),
-     on ne fait que les déclencher ; le CSS les masque tant que la marge
-     est une colonne. */
-  h+=margeSection('Vos passages','',
-    '<p class="atl3-m-note">'+(n
-      ? n+' passage'+(n>1?'s surlignés':' surligné')+' dans la section '+c.sectionRn+'.'
-      : 'Sélectionnez un passage du texte pour le surligner et y attacher une note.')
-    +'</p>'
-    +'<div class="atl3-m-notebtns">'
-      +'<button type="button" class="atl3-m-nb" data-fab="notesFab">Mes notes</button>'
-      +'<button type="button" class="atl3-m-nb" data-fab="pubFab">Notes partagées</button>'
-    +'</div>'
-    +'<a class="atl3-m-carnet" href="carnet.html">Ouvrir mon carnet →</a>');
-
   el.innerHTML=h;
   el.classList.toggle('is-open',margeOpen);
   const mt=document.getElementById('atl3MToggle');
@@ -2208,6 +2294,18 @@ function renderMarge(){
   }));
   el.querySelectorAll('[data-drawer]').forEach(b=>b.addEventListener('click',()=>
     openDrawer(b.dataset.kind,b.dataset.drawer)));
+  el.querySelectorAll('[data-anno]').forEach(b=>b.addEventListener('click',()=>{
+    const a=margeNotes[+b.dataset.anno];
+    if(!a)return;
+    /* On se pose D'ABORD sur le passage, instantanément. flashAnchor fait
+       son propre scrollIntoView en `smooth` — parfait pour le panneau de
+       notes, inutilisable ici : dans une section de cent mille pixels, un
+       défilement doux met une éternité ou n'arrive pas. On lui laisse
+       ensuite le clignotement, qui ne déplace plus rien. */
+    jumpToQuote(a.quote);
+    if(window.SHELL&&SHELL.annotations&&SHELL.annotations.flashAnchor)
+      SHELL.annotations.flashAnchor(a);
+  }));
   el.querySelectorAll('[data-fab]').forEach(b=>b.addEventListener('click',()=>{
     const f=document.getElementById(b.dataset.fab);
     if(f)f.click();
@@ -2268,6 +2366,70 @@ function closeDrawer(silent){
   if(!silent&&drawerOpener&&drawerOpener.focus){try{drawerOpener.focus();}catch(e){}}
   drawerOpener=null;
 }
+/* ══════════════════════════════════════════════════════════════════════
+   LECTURE PLEIN ÉCRAN.
+   La coquille (sidebar, topbar, en-tête, onglets, les deux colonnes) rend
+   tout l'espace au texte. Le mode CSS est la SOURCE DE VÉRITÉ ; on demande
+   en plus le plein écran du navigateur quand il est disponible, et l'on se
+   resynchronise s'il en sort par F11 ou Échap — mais si cette demande
+   échoue (elle est refusable), le mode reste valable et le lecteur ne voit
+   pas la différence.
+   ══════════════════════════════════════════════════════════════════════ */
+function pleinEcran(){ return document.body.classList.contains('at-plein'); }
+function setPlein(on){
+  if(on===pleinEcran())return;
+  document.body.classList.toggle('at-plein',on);
+  const ex=document.getElementById('atlFullExit');
+  if(ex)ex.hidden=!on;
+  const b=document.getElementById('atlFullBtn');
+  if(b)b.setAttribute('aria-pressed',on?'true':'false');
+  if(on)closeDrawer(true);      /* le tiroir n'a plus de marge d'où venir */
+  try{
+    if(on&&!document.fullscreenElement&&document.documentElement.requestFullscreen)
+      document.documentElement.requestFullscreen().catch(function(){});
+    if(!on&&document.fullscreenElement&&document.exitFullscreen)
+      document.exitFullscreen().catch(function(){});
+  }catch(e){}
+  if(!on&&b)b.focus();
+  else if(on&&ex)ex.focus();
+  if(window.SHELL&&SHELL.announce)
+    SHELL.announce(on?'Lecture plein écran. Échap pour revenir à l’atelier.'
+                     :'Retour à l’atelier.');
+  /* La largeur change, donc la mise en page du texte : on recale le
+     chapitre courant sur ce qui est réellement à l'écran. */
+  setTimeout(function(){try{followReading();}catch(e){}},80);
+}
+/* Le bouton est RECONSTRUIT à chaque montage, jamais déplacé. On avait
+   d'abord déménagé un nœud unique dans la barre de lecture : il y
+   disparaissait au chapitre suivant, puisque showSelection réécrit tout
+   #readerOut en innerHTML et emporte son contenu avec lui. */
+const FULL_SVG='<svg viewBox="0 0 24 24" aria-hidden="true" class="atl3-full-i">'
+  +'<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>';
+function installFullBtn(){
+  const old=document.getElementById('atlFullBtn');
+  if(old)old.remove();
+  const row=document.querySelector('#readerOut .rd-row');
+  const bar=document.getElementById('atlMidbar');
+  const host=row||bar;
+  if(!host)return;
+  if(bar)bar.hidden=!!row;
+  const b=document.createElement('button');
+  b.type='button'; b.id='atlFullBtn'; b.className='btn atl3-full';
+  b.setAttribute('aria-pressed',pleinEcran()?'true':'false');
+  b.innerHTML=FULL_SVG+' Lecture plein écran';
+  b.addEventListener('click',()=>setPlein(!pleinEcran()));
+  host.appendChild(b);
+}
+(function(){
+  installFullBtn();          /* avant tout chargement : le repli suffit */
+  const ex=document.getElementById('atlFullExit');
+  if(ex)ex.addEventListener('click',()=>setPlein(false));
+  /* Sortie par F11 ou par l'Échap natif : on suit. */
+  document.addEventListener('fullscreenchange',function(){
+    if(!document.fullscreenElement&&pleinEcran())setPlein(false);
+  });
+})();
+
 function closeTocDrop(){
   const t=document.getElementById('atl3Toc'),b=document.getElementById('atl3TocToggle');
   if(!t||!b)return;
@@ -2284,8 +2446,12 @@ function closeTocDrop(){
   const x=document.getElementById('atlDrawerX');
   if(x)x.addEventListener('click',()=>closeDrawer());
   document.addEventListener('keydown',e=>{
-    if(e.key==='Escape'&&!document.getElementById('atlDrawer').hidden){
-      e.preventDefault();closeDrawer();}
+    if(e.key!=='Escape')return;
+    /* Le tiroir d'abord — c'est la couche du dessus. Le plein écran
+       ensuite, s'il n'y avait pas de tiroir à fermer. */
+    if(!document.getElementById('atlDrawer').hidden){
+      e.preventDefault();closeDrawer();return;}
+    if(pleinEcran()){ e.preventDefault(); setPlein(false); }
   });
 })();
 
@@ -2465,7 +2631,7 @@ async function showSelection(doScroll){
        sur lui : c'est ce qui fait que l'appareil suit la lecture. Les
        repères de chapitre sont relevés maintenant — le texte vient d'être
        posé, c'est le seul moment où ils sont mesurables. */
-    try{viewGnum=gnum;buildChapMarks();renderTocRail();renderMarge();}catch(e){}
+    try{viewGnum=gnum;buildChapMarks();renderTocRail();renderMarge();watchAnnos();}catch(e){}
     if(doScroll)scrollToAnchor(out,title);
     try{if(window.Anno)window.Anno.mount(n,out.querySelector('.ws-text'));}catch(e){}
     try{
@@ -2491,6 +2657,11 @@ async function showSelection(doScroll){
         });
       }
     }catch(e){}
+    /* Maintenant seulement la barre de lecture existe : Reading.mount vient
+       de la construire. Appelé plus haut, installFullBtn ne trouvait pas
+       encore `.rd-row` et le bouton restait au-dessus du texte, d'où il
+       défilait hors de l'écran. */
+    try{installFullBtn();}catch(e){}
   }catch(err){
     /* L'ancien message renvoyait à un « fichier téléchargé » qui n'existe
        pas : copie d'une époque révolue, incompréhensible en production, et

@@ -1031,6 +1031,60 @@ parfaitement corrects semblent donc morts d'affilée. Vérifier
 `document.hidden` AVANT de « corriger » un suivi qui ne suit pas ; la
 computation elle-même se teste en appelant la fonction à la main.
 
+### La marge remise dans le bon ordre (retours du propriétaire, 2e passe)
+
+Trois demandes, sur la page « Lire le texte » :
+
+1. **« Suivre ma progression » était un lien souligné** dans un site qui
+   n'écrit ses actions qu'en pilules. Il porte `.btn` (la forme committée)
+   et ne règle plus localement que sa taille.
+2. **Lecture plein écran** (`body.at-plein`) : la coquille entière —
+   sidebar, topbar, en-tête, onglets, les deux colonnes — rend l'espace au
+   texte. Le mode CSS est la **source de vérité** ; on demande en plus le
+   plein écran du navigateur quand il est disponible et l'on se
+   resynchronise sur `fullscreenchange` (sortie par F11 ou Échap natif),
+   mais si la demande échoue — elle est refusable — le mode reste valable.
+   La liseuse **garde sa mesure de 760 px** : le plein écran sert à retirer
+   la coquille, pas à allonger la ligne. Les pastilles flottantes de notes
+   sont **rallumées** dans ce mode, la marge n'étant plus là pour les
+   remplacer. Échap : le tiroir d'abord (couche du dessus), le plein écran
+   ensuite.
+3. **« Vos passages » est passé EN TÊTE de la marge**, en carte d'emphase
+   (le dégradé chaud + filet or du socle, la seule de la colonne). Il
+   fermait la marge sous cinq blocs, donc hors écran dès que le chapitre
+   avait de la matière — sur l'outil principal de la page. Il **montre**
+   désormais les passages (barre à la couleur du surlignage, citation en
+   Spectral, note en Caveat) au lieu d'en annoncer le nombre, et un clic
+   ramène au passage.
+
+**Le bouton de plein écran est RECONSTRUIT à chaque montage de la liseuse,
+jamais déplacé.** Premier réflexe : déménager un nœud unique dans
+`.rd-row`, la seule barre collante de la colonne — il y disparaissait au
+chapitre suivant, `showSelection` réécrivant tout `#readerOut` en
+`innerHTML`. Et `installFullBtn()` doit être appelé **après**
+`Reading.mount`, qui construit la barre : appelé plus haut, il ne trouvait
+pas `.rd-row` et le bouton restait au-dessus du texte, d'où il défilait
+hors de l'écran dès qu'on lisait.
+
+**Le saut vers un passage est instantané** (`jumpToQuote`, petit outil
+dupliqué). `SHELL.annotations.flashAnchor` fait son propre `scrollIntoView`
+en `smooth` : parfait dans le panneau de notes, inutilisable ici — dans une
+section de cent mille pixels, un défilement doux met une éternité. On se
+pose d'abord, flashAnchor ne fait plus que clignoter.
+
+**La marge se recompose dès qu'on surligne** : `SHELL.annotations` n'expose
+aucun rappel de changement, on observe donc le DOM (`mark.anno` dans
+`#readerOut`) et l'on compare le COMPTE — la liseuse produit des dizaines
+de mutations au montage, réagir à chacune serait absurde.
+
+**PIÈGE D'OUTILLAGE, à ajouter à la liste** : quand la pane est masquée,
+les **transitions CSS sont GELÉES**. `shell.css` pose
+`.wrap{transition:margin-left .2s}` ; en plein écran, `margin-left`
+restait donc bloqué à 208 px et l'on croyait la règle non appliquée — elle
+l'était, la valeur était figée en cours de transition. Neutraliser la
+transition (`style.transition='none'`) pour mesurer, et **ne pas
+« corriger » une cascade qui fonctionne**.
+
 ### Pièges rencontrés — tous vécus, aucun théorique
 
 1. **`atelier-motion.js` observait la CLASSE des panneaux.** Les six

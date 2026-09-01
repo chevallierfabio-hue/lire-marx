@@ -513,10 +513,12 @@ a.btn,a.lk,a.cap-btn-dark,a.cap-btn-light,a.cap-btn-outline,a.prog-no-auth-btn{
 .atl3-prog-bar i{display:block;height:100%;background:var(--gold-deep);
   transition:width .5s ease;}
 .atl3-prog-n{font-family:var(--f-ui);font-size:.76rem;color:var(--ink-soft);}
-.atl3-prog-log{font-family:var(--f-ui);font-size:.76rem;color:var(--gold);
-  background:none;border:none;padding:0;cursor:pointer;text-decoration:underline;
-  text-underline-offset:3px;text-align:left;}
-.atl3-prog-log:hover{color:var(--ink);}
+/* C'était un lien souligné au milieu d'un site qui n'écrit ses actions
+   qu'en pilules. Il porte maintenant `.btn` (la forme committée) et ne
+   règle plus ici que sa taille — la colonne fait 232 px. */
+.atl3-prog-log{font-size:.76rem;padding:6px 13px;width:100%;
+  border-color:var(--line-strong);color:var(--gold);}
+.atl3-prog-log:hover{background:var(--gold);color:var(--bg);border-color:var(--gold);}
 
 .atl3-filter{width:100%;font-family:var(--f-ui);font-size:.82rem;
   padding:7px 10px;border-radius:100px;border:1px solid var(--line-strong);
@@ -759,3 +761,106 @@ a.btn,a.lk,a.cap-btn-dark,a.cap-btn-light,a.cap-btn-outline,a.prog-no-auth-btn{
 @media (max-width:1240px){
   .atl3-m-notebtns{display:none;}
 }
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   VOS PASSAGES — l'outil principal, traité comme tel.
+   Il fermait la marge, sous cinq blocs : hors écran dès que le chapitre
+   avait de la matière. Il l'ouvre, et il porte la carte d'emphase du
+   socle (le dégradé chaud + le filet or) — la seule de la colonne, sans
+   quoi « mis en avant » ne voudrait rien dire.
+   ══════════════════════════════════════════════════════════════════════ */
+.atl3-pass{background:linear-gradient(150deg,#2c2117,#211a12,#1b150e);
+  border:1px solid rgba(216,173,76,.20);border-radius:14px;
+  padding:14px 15px 15px;margin-bottom:4px;}
+.atl3-pass .atl3-m-h{margin:0;}
+.atl3-pass-top{display:flex;align-items:center;justify-content:space-between;
+  gap:10px;margin-bottom:2px;}
+.atl3-pass-n{font-family:'Fraunces',Georgia,serif;font-weight:900;
+  font-size:1.35rem;line-height:1;color:var(--gold);}
+.atl3-pass-sub{font-family:var(--f-ui);font-size:.76rem;color:var(--ink-soft);
+  margin:0 0 10px;}
+.atl3-pass-empty{font-family:var(--f-ui);font-size:.8rem;line-height:1.5;
+  color:var(--ink-soft);margin:6px 0 12px;}
+.atl3-pass-empty b{color:var(--ink);font-weight:600;}
+.atl3-pass-list{list-style:none;margin:0 0 8px;padding:0;
+  display:flex;flex-direction:column;gap:3px;}
+.atl3-pass-item{display:grid;grid-template-columns:3px minmax(0,1fr);
+  gap:9px;align-items:start;width:100%;text-align:left;background:none;
+  border:none;padding:6px 6px 6px 0;border-radius:8px;cursor:pointer;
+  transition:background .16s;}
+.atl3-pass-item:hover{background:rgba(243,233,212,.06);}
+.atl3-pass-bar{width:3px;border-radius:2px;align-self:stretch;min-height:20px;
+  background:var(--gold);}
+.atl3-pass-bar.c-red{background:var(--red);}
+.atl3-pass-bar.c-blue{background:var(--blue);}
+.atl3-pass-bar.c-green{background:#5f8d5f;}
+.atl3-pass-q{font-family:var(--f-serif);font-size:.82rem;line-height:1.42;
+  color:var(--ink);font-style:italic;}
+.atl3-pass-q::before{content:"« ";}
+.atl3-pass-q::after{content:" »";}
+.atl3-pass-note{grid-column:2;font-family:var(--f-hand);font-size:.98rem;
+  line-height:1.25;color:var(--gold);margin-top:2px;}
+.atl3-pass-more{font-family:var(--f-ui);font-size:.74rem;color:var(--ink-soft);
+  margin:0 0 8px;}
+.atl3-pass-acts{display:flex;flex-wrap:wrap;gap:7px;margin-top:2px;}
+/* Dans la carte d'emphase, les deux boutons se détachent du dégradé. */
+.atl3-pass .atl3-m-nb{background:rgba(243,233,212,.05);}
+
+/* ══════════════════════════════════════════════════════════════════════
+   LECTURE PLEIN ÉCRAN
+   ══════════════════════════════════════════════════════════════════════ */
+.atl3-midbar{display:flex;justify-content:flex-end;margin-bottom:10px;}
+.atl3-midbar[hidden]{display:none;}
+/* Dans la barre de lecture, il se distingue des six autres outils par l'or
+   — c'est un changement de MODE, pas un réglage de plus. */
+.atl3-full{display:inline-flex;align-items:center;gap:7px;flex:0 0 auto;
+  white-space:nowrap;font-size:.78rem;padding:7px 14px;
+  border-color:var(--gold-deep);color:var(--gold);}
+.atl3-full:hover{background:var(--gold);color:var(--bg);border-color:var(--gold);}
+.atl3-full[aria-pressed="true"]{background:var(--gold);color:var(--bg);}
+.atl3-full-i{width:14px;height:14px;fill:none;stroke:currentColor;
+  stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+
+body.at-plein .topbar,
+body.at-plein .sidebar,
+body.at-plein .work-head,
+body.at-plein nav.tabs.worktabs,
+body.at-plein .atl3-toc,
+body.at-plein .atl3-marge,
+body.at-plein .atl3-midbar,
+body.at-plein footer.wrap{display:none!important;}
+body.at-plein main.wrap{margin-left:0;max-width:none;padding:0;}
+body.at-plein .atl3{display:block;}
+body.at-plein .atl3-mid{padding:0;}
+body.at-plein .panel{padding-top:0;}
+/* La barre d'outils de lecture remonte au bord : il n'y a plus de topbar
+   au-dessus d'elle. */
+body.at-plein .rd-toolbar{top:0;}
+/* La liseuse garde sa mesure de 760 px : le plein écran sert à retirer la
+   coquille, pas à allonger la ligne — une ligne plus longue se lit moins
+   bien, et 760 est la mesure committée du site. Seul le cadre tombe. */
+body.at-plein .reader{margin:0 auto;border-left:none;
+  border-right:none;border-radius:0;}
+/* La coquille étant partie, les deux pastilles flottantes redeviennent le
+   seul chemin vers les notes : on les rallume, même au-dessus de 1240 px
+   où la marge les remplaçait. */
+body.at-plein .notes-fab{display:inline-flex!important;}
+
+.atl3-full-exit{position:fixed;top:14px;right:16px;z-index:200;
+  display:inline-flex;align-items:center;gap:9px;
+  font-family:var(--f-ui);font-weight:600;font-size:.78rem;cursor:pointer;
+  /* La pilule PLEINE de la maison, comme les pastilles flottantes du
+     shell — pas un filet fin sous une grande ombre, qui est le tell d'une
+     interface générée (et que le détecteur signale à juste titre). */
+  color:var(--paper);background:var(--ink);border:0;
+  border-radius:999px;padding:9px 16px;
+  box-shadow:0 12px 32px rgba(0,0,0,.32);transition:background .15s;}
+/* Sur un aplat --red, c'est le BLANC qui passe (4,56:1) : le texte sombre
+   n'y donne que 4,1:1. Piège déjà consigné, on ne le rejoue pas. */
+.atl3-full-exit:hover{background:var(--red);color:#fff;}
+.atl3-full-exit:hover kbd{color:#fff;background:rgba(0,0,0,.22);}
+.atl3-full-exit[hidden]{display:none;}
+.atl3-full-exit kbd{font-family:var(--f-ui);font-size:.72rem;
+  color:var(--paper);background:rgba(21,16,11,.22);
+  border-radius:5px;padding:1px 6px;}
