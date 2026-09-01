@@ -482,8 +482,13 @@ a.btn,a.lk,a.cap-btn-dark,a.cap-btn-light,a.cap-btn-outline,a.prog-no-auth-btn{
 @media (min-width:1240px){
   body.at-atelier main.wrap,body.at-atelier footer.wrap{max-width:1250px;}
 }
+/* PAS de marge négative ici. Elle mangeait les 22 px de respiration du
+   `.wrap` — et à gauche, ces 22 px sont tout ce qui sépare le sommaire de
+   la BARRE LATÉRALE, qui est en position:fixed juste là : la colonne
+   venait la toucher, texte contre texte (mesuré : écart de 0 px). À
+   droite, la marge collait de même au bord de la fenêtre. */
 .atl3{display:grid;grid-template-columns:232px minmax(0,1fr) 288px;
-  gap:0;align-items:start;margin:0 -22px;}
+  gap:0;align-items:start;margin:0;}
 /* La liseuse garde SA mesure (760 px) et se centre dans la colonne : une
    colonne plus large n'est pas une ligne de texte plus longue. */
 .atl3-mid .reader{max-width:760px;margin:0 auto;}

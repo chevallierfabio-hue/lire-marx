@@ -981,6 +981,56 @@ Le nœud emprunté sort de la portée de ses propres scrubs (atelier-motion
 mesure une position dans le Dossier, qui est masqué) : le CSS le force à
 `opacity:1;transform:none` dans le tiroir.
 
+### Trois défauts corrigés après la première passe
+
+Signalés par le propriétaire (« c'est un peu bugué »), tous trois réels :
+
+1. **Le sommaire touchait la BARRE LATÉRALE**, texte contre texte (mesuré :
+   écart de 0 px), et la marge collait au bord de la fenêtre. Cause :
+   `.atl3{margin:0 -22px}` — la marge négative reprenait les 22 px de
+   respiration du `.wrap`, or à gauche ces 22 px sont **tout ce qui sépare
+   la colonne de la sidebar**, qui est en `position:fixed` juste là. Marges
+   négatives supprimées ; la colonne de lecture y gagne même 40 px.
+2. **On cliquait un chapitre et le texte n'y allait pas.** Le bandeau, la
+   marge et le sommaire annonçaient « chapitre III » pendant que la colonne
+   affichait encore le chapitre I. `scrollToAnchor` défilait en `smooth`
+   sur quarante mille pixels — ce qui n'arrive jamais, et **ne progresse
+   pas du tout dans un onglet piloté**, si bien que le test passait sans
+   rien prouver. Saut instantané, décalé de la coquille collante (104 px).
+3. **L'appareil suivait un CLIC, pas la lecture.** La liseuse charge une
+   section entière (jusqu'à 115 000 px) : on descendait jusqu'au chapitre
+   XI pendant que la marge et le sommaire disaient toujours VII. C'était le
+   démenti le plus net de toute la refonte. `followReading()` relève le
+   dernier titre de chapitre passé sous la ligne de lecture (220 px) et
+   met à jour la marque du sommaire, la marge, le bandeau et
+   `SHELL.resume` — **sans re-rendre le sommaire**, sinon le filtre en
+   cours de frappe et la position de la colonne seraient perdus à chaque
+   chapitre traversé.
+
+**On n'a PAS découpé la section pour n'afficher que le chapitre**, bien que
+ce fût tentant : les annotations sont ancrées par citation DANS la section
+et `locate()` les cherche dans le conteneur — un découpage ferait
+silencieusement disparaître tout surlignage posé dans un autre chapitre de
+la même section.
+
+**Le déclencheur du suivi est un `IntersectionObserver`** sur les titres de
+chapitre, doublé d'un écouteur de défilement. L'IO se déclenche exactement
+quand la réponse change, et il est indifférent à la manière dont on a
+défilé (molette, clavier, ancre, `scrollTo`). L'appariement titre ↔ chapitre
+se fait par **titre** et non par chiffre romain : Wikisource colle le
+numéro au titre (« CHAPITRE VIIPRODUCTION DE VALEURS… ») et écrit
+« CHAPITRE PREMIER » pour le premier.
+
+**PIÈGE D'OUTILLAGE MAJEUR, à relire avant de conclure quoi que ce soit sur
+une animation ou un suivi de défilement** : quand la pane est **masquée**
+(`document.hidden === true`), le navigateur ne délivre **NI les événements
+`scroll`** (ni sur `window`, ni sur `document`, ni en capture), **NI les
+rappels d'`IntersectionObserver`** (pas même le rappel initial, que la spec
+garantit pourtant), **ni le `requestAnimationFrame`**. Trois mécanismes
+parfaitement corrects semblent donc morts d'affilée. Vérifier
+`document.hidden` AVANT de « corriger » un suivi qui ne suit pas ; la
+computation elle-même se teste en appelant la fonction à la main.
+
 ### Pièges rencontrés — tous vécus, aucun théorique
 
 1. **`atelier-motion.js` observait la CLASSE des panneaux.** Les six

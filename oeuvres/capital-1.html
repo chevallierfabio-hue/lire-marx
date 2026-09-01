@@ -1872,6 +1872,9 @@ const CHECK_SVG=`<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><polyli
    courant, et c'est par lui qu'on change de chapitre.
    ══════════════════════════════════════════════════════════════════════ */
 function curGnum(){
+  /* Le chapitre COURANT, c'est celui qu'on lit — pas seulement celui qu'on
+     a cliqué. Voir followReading() plus bas. */
+  if(viewGnum)return viewGnum;
   const sl=document.getElementById('chapSelect');
   return (sl && sl.selectedIndex>=0) ? sl.selectedIndex+1 : 0;
 }
@@ -1948,12 +1951,127 @@ function applyAtlFilter(q){
     SHELL.announce(any?'Chapitres filtrés.':'Aucun chapitre ne correspond.');
 }
 
+/* ══════════════════════════════════════════════════════════════════════
+   L'APPAREIL SUIT LA LECTURE, PAS SEULEMENT LA SÉLECTION.
+   La liseuse charge une SECTION entière (trois à huit chapitres, jusqu'à
+   115 000 px). Sans ce suivi, on descendait dans le texte jusqu'au
+   chapitre XI pendant que la marge et le sommaire continuaient d'afficher
+   le chapitre VII — mesuré, et c'était le démenti le plus net de toute la
+   refonte : l'appareil prétend suivre le passage, il suivait un clic.
+   ══════════════════════════════════════════════════════════════════════ */
+let viewGnum=0, chapMarks=[];
+function normTxt(x){return (x||'').toLowerCase().normalize('NFD')
+  .replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');}
+
+/* Les repères de chapitre dans le texte chargé. On apparie par TITRE et
+   non par numéro : les intitulés de Wikisource collent le numéro au titre
+   (« CHAPITRE VIIPRODUCTION DE VALEURS… ») et écrivent « CHAPITRE
+   PREMIER » pour le premier — un appariement sur le chiffre romain serait
+   faux dès la première ligne. C'est déjà la méthode de scrollToAnchor. */
+function buildChapMarks(){
+  chapMarks=[];
+  const sl=document.getElementById('chapSelect');
+  if(!sl||!sl.value)return;
+  const n=+sl.value.split('|')[0];
+  const sec=ROY_STRUCT[n-1];
+  if(!sec)return;
+  let g0=0; for(let i=0;i<n-1;i++)g0+=ROY_STRUCT[i].chaps.length;
+  const hs=[].slice.call(document.querySelectorAll(
+    '#readerOut .ws-text h2,#readerOut .ws-text h3,#readerOut .ws-text h4'));
+  sec.chaps.forEach(function(ch,i){
+    const want=normTxt(ch[1]);
+    if(want.length<5)return;
+    for(const h of hs){
+      if(normTxt(h.textContent).indexOf(want)>=0){
+        chapMarks.push({gnum:g0+i+1,el:h});
+        break;
+      }
+    }
+  });
+  chapMarks.sort((a,b)=>a.el.offsetTop-b.el.offsetTop);
+  armChapObserver();
+}
+
+/* Le DÉCLENCHEUR est un IntersectionObserver posé sur les titres de
+   chapitre, pas un écouteur de défilement. Trois raisons, dans cet ordre :
+   il se déclenche exactement quand la réponse change (un titre franchit la
+   ligne de lecture) et pas soixante fois par seconde pour rien ; il est
+   indifférent à la MANIÈRE dont on a défilé — molette, clavier, ancre,
+   `scrollTo` programmatique ; et il reste vérifiable en test, là où les
+   événements `scroll` ne sont pas délivrés du tout dans un onglet piloté.
+   L'écouteur de défilement reste en second rideau. */
+const READ_LINE=220;
+let chapObs=null;
+function armChapObserver(){
+  if(chapObs){chapObs.disconnect();chapObs=null;}
+  if(!chapMarks.length||!window.IntersectionObserver)return;
+  chapObs=new IntersectionObserver(function(){ followReading(); },
+    {rootMargin:(-READ_LINE)+'px 0px 0px 0px',threshold:0});
+  chapMarks.forEach(m=>chapObs.observe(m.el));
+}
+
+function setViewChapter(g){
+  if(!g||g===viewGnum)return;
+  const c=CHAP_FLAT[g-1];
+  if(!c)return;
+  viewGnum=g;
+  /* On ne RE-REND pas le sommaire : le filtre en cours de frappe et la
+     position de la colonne seraient perdus à chaque chapitre traversé. On
+     déplace la marque, c'est tout. */
+  const list=document.getElementById('atl3TocList');
+  if(list){
+    list.querySelectorAll('.atl3-ch').forEach(b=>{
+      const on=(+b.dataset.g===g);
+      b.classList.toggle('is-cur',on);
+      if(on)b.setAttribute('aria-current','true');
+      else b.removeAttribute('aria-current');
+    });
+    const cel=list.querySelector('.atl3-ch.is-cur');
+    if(cel&&list.getClientRects().length&&list.scrollHeight>list.clientHeight+4)
+      list.scrollTop=Math.max(0,cel.offsetTop-list.clientHeight/2+cel.offsetHeight/2);
+  }
+  const t=document.querySelector('#readerOut .rdr-title');
+  if(t)t.textContent='Chapitre '+c.chapRn+'. '+c.chapTitle;
+  const cn=document.querySelector('#readerOut .rdr-counter em');
+  if(cn)cn.textContent=c.chapRn;
+  const tt=document.getElementById('atl3TocToggleT');
+  if(tt)tt.textContent=c.chapRn+'. '+c.chapTitle;
+  renderMarge();
+  /* On revient là où l'on LISAIT, pas là où l'on avait cliqué. */
+  try{ if(window.SHELL&&window.SHELL.resume)
+    window.SHELL.resume.set('capital-1',
+      {sel:c.secNum+'|'+c.chapRn+'|'+c.chapTitle,num:c.chapRn,title:c.chapTitle});
+  }catch(e){}
+}
+
+function followReading(){
+  if(!chapMarks.length)return;
+  let g=chapMarks[0].gnum;
+  for(const m of chapMarks){
+    if(m.el.getBoundingClientRect().top<READ_LINE)g=m.gnum;
+    else break;
+  }
+  setViewChapter(g);
+}
+/* Étranglement au TEMPS et non au requestAnimationFrame : le rAF est
+   suspendu dans un onglet en arrière-plan (et gelé dans un onglet piloté,
+   ce qui fait croire à un suivi mort quand on le teste). Relever la
+   position de huit titres ne coûte rien. */
+let followAt=0;
+window.addEventListener('scroll',function(){
+  const now=Date.now();
+  if(now-followAt<120)return;
+  followAt=now;
+  followReading();
+},{passive:true});
+
 /* Ouvrir un chapitre = écrire dans #chapSelect (l'état que toute la
    liseuse lit déjà) puis rendre. La colonne de gauche est une VUE de ce
    sélecteur, pas un second système de navigation. */
 function openChapter(g){
   const sl=document.getElementById('chapSelect');
   if(!sl||g<1||g>sl.options.length)return;
+  viewGnum=0;            /* la sélection reprend la main le temps du chargement */
   sl.selectedIndex=g-1;
   showSelection(true);
   renderTocRail();
@@ -2265,10 +2383,28 @@ async function loadSection(n){
   const r=await fetch(url);if(!r.ok)throw new Error("HTTP "+r.status);
   const j=await r.json();let raw=j&&j.parse&&j.parse.text;if(raw&&typeof raw==='object')raw=raw['*'];if(!raw)throw new Error("réponse vide");
   const html=cleanWS(raw);SECT_CACHE[n]=html;return html;}
+/* Aller AU chapitre demandé. La liseuse charge une SECTION entière de
+   Wikisource (trois à huit chapitres, jusqu'à 96 000 px) : sans ce saut,
+   on choisissait « chapitre III » dans le sommaire, le bandeau et la marge
+   l'annonçaient — et le texte affiché restait celui du chapitre I. C'était
+   le défaut le plus visible de la refonte.
+   Deux corrections : le saut est INSTANTANÉ (un `smooth` sur quarante
+   mille pixels n'arrive jamais, et ne progresse pas du tout dans un onglet
+   piloté — d'où un bug qu'on croit inexistant en le testant), et il est
+   DÉCALÉ de la coquille collante (topbar 44 + barre d'onglets 44), sans
+   quoi le titre du chapitre se range dessous.
+   On ne découpe PAS la section pour n'afficher que le chapitre : les
+   annotations sont ancrées par citation DANS la section, et locate() les
+   cherche dans le conteneur — un découpage ferait silencieusement
+   disparaître tout surlignage posé dans un autre chapitre de la même
+   section. */
 function scrollToAnchor(box,title){const norm=s=>(s||"").toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');
   const want=norm(title);if(want.length<5)return;
   const hs=box.querySelectorAll('.ws-text h2,.ws-text h3,.ws-text h4,.ws-text p');
-  for(const h of hs){if(norm(h.textContent).includes(want)){h.scrollIntoView({behavior:'smooth',block:'start'});return;}}}
+  for(const h of hs){if(norm(h.textContent).includes(want)){
+    const y=window.scrollY+h.getBoundingClientRect().top-104;
+    window.scrollTo({top:Math.max(0,y),behavior:'instant'});
+    return;}}}
 
 /* Glossaire du Capital (passé à window.Reading.mount via cfg.glossary). */
 const TERMS=[
@@ -2326,8 +2462,10 @@ async function showSelection(doScroll){
     updateCapMarkDone(gnum);
     installCapScrollTracker(out,gnum);
     /* Le sommaire marque le chapitre courant, la marge se recompose
-       sur lui : c'est ce qui fait que l'appareil suit la lecture. */
-    try{renderTocRail();renderMarge();}catch(e){}
+       sur lui : c'est ce qui fait que l'appareil suit la lecture. Les
+       repères de chapitre sont relevés maintenant — le texte vient d'être
+       posé, c'est le seul moment où ils sont mesurables. */
+    try{viewGnum=gnum;buildChapMarks();renderTocRail();renderMarge();}catch(e){}
     if(doScroll)scrollToAnchor(out,title);
     try{if(window.Anno)window.Anno.mount(n,out.querySelector('.ws-text'));}catch(e){}
     try{
