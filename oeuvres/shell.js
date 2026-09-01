@@ -217,7 +217,11 @@
        de Cloudflare) ou « /jeu/ » (le .replace de /index.html ci-dessus).
        Les trois marquent la même entrée. */
     var gloBtn = sb.querySelector('[data-act="glossaire"]');
-    if(/\/glossaire$/.test(here)) mark(gloBtn);
+    /* Tout ce qui vit SOUS /glossaire marque l'entrée : l'abécédaire lui-même
+       (/glossaire et /glossaire/) comme les pages de notion
+       (/glossaire/plus-value). Un test ancré sur la fin ne couvrait que
+       l'index, et la sidebar se dé-marquait dès qu'on ouvrait une notion. */
+    if(/^\/glossaire(\/|$)/.test(here)) mark(gloBtn);
     var jeuBtn = sb.querySelector('[data-act="jeu"]');
     if(/^\/jeu\/?$/.test(here) || /^\/jeu\/jouer$/.test(here)) mark(jeuBtn);
 
@@ -236,7 +240,7 @@
           if(window.matchMedia('(max-width:860px)').matches){
             document.body.classList.remove('sb-open');
           }
-          location.href = '/glossaire';
+          location.href = '/glossaire/';
           return;
         }
         if(act === 'jeu'){

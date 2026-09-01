@@ -21,7 +21,7 @@
  * en .html désigne donc une page qui redirige. Voir CLAUDE.md.
  */
 
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, readdirSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 
 const ORIGIN = 'https://liremarx.com';
@@ -92,7 +92,7 @@ const SITE_PAGES = [
      avait corrigé, reproduit en miroir. Ne pas « nettoyer » ce slash. */
   { file: 'jeu/index.html',             url: '/jeu/',                   priority: '0.8', changefreq: 'monthly' },
   /* Le glossaire — page dérivée, voir plus bas. */
-  { file: 'glossaire.html',            url: '/glossaire',              priority: '0.7', changefreq: 'monthly' }
+  { file: 'glossaire/index.html',      url: '/glossaire/',             priority: '0.7', changefreq: 'monthly' }
 ];
 
 /* HORS SITEMAP, et c'est un choix motivé — voir CLAUDE.md :
@@ -107,6 +107,11 @@ const SITE_PAGES = [
  */
 
 const clean = p => '/' + p.replace(/\.html$/, '').replace(/^\/+/, '');
+
+/* Rempli par le bloc « glossaire » et consommé par le bloc « sitemap »,
+ * qui vient après : les pages de notion n'existent pas à l'avance, elles
+ * dépendent de ce que le lexique a écrit. */
+const PAGES_NOTIONS = [];
 
 function lastmod(file) {
   try {
@@ -161,7 +166,11 @@ let changed = [], stale = [];
 const check = process.argv.includes('--check');
 
 function writeIfNeeded(file, next, label) {
-  const cur = readFileSync(file, 'utf8');
+  /* Le fichier peut ne pas EXISTER : les pages de notion sont créées par ce
+     script, pas seulement mises à jour. Une lecture sèche jetait alors ENOENT
+     au lieu de créer la page. */
+  let cur = null;
+  try { cur = readFileSync(file, 'utf8'); } catch { cur = null; }
   if (cur === next) return;
   if (check) { stale.push(label); return; }
   writeFileSync(file, next);
@@ -513,6 +522,7 @@ function identite(nom) {
     return { ...t,
       de:  lex && lex.de ? lex.de : t.de,
       def: lex && lex.def ? lex.def : t.legende,
+      page: lex && lex.page ? lex.page : null,
       enrichi: !!(lex && lex.def) };
   });
 
@@ -562,8 +572,9 @@ function identite(nom) {
           + `    <h2 class="gl-lettre" id="lettre-${L}">${L}</h2>\n`
           + `    <dl class="gl-liste">\n`;
     for (const t of liste) {
+      const lien = (x) => t.page ? `<a href="/glossaire/${t.id}">${x}</a>` : x;
       html += `      <div class="gl-terme" id="${t.id}">\n`
-            + `        <dt class="gl-t">${t.nom}`
+            + `        <dt class="gl-t">${lien(t.nom)}`
             + (t.de ? `<span class="gl-de" lang="de">${t.de}</span>` : '')
             + `</dt>\n`
             + `        <dd class="gl-d">${t.def}\n`
@@ -577,15 +588,15 @@ function identite(nom) {
   const ldJson = JSON.stringify({
     '@context': 'https://schema.org',
     '@type': 'DefinedTermSet',
-    '@id': `${ORIGIN}/glossaire#glossaire`,
+    '@id': `${ORIGIN}/glossaire/#glossaire`,
     name: 'Glossaire de Marx — l’abécédaire des concepts',
-    url: `${ORIGIN}/glossaire`,
+    url: `${ORIGIN}/glossaire/`,
     inLanguage: 'fr',
     hasDefinedTerm: termes.map((t) => ({
       '@type': 'DefinedTerm',
       name: decode(t.nom),
       description: decode(t.def),
-      url: `${ORIGIN}/glossaire#${t.id}`,
+      url: t.page ? `${ORIGIN}/glossaire/${t.id}` : `${ORIGIN}/glossaire/#${t.id}`,
       ...(t.de ? { alternateName: decode(t.de) } : {}),
       inLanguage: 'fr',
     })),
@@ -594,7 +605,7 @@ function identite(nom) {
   const oeuvres = new Set(termes.flatMap((t) => t.sources.map((s) => s.oeuvre))).size;
   const compte = `<p class="gl-compte">${termes.length} notions · ${lettres.size} lettres · ${oeuvres} œuvres</p>`;
 
-  const fichier = 'glossaire.html';
+  const fichier = 'glossaire/index.html';
   let page = readFileSync(fichier, 'utf8');
   const entre = (src, deb, fin, contenu) => {
     const i = src.indexOf(deb), j = src.indexOf(fin);
@@ -610,6 +621,161 @@ function identite(nom) {
   const f = page.indexOf('  <!-- GLOSSAIRE:FIN -->');
   if (d < 0 || f < 0) throw new Error('Marqueurs du corps du glossaire introuvables.');
   page = page.slice(0, d + borne.length) + '\n' + html + page.slice(f);
+
+  /* ── Les pages de notion ────────────────────────────────────────────
+   * Une notion n'a sa page que si le lexique lui a écrit un `page` : quatre
+   * cents mots, pas vingt-sept. C'est le seuil au-dessous duquel une page
+   * par terme serait du contenu mince — la raison même pour laquelle
+   * l'abécédaire est resté une seule page. On ne génère donc PAS
+   * soixante-quinze pages : on en génère autant qu'on en a écrit.
+   * Le CSS est une feuille partagée (glossaire/notion.css) et non un bloc
+   * inline recopié dans chaque fichier, qui les ferait diverger.
+   */
+  const echap = (t) => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const nu = (t) => decode(String(t).replace(/<[^>]+>/g, ''));
+
+  const avecPage = termes.filter((t) => t.page);
+  for (const t of avecPage) {
+    const pg = t.page;
+    const url = `${ORIGIN}/glossaire/${t.id}`;
+    const titre = nu(t.nom);
+    const desc = nu(pg.chapo);
+
+    /* « Le voir fonctionner » : les instruments viennent des PROVENANCES,
+     * donc des ateliers eux-mêmes. `outils` n'ajoute que ce qu'aucune
+     * provenance ne donne — le jeu, par exemple. */
+    const outils = [
+      ...t.sources.map((sc) => ({ label: `${nu(sc.groupe)} — ${sc.oeuvre}`, url: sc.url })),
+      ...(pg.outils || []),
+    ];
+    const voisines = (pg.voisins || [])
+      .map((v) => termes.find((x) => identite(x.nom) === identite(v)))
+      .filter(Boolean);
+    if ((pg.voisins || []).length !== voisines.length) throw new Error(
+      `Voisines introuvables pour « ${titre} » : ${(pg.voisins || [])
+        .filter((v) => !termes.some((x) => identite(x.nom) === identite(v)))
+        .map((v) => `« ${v} »`).join(', ')}`);
+
+    const chaps = [...new Set(t.sources.flatMap((sc) => sc.chaps))];
+
+    const ld = [
+      { '@context': 'https://schema.org', '@type': 'DefinedTerm',
+        '@id': url, name: titre, description: desc, url, inLanguage: 'fr',
+        ...(t.de ? { alternateName: nu(t.de) } : {}),
+        inDefinedTermSet: { '@id': `${ORIGIN}/glossaire/#glossaire` } },
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Lire Marx', item: `${ORIGIN}/` },
+          { '@type': 'ListItem', position: 2, name: 'Glossaire', item: `${ORIGIN}/glossaire/` },
+          { '@type': 'ListItem', position: 3, name: titre },
+        ] },
+    ].map((o) => `${OPEN}\n${JSON.stringify(o, null, 2)}\n${CLOSE}`).join('\n');
+
+    const html = `<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>${echap(titre)} — Marx, définition et sources | Lire Marx</title>
+<!-- PAGE GÉNÉRÉE par tools/gen-seo.mjs depuis oeuvres/lexique.json.
+     Ne pas éditer à la main : tout changement serait écrasé. Le texte se
+     modifie dans le lexique, la forme dans le générateur, le style dans
+     glossaire/notion.css. -->
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="48x48" href="/assets/img/logo/icon-48.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/assets/img/logo/icon-192.png">
+<link rel="apple-touch-icon" href="/assets/img/logo/apple-touch-icon.png">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="${echap(desc)}">
+<meta property="og:title" content="${echap(titre)} — Marx, définition et sources">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lire Marx">
+<meta property="og:description" content="${echap(desc)}">
+<meta property="og:url" content="${url}">
+<meta property="og:image" content="${ORIGIN}/assets/img/archive/das-kapital-titre-1867.jpg">
+<meta property="og:locale" content="fr_FR">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="${url}">
+<link rel="stylesheet" href="/oeuvres/fonts/fonts.css" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="/oeuvres/fonts/fonts.css"></noscript>
+<link rel="stylesheet" href="/glossaire/notion.css">
+<link rel="preload" href="/oeuvres/shell.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="/oeuvres/shell.css"></noscript>
+${ld}
+</head>
+<body>
+<main class="wrap" id="contenu" tabindex="-1">
+<article class="nt">
+
+  <nav class="nt-fil" aria-label="Fil d'Ariane">
+    <a href="/">Lire Marx</a><span aria-hidden="true">›</span><a href="/glossaire/">Glossaire</a><span aria-hidden="true">›</span>${t.nom}
+  </nav>
+
+  <p class="nt-label">La notion</p>
+  <h1 class="nt-h1">${t.nom}${t.de ? `<span class="nt-de" lang="de">${t.de}</span>` : ''}</h1>
+  <p class="nt-chapo">${pg.chapo}</p>
+
+  <div class="nt-corps">
+${pg.corps.map((par) => `    <p>${par}</p>`).join('\n')}
+  </div>
+
+  <div class="nt-appareil">
+    <div class="nt-bloc nt-bloc--source">
+      <p class="nt-bloc-t">Où Marx l'établit</p>
+      <!-- La notice « ou » PRIME sur les chapitres déduits : l'atelier
+           rattache une station à des chapitres du Livre I, ce qui suffit
+           d'ordinaire mais induirait en erreur pour une notion établie
+           ailleurs — la baisse tendancielle est du Livre III. Quand la
+           notice est écrite, c'est elle qui dit vrai.
+           (Pas d'accent grave dans ce commentaire : il est DANS un template
+           literal, et le refermerait.) -->
+      <p>${pg.ou
+            || (chaps.length
+                 ? `Livre&nbsp;I, ${chaps.length > 1 ? 'chapitres' : 'chapitre'} ${chaps.join(', ')}.`
+                 : 'Voir les pièces de l’atelier ci-contre.')}</p>
+    </div>
+    <div class="nt-bloc">
+      <p class="nt-bloc-t">Le voir fonctionner</p>
+      <ul class="nt-liens">
+${outils.map((o) => `        <li><a href="${o.url}">${o.label}</a></li>`).join('\n')}
+      </ul>
+    </div>
+  </div>
+
+${voisines.length ? `  <div class="nt-voisines">
+    <p class="nt-bloc-t">Notions voisines</p>
+    <div class="nt-puces">
+${voisines.map((v) => `      <a href="${v.page ? `/glossaire/${v.id}` : `/glossaire/#${v.id}`}">${v.nom}</a>`).join('\n')}
+    </div>
+  </div>
+` : ''}
+  <div class="nt-fin">
+    <a class="nt-btn" href="/glossaire/">Revenir à l'abécédaire</a>
+  </div>
+
+</article>
+</main>
+
+<script src="/config.js"></script>
+<script src="/oeuvres/shell.js"></script>
+<script src="/oeuvres/shell-social.js"></script>
+<script>installShell({ workTitle: 'Glossaire', tabs: [] });</script>
+</body>
+</html>
+`;
+    writeIfNeeded(`glossaire/${t.id}.html`, html, `glossaire/${t.id}.html`);
+    PAGES_NOTIONS.push({ file: `glossaire/${t.id}.html`, url: `/glossaire/${t.id}` });
+  }
+
+  /* Une page de notion orpheline — dont le `page` a été retiré du lexique —
+   * resterait servie et indexée sans que rien ne la relie. On ne la supprime
+   * pas d'office (un fichier généré peut avoir été gardé exprès), on le dit. */
+  const attendues = new Set(avecPage.map((t) => `${t.id}.html`).concat('index.html'));
+  const surPlace = readdirSync('glossaire').filter((f) => f.endsWith('.html'));
+  const orphelinesPages = surPlace.filter((f) => !attendues.has(f));
+  if (orphelinesPages.length && !check) {
+    console.log(`  ⚠ pages de notion sans entrée dans le lexique : ${orphelinesPages.join(', ')}`);
+  }
 
   writeIfNeeded(fichier, page, fichier);
   if (termes.length < 60) throw new Error(`Seulement ${termes.length} notions relevées — CONCEPTS a changé de forme.`);
@@ -632,6 +798,10 @@ function identite(nom) {
 /* --------------------------- sitemap --------------------------- */
 const entries = [
   ...SITE_PAGES.map(p => ({ ...p, loc: ORIGIN + p.url })),
+  /* Les pages de notion. Priorité modeste : elles comptent, mais moins que
+     les œuvres et que l'abécédaire qui les rassemble. */
+  ...PAGES_NOTIONS.map(p => ({ ...p, loc: ORIGIN + p.url,
+    priority: '0.6', changefreq: 'monthly' })),
   ...available.map(w => ({
     file: w.path, loc: ORIGIN + clean(w.path),
     priority: '0.9', changefreq: 'monthly', title: w.title
@@ -663,7 +833,8 @@ if (check) {
   }
   console.log('À jour : ' + [...available.map(w => w.path),
     'oeuvres/bibliotheque.html (registre)', 'index.html (FAQPage)',
-    'glossaire.html', 'sitemap.xml'].join(', '));
+    'glossaire/index.html', ...PAGES_NOTIONS.map(p => p.file),
+    'sitemap.xml'].join(', '));
 } else {
   console.log(changed.length ? 'Récrit : ' + changed.join(', ') : 'Rien à faire.');
 }

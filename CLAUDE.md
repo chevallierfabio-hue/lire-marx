@@ -4477,6 +4477,86 @@ dictionnaire, et la pastille de formule porte déjà les symboles.
 **Effet secondaire heureux** : le filtre indexe toute la fiche, donc il
 cherche aussi dans l'allemand — « mehrwert » ramène six notions.
 
+### Les notions les plus denses ont leur page (`glossaire/<slug>`, sept. 2026)
+
+Six notions sortent de l'abécédaire et prennent une page à elles&nbsp;:
+**plus-value, fétichisme, force de travail, travail aliéné, accumulation
+primitive, loi tendancielle**. Entre 277 et 313 mots de corps, soit 575 à
+693 mots servis par page.
+
+**LE SEUIL EST LA RÈGLE, et il n'a pas bougé** : on n'écrit une page que
+lorsqu'on a quatre cents mots à dire, pas vingt-sept. C'est exactement la
+raison pour laquelle l'abécédaire est resté une seule page, et c'est
+toujours vrai des soixante-neuf autres notions. **Ne pas générer une page
+par terme** — ce serait le contenu mince qu'on a refusé depuis le début.
+
+### L'abécédaire devient un DOSSIER, donc il prend son slash
+
+`/glossaire` → **`/glossaire/`**. C'est la conséquence mécanique de
+`/glossaire/plus-value` : la page d'index d'un dossier se désigne avec son
+slash, Cloudflare répondant 308 sur la forme nue — la règle écrite pour
+`/jeu`. Fait le jour même de la mise en ligne de l'abécédaire, avant tout
+indexage. Canonique, `og:url`, sitemap, sidebar et lien de la FAQ suivent.
+
+### Ce que la page porte
+
+Fil d'Ariane, titre et terme allemand, chapô, quatre paragraphes en
+**Spectral** — c'est le seul endroit du site avec la liseuse où l'on tient
+quatre cents mots, donc la serif de lecture et non l'Inter d'interface —
+puis l'appareil en pied : « Où Marx l'établit », « Le voir fonctionner »
+(les instruments, dérivés des provenances, plus le jeu), les notions
+voisines, le retour. `DefinedTerm` + `BreadcrumbList` en JSON-LD.
+
+Le CSS est une feuille **partagée** (`glossaire/notion.css`) et non un bloc
+inline recopié dans six fichiers générés, qui les ferait diverger.
+
+⚠️ **La notice `ou` PRIME sur les chapitres déduits, et c'est nécessaire.**
+L'atelier rattache une station à des chapitres du Livre I — parfait
+d'ordinaire, faux pour une notion établie ailleurs : la **loi tendancielle
+est du Livre III**, et la page l'aurait annoncée au Livre I. Trois autres
+notions retombaient sur un repli muet (« voir les pièces ci-contre ») parce
+que leur station est une pièce d'exploration, que `META` ne rattache à aucun
+chapitre — alors qu'on sait parfaitement où elles sont. Leurs notices sont
+écrites, et les titres de chapitre vérifiés dans les données de la page.
+
+### Trois pièges, tous vécus
+
+1. **Un accent grave dans un commentaire HTML, à l'intérieur d'un template
+   literal, le referme.** Écrire `` `ou` `` dans le gabarit a produit un
+   `SyntaxError: Unexpected identifier 'ou'` en tête de fichier. Dans les
+   gabarits de `gen-seo.mjs`, pas d'accent grave — même en commentaire.
+2. **`writeIfNeeded` lisait le fichier avant de comparer.** Il mettait à
+   jour des fichiers existants ; il doit maintenant en CRÉER. Une lecture
+   sèche jetait `ENOENT` au lieu d'écrire la page.
+3. **Les liens de « Le voir fonctionner » sont des entrées de LISTE**, pas
+   des liens en ligne dans une phrase : l'exception de WCAG 2.5.8 ne les
+   couvre pas, et à la seule hauteur de ligne ils mesuraient 18 px. Un
+   rembourrage vertical les porte au-delà de 24. Ne pas confondre les deux
+   cas — le renvoi de fiche de l'abécédaire, lui, est bien en ligne.
+
+Et une régression attrapée à la sonde : **le marquage de sidebar ne couvrait
+que l'index** (`/\/glossaire\/?$/`), donc l'entrée se dé-marquait dès qu'on
+ouvrait une notion. Il couvre le dossier entier.
+
+### Vérifié
+
+`gen-seo.mjs --check` idempotent sur les sept dérivations. Sonde de contraste
+sur deux pages de notion : **0 échec**, aucune cible sous 24 × 24 après
+correction, minimum 4,56 (le blanc sur rouge du bouton, valeur maison).
+Détecteur statique : **0 erreur** — `plus-value.html` ne relève qu'**un**
+constat, un tiret cadratin. Testé à 1280 et 375 px, zéro débordement, une
+colonne. Les six notices de source relues une par une. Sitemap à **13 URL**,
+sidebar marquée sur les notions comme sur l'index.
+
+### Ce qui reste
+
+- Soixante-neuf notions n'ont pas de page, **et c'est le bon état**. La
+  suivante s'écrit en ajoutant un `page` au lexique — le générateur fait le
+  reste, sitemap et lien depuis l'abécédaire compris.
+- Aucune citation de Marx n'est reproduite dans ces pages, volontairement :
+  je ne cite pas de mémoire une traduction que je ne peux pas vérifier dans
+  le dépôt. Les ajouter demanderait de les relever dans le texte servi.
+
 ### Ce qui reste
 
 - Une **troisième œuvre** entrerait toute seule : il suffit qu'elle expose un

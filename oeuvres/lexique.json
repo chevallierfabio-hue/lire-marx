@@ -3,7 +3,7 @@
   "_pourquoi": "Les fiches CONCEPTS des ateliers sont des LÉGENDES DE CARTE : onze mots de médiane, faites pour tenir sous une icône. Le glossaire, lui, doit définir. Deux métiers, deux champs — on n'allonge donc pas CONCEPTS, ce qui déformerait les cartes de l'atelier, et on ne recopie rien : ce fichier ne porte QUE ce que CONCEPTS n'a pas.",
   "_contrat": "La clé est le titre de la fiche, suffixe de station retiré (« Capital constant » et non « Capital constant (c) »). tools/gen-seo.mjs échoue si une clé ne correspond à aucune fiche — c'est ce qui rattrape un renommage, qui sinon perdrait la définition en silence.",
   "_allemand": "Le terme allemand n'est donné que lorsqu'il est CANONIQUE chez Marx. Les intitulés éditoriaux du site — « Les contre-mondes », « Le passage de relais » — et les conditions d'équilibre n'en ont pas : on n'invente pas d'allemand pour faire savant.",
-  "_manuscrits": "Les sept notions des Manuscrits de 1844 ne figurent pas ici : leurs fiches portent DÉJÀ une définition longue et leur terme allemand, dans manuscrits-1844.html. Ne pas les recopier.",
+  "_manuscrits": "Les sept notions des Manuscrits de 1844 n'ont ici ni « def » ni « de » : leurs fiches les portent déjà, dans manuscrits-1844.html. Ne pas les recopier. En revanche une entrée peut n'exister ici QUE pour son « page » — c'est le cas de « Travail aliéné », dont la définition vient des Manuscrits et le développement de ce fichier.",
   "termes": {
     "A — M — A′": {
       "de": "G — W — G′",
@@ -19,7 +19,24 @@
     },
     "Accumulation primitive": {
       "de": "ursprüngliche Akkumulation",
-      "def": "La séparation historique des producteurs d'avec leurs moyens de production. Non le péché originel d'une fable économique, mais l'expropriation, la conquête et la loi."
+      "def": "La séparation historique des producteurs d'avec leurs moyens de production. Non le péché originel d'une fable économique, mais l'expropriation, la conquête et la loi.",
+      "page": {
+        "chapo": "L'accumulation primitive est la séparation historique des producteurs d'avec leurs moyens de production. Non le péché originel d'une fable économique, mais l'expropriation, la conquête et la loi.",
+        "corps": [
+          "Le raisonnement du livre bute sur un cercle. L'accumulation suppose de la plus-value, la plus-value suppose des salariés, et les salariés supposent des hommes qui n'ont que leur force de travail à vendre. Mais d'où viennent-ils&nbsp;? L'économie politique répond par une idylle&nbsp;: il y eut jadis une élite diligente et économe, et une masse de paresseux qui dissipèrent tout. Marx traite cette histoire comme la théologie traitait le péché originel — une faute lointaine qui explique une misère présente.",
+          "Le procès réel, il le prend en Angleterre, du XVe au XVIIIe siècle. Le déguerpissement des paysans, la clôture des terres communes, la dissolution des suites féodales, le pillage des biens d'Église&nbsp;: à chaque étape, des hommes sont libérés — de la terre autant que de leur seigneur. Ce qui se produit alors n'est pas une accumulation de richesses&nbsp;; c'est <b>la fabrication d'un rapport social</b>, en séparant par la force ce qui était uni.",
+          "Encore faut-il que l'exproprié devienne un ouvrier, et il ne le devient pas de lui-même. Jeté sur les routes, il est traité en criminel&nbsp;: la <b>législation sanglante</b> contre le vagabondage le fouette, le marque au fer, le pend au troisième délit. Marx souligne qu'il a fallu des siècles de contrainte ouverte pour produire une classe qui prendrait ensuite les exigences du capital pour des lois naturelles.",
+          "Reste un point de méthode, souvent manqué&nbsp;: ce chapitre vient à la <b>fin</b> du Livre I, non au début. Ce que l'exposition logique doit poser comme présupposé — l'existence du salarié — l'histoire le pose comme résultat. Et une fois le rapport institué, la violence ouverte cède la place à ce que Marx appelle la contrainte muette des rapports économiques&nbsp;: le salarié reconduit lui-même, chaque jour, sa propre dépendance."
+        ],
+        "voisins": [
+          "Expropriation / enclosures",
+          "Législation sanglante",
+          "Le passage de relais",
+          "Force de travail",
+          "Accumulation"
+        ],
+        "ou": "Livre I, chapitres XXVI à XXXIII — la huitième et dernière section du livre."
+      }
     },
     "Appendice de la machine": {
       "de": "Zubehör der Maschine",
@@ -127,7 +144,24 @@
     },
     "Loi tendancielle": {
       "de": "Gesetz des tendenziellen Falls der Profitrate",
-      "def": "La hausse de la composition organique fait baisser le taux de profit à taux d'exploitation constant. Une tendance, contrariée par des forces inverses — pas un destin."
+      "def": "La hausse de la composition organique fait baisser le taux de profit à taux d'exploitation constant. Une tendance, contrariée par des forces inverses — pas un destin.",
+      "page": {
+        "chapo": "Le taux de profit baisse à mesure que la part des machines grandit dans le capital — non parce que l'exploitation faiblirait, mais parce que la plus-value ne sort que du travail vivant, dont la part relative diminue.",
+        "ou": "Livre III, troisième section — établie par Engels d'après les manuscrits de Marx. Le Livre I en pose les éléments au chapitre XV, sur le machinisme.",
+        "corps": [
+          "Le mécanisme tient dans une fraction. Le taux de profit rapporte la plus-value au capital <b>total</b> avancé&nbsp;: p′ = pl / (c + v). Or la plus-value ne naît que de v, la part dépensée en salaires. Quand la productivité monte, il faut plus de machines et de matières par ouvrier&nbsp;: c grossit plus vite que v, la <b>composition organique</b> s'élève. À taux d'exploitation inchangé, le numérateur suit v pendant que le dénominateur suit c — et la fraction baisse.",
+          "Le paradoxe est que rien n'y est irrationnel. Chaque capitaliste mécanise parce que cela lui donne, à lui, une avance sur ses concurrents&nbsp;: il produit moins cher que la moyenne et empoche la différence. Mais quand tous ont suivi, l'avance a disparu et la composition organique est montée pour toute la branche. <b>La somme de décisions individuellement justes érode le taux général</b>&nbsp;: c'est le fonctionnement du système, non son dérèglement.",
+          "Marx consacre ensuite un chapitre entier aux <b>contre-tendances</b>, et c'est ce qui fait de sa loi une tendance et non un destin&nbsp;: élever le taux d'exploitation, faire baisser le prix des éléments du capital constant, le commerce extérieur, la surpopulation relative qui maintient des branches à faible composition. La loi ne dit pas que le taux baisse&nbsp;; elle dit qu'il tend à baisser, et que ce qui l'en empêche a un coût.",
+          "L'instrument du dossier permet d'en faire l'expérience&nbsp;: on fixe un taux d'exploitation, on fait monter la composition organique, et l'on voit p′ décrocher. On voit surtout autre chose — qu'une hausse suffisante du taux d'exploitation masque la baisse un long moment. C'est exactement ce que dit Marx, et c'est ce qui rend la loi si difficile à lire dans les chiffres d'une seule année."
+        ],
+        "voisins": [
+          "Taux de profit",
+          "Composition organique",
+          "Contre-tendances",
+          "Plus-value",
+          "Accumulation"
+        ]
+      }
     },
     "M — A — M": {
       "de": "W — G — W",
@@ -257,19 +291,99 @@
     },
     "Plus-value": {
       "de": "Mehrwert",
-      "def": "L'excédent de valeur créé par le travail au-delà de ce que coûte la force de travail. Elle ne naît pas de l'échange, qui ne fait que déplacer de la valeur, mais de la production."
+      "def": "L'excédent de valeur créé par le travail au-delà de ce que coûte la force de travail. Elle ne naît pas de l'échange, qui ne fait que déplacer de la valeur, mais de la production.",
+      "page": {
+        "chapo": "La plus-value est la valeur créée par le travail au-delà de ce que coûte la force de travail. Elle ne vient pas de l'échange, mais de la production — et le contrat de travail est parfaitement respecté.",
+        "corps": [
+          "Marx part d'une énigme que l'économie politique de son temps n'arrivait pas à résoudre&nbsp;: <b>d'où vient le profit&nbsp;?</b> On répondait volontiers qu'il naît de l'échange — acheter bas, vendre haut. Mais Marx observe que si tout le monde vend au-dessus de la valeur, tout le monde achète aussi au-dessus&nbsp;: ce que l'on gagne comme vendeur, on le reperd comme acheteur. L'échange redistribue de la valeur, il n'en crée pas. Le profit doit donc naître ailleurs, et pourtant sans qu'aucune règle de l'échange ne soit violée. Toute la difficulté est là.",
+          "La solution tient dans une marchandise d'un genre particulier&nbsp;: la <b>force de travail</b>. Comme toute marchandise, elle a une valeur — le coût de ce qu'il faut pour l'entretenir et la reproduire — et le capitaliste la paie à cette valeur. Mais son <i>usage</i> n'a rien de commun avec son <i>coût</i>&nbsp;: en la consommant, c'est-à-dire en faisant travailler, on obtient plus de valeur qu'elle n'en a coûté. Le capitaliste achète une journée entière et n'en paie que ce qu'elle vaut. L'écart n'est pas une entorse au contrat&nbsp;: il en est le produit.",
+          "La journée se divise alors en deux parts. Pendant les premières heures — le <b>travail nécessaire</b> — l'ouvrier reproduit la valeur de sa propre force de travail&nbsp;: il gagne son salaire. Au-delà commence le <b>surtravail</b>, qui ne lui rapporte rien et ne coûte rien au capital. C'est ce second morceau, une fois objectivé dans la marchandise, qu'on appelle plus-value. Le rapport des deux — le <b>taux de plus-value</b> — mesure exactement le degré d'exploitation, et il ne dépend ni de la taille de l'entreprise ni de son capital engagé.",
+          "De là découle tout le reste du livre. Comme la plus-value ne sort que du travail vivant, le capital n'a que deux moyens de l'augmenter&nbsp;: allonger la journée — la <i>plus-value absolue</i> — ou raccourcir le travail nécessaire en augmentant la productivité — la <i>plus-value relative</i>. Le premier chemin se heurte à une limite physique et à la loi&nbsp;; le second refond la technique, l'atelier, et jusqu'au corps de l'ouvrier. Et parce que le taux de profit rapporte la plus-value au capital <i>total</i>, machines comprises, il dissimule ce que le taux de plus-value montrait&nbsp;: le profit paraît sortir du capital, alors qu'il sort du travail."
+        ],
+        "outils": [
+          {
+            "label": "Le circuit du capital — le jeu",
+            "url": "/jeu/"
+          }
+        ],
+        "voisins": [
+          "Force de travail",
+          "Surtravail",
+          "Travail nécessaire",
+          "Taux de plus-value",
+          "Plus-value absolue",
+          "Plus-value relative",
+          "Taux de profit"
+        ]
+      }
     },
     "Force de travail": {
       "de": "Arbeitskraft",
-      "def": "La capacité de travailler, que l'ouvrier vend pour un temps déterminé. Marchandise unique : sa valeur est le coût de sa reproduction, son usage crée plus de valeur qu'elle n'en coûte."
+      "def": "La capacité de travailler, que l'ouvrier vend pour un temps déterminé. Marchandise unique : sa valeur est le coût de sa reproduction, son usage crée plus de valeur qu'elle n'en coûte.",
+      "page": {
+        "chapo": "La force de travail est la capacité de travailler, que l'ouvrier vend pour un temps donné. C'est la seule marchandise dont l'usage produit plus de valeur qu'elle n'en coûte — et c'est de cet écart que naît la plus-value.",
+        "corps": [
+          "Marx est arrivé à une impasse. Le capital est de l'argent qui revient augmenté, mais l'échange de marchandises à leur valeur ne crée rien&nbsp;: il déplace. Pour que A—M—A′ ait un sens sans qu'aucune règle soit violée, il faudrait une marchandise dont la <b>consommation</b> produise de la valeur. Marx annonce qu'on la trouve sur le marché, et qu'elle porte un nom&nbsp;: la force de travail — non le travail, mais la capacité de travailler.",
+          "Elle n'existe comme marchandise qu'à deux conditions, et les deux sont des <b>libertés</b>. Son possesseur doit être libre de sa personne, donc ni esclave ni serf, pour pouvoir la vendre à temps. Et il doit être libre de tout moyen de production — sans quoi il vendrait ses produits plutôt que sa capacité. Cette double liberté n'est pas un état de nature&nbsp;: c'est le résultat de l'histoire que raconte l'accumulation primitive.",
+          "Sa valeur se détermine comme celle de toute marchandise&nbsp;: par le temps de travail nécessaire à la produire, c'est-à-dire ici à entretenir l'ouvrier et sa famille, et à le former. Marx ajoute une réserve qu'il ne fait pour aucune autre marchandise&nbsp;: ce minimum contient un <i>élément historique et moral</i>, et varie selon les pays et les époques. Ce n'est pas un seuil physiologique.",
+          "Toute la mécanique tient alors dans une asymétrie. Ce qui se paie, c'est la <b>valeur</b> de la force de travail&nbsp;; ce qui s'utilise, c'est son <b>usage</b>, et rien n'oblige les deux à coïncider. Si une demi-journée suffit à reproduire ce qu'elle coûte, la seconde moitié appartient à l'acheteur, qui a pourtant payé le prix convenu. C'est une chance pour lui, écrit Marx, et nullement une injustice envers le vendeur."
+        ],
+        "voisins": [
+          "Plus-value",
+          "Surtravail",
+          "Travail nécessaire",
+          "La forme-salaire",
+          "Le « prix du travail »",
+          "Accumulation primitive"
+        ],
+        "ou": "Livre I, chapitre VI — « Achat et vente de la force de travail »."
+      }
     },
     "Fétichisme": {
       "de": "Fetischcharakter der Ware",
-      "def": "Le rapport entre des travaux humains apparaît comme un rapport entre des choses. Ce n'est pas une illusion d'optique : la forme marchandise produit réellement cette apparence."
+      "def": "Le rapport entre des travaux humains apparaît comme un rapport entre des choses. Ce n'est pas une illusion d'optique : la forme marchandise produit réellement cette apparence.",
+      "page": {
+        "chapo": "Le fétichisme n'est pas une erreur des hommes sur le monde : c'est la forme que le monde marchand prend réellement à leurs yeux. Un rapport social entre des personnes y apparaît comme un rapport entre des choses.",
+        "corps": [
+          "La section se trouve à la fin du chapitre premier, et c'est la plus célèbre du livre. Marx vient d'établir que la valeur d'une marchandise est du temps de travail social&nbsp;; il s'arrête alors sur une bizarrerie. Une table de bois n'a rien de mystérieux tant qu'on la regarde comme une table&nbsp;: son utilité se voit, et le travail du menuisier aussi. Le mystère ne commence ni avec la matière ni avec le travail — <b>il commence avec la forme marchandise</b>, et avec elle seulement.",
+          "D'où vient-il&nbsp;? De ce que les producteurs travaillent <b>séparément</b>, chacun pour son compte, sans se concerter. Leurs travaux ne deviennent sociaux qu'après coup, quand les produits s'échangent. Les hommes n'entrent donc pas directement en rapport les uns avec les autres&nbsp;: ce sont leurs produits qui le font à leur place. Le caractère social de leur travail leur revient alors comme une <i>propriété des choses</i> — la valeur — au lieu de leur apparaître comme ce qu'il est, un rapport entre eux.",
+          "Le point décisif, et le plus souvent manqué&nbsp;: <b>ce n'est pas une illusion qu'une explication dissiperait</b>. Marx note que la découverte scientifique de la valeur n'a rien changé à l'apparence, et ne pouvait rien y changer. Tant que la production reste marchande, les prix continuent de nous faire face comme des qualités des choses, exactement comme le soleil continue de se lever pour qui sait pourtant que la Terre tourne. L'apparence est produite par la forme&nbsp;; elle tombera avec elle.",
+          "C'est pourquoi Marx termine par quatre <i>contre-mondes</i>&nbsp;: Robinson dans son île, la corvée du moyen âge, l'économie familiale paysanne, et une association d'hommes libres. Dans aucun le rapport social n'a besoin d'être déchiffré — il se voit. En les mettant côte à côte, Marx montre que le fétichisme n'est pas une infirmité de l'esprit humain mais le trait d'une époque, et qu'il a une date de naissance."
+        ],
+        "voisins": [
+          "Travaux privés",
+          "Valeur d’usage vs valeur",
+          "Le hiéroglyphe social",
+          "Les contre-mondes",
+          "Lever le voile",
+          "Forme relative"
+        ],
+        "ou": "Livre I, chapitre premier — la quatrième et dernière section, sur le caractère fétiche de la marchandise."
+      }
     },
     "Armée de réserve": {
       "de": "industrielle Reservearmee",
       "def": "La population ouvrière rendue superflue par l'accumulation elle-même. Elle n'est pas un accident du marché : le capital la produit, et s'en sert pour peser sur les salaires."
+    },
+    "Travail aliéné": {
+      "page": {
+        "chapo": "Le travail aliéné est le travail qui, sous la propriété privée, se retourne contre celui qui l'accomplit : plus l'ouvrier produit, plus le monde qui lui fait face est puissant, et plus il est pauvre lui-même.",
+        "ou": "Manuscrits de 1844, premier manuscrit — écrits à vingt-six ans, publiés en 1932 seulement.",
+        "corps": [
+          "Marx écrit ces pages à Paris, à vingt-six ans, et elles resteront inconnues quatre-vingt-huit ans. Sa méthode y est frappante&nbsp;: il part des <b>prémisses de l'économie politique elle-même</b> — la propriété privée, la séparation du travail et du capital, la concurrence — et montre qu'elles conduisent à un résultat qu'elle énonce sans le comprendre. L'ouvrier devient d'autant plus pauvre qu'il produit plus de richesse.",
+          "L'aliénation prend quatre figures emboîtées. D'abord dans le <b>produit</b>&nbsp;: le travail se fixe dans un objet, et cet objet lui fait face comme une puissance étrangère. Ensuite dans <b>l'acte</b> même de travailler, qui ne lui appartient pas&nbsp;: il ne s'y affirme pas, il s'y nie, et ne se sent chez lui que lorsqu'il ne travaille pas. Puis dans son <b>être générique</b> — ce qui devrait le distinguer, produire librement et universellement, devient un simple moyen de subsister. Enfin dans le rapport aux <b>autres hommes</b>, car ce qui est arraché à l'un revient nécessairement à un autre.",
+          "Vient alors le renversement qui fait la force du texte. L'économie politique pose la propriété privée comme un fait premier et n'en rend jamais compte. Marx montre qu'elle est le <b>produit</b> du travail aliéné avant d'en devenir la cause&nbsp;: le rapport s'inverse ensuite et devient réciproque, comme entre les dieux et l'égarement religieux — les dieux n'en sont pas l'origine, ils en sont l'effet, puis ils l'entretiennent.",
+          "Vingt-trois ans séparent ces pages du <i>Capital</i>, et le terrain change. Marx n'y raisonnera plus sur l'homme et son essence mais sur des rapports sociaux&nbsp;; la plus-value, grandeur mesurable, y remplacera l'aliénation comme concept central. Lire les deux textes permet de suivre ce déplacement au lieu d'avoir à trancher entre deux Marx."
+        ],
+        "voisins": [
+          "Objectivation",
+          "Être générique",
+          "Propriété privée",
+          "Communisme",
+          "Plus-value"
+        ]
+      }
     }
-  }
+  },
+  "_page": "Le champ « page » ouvre une PAGE à la notion (/glossaire/<slug>). On ne l'écrit que lorsqu'on a quatre cents mots à dire, pas vingt-sept : en dessous, une page par terme serait du contenu mince — c'est la raison même pour laquelle l'abécédaire est resté une seule page. Les notions sans « page » restent des entrées de l'abécédaire, et c'est très bien."
 }
