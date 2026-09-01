@@ -4275,6 +4275,66 @@ production.
 - Le jeu **tutoie** quand tout le site vouvoie (voir la mission précédente) :
   toujours vrai, toujours une passe éditoriale du dépôt du jeu.
 
+## Ce qui n'a rien à faire dans l'index (`_headers`, sept. 2026)
+
+Question du propriétaire : « qu'est-ce que j'ai d'autre à indexer ? ».
+L'inventaire a répondu l'inverse — rien ne manquait au sitemap, mais **cinq
+pages traînaient dans l'index sans qu'on l'ait voulu**.
+
+`oeuvres/manuscrits-1844/textes/*.html` : les cinq fragments que la liseuse
+des Manuscrits charge en local. Ce sont des `<article>` NUS — pas de `<html>`,
+pas de `<head>`, pas de titre, pas de style — et ils répondent **200 en
+production**, avec **59 000 mots** de texte. Indexés, ils font des pages
+orphelines qui doublonnent `/oeuvres/manuscrits-1844` et lui font
+concurrence. Et ils sont **découvrables** : `manifest.json` est servi
+publiquement et cite leurs chemins seize fois.
+
+Capital n'a pas ce problème — son texte vient de Wikisource à l'exécution,
+et ses fichiers locaux ont été supprimés par `retrait-textes-abreges`.
+
+**Le remède est un `_headers`**, fichier frère de `_redirects` à la racine :
+`X-Robots-Tag: noindex` sur les fragments et sur les fichiers de données
+(`bibliotheque.json` EST le registre, déjà pré-rendu dans la page — l'indexer
+serait se doublonner). Deux règles de fabrication :
+
+- **`X-Robots-Tag` et non `robots.txt`.** Un `Disallow` empêche de CRAWLER,
+  pas d'INDEXER : une URL bloquée peut être indexée sans jamais être lue.
+  L'en-tête dit « n'indexe pas », ce qui est la demande réelle.
+- **Chemins exacts ou joker FINAL.** Un `/oeuvres/*` attraperait les pages
+  elles-mêmes. L'en-tête n'a aucun effet sur les `fetch()` de la liseuse,
+  qui ne regardent pas les en-têtes de réponse.
+
+**Le principe général, à retenir** : une URL qui répond 200 est indexable par
+défaut. Tout ce que le site sert pour SON PROPRE fonctionnement doit le dire.
+Avant d'ajouter une page au sitemap, se demander d'abord ce qui y est déjà
+sans avoir été invité.
+
+### ⚠️ « Palmier · domaine public » est très probablement FAUX
+
+Relevé en faisant cet inventaire, et **non corrigé** : c'est un arbitrage
+éditorial et juridique du propriétaire, pas une décision technique.
+
+`oeuvres/manuscrits-1844.html` affiche « Palmier · domaine public ». Or la
+traduction est de **Jean-Michel Palmier, mort en 1998** : en France, une
+traduction est une œuvre protégée pour la vie du traducteur plus soixante-dix
+ans, soit **jusqu'en 2068**. L'original de 1844 est dans le domaine public,
+la traduction ne l'est pas du fait de l'original.
+
+La mission `seo-urls-reelles` avait déjà refusé d'écrire un `license:` dans
+le `Book` des Manuscrits pour cette raison exacte — « on l'omet plutôt que de
+l'écrire sans pouvoir l'établir » — mais **la mention reste VISIBLE dans la
+page**, ce qui est plus engageant qu'un JSON-LD.
+
+Deux conséquences, dans cet ordre :
+1. la mention affichée est à revoir (« traduction J.-M. Palmier, Marxists
+   Internet Archive » sans revendication de domaine public) ;
+2. le `noindex` des fragments a donc aussi une vertu juridique — 59 000 mots
+   d'une traduction sous droits ne demandaient pas à être offerts au moteur.
+
+Et c'est l'argument décisif contre l'idée, séduisante, de **faire des
+fragments de vraies pages indexables** : ce serait publier plus largement un
+texte dont on ne peut pas établir les droits.
+
 ## Conventions de travail
 
 - **Une mission par session.** Une demande utilisateur = un objectif clair,

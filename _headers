@@ -1,0 +1,38 @@
+# En-têtes servis par Cloudflare Pages. Fichier frère de `_redirects`, à la
+# racine de la sortie de build (ici : la racine du dépôt, le site étant
+# statique et sans build).
+#
+# CE QUI N'A RIEN À FAIRE DANS UN RÉSULTAT DE RECHERCHE.
+# Le principe : une URL qui répond 200 est indexable par défaut. Tout ce que
+# le site sert pour SON PROPRE fonctionnement — fragments de texte, fichiers
+# de données — doit le dire, sinon il finit en page orpheline dans l'index.
+#
+# `X-Robots-Tag` et non `robots.txt` : un `Disallow` empêche de CRAWLER, pas
+# d'INDEXER — une URL bloquée peut être indexée sans être lue. L'en-tête, lui,
+# dit « n'indexe pas ». Il n'a par ailleurs aucun effet sur les `fetch()` de
+# la liseuse, qui ne regardent pas les en-têtes de réponse.
+#
+# Les chemins sont EXACTS ou à joker final. Pas de joker au milieu : un
+# `/oeuvres/*` attraperait les pages elles-mêmes.
+
+# Les cinq fragments de texte des Manuscrits — 59 000 mots servis en 200,
+# sans <head>, sans titre, sans style : la liseuse les injecte, ils ne sont
+# pas des pages. Indexés, ils feraient des pages orphelines qui doublonnent
+# /oeuvres/manuscrits-1844 et lui feraient concurrence.
+# Ils sont DÉCOUVRABLES : manifest.json est public et cite leurs chemins.
+/oeuvres/manuscrits-1844/textes/*
+  X-Robots-Tag: noindex
+
+# Les fichiers de données. Leur contenu est déjà rendu dans les pages —
+# bibliotheque.json EST le registre de la bibliothèque, pré-rendu depuis la
+# mission seo-registre-servi. L'indexer, c'est se doublonner soi-même.
+/oeuvres/bibliotheque.json
+  X-Robots-Tag: noindex
+/oeuvres/capital-1/manifest.json
+  X-Robots-Tag: noindex
+/oeuvres/manuscrits-1844/manifest.json
+  X-Robots-Tag: noindex
+/assets/chariot.json
+  X-Robots-Tag: noindex
+/jeu/build.json
+  X-Robots-Tag: noindex
