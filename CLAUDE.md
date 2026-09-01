@@ -3241,6 +3241,74 @@ pour mot au visible. Et Google ne montre plus de résultat enrichi FAQ depuis
 août 2023 hors sites gouvernementaux et de santé : ce balisage sert la
 **lecture machine**, pas un snippet — ne rien promettre d'autre.
 
+## Le registre de la bibliothèque est SERVI (mission `seo-registre-servi`, sept. 2026)
+
+**Le défaut, mesuré :** `oeuvres/bibliotheque.html` servait **49 mots** et
+**pas un seul titre d'œuvre**. Son registre à plat (`#bxFlat`) — celui que
+ce fichier décrivait comme « la version des lecteurs d'écran et des
+robots » — était en fait **peuplé par JS** (`elFlGroups.innerHTML` depuis
+`bibliotheque.json`). « Le Capital », « Grundrisse », « L'Idéologie
+allemande » n'existaient nulle part dans le HTML servi.
+
+Nuance à garder : **Google exécute le JS** et finissait par le voir. Les
+crawlers des moteurs de réponse (GPTBot, ClaudeBot, PerplexityBot), non —
+ils lisent le HTML brut. C'était donc d'abord un défaut **GEO**.
+
+`tools/gen-seo.mjs` pré-rend désormais le registre : **49 → 1 117 mots**,
+les douze œuvres, leurs descriptions, concepts, relations et guides.
+
+### La règle qui tient tout : les deux rendus doivent être IDENTIQUES
+
+Le pré-rendu et `renderFlat()` produisent le même balisage, et le JS
+réécrit par-dessus. **Vérifié à la mesure : 12 791 caractères de part et
+d'autre, zéro divergence.** C'est le prix d'un rendu à deux endroits —
+`flatRegister()` dans le script et `renderFlat()` dans la page doivent
+bouger ENSEMBLE. Le test d'identité (comparer `#flGroups.innerHTML` au HTML
+servi) est à rejouer après toute retouche de l'un des deux.
+
+**Aucun changement visuel** : `.js-bib3d #bxFlat{display:none}` masque le
+registre dès que la scène 3D démarre — vérifié, `display:none` et
+`getClientRects()` vide en mode scène, registre complet en `#liste`.
+
+### Deux pièges rencontrés
+
+1. **L'échec du `fetch` effaçait le pré-rendu.** Le `.catch` remplaçait
+   `#flGroups` par « La bibliothèque n'a pas pu être chargée » — ce qui,
+   avec un registre déjà servi dans le HTML, aurait détruit du bon contenu
+   pour le remplacer par un message d'erreur. Il est maintenant gardé par
+   `data-prerendu` : si le registre est là, on le garde et l'on se contente
+   du `console.warn`.
+2. **Un garde d'idempotence qui teste le CHANGEMENT au lieu du POINT
+   D'INSERTION lève une erreur quand tout va bien.** `if (next === src)
+   throw` semblait dire « je n'ai rien trouvé à remplacer » ; il disait en
+   fait « le dépôt est déjà à jour ». On teste le point d'insertion
+   (`re.test(src)`), jamais le résultat.
+
+### Les liens internes ne passent plus par une redirection
+
+Même défaut que les canoniques de la mission précédente, sur les liens :
+`path` de `bibliotheque.json` garde son `.html` (c'est le contrat de la
+donnée, on n'y touche pas), mais **les trois endroits qui en font une URL
+le retirent** — `href()` de la bibliothèque, `localPath()` de `home.js`
+(les cartes du catalogue de l'accueil), et `hrefOf()` de `gen-seo.mjs`.
+Plus les quatre liens en dur de `index.html`. **Zéro lien interne en
+`.html` dans le HTML du site.**
+
+**Reste à faire, volontairement hors périmètre :** `shell.js` navigue
+encore vers des `.html` (~9 occurrences — sidebar, popovers). Ça ne coûte
+rien au référencement (un crawler ne clique pas un bouton JS) mais impose
+un aller-retour 308 à chaque clic de sidebar. Le correctif est d'une ligne ;
+c'est la **revérification des six pages** qu'impose toute retouche du shell
+qui a fait remettre ça à une mission dédiée.
+
+### Le `noindex` du carnet et de la messagerie existait déjà
+
+Posé par la mission `messages-page` (commit 8391ffa). Rien à faire — noté
+ici pour ne pas le « redécouvrir » une troisième fois. Leur canonique
+coexiste avec le `noindex` : c'est redondant (une canonique dit « indexe
+cette URL-ci », le noindex dit « n'indexe pas ») mais sans conséquence
+pratique, et ça garde l'URL propre si le `noindex` tombait un jour.
+
 ## Conventions de travail
 
 - **Une mission par session.** Une demande utilisateur = un objectif clair,

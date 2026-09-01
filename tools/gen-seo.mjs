@@ -167,6 +167,106 @@ for (const w of available) {
   writeIfNeeded(file, src.replace(re, () => block), file);
 }
 
+/* ------------------- Le registre de la bibliothèque -------------------- *
+ * oeuvres/bibliotheque.html sert 49 mots et pas un titre d'œuvre : son
+ * registre à plat (#bxFlat) — celui que CLAUDE.md décrit comme « la version
+ * des lecteurs d'écran et des robots » — est en réalité peuplé par JS.
+ * Google exécute le JS et finit par le voir ; les crawlers des moteurs de
+ * réponse, non. On pré-rend donc le MÊME balisage que renderFlat(), que le
+ * JS réécrira à l'identique. Toute modification de renderFlat() doit être
+ * répercutée ici, et inversement — c'est le prix d'un rendu à deux endroits,
+ * et la raison du test d'identité dans la mission.
+ * ---------------------------------------------------------------------- */
+const esc = v => String(v == null ? '' : v)
+  .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+  .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+/* href() de la page, après retrait de l'extension : Cloudflare sert des URL
+ * propres, un lien interne en .html part en 308 pour rien. */
+const hrefOf = w => {
+  const p = String(w.path || '').replace(/\.html$/, '');
+  return p && p[0] !== '/' ? '/' + p : p;
+};
+
+function flatRegister(biblio) {
+  const works = (biblio.works || []).filter(w => w && w.id);
+  const groups = biblio.readingGroups || [];
+  const byId = Object.fromEntries(works.map(w => [w.id, w]));
+  const titleOf = id => (byId[id] ? byId[id].title : id);
+  const rd = w => w.reading || {};
+  const isOk = w => w.status === 'available';
+
+  const relLine = w => {
+    const r = rd(w), parts = [];
+    const dot = ids => ids.map(titleOf).join(' · ');
+    if (r.after && r.after.length)   parts.push('<b>À lire après</b> ' + esc(dot(r.after)));
+    if (r.primer && r.primer.length) parts.push('<b>Préparé par</b> ' + esc(dot(r.primer)));
+    return parts.length ? '<p class="fl-rel">' + parts.join('<br>') + '</p>' : '';
+  };
+
+  const count = '<b>' + works.length + '</b> œuvres · <b>' +
+                works.filter(isOk).length + '</b> lisibles aujourd\'hui';
+
+  const html = groups.map(gr => {
+    const list = works.filter(w => rd(w).group === gr.id)
+                      .sort((a, b) => a.year - b.year);
+    if (!list.length) return '';
+    return '<section class="fl-group">' +
+      '<h2 class="fl-gh">' + esc(gr.label) + '</h2>' +
+      '<p class="fl-gn">' + esc(gr.note) + '</p>' +
+      '<div class="fl-list">' + list.map(w => {
+        const ok = isOk(w);
+        return '<article class="fl-work">' +
+          '<span class="fl-y">' + esc(w.year) + '</span>' +
+          '<div class="fl-col">' +
+            '<div class="fl-head">' +
+              '<h3 class="fl-t">' + esc(w.title) + '</h3>' +
+              '<span class="fl-status ' + (ok ? 'ok">Disponible' : 'soon">En préparation') + '</span>' +
+            '</div>' +
+            (rd(w).entry && ok
+              ? '<p class="fl-entry">Porte d\'entrée — ' + esc(rd(w).entry) + '</p>' : '') +
+            '<p class="fl-d">' + esc(w.description) + '</p>' +
+            '<div class="fl-cx">' + (w.concepts || []).map(c => '<span>' + esc(c) + '</span>').join('') + '</div>' +
+            relLine(w) +
+            '<details class="fl-more"><summary>Comment le lire</summary>' +
+              '<div class="fl-more-in">' +
+                '<p class="fl-guide">' + esc(w.readingGuide) + '</p>' +
+                '<p class="fl-source"><b>D\'où vient le texte —</b> ' + esc(w.sourceNote) + '</p>' +
+              '</div>' +
+            '</details>' +
+            (ok ? '<a class="fl-open" href="' + esc(hrefOf(w)) + '">Ouvrir l\'atelier →</a>' : '') +
+          '</div>' +
+        '</article>';
+      }).join('') + '</div>' +
+    '</section>';
+  }).join('');
+
+  return { count, html };
+}
+
+{
+  const file = 'oeuvres/bibliotheque.html';
+  const src = readFileSync(file, 'utf8');
+  const { count, html } = flatRegister(biblio);
+
+  const note = '<!-- DÉRIVÉ de oeuvres/bibliotheque.json par tools/gen-seo.mjs — même\n' +
+               '     balisage que renderFlat() plus bas, que le JS réécrit à l\'identique.\n' +
+               '     Ne pas éditer à la main : node tools/gen-seo.mjs -->';
+
+  const reCount  = /<div class="fl-count" id="flCount">[^]*?<\/div>/;
+  const reGroups = /<div id="flGroups"[^>]*>[^]*?<\/div>\s*<\/main>/;
+  // On teste le POINT D'INSERTION, pas le changement : quand le dépôt est
+  // déjà à jour, le remplacement est un no-op légitime.
+  for (const [re, what] of [[reCount, '#flCount'], [reGroups, '#flGroups']]) {
+    if (!re.test(src)) throw new Error(`registre : ${what} introuvable dans ${file}`);
+  }
+
+  const next = src
+    .replace(reCount,  () => `<div class="fl-count" id="flCount">${count}</div>`)
+    .replace(reGroups, () => `<div id="flGroups" data-prerendu>\n${note}\n${html}\n</div>\n</main>`);
+  writeIfNeeded(file, next, file + ' (registre)');
+}
+
 /* --------------------------- sitemap --------------------------- */
 const entries = [
   ...SITE_PAGES.map(p => ({ ...p, loc: ORIGIN + p.url })),
@@ -199,7 +299,8 @@ if (check) {
     console.error('PÉRIMÉ : ' + stale.join(', '));
     process.exit(1);
   }
-  console.log('À jour : ' + [...available.map(w => w.path), 'sitemap.xml'].join(', '));
+  console.log('À jour : ' + [...available.map(w => w.path),
+    'oeuvres/bibliotheque.html (registre)', 'sitemap.xml'].join(', '));
 } else {
   console.log(changed.length ? 'Récrit : ' + changed.join(', ') : 'Rien à faire.');
 }
