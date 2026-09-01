@@ -368,7 +368,7 @@
     "Travail aliéné": {
       "page": {
         "chapo": "Le travail aliéné est le travail qui, sous la propriété privée, se retourne contre celui qui l'accomplit : plus l'ouvrier produit, plus le monde qui lui fait face est puissant, et plus il est pauvre lui-même.",
-        "ou": "Manuscrits de 1844, premier manuscrit — écrits à vingt-six ans, publiés en 1932 seulement.",
+        "ou": "Manuscrits de 1844, premier manuscrit — « Le travail aliéné », écrit à vingt-six ans et publié en 1932 seulement.",
         "corps": [
           "Marx écrit ces pages à Paris, à vingt-six ans, et elles resteront inconnues quatre-vingt-huit ans. Sa méthode y est frappante&nbsp;: il part des <b>prémisses de l'économie politique elle-même</b> — la propriété privée, la séparation du travail et du capital, la concurrence — et montre qu'elles conduisent à un résultat qu'elle énonce sans le comprendre. L'ouvrier devient d'autant plus pauvre qu'il produit plus de richesse.",
           "L'aliénation prend quatre figures emboîtées. D'abord dans le <b>produit</b>&nbsp;: le travail se fixe dans un objet, et cet objet lui fait face comme une puissance étrangère. Ensuite dans <b>l'acte</b> même de travailler, qui ne lui appartient pas&nbsp;: il ne s'y affirme pas, il s'y nie, et ne se sent chez lui que lorsqu'il ne travaille pas. Puis dans son <b>être générique</b> — ce qui devrait le distinguer, produire librement et universellement, devient un simple moyen de subsister. Enfin dans le rapport aux <b>autres hommes</b>, car ce qui est arraché à l'un revient nécessairement à un autre.",
@@ -381,6 +381,114 @@
           "Propriété privée",
           "Communisme",
           "Plus-value"
+        ]
+      }
+    },
+    "Objectivation": {
+      "page": {
+        "ou": "Manuscrits de 1844, premier manuscrit — « Le travail aliéné ».",
+        "chapo": "L'objectivation est le fait que le travail se réalise en se fixant dans un objet. C'est l'acte humain par excellence — et c'est lui qui, sous la propriété privée, se retourne en dépossession.",
+        "corps": [
+          "Il faut commencer par la distinction que Marx pose et que beaucoup de lectures effacent&nbsp;: <b>l'objectivation n'est pas l'aliénation</b>. Se réaliser dans un objet, mettre sa force et son intention dans une matière qui les garde, c'est ce que fait le travail depuis toujours. Un monde d'objets fabriqués est un monde où les capacités humaines sont devenues visibles, et l'homme s'y reconnaît. Rien là qui appelle une critique.",
+          "Mais sous la propriété privée, l'objet produit ne revient pas à celui qui l'a fait. Il se dresse devant lui comme une <b>puissance étrangère</b>, et le rapport s'inverse terme à terme&nbsp;: la réalisation du travail devient sa déréalisation, l'objectivation devient perte de l'objet, et l'appropriation devient dépossession. Plus l'ouvrier produit, plus le monde qui lui fait face est riche&nbsp;; plus il produit, moins il possède.",
+          "Marx pousse le renversement jusqu'au bout&nbsp;: l'ouvrier ne peut rien créer sans la nature, qui est sa matière&nbsp;; mais à mesure qu'il s'approprie le monde extérieur par son travail, ce monde cesse de lui appartenir. Il se rend étranger d'abord ses moyens de subsistance immédiats, puis les moyens mêmes de son existence physique. L'objet le plus proche lui devient le plus lointain.",
+          "L'enjeu de la distinction est décisif pour la portée du texte. Si l'aliénation tenait à l'objectivation elle-même, tout travail serait aliénant, et la critique deviendrait un pessimisme sur la condition humaine — un homme condamné à se perdre dans ce qu'il fait. En la rapportant à une <b>forme sociale déterminée</b>, Marx la rend historique, donc datable et donc dépassable. C'est ce qui sépare son propos d'une plainte sur la finitude."
+        ],
+        "voisins": [
+          "Travail aliéné",
+          "Être générique",
+          "Propriété privée",
+          "Communisme"
+        ]
+      }
+    },
+    "Être générique": {
+      "page": {
+        "ou": "Manuscrits de 1844, premier manuscrit — « Le travail aliéné », troisième détermination de l'aliénation.",
+        "chapo": "L'être générique est l'homme en tant qu'il se rapporte à l'espèce entière et produit librement, universellement. Le travail aliéné ravale cette vie d'espèce au rang de moyen de subsister.",
+        "corps": [
+          "Marx emprunte le terme à Feuerbach et le déplace. Est <i>générique</i> l'être qui se rapporte non seulement à sa propre vie individuelle, mais à <b>l'espèce comme telle</b> — qui peut prendre la nature entière pour objet, la traiter théoriquement comme science et pratiquement comme matière de son activité. La nature devient alors, dit Marx, le corps inorganique de l'homme.",
+          "La différence avec l'animal se joue dans la production, et Marx la détaille. L'animal produit lui aussi — un nid, une ruche — mais il produit <b>unilatéralement</b>, sous l'empire du besoin physique immédiat, et seulement ce dont lui ou ses petits ont besoin. L'homme produit universellement, produit encore quand il est libre du besoin, sait produire à la mesure de n'importe quelle espèce, et sait former les choses selon les lois de la beauté.",
+          "Vient alors la troisième détermination de l'aliénation, la plus lourde. Le travail aliéné <b>renverse le rapport de la fin et du moyen</b>&nbsp;: la vie d'espèce, qui devrait être ce en quoi l'homme s'affirme, devient un simple moyen de son existence individuelle. On travaille pour subsister, quand on devrait subsister pour produire librement. L'activité qui distingue l'homme lui devient extérieure.",
+          "La quatrième détermination en découle immédiatement, et Marx le note en une phrase&nbsp;: si l'homme est étranger à son espèce, il est étranger <b>aux autres hommes</b>. Chacun considère l'autre selon la mesure dans laquelle il se trouve lui-même comme ouvrier. L'aliénation n'est donc pas un état d'âme individuel&nbsp;: c'est un rapport social, et c'est déjà la piste que <i>Le Capital</i> suivra."
+        ],
+        "voisins": [
+          "Travail aliéné",
+          "Objectivation",
+          "Besoins",
+          "Communisme"
+        ]
+      }
+    },
+    "Propriété privée": {
+      "page": {
+        "ou": "Manuscrits de 1844 — le renversement au premier manuscrit, « Le travail aliéné » ; la reprise au troisième, « Propriété privée et communisme ».",
+        "chapo": "La propriété privée n'est pas la cause du travail aliéné mais son résultat — avant de devenir, en retour, le moyen par lequel il se perpétue.",
+        "corps": [
+          "L'économie politique part de la propriété privée et ne l'explique jamais. Elle en fait un fait premier, une donnée à partir de laquelle tout se déduit. Marx compare ce geste à celui de la théologie qui explique l'origine du mal par le péché originel&nbsp;: <b>on suppose sous forme d'un fait, d'un événement, ce qu'il faudrait déduire</b>. La question qu'elle ne pose pas est celle d'où vient ce qu'elle présuppose.",
+          "La démonstration de Marx tient en une question. Si le produit du travail est arraché à l'ouvrier, à qui appartient-il&nbsp;? Pas aux dieux, pas à la nature&nbsp;: <b>à un autre homme</b>. Le rapport de l'ouvrier au travail engendre donc le rapport du non-ouvrier à ce travail et à son produit — c'est-à-dire la propriété privée. Elle est le produit, la conséquence nécessaire du travail aliéné, et non son origine.",
+          "Marx ajoute aussitôt la précision qui empêche de lire cela comme un simple renversement de causalité&nbsp;: le rapport devient ensuite <b>réciproque</b>. Il prend l'exemple des dieux, qui ne sont pas la cause de l'égarement religieux mais son effet, et qui l'entretiennent une fois posés. La propriété privée est de même le résultat du travail aliéné, puis le moyen par lequel il se reconduit.",
+          "La conséquence politique est immédiate, et Marx la tire contre les réformateurs de son temps. Réclamer une hausse des salaires, ce serait <b>mieux payer l'esclave sans abolir l'esclavage</b> — l'égalité des salaires, telle que Proudhon la voulait, ne ferait que transformer le rapport de la société actuelle en rapport du capitaliste collectif. Ce qu'il faut abolir n'est pas un niveau de revenu&nbsp;: c'est le rapport qui produit la propriété privée."
+        ],
+        "voisins": [
+          "Travail aliéné",
+          "Objectivation",
+          "Communisme",
+          "Argent"
+        ]
+      }
+    },
+    "Argent": {
+      "page": {
+        "ou": "Manuscrits de 1844, troisième manuscrit — « L'argent », où Marx convoque Goethe et Shakespeare.",
+        "chapo": "L'argent est la puissance aliénée accomplie : l'entremetteur universel qui confère à qui le détient des qualités qu'il ne possède pas. L'avoir y prend la place de l'être.",
+        "corps": [
+          "Le fragment est court et c'est l'un des plus beaux du corpus. Marx y appelle deux témoins qui ne sont pas économistes&nbsp;: le <i>Faust</i> de Goethe et le <i>Timon d'Athènes</i> de Shakespeare, dont il recopie de longs passages sur l'or. La méthode est délibérée — ce que l'économie politique décrit en termes neutres, la poésie l'avait déjà nommé, et nommé pour ce que c'est.",
+          "Ce que fait l'argent tient dans un renversement de propriétés. Qui le possède n'est ni laid, ni boiteux, ni sot&nbsp;: il achète la beauté, l'agilité, l'esprit, et il est <b>honoré comme s'il les avait</b>. L'argent est l'entremetteur universel, celui qui confie à chacun des pouvoirs qui ne sont pas les siens. Il transforme la fidélité en infidélité, l'amour en haine, la vertu en vice, et inversement.",
+          "Le point philosophique en découle. Ce que je suis et ce dont je suis capable ne sont plus déterminés par mon individualité&nbsp;: ils le sont par ce que je possède. <b>Mes forces essentielles me sont devenues extérieures</b> et me font face sous la forme d'une chose que je détiens. C'est pourquoi Marx nomme l'argent la puissance aliénée de l'humanité — non une chose neutre qui circule, mais la figure achevée de l'aliénation.",
+          "Le fragment se retourne à la fin, et c'est ce retournement qu'on cite le moins. Suppose l'homme comme homme, écrit Marx, et son rapport au monde comme un rapport humain&nbsp;: tu ne pourras plus échanger que de l'amour contre de l'amour, de la confiance contre de la confiance. Si tu aimes sans faire naître d'amour en retour, ton amour est <b>impuissant</b>, et c'est un malheur. La mesure n'est plus l'argent&nbsp;: elle est la vie même de l'individu."
+        ],
+        "voisins": [
+          "Propriété privée",
+          "Besoins",
+          "Travail aliéné",
+          "Communisme"
+        ]
+      }
+    },
+    "Besoins": {
+      "page": {
+        "ou": "Manuscrits de 1844, troisième manuscrit — « Besoins, production et division du travail ».",
+        "chapo": "Sous l'argent, le besoin cesse d'être humain : il devient un levier. Chaque produit nouveau appelle un manque nouveau, et l'industrie prospère de la dépendance qu'elle crée.",
+        "corps": [
+          "Marx commence par une remarque qui a l'air d'un paradoxe. L'économie politique se donne pour la science de la richesse&nbsp;; elle est aussi, et peut-être d'abord, <b>la science du renoncement</b>. Moins tu manges, moins tu bois, moins tu lis, moins tu penses, moins tu aimes — plus tu épargnes, et plus grandit ce trésor que ni les mites ni la rouille ne dévorent. L'ascèse y devient une catégorie économique.",
+          "Le mouvement réel, lui, est inverse et cynique. Chacun spécule sur la création d'un <b>besoin nouveau</b> chez l'autre, afin de l'obliger à un sacrifice nouveau et de le placer dans une dépendance nouvelle. L'extension des produits n'est donc pas l'enrichissement des facultés humaines&nbsp;: c'est le raffinement des moyens d'assujettissement. Chaque produit est un appât, et l'industriel se fait obséquieux pour tirer de sa proie l'argent qu'elle garde.",
+          "À cela Marx oppose le <b>besoin humain riche</b> — celui d'un homme qui a besoin de la totalité des manifestations de la vie humaine, et pour qui sa propre réalisation est une nécessité intérieure. Et il en tire l'idée la plus étonnante du texte&nbsp;: <b>les sens eux-mêmes ont une histoire</b>. L'œil devient un œil humain lorsque son objet est devenu un objet humain, social. La formation des cinq sens est l'ouvrage de toute l'histoire écoulée.",
+          "C'est ici que les <i>Manuscrits</i> sont à la fois le plus loin du <i>Capital</i> et le plus vivants. La critique n'y vise pas seulement la misère mais une <b>richesse qui produit ses propres misères</b>&nbsp;: l'homme accablé de marchandises et privé de sens pour en jouir. Vingt-trois ans plus tard, Marx ne raisonnera plus ainsi — mais la question qu'il pose là n'a pas été reprise par sa propre économie."
+        ],
+        "voisins": [
+          "Argent",
+          "Être générique",
+          "Communisme",
+          "Travail aliéné"
+        ]
+      }
+    },
+    "Communisme": {
+      "page": {
+        "ou": "Manuscrits de 1844, troisième manuscrit — « Propriété privée et communisme ».",
+        "chapo": "Le communisme des Manuscrits n'est pas un partage des biens : c'est l'abolition positive de la propriété privée, donc la réappropriation par l'homme de ses forces essentielles.",
+        "corps": [
+          "Marx commence par <b>écarter</b> ce qui portait ce nom autour de lui. Le communisme grossier veut généraliser la propriété privée au lieu de l'abolir&nbsp;: il fait de la communauté un capitaliste collectif, nivelle par le bas, et son ressort n'est pas la générosité mais l'envie — l'envie qui, ne pouvant s'élever, veut abaisser ce qu'elle ne possède pas. Marx y voit l'accomplissement de l'envie, non son dépassement.",
+          "Une seconde forme reste politique, démocratique ou despotique, et cherche l'abolition de l'État&nbsp;: elle est déjà plus avancée, mais elle demeure <b>sous l'emprise de la propriété privée</b>, qu'elle combat sans en avoir saisi la nature. Ces deux figures ont en commun de raisonner encore dans les termes de ce qu'elles veulent supprimer.",
+          "Le communisme au sens de Marx est autre chose&nbsp;: l'abolition <b>positive</b> de la propriété privée en tant qu'aliénation de soi de l'homme, donc l'appropriation réelle de l'essence humaine par l'homme et pour l'homme. Non un retour à la pauvreté simple, mais le retour de l'homme à lui-même comme être social, <b>en conservant toute la richesse du développement antérieur</b>. C'est un mouvement de reprise, pas de renoncement.",
+          "Reste la réserve, presque toujours omise dans les citations. Après avoir écrit que ce communisme est l'énigme résolue de l'histoire et qu'il se sait tel, Marx ajoute qu'il <b>n'est pas le but du développement humain</b>, ni la forme de la société humaine — mais la forme nécessaire et le principe énergique du proche avenir. Le communisme est une étape, pas une fin&nbsp;; l'oublier, c'est en faire l'utopie qu'il refusait d'être."
+        ],
+        "voisins": [
+          "Propriété privée",
+          "Travail aliéné",
+          "Être générique",
+          "Besoins"
         ]
       }
     }

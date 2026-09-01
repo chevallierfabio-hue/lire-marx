@@ -4548,14 +4548,57 @@ constat, un tiret cadratin. Testé à 1280 et 375 px, zéro débordement, une
 colonne. Les six notices de source relues une par une. Sitemap à **13 URL**,
 sidebar marquée sur les notions comme sur l'index.
 
+### Les Manuscrits rejoignent les pages de notion (sept. 2026)
+
+Six pages de plus — **objectivation, être générique, propriété privée,
+argent, besoins, communisme** — qui donnent aux *Manuscrits de 1844* la même
+présence que le *Capital* dans le glossaire. **Douze pages de notion**, six
+par œuvre, et les sept notions des Manuscrits en ont désormais toutes une.
+
+Elles se tiennent entre elles&nbsp;: les voisines d'« Argent » pointent
+toutes vers de vraies pages, ce qui n'était pas le cas quand une seule
+notion des Manuscrits en avait une. Un réseau, plus une liste.
+
+**Les notices de source nomment la PARTIE**, et les intitulés viennent de
+`MAN_STRUCT`, jamais inventés — « Le travail aliéné » au premier manuscrit,
+« Propriété privée et communisme », « L'argent », « Besoins, production et
+division du travail » au troisième. La notice du travail aliéné a été
+reprise pour nommer sa partie comme les autres.
+
+**Ce qui ne pouvait pas être dérivé, et pourquoi.** Les notions des
+Manuscrits sortent toutes de `instr-carte`, qui n'est rattaché à aucun
+chapitre&nbsp;: la déduction n'aurait donné que le repli muet. Les six
+notices sont donc écrites à la main dans le lexique — c'est exactement le
+cas que le champ `ou` existe pour couvrir.
+
+**Une entrée du lexique peut n'exister que pour son `page`.** Les sept
+notions des Manuscrits n'y ont ni `def` ni `de` (leurs fiches les portent
+déjà), mais elles y ont leur développement. Le contrôle des orphelines le
+permet, puisqu'il compare des IDENTITÉS et non des clés du seul Capital.
+
+**Sur les citations**&nbsp;: ces pages paraphrasent Goethe, Shakespeare, la
+science du renoncement, l'énigme résolue de l'histoire — sans jamais mettre
+de guillemets. C'est délibéré et cela reste la règle&nbsp;: **on ne cite pas
+de mémoire une traduction qu'on ne peut pas vérifier dans le dépôt.** Une
+paraphrase attribuée est honnête, une citation approximative ne l'est pas.
+
+**Vérifié** : `--check` idempotent, 0 échec de contraste et aucune cible
+trop petite sur les pages neuves, **détecteur à 0 constat sur les pages de
+notion elles-mêmes** (les cinq restants sont sur l'index), les douze URL en
+200, sitemap à 19 URL, sidebar marquée, zéro débordement.
+
 ### Ce qui reste
 
-- Soixante-neuf notions n'ont pas de page, **et c'est le bon état**. La
+- Soixante-trois notions n'ont pas de page, **et c'est le bon état**. La
   suivante s'écrit en ajoutant un `page` au lexique — le générateur fait le
   reste, sitemap et lien depuis l'abécédaire compris.
-- Aucune citation de Marx n'est reproduite dans ces pages, volontairement :
-  je ne cite pas de mémoire une traduction que je ne peux pas vérifier dans
-  le dépôt. Les ajouter demanderait de les relever dans le texte servi.
+- **Aucune citation de Marx n'est reproduite**, volontairement : voir
+  ci-dessus. Les ajouter demanderait de les relever dans le texte servi par
+  la liseuse, ce qui est faisable et serait un vrai gain.
+- ⚠️ La mention **« Palmier · domaine public »** des Manuscrits reste
+  affichée et reste très probablement fausse (voir la mission `_headers`).
+  Ces six pages neuves parlent des Manuscrits sans en reproduire une ligne,
+  donc rien n'y aggrave le problème — mais il est toujours là.
 
 ### Ce qui reste
 
