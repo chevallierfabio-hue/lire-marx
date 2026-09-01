@@ -27,7 +27,11 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:radial-gradient(ellipse at 50% 46%,#1a1410 0%,#0d0b0a 60%,#070605 100%);
-  color:#efe6d6;font-family:'Bricolage Grotesque',system-ui,sans-serif;}
+  color:#efe6d6;
+  /* Inter est la police d'interface du site ; ce body gardait 'Bricolage
+     Grotesque', vestige de l'intro cinématique retirée — 75 Ko de woff2
+     téléchargés pour du texte qu'aucun élément visible n'affichait. */
+  font-family:'Inter',system-ui,sans-serif;}
 body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:45;opacity:.04;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
 </style>
@@ -1474,7 +1478,9 @@ html.no-motion header.topbar,html.no-motion header.topbar .topbar-in{transition:
 
 <!-- three.js : plus pour l'intro (partie au carnet) mais pour les décors
      WebGL de home.js — la liasse du héros et le chariot du circuit. -->
-<script src="vendor/three.min.js" defer></script>
+<!-- vendor/three.min.js n'est plus chargé ici : assets/home.js l'injecte
+     lui-même, et seulement si le décor WebGL va réellement tourner (ni
+     reduced-motion, ni < 768 px). Voir withThree(). -->
 
 <!-- Mouvement de l'accueil (révélations, marquee, fond WebGL) -->
 <script src="assets/home.js" defer></script>

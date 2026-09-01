@@ -3357,6 +3357,74 @@ mais un réglage du projet Cloudflare Pages (routage « single-page
 application », qui rabat tout sur `index.html`). Cela se règle au tableau
 de bord, pas dans le dépôt.
 
+## Le poids de l'accueil (mission `perf-poids-accueil`, sept. 2026)
+
+Mesuré en production : **767 Ko, 32 requêtes**, DOM prêt à 506 ms. Rien
+d'alarmant, mais **deux gaspillages nets, ~29 % du poids**.
+
+**Avant de chercher un « score » : Lighthouse n'en a pas qui compte.** Son
+score SEO est une liste de vérifications (title, meta description, liens
+explorables), **pas un facteur de classement**. Les Core Web Vitals, eux,
+en sont un — mais **modeste**, et Google les lit dans les **données de
+terrain** (vrais visiteurs) : sans trafic, il n'y en a aucune. Ne pas
+courir après le chiffre de laboratoire.
+
+### 1. `Bricolage Grotesque` — 75 Ko pour personne
+
+Le plus gros fichier de police du site. Cause : `body{font-family:
+'Bricolage Grotesque'…}` dans le `<style>` de tête de `index.html`, **vestige
+de l'intro cinématique retirée** (voir « Accueil animé »). CLAUDE.md dit
+pourtant depuis le socle sombre qu'**Inter a remplacé Bricolage** comme
+police d'interface : c'était la déclaration `body` qui n'avait pas suivi.
+
+Vérifié élément par élément avant de toucher : **24 éléments y résolvaient,
+aucun visible** — pour l'essentiel le contenu de la modale RGPD. Le `body`
+est passé à Inter.
+
+**Changement visible assumé** : la modale RGPD et la modale Confidentialité
+s'affichent désormais en Inter. C'est le comportement VOULU — le vestige
+était le bug. Vérifié après coup : `#privacyModal` rend en Inter, le
+brandmark reste en Fraunces.
+
+### 2. Three.js ne se télécharge plus quand il ne sert pas
+
+`vendor/three.min.js` (148 Ko transférés) était dans le `<head>` en `defer`,
+donc chargé **même sur mobile** — là précisément où les Core Web Vitals se
+mesurent — alors que le décor WebGL est coupé sous 768 px et sous
+`prefers-reduced-motion`.
+
+La balise a quitté `index.html`. `assets/home.js` porte maintenant
+**`withThree(fn)`** : il injecte le script une seule fois, et seulement si
+les conditions du décor sont réunies.
+
+**La règle qui rend ça sûr : on appelle TOUJOURS le consommateur**,
+chargement ou pas. `heroBg()` et `circuitChariot()` gardent leur
+`typeof THREE === 'undefined'` d'origine — si le script n'est pas là, ils se
+taisent, exactement comme avant. Aucune de leurs entrailles n'a été touchée ;
+seuls les deux points d'appel sont enveloppés (`withThree(heroBg)` dans
+`init()`, `withThree(circuitChariot)` dans `circuitScrub()`).
+
+`circuitScrub()` sort déjà tôt (`stat()`) sous reduced-motion, sous 768 px
+et sur viewport court : le chariot n'est donc jamais atteint dans ces cas,
+et le script encore moins.
+
+**Piège de l'état à trois valeurs.** Un simple drapeau « en cours » ne suffit
+pas : après le chargement, une file vidée mais non nulle ferait attendre
+indéfiniment tout appelant suivant. D'où `threeState` à **0 / 1 / 2** (pas
+commencé / en cours / fini) et non un booléen.
+
+### Vérifié
+
+À **1280 px** : Three.js chargé, `#hero-bg` et `#circuit-bg` dimensionnés
+(donc `resize()` a tourné, le décor s'est bien initialisé), contexte WebGL
+présent. À **375 px** : **zéro requête** Three.js, page complète, catalogue
+rendu. Zéro requête Bricolage dans les deux cas, console sans erreur,
+`detect.mjs` **28 constats / 0 erreur** — la base inchangée.
+
+**Ce que je n'ai PAS touché, volontairement** : les autres polices servent
+réellement, l'image du héros est déjà en WebP à 143 Ko, et le HTML est bien
+compressé (93 Ko → 28 Ko transférés). Il n'y a pas d'autre gain facile ici.
+
 ## Conventions de travail
 
 - **Une mission par session.** Une demande utilisateur = un objectif clair,
