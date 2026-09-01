@@ -1567,6 +1567,14 @@ y aurait été inventé.
 - **Le renvoi « Cheminement → » de la barre de lecture a été retiré** : la
   marge porte « Où l'on en est », qui mène à la même marche et la nomme ;
   le bouton coûtait une rangée à une barre qui en tient déjà quatre.
+- **La barre des deux destinations est le SÉLECTEUR SEGMENTÉ de Capital**,
+  aux mêmes valeurs (44 px de haut, pilules à 999 px, `7px 17px`, l'actif
+  sur le dégradé chaud à filet or). Les Manuscrits gardaient le filet de
+  2 px sous l'onglet actif : il était fait pour neuf onglets, à deux il
+  laissait deux mots nus dans le vide. Ces règles vivent dans le `<style>`
+  de CHAQUE page et non dans atelier.css — à spécificité égale (0,3,1
+  pour `nav.tabs.worktabs .tab`), c'est la feuille de la page qui gagne, et
+  le socle ne peut pas les corriger de l'extérieur.
 
 ### atelier.css devient vraiment le système de record
 

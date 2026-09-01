@@ -44,21 +44,35 @@
   .resume-band .cap-btn-outline{margin-left:auto;}
 }
 
-/* ── La barre d'onglets : une seule rangée, collante, jamais repliée ── */
-nav.tabs.worktabs{display:flex;gap:2px;flex-wrap:nowrap;margin:0;
-  justify-content:flex-start;text-align:left;
-  overflow-x:auto;scrollbar-width:none;
+/* ── LES DEUX DESTINATIONS — le sélecteur segmenté, à l'identique de
+   Capital. Le filet de 2 px sous l'onglet actif était fait pour NEUF
+   onglets ; à deux, il laissait deux mots nus dans le vide. L'actif prend
+   la surface éclairée du socle (dégradé chaud + filet or), l'inactif reste
+   en creux. La barre garde ses 44 px : une hauteur variable ferait sauter
+   la page d'une destination à l'autre.
+   Ces règles vivent ICI et non dans atelier.css : à spécificité égale, le
+   <style> de la page passe après la feuille commune et gagne — le socle ne
+   pouvait pas les corriger de l'extérieur (piège déjà consigné). ── */
+nav.tabs.worktabs{display:flex;gap:6px;flex-wrap:nowrap;margin:0;
+  justify-content:flex-start;text-align:left;align-items:center;
+  min-height:44px;overflow-x:auto;scrollbar-width:none;
   position:sticky;top:44px;z-index:62;padding-top:2px;
   background:var(--bg);border-top:none;
   border-bottom:1px solid var(--line);}
 nav.tabs.worktabs::-webkit-scrollbar{display:none;}
 nav.tabs.worktabs .tab{font-family:var(--f-ui);font-weight:600;
-  font-size:.86rem;color:var(--muted);background:none;border:none;
-  border-bottom:2px solid transparent;padding:11px 11px;cursor:pointer;
-  white-space:nowrap;flex:0 0 auto;
-  transition:color .15s,border-color .15s;}
-nav.tabs.worktabs .tab:hover{color:var(--ink);}
-nav.tabs.worktabs .tab.active{color:var(--ink);border-bottom-color:var(--accent);}
+  font-size:.86rem;color:var(--muted);background:none;
+  border:1px solid transparent;border-radius:999px;
+  padding:7px 17px;cursor:pointer;white-space:nowrap;flex:0 0 auto;
+  transition:color .16s,background .16s,border-color .16s;}
+nav.tabs.worktabs .tab:hover{color:var(--ink);background:var(--hover);}
+nav.tabs.worktabs .tab.active{color:var(--ink);
+  background:linear-gradient(150deg,#2c2117,#211a12,#1b150e);
+  border-color:rgba(216,173,76,.28);}
+/* La pilule EST la marque : le filet d'accent n'a plus lieu d'être. */
+nav.tabs.worktabs .tab.active::after{display:none;}
+nav.tabs.worktabs .tab:focus-visible{outline:2px solid var(--gold);
+  outline-offset:2px;}
 
 /* ── Tab bar ── */
 /* (L'ancienne barre de groupes et le bandeau de départ .cap-start sont
