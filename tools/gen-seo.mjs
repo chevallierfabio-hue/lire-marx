@@ -90,7 +90,9 @@ const SITE_PAGES = [
      mise en ligne : canonique, og:url et sitemap désignaient tous les trois
      une URL qui redirige — le défaut même que la mission seo-urls-reelles
      avait corrigé, reproduit en miroir. Ne pas « nettoyer » ce slash. */
-  { file: 'jeu/index.html',             url: '/jeu/',                   priority: '0.8', changefreq: 'monthly' }
+  { file: 'jeu/index.html',             url: '/jeu/',                   priority: '0.8', changefreq: 'monthly' },
+  /* Le glossaire — page dérivée, voir plus bas. */
+  { file: 'glossaire.html',            url: '/glossaire',              priority: '0.7', changefreq: 'monthly' }
 ];
 
 /* HORS SITEMAP, et c'est un choix motivé — voir CLAUDE.md :
@@ -353,6 +355,193 @@ function questionsDe(src) {
                 file + ' (FAQPage)');
 }
 
+/* --------------------------- glossaire --------------------------- */
+/* /glossaire — L'ABÉCÉDAIRE DE MARX, page indépendante et non un glossaire
+ * par œuvre (arbitrage du propriétaire, sept. 2026 : « plutôt qu'un glossaire
+ * par œuvre, un glossaire global de Marx, genre un abécédaire des concepts,
+ * dispo comme page indépendante »).
+ *
+ * Deux conséquences de cet arbitrage :
+ *   · l'ordre est ALPHABÉTIQUE, pas par mécanisme. On cherche un mot comme on
+ *     cherche un mot. Ce que l'ordre logique disait — d'où vient la notion —
+ *     n'est pas perdu : il descend sur chaque fiche, en renvoi.
+ *   · la page vit à la RACINE (/glossaire), pas sous /oeuvres/ qui la ferait
+ *     lire comme dépendante d'une œuvre. Et c'est un FICHIER, donc pas de
+ *     redirection de dossier (voir le piège de /jeu).
+ *
+ * TOUT est dérivé des deux ateliers : CONCEPTS de capital-1.html (75 fiches,
+ * en objet groupé par station) et CONCEPTS de manuscrits-1844.html (7 fiches,
+ * en tableau, avec le terme ALLEMAND). Rien n'est recopié ici.
+ *
+ * UNE SEULE PAGE, et c'est mesuré : les fiches de Capital font 846 mots à
+ * elles toutes, médiane ONZE mots. Une page par terme serait du contenu
+ * mince, ce que Google sanctionne. Le jour où une notion mérite sa page,
+ * c'est qu'on aura écrit trois cents mots dessus.
+ *
+ * On ne fabrique AUCUN lien de chapitre : le contrat de deep-link connaît
+ * #labo, #explore, #chrono et #s=&q=, rien par chapitre. Les chapitres sont
+ * NOMMÉS, pas liés — inventer une URL serait pire que ne rien lier.
+ */
+function litteralJS(src, nom, ouvrant) {
+  const i = src.indexOf(nom);
+  if (i < 0) throw new Error(`${nom} introuvable — le glossaire ne peut pas être dérivé.`);
+  const fermant = ouvrant === '[' ? ']' : '}';
+  let j = src.indexOf(ouvrant, i), prof = 0, fin = j;
+  for (let k = j; k < src.length; k++) {
+    if (src[k] === ouvrant) prof++;
+    else if (src[k] === fermant) { prof--; if (!prof) { fin = k + 1; break; } }
+  }
+  return eval('(' + src.slice(j, fin) + ')');   // littéral de données, pas du code tiers
+}
+
+/* Les libellés arrivent balisés (&amp;, &#8209;, &prime;). On les garde tels
+ * quels dans la page — ils y retournent en HTML — et on ne les décode que
+ * pour le JSON-LD et les clés de tri, qui veulent du texte nu. */
+function decode(t) {
+  return String(t)
+    .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(+n))
+    .replace(/&(nbsp|amp|lt|gt|quot|prime|#39);/g,
+      (_, e) => ({ nbsp: ' ', amp: '&', lt: '<', gt: '>', quot: '"', prime: '′', '#39': "'" }[e]));
+}
+
+/* La clé de tri IGNORE l'article de tête — un index range « Le hiéroglyphe
+ * social » à H, pas à L — puis la PONCTUATION et les symboles de tête, sans
+ * quoi « Le « prix du travail » » et « ΔA — plus-value » tombaient dans un
+ * panier « # » au lieu de P et de A. Accents et casse ignorés de même. */
+const ARTICLE = /^(?:l['’]|le |la |les |un |une |du |des |de la |de l['’])/i;
+function cle(nom) {
+  return decode(nom).toLowerCase().replace(ARTICLE, '')
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/^[^a-z0-9]+/, '')
+    .trim();
+}
+function slug(nom) {
+  return cle(nom).replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+}
+
+{
+  /* — Le Capital : fiches groupées par station, chaque groupe pointant son
+       instrument. Les libellés viennent des ONGLETS de la page. — */
+  const capSrc = readFileSync('oeuvres/capital-1.html', 'utf8');
+  const CAP  = litteralJS(capSrc, 'CONCEPTS=', '{');
+  const META = litteralJS(capSrc, 'META=', '{');
+  const labo = Object.fromEntries([...capSrc.matchAll(/data-sub="(s-[a-z]+)">([^<]*)/g)].map((m) => [m[1], m[2]]));
+  const expl = Object.fromEntries([...capSrc.matchAll(/data-x="(x-[a-z]+)">([^<]*)/g)].map((m) => [m[1], m[2]]));
+
+  const termes = [];
+  for (const cc of Object.keys(CAP)) {
+    const suff = cc.slice(3);
+    let groupe, ancre, cible = null;
+    if (labo['s-' + suff])      { groupe = labo['s-' + suff]; ancre = '#labo';    cible = 's-' + suff; }
+    else if (expl['x-' + suff]) { groupe = expl['x-' + suff]; ancre = '#explore'; }
+    else                        { groupe = 'la chronologie'; ancre = '#chrono'; }
+    const chaps = Object.keys(META).filter((r) => META[r].labo && META[r].labo === cible);
+    for (const c of CAP[cc]) {
+      termes.push({
+        nom: c.t, def: c.d || '', formule: c.f || '', de: '',
+        oeuvre: 'Le Capital', groupe, chaps,
+        url: '/oeuvres/capital-1' + ancre,
+      });
+    }
+  }
+
+  /* — Les Manuscrits : tableau plat, avec le terme allemand. Leurs concepts
+       alimentent la carte du laboratoire (instr-carte). — */
+  const manSrc = readFileSync('oeuvres/manuscrits-1844.html', 'utf8');
+  for (const c of litteralJS(manSrc, 'CONCEPTS=', '[')) {
+    termes.push({
+      nom: c.t, def: c.def || '', formule: '', de: c.de || '',
+      oeuvre: 'Manuscrits de 1844', groupe: 'la carte des concepts', chaps: [],
+      url: '/oeuvres/manuscrits-1844#labo',
+    });
+  }
+
+  termes.sort((a, b) => cle(a.nom).localeCompare(cle(b.nom), 'fr'));
+
+  /* Slugs uniques : deux œuvres peuvent nommer la même notion. */
+  const vus = new Set();
+  for (const t of termes) {
+    let id = slug(t.nom), n = 2;
+    while (vus.has(id)) id = slug(t.nom) + '-' + n++;
+    vus.add(id); t.id = id;
+  }
+
+  /* Regroupement par lettre initiale de la CLÉ DE TRI. */
+  const lettres = new Map();
+  for (const t of termes) {
+    const L = (cle(t.nom)[0] || '#').toUpperCase();
+    const k = /[A-Z]/.test(L) ? L : '#';
+    if (!lettres.has(k)) lettres.set(k, []);
+    lettres.get(k).push(t);
+  }
+
+  const ALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+  const nav = ALPHA.map((L) => lettres.has(L)
+    ? `<a href="#lettre-${L}">${L}</a>`
+    : `<span aria-hidden="true">${L}</span>`).join('');
+  const alphabet = `<nav class="gl-alpha" aria-label="Aller à une lettre">${nav}</nav>`;
+
+  let html = '';
+  for (const [L, liste] of [...lettres.entries()].sort((a, b) => a[0].localeCompare(b[0], 'fr'))) {
+    html += `  <section class="gl-bloc" aria-labelledby="lettre-${L}">\n`
+          + `    <h2 class="gl-lettre" id="lettre-${L}">${L}</h2>\n`
+          + `    <dl class="gl-liste">\n`;
+    for (const t of liste) {
+      const chaps = t.chaps.length
+        ? ` — ${t.chaps.length > 1 ? 'chapitres' : 'chapitre'} ${t.chaps.join(', ')}`
+        : '';
+      html += `      <div class="gl-terme" id="${t.id}">\n`
+            + `        <dt class="gl-t">${t.nom}`
+            + (t.de ? `<span class="gl-de" lang="de">${t.de}</span>` : '')
+            + `</dt>\n`
+            + `        <dd class="gl-d">${t.def}\n`
+            + (t.formule ? `          <span class="gl-f">${t.formule}</span>\n` : '')
+            + `          <span class="gl-src"><i>${t.oeuvre}</i>${chaps} · `
+            + `<a href="${t.url}">${t.groupe}</a></span>\n`
+            + `        </dd>\n      </div>\n`;
+    }
+    html += `    </dl>\n  </section>\n`;
+  }
+
+  const ldJson = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'DefinedTermSet',
+    '@id': `${ORIGIN}/glossaire#glossaire`,
+    name: 'Glossaire de Marx — l’abécédaire des concepts',
+    url: `${ORIGIN}/glossaire`,
+    inLanguage: 'fr',
+    hasDefinedTerm: termes.map((t) => ({
+      '@type': 'DefinedTerm',
+      name: decode(t.nom),
+      description: decode(t.def),
+      url: `${ORIGIN}/glossaire#${t.id}`,
+    })),
+  }, null, 2);
+
+  const oeuvres = new Set(termes.map((t) => t.oeuvre)).size;
+  const compte = `<p class="gl-compte">${termes.length} notions · ${lettres.size} lettres · ${oeuvres} œuvres</p>`;
+
+  const fichier = 'glossaire.html';
+  let page = readFileSync(fichier, 'utf8');
+  const entre = (src, deb, fin, contenu) => {
+    const i = src.indexOf(deb), j = src.indexOf(fin);
+    if (i < 0 || j < 0) throw new Error(`Marqueurs ${deb} / ${fin} introuvables dans ${fichier}.`);
+    return src.slice(0, i + deb.length) + contenu + src.slice(j);
+  };
+  page = entre(page, '<!-- GLOSSAIRE:COMPTE:DÉBUT -->', '<!-- GLOSSAIRE:COMPTE:FIN -->', compte);
+  page = entre(page, '<!-- ALPHABET:DÉBUT -->', '<!-- ALPHABET:FIN -->', alphabet);
+  page = entre(page, '<!-- GLOSSAIRE:LD:DÉBUT — DÉRIVÉ, ne pas éditer à la main -->',
+                     '<!-- GLOSSAIRE:LD:FIN -->', `\n${OPEN}\n${ldJson}\n${CLOSE}\n`);
+  const borne = 'seconde source qui divergerait. -->';
+  const d = page.indexOf(borne);
+  const f = page.indexOf('  <!-- GLOSSAIRE:FIN -->');
+  if (d < 0 || f < 0) throw new Error('Marqueurs du corps du glossaire introuvables.');
+  page = page.slice(0, d + borne.length) + '\n' + html + page.slice(f);
+
+  writeIfNeeded(fichier, page, fichier);
+  if (termes.length < 60) throw new Error(`Seulement ${termes.length} notions relevées — CONCEPTS a changé de forme.`);
+}
+
 /* --------------------------- sitemap --------------------------- */
 const entries = [
   ...SITE_PAGES.map(p => ({ ...p, loc: ORIGIN + p.url })),
@@ -387,7 +576,7 @@ if (check) {
   }
   console.log('À jour : ' + [...available.map(w => w.path),
     'oeuvres/bibliotheque.html (registre)', 'index.html (FAQPage)',
-    'sitemap.xml'].join(', '));
+    'glossaire.html', 'sitemap.xml'].join(', '));
 } else {
   console.log(changed.length ? 'Récrit : ' + changed.join(', ') : 'Rien à faire.');
 }

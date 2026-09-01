@@ -88,7 +88,14 @@
       '<aside class="sidebar" id="sidebar" aria-label="Navigation de l\'atelier">' +
         '<button class="sb-item" type="button" data-act="home"><span class="sb-dot" style="background:var(--gold)"></span>Accueil</button>' +
         '<button class="sb-item" type="button" data-act="biblio"><span class="sb-dot" style="background:var(--ink-soft)"></span>Bibliothèque</button>' +
-        '<button class="sb-item" type="button" data-act="commune"><span class="sb-dot" style="background:var(--red)"></span>Place publique</button>' +
+                /* Le glossaire suit la Bibliothèque : ce sont les deux outils du
+           CORPUS, l'un qui dit quelles œuvres existent, l'autre les mots
+           qu'elles construisent. C'est un ABÉCÉDAIRE GLOBAL, toutes œuvres
+           confondues, et il vit à la racine (/glossaire) et non sous
+           /oeuvres/ — arbitrage du propriétaire : il ne dépend d'aucune
+           œuvre en particulier. */
+        '<button class="sb-item" type="button" data-act="glossaire"><span class="sb-dot" style="background:var(--ink-soft)"></span>Glossaire</button>' +
+'<button class="sb-item" type="button" data-act="commune"><span class="sb-dot" style="background:var(--red)"></span>Place publique</button>' +
         /* le carnet est le pendant PRIVÉ de la Place publique : là-bas
            les notes partagées, ici les vôtres — d'où sa place juste en
            dessous. */
@@ -209,6 +216,8 @@
        /jeu/jouer la partie. `here` peut donc valoir « /jeu » (URL propre
        de Cloudflare) ou « /jeu/ » (le .replace de /index.html ci-dessus).
        Les trois marquent la même entrée. */
+    var gloBtn = sb.querySelector('[data-act="glossaire"]');
+    if(/\/glossaire$/.test(here)) mark(gloBtn);
     var jeuBtn = sb.querySelector('[data-act="jeu"]');
     if(/^\/jeu\/?$/.test(here) || /^\/jeu\/jouer$/.test(here)) mark(jeuBtn);
 
@@ -223,6 +232,13 @@
         // l'index d'un dossier, et Cloudflare répond 308 de /jeu vers
         // /jeu/ comme il répond 308 de /page.html vers /page. Le but est
         // le même dans les deux cas : ne pas payer un aller-retour.
+        if(act === 'glossaire'){
+          if(window.matchMedia('(max-width:860px)').matches){
+            document.body.classList.remove('sb-open');
+          }
+          location.href = '/glossaire';
+          return;
+        }
         if(act === 'jeu'){
           if(window.matchMedia('(max-width:860px)').matches){
             document.body.classList.remove('sb-open');

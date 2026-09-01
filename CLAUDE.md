@@ -4335,6 +4335,104 @@ Et c'est l'argument décisif contre l'idée, séduisante, de **faire des
 fragments de vraies pages indexables** : ce serait publier plus largement un
 texte dont on ne peut pas établir les droits.
 
+## L'abécédaire de Marx (mission `glossaire`, sept. 2026)
+
+`/glossaire` — **une page indépendante, globale, alphabétique**. Le site
+contenait 82 fiches de concept rédigées et **aucune n'avait d'adresse** :
+elles vivaient derrière les onglets des ateliers.
+
+**Arbitrage du propriétaire, rendu en cours de mission** (la première version
+était un glossaire du *Capital* rangé par mécanisme) : « plutôt que des
+glossaires par œuvre, un glossaire global de Marx, genre un abécédaire des
+concepts, dispo comme page indépendante ». Trois conséquences, à ne pas
+défaire :
+
+1. **Global** — les deux œuvres, dans la même liste. 75 fiches de Capital
+   plus 7 des Manuscrits, ces dernières avec leur **terme allemand**
+   (*Vergegenständlichung*, *Gattungswesen*…).
+2. **Alphabétique** — on cherche un mot comme on cherche un mot. L'ordre
+   logique de Marx, qui était le classement de la première version, n'est
+   pas perdu : il est **descendu sur chaque fiche**, en renvoi (« Le
+   Capital · Journée de travail → »).
+3. **À la RACINE** — `/glossaire` et non `/oeuvres/glossaire`, qui la ferait
+   lire comme dépendante d'une œuvre. Et c'est un **fichier**, donc pas de
+   redirection de dossier : le piège de `/jeu` ne se rejoue pas.
+
+### UNE page, et non quatre-vingt-deux — c'est mesuré
+
+Tentant, et faux. Les fiches de Capital font **846 mots à elles toutes,
+médiane ONZE mots** : ce sont des légendes de schéma, pas des articles.
+Quatre-vingt-deux pages de onze mots seraient du **contenu mince**, ce que
+Google sanctionne — le site y perdrait au lieu d'y gagner. La page fait
+**1 470 mots visibles**, ce qui la met largement hors de cette zone.
+
+**Le jour où une notion mérite sa page, c'est qu'on aura écrit trois cents
+mots dessus.** Ce sera un travail d'écriture, pas de génération. Ne pas
+« éclater » le glossaire sans avoir d'abord écrit la matière.
+
+### Tout est DÉRIVÉ, et les deux sources n'ont pas la même forme
+
+`tools/gen-seo.mjs` lit les deux ateliers — jamais de recopie :
+
+| source | forme | contenu |
+|---|---|---|
+| `capital-1.html` `CONCEPTS=` | **objet** groupé par station | 75 fiches `{t,d,f}` |
+| `manuscrits-1844.html` `CONCEPTS=` | **tableau** plat | 7 fiches `{t,de,def}` |
+
+D'où `litteralJS(src, nom, ouvrant)` : le même extracteur compte les
+accolades **ou** les crochets selon ce qu'on lui demande. Les libellés de
+groupe viennent des **onglets** des pages (`data-sub`, `data-x`), jamais
+réécrits.
+
+**La clé de tri ignore l'article de tête ET la ponctuation.** Un index range
+« Le hiéroglyphe social » à H, pas à L. Et sans le second nettoyage,
+« Le « prix du travail » » et « ΔA — plus-value » tombaient dans un panier
+« # » au lieu de P et de A — le guillemet et le delta comptaient comme
+première lettre.
+
+**Aucun lien de chapitre n'est fabriqué.** Le contrat de deep-link connaît
+`#labo`, `#explore`, `#chrono` et `#s=&q=` — rien par chapitre. Les
+chapitres sont donc **nommés**, pas liés. Inventer une URL serait pire que
+ne rien lier.
+
+### Le filtre est une commodité, pas la page
+
+Les 82 notions sont dans le HTML servi, lisibles sans une ligne de script :
+c'est ce qui les rend indexables et citables. Le champ de filtre n'apparaît
+donc **que si le JS tourne** (`hidden` retiré par le module) — sinon on
+afficherait un contrôle mort. Il indexe une fois, sans accents ni casse,
+masque les lettres devenues vides, et annonce le résultat par
+`SHELL.announce`.
+
+**Les renvois de fiche sont des liens EN LIGNE** dans une phrase : leur
+hauteur est celle de la ligne, donc sous 24 px. **WCAG 2.5.8 exempte
+explicitement ce cas** (« la cible est dans une phrase, ou sa taille est
+contrainte par l'interligne du texte qui n'est pas une cible »). Ne pas les
+transformer en boutons pour satisfaire une sonde qui ignorerait l'exception
+— c'est écrit dans le CSS à côté de la règle.
+
+### Vérifié
+
+`gen-seo.mjs --check` : six dérivations à jour et idempotentes, glossaire
+compris. Sonde de contraste sur le rendu : **0 échec sur 559 mesures**,
+minimum 4,14 (le faux positif documenté — `--accent` sur `--bg`, mais sur un
+`em` mesuré à 50 px, seuil 3:1), aucun texte à moi sous 11 px, aucune cible
+trop petite hors liens en ligne. Détecteur statique : **0 erreur**, 5
+constats tous documentés, et `index.html` reste à **27**. Testé à 1280 et
+375 px : zéro débordement, une colonne, alphabet intact. Filtre éprouvé
+(« travail » → 32 notions sur 12 lettres, « ALIENE » sans accent ni casse →
+4, « zzz » → message de vide, champ vidé → les 82 reviennent). 82 ancres
+uniques, `DefinedTermSet` à 82 termes.
+
+### Ce qui reste
+
+- Les **7 fiches des Manuscrits** ont une médiane de 26 mots contre 11 pour
+  Capital, et portent le terme allemand. C'est le bon gabarit ; les fiches
+  de Capital gagneraient à s'y aligner — travail d'écriture, dans
+  `capital-1.html`, d'où tout est dérivé.
+- Une **troisième œuvre** entrerait toute seule : il suffit qu'elle expose un
+  `CONCEPTS=` et que le générateur le lise, comme pour les deux autres.
+
 ## Conventions de travail
 
 - **Une mission par session.** Une demande utilisateur = un objectif clair,

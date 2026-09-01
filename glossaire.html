@@ -1,0 +1,1409 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Glossaire de Marx — l'abécédaire des concepts | Lire Marx</title>
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="48x48" href="/assets/img/logo/icon-48.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/assets/img/logo/icon-192.png">
+<link rel="apple-touch-icon" href="/assets/img/logo/apple-touch-icon.png">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="L'abécédaire des concepts de Marx, de A à Z : plus-value, travail aliéné, fétichisme de la marchandise, être générique, composition organique, armée de réserve — chaque notion définie, avec l'œuvre où Marx la construit.">
+<meta property="og:title" content="Glossaire de Marx — l'abécédaire des concepts">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Lire Marx">
+<meta property="og:description" content="Les concepts de Marx de A à Z, chacun défini et rattaché à l'œuvre qui le construit.">
+<meta property="og:url" content="https://liremarx.com/glossaire">
+<meta property="og:image" content="https://liremarx.com/assets/img/archive/das-kapital-titre-1867.jpg">
+<meta property="og:locale" content="fr_FR">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://liremarx.com/glossaire">
+<link rel="stylesheet" href="/oeuvres/fonts/fonts.css" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="/oeuvres/fonts/fonts.css"></noscript>
+<style>
+/* ═══════════════════════════════════════════════════════════════════
+   /glossaire — L'ABÉCÉDAIRE DE MARX
+   -------------------------------------------------------------------
+   Page INDÉPENDANTE et GLOBALE, pas un glossaire par œuvre — arbitrage du
+   propriétaire (sept. 2026). Deux conséquences, à ne pas défaire :
+     · elle vit à la RACINE et non sous /oeuvres/, qui la ferait lire comme
+       dépendante d'une œuvre. C'est un FICHIER, donc pas de redirection de
+       dossier — le piège payé sur /jeu ne se rejoue pas ici ;
+     · l'ordre est ALPHABÉTIQUE. Une première version rangeait les notions
+       par mécanisme, ce qui est l'ordre de Marx mais pas celui de quelqu'un
+       qui cherche un mot. Ce que l'ordre logique disait — d'où vient la
+       notion — n'est pas perdu : il est descendu sur chaque fiche, en renvoi.
+
+   TOUT LE CONTENU EST DÉRIVÉ des deux ateliers par tools/gen-seo.mjs :
+   CONCEPTS de capital-1.html (75 fiches groupées par station) et CONCEPTS
+   de manuscrits-1844.html (7 fiches, avec le terme ALLEMAND). Ne RIEN
+   écrire à la main entre les marqueurs — ce serait écrasé, et surtout ce
+   serait une seconde source qui divergerait.
+
+   POURQUOI UNE SEULE PAGE et non quatre-vingt-deux. Mesuré avant de
+   décider : les fiches de Capital font 846 mots à elles toutes, médiane
+   ONZE mots. Ce sont des légendes de schéma, pas des articles. Une page par
+   terme serait du contenu mince — exactement ce que Google sanctionne — et
+   le site y perdrait au lieu d'y gagner. Le jour où une notion mérite sa
+   page, c'est qu'on aura écrit trois cents mots dessus ; ce sera un travail
+   d'écriture, pas de génération.
+
+   Elle ne charge pas atelier.css : c'est une page de site. Elle
+   redéfinit donc les tokens du shell dans son :root.
+   ═══════════════════════════════════════════════════════════════════ */
+:root{
+  --bg:#15100b;--surface:#1e1710;--text:#f3e9d4;
+  --muted:#b7a888;--accent:#d5402f;--border:rgba(243,233,212,.13);
+  --paper:#15100b;--paper-2:#1e1710;--card:#221a12;
+  --ink:#f3e9d4;--ink-soft:#c7b599;
+  --red:#d5402f;--red-deep:#e5644f;--red-text:#e5644f;--bright:#e5644f;
+  --line-strong:rgba(243,233,212,.34);--hover:rgba(243,233,212,.05);
+  --gold:#d8ad4c;--gold-deep:#bd8f38;--blue:#5c8aa3;--const:#9a8b72;
+  --line:rgba(243,233,212,.13);--line-soft:rgba(243,233,212,.07);--ok:#7fa855;
+  --f-ui:'Inter',system-ui,sans-serif;--f-serif:'Spectral',Georgia,serif;--f-hand:'Caveat',cursive;
+  --candle:rgba(216,173,76,.18);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{background:var(--bg);}
+body{background:var(--bg);color:var(--text);font-family:var(--f-ui);
+  -webkit-font-smoothing:antialiased;}
+:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:4px;}
+
+.gl{max-width:960px;margin:0 auto;padding:clamp(44px,7vh,76px) clamp(24px,5vw,56px) clamp(64px,10vh,104px);}
+
+/* ── tête ── */
+.gl-label{font-size:.72rem;font-weight:600;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.gl-h1{font-family:'Fraunces',serif;font-weight:900;
+  font-size:clamp(2rem,4.4vw,3.1rem);line-height:1.03;letter-spacing:-.03em;
+  margin-bottom:18px;}
+.gl-h1 em{font-style:italic;font-weight:500;color:var(--accent);}
+.gl-lede{font-size:.97rem;line-height:1.74;color:var(--muted);max-width:58ch;}
+.gl-lede b{color:var(--text);font-weight:600;}
+.gl-compte{margin-top:16px;font-size:.72rem;font-weight:600;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--gold);}
+
+/* ── le filtre : ajouté seulement si le JS tourne ── */
+.gl-filtre{margin-top:30px;position:relative;max-width:420px;}
+.gl-filtre[hidden]{display:none;}
+.gl-filtre input{width:100%;font-family:inherit;font-size:.92rem;color:var(--text);
+  background:var(--surface);border:1px solid var(--line-strong);border-radius:999px;
+  padding:11px 18px 11px 42px;}
+.gl-filtre input::placeholder{color:var(--const);}
+.gl-filtre input:focus{border-color:var(--gold);outline:none;}
+.gl-filtre svg{position:absolute;left:16px;top:50%;transform:translateY(-50%);
+  color:var(--const);pointer-events:none;}
+.gl-vide{margin-top:26px;color:var(--muted);font-size:.93rem;}
+.gl-vide[hidden]{display:none;}
+
+/* ── l'alphabet ── */
+.gl-alpha{display:flex;flex-wrap:wrap;gap:5px;margin-top:24px;}
+.gl-alpha a,.gl-alpha span{display:inline-flex;align-items:center;justify-content:center;
+  min-width:30px;height:30px;border-radius:8px;font-family:'Fraunces',serif;
+  font-weight:600;font-size:.9rem;text-decoration:none;}
+.gl-alpha a{color:var(--text);background:var(--surface);border:1px solid var(--border);}
+.gl-alpha a:hover{border-color:var(--gold);color:var(--gold);}
+/* Une lettre sans notion n'est pas un lien mort : elle reste visible, en
+   retrait, pour que l'alphabet garde sa forme d'alphabet. */
+.gl-alpha span{color:var(--const);border:1px solid var(--line-soft);}
+
+/* ── une lettre ── */
+.gl-bloc{margin-top:clamp(40px,5.5vh,60px);}
+.gl-bloc[hidden]{display:none;}
+.gl-lettre{font-family:'Fraunces',serif;font-weight:900;font-size:1.9rem;
+  line-height:1;letter-spacing:-.03em;color:var(--gold);
+  padding-bottom:12px;border-bottom:1px solid var(--border);margin-bottom:6px;
+  scroll-margin-top:56px;}
+
+/* ── un terme ── */
+.gl-liste{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;
+  background:var(--border);border:1px solid var(--border);border-radius:14px;
+  overflow:hidden;}
+.gl-terme{background:var(--surface);padding:19px 21px 21px;scroll-margin-top:60px;}
+.gl-terme[hidden]{display:none;}
+.gl-terme:target{background:var(--card);box-shadow:inset 3px 0 0 var(--gold);}
+.gl-t{font-family:'Fraunces',serif;font-weight:600;font-size:1.02rem;
+  letter-spacing:-.01em;color:var(--text);margin-bottom:7px;}
+.gl-d{font-size:.9rem;line-height:1.66;color:var(--muted);}
+/* .72rem et non .68 : le plancher du projet pour un texte fonctionnel est
+   11 px, et .68rem tombe à 10,9. C'est la valeur des micro-libellés de la
+   maison (.hs-sec-label), mesurée. */
+.gl-de{font-family:var(--f-serif);font-style:italic;font-weight:400;
+  font-size:.86rem;color:var(--const);margin-left:7px;}
+/* Le renvoi est un lien EN LIGNE : sa hauteur est celle de la ligne, donc
+   sous 24 px. WCAG 2.5.8 exempte explicitement ce cas (« la cible est dans
+   une phrase, ou sa taille est contrainte par l'interligne du texte qui
+   n'est pas une cible »). Ne pas le transformer en bouton pour satisfaire
+   une sonde qui ignorerait l'exception. */
+.gl-src{display:block;margin-top:11px;font-size:.76rem;line-height:1.6;color:var(--muted);}
+.gl-src a{color:var(--gold);text-decoration:none;text-underline-offset:3px;}
+.gl-src a:hover{text-decoration:underline;}
+.gl-f{margin-top:10px;margin-right:8px;display:inline-block;font-family:var(--f-ui);
+  font-size:.72rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--gold);background:rgba(216,173,76,.10);
+  border:1px solid rgba(216,173,76,.26);border-radius:999px;padding:3px 10px;}
+
+/* ── pied ── */
+.gl-fin{margin-top:clamp(56px,8vh,88px);padding-top:30px;
+  border-top:1px solid var(--border);}
+.gl-fin p{font-size:.93rem;line-height:1.72;color:var(--muted);max-width:60ch;
+  margin-bottom:18px;}
+.gl-btn{display:inline-flex;align-items:center;gap:8px;padding:11px 24px;
+  border-radius:999px;background:var(--accent);color:#fff;font-size:14px;
+  font-weight:600;text-decoration:none;transition:opacity .18s,transform .18s;}
+.gl-btn:hover{opacity:.86;transform:translateY(-1px);}
+
+@media(max-width:720px){
+  .gl-liste{grid-template-columns:1fr;}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;}}
+</style>
+<link rel="preload" href="/oeuvres/shell.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="/oeuvres/shell.css"></noscript>
+<!-- GLOSSAIRE:LD:DÉBUT — DÉRIVÉ, ne pas éditer à la main -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "DefinedTermSet",
+  "@id": "https://liremarx.com/glossaire#glossaire",
+  "name": "Glossaire de Marx — l’abécédaire des concepts",
+  "url": "https://liremarx.com/glossaire",
+  "inLanguage": "fr",
+  "hasDefinedTerm": [
+    {
+      "@type": "DefinedTerm",
+      "name": "A — M — A′",
+      "description": "Acheter pour vendre : le mouvement propre du capital.",
+      "url": "https://liremarx.com/glossaire#a-m-a"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "ΔA — plus-value",
+      "description": "L'accroissement sans lequel A—M—A′ n'aurait aucun sens.",
+      "url": "https://liremarx.com/glossaire#a-plus-value"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Accumulation",
+      "description": "La plus-value capitalisée : une part de pl redevient capital.",
+      "url": "https://liremarx.com/glossaire#accumulation"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Accumulation primitive",
+      "description": "La genèse violente du capital : le présupposé historique posé, à la fin, comme résultat.",
+      "url": "https://liremarx.com/glossaire#accumulation-primitive"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Appendice de la machine",
+      "description": "L'ouvrier ne manie plus l'instrument : il sert la machine qui le commande.",
+      "url": "https://liremarx.com/glossaire#appendice-de-la-machine"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Argent",
+      "description": "La puissance aliénée accomplie : l'entremetteur universel qui confère des pouvoirs qu'on n'a pas en propre. L'avoir prend la place de l'être.",
+      "url": "https://liremarx.com/glossaire#argent"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Armée de réserve",
+      "description": "La surpopulation relative que l'accumulation produit elle-même.",
+      "url": "https://liremarx.com/glossaire#armee-de-reserve"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Besoins",
+      "description": "Sous l'argent, le besoin se dégrade en appétits artificiels, là où le besoin humain riche serait l'épanouissement des sens et des facultés.",
+      "url": "https://liremarx.com/glossaire#besoins"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Capital constant (c)",
+      "description": "Dépensé en moyens de production. Transmet sa valeur sans en créer.",
+      "url": "https://liremarx.com/glossaire#capital-constant-c"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Capital variable (v)",
+      "description": "Dépensé en force de travail. Seule source de valeur nouvelle.",
+      "url": "https://liremarx.com/glossaire#capital-variable-v"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Communisme",
+      "description": "Non un partage des biens, mais l'abolition positive de la propriété privée : la réappropriation par l'homme de ses forces essentielles et de son essence sociale.",
+      "url": "https://liremarx.com/glossaire#communisme"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Composition organique",
+      "description": "Le poids du capital constant rapporté au travail vivant ; elle monte.",
+      "url": "https://liremarx.com/glossaire#composition-organique"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Composition organique (→)",
+      "description": "Vers la droite : production de plus en plus mécanisée.",
+      "url": "https://liremarx.com/glossaire#composition-organique-2"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Composition organique (c/v)",
+      "description": "Le poids des machines rapporté au travail vivant.",
+      "url": "https://liremarx.com/glossaire#composition-organique-c-v"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Condition I(v+pl)=II(c)",
+      "description": "L'échange croisé entre les deux secteurs s'équilibre.",
+      "url": "https://liremarx.com/glossaire#condition-i-v-pl-ii-c"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Les contre-mondes",
+      "description": "Robinson, le moyen âge, la famille, les associés : là, le rapport social est transparent.",
+      "url": "https://liremarx.com/glossaire#contre-mondes"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Contre-tendances (k)",
+      "description": "Intensification de l'exploitation, baisse du prix du capital constant, etc.",
+      "url": "https://liremarx.com/glossaire#contre-tendances-k"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Coopération",
+      "description": "La réunion de nombreux ouvriers fait surgir une force productive collective irréductible à leur somme.",
+      "url": "https://liremarx.com/glossaire#cooperation"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Corvée · esclave · salarié",
+      "description": "Le servage montre le partage ; l'esclavage fait tout paraître non payé ; le salariat, tout payé.",
+      "url": "https://liremarx.com/glossaire#corvee-esclave-salarie"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Demande de travail",
+      "description": "Proportionnelle à v : elle croît plus lentement que le capital total.",
+      "url": "https://liremarx.com/glossaire#demande-de-travail"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Département I",
+      "description": "Fabrique les moyens de production.",
+      "url": "https://liremarx.com/glossaire#departement-i"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Département II",
+      "description": "Fabrique les moyens de consommation.",
+      "url": "https://liremarx.com/glossaire#departement-ii"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Division du travail",
+      "description": "Le métier décomposé en opérations parcellaires, fixées à vie sur chaque ouvrier.",
+      "url": "https://liremarx.com/glossaire#division-du-travail"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Être générique",
+      "description": "L'homme comme être qui se rapporte à l'espèce entière et produit librement, universellement. Le travail aliéné ravale cette vie d'espèce au rang de moyen de subsister.",
+      "url": "https://liremarx.com/glossaire#etre-generique"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Expropriation / enclosures",
+      "description": "Séparer le producteur de la terre : la condition de naissance du salariat.",
+      "url": "https://liremarx.com/glossaire#expropriation-enclosures"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Factory Acts & inspecteurs",
+      "description": "La loi limite la journée ; les inspecteurs fournissent les Blue Books où Marx puise ses faits.",
+      "url": "https://liremarx.com/glossaire#factory-acts-inspecteurs"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Fétichisme",
+      "description": "Le rapport social entre des travaux humains revêt la forme fantastique d'un rapport entre des choses.",
+      "url": "https://liremarx.com/glossaire#fetichisme"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Force de travail",
+      "description": "La seule marchandise dont l'usage crée plus de valeur qu'elle ne coûte.",
+      "url": "https://liremarx.com/glossaire#force-de-travail"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Force de travail",
+      "description": "Ce que l'ouvrier vend réellement, payé à sa valeur — le coût de sa reproduction.",
+      "url": "https://liremarx.com/glossaire#force-de-travail-2"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Force productive",
+      "description": "Quand elle monte, le nécessaire se raccourcit.",
+      "url": "https://liremarx.com/glossaire#force-productive"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Forme argent (D)",
+      "description": "L'or monopolise la place d'équivalent. Naissance de la forme prix.",
+      "url": "https://liremarx.com/glossaire#forme-argent-d"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Forme développée (B)",
+      "description": "Une marchandise = une série illimitée d'autres. Sans clôture ni unité.",
+      "url": "https://liremarx.com/glossaire#forme-developpee-b"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Forme équivalent",
+      "description": "Celle qui sert de miroir : sa valeur d'usage devient forme de valeur.",
+      "url": "https://liremarx.com/glossaire#forme-equivalent"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Forme générale (C)",
+      "description": "Toutes s'expriment dans une seule : l'équivalent général.",
+      "url": "https://liremarx.com/glossaire#forme-generale-c"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Forme relative",
+      "description": "La marchandise dont on exprime la valeur — pôle actif de l'équation.",
+      "url": "https://liremarx.com/glossaire#forme-relative"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Forme simple (A)",
+      "description": "Une marchandise = une autre. Expression isolée, accidentelle.",
+      "url": "https://liremarx.com/glossaire#forme-simple-a"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "La forme-salaire",
+      "description": "Elle efface la division payé / non payé : tout le travail paraît payé.",
+      "url": "https://liremarx.com/glossaire#forme-salaire"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Le hiéroglyphe social",
+      "description": "La valeur ne porte pas écrit sur le front ce qu'elle est : il faut la déchiffrer.",
+      "url": "https://liremarx.com/glossaire#hieroglyphe-social"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Journée de travail",
+      "description": "Un champ de lutte, non une donnée naturelle.",
+      "url": "https://liremarx.com/glossaire#journee-de-travail"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "La journée de travail",
+      "description": "Un champ de lutte, non une donnée naturelle : capital et loi s'y disputent les heures.",
+      "url": "https://liremarx.com/glossaire#journee-de-travail-2"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Législation sanglante",
+      "description": "Dresser de force les expropriés à la discipline du travail salarié.",
+      "url": "https://liremarx.com/glossaire#legislation-sanglante"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Lever le voile",
+      "description": "Le mysticisme se dissipe quand la production devient l'œuvre d'hommes librement associés.",
+      "url": "https://liremarx.com/glossaire#lever-le-voile"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Loi de la circulation",
+      "description": "La masse de monnaie nécessaire égale la somme des prix divisée par la vitesse.",
+      "url": "https://liremarx.com/glossaire#loi-de-la-circulation"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Loi générale",
+      "description": "Plus le capital s'accumule, plus la réserve grossit avec lui.",
+      "url": "https://liremarx.com/glossaire#loi-generale"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Loi tendancielle",
+      "description": "Une tendance, pas une fatalité.",
+      "url": "https://liremarx.com/glossaire#loi-tendancielle"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "M — A — M",
+      "description": "Vendre pour acheter : la circulation simple des marchandises.",
+      "url": "https://liremarx.com/glossaire#m-a-m"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Machine-outil",
+      "description": "La machine s'empare de l'outil ; la force motrice n'est plus le bras humain.",
+      "url": "https://liremarx.com/glossaire#machine-outil"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Mesure des valeurs",
+      "description": "L'argent exprime idéalement le prix des marchandises avant tout échange réel.",
+      "url": "https://liremarx.com/glossaire#mesure-des-valeurs"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Moyen de circulation",
+      "description": "Dans M-A-M, la monnaie passe de main en main ; les marchandises, elles, sortent du circuit.",
+      "url": "https://liremarx.com/glossaire#moyen-de-circulation"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Moyen de paiement",
+      "description": "Ventes à crédit et dettes qui se compensent : autant d'échanges sans numéraire.",
+      "url": "https://liremarx.com/glossaire#moyen-de-paiement"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Objectivation",
+      "description": "Le travail se réalise en se fixant dans un objet. En soi, l'acte humain par excellence ; mais sous la propriété privée, il se renverse en perte de l'objet et asservissement à lui.",
+      "url": "https://liremarx.com/glossaire#objectivation"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Le passage de relais",
+      "description": "Une fois institué, le rapport capitaliste se reproduit de lui-même, sans plus de violence ouverte.",
+      "url": "https://liremarx.com/glossaire#passage-de-relais"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Plus-value (pl)",
+      "description": "Valeur créée au-delà de ce que coûte le travail. Non payée.",
+      "url": "https://liremarx.com/glossaire#plus-value-pl"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Plus-value absolue",
+      "description": "Allonger la journée, à productivité constante.",
+      "url": "https://liremarx.com/glossaire#plus-value-absolue"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Plus-value relative",
+      "description": "Raccourcir le nécessaire par la productivité.",
+      "url": "https://liremarx.com/glossaire#plus-value-relative"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Le « prix du travail »",
+      "description": "La forme illusoire : le travail n'a pas de valeur, il en est la substance et la mesure.",
+      "url": "https://liremarx.com/glossaire#prix-du-travail"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Propriété privée",
+      "description": "Non la cause première, mais le résultat du travail aliéné, qu'elle perpétue ensuite comme rapport social et pouvoir d'un autre sur le produit.",
+      "url": "https://liremarx.com/glossaire#propriete-privee"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Régulation des salaires",
+      "description": "La réserve pèse sur les salaires : une armée toujours disponible.",
+      "url": "https://liremarx.com/glossaire#regulation-des-salaires"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Reproduction élargie",
+      "description": "Une part est réinvestie : l'échelle grandit.",
+      "url": "https://liremarx.com/glossaire#reproduction-elargie"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Reproduction simple",
+      "description": "Toute la plus-value est consommée.",
+      "url": "https://liremarx.com/glossaire#reproduction-simple"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Subsomption réelle",
+      "description": "Le capital ne se contente plus de commander le travail : il en refond le procès même.",
+      "url": "https://liremarx.com/glossaire#subsomption-reelle"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Surtravail",
+      "description": "Le reste : travail gratuit, source de la plus-value.",
+      "url": "https://liremarx.com/glossaire#surtravail"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Surtravail (pl)",
+      "description": "Les heures travaillées gratuitement, au-delà du nécessaire : la plus-value.",
+      "url": "https://liremarx.com/glossaire#surtravail-pl"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Taux d'exploitation e₀",
+      "description": "Le pl/v supposé au départ.",
+      "url": "https://liremarx.com/glossaire#taux-d-exploitation-e"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Taux de plus-value (pl/v)",
+      "description": "Le degré d'exploitation. 100 % : autant pour le capital que pour soi.",
+      "url": "https://liremarx.com/glossaire#taux-de-plus-value-pl-v"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Taux de profit (↑)",
+      "description": "p′ = e/(1+q). Chute quand q monte, à e constant.",
+      "url": "https://liremarx.com/glossaire#taux-de-profit"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Taux de profit (pl/(c+v))",
+      "description": "Rendement du capital total. Toujours inférieur au taux d'exploitation.",
+      "url": "https://liremarx.com/glossaire#taux-de-profit-pl-c-v"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Thésaurisation",
+      "description": "L'argent retiré de la circulation et mis en réserve, immobilisé.",
+      "url": "https://liremarx.com/glossaire#thesaurisation"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Travail aliéné",
+      "description": "Le travail qui, sous la propriété privée, se retourne contre celui qui l'exerce : son produit, son activité, son espèce et les autres lui deviennent étrangers.",
+      "url": "https://liremarx.com/glossaire#travail-aliene"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Travail gratuit (surtravail)",
+      "description": "Les heures non payées — que la forme-salaire rend invisibles.",
+      "url": "https://liremarx.com/glossaire#travail-gratuit-surtravail"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Travail mort (c)",
+      "description": "Les moyens de production : ils transfèrent leur valeur au produit sans en créer de nouvelle.",
+      "url": "https://liremarx.com/glossaire#travail-mort-c"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Travail nécessaire",
+      "description": "La part qui produit la valeur du salaire.",
+      "url": "https://liremarx.com/glossaire#travail-necessaire"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Travail nécessaire (v)",
+      "description": "Les premières heures, qui reproduisent la valeur de la force de travail.",
+      "url": "https://liremarx.com/glossaire#travail-necessaire-v"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Travail payé (nécessaire)",
+      "description": "Les heures qui reproduisent la valeur de la force de travail.",
+      "url": "https://liremarx.com/glossaire#travail-paye-necessaire"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Travail vivant",
+      "description": "Seul actif : il transfère la valeur de c ET ajoute de la valeur nouvelle.",
+      "url": "https://liremarx.com/glossaire#travail-vivant"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Travailleur collectif",
+      "description": "L'atelier devient un mécanisme dont les ouvriers ne sont que les organes.",
+      "url": "https://liremarx.com/glossaire#travailleur-collectif"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Travaux privés",
+      "description": "Exécutés indépendamment, ils ne se relient socialement que par l'échange des produits.",
+      "url": "https://liremarx.com/glossaire#travaux-prives"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Valeur d’usage vs valeur",
+      "description": "Rien de mystérieux dans l'utilité ; le mystère naît de la forme valeur, non de la matière.",
+      "url": "https://liremarx.com/glossaire#valeur-d-usage-vs-valeur"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Valeur nouvelle (v + pl)",
+      "description": "Tout ce que le travail vivant ajoute au cours de la journée.",
+      "url": "https://liremarx.com/glossaire#valeur-nouvelle-v-pl"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "La valeur qui se valorise",
+      "description": "Le capital est de la valeur en mouvement, qui se grossit elle-même.",
+      "url": "https://liremarx.com/glossaire#valeur-qui-se-valorise"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Valeur transférée",
+      "description": "La valeur des moyens de production consommés reparaît intacte dans le produit.",
+      "url": "https://liremarx.com/glossaire#valeur-transferee"
+    },
+    {
+      "@type": "DefinedTerm",
+      "name": "Vitesse de circulation",
+      "description": "Une même pièce sert à plusieurs achats successifs : elle circule V fois.",
+      "url": "https://liremarx.com/glossaire#vitesse-de-circulation"
+    }
+  ]
+}
+</script>
+<!-- GLOSSAIRE:LD:FIN -->
+</head>
+<body>
+<main class="wrap" id="contenu" tabindex="-1">
+<div class="gl">
+
+  <p class="gl-label">Le vocabulaire</p>
+  <h1 class="gl-h1">L'abécédaire de <em>Marx</em></h1>
+  <p class="gl-lede">Marx ne pose pas ses termes en tête de livre&nbsp;: il les
+    fait <b>apparaître</b>, chacun naissant de la contradiction du précédent.
+    On les trouve donc ici de A à Z, comme on cherche un mot — mais chacun dit
+    d'où il vient&nbsp;: l'œuvre qui le construit, et l'instrument qui le fait
+    varier.</p>
+  <!-- GLOSSAIRE:COMPTE:DÉBUT --><p class="gl-compte">82 notions · 16 lettres · 2 œuvres</p><!-- GLOSSAIRE:COMPTE:FIN -->
+  <!-- ALPHABET:DÉBUT --><nav class="gl-alpha" aria-label="Aller à une lettre"><a href="#lettre-A">A</a><a href="#lettre-B">B</a><a href="#lettre-C">C</a><a href="#lettre-D">D</a><a href="#lettre-E">E</a><a href="#lettre-F">F</a><span aria-hidden="true">G</span><a href="#lettre-H">H</a><span aria-hidden="true">I</span><a href="#lettre-J">J</a><span aria-hidden="true">K</span><a href="#lettre-L">L</a><a href="#lettre-M">M</a><span aria-hidden="true">N</span><a href="#lettre-O">O</a><a href="#lettre-P">P</a><span aria-hidden="true">Q</span><a href="#lettre-R">R</a><a href="#lettre-S">S</a><a href="#lettre-T">T</a><span aria-hidden="true">U</span><a href="#lettre-V">V</a><span aria-hidden="true">W</span><span aria-hidden="true">X</span><span aria-hidden="true">Y</span><span aria-hidden="true">Z</span></nav><!-- ALPHABET:FIN -->
+
+  <div class="gl-filtre" id="glFiltre" hidden>
+    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true"><circle cx="6.4" cy="6.4" r="4.6" stroke="currentColor" stroke-width="1.4"/><path d="M10 10l3.4 3.4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+    <label class="sr-only" for="glQ">Filtrer les notions</label>
+    <input type="search" id="glQ" placeholder="Filtrer — plus-value, fétichisme…" autocomplete="off">
+  </div>
+  <p class="gl-vide" id="glVide" hidden role="status">Aucune notion ne correspond.</p>
+
+  <!-- GLOSSAIRE:DÉBUT — DÉRIVÉ de capital-1.html par tools/gen-seo.mjs.
+       Ne rien écrire ici à la main : ce serait écrasé, et ce serait une
+       seconde source qui divergerait. -->
+  <section class="gl-bloc" aria-labelledby="lettre-A">
+    <h2 class="gl-lettre" id="lettre-A">A</h2>
+    <dl class="gl-liste">
+      <div class="gl-terme" id="a-m-a">
+        <dt class="gl-t">A — M — A′</dt>
+        <dd class="gl-d">Acheter pour vendre : le mouvement propre du capital.
+          <span class="gl-f">quantitatif, sans fin</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#labo">A&#8209;M&#8209;A&prime; vs M&#8209;A&#8209;M</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="a-plus-value">
+        <dt class="gl-t">ΔA — plus-value</dt>
+        <dd class="gl-d">L'accroissement sans lequel A—M—A′ n'aurait aucun sens.
+          <span class="gl-f">A′ = A + ΔA</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#labo">A&#8209;M&#8209;A&prime; vs M&#8209;A&#8209;M</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="accumulation">
+        <dt class="gl-t">Accumulation</dt>
+        <dd class="gl-d">La plus-value capitalisée : une part de pl redevient capital.
+          <span class="gl-f">pl → capital</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#labo">Accumulation &amp; armée de réserve</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="accumulation-primitive">
+        <dt class="gl-t">Accumulation primitive</dt>
+        <dd class="gl-d">La genèse violente du capital : le présupposé historique posé, à la fin, comme résultat.
+          <span class="gl-f">présupposé ≠ éternel</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#chrono">la chronologie</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="appendice-de-la-machine">
+        <dt class="gl-t">Appendice de la machine</dt>
+        <dd class="gl-d">L'ouvrier ne manie plus l'instrument : il sert la machine qui le commande.
+          <span class="gl-f">servir la machine</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#explore">L'atelier : coopération → machinisme</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="argent">
+        <dt class="gl-t">Argent<span class="gl-de" lang="de">Geld</span></dt>
+        <dd class="gl-d">La puissance aliénée accomplie : l'entremetteur universel qui confère des pouvoirs qu'on n'a pas en propre. L'avoir prend la place de l'être.
+          <span class="gl-src"><i>Manuscrits de 1844</i> · <a href="/oeuvres/manuscrits-1844#labo">la carte des concepts</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="armee-de-reserve">
+        <dt class="gl-t">Armée de réserve</dt>
+        <dd class="gl-d">La surpopulation relative que l'accumulation produit elle-même.
+          <span class="gl-f">travail non absorbé</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#labo">Accumulation &amp; armée de réserve</a></span>
+        </dd>
+      </div>
+    </dl>
+  </section>
+  <section class="gl-bloc" aria-labelledby="lettre-B">
+    <h2 class="gl-lettre" id="lettre-B">B</h2>
+    <dl class="gl-liste">
+      <div class="gl-terme" id="besoins">
+        <dt class="gl-t">Besoins<span class="gl-de" lang="de">Bedürfnisse</span></dt>
+        <dd class="gl-d">Sous l'argent, le besoin se dégrade en appétits artificiels, là où le besoin humain riche serait l'épanouissement des sens et des facultés.
+          <span class="gl-src"><i>Manuscrits de 1844</i> · <a href="/oeuvres/manuscrits-1844#labo">la carte des concepts</a></span>
+        </dd>
+      </div>
+    </dl>
+  </section>
+  <section class="gl-bloc" aria-labelledby="lettre-C">
+    <h2 class="gl-lettre" id="lettre-C">C</h2>
+    <dl class="gl-liste">
+      <div class="gl-terme" id="capital-constant-c">
+        <dt class="gl-t">Capital constant (c)</dt>
+        <dd class="gl-d">Dépensé en moyens de production. Transmet sa valeur sans en créer.
+          <span class="gl-f">transfère sa valeur</span>
+          <span class="gl-src"><i>Le Capital</i> — chapitres IV, VI, VIII, IX, XI, XVIII · <a href="/oeuvres/capital-1#labo">Taux &amp; profit</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="capital-variable-v">
+        <dt class="gl-t">Capital variable (v)</dt>
+        <dd class="gl-d">Dépensé en force de travail. Seule source de valeur nouvelle.
+          <span class="gl-f">crée de la valeur</span>
+          <span class="gl-src"><i>Le Capital</i> — chapitres IV, VI, VIII, IX, XI, XVIII · <a href="/oeuvres/capital-1#labo">Taux &amp; profit</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="communisme">
+        <dt class="gl-t">Communisme<span class="gl-de" lang="de">Kommunismus</span></dt>
+        <dd class="gl-d">Non un partage des biens, mais l'abolition positive de la propriété privée : la réappropriation par l'homme de ses forces essentielles et de son essence sociale.
+          <span class="gl-src"><i>Manuscrits de 1844</i> · <a href="/oeuvres/manuscrits-1844#labo">la carte des concepts</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="composition-organique">
+        <dt class="gl-t">Composition organique</dt>
+        <dd class="gl-d">Le poids du capital constant rapporté au travail vivant ; elle monte.
+          <span class="gl-f">c/v ↑</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#labo">Accumulation &amp; armée de réserve</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="composition-organique-2">
+        <dt class="gl-t">Composition organique (→)</dt>
+        <dd class="gl-d">Vers la droite : production de plus en plus mécanisée.
+          <span class="gl-f">c ÷ v</span>
+          <span class="gl-src"><i>Le Capital</i> — chapitre XV · <a href="/oeuvres/capital-1#labo">Baisse tendancielle</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="composition-organique-c-v">
+        <dt class="gl-t">Composition organique (c/v)</dt>
+        <dd class="gl-d">Le poids des machines rapporté au travail vivant.
+          <span class="gl-f">c ÷ v</span>
+          <span class="gl-src"><i>Le Capital</i> — chapitres IV, VI, VIII, IX, XI, XVIII · <a href="/oeuvres/capital-1#labo">Taux &amp; profit</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="condition-i-v-pl-ii-c">
+        <dt class="gl-t">Condition I(v+pl)=II(c)</dt>
+        <dd class="gl-d">L'échange croisé entre les deux secteurs s'équilibre.
+          <span class="gl-f">pivot de la reproduction</span>
+          <span class="gl-src"><i>Le Capital</i> — chapitres XXIII, XXIV · <a href="/oeuvres/capital-1#labo">Reproduction (Dép. I &amp; II)</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="contre-mondes">
+        <dt class="gl-t">Les contre-mondes</dt>
+        <dd class="gl-d">Robinson, le moyen âge, la famille, les associés : là, le rapport social est transparent.
+          <span class="gl-f">transparence</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#explore">Le fétichisme</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="contre-tendances-k">
+        <dt class="gl-t">Contre-tendances (k)</dt>
+        <dd class="gl-d">Intensification de l'exploitation, baisse du prix du capital constant, etc.
+          <span class="gl-f">e monte avec q</span>
+          <span class="gl-src"><i>Le Capital</i> — chapitre XV · <a href="/oeuvres/capital-1#labo">Baisse tendancielle</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="cooperation">
+        <dt class="gl-t">Coopération</dt>
+        <dd class="gl-d">La réunion de nombreux ouvriers fait surgir une force productive collective irréductible à leur somme.
+          <span class="gl-f">force collective</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#explore">L'atelier : coopération → machinisme</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="corvee-esclave-salarie">
+        <dt class="gl-t">Corvée · esclave · salarié</dt>
+        <dd class="gl-d">Le servage montre le partage ; l'esclavage fait tout paraître non payé ; le salariat, tout payé.
+          <span class="gl-f">inversion des apparences</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#explore">La forme-salaire</a></span>
+        </dd>
+      </div>
+    </dl>
+  </section>
+  <section class="gl-bloc" aria-labelledby="lettre-D">
+    <h2 class="gl-lettre" id="lettre-D">D</h2>
+    <dl class="gl-liste">
+      <div class="gl-terme" id="demande-de-travail">
+        <dt class="gl-t">Demande de travail</dt>
+        <dd class="gl-d">Proportionnelle à v : elle croît plus lentement que le capital total.
+          <span class="gl-f">∝ v</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#labo">Accumulation &amp; armée de réserve</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="departement-i">
+        <dt class="gl-t">Département I</dt>
+        <dd class="gl-d">Fabrique les moyens de production.
+          <span class="gl-f">machines, matières</span>
+          <span class="gl-src"><i>Le Capital</i> — chapitres XXIII, XXIV · <a href="/oeuvres/capital-1#labo">Reproduction (Dép. I &amp; II)</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="departement-ii">
+        <dt class="gl-t">Département II</dt>
+        <dd class="gl-d">Fabrique les moyens de consommation.
+          <span class="gl-f">biens de consommation</span>
+          <span class="gl-src"><i>Le Capital</i> — chapitres XXIII, XXIV · <a href="/oeuvres/capital-1#labo">Reproduction (Dép. I &amp; II)</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="division-du-travail">
+        <dt class="gl-t">Division du travail</dt>
+        <dd class="gl-d">Le métier décomposé en opérations parcellaires, fixées à vie sur chaque ouvrier.
+          <span class="gl-f">parcellisation</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#explore">L'atelier : coopération → machinisme</a></span>
+        </dd>
+      </div>
+    </dl>
+  </section>
+  <section class="gl-bloc" aria-labelledby="lettre-E">
+    <h2 class="gl-lettre" id="lettre-E">E</h2>
+    <dl class="gl-liste">
+      <div class="gl-terme" id="etre-generique">
+        <dt class="gl-t">Être générique<span class="gl-de" lang="de">Gattungswesen</span></dt>
+        <dd class="gl-d">L'homme comme être qui se rapporte à l'espèce entière et produit librement, universellement. Le travail aliéné ravale cette vie d'espèce au rang de moyen de subsister.
+          <span class="gl-src"><i>Manuscrits de 1844</i> · <a href="/oeuvres/manuscrits-1844#labo">la carte des concepts</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="expropriation-enclosures">
+        <dt class="gl-t">Expropriation / enclosures</dt>
+        <dd class="gl-d">Séparer le producteur de la terre : la condition de naissance du salariat.
+          <span class="gl-f">producteur ⊥ moyens</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#chrono">la chronologie</a></span>
+        </dd>
+      </div>
+    </dl>
+  </section>
+  <section class="gl-bloc" aria-labelledby="lettre-F">
+    <h2 class="gl-lettre" id="lettre-F">F</h2>
+    <dl class="gl-liste">
+      <div class="gl-terme" id="factory-acts-inspecteurs">
+        <dt class="gl-t">Factory Acts & inspecteurs</dt>
+        <dd class="gl-d">La loi limite la journée ; les inspecteurs fournissent les Blue Books où Marx puise ses faits.
+          <span class="gl-f">la loi entre en scène</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#chrono">la chronologie</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="fetichisme">
+        <dt class="gl-t">Fétichisme</dt>
+        <dd class="gl-d">Le rapport social entre des travaux humains revêt la forme fantastique d'un rapport entre des choses.
+          <span class="gl-f">chose ⇄ rapport</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#explore">Le fétichisme</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="force-de-travail">
+        <dt class="gl-t">Force de travail</dt>
+        <dd class="gl-d">La seule marchandise dont l'usage crée plus de valeur qu'elle ne coûte.
+          <span class="gl-f">source du ΔA</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#labo">A&#8209;M&#8209;A&prime; vs M&#8209;A&#8209;M</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="force-de-travail-2">
+        <dt class="gl-t">Force de travail</dt>
+        <dd class="gl-d">Ce que l'ouvrier vend réellement, payé à sa valeur — le coût de sa reproduction.
+          <span class="gl-f">vendue à sa valeur</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#explore">La forme-salaire</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="force-productive">
+        <dt class="gl-t">Force productive</dt>
+        <dd class="gl-d">Quand elle monte, le nécessaire se raccourcit.
+          <span class="gl-f">↑ productivité → ↓ nécessaire</span>
+          <span class="gl-src"><i>Le Capital</i> — chapitres VII, X, XII, XVII · <a href="/oeuvres/capital-1#labo">Journée de travail</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="forme-argent-d">
+        <dt class="gl-t">Forme argent (D)</dt>
+        <dd class="gl-d">L'or monopolise la place d'équivalent. Naissance de la forme prix.
+          <span class="gl-f">forme prix</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#labo">Forme de la valeur</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="forme-developpee-b">
+        <dt class="gl-t">Forme développée (B)</dt>
+        <dd class="gl-d">Une marchandise = une série illimitée d'autres. Sans clôture ni unité.
+          <span class="gl-f">série ouverte</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#labo">Forme de la valeur</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="forme-equivalent">
+        <dt class="gl-t">Forme équivalent</dt>
+        <dd class="gl-d">Celle qui sert de miroir : sa valeur d'usage devient forme de valeur.
+          <span class="gl-f">pôle passif</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#labo">Forme de la valeur</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="forme-generale-c">
+        <dt class="gl-t">Forme générale (C)</dt>
+        <dd class="gl-d">Toutes s'expriment dans une seule : l'équivalent général.
+          <span class="gl-f">équivalent général</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#labo">Forme de la valeur</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="forme-relative">
+        <dt class="gl-t">Forme relative</dt>
+        <dd class="gl-d">La marchandise dont on exprime la valeur — pôle actif de l'équation.
+          <span class="gl-f">pôle actif</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#labo">Forme de la valeur</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="forme-simple-a">
+        <dt class="gl-t">Forme simple (A)</dt>
+        <dd class="gl-d">Une marchandise = une autre. Expression isolée, accidentelle.
+          <span class="gl-f">x A = y B</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#labo">Forme de la valeur</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="forme-salaire">
+        <dt class="gl-t">La forme-salaire</dt>
+        <dd class="gl-d">Elle efface la division payé / non payé : tout le travail paraît payé.
+          <span class="gl-f">tout paraît payé</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#explore">La forme-salaire</a></span>
+        </dd>
+      </div>
+    </dl>
+  </section>
+  <section class="gl-bloc" aria-labelledby="lettre-H">
+    <h2 class="gl-lettre" id="lettre-H">H</h2>
+    <dl class="gl-liste">
+      <div class="gl-terme" id="hieroglyphe-social">
+        <dt class="gl-t">Le hiéroglyphe social</dt>
+        <dd class="gl-d">La valeur ne porte pas écrit sur le front ce qu'elle est : il faut la déchiffrer.
+          <span class="gl-f">à déchiffrer</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#explore">Le fétichisme</a></span>
+        </dd>
+      </div>
+    </dl>
+  </section>
+  <section class="gl-bloc" aria-labelledby="lettre-J">
+    <h2 class="gl-lettre" id="lettre-J">J</h2>
+    <dl class="gl-liste">
+      <div class="gl-terme" id="journee-de-travail">
+        <dt class="gl-t">Journée de travail</dt>
+        <dd class="gl-d">Un champ de lutte, non une donnée naturelle.
+          <span class="gl-f">le terrain du conflit</span>
+          <span class="gl-src"><i>Le Capital</i> — chapitres VII, X, XII, XVII · <a href="/oeuvres/capital-1#labo">Journée de travail</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="journee-de-travail-2">
+        <dt class="gl-t">La journée de travail</dt>
+        <dd class="gl-d">Un champ de lutte, non une donnée naturelle : capital et loi s'y disputent les heures.
+          <span class="gl-f">le terrain du conflit</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#chrono">la chronologie</a></span>
+        </dd>
+      </div>
+    </dl>
+  </section>
+  <section class="gl-bloc" aria-labelledby="lettre-L">
+    <h2 class="gl-lettre" id="lettre-L">L</h2>
+    <dl class="gl-liste">
+      <div class="gl-terme" id="legislation-sanglante">
+        <dt class="gl-t">Législation sanglante</dt>
+        <dd class="gl-d">Dresser de force les expropriés à la discipline du travail salarié.
+          <span class="gl-f">fouet, marque, loi</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#chrono">la chronologie</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="lever-le-voile">
+        <dt class="gl-t">Lever le voile</dt>
+        <dd class="gl-d">Le mysticisme se dissipe quand la production devient l'œuvre d'hommes librement associés.
+          <span class="gl-f">producteurs associés</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#explore">Le fétichisme</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="loi-de-la-circulation">
+        <dt class="gl-t">Loi de la circulation</dt>
+        <dd class="gl-d">La masse de monnaie nécessaire égale la somme des prix divisée par la vitesse.
+          <span class="gl-f">M = ΣP ÷ V</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#labo">Circulation de la monnaie</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="loi-generale">
+        <dt class="gl-t">Loi générale</dt>
+        <dd class="gl-d">Plus le capital s'accumule, plus la réserve grossit avec lui.
+          <span class="gl-f">tendance du système</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#labo">Accumulation &amp; armée de réserve</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="loi-tendancielle">
+        <dt class="gl-t">Loi tendancielle</dt>
+        <dd class="gl-d">Une tendance, pas une fatalité.
+          <span class="gl-f">tendance ≠ destin</span>
+          <span class="gl-src"><i>Le Capital</i> — chapitre XV · <a href="/oeuvres/capital-1#labo">Baisse tendancielle</a></span>
+        </dd>
+      </div>
+    </dl>
+  </section>
+  <section class="gl-bloc" aria-labelledby="lettre-M">
+    <h2 class="gl-lettre" id="lettre-M">M</h2>
+    <dl class="gl-liste">
+      <div class="gl-terme" id="m-a-m">
+        <dt class="gl-t">M — A — M</dt>
+        <dd class="gl-d">Vendre pour acheter : la circulation simple des marchandises.
+          <span class="gl-f">qualitatif, fini</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#labo">A&#8209;M&#8209;A&prime; vs M&#8209;A&#8209;M</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="machine-outil">
+        <dt class="gl-t">Machine-outil</dt>
+        <dd class="gl-d">La machine s'empare de l'outil ; la force motrice n'est plus le bras humain.
+          <span class="gl-f">l’outil quitte la main</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#explore">L'atelier : coopération → machinisme</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="mesure-des-valeurs">
+        <dt class="gl-t">Mesure des valeurs</dt>
+        <dd class="gl-d">L'argent exprime idéalement le prix des marchandises avant tout échange réel.
+          <span class="gl-f">donne les prix</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#labo">Circulation de la monnaie</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="moyen-de-circulation">
+        <dt class="gl-t">Moyen de circulation</dt>
+        <dd class="gl-d">Dans M-A-M, la monnaie passe de main en main ; les marchandises, elles, sortent du circuit.
+          <span class="gl-f">M-A-M</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#labo">Circulation de la monnaie</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="moyen-de-paiement">
+        <dt class="gl-t">Moyen de paiement</dt>
+        <dd class="gl-d">Ventes à crédit et dettes qui se compensent : autant d'échanges sans numéraire.
+          <span class="gl-f">crédit, compensation</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#labo">Circulation de la monnaie</a></span>
+        </dd>
+      </div>
+    </dl>
+  </section>
+  <section class="gl-bloc" aria-labelledby="lettre-O">
+    <h2 class="gl-lettre" id="lettre-O">O</h2>
+    <dl class="gl-liste">
+      <div class="gl-terme" id="objectivation">
+        <dt class="gl-t">Objectivation<span class="gl-de" lang="de">Vergegenständlichung</span></dt>
+        <dd class="gl-d">Le travail se réalise en se fixant dans un objet. En soi, l'acte humain par excellence ; mais sous la propriété privée, il se renverse en perte de l'objet et asservissement à lui.
+          <span class="gl-src"><i>Manuscrits de 1844</i> · <a href="/oeuvres/manuscrits-1844#labo">la carte des concepts</a></span>
+        </dd>
+      </div>
+    </dl>
+  </section>
+  <section class="gl-bloc" aria-labelledby="lettre-P">
+    <h2 class="gl-lettre" id="lettre-P">P</h2>
+    <dl class="gl-liste">
+      <div class="gl-terme" id="passage-de-relais">
+        <dt class="gl-t">Le passage de relais</dt>
+        <dd class="gl-d">Une fois institué, le rapport capitaliste se reproduit de lui-même, sans plus de violence ouverte.
+          <span class="gl-f">force → mécanique</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#chrono">la chronologie</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="plus-value-pl">
+        <dt class="gl-t">Plus-value (pl)</dt>
+        <dd class="gl-d">Valeur créée au-delà de ce que coûte le travail. Non payée.
+          <span class="gl-f">travail non payé</span>
+          <span class="gl-src"><i>Le Capital</i> — chapitres IV, VI, VIII, IX, XI, XVIII · <a href="/oeuvres/capital-1#labo">Taux &amp; profit</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="plus-value-absolue">
+        <dt class="gl-t">Plus-value absolue</dt>
+        <dd class="gl-d">Allonger la journée, à productivité constante.
+          <span class="gl-f">allonger la journée</span>
+          <span class="gl-src"><i>Le Capital</i> — chapitres VII, X, XII, XVII · <a href="/oeuvres/capital-1#labo">Journée de travail</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="plus-value-relative">
+        <dt class="gl-t">Plus-value relative</dt>
+        <dd class="gl-d">Raccourcir le nécessaire par la productivité.
+          <span class="gl-f">comprimer le nécessaire</span>
+          <span class="gl-src"><i>Le Capital</i> — chapitres VII, X, XII, XVII · <a href="/oeuvres/capital-1#labo">Journée de travail</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="prix-du-travail">
+        <dt class="gl-t">Le « prix du travail »</dt>
+        <dd class="gl-d">La forme illusoire : le travail n'a pas de valeur, il en est la substance et la mesure.
+          <span class="gl-f">forme trompeuse</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#explore">La forme-salaire</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="propriete-privee">
+        <dt class="gl-t">Propriété privée<span class="gl-de" lang="de">Privateigentum</span></dt>
+        <dd class="gl-d">Non la cause première, mais le résultat du travail aliéné, qu'elle perpétue ensuite comme rapport social et pouvoir d'un autre sur le produit.
+          <span class="gl-src"><i>Manuscrits de 1844</i> · <a href="/oeuvres/manuscrits-1844#labo">la carte des concepts</a></span>
+        </dd>
+      </div>
+    </dl>
+  </section>
+  <section class="gl-bloc" aria-labelledby="lettre-R">
+    <h2 class="gl-lettre" id="lettre-R">R</h2>
+    <dl class="gl-liste">
+      <div class="gl-terme" id="regulation-des-salaires">
+        <dt class="gl-t">Régulation des salaires</dt>
+        <dd class="gl-d">La réserve pèse sur les salaires : une armée toujours disponible.
+          <span class="gl-f">pression sur v</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#labo">Accumulation &amp; armée de réserve</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="reproduction-elargie">
+        <dt class="gl-t">Reproduction élargie</dt>
+        <dd class="gl-d">Une part est réinvestie : l'échelle grandit.
+          <span class="gl-f">accumulation</span>
+          <span class="gl-src"><i>Le Capital</i> — chapitres XXIII, XXIV · <a href="/oeuvres/capital-1#labo">Reproduction (Dép. I &amp; II)</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="reproduction-simple">
+        <dt class="gl-t">Reproduction simple</dt>
+        <dd class="gl-d">Toute la plus-value est consommée.
+          <span class="gl-f">échelle constante</span>
+          <span class="gl-src"><i>Le Capital</i> — chapitres XXIII, XXIV · <a href="/oeuvres/capital-1#labo">Reproduction (Dép. I &amp; II)</a></span>
+        </dd>
+      </div>
+    </dl>
+  </section>
+  <section class="gl-bloc" aria-labelledby="lettre-S">
+    <h2 class="gl-lettre" id="lettre-S">S</h2>
+    <dl class="gl-liste">
+      <div class="gl-terme" id="subsomption-reelle">
+        <dt class="gl-t">Subsomption réelle</dt>
+        <dd class="gl-d">Le capital ne se contente plus de commander le travail : il en refond le procès même.
+          <span class="gl-f">formelle → réelle</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#explore">L'atelier : coopération → machinisme</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="surtravail">
+        <dt class="gl-t">Surtravail</dt>
+        <dd class="gl-d">Le reste : travail gratuit, source de la plus-value.
+          <span class="gl-f">journée − nécessaire</span>
+          <span class="gl-src"><i>Le Capital</i> — chapitres VII, X, XII, XVII · <a href="/oeuvres/capital-1#labo">Journée de travail</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="surtravail-pl">
+        <dt class="gl-t">Surtravail (pl)</dt>
+        <dd class="gl-d">Les heures travaillées gratuitement, au-delà du nécessaire : la plus-value.
+          <span class="gl-f">au-delà du nécessaire</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#labo">Procès de valorisation</a></span>
+        </dd>
+      </div>
+    </dl>
+  </section>
+  <section class="gl-bloc" aria-labelledby="lettre-T">
+    <h2 class="gl-lettre" id="lettre-T">T</h2>
+    <dl class="gl-liste">
+      <div class="gl-terme" id="taux-d-exploitation-e">
+        <dt class="gl-t">Taux d'exploitation e₀</dt>
+        <dd class="gl-d">Le pl/v supposé au départ.
+          <span class="gl-f">pl ÷ v</span>
+          <span class="gl-src"><i>Le Capital</i> — chapitre XV · <a href="/oeuvres/capital-1#labo">Baisse tendancielle</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="taux-de-plus-value-pl-v">
+        <dt class="gl-t">Taux de plus-value (pl/v)</dt>
+        <dd class="gl-d">Le degré d'exploitation. 100 % : autant pour le capital que pour soi.
+          <span class="gl-f">pl ÷ v</span>
+          <span class="gl-src"><i>Le Capital</i> — chapitres IV, VI, VIII, IX, XI, XVIII · <a href="/oeuvres/capital-1#labo">Taux &amp; profit</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="taux-de-profit">
+        <dt class="gl-t">Taux de profit (↑)</dt>
+        <dd class="gl-d">p′ = e/(1+q). Chute quand q monte, à e constant.
+          <span class="gl-f">p′ = e ÷ (1+q)</span>
+          <span class="gl-src"><i>Le Capital</i> — chapitre XV · <a href="/oeuvres/capital-1#labo">Baisse tendancielle</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="taux-de-profit-pl-c-v">
+        <dt class="gl-t">Taux de profit (pl/(c+v))</dt>
+        <dd class="gl-d">Rendement du capital total. Toujours inférieur au taux d'exploitation.
+          <span class="gl-f">pl ÷ (c+v)</span>
+          <span class="gl-src"><i>Le Capital</i> — chapitres IV, VI, VIII, IX, XI, XVIII · <a href="/oeuvres/capital-1#labo">Taux &amp; profit</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="thesaurisation">
+        <dt class="gl-t">Thésaurisation</dt>
+        <dd class="gl-d">L'argent retiré de la circulation et mis en réserve, immobilisé.
+          <span class="gl-f">argent thésaurisé</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#labo">Circulation de la monnaie</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="travail-aliene">
+        <dt class="gl-t">Travail aliéné<span class="gl-de" lang="de">entfremdete Arbeit</span></dt>
+        <dd class="gl-d">Le travail qui, sous la propriété privée, se retourne contre celui qui l'exerce : son produit, son activité, son espèce et les autres lui deviennent étrangers.
+          <span class="gl-src"><i>Manuscrits de 1844</i> · <a href="/oeuvres/manuscrits-1844#labo">la carte des concepts</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="travail-gratuit-surtravail">
+        <dt class="gl-t">Travail gratuit (surtravail)</dt>
+        <dd class="gl-d">Les heures non payées — que la forme-salaire rend invisibles.
+          <span class="gl-f">la plus-value cachée</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#explore">La forme-salaire</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="travail-mort-c">
+        <dt class="gl-t">Travail mort (c)</dt>
+        <dd class="gl-d">Les moyens de production : ils transfèrent leur valeur au produit sans en créer de nouvelle.
+          <span class="gl-f">reparaît dans le produit</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#labo">Procès de valorisation</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="travail-necessaire">
+        <dt class="gl-t">Travail nécessaire</dt>
+        <dd class="gl-d">La part qui produit la valeur du salaire.
+          <span class="gl-f">paie le salaire</span>
+          <span class="gl-src"><i>Le Capital</i> — chapitres VII, X, XII, XVII · <a href="/oeuvres/capital-1#labo">Journée de travail</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="travail-necessaire-v">
+        <dt class="gl-t">Travail nécessaire (v)</dt>
+        <dd class="gl-d">Les premières heures, qui reproduisent la valeur de la force de travail.
+          <span class="gl-f">rembourse le salaire</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#labo">Procès de valorisation</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="travail-paye-necessaire">
+        <dt class="gl-t">Travail payé (nécessaire)</dt>
+        <dd class="gl-d">Les heures qui reproduisent la valeur de la force de travail.
+          <span class="gl-f">le nécessaire</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#explore">La forme-salaire</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="travail-vivant">
+        <dt class="gl-t">Travail vivant</dt>
+        <dd class="gl-d">Seul actif : il transfère la valeur de c ET ajoute de la valeur nouvelle.
+          <span class="gl-f">transfère + crée</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#labo">Procès de valorisation</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="travailleur-collectif">
+        <dt class="gl-t">Travailleur collectif</dt>
+        <dd class="gl-d">L'atelier devient un mécanisme dont les ouvriers ne sont que les organes.
+          <span class="gl-f">l’atelier-mécanisme</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#explore">L'atelier : coopération → machinisme</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="travaux-prives">
+        <dt class="gl-t">Travaux privés</dt>
+        <dd class="gl-d">Exécutés indépendamment, ils ne se relient socialement que par l'échange des produits.
+          <span class="gl-f">reliés par l’échange</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#explore">Le fétichisme</a></span>
+        </dd>
+      </div>
+    </dl>
+  </section>
+  <section class="gl-bloc" aria-labelledby="lettre-V">
+    <h2 class="gl-lettre" id="lettre-V">V</h2>
+    <dl class="gl-liste">
+      <div class="gl-terme" id="valeur-d-usage-vs-valeur">
+        <dt class="gl-t">Valeur d’usage vs valeur</dt>
+        <dd class="gl-d">Rien de mystérieux dans l'utilité ; le mystère naît de la forme valeur, non de la matière.
+          <span class="gl-f">utile ≠ valeur</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#explore">Le fétichisme</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="valeur-nouvelle-v-pl">
+        <dt class="gl-t">Valeur nouvelle (v + pl)</dt>
+        <dd class="gl-d">Tout ce que le travail vivant ajoute au cours de la journée.
+          <span class="gl-f">valeur horaire × journée</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#labo">Procès de valorisation</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="valeur-qui-se-valorise">
+        <dt class="gl-t">La valeur qui se valorise</dt>
+        <dd class="gl-d">Le capital est de la valeur en mouvement, qui se grossit elle-même.
+          <span class="gl-f">sujet automate</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#labo">A&#8209;M&#8209;A&prime; vs M&#8209;A&#8209;M</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="valeur-transferee">
+        <dt class="gl-t">Valeur transférée</dt>
+        <dd class="gl-d">La valeur des moyens de production consommés reparaît intacte dans le produit.
+          <span class="gl-f">c → produit</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#labo">Procès de valorisation</a></span>
+        </dd>
+      </div>
+      <div class="gl-terme" id="vitesse-de-circulation">
+        <dt class="gl-t">Vitesse de circulation</dt>
+        <dd class="gl-d">Une même pièce sert à plusieurs achats successifs : elle circule V fois.
+          <span class="gl-f">V</span>
+          <span class="gl-src"><i>Le Capital</i> · <a href="/oeuvres/capital-1#labo">Circulation de la monnaie</a></span>
+        </dd>
+      </div>
+    </dl>
+  </section>
+  <!-- GLOSSAIRE:FIN -->
+
+  <div class="gl-fin">
+    <p>Aucune de ces notions ne se comprend hors du texte qui la construit —
+      c'est même l'argument de Marx&nbsp;: une catégorie n'est pas une
+      définition, c'est un moment. Les ateliers les remettent à leur place, à
+      côté du passage où elles naissent.</p>
+    <a class="gl-btn" href="/oeuvres/bibliotheque">Ouvrir la bibliothèque</a>
+  </div>
+
+</div>
+</main>
+
+<script src="/config.js"></script>
+<script src="/oeuvres/shell.js"></script>
+<script src="/oeuvres/shell-social.js"></script>
+<script>
+installShell({ workTitle: 'Glossaire', tabs: [] });
+
+/* Le filtre est une COMMODITÉ, pas la page : les soixante-quinze notions
+   sont dans le HTML servi, lisibles sans une ligne de script. Le champ
+   n'apparaît donc que si le JS tourne — sinon on afficherait un contrôle
+   mort. */
+(function(){
+  'use strict';
+  var boite = document.getElementById('glFiltre');
+  var q = document.getElementById('glQ');
+  var vide = document.getElementById('glVide');
+  if (!boite || !q) return;
+  var termes = [].slice.call(document.querySelectorAll('.gl-terme'));
+  var blocs = [].slice.call(document.querySelectorAll('.gl-bloc'));
+  if (!termes.length) return;
+  boite.hidden = false;
+
+  /* On indexe une fois : filtrer 75 termes à chaque frappe en relisant le
+     DOM serait du travail refait pour rien. Sans accents ni casse. */
+  var index = termes.map(function(el){
+    return (el.textContent || '').toLowerCase()
+      .normalize('NFD').replace(/[̀-ͯ]/g, '');
+  });
+
+  var minuteur = null;
+  q.addEventListener('input', function(){
+    clearTimeout(minuteur);
+    minuteur = setTimeout(filtrer, 90);
+  });
+
+  function filtrer(){
+    var v = q.value.trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+    var n = 0;
+    for (var i = 0; i < termes.length; i++){
+      var ok = !v || index[i].indexOf(v) !== -1;
+      termes[i].hidden = !ok;
+      if (ok) n++;
+    }
+    /* Une lettre dont tous les termes sont masqués n'a plus de raison d'être :
+       sa capitale resterait seule au-dessus du vide. */
+    blocs.forEach(function(b){
+      b.hidden = !b.querySelector('.gl-terme:not([hidden])');
+    });
+    vide.hidden = n > 0;
+    if (window.SHELL && SHELL.announce){
+      SHELL.announce(n ? (n + ' notions affichées') : 'Aucune notion ne correspond');
+    }
+  }
+})();
+</script>
+</body>
+</html>
