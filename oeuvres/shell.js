@@ -174,14 +174,24 @@
     bib.addEventListener('click', function(){ location.href = '/oeuvres/bibliotheque.html'; });
 
     // Marque l'entrée correspondant à la page courante.
-    var here = location.pathname.replace(/\/index\.html$/, '/');
-    if(here === '/') home.classList.add('on');
-    if(/\/bibliotheque\.html$/.test(here)) bib.classList.add('on');
+    // PIÈGE : Cloudflare Pages sert des URL PROPRES — la page vit à
+    // « /oeuvres/carnet », pas « /oeuvres/carnet.html ». Les tests sur
+    // `.html` passaient donc en local (python -m http.server) et
+    // n'attrapaient RIEN en production : aucune entrée n'était marquée
+    // sur le site en ligne. On normalise en retirant l'extension.
+    var here = location.pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '');
+    function mark(btn){
+      if(!btn) return;
+      btn.classList.add('on');
+      btn.setAttribute('aria-current', 'page');
+    }
+    if(here === '/' || here === '/index') mark(home);
+    if(/\/bibliotheque$/.test(here)) mark(bib);
     // Place publique : marquer l'entrée quand on est sur sa page dédiée.
     var communeBtn = sb.querySelector('[data-act="commune"]');
-    if(communeBtn && /\/place-publique\.html$/.test(here)) communeBtn.classList.add('on');
+    if(/\/place-publique$/.test(here)) mark(communeBtn);
     var carnetBtn = sb.querySelector('[data-act="carnet"]');
-    if(carnetBtn && /\/carnet\.html$/.test(here)) carnetBtn.classList.add('on');
+    if(/\/carnet$/.test(here)) mark(carnetBtn);
 
     // Items de navigation inter-pages
     sb.querySelectorAll('.sb-item[data-act]').forEach(function(b){
