@@ -134,9 +134,9 @@
             '<p><b>Données traitées.</b> Adresse e-mail (connexion uniquement, jamais affichée), pseudo (public), annotations privées, notes et réponses publiques, signalements. Aucune donnée n\'est revendue ni utilisée à des fins publicitaires.</p>' +
             '<p><b>Finalités &amp; base légale.</b> Fournir la lecture annotée, la synchronisation entre appareils et les notes partagées modérées (exécution du service demandé) ; assurer la modération et la sécurité (intérêt légitime).</p>' +
             '<p><b>Hébergement.</b> Authentification et base de données via Supabase. [À COMPLÉTER : région d\'hébergement, par ex. Union européenne].</p>' +
-            '<p><b>Conservation.</b> Tes données sont conservées tant que ton compte existe, et supprimées à ta demande.</p>' +
-            '<p><b>Tes droits (RGPD).</b> Accès, rectification, effacement, opposition. Tu peux supprimer toi-même ton compte et l\'ensemble de tes données depuis « Mon compte » → <i>Supprimer mon compte</i> (effacement définitif et immédiat). Pour toute autre demande : [À COMPLÉTER : adresse e-mail].</p>' +
-            '<p><b>Stockage local.</b> Le site conserve tes surlignages et ta session de connexion dans ton navigateur. C\'est un stockage <i>fonctionnel</i> (nécessaire au service), sans pistage ni cookie publicitaire.</p>' +
+            '<p><b>Conservation.</b> Vos données sont conservées tant que votre compte existe, et supprimées à votre demande.</p>' +
+            '<p><b>Vos droits (RGPD).</b> Accès, rectification, effacement, opposition. Vous pouvez supprimer vous-même votre compte et l\'ensemble de vos données depuis « Mon compte » → <i>Compte</i> → <i>Supprimer mon compte</i> (effacement définitif et immédiat). Pour toute autre demande : [À COMPLÉTER : adresse e-mail].</p>' +
+            '<p><b>Stockage local.</b> Le site conserve vos surlignages et votre session de connexion dans votre navigateur. C\'est un stockage <i>fonctionnel</i> (nécessaire au service), sans pistage ni cookie publicitaire.</p>' +
           '</div>' +
         '</div>' +
       '</div>'
@@ -734,8 +734,13 @@
     // Reset busy/err/notice à chaque ouverture pour éviter qu'un état
     // bloqué d'une tentative précédente laisse le bouton "..." figé.
     view.busy = false; view.err = ''; view.notice = '';
+    view.pwOpen = false; view.eraseConfirm = false; view.focusSel = '';
     renderModal();
     modalEl.hidden = false;
+    /* Les chiffres du compte se lisent à l'ouverture, jamais au chargement
+       de la page : c'est quatre requêtes pour une modale que la plupart
+       des visites n'ouvrent pas. Différé, donc hors du verrou GoTrue. */
+    if(state.user) setTimeout(loadExtras, 0);
     document.body.style.overflow = 'hidden';
     enterModal(modalEl);
   }
@@ -760,7 +765,38 @@
   }
 
   // ----- flows Supabase --------------------------------------------------
-  var view = { authMode:'signin', recovery:false, busy:false, notice:'', err:'', pendingUsername:'', eraseConfirm:false };
+  /* Les messages de GoTrue arrivent en anglais : « Invalid login
+     credentials » est la phrase que le lecteur voit le plus souvent sur un
+     site entièrement en français. On traduit celles qu'on connaît et l'on
+     laisse passer les autres telles quelles — mieux vaut un message
+     anglais qu'un « Échec » qui n'apprend rien. */
+  var ERR_FR = [
+    [/invalid login credentials/i,            'Adresse e-mail ou mot de passe incorrect.'],
+    [/email not confirmed/i,                  'Adresse e-mail non confirmée : ouvrez le lien qui vous a été envoyé.'],
+    [/user already registered|already been registered/i, 'Un compte existe déjà avec cette adresse.'],
+    [/unable to validate email address/i,     'Cette adresse e-mail n’est pas valide.'],
+    [/password should be at least (\d+)/i,    'Le mot de passe doit faire au moins $1 caractères.'],
+    [/new password should be different/i,     'Le nouveau mot de passe doit être différent de l’ancien.'],
+    [/you can only request this after (\d+)/i,'Trop de tentatives : réessayez dans $1 secondes.'],
+    [/email rate limit exceeded/i,            'Trop d’e-mails envoyés : réessayez plus tard.'],
+    [/signups not allowed/i,                  'Les inscriptions sont fermées pour le moment.'],
+    [/failed to fetch|networkerror|network request failed/i, 'Connexion impossible : vérifiez votre réseau.']
+  ];
+  function errFr(e, repli){
+    var m = (e && e.message) || '';
+    for(var i = 0; i < ERR_FR.length; i++){
+      var hit = m.match(ERR_FR[i][0]);
+      if(hit) return ERR_FR[i][1].replace('$1', hit[1] || '');
+    }
+    return m || repli;
+  }
+
+  /* `sec` = la destination du panneau (Profil / Lecture / Compte),
+     `pwOpen` = le champ de mot de passe est déplié, `focusSel` = ce qu'il
+     faut refocaliser après le prochain rendu, `extras` = les comptes lus
+     sur Supabase (invalidés quand la session change). */
+  var view = { authMode:'signin', recovery:false, busy:false, notice:'', err:'', pendingUsername:'',
+               eraseConfirm:false, sec:'profil', pwOpen:false, focusSel:'', extras:null };
 
   async function signIn(email, password){
     var c = await getClient(); if(!c) return { ok:false, msg:'Compte non configuré.' };
@@ -770,7 +806,7 @@
       if(r.error) throw r.error;
       return { ok:true };
     } catch(e){
-      view.err = (e && e.message) || 'Échec de la connexion.';
+      view.err = errFr(e, 'Échec de la connexion.');
       return { ok:false, msg: view.err };
     } finally {
       view.busy = false; renderModal();
@@ -791,7 +827,7 @@
       view.notice = 'Compte créé. Si la confirmation par e-mail est activée, vérifie ta boîte.';
       return { ok:true };
     } catch(e){
-      view.err = (e && e.message) || 'Échec de l\'inscription.';
+      view.err = errFr(e, 'Échec de l\'inscription.');
       return { ok:false, msg: view.err };
     } finally {
       view.busy = false; renderModal();
@@ -810,7 +846,7 @@
       view.notice = 'Un e-mail de réinitialisation a été envoyé.';
       return { ok:true };
     } catch(e){
-      view.err = (e && e.message) || 'Échec.';
+      view.err = errFr(e, 'Échec.');
       return { ok:false, msg: view.err };
     } finally {
       view.busy = false; renderModal();
@@ -825,16 +861,373 @@
       view.recovery = false; view.notice = 'Mot de passe enregistré.';
       return { ok:true };
     } catch(e){
-      view.err = (e && e.message) || 'Échec.';
+      view.err = errFr(e, 'Échec.');
       return { ok:false, msg: view.err };
     } finally {
       view.busy = false; renderModal();
     }
   }
 
-  // ----- rendu de la modale ---------------------------------------------
+  /* ══════════════════════════════════════════════════════════════════════
+     MON COMPTE — le panneau (mission « compte-refonte », septembre 2026)
+
+     Avant : une carte de 440 px qui empilait identité, pseudo, photo,
+     description, déconnexion et suppression de compte au même niveau —
+     sept commandes, aucune hiérarchie — et qui ne disait RIEN de ce que
+     le compte porte, alors que la synchro des passages est sa seule
+     raison d'être. On ne pouvait pas non plus y changer son mot de passe
+     une fois connecté : `updatePassword` n'était atteignable que par le
+     lien « mot de passe oublié », donc déconnecté.
+
+     Après : une tête d'identité sur la surface d'emphase du socle, puis
+     trois destinations — Profil (ce que les autres voient), Lecture (ce
+     que le compte porte), Compte (connexion, mot de passe, données,
+     suppression).
+
+     Les chiffres viennent TOUS de Supabase, jamais du localStorage : ce
+     panneau parle du COMPTE, pas de ce navigateur. C'est aussi ce qui le
+     rend identique partout — /index.html et la bibliothèque ne chargent
+     pas shell-annotations.js, le carnet local n'y serait pas lisible.
+     ══════════════════════════════════════════════════════════════════════ */
   function setLoggedInRenderer(fn){ loggedInRenderer = fn; if(modalEl && !modalEl.hidden) renderModal(); }
 
+  var SECS = [{ id:'profil', label:'Profil' },
+              { id:'lecture', label:'Lecture' },
+              { id:'compte', label:'Compte' }];
+
+  var MOIS = ['janvier','février','mars','avril','mai','juin','juillet','août',
+              'septembre','octobre','novembre','décembre'];
+  function moisAn(d){ return MOIS[d.getMonth()] + ' ' + d.getFullYear(); }
+  function jourComplet(d){ return d.getDate() + ' ' + MOIS[d.getMonth()] + ' ' + d.getFullYear(); }
+  /* Un chiffre qu'on n'a pas encore ne s'écrit pas « 0 » : le point dit
+     qu'on le cherche, le zéro dirait qu'il n'y en a pas. */
+  function chiffre(n){ return (n == null) ? '·' : String(n); }
+
+  /* Marques DESSINÉES — pas d'emoji dans une pastille d'interface. */
+  function mk(d){
+    return '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"'
+      + ' stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + '</svg>';
+  }
+  var MK_SYNC = mk('<path d="M3.4 8.4A6.8 6.8 0 0 1 15 6"/><path d="M16.6 11.6A6.8 6.8 0 0 1 5 14"/><path d="M15 2.6V6h-3.4"/><path d="M5 17.4V14h3.4"/>');
+  var MK_TALK = mk('<path d="M3 4.6h14v8.8H7.6L3.8 16.6z"/>');
+  var MK_STEP = mk('<path d="M3.4 16.6V11"/><path d="M10 16.6V4.6"/><path d="M16.6 16.6v-7.4"/>');
+
+  /* La bibliothèque, en petit : titre + chemin d'une œuvre. Le même outil
+     existe dans SHELL.commune — dupliqué à dessein plutôt que couplé. */
+  var acBiblio = null, acBiblioPending = null;
+  function bibLite(){
+    if(acBiblio) return Promise.resolve(acBiblio);
+    if(acBiblioPending) return acBiblioPending;
+    acBiblioPending = fetch('/oeuvres/bibliotheque.json', { cache:'no-cache' })
+      .then(function(r){ return r.ok ? r.json() : { works: [] }; })
+      .then(function(j){
+        var m = {};
+        (j.works || []).forEach(function(w){
+          if(!w || !w.id) return;
+          var p = String(w.path || '');
+          if(p && p.charAt(0) !== '/') p = '/' + p;
+          m[w.id] = { title: w.shortTitle || w.title || 'Œuvre', path: p,
+                      status: w.status || 'planned' };
+        });
+        // alias hérité des premières lignes écrites par Capital
+        if(m['capital-1'] && !m['capital']) m['capital'] = m['capital-1'];
+        acBiblio = m;
+        return m;
+      })
+      .catch(function(){ acBiblio = {}; return acBiblio; })
+      .then(function(m){ acBiblioPending = null; return m; });
+    return acBiblioPending;
+  }
+
+  /* Les comptes du compte. Jamais appelé depuis un callback GoTrue (règle
+     du deadlock) : openModal le lance après coup, hors du verrou. */
+  async function loadExtras(){
+    var u = state.user;
+    if(!u) return;
+    /* La bibliothèque se charge même si les comptes sont déjà en cache :
+       c'est elle qui donne un titre et un chemin aux passages et à la
+       reprise, et une seconde ouverture du panneau ne repasse pas par le
+       reste de cette fonction. */
+    bibLite().then(function(){
+      if(modalEl && !modalEl.hidden) renderModal();
+    });
+    if(view.extras && view.extras.uid === u.id) return;
+    var x = { uid:u.id, loading:true, pass:null, notes:null, chap:null, pub:null, latest:[] };
+    view.extras = x;
+    if(modalEl && !modalEl.hidden) renderModal();
+    var c = null;
+    try { c = await getClient(); } catch(e){}
+    if(view.extras !== x) return;
+    if(c){
+      try { var a = await c.from('annotations').select('*', { count:'exact', head:true });
+            if(!a.error) x.pass = a.count || 0; } catch(e){}
+      try { var n = await c.from('annotations').select('*', { count:'exact', head:true })
+                          .not('note','is',null).neq('note','');
+            if(!n.error) x.notes = n.count || 0; } catch(e){}
+      try { var p = await c.from('reading_progress').select('*', { count:'exact', head:true });
+            if(!p.error) x.chap = p.count || 0; } catch(e){}
+      try { var q = await c.from('public_notes').select('*', { count:'exact', head:true })
+                          .eq('author_id', u.id);
+            if(!q.error) x.pub = q.count || 0; } catch(e){}
+      try { var l = await c.from('annotations')
+                          .select('id,work,section,quote,note,color,before,after,created')
+                          .order('created', { ascending:false }).limit(4);
+            if(!l.error) x.latest = l.data || []; } catch(e){}
+    }
+    if(view.extras !== x) return;
+    x.loading = false;
+    if(modalEl && !modalEl.hidden) renderModal();
+  }
+
+  /* La reprise est LOCALE (localStorage, comme les surlignages) : elle dit
+     où l'on en était sur CET appareil. On prend la plus récente. */
+  function bestResume(){
+    var S = window.SHELL;
+    if(!S || !S.resume || !acBiblio) return null;
+    var best = null;
+    Object.keys(acBiblio).forEach(function(id){
+      if(id === 'capital') return;                    // alias, pas une œuvre
+      var r = null;
+      try { r = S.resume.get(id); } catch(e){}
+      if(!r || !r.title) return;
+      if(!best || (r.t || 0) > (best.r.t || 0)) best = { id:id, r:r, w:acBiblio[id] };
+    });
+    return best;
+  }
+
+  /* Le contrat de deep-link au passage, variante explicite. */
+  function passageHref(w, a){
+    if(!w || !w.path || !a.quote) return null;
+    return w.path + '#s=' + encodeURIComponent(a.section)
+      + '&q=' + encodeURIComponent(a.quote)
+      + (a.before ? '&b=' + encodeURIComponent(a.before) : '')
+      + (a.after ? '&a=' + encodeURIComponent(a.after) : '');
+  }
+
+  /* Le droit d'accès du RGPD, exercé d'un clic : le carnet de ce
+     navigateur, tel que le module le tient. Rien d'autre — le libellé le
+     dit, on ne promet pas un export du compte entier. */
+  function exportCarnet(){
+    var A = window.SHELL && window.SHELL.annotations;
+    if(!A || !A.allNotes) return false;
+    var rows;
+    try { rows = A.allNotes(); } catch(e){ return false; }
+    try {
+      var blob = new Blob([JSON.stringify({ site:'liremarx', passages:rows }, null, 2)],
+                          { type:'application/json' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url; a.download = 'lire-marx-carnet.json';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
+      return true;
+    } catch(e){ return false; }
+  }
+
+  /* Un seul « Enregistrer » pour le pseudo ET la description : deux
+     boutons d'enregistrement dans la même carte, c'est une chance sur
+     deux de cliquer le mauvais. */
+  async function saveProfile(name, bio){
+    var cur = (state.profile && state.profile.username) || '';
+    name = String(name || '').trim();
+    if(!name) return { ok:false, msg:'Choisissez un pseudo : 2 à 24 caractères (lettres, chiffres, _ ou -).' };
+    if(name !== cur){
+      var r = await saveUsername(name);
+      if(!r.ok) return r;
+    }
+    return await saveProfileMeta(bio, undefined);
+  }
+
+  // ----- fragments -------------------------------------------------------
+  function headHtml(){
+    var u = state.user, p = state.profile;
+    var pseudo = (p && p.username) || '';
+    var since = '';
+    if(u && u.created_at){
+      var d = new Date(u.created_at);
+      if(!isNaN(d.getTime())) since = 'membre depuis ' + moisAn(d);
+    }
+    var line = [esc((u && u.email) || ''), since].filter(Boolean).join(' · ');
+    return '<header class="ac-head"><p class="ac-kicker">Mon compte</p>'
+      + '<div class="ac-id"><span class="ac-ava">' + avaHtml(pseudo || (u && u.email), p && p.avatar_url) + '</span>'
+      + '<div class="ac-id-main"><h3 class="ac-name">'
+      + (pseudo ? esc(pseudo) : '<i>Sans pseudo</i>') + '</h3>'
+      + '<p class="ac-meta">' + line + '</p></div></div></header>';
+  }
+
+  function segHtml(items, current, label){
+    return '<div class="ac-seg" role="tablist" aria-label="' + esc(label) + '">'
+      + items.map(function(s){
+          var on = (current === s.id);
+          return '<button type="button" class="ac-t' + (on ? ' on' : '') + '" role="tab"'
+            + ' id="acTab-' + s.id + '" aria-selected="' + (on ? 'true' : 'false') + '"'
+            + ' aria-controls="acPane" tabindex="' + (on ? '0' : '-1') + '"'
+            + ' data-act="' + esc(s.act || 'sec') + '" data-sec="' + s.id + '">'
+            + esc(s.label) + '</button>';
+        }).join('')
+      + '</div>';
+  }
+
+  function secProfil(){
+    var u = state.user, p = state.profile;
+    var pseudo = (p && p.username) || '';
+    var bio = (p && p.bio) || '';
+    return '<div class="ac-sec"><p class="ac-sec-h">Votre identité publique</p>'
+      + '<label class="ac-lab" for="acUser">Pseudo</label>'
+      + '<input type="text" id="acUser" value="' + esc(pseudo) + '" placeholder="votre-pseudo"'
+      + ' maxlength="24" autocomplete="nickname" spellcheck="false">'
+      + '<label class="ac-lab gap" for="acBio">Description</label>'
+      + '<textarea id="acBio" maxlength="280" placeholder="Quelques mots sur vous — 280 caractères.">'
+      + esc(bio) + '</textarea>'
+      + '<div class="ac-actions"><button class="ac-btn pri" data-act="save-profile" type="button"'
+      + (view.busy ? ' disabled' : '') + '>' + (view.busy ? 'Enregistrement…' : 'Enregistrer') + '</button></div></div>'
+
+      + '<div class="ac-sec"><p class="ac-sec-h">Photo</p>'
+      + '<div class="ac-avarow"><span class="ac-ava ac-ava-edit">'
+      + avaHtml(pseudo || (u && u.email), p && p.avatar_url) + '</span>'
+      + '<div class="ac-avabtns"><input type="file" id="acAvaFile" accept="image/*" hidden>'
+      + '<button class="ac-btn" data-act="ava-pick" type="button"' + (view.busy ? ' disabled' : '') + '>Choisir une image…</button>'
+      + ((p && p.avatar_url) ? '<button class="ac-quiet" data-act="ava-clear" type="button">Retirer</button>' : '')
+      + '</div></div></div>'
+
+      + '<div class="ac-sec"><p class="ac-sec-h">Sur la Place publique, on vous lit ainsi</p>'
+      + '<div class="ac-preview"><span class="ac-ava" id="acPvAva">'
+      + avaHtml(pseudo || '?', p && p.avatar_url) + '</span>'
+      + '<div><div class="ac-pv-sig" id="acPvSig">' + esc(pseudo || 'votre pseudo') + '</div>'
+      + '<div class="ac-pv-when">à l’instant · Le Capital, chapitre I</div></div></div>'
+      + '<p class="ac-note">Votre adresse e-mail n’apparaît nulle part : elle ne sert qu’à vous connecter.</p></div>';
+  }
+
+  function secLecture(){
+    var x = view.extras || { loading:true };
+    var tiles = [{ n:x.pass, l:'passages surlignés' },
+                 { n:x.notes, l:'notes écrites' },
+                 { n:x.chap, l:'chapitres lus' },
+                 { n:x.pub, l:'notes publiques' }];
+    /* Règle tenue : on n'affiche jamais une case qu'on ne peut pas
+       remplir. Tant qu'on cherche, elle attend ; si la table n'a pas
+       répondu, elle disparaît plutôt que d'annoncer un faux zéro. */
+    var shown = x.loading ? tiles : tiles.filter(function(t){ return t.n != null; });
+    var h = '<div class="ac-sec"><p class="ac-sec-h">Ce que votre compte porte</p>';
+    if(shown.length){
+      h += '<div class="ac-stats">' + shown.map(function(t){
+        return '<div class="ac-stat"><div class="ac-stat-n">' + chiffre(t.n) + '</div>'
+             + '<div class="ac-stat-l">' + t.l + '</div></div>';
+      }).join('') + '</div>';
+    } else {
+      h += '<p class="ac-empty">Les chiffres de votre compte n’ont pas pu être lus. Réessayez plus tard.</p>';
+    }
+    h += '</div>';
+
+    var b = bestResume();
+    if(b){
+      h += '<div class="ac-sec"><p class="ac-sec-h">Reprendre sur cet appareil</p>'
+        + '<a class="ac-go" href="' + esc(b.w.path) + '">'
+        + '<span class="ac-go-k">' + esc(b.w.title) + '</span>'
+        + '<span class="ac-go-t">' + (b.r.num ? 'Chapitre ' + esc(b.r.num) + ' — ' : '') + esc(b.r.title) + '</span>'
+        + '<span class="ac-go-s">Rouvrir le texte →</span></a></div>';
+    }
+
+    var L = (x.latest || []).filter(function(a){ return a && a.quote; }).slice(0, 3);
+    h += '<div class="ac-sec"><p class="ac-sec-h">Vos derniers passages</p>';
+    if(L.length){
+      h += '<ul class="ac-pass">' + L.map(function(a){
+        var w = acBiblio ? acBiblio[a.work] : null;
+        var href = passageHref(w, a);
+        var col = String(a.color || 'gold');
+        var où = [(w && w.title) || a.work, 'section ' + a.section].join(' · ');
+        var inner = '<span class="ac-pass-bar c-' + esc(col) + '"></span><span>'
+          + '<span class="ac-pass-q">' + esc(a.quote) + '</span>'
+          + (a.note ? '<span class="ac-pass-n">' + esc(a.note) + '</span>' : '')
+          + '<span class="ac-pass-w">' + esc(où) + '</span></span>';
+        return '<li>' + (href
+          ? '<a class="ac-pass-item" href="' + esc(href) + '">' + inner + '</a>'
+          : '<span class="ac-pass-item">' + inner + '</span>') + '</li>';
+      }).join('') + '</ul>';
+    } else if(x.loading){
+      h += '<p class="ac-empty">Lecture de votre compte…</p>';
+    } else {
+      h += '<p class="ac-empty">Aucun passage sur ce compte pour l’instant. <b>Surlignez une phrase</b> en lisant : elle vous suivra d’un appareil à l’autre.</p>';
+    }
+    h += '<div class="ac-actions"><a class="ac-btn" href="/oeuvres/carnet.html">Ouvrir mon carnet</a></div></div>';
+    return h;
+  }
+
+  function secCompte(){
+    var u = state.user;
+    var créé = '';
+    if(u && u.created_at){
+      var d = new Date(u.created_at);
+      if(!isNaN(d.getTime())) créé = jourComplet(d);
+    }
+    var h = '<div class="ac-sec"><p class="ac-sec-h">Connexion</p><dl class="ac-facts">'
+      + '<div><dt>Adresse e-mail</dt><dd>' + esc((u && u.email) || '') + '</dd></div>'
+      + (créé ? '<div><dt>Compte créé le</dt><dd>' + créé + '</dd></div>' : '')
+      + '</dl>'
+      + '<div class="ac-actions"><button class="ac-btn" data-act="signout" type="button">Se déconnecter</button></div></div>';
+
+    h += '<div class="ac-sec"><p class="ac-sec-h">Mot de passe</p>';
+    if(view.pwOpen){
+      h += '<label class="ac-lab" for="acNew">Nouveau mot de passe</label>'
+        + '<input type="password" id="acNew" placeholder="6 caractères minimum" autocomplete="new-password">'
+        + '<div class="ac-actions"><button class="ac-quiet" data-act="pw-cancel" type="button">Annuler</button>'
+        + '<button class="ac-btn pri" data-act="setpw" type="button"' + (view.busy ? ' disabled' : '') + '>'
+        + (view.busy ? 'Enregistrement…' : 'Enregistrer') + '</button></div>';
+    } else {
+      h += '<div class="ac-row"><button class="ac-btn" data-act="pw-open" type="button">Changer mon mot de passe</button></div>';
+    }
+    h += '</div>';
+
+    var carnet = !!(window.SHELL && window.SHELL.annotations && window.SHELL.annotations.allNotes);
+    h += '<div class="ac-sec"><p class="ac-sec-h">Vos données</p><div class="ac-row">'
+      + '<button class="ac-btn" data-act="privacy" type="button">Confidentialité &amp; données</button>'
+      + (carnet ? '<button class="ac-btn" data-act="export" type="button">Télécharger mon carnet</button>' : '')
+      + '</div>'
+      + (carnet ? '<p class="ac-note">Un fichier JSON avec les passages et les notes de ce navigateur.</p>' : '')
+      + '</div>';
+
+    h += '<div class="ac-sec"><div class="ac-danger"><p class="ac-danger-h">Zone de danger</p>';
+    if(view.eraseConfirm){
+      h += '<p><b>Supprimer définitivement votre compte ?</b> Cela efface votre compte et toutes vos données — annotations privées, notes et réponses publiques, pseudo, signalements. Vous serez déconnecté et ne pourrez plus vous reconnecter. Action irréversible.</p>'
+        + '<div class="ac-row"><button class="ac-btn danger" data-act="erase-yes" type="button"' + (view.busy ? ' disabled' : '') + '>'
+        + (view.busy ? 'Suppression…' : 'Oui, supprimer mon compte') + '</button>'
+        + '<button class="ac-quiet" data-act="erase-no" type="button">Annuler</button></div>';
+    } else {
+      h += '<p>La suppression efface votre compte et l’ensemble de vos données, sans retour possible.</p>'
+        + '<div class="ac-row"><button class="ac-btn danger" data-act="erase" type="button">Supprimer mon compte</button></div>';
+    }
+    return h + '</div></div>';
+  }
+
+  function guestBody(signup, inv){
+    var h = '<label class="ac-lab" for="acEmail">Adresse e-mail</label>'
+      + '<input type="email" id="acEmail" placeholder="vous@exemple.fr" autocomplete="email"' + inv + '>'
+      + (signup ? '<label class="ac-lab gap" for="acUser">Pseudo public</label>'
+                + '<input type="text" id="acUser" placeholder="2 à 24 caractères" maxlength="24" autocomplete="nickname" spellcheck="false"' + inv + '>' : '')
+      + '<label class="ac-lab gap" for="acPw">Mot de passe</label>'
+      + '<input type="password" id="acPw" placeholder="' + (signup ? '6 caractères minimum' : 'votre mot de passe')
+      + '" autocomplete="' + (signup ? 'new-password' : 'current-password') + '"' + inv + '>'
+      + '<div class="ac-actions stretch">'
+      + '<button class="ac-btn pri wide" data-act="' + (signup ? 'do-signup' : 'do-signin') + '" type="button"'
+      + (view.busy ? ' disabled' : '') + '>'
+      + (view.busy ? 'Un instant…' : (signup ? 'Créer mon compte' : 'Se connecter')) + '</button></div>';
+    if(!signup){
+      h += '<div class="ac-row center">'
+        + '<button class="ac-quiet" data-act="reset" type="button">Mot de passe oublié ?</button></div>';
+    }
+    /* La liste des trois gains ne s'affiche qu'à l'inscription : elle
+       argumente, et l'on n'argumente pas auprès de qui revient. */
+    if(signup){
+      h += '<div class="ac-sec"><p class="ac-sec-h">Ce qu’un compte ajoute</p><ul class="ac-bens">'
+        + '<li class="ac-ben">' + MK_SYNC + '<span><b>Vos passages vous suivent.</b> Surlignages et notes se retrouvent sur tous vos appareils.</span></li>'
+        + '<li class="ac-ben">' + MK_TALK + '<span><b>Vous pouvez écrire.</b> Ouvrir une discussion, répondre et appuyer une lecture sur la Place publique.</span></li>'
+        + '<li class="ac-ben">' + MK_STEP + '<span><b>Votre progression se garde.</b> Les chapitres lus restent cochés d’une visite à l’autre.</span></li>'
+        + '</ul></div>';
+    }
+    return h;
+  }
+
+  // ----- rendu du panneau ------------------------------------------------
   function renderModal(){
     if(!modalEl) modalEl = document.getElementById('acctModal');
     if(!modalEl) return;
@@ -851,106 +1244,95 @@
     // (init Supabase pas encore lancé ou en cours), on laisse passer pour
     // afficher la vue invité — le bootstrap re-rendra dès qu'il a fini.
     if(configured === false){
-      slot.innerHTML = '<div class="ac-card"><h3>Compte non configuré</h3><p class="ac-p">La synchronisation par compte n’est pas branchée : il reste à renseigner les clés Supabase dans <code>config.js</code> à la racine. En attendant, le site reste 100 % local.</p></div>';
+      slot.innerHTML = '<div class="ac-panel"><header class="ac-head">'
+        + '<p class="ac-kicker">Mon compte</p><h3 class="ac-name">Compte non configuré</h3></header>'
+        + '<div class="ac-pane"><p class="ac-p">La synchronisation par compte n’est pas branchée : il reste à renseigner les clés Supabase dans <code>config.js</code> à la racine. En attendant, le site reste 100 % local — vos surlignages vivent dans ce navigateur.</p></div></div>';
       return;
     }
     if(view.recovery){
-      slot.innerHTML = '<div class="ac-card"><h3>Choisir un nouveau mot de passe</h3>' + err + ok
+      slot.innerHTML = '<div class="ac-panel"><header class="ac-head">'
+        + '<p class="ac-kicker">Mon compte</p><h3 class="ac-name">Nouveau mot de passe</h3>'
+        + '<p class="ac-meta">Choisissez-en un, puis vous serez connecté.</p></header>'
+        + '<div class="ac-pane">' + err + ok
         + '<label class="ac-lab" for="acNew">Nouveau mot de passe</label>'
         + '<input type="password" id="acNew" placeholder="6 caractères minimum" autocomplete="new-password"' + inv + '>'
-        + '<div class="ac-row"><button class="btn red" data-act="setpw" type="button"' + (view.busy ? ' disabled' : '') + '>Enregistrer</button></div></div>';
+        + '<div class="ac-actions stretch"><button class="ac-btn pri wide" data-act="setpw" type="button"'
+        + (view.busy ? ' disabled' : '') + '>Enregistrer</button></div></div></div>';
       wireModalActions(slot);
       return;
     }
     if(state.user){
       if(loggedInRenderer){
         try { loggedInRenderer(slot, { user: state.user, profile: state.profile, view: view, esc: esc, avaHtml: avaHtml }); }
-        catch(e){ slot.innerHTML = '<div class="ac-card"><h3>Mon compte</h3>' + err + ok + '<p class="ac-p">Erreur de rendu.</p></div>'; }
-      } else {
-        // Rendu Mon compte unifié — identique sur Capital, Manuscrits,
-        // bibliothèque, etc. : pseudo + avatar + description + déconnexion +
-        // suppression de compte. Toutes les pages partagent la même
-        // expérience d'auth.
-        var p = state.profile, u = state.user;
-        var pseudo = (p && p.username) || '';
-        var bio = (p && p.bio) || '';
-        slot.innerHTML = '<div class="ac-card"><h3>Mon compte</h3>' + err + ok
-          + '<div class="ac-id"><span class="ac-ava">' + avaHtml(pseudo || u.email, p && p.avatar_url) + '</span><div><div class="ac-pseudo">' + (pseudo ? esc(pseudo) : '<i>sans pseudo</i>') + '</div><div class="ac-mail">' + esc(u.email || '') + '</div></div></div>'
-          + '<label class="ac-lab" for="acUser">Pseudo public</label>'
-          + '<div class="ac-row"><input type="text" id="acUser" value="' + esc(pseudo) + '" placeholder="ton-pseudo" maxlength="24"><button class="btn" data-act="saveuser" type="button">Enregistrer</button></div>'
-          + '<p class="ac-note">Ce pseudo apparaîtra à côté de tes notes publiques ; ton e-mail, jamais.</p>'
-          + '<label class="ac-lab">Photo de profil</label>'
-          + '<div class="ac-avarow"><span class="ac-ava ac-ava-edit">' + avaHtml(pseudo || u.email, p && p.avatar_url) + '</span>'
-          + '<div class="ac-avabtns"><input type="file" id="acAvaFile" accept="image/*" style="display:none">'
-          + '<button class="btn" data-act="ava-pick" type="button"' + (view.busy ? ' disabled' : '') + '>Choisir une image…</button>'
-          + ((p && p.avatar_url) ? '<button class="lk" data-act="ava-clear" type="button">Retirer la photo</button>' : '') + '</div></div>'
-          + '<label class="ac-lab" for="acBio">Description</label>'
-          + '<textarea id="acBio" class="ac-bio" maxlength="280" placeholder="Quelques mots sur toi (280 caractères max).">' + esc(bio) + '</textarea>'
-          + '<div class="ac-row"><button class="btn red" data-act="savemeta" type="button">Enregistrer le profil</button></div>'
-          + (view.eraseConfirm
-              ? '<div class="ac-danger"><b>Supprimer définitivement ton compte ?</b> Cela efface ton compte et toutes tes données — annotations privées, notes et réponses publiques, pseudo, signalements. Tu seras déconnecté et ne pourras plus te reconnecter. Action irréversible.<div class="ac-row" style="margin-top:8px"><button class="btn red" data-act="erase-yes" type="button"' + (view.busy ? ' disabled' : '') + '>' + (view.busy ? 'Suppression…' : 'Oui, supprimer mon compte') + '</button><button class="lk" data-act="erase-no" type="button">Annuler</button></div></div>'
-              : '')
-          + '<div class="ac-row ac-end"><button class="lk" data-act="signout" type="button">Se déconnecter</button><button class="lk ac-del" data-act="erase" type="button">Supprimer mon compte</button></div>'
-          + '<div class="ac-foot"><button class="lk" data-act="privacy" type="button">Confidentialité &amp; données</button></div></div>';
+        catch(e){ slot.innerHTML = '<div class="ac-panel"><div class="ac-pane"><p class="ac-p">Erreur de rendu.</p></div></div>'; }
+        wireModalActions(slot);
+        return;
       }
+      if(SECS.every(function(s){ return s.id !== view.sec; })) view.sec = 'profil';
+      var body = view.sec === 'lecture' ? secLecture()
+               : view.sec === 'compte'  ? secCompte()
+               : secProfil();
+      slot.innerHTML = '<div class="ac-panel">' + headHtml()
+        + segHtml(SECS, view.sec, 'Sections de mon compte')
+        + '<div class="ac-pane" id="acPane" role="tabpanel" aria-labelledby="acTab-' + view.sec + '">'
+        + err + ok + body + '</div></div>';
       wireModalActions(slot);
       return;
     }
 
-    // Vue invité (login / inscription)
+    // Vue invité — se connecter / créer un compte
     var signup = view.authMode === 'signup';
-    slot.innerHTML = '<div class="ac-card"><div class="ac-tabs">'
-      + '<button class="ac-t' + (signup ? '' : ' on') + '" data-act="mode-signin" type="button">Se connecter</button>'
-      + '<button class="ac-t' + (signup ? ' on' : '') + '" data-act="mode-signup" type="button">Créer un compte</button></div>' + err + ok
-      /* Ces trois champs étaient les SEULS contrôles du site sans nom
-         accessible : un placeholder n'est pas une étiquette, il disparaît
-         à la saisie. WCAG 3.3.2 et 4.1.2. */
-      + '<label class="ac-lab" for="acEmail">Adresse e-mail</label>'
-      + '<input type="email" id="acEmail" placeholder="vous@exemple.fr" autocomplete="email"' + inv + '>'
-      + (signup ? '<label class="ac-lab" for="acUser">Pseudo public</label>'
-                + '<input type="text" id="acUser" placeholder="2 à 24 caractères" maxlength="24"' + inv + '>' : '')
-      + '<label class="ac-lab" for="acPw">Mot de passe</label>'
-      + '<input type="password" id="acPw" placeholder="' + (signup ? '6 caractères minimum' : 'votre mot de passe') + '" autocomplete="' + (signup ? 'new-password' : 'current-password') + '"' + inv + '>'
-      + '<div class="ac-row"><button class="btn red" data-act="' + (signup ? 'do-signup' : 'do-signin') + '" type="button"' + (view.busy ? ' disabled' : '') + '>' + (view.busy ? '…' : (signup ? 'Créer mon compte' : 'Se connecter')) + '</button>'
-      + (signup ? '' : '<button class="lk" data-act="reset" type="button">Mot de passe oublié ?</button>') + '</div>'
-      + '<p class="ac-note">' + (signup ? 'Tu choisis un pseudo public et un mot de passe ; ton adresse e-mail reste privée.' : 'Retrouve et synchronise tes annotations sur tous tes appareils.') + '</p>'
-      + '<div class="ac-foot"><button class="lk" data-act="privacy" type="button">Confidentialité &amp; données</button></div></div>';
+    slot.innerHTML = '<div class="ac-panel"><header class="ac-head">'
+      + '<p class="ac-kicker">Mon compte</p>'
+      + '<h3 class="ac-name">' + (signup ? 'Créer un compte' : 'Se connecter') + '</h3>'
+      + '<p class="ac-meta">Vos passages vivent dans ce navigateur. Un compte les emmène partout.</p></header>'
+      + segHtml([{ id:'signin', label:'Se connecter', act:'mode-signin' },
+                 { id:'signup', label:'Créer un compte', act:'mode-signup' }],
+                signup ? 'signup' : 'signin', 'Se connecter ou créer un compte')
+      + '<div class="ac-pane" id="acPane" role="tabpanel" aria-labelledby="acTab-' + (signup ? 'signup' : 'signin') + '">'
+      + err + ok + guestBody(signup, inv)
+      + '<div class="ac-foot"><button class="ac-quiet" data-act="privacy" type="button">Confidentialité &amp; données</button>'
+      + '<span class="ac-pv-when">Aucun pistage, aucun cookie publicitaire.</span></div>'
+      + '</div></div>';
     wireModalActions(slot);
   }
+
   function field(el, id){ var x = el.querySelector('#' + id); return x ? x.value : ''; }
+
   function wireModalActions(slot){
     slot.querySelectorAll('[data-act]').forEach(function(b){
       b.onclick = function(){
         var a = b.dataset.act;
-        if(a === 'mode-signin'){ view.authMode = 'signin'; view.err = ''; view.notice = ''; renderModal(); }
-        else if(a === 'mode-signup'){ view.authMode = 'signup'; view.err = ''; view.notice = ''; renderModal(); }
+        if(a === 'sec'){ view.sec = b.dataset.sec; view.err = ''; view.notice = ''; view.focusSel = '.ac-t.on'; renderModal(); }
+        else if(a === 'mode-signin'){ view.authMode = 'signin'; view.err = ''; view.notice = ''; view.focusSel = '.ac-t.on'; renderModal(); }
+        else if(a === 'mode-signup'){ view.authMode = 'signup'; view.err = ''; view.notice = ''; view.focusSel = '.ac-t.on'; renderModal(); }
         else if(a === 'do-signin'){ signIn(field(slot,'acEmail').trim(), field(slot,'acPw')); }
         else if(a === 'do-signup'){ signUp(field(slot,'acEmail').trim(), field(slot,'acPw'), field(slot,'acUser').trim()); }
-        else if(a === 'reset'){ var em = field(slot,'acEmail').trim(); if(!em){ view.err = 'Indique d\'abord ton adresse e-mail.'; renderModal(); } else resetPassword(em); }
-        else if(a === 'setpw'){ updatePassword(field(slot,'acNew')); }
+        else if(a === 'reset'){ var em = field(slot,'acEmail').trim(); if(!em){ view.err = 'Indiquez d’abord votre adresse e-mail.'; renderModal(); } else resetPassword(em); }
+        else if(a === 'pw-open'){ view.pwOpen = true; view.err = ''; view.notice = ''; view.focusSel = '#acNew'; renderModal(); }
+        else if(a === 'pw-cancel'){ view.pwOpen = false; view.focusSel = '[data-act="pw-open"]'; renderModal(); }
+        else if(a === 'setpw'){
+          var pw = field(slot,'acNew');
+          updatePassword(pw).then(function(r){ if(r && r.ok){ view.pwOpen = false; renderModal(); } });
+        }
         else if(a === 'signout'){ signOut(); }
         else if(a === 'privacy'){ openPrivacy(); }
-        else if(a === 'saveuser'){
-          var name = field(slot,'acUser').trim();
+        else if(a === 'export'){
           view.err = ''; view.notice = '';
-          saveUsername(name).then(function(r){
-            if(r.ok){ view.notice = 'Pseudo enregistré.'; renderChip(); }
-            else { view.err = r.msg || 'Échec.'; }
-            renderModal();
-          });
+          if(exportCarnet()) view.notice = 'Carnet téléchargé.';
+          else view.err = 'Export impossible depuis cette page.';
+          renderModal();
         }
-        else if(a === 'savemeta'){
-          view.err = ''; view.notice = '';
-          saveProfileMeta(field(slot,'acBio'), undefined).then(function(r){
+        else if(a === 'save-profile'){
+          view.err = ''; view.notice = ''; view.busy = true; renderModal();
+          saveProfile(field(slot,'acUser'), field(slot,'acBio')).then(function(r){
+            view.busy = false;
             if(r.ok){ view.notice = 'Profil enregistré.'; renderChip(); }
             else { view.err = r.msg || 'Échec.'; }
             renderModal();
           });
         }
-        else if(a === 'ava-pick'){
-          var fi = slot.querySelector('#acAvaFile');
-          if(fi) fi.click();
-        }
+        else if(a === 'ava-pick'){ var fi = slot.querySelector('#acAvaFile'); if(fi) fi.click(); }
         else if(a === 'ava-clear'){
           view.err = ''; view.notice = '';
           saveProfileMeta(undefined, '').then(function(r){
@@ -959,8 +1341,8 @@
             renderModal();
           });
         }
-        else if(a === 'erase'){ view.eraseConfirm = true; renderModal(); }
-        else if(a === 'erase-no'){ view.eraseConfirm = false; renderModal(); }
+        else if(a === 'erase'){ view.eraseConfirm = true; view.focusSel = '[data-act="erase-no"]'; renderModal(); }
+        else if(a === 'erase-no'){ view.eraseConfirm = false; view.focusSel = '[data-act="erase"]'; renderModal(); }
         else if(a === 'erase-yes'){
           view.busy = true; view.err = ''; view.notice = ''; renderModal();
           eraseMyData().then(function(r){
@@ -972,7 +1354,38 @@
         }
       };
     });
-    // Câbler le file input pour avatar
+
+    /* Un sélecteur segmenté se parcourt aux flèches, avec un seul arrêt de
+       tabulation (tabindex roulant) — c'est ce que SHELL.tabs fait pour les
+       barres de page ; ici le panneau est reconstruit à chaque bascule, on
+       le câble donc au montage. */
+    var tabs = [].slice.call(slot.querySelectorAll('[role="tab"]'));
+    tabs.forEach(function(t, i){
+      t.addEventListener('keydown', function(e){
+        var j = -1;
+        if(e.key === 'ArrowRight' || e.key === 'ArrowDown') j = (i + 1) % tabs.length;
+        else if(e.key === 'ArrowLeft' || e.key === 'ArrowUp') j = (i - 1 + tabs.length) % tabs.length;
+        else if(e.key === 'Home') j = 0;
+        else if(e.key === 'End') j = tabs.length - 1;
+        if(j < 0) return;
+        e.preventDefault();
+        tabs[j].click();
+      });
+    });
+
+    /* L'aperçu suit la frappe SANS re-rendu : re-rendre volerait le focus
+       du champ à chaque lettre (le défaut déjà corrigé sur les soutiens de
+       la Place publique). */
+    var uf = slot.querySelector('#acUser'), sig = slot.querySelector('#acPvSig');
+    if(uf && sig){
+      uf.addEventListener('input', function(){
+        var v = uf.value.trim();
+        sig.textContent = v || 'votre pseudo';
+        var ava = slot.querySelector('#acPvAva');
+        if(ava && !ava.querySelector('.ava-img')) ava.textContent = (v || '?').slice(0,1).toUpperCase();
+      });
+    }
+
     var af = slot.querySelector('#acAvaFile');
     if(af){
       af.onchange = function(){
@@ -987,8 +1400,16 @@
         });
       };
     }
-  }
 
+    /* Le panneau est réécrit en entier à chaque rendu : sans cela le focus
+       retombe sur <body> dès qu'on change d'onglet ou qu'on déplie un
+       champ, et le clavier repart du début de la page. */
+    if(view.focusSel){
+      var target = slot.querySelector(view.focusSel);
+      view.focusSel = '';
+      if(target) target.focus();
+    }
+  }
   // Sauvegarde du profil complet (pseudo + bio + avatar). Conserve les
   // champs non touchés (passe undefined pour ne pas écraser).
   async function saveProfileMeta(bio, avatarUrl){
@@ -1117,11 +1538,13 @@
     c.auth.onAuthStateChange(function(ev, session){
       if(ev === 'PASSWORD_RECOVERY'){ view.recovery = true; openModal(); }
       setUser((session && session.user) || null);
-      if(!state.user) setProfile(null);
+      if(!state.user){ setProfile(null); view.extras = null; view.sec = 'profil'; view.pwOpen = false; }
       // rendu immédiat (pas de requête Supabase ici)
       emit();
       renderChip();
       if(modalEl && !modalEl.hidden) renderModal();
+      // les comptes du panneau, hors du verrou GoTrue comme loadProfile
+      if(state.user && modalEl && !modalEl.hidden) setTimeout(loadExtras, 0);
       // chargement du profil HORS du verrou GoTrue
       if(state.user){
         setTimeout(function(){
