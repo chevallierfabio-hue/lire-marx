@@ -303,6 +303,47 @@ html:not(.no-anim) .hs-hero.lit .hs-hint{opacity:1;transition-delay:.62s;}
   .hs-do-cols{grid-template-columns:1fr;}
 }
 
+/* — QUESTIONS FRÉQUENTES —
+   Une colonne de dépliants, à la grammaire de carte de la maison (surface,
+   liseré, rayon 16, survol vers l'or). Les réponses sont DANS le HTML même
+   repliées : c'est ce qui les rend citables par les moteurs de réponse, et
+   le JSON-LD FAQPage du <head> en reprend le texte mot pour mot. */
+.hs-faq{padding:clamp(56px,8vh,96px) clamp(24px,5vw,80px);}
+.hs-faq-list{display:flex;flex-direction:column;gap:10px;max-width:840px;}
+.hs-faq-item{background:var(--surface);border:1px solid var(--border);
+  border-radius:16px;transition:border-color .2s ease;}
+.hs-faq-item:hover{border-color:rgba(216,173,76,.42);}
+.hs-faq-item>summary{display:flex;align-items:flex-start;gap:18px;
+  justify-content:space-between;padding:19px 22px;cursor:pointer;
+  list-style:none;border-radius:16px;}
+.hs-faq-item>summary::-webkit-details-marker{display:none;}
+.hs-faq-item>summary:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+.hs-faq-q{font-family:'Fraunces',serif;font-weight:900;
+  font-size:clamp(1.02rem,1.6vw,1.2rem);letter-spacing:-.02em;
+  line-height:1.34;color:var(--text);}
+/* la marque : un « + » dessiné, qui devient un « − » une fois ouvert */
+.hs-faq-mk{position:relative;flex:0 0 auto;width:15px;height:15px;margin-top:4px;}
+.hs-faq-mk::before,.hs-faq-mk::after{content:"";position:absolute;
+  background:var(--gold);border-radius:1px;}
+.hs-faq-mk::before{left:0;right:0;top:7px;height:1.5px;}
+.hs-faq-mk::after{top:0;bottom:0;left:6.75px;width:1.5px;
+  transition:transform .22s cubic-bezier(.16,1,.3,1);}
+.hs-faq-item[open] .hs-faq-mk::after{transform:scaleY(0);}
+.hs-faq-a{padding:0 22px 20px;max-width:66ch;}
+.hs-faq-a p{font-size:.92rem;line-height:1.72;color:var(--muted);}
+.hs-faq-a p+p{margin-top:9px;}
+.hs-faq-a a{color:var(--gold);text-underline-offset:3px;}
+.hs-faq-list.in>*:nth-child(5){transition-delay:.32s;}
+.hs-faq-list.in>*:nth-child(6){transition-delay:.40s;}
+.hs-faq-list.in>*:nth-child(7){transition-delay:.48s;}
+.hs-faq-list.in>*:nth-child(8){transition-delay:.56s;}
+.hs-faq-more{margin-top:22px;font-size:.9rem;color:var(--muted);}
+.hs-faq-more a{color:var(--gold);text-underline-offset:3px;}
+@media(max-width:560px){
+  .hs-faq-item>summary{padding:16px 17px;gap:13px;}
+  .hs-faq-a{padding:0 17px 17px;}
+}
+
 /* — LA BIBLIOTHÈQUE (catalogue piloté par oeuvres/bibliotheque.json) — */
 .hs-lib{padding:clamp(56px,8vh,96px) clamp(24px,5vw,80px);}
 .hs-lib-head .hs-sec-h{margin-bottom:10px;}
@@ -922,6 +963,14 @@ html.no-motion .reveal-stagger>*,
 html.no-motion .hs-hero .hs-left>*,
 html.no-motion .hs-hero .hs-right{
   opacity:1!important;transform:none!important;transition:none!important;}
+/* Sans JavaScript, personne ne pose jamais `.in` : le filet de fin de page
+   est lui-même du script. Toute la page resterait à l'opacité 0 — les
+   réponses de la FAQ comprises, c'est-à-dire précisément ce qu'un moteur de
+   réponse vient lire. La page s'affiche donc finie. */
+@media (scripting: none){
+  .reveal,.reveal-stagger>*,.hs-hero .hs-left>*,.hs-hero .hs-right{
+    opacity:1!important;transform:none!important;transition:none!important;}
+}
 html.no-motion .marquee-track{animation:none!important;}
 html.no-motion .circuit-band{--cp:1;}
 html.no-motion .circuit-band .circuit-spark{opacity:0!important;}
@@ -957,6 +1006,81 @@ html.no-motion header.topbar,html.no-motion header.topbar .topbar-in{transition:
   "url": "https://liremarx.com/",
   "description": "Ateliers de lecture guidée du Capital et des Manuscrits de 1844 de Karl Marx, en accès libre.",
   "sameAs": []
+}
+</script>
+<!-- FAQPage : DÉRIVÉ de la section #questions (script en tête du commit).
+     Le texte doit rester identique au visible — un balisage qui promet une
+     réponse absente de la page est une donnée structurée mensongère. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Qu'est-ce que Lire Marx ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Lire Marx est un site de lecture guidée des œuvres de Karl Marx. Chaque œuvre y a son atelier, où le texte intégral voisine avec l'appareil qui l'accompagne : résumé du chapitre, chronologie, modèles animés, renvois d'un passage à l'autre. Deux œuvres sont ouvertes aujourd'hui, Le Capital — Livre I et les Manuscrits de 1844."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Faut-il des connaissances en économie ou en philosophie pour commencer ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Non, et l'atelier est fait pour ça. Chaque chapitre s'ouvre sur un résumé en clair de son argument, les termes techniques sont définis au fil du texte, et l'appareil critique se lit à côté du passage qu'il éclaire plutôt que dans un manuel séparé. On peut lire d'une traite ou n'ouvrir que ce dont on a besoin."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Par quel livre commencer ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Il y a deux portes. Les Manuscrits de 1844 pour le jeune Marx, c'est-à-dire le travail aliéné, la propriété privée et l'émancipation. Le Capital — Livre I pour la critique de l'économie politique : la marchandise, la plus-value, l'accumulation. La bibliothèque indique, pour chaque œuvre, ce qu'il vaut mieux avoir lu avant et ce qu'elle prépare."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Le site est-il gratuit ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Oui. Lire Marx est libre, gratuit et sans publicité. Aucun compte n'est nécessaire pour lire : un compte sert uniquement à retrouver ses annotations d'un appareil à l'autre et à participer à la Place publique."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "D'où viennent les textes ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Du domaine public, et chaque œuvre affiche sa source. Le Capital est servi dans la traduction française de Joseph Roy (1872), revue par Marx lui-même, et chargée depuis Wikisource. Les Manuscrits de 1844, écrits en 1844 et publiés seulement en 1932, viennent de l'archive du Marxists Internet Archive."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Peut-on annoter le texte et garder ses notes ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Oui. On surligne un passage, on y attache une note, et tout se retrouve dans « Mon carnet » : un cahier par œuvre, consultable par œuvre ou par date, avec un retour d'un clic vers le passage d'origine et un export en Markdown ou en JSON. Sans compte, les notes restent sur l'appareil."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Qu'est-ce que la Place publique ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "C'est le forum du site. On y ouvre une discussion sur une œuvre, on commente un passage précis, on répond en fil et on appuie une lecture. Il n'y a pas de vote négatif : on soutient une lecture, on n'enterre personne. Les notes partagées apparaissent aussi en marge du passage qu'elles commentent, pendant qu'on lit."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Quelles œuvres viendront ensuite ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Le corpus compte douze œuvres, de L'Idéologie allemande (1846) aux Livres II et III du Capital, en passant par les Grundrisse et la Critique du programme de Gotha. Deux sont ouvertes ; la bibliothèque montre la trajectoire entière et signale ce qui est déjà lisible."
+      }
+    }
+  ]
 }
 </script>
 </head>
@@ -1137,6 +1261,51 @@ html.no-motion header.topbar,html.no-motion header.topbar .topbar-in{transition:
         <span class="hs-stat-l">espace de discussion<br>ouvert</span>
       </div>
     </div>
+
+    <!-- Questions fréquentes. Les réponses sont dans le HTML même repliées :
+         c'est ce qui les rend citables par les moteurs de réponse. Le JSON-LD
+         FAQPage du <head> en reprend le texte MOT POUR MOT — il est dérivé de
+         ce balisage, il ne se réécrit pas à la main. -->
+    <section class="hs-faq" id="questions" aria-labelledby="faq-h">
+      <p class="hs-sec-label">Questions fréquentes</p>
+      <h2 class="hs-sec-h reveal" id="faq-h">Ce qu'on nous demande le plus souvent</h2>
+      <div class="hs-faq-list reveal-stagger">
+      <details class="hs-faq-item" open>
+        <summary><span class="hs-faq-q">Qu'est-ce que Lire Marx&nbsp;?</span><span class="hs-faq-mk" aria-hidden="true"></span></summary>
+        <div class="hs-faq-a"><p>Lire Marx est un site de lecture guidée des œuvres de Karl Marx. Chaque œuvre y a son atelier, où le texte intégral voisine avec l'appareil qui l'accompagne&nbsp;: résumé du chapitre, chronologie, modèles animés, renvois d'un passage à l'autre. Deux œuvres sont ouvertes aujourd'hui, <i>Le Capital — Livre&nbsp;I</i> et les <i>Manuscrits de 1844</i>.</p></div>
+      </details>
+      <details class="hs-faq-item">
+        <summary><span class="hs-faq-q">Faut-il des connaissances en économie ou en philosophie pour commencer&nbsp;?</span><span class="hs-faq-mk" aria-hidden="true"></span></summary>
+        <div class="hs-faq-a"><p>Non, et l'atelier est fait pour ça. Chaque chapitre s'ouvre sur un résumé en clair de son argument, les termes techniques sont définis au fil du texte, et l'appareil critique se lit à côté du passage qu'il éclaire plutôt que dans un manuel séparé. On peut lire d'une traite ou n'ouvrir que ce dont on a besoin.</p></div>
+      </details>
+      <details class="hs-faq-item">
+        <summary><span class="hs-faq-q">Par quel livre commencer&nbsp;?</span><span class="hs-faq-mk" aria-hidden="true"></span></summary>
+        <div class="hs-faq-a"><p>Il y a deux portes. Les <i>Manuscrits de 1844</i> pour le jeune Marx, c'est-à-dire le travail aliéné, la propriété privée et l'émancipation. <i>Le Capital — Livre&nbsp;I</i> pour la critique de l'économie politique&nbsp;: la marchandise, la plus-value, l'accumulation.</p><p>La bibliothèque indique, pour chaque œuvre, ce qu'il vaut mieux avoir lu avant et ce qu'elle prépare.</p></div>
+      </details>
+      <details class="hs-faq-item">
+        <summary><span class="hs-faq-q">Le site est-il gratuit&nbsp;?</span><span class="hs-faq-mk" aria-hidden="true"></span></summary>
+        <div class="hs-faq-a"><p>Oui. Lire Marx est libre, gratuit et sans publicité. Aucun compte n'est nécessaire pour lire&nbsp;: un compte sert uniquement à retrouver ses annotations d'un appareil à l'autre et à participer à la Place publique.</p></div>
+      </details>
+      <details class="hs-faq-item">
+        <summary><span class="hs-faq-q">D'où viennent les textes&nbsp;?</span><span class="hs-faq-mk" aria-hidden="true"></span></summary>
+        <div class="hs-faq-a"><p>Du domaine public, et chaque œuvre affiche sa source. <i>Le Capital</i> est servi dans la traduction française de Joseph Roy (1872), revue par Marx lui-même, et chargée depuis Wikisource. Les <i>Manuscrits de 1844</i>, écrits en 1844 et publiés seulement en 1932, viennent de l'archive du Marxists Internet Archive.</p></div>
+      </details>
+      <details class="hs-faq-item">
+        <summary><span class="hs-faq-q">Peut-on annoter le texte et garder ses notes&nbsp;?</span><span class="hs-faq-mk" aria-hidden="true"></span></summary>
+        <div class="hs-faq-a"><p>Oui. On surligne un passage, on y attache une note, et tout se retrouve dans «&nbsp;Mon carnet&nbsp;»&nbsp;: un cahier par œuvre, consultable par œuvre ou par date, avec un retour d'un clic vers le passage d'origine et un export en Markdown ou en JSON. Sans compte, les notes restent sur l'appareil.</p></div>
+      </details>
+      <details class="hs-faq-item">
+        <summary><span class="hs-faq-q">Qu'est-ce que la Place publique&nbsp;?</span><span class="hs-faq-mk" aria-hidden="true"></span></summary>
+        <div class="hs-faq-a"><p>C'est le forum du site. On y ouvre une discussion sur une œuvre, on commente un passage précis, on répond en fil et on appuie une lecture. Il n'y a pas de vote négatif&nbsp;: on soutient une lecture, on n'enterre personne. Les notes partagées apparaissent aussi en marge du passage qu'elles commentent, pendant qu'on lit.</p></div>
+      </details>
+      <details class="hs-faq-item">
+        <summary><span class="hs-faq-q">Quelles œuvres viendront ensuite&nbsp;?</span><span class="hs-faq-mk" aria-hidden="true"></span></summary>
+        <div class="hs-faq-a"><p>Le corpus compte douze œuvres, de <i>L'Idéologie allemande</i> (1846) aux Livres&nbsp;II et III du <i>Capital</i>, en passant par les <i>Grundrisse</i> et la <i>Critique du programme de Gotha</i>. Deux sont ouvertes&nbsp;; la bibliothèque montre la trajectoire entière et signale ce qui est déjà lisible.</p></div>
+      </details>
+      </div>
+      <p class="hs-faq-more">Une autre question&nbsp;? Elle a sa place sur la
+        <a href="oeuvres/place-publique.html">Place publique</a>.</p>
+    </section>
 
     <!-- Bande finale : la dernière page. Même structure que toutes les
          autres sections — label, titre, aligné à gauche — et sa matière :

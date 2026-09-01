@@ -234,6 +234,31 @@ défilement commun (`addScrollSub`), pas d'un écouteur local ; la boucle rAF
 s'arrête d'elle-même quand la liasse est sortie et que la rafale est
 retombée, et repart au premier scroll (`start()` dans l'abonné).
 
+**Section « Questions fréquentes » (`#questions`, entre les chiffres clés et
+la bande finale).** Huit dépliants `<details>`, à la grammaire de carte de la
+maison. Elle sert autant les lecteurs que les moteurs de réponse, et deux
+règles en découlent :
+
+- **Le balisage est la source, le `FAQPage` du `<head>` en est DÉRIVÉ.** Un
+  script le regénère depuis la section (voir le commit) ; le texte des deux
+  doit coïncider mot pour mot — une donnée structurée qui promet une réponse
+  absente de la page est un mensonge, et Google la sanctionne. **Piège vécu
+  en écrivant cette section** : une retouche de phrase faite par
+  `replace(..., 1)` sur le fichier entier a frappé la COPIE JSON-LD, qui est
+  plus haut dans le document, et les deux ont divergé en silence. Toute
+  retouche se fait dans la section, puis on regénère.
+- **Une réponse repliée reste dans le HTML** — c'est ce qui la rend citable.
+  En revanche `.reveal-stagger` la met à `opacity:0` tant que le JS n'a pas
+  posé `.in`, et le filet de fin de page est lui-même du script : **sans
+  JavaScript, toute la page restait invisible.** D'où la règle
+  `@media (scripting: none)` qui rend l'accueil fini pour qui n'exécute pas
+  de script. La cascade générique s'arrêtant au 4e enfant, `.hs-faq-list`
+  prolonge les délais jusqu'au 8e.
+
+Ne pas laisser les huit dépliants ouverts par défaut (la section ferait deux
+écrans), ni tous fermés (elle se lirait comme une liste de titres) : le
+premier est ouvert, les autres non.
+
 **Bande finale — « la dernière page ».** Elle était désaccordée du reste :
 centrée quand tout le reste de la page est aligné à gauche (et juste après
 les chiffres clés, eux aussi centrés — deux blocs centrés d'affilée), sans
