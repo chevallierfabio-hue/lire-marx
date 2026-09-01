@@ -582,6 +582,9 @@ dans ces cas — et le CSS masque fiche, bandeau et voile sous 768 px.
   ci-dessus). **Plus d'intro cinématique depuis septembre 2026** : elle est
   passée à l'entrée du carnet.
 - ✅ Accueil de l'œuvre Le Capital (hero + onglets Lire/Atelier/Ressources)
+  — **refondu en septembre 2026 : « le texte au centre »**, deux
+  destinations et l'appareil en marge du chapitre. Voir « L'atelier — LE
+  TEXTE AU CENTRE » ci-dessus.
 - ✅ Page de lecture d'un chapitre (Le Capital) — bandeau + lettrine
   rubriquée + colonne de notes en marge retirée (redondante avec
   Notes partagées/Mes notes)
@@ -886,7 +889,170 @@ conclure ; le démarrage automatique se valide dans un vrai navigateur, la
 chorégraphie s'avance en pas-à-pas avec une sonde
 `{enter, frame, getP, tgt}` — **retirée avant le commit**.
 
+## L'atelier — LE TEXTE AU CENTRE (mission `atelier-texte-au-centre`, sept. 2026)
+
+**Refonte totale de l'atelier, sur arbitrage du propriétaire** (« quand on
+ouvre un livre, on se perd — trop de texte, trop de sections »). Diagnostic
+mesuré avant de toucher au code, et il est chiffré :
+
+- **la même navigation deux fois dans le même écran** — les huit onglets de
+  `#worktabs` et les huit entrées `sb-work` de la sidebar étaient
+  identiques, mot pour mot ;
+- **5 117 mots** répartis sur huit panneaux, dont **2 127 dans « Modèles »**
+  seul ; trois niveaux de navigation empilés (onglets → 9 stations en
+  pilules → réglages) ;
+- **le texte était un onglet sur huit**, du même poids visuel que
+  « Chronologie », dans un site qui s'appelle *Lire Marx* ;
+- on arrivait sur « Pour entrer » — trois cartes d'accroche — **à chaque
+  visite**, y compris la dixième.
+
+Le défaut de fond : l'atelier était rangé **par type d'objet que le site
+avait fabriqué** (une frise, des modèles, des explorations), pas par ce que
+le lecteur fait. Huit portes égales, c'est zéro porte. Et l'appareil
+critique vivait **loin du passage qu'il éclaire** : comprendre le chapitre X
+obligeait à quitter le chapitre X.
+
+**Trois options ont été soumises** (le texte au centre / trois portes / un
+seuil qui aiguille) ; le propriétaire a tranché pour **le texte au centre**.
+
+### La forme
+
+Deux destinations, et le texte est la première : `TABS = [lire, dossier]`.
+
+```
+┌──────────┬────────────────────────┬───────────────┐
+│ SOMMAIRE │  LE TEXTE              │ DANS CE CHAP. │
+│ 33 chap. │  (la liseuse)          │ l'appareil    │
+│ + progr. │                        │ du chapitre   │
+└──────────┴────────────────────────┴───────────────┘
+```
+
+- **`.atl3`** — la coquille à trois colonnes, dans `atelier.css` (donc
+  disponible pour les Manuscrits sans un octet de plus). Les deux colonnes
+  latérales sont **collantes** et défilent chacune pour son compte.
+- **Le sommaire** (`renderTocRail`) a remplacé l'onglet « Parcourir » et sa
+  grille de cartes riches. `#nav`, `renderAtlList` et l'ancien
+  `applyAtlFilter` n'existent plus.
+- **`#chapSelect` et `#loadBtn` restent dans le document, masqués**
+  (`.atl3-shadow`). Ils portent l'ÉTAT que toute la liseuse lit déjà
+  (`sel.value`, `sel.selectedIndex`) et que le contrat de deep-link pilote
+  (`lb.click()`). **Le sélecteur est le modèle, le sommaire est sa vue** —
+  les vider aurait voulu dire réécrire la liseuse.
+- **Le Dossier est un CONTENEUR, pas un panneau** : `#dossier` regroupe les
+  six anciens onglets (Pour entrer, Cheminement, Modèles, Explorations,
+  Chronologie, Ressources), qui restent **tous `class="panel active"` en
+  permanence** ; c'est le conteneur qui s'affiche ou non, avec une
+  navigation d'ancres (`#dossierNav`).
+- **Le seuil** — les trois idées ne s'affichent qu'à la **première visite**
+  (`localStorage`, `liremarx.capital.seuil.v1`), et jamais à qui a déjà une
+  reprise. Elles restent en tête du Dossier.
+- Le bandeau de reprise (`.resume-band`, `renderResumeBand`) est **supprimé** :
+  la page ouvre elle-même le chapitre où l'on s'était arrêté, le bandeau
+  n'aurait fait que le redire.
+
+### La marge — le point de toute la refonte
+
+`renderMarge()` compose « Dans ce chapitre » : le résumé **En clair**,
+**l'instrument** du laboratoire, **la marche** du cheminement, **les dates**
+que le chapitre raconte, **une exploration**, **vos passages**.
+
+**La matière existait déjà et n'était pas lue** : `META[rn].labo`,
+`META[rn].d` et `CHRONO[].chap` portaient le renvoi depuis toujours, en
+**texte décoratif**. Les indexer, c'est ce qui fait passer de « huit
+départements » à « un livre avec des marges ».
+
+**`romansOf()` compare des JETONS, jamais des sous-chaînes.** « X » est
+contenu dans « XXVII » : un `indexOf` sur la chaîne aurait accroché au
+chapitre X la moitié de la section VIII. La découpe se fait sur
+`/[^IVXLC]+/` — les lettres de « chap. » sont minuscules, elles ne
+polluent pas la classe.
+
+### Le tiroir — l'appareil vient au texte
+
+`openDrawer(kind,target)` **DÉPLACE le nœud existant** (`#s-jour`,
+`#x-coop`, la `.walk-step`) dans `#atlDrawerBody` et le remet exactement à
+sa place à la fermeture (`insertBefore(node, drawerNext)`). **Rien n'est
+cloné** : tout le JS du laboratoire adresse ses contrôles par
+`getElementById`, un clone en aurait fait des doublons muets. Même motif
+que le chariot de l'accueil. Vérifié à la mesure : curseur déplacé dans le
+tiroir → journée 16 h, nécessaire 6,0 h, surtravail 10,0 h.
+
+Le nœud emprunté sort de la portée de ses propres scrubs (atelier-motion
+mesure une position dans le Dossier, qui est masqué) : le CSS le force à
+`opacity:1;transform:none` dans le tiroir.
+
+### Pièges rencontrés — tous vécus, aucun théorique
+
+1. **`atelier-motion.js` observait la CLASSE des panneaux.** Les six
+   panneaux du Dossier ne changent plus jamais de classe : sans correctif,
+   leurs titres n'auraient **jamais** été encrés (mesurés masqués, ils
+   restaient invisibles) et leurs scrubs seraient restés figés.
+   `watchPanels()` observe désormais **aussi** l'attribut `hidden` de
+   `.atl-dossier` et `.atl3`. Toujours le DOM, jamais le code d'onglets de
+   la page — qui n'est pas le même d'une œuvre à l'autre.
+2. **`align-items:start` ne veut pas dire la même chose en grille et en
+   flex colonne.** Écrit pour la grille (il y aligne les colonnes en haut),
+   il donne en flex colonne à chaque enfant la largeur de son **contenu** :
+   la colonne de texte passait à 729 px dans un viewport de 375 et toute la
+   page débordait horizontalement. `align-items:stretch` + `min-width:0`
+   sous 900 px.
+3. **Le rappel de fin de page lisait `.panel.active`** pour retrouver
+   l'onglet courant. Comme `#lire` est toujours actif et précède `#dossier`
+   dans le document, il retombait TOUJOURS sur « lire » : il réécrivait le
+   hash à `#lire` et marquait la mauvaise entrée de sidebar après un
+   deep-link `#labo`. La destination courante est **`curTab`**, et elle
+   seule.
+4. **Les cartes du seuil mènent DANS le livre** — elles doivent donc le
+   refermer. Sans quoi `goLire` chargeait le texte derrière un écran encore
+   masqué. `activateTab` appelle `dismissSeuil()`, **gardé par
+   `!hidden`** : au boot, activateTab tourne bien avant le `const SEUIL_KEY`
+   (zone morte temporelle), mais le seuil y est encore masqué.
+5. **Un deep-link saute en `instant`, pas en `smooth`** : on vient chercher
+   un endroit précis, et le `window.scrollTo(0,0)` de fin de page gagnerait
+   la course contre un défilement animé.
+6. **La marge, passée sous le texte, atterrissait à deux cent mille pixels
+   du lecteur** — une section entière de Wikisource plus bas, c'est-à-dire
+   nulle part. Sous 1240 px elle passe **au-dessus** du texte, repliée sur
+   une ligne ; sous 900 px le sommaire se replie de même (déployé, il posait
+   380 px de liste avant le texte, l'inverse exact du but).
+7. **Les deux pastilles flottantes** (« Mes notes », « Notes partagées »)
+   se posent en bas à droite du viewport, donc par-dessus le pied de la
+   marge. Les déplacer les mettait **par-dessus le texte** — pire échange.
+   Elles sont masquées tant que la marge est une colonne, et la marge
+   porte deux boutons qui déclenchent les vraies pastilles (le shell les
+   possède, la marge ne fait que les cliquer).
+
+### Vérifié
+
+Contraste (sonde maison : 0 échec sur la coquille et le tiroir) **et**
+détecteur statique (`detect.mjs` : 53 constats, **0 erreur**, tous de la
+famille des choix de DA déjà documentés) — les deux, comme la règle du
+projet l'impose. Les micro-libellés sont à **`.72rem`** et non `.66`/`.68` :
+le plancher du projet pour un texte fonctionnel est 11 px. Testé à 1440,
+1100, 900 et 375 px sans débordement horizontal ; deep-link `#s=&q=`,
+`#labo`, `#chrono` ; seuil première visite ; tiroir sur les trois espèces
+de nœud, avec retour à la place d'origine ; clavier (sommaire en `<button>`,
+Échap ferme le tiroir, focus rendu au déclencheur).
+
+**Rappel de méthode** : dans l'onglet piloté, `behavior:'smooth'` **ne
+progresse pas du tout** — mesuré ici encore (41,5 → 42 px en 1,2 s, quand
+l'`instant` va à 600). Un « ça ne défile pas » n'est pas un bug tant qu'on
+ne l'a pas revérifié en `instant`.
+
+### Fait sur Capital seulement
+
+Les Manuscrits gardent l'ancienne forme à neuf onglets — **à porter quand
+le propriétaire aura validé celle-ci**, comme pour le tableau de bord. Le
+CSS de la coquille (`.atl3`, le tiroir, les replis) vit déjà dans
+`atelier.css` : le portage est surtout du câblage, plus une table
+d'index chapitre → appareil propre aux Manuscrits.
+
 ## L'en-tête d'œuvre et la barre plate (mission `entete-et-barre-plate`)
+
+> **PARTIELLEMENT SUPERSÉDÉ sur Capital** par `atelier-texte-au-centre`
+> (sept. 2026) : l'en-tête d'œuvre reste tel quel, mais la barre ne compte
+> plus neuf onglets — elle en compte **deux** (Lire le texte / Le dossier).
+> Cette section décrit encore fidèlement les **Manuscrits**.
 
 Diagnostic mesuré avec le propriétaire : **77 % du premier écran passait
 avant le moindre contenu** (héros 394 px + deux rangées d'onglets 85 px,
@@ -966,6 +1132,12 @@ dans la page. Règle supprimée. **Avant de réutiliser un nom de classe sur
 une page qui a son propre CSS, vérifier qu'il n'y est pas déjà pris.**
 
 ## L'accueil a disparu, la reprise est montée (mission `reprise-en-bandeau`)
+
+> **SUPERSÉDÉ sur Capital** par `atelier-texte-au-centre` : le bandeau de
+> reprise n'existe plus. La page ouvre elle-même le chapitre où l'on s'était
+> arrêté — un bandeau qui l'annonce, au-dessus du chapitre déjà ouvert,
+> n'aurait fait que le redire. `SHELL.resume` est inchangé et sert toujours,
+> lu par `bootAtelier()`.
 
 Suite logique du tableau de bord et de la sortie de « Pour entrer » : à
 force de bien répartir, **l'accueil s'était vidé**. Inventaire fait avec

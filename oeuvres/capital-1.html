@@ -507,6 +507,10 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
    page claire. Sur fond sombre le même token donne un pavé CRÈME en pleine
    liseuse. Il devient donc la surface ÉCLAIRÉE — la même que les blocs
    d'emphase de l'accueil : la bougie tombe sur l'ouverture du chapitre. */
+/* Le bandeau tenait 270 px — un quart d'écran — pour redire le titre du
+   chapitre que la marge annonce désormais en tête de colonne. */
+.atl3-mid .rdr-header{padding:20px 26px;}
+.atl3-mid .rdr-title{font-size:1.5rem;line-height:1.15;}
 .rdr-header{position:relative;overflow:hidden;
   background:linear-gradient(150deg,#2c2117 0%,#211a12 58%,#1b150e 100%);
   border-bottom:1px solid rgba(216,173,76,.22);
@@ -822,7 +826,7 @@ nav.tabs.worktabs{position:sticky;top:44px;z-index:62;
 }
 </script>
 </head>
-<body>
+<body class="at-atelier">
 <main class="wrap" id="contenu" tabindex="-1">
 
   <!-- ===================== ŒUVRE — LE CAPITAL ===================== -->
@@ -842,28 +846,110 @@ nav.tabs.worktabs{position:sticky;top:44px;z-index:62;
        Atelier / Ressources) n'existait que pour regrouper — il coûtait une
        rangée, un clic, et un panneau doublon (#atelier-accueil, qui
        refaisait « Parcourir »). -->
-  <!-- La reprise de lecture : la seule chose que l'ancien panneau
-       « Commencer » disait en propre. Elle vit désormais ICI, hors des
-       panneaux — donc visible depuis n'importe quel onglet, alors qu'elle
-       était cachée derrière celui qu'un lecteur qui revient ne rouvre
-       pas. Rendue par renderResumeBand() ; absente s'il n'y a rien à
-       reprendre. -->
-  <div class="resume-band" id="resumeBand" hidden></div>
+  <!-- ==================================================================
+       L'ATELIER — LE TEXTE AU CENTRE.
+       Refonte (mission `atelier-texte-au-centre`). Avant : huit onglets de
+       même poids, le texte rangé au même rang que la chronologie, et
+       l'appareil critique à un onglet de distance du passage qu'il
+       éclaire. Le lecteur devait QUITTER le chapitre X pour comprendre le
+       chapitre X. Désormais : on ouvre le livre, on tombe sur le texte,
+       le sommaire est à gauche, et l'appareil vient à droite — filtré sur
+       le chapitre qu'on lit.
+       ================================================================== -->
+  <nav class="tabs worktabs" id="worktabs" aria-label="Destinations de l'œuvre"></nav>
 
-  <nav class="tabs worktabs" id="worktabs" aria-label="Sections de l'œuvre"></nav>
+  <!-- LE SEUIL — les trois idées, à la PREMIÈRE visite seulement. Elles
+       accueillaient jusqu'ici tout le monde, à chaque retour, devant le
+       livre qu'on venait déjà de choisir. Elles restent en tête du
+       Dossier pour qui veut y revenir. -->
+  <section class="atl-seuil" id="atlSeuil" hidden aria-labelledby="atlSeuilH">
+    <span class="atl-seuil-lab">Avant d'ouvrir le livre</span>
+    <h2 class="sec" id="atlSeuilH">Trois idées qui ouvrent <em>Le Capital</em></h2>
+    <p class="lead">Chacune mène à l'endroit du livre où elle se démontre. Vous pouvez aussi entrer directement dans le texte.</p>
+    <div id="atlSeuilIdeas"></div>
+    <div class="atl-seuil-go">
+      <button class="btn red" type="button" id="atlSeuilStart">Entrer dans le texte →</button>
+      <button class="btn" type="button" id="atlSeuilSkip">Ne plus afficher</button>
+    </div>
+  </section>
 
-  <!-- ACCUEIL — onglet "Lire Le Capital" (2 cartes de départ) -->
-  <!-- POUR ENTRER — trois portes vers le livre. C'était une section de
-       l'accueil ; elle en sort : l'accueil dit où l'on en est, celui-ci
-       dit par où commencer à comprendre. -->
-  <section class="panel" id="entrer">
+  <!-- LA COQUILLE À TROIS COLONNES.
+       Gauche : le sommaire (il a remplacé l'onglet « Parcourir », qui
+       redisait ce que la sidebar disait déjà).
+       Centre : le texte.
+       Droite : « Dans ce chapitre » — l'appareil indexé sur le chapitre
+       courant (renderMarge). -->
+  <div class="atl3" id="atl3">
+
+    <aside class="atl3-col atl3-toc" id="atl3Toc" aria-label="Sommaire du livre">
+      <!-- Sous 900 px, le sommaire se replie derrière ce bouton : déployé,
+           il posait 380 px de liste AVANT le texte, c'est-à-dire l'inverse
+           exact de ce que la refonte cherche. Au-dessus, il est masqué et
+           la colonne est toujours ouverte. -->
+      <button type="button" class="atl3-toc-toggle" id="atl3TocToggle"
+              aria-expanded="false" aria-controls="atl3TocList">
+        <span class="atl3-toc-toggle-k">Le sommaire</span>
+        <span class="atl3-toc-toggle-t" id="atl3TocToggleT">Choisir un chapitre</span>
+      </button>
+      <div class="atl3-toc-head">
+        <span class="atl3-lab">Le sommaire</span>
+        <div class="atl3-prog" id="atl3Prog"></div>
+      </div>
+      <input class="atl3-filter" id="filter" type="search" placeholder="Filtrer les chapitres…" aria-label="Filtrer les chapitres">
+      <div class="atl3-toc-list" id="atl3TocList"></div>
+      <p class="atl3-nores" id="nores" hidden>Aucun chapitre ne correspond.</p>
+    </aside>
+
+    <div class="atl3-mid">
+      <!-- LIRE. Plus de tête de panneau ni de sélecteur visible : le
+           sommaire de gauche EST le sélecteur, et le bandeau de la liseuse
+           dit le chapitre. #chapSelect et #loadBtn restent dans le document,
+           masqués : ils portent l'ÉTAT que toute la liseuse lit déjà
+           (sel.value, sel.selectedIndex) et que le contrat de deep-link
+           pilote (lb.click()). Les vider aurait voulu dire réécrire la
+           liseuse ; ils sont le modèle, la colonne de gauche est la vue. -->
+      <section class="panel active" id="lire">
+        <select id="chapSelect" class="atl3-shadow" tabindex="-1" aria-hidden="true"></select>
+        <button id="loadBtn" class="atl3-shadow" type="button" tabindex="-1" aria-hidden="true">Charger</button>
+        <div id="readerOut"></div>
+      </section>
+    </div>
+
+    <aside class="atl3-col atl3-marge" id="atl3Marge" aria-label="Dans ce chapitre"></aside>
+  </div>
+
+  <!-- LE TIROIR — l'appareil vient au texte au lieu que le lecteur aille à
+       lui. Il ne CLONE pas les stations : il DÉPLACE le nœud existant
+       (#s-jour, #x-coop, #chrono…) et le remet à sa place à la
+       fermeture — donc tout le JS du laboratoire, qui adresse ses
+       contrôles par getElementById, continue de fonctionner sans une ligne
+       de changement. Même motif que le chariot de l'accueil. -->
+  <div class="atl-drawer" id="atlDrawer" hidden role="dialog" aria-labelledby="atlDrawerT">
+    <div class="atl-drawer-bar">
+      <span class="atl-drawer-k">Dans ce chapitre</span>
+      <span class="atl-drawer-t" id="atlDrawerT"></span>
+      <button type="button" class="atl-drawer-x" id="atlDrawerX" aria-label="Fermer le tiroir">×</button>
+    </div>
+    <div class="atl-drawer-body" id="atlDrawerBody"></div>
+  </div>
+
+  <!-- ===================== LE DOSSIER =====================
+       Ce qui était six onglets de même rang que le texte — Pour entrer,
+       Cheminement, Modèles, Explorations, Chronologie, Ressources — est
+       une seule page d'annexe, avec une navigation d'ancres. Le lecteur
+       n'a plus à choisir entre six portes pour trouver l'appareil : il le
+       rencontre en marge du texte, et vient ici quand il veut le
+       parcourir pour lui-même. -->
+  <div class="atl-dossier" id="dossier" hidden>
+  <nav class="atl-dossier-nav" id="dossierNav" aria-label="Sections du dossier"></nav>
+  <section class="panel active" id="entrer">
     <div class="panel-head">
       <div class="panel-head-main">
         <h2 class="sec">Trois idées qui ouvrent <em>Le Capital</em></h2>
         <p class="lead">Chacune mène à l'endroit du livre où elle se démontre — un chapitre, ou l'instrument qui la met en mouvement.</p>
       </div>
     </div>
-    <div class="cap-ideas-grid">
+<div class="cap-ideas-grid">
 
       <!-- Idée 1 — filature de coton, 1909 (domaine public) -->
       <article class="cap-idea-card" role="link" tabindex="0" aria-label="Le profit vient du travail — ouvrir la simulation de la journée de travail" onclick="goLabo('s-jour')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();goLabo('s-jour');}">
@@ -907,52 +993,8 @@ nav.tabs.worktabs{position:sticky;top:44px;z-index:62;
     </div>
   </section>
 
-  <!-- NAVIGATEUR -->
-  <section class="panel" id="nav">
-    <!-- Tête de panneau (grammaire commune) : le héros replié porte déjà
-         fil d'Ariane et titre d'œuvre — plus de doublon ici. -->
-    <div class="panel-head">
-      <div class="panel-head-main">
-        <h2 class="sec">Le sommaire du Livre I</h2>
-        <p class="lead">Huit sections, trente-trois chapitres — chaque ligne ouvre son chapitre. Lu, en cours, à lire : des statuts, jamais des verrous.</p>
-      </div>
-      <div class="panel-meta">
-        <div id="atlProg" class="pg-prog" style="display:none">
-          <div class="pg-bar"><div class="pg-fill" id="atlFill"></div></div>
-          <div class="pg-count" id="atlCount">0 sur 33 chapitres</div>
-        </div>
-        <div id="atlProgNA" class="prog-no-auth">
-          <span>Connecte-toi pour suivre ta progression</span>
-          <button class="prog-no-auth-btn" type="button" onclick="window.SHELL&&window.SHELL.auth&&window.SHELL.auth.openModal()">Se connecter</button>
-        </div>
-      </div>
-    </div>
-    <!-- Recherche -->
-    <div class="atl-search-wrap">
-      <input class="atl-search" type="text" id="filter" placeholder="Filtrer les chapitres…" aria-label="Filtrer les chapitres">
-    </div>
-    <div class="nores" id="nores">Aucun chapitre ne correspond.</div>
-    <div id="navlist"></div>
-  </section>
-
-  <!-- LIRE -->
-  <section class="panel" id="lire">
-    <div class="panel-head">
-      <div class="panel-head-main">
-        <h2 class="sec">Le texte intégral</h2>
-        <p class="lead">Traduction Joseph Roy (1872, revue par Marx) — domaine public, chargé depuis Wikisource. <b>Connexion internet requise.</b></p>
-      </div>
-    </div>
-    <div class="reader-bar">
-      <select id="chapSelect" aria-label="Choisir un chapitre"></select>
-      <button id="loadBtn" class="btn red" type="button">Charger le texte intégral →</button>
-    </div>
-    <div class="anno-hint">Une fois le texte chargé : <b>sélectionne un passage</b> pour le surligner, puis <b>clique le surlignage</b> pour y attacher une note. Tout reste sur cet appareil (sauvegarde locale) ; tu peux aussi te connecter pour synchroniser tes annotations entre tes appareils. Les boutons flottants « Mes notes » et « Notes partagées » apparaissent en bas à droite quand le texte est chargé.</div>
-    <div id="readerOut"><div class="reader"><div class="placeholder"><div class="pi"><svg viewBox="0 0 24 24" aria-hidden="true"><g class="s"><path d="M12 6.4C10 4.6 7.2 3.9 3.6 4.1v13.2c3.6-.2 6.4.5 8.4 2.3 2-1.8 4.8-2.5 8.4-2.3V4.1c-3.6-.2-6.4.5-8.4 2.3Z"/><path d="M12 6.4v13.2"/></g></svg></div><b>Choisis un chapitre ci-dessus, puis clique sur « Charger le texte intégral ».</b><br><span style="font-size:.9rem">Le texte complet du chapitre s'affichera ici.</span></div></div></div>
-  </section>
-
   <!-- LABORATOIRE -->
-  <section class="panel" id="labo">
+  <section class="panel active" id="labo">
         <div class="panel-head">
       <div class="panel-head-main">
   <h2 class="sec">Le laboratoire des lois</h2>
@@ -1176,7 +1218,7 @@ nav.tabs.worktabs{position:sticky;top:44px;z-index:62;
        La barre plate ne l'expose plus, la sidebar ne l'a jamais exposé.) -->
 
   <!-- DÉRIVATION -->
-  <section class="panel" id="deriv">
+  <section class="panel active" id="deriv">
         <div class="panel-head">
       <div class="panel-head-main">
   <h2 class="sec">L'ascension de l'abstrait au concret</h2>
@@ -1189,7 +1231,7 @@ nav.tabs.worktabs{position:sticky;top:44px;z-index:62;
   </section>
 
   <!-- CHRONOLOGIE -->
-  <section class="panel" id="chrono">
+  <section class="panel active" id="chrono">
         <div class="panel-head">
       <div class="panel-head-main">
   <h2 class="sec">La chronologie du Capital</h2>
@@ -1230,7 +1272,7 @@ nav.tabs.worktabs{position:sticky;top:44px;z-index:62;
   </section>
 
   <!-- EXPLORATIONS -->
-  <section class="panel" id="explore">
+  <section class="panel active" id="explore">
         <div class="panel-head">
       <div class="panel-head-main">
   <h2 class="sec">Explorations</h2>
@@ -1304,7 +1346,7 @@ nav.tabs.worktabs{position:sticky;top:44px;z-index:62;
     </div>
   </section>
 
-  <section class="panel" id="ressources">
+  <section class="panel active" id="ressources">
 
     <div class="panel-head">
       <div class="panel-head-main">
@@ -1409,6 +1451,7 @@ nav.tabs.worktabs{position:sticky;top:44px;z-index:62;
     </div>
 
   </section>
+  </div><!-- /#dossier -->
 
   </section>
 
@@ -1457,144 +1500,131 @@ document.addEventListener('input', function(e){
 function dEsc(x){return String(x==null?'':x).replace(/[&<>"]/g,function(c){
   return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 
-function renderResumeBand(){
-  var band=document.getElementById('resumeBand');
-  if(!band)return;
-  var r=(window.SHELL&&SHELL.resume)?SHELL.resume.get('capital-1'):null;
-  if(!r||!r.sel){ band.hidden=true; band.innerHTML=''; return; }
-  band.hidden=false;
-  band.innerHTML='<span class="rb-k">Reprendre</span>'
-    +'<span class="rb-t">Chapitre '+dEsc(r.num)
-      +(r.title?'<span class="rb-sub"> — '+dEsc(r.title)+'</span>':'')+'</span>'
-    +'<button class="cap-btn-outline" type="button" id="resumeBtn">Reprendre la lecture →</button>';
-  document.getElementById('resumeBtn').onclick=function(){
-    /* Il FAUT basculer sur « Texte intégral » avant de rendre :
-       showSelection() écrit dans #readerOut, qui vit dans ce panneau. */
-    activateTab('lire');
-    var sl=document.getElementById('chapSelect');
-    sl.value=r.sel;
-    /* Une reprise enregistrée peut ne plus correspondre à aucune option
-       (liste de chapitres retouchée, valeur d'une ancienne version) :
-       poser .value ne prend alors pas, et showSelection partait en
-       TypeError sans rien dire. */
-    if(!sl.value){
-      if(window.SHELL&&SHELL.resume)SHELL.resume.clear('capital-1');
-      sl.selectedIndex=0;
-      if(window.SHELL&&SHELL.announce)
-        SHELL.announce('Reprise introuvable — ouverture du premier chapitre.');
-    }
-    showSelection(true);
-    window.scrollTo({top:0,behavior:'smooth'});
-  };
+/* ══════════════════════════════════════════════════════════════════════
+   DEUX DESTINATIONS, ET LE TEXTE EST LA PREMIÈRE.
+   Il y en avait huit, de même poids visuel, redites à l'identique par la
+   sidebar — la même navigation deux fois dans le même écran. « Texte
+   intégral » y avait exactement le même rang que « Chronologie ».
+   ══════════════════════════════════════════════════════════════════════ */
+const TABS=[{id:'lire',label:'Lire le texte'},{id:'dossier',label:'Le dossier'}];
+const DOSSIER=['entrer','deriv','labo','explore','chrono','ressources'];
+const DOSSIER_LABELS={entrer:'Pour entrer',deriv:'Cheminement',labo:'Modèles',
+  explore:'Explorations',chrono:'Chronologie',ressources:'Ressources'};
+let curTab='lire';
+
+/* Les anciens hash (#labo, #chrono, #nav…) vivent dans des liens partagés
+   et dans les notifications : ils restent valides et ouvrent le Dossier à
+   la bonne ancre, au lieu de tomber dans le vide. */
+function tabForHash(h){
+  if(h==='lire'||h==='dossier')return h;
+  if(h==='nav')return 'lire';
+  return DOSSIER.indexOf(h)>=0?'dossier':null;
 }
+function panelExists(h){ return tabForHash(h)!==null; }
+function panelLabel(id){ for(const t of TABS) if(t.id===id) return t.label; return id; }
 
-/* l'ancien nom reste : il est rappelé après installShell et à chaque
-   changement de session */
-function renderResume(){ renderResumeBand(); }
-
-/* ---- navigation onglets ---- */
-function panelExists(id){ return PANELS.some(p=>p.id===id); }
-/* ── Sémantique d'onglets et repérage — voir SHELL.tabs dans shell.js ── */
 let a11yBooted=false;
 function syncTabsA11y(pid){
   const S=window.SHELL;if(!S)return;
   if(S.tabs) S.tabs(document.getElementById('worktabs'),b=>b.dataset.panel);
   if(S.setWorkTab)S.setWorkTab(pid);
-  /* Le focus RESTE sur l'onglet (motif ARIA APG) ; c'est la région live qui
-     dit que le panneau a changé. Rien n'est annoncé au tout premier rendu :
-     à ce moment-là rien n'a changé pour personne. */
-
-  /* Le panneau courant s'écrit dans l'URL. Le hash était LU au chargement
-     mais jamais ÉCRIT : impossible de partager « Modèles → Journée de
-     travail », le retour arrière quittait la page, et un rechargement
-     ramenait à l'accueil. On n'écrase pas un deep-link #note=… : il est
-     consommé au démarrage, avant le premier appel. */
   if(a11yBooted && !/^#(note=|s=)/.test(location.hash)){
     try{ history.replaceState(null,'','#'+pid); }catch(e){}
   }
-  /* body.at-inner ne pilote plus rien : il repliait le héros, qui n'existe
-     plus — l'en-tête est désormais à sa taille définitive sur les huit
-     panneaux. */
   if(pid!=='lire') document.body.classList.remove('at-reading');
-  /* Changer d'onglet en cours de lecture laissait le lecteur au milieu de la
-     page précédente, sur un panneau dont le haut était 250 px plus bas. On
-     remonte — le héros replié ne coûte plus que 100 px. Jamais au premier
-     rendu : à ce moment-là personne n'a rien demandé. */
-  if(a11yBooted){
-    var _rm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    window.scrollTo({top:0,behavior:_rm?'auto':'smooth'});
-  }
-
   if(a11yBooted&&S.announce)S.announce('Panneau '+panelLabel(pid));
   a11yBooted=true;
 }
 
-/* Les huit destinations de l'œuvre, à plat — dans le même ordre que la
-   sidebar, qui les listait déjà ainsi. Le niveau « groupe » a disparu :
-   il coûtait une rangée d'onglets, un clic de plus pour atteindre un
-   panneau, et un doublon (#atelier-accueil refaisait « Parcourir »). */
-const PANELS=[
- {id:'entrer',     label:'Pour entrer'},
- {id:'nav',        label:'Parcourir'},
- {id:'lire',       label:'Texte intégral'},
- {id:'deriv',      label:'Cheminement'},
- {id:'labo',       label:'Modèles'},
- {id:'explore',    label:'Explorations'},
- {id:'chrono',     label:'Chronologie'},
- {id:'ressources', label:'Ressources'}
-];
-function panelLabel(id){for(const p of PANELS)if(p.id===id)return p.label;return id;}
-/* La barre est rendue UNE fois : plus rien ne la reconstruit à chaque
-   bascule (c'est #subnav qui l'imposait, et qui obligeait SHELL.tabs à
-   être réentrant). Seule la classe active change ensuite. */
 function buildTabs(){
   const bar=document.getElementById('worktabs');
   if(!bar)return;
-  bar.innerHTML=PANELS.map(p=>
-    `<button type="button" class="tab" data-panel="${p.id}">${p.label}</button>`).join('');
+  bar.innerHTML=TABS.map(t=>
+    `<button type="button" class="tab" data-panel="${t.id}">${t.label}</button>`).join('');
   bar.querySelectorAll('.tab').forEach(b=>
     b.addEventListener('click',()=>activateTab(b.dataset.panel)));
+
+  const dn=document.getElementById('dossierNav');
+  if(dn) dn.innerHTML=DOSSIER.map(id=>
+    `<button type="button" class="atl-dnav" data-go="${id}">${DOSSIER_LABELS[id]}</button>`).join('');
+  if(dn) dn.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>{
+    const el=document.getElementById(b.dataset.go);
+    if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
+  }));
 }
-function activateTab(id){
-  if(!panelExists(id))id='entrer';
+
+/* Le Dossier est un CONTENEUR, pas un panneau : ses six sections restent
+   déployées en permanence (class="panel active") et c'est #dossier qu'on
+   montre ou non. Un seul basculement, au lieu de six. */
+function activateTab(id,anchor){
+  if(id!=='dossier')id='lire';
+  /* Les trois cartes du seuil mènent DANS le livre (un chapitre, une
+     simulation) : elles doivent donc refermer le seuil. Sans cela,
+     `goLire` chargeait le texte derrière un écran encore masqué, et
+     `goLabo` empilait le Dossier sous le seuil resté ouvert.
+     La garde `!hidden` est indispensable : au boot, activateTab tourne
+     bien avant le bloc qui déclare SEUIL_KEY (`const`, donc en zone
+     morte temporelle) — mais le seuil y est encore masqué, et l'on ne
+     descend jamais dans dismissSeuil. */
+  const _sc=document.getElementById('atlSeuil');
+  if(_sc&&!_sc.hidden&&typeof dismissSeuil==='function')dismissSeuil();
+  curTab=id;
   document.querySelectorAll('#worktabs .tab').forEach(b=>
     b.classList.toggle('active',b.dataset.panel===id));
-  document.querySelectorAll('.panel').forEach(x=>x.classList.toggle('active',x.id===id));
-  /* Différé d'un tick : au boot d'un deep-link #labo, cet appel partait
-     AVANT le `const re0` du même bloc script (TDZ) — l'exception tuait
-     tout le reste du script de la page. */
-  if(id==='labo')setTimeout(drawTRPF,0);
+  const a3=document.getElementById('atl3'),dos=document.getElementById('dossier');
+  if(a3) a3.hidden = (id!=='lire') || !!document.body.classList.contains('atl-seuil-on');
+  if(dos) dos.hidden = (id!=='dossier');
+  document.body.classList.toggle('at-dossier',id==='dossier');
+  /* Le graphe du TRPF se dessine sur un canevas de taille nulle tant que
+     le Dossier est masqué : on (re)trace à l'ouverture. Différé d'un tick
+     — au boot, cet appel partirait avant le `const re0` du même bloc
+     (TDZ), et l'exception tuerait tout le reste du script. */
+  if(id==='dossier')setTimeout(function(){try{drawTRPF();}catch(e){}},0);
+  if(anchor){
+    /* Au BOOT (deep-link `#labo` reçu d'une notification ou d'un lien
+       partagé) le saut est INSTANTANÉ : on vient chercher un endroit
+       précis, on ne glisse pas jusqu'à lui — et le trailing
+       `window.scrollTo(0,0)` de fin de page, comme la restauration du
+       navigateur, gagnerait la course contre un défilement animé. */
+    const boot=!a11yBooted;
+    const el=document.getElementById(anchor);
+    if(el)setTimeout(()=>{
+      el.scrollIntoView({behavior:boot?'instant':'smooth',block:'start'});
+    },boot?90:60);
+  }else if(a11yBooted){
+    var _rm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({top:0,behavior:_rm?'auto':'smooth'});
+  }
   syncTabsA11y(id);
 }
+
 function activateSub(s){document.querySelectorAll('.subtab').forEach(x=>{const on=x.dataset.sub===s;x.classList.toggle('active',on);x.setAttribute('aria-pressed',on?'true':'false');});
   document.querySelectorAll('.subpanel').forEach(x=>x.classList.toggle('active',x.id===s));if(s==='s-trpf')drawTRPF();setTimeout(syncGraphLabels,0);}
-function goLabo(s){activateTab('labo');activateSub(s);window.scrollTo({top:0,behavior:'smooth'});}
-function goDeriv(n){activateTab('deriv');window.scrollTo({top:0,behavior:'smooth'});
+function goLabo(s){activateTab('dossier','labo');activateSub(s);}
+function goDeriv(n){activateTab('dossier','deriv');
   setTimeout(()=>{const el=document.querySelector('.walk-step[data-step="'+n+'"]');if(!el)return;
-    el.classList.add('flash');el.scrollIntoView({behavior:'smooth',block:'center'});setTimeout(()=>el.classList.remove('flash'),1600);},150);}
-function goLire(n,num,title){activateTab('lire');document.getElementById('chapSelect').value=n+'|'+num+'|'+title;showSelection(true);window.scrollTo({top:0,behavior:'smooth'});}
+    el.classList.add('flash');el.scrollIntoView({behavior:'smooth',block:'center'});setTimeout(()=>el.classList.remove('flash'),1600);},260);}
+function goLire(n,num,title){
+  activateTab('lire');
+  const sl=document.getElementById('chapSelect');
+  sl.value=n+'|'+num+'|'+title;
+  showSelection(true);
+}
 document.querySelectorAll('.subtab').forEach(t=>t.addEventListener('click',()=>activateSub(t.dataset.sub)));
 
-/* ── Init synchrone : active l'onglet par défaut dès le chargement.
-   Permet aussi un override via hash URL (ex: #atelier, #ressources). ── */
+/* ── Init : le texte, toujours. Un hash peut demander le Dossier. ── */
 (function(){
   buildTabs();
-  /* Un panneau par nom, et c'est tout : le hash ne peut plus désigner un
-     « groupe » puisqu'il n'y en a plus — l'ambiguïté qui faisait ouvrir la
-     page de garde quand on demandait #lire a disparu avec eux. */
   var h=(location.hash||'').replace(/^#/,'');
-  activateTab(panelExists(h)?h:'entrer');
-  /* Un hash qui désigne un panneau désigne AUSSI un élément réel du
-     document : le navigateur y saute tout seul et l'on débarque à 369 px du
-     haut, sous la coquille collante. On remet en haut. */
-  if(/^#[a-z-]+$/.test(location.hash||'')){
+  var t=tabForHash(h);
+  activateTab(t||'lire', (t==='dossier'&&h!=='dossier')?h:null);
+  if(/^#[a-z-]+$/.test(location.hash||'')&&!t){
     window.scrollTo({top:0,behavior:'instant'});
-    requestAnimationFrame(function(){ window.scrollTo({top:0,behavior:'instant'}); });
   }
-  /* Retour arrière et avance du navigateur. */
   window.addEventListener('hashchange', function(){
     var h=(location.hash||'').replace(/^#/,'');
-    if(panelExists(h) && document.querySelector('.panel.active').id!==h) activateTab(h);
+    var t=tabForHash(h);
+    if(t && t!==curTab) activateTab(t,(t==='dossier'&&h!=='dossier')?h:null);
   });
 })();
 
@@ -1834,111 +1864,320 @@ const LABO_LABELS={'s-taux':'Modèle taux de plus-value','s-jour':'Modèle journ
   's-circuit':'Modèle circuit du capital','s-accum':'Modèle accumulation'};
 const CHECK_SVG=`<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><polyline points="2,9 6,13 14,3" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
-function renderAtlList(){
-  const done=(window.SHELL&&window.SHELL.progress)?window.SHELL.progress.getSet():new Set();
-  const current=(CHAP_FLAT.find(c=>!done.has(c.gnum))||{gnum:CHAP_FLAT.length+1}).gnum;
-  const doneCount=done.size;const total=CHAP_FLAT.length;
-  const pct=Math.round(doneCount/total*100);
-  const loggedIn=!!(window.SHELL&&window.SHELL.progress&&window.SHELL.progress.isLoggedIn());
-  const fillEl=document.getElementById('atlFill');
-  const cntEl=document.getElementById('atlCount');
-  if(loggedIn){
-    if(fillEl)fillEl.style.width=pct+'%';
-    if(cntEl)cntEl.textContent=doneCount+' sur '+total+' chapitres'+(pct?' \u00b7 '+pct+'\u00a0%':'');
-  }
-  const nl=document.getElementById('navlist');
-  if(!nl)return;
-  let html='';let lastSec=-1;
-  CHAP_FLAT.forEach(c=>{
-    const isDone=done.has(c.gnum);
-    const isCurrent=c.gnum===current;
-    const isUpcoming=!isDone&&!isCurrent;
-    if(c.secNum!==lastSec){
-      html+=`<div class="atl-grid-sec" data-sec="${c.secNum}">§ ${c.sectionRn} — ${c.sectionTitle}</div>`;
-      lastSec=c.secNum;
-    }
-    const state=isDone?'done':isCurrent?'current':'upcoming';
-    const ftext=(c.chapTitle+' '+(META[c.chapRn]&&META[c.chapRn].s||'')).toLowerCase().replace(/<[^>]+>/g,'');
-    const goFn=`goLire(${c.secNum},'${c.chapRn}','${c.chapTitle.replace(/'/g,"&#39;")}')`;
-    /* TOUTES les cartes ouvrent leur chapitre. 64 des 66 étaient inertes,
-       sans tabindex ni rôle ni la moindre explication : un lecteur qui
-       voulait relire le chapitre III cliquait dans le vide, et au clavier
-       « Parcourir » se réduisait à deux cartes atteignables sur 66. Lu /
-       en cours / à lire redevient un STATUT, pas un verrou. */
-    const cardLabel=`Chapitre ${c.chapRn} — ${c.chapTitle.replace(/'/g,"&#39;")} — ${isDone?'terminé':isCurrent?(doneCount?'en cours':'chapitre d’entrée'):'à lire'}`;
-    const clickAttr=` onclick="${goFn}" role="link" tabindex="0" aria-label="${cardLabel}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();${goFn}}"`;
-    /* Trois gabarits de LIGNE de sommaire : numéro Fraunces italique or,
-       titre, et à droite la simulation associée + le statut. La ligne en
-       cours est la seule carte (dégradé chaud d'emphase du socle). */
-    const m=META[c.chapRn]||{};
-    const simLabel=m.labo&&LABO_LABELS[m.labo]?`<span class="atl-card-sim">${LABO_LABELS[m.labo]}</span>`:'';
-    let inner='';
-    if(isCurrent){
-      inner=`<span class="atl-num" aria-hidden="true">${c.gnum}</span>
-        <span class="atl-row-main"><span class="atl-card-title">${c.chapTitle}</span>
-        <span class="atl-card-status">${doneCount?'En cours':'Chapitre d’entrée'}</span></span>
-        <span class="atl-row-side">${simLabel}<span class="atl-continue" aria-hidden="true">Continuer →</span></span>`;
-    } else if(isDone){
-      inner=`<span class="atl-num" aria-hidden="true">${c.gnum}</span>
-        <span class="atl-card-title">${c.chapTitle}</span>
-        <span class="atl-row-side">${simLabel}<button class="atl-done-toggle" type="button" onclick="event.stopPropagation();toggleDone(${c.gnum})" aria-label="Marquer le chapitre ${c.chapRn} comme non lu">${CHECK_SVG}Lu</button></span>`;
-    } else {
-      inner=`<span class="atl-num" aria-hidden="true">${c.gnum}</span>
-        <span class="atl-card-title">${c.chapTitle}</span>
-        <span class="atl-row-side">${simLabel}<span class="atl-card-status">À lire</span></span>`;
-    }
-    html+=`<div class="atl-card atl-${state}" data-gnum="${c.gnum}" data-text="${ftext.replace(/"/g,'&quot;')}"${clickAttr}>${inner}</div>`;
+/* ══════════════════════════════════════════════════════════════════════
+   LE SOMMAIRE (colonne de gauche)
+   Il a remplacé l'onglet « Parcourir » — qui listait les mêmes 33
+   chapitres en cartes riches, dans un panneau qu'il fallait quitter pour
+   lire. Ici il ne quitte jamais l'écran : c'est la vue du chapitre
+   courant, et c'est par lui qu'on change de chapitre.
+   ══════════════════════════════════════════════════════════════════════ */
+function curGnum(){
+  const sl=document.getElementById('chapSelect');
+  return (sl && sl.selectedIndex>=0) ? sl.selectedIndex+1 : 0;
+}
+function curChap(){ return CHAP_FLAT[curGnum()-1]||null; }
+
+function renderTocRail(){
+  const list=document.getElementById('atl3TocList');
+  if(!list)return;
+  const p=window.SHELL&&window.SHELL.progress;
+  const done=p?p.getSet():new Set();
+  const cur=curGnum();
+  let g=0,h='';
+  ROY_STRUCT.forEach((sec,si)=>{
+    h+='<div class="atl3-sec" data-sec="'+(si+1)+'">'
+      +'<span class="atl3-sec-rn">'+sec.rn+'</span>'+dEsc(sec.t)+'</div>';
+    sec.chaps.forEach(([num,title])=>{
+      g++;
+      const isDone=done.has(g), isCur=(g===cur);
+      h+='<button type="button" class="atl3-ch'+(isDone?' is-done':'')+(isCur?' is-cur':'')+'"'
+        +' data-g="'+g+'" data-sec="'+(si+1)+'"'
+        +' data-text="'+dEsc((num+' '+title+' '+sec.t).toLowerCase())+'"'
+        +(isCur?' aria-current="true"':'')+'>'
+        +'<span class="atl3-ch-n">'+num+'</span>'
+        +'<span class="atl3-ch-t">'+dEsc(title)+'</span>'
+        +'<span class="atl3-ch-st">'+(isDone?CHECK_SVG:'')+'</span>'
+      +'</button>';
+    });
   });
-  nl.innerHTML=html;
-  const q=document.getElementById('filter')&&document.getElementById('filter').value.trim().toLowerCase();
-  if(q)applyAtlFilter(q);
-  /* Synchronise aussi le panel #atelier-accueil (même HTML de cartes) */
-  var nl2=document.getElementById('atlNavlist');
-  if(nl2)nl2.innerHTML=html;
+  list.innerHTML=h;
+  list.querySelectorAll('.atl3-ch').forEach(b=>
+    b.addEventListener('click',()=>{ closeTocDrop(); openChapter(+b.dataset.g); }));
+
+  /* La progression, chiffrée seulement si on peut la compter : sans
+     session il n'y a rien à afficher, et un « 0 sur 33 » serait faux. */
+  const pr=document.getElementById('atl3Prog');
+  if(pr){
+    const total=CHAP_FLAT.length;
+    if(p&&p.isLoggedIn()){
+      const pct=Math.round(done.size/total*100);
+      pr.innerHTML='<span class="atl3-prog-bar"><i style="width:'+pct+'%"></i></span>'
+        +'<span class="atl3-prog-n">'+done.size+' / '+total+'</span>';
+    }else{
+      pr.innerHTML='<button type="button" class="atl3-prog-log">Suivre ma progression</button>';
+      pr.querySelector('button').onclick=()=>{
+        if(window.SHELL&&window.SHELL.auth)window.SHELL.auth.openModal();};
+    }
+  }
+  const c=curChap();
+  const tt=document.getElementById('atl3TocToggleT');
+  if(tt)tt.textContent=c?(c.chapRn+'. '+c.chapTitle):'Choisir un chapitre';
+  const f=document.getElementById('filter');
+  if(f&&f.value)applyAtlFilter(f.value.trim().toLowerCase());
+  /* Le chapitre courant peut être hors champ dans une colonne qui défile
+     seule : on l'y ramène, sans emporter la page avec lui. */
+  const cel=list.querySelector('.atl3-ch.is-cur');
+  if(cel&&list.getClientRects().length&&list.scrollHeight>list.clientHeight+4){
+    const ct=cel.offsetTop-list.clientHeight/2+cel.offsetHeight/2;
+    list.scrollTop=Math.max(0,ct);
+  }
 }
 
 function applyAtlFilter(q){
-  let any=false;
-  const cards=document.querySelectorAll('#navlist .atl-card');
-  const secVis={};
-  cards.forEach(r=>{
-    const match=!q||r.dataset.text.includes(q);
-    r.style.display=match?'':'none';
-    if(match){any=true;const gn=+r.dataset.gnum;const c=CHAP_FLAT[gn-1];if(c)secVis[c.secNum]=true;}
+  let any=false;const secVis={};
+  document.querySelectorAll('#atl3TocList .atl3-ch').forEach(r=>{
+    const match=!q||r.dataset.text.indexOf(q)>=0;
+    r.hidden=!match;
+    if(match){any=true;secVis[r.dataset.sec]=true;}
   });
-  document.querySelectorAll('#navlist .atl-grid-sec').forEach(h=>{
-    h.style.display=secVis[+h.dataset.sec]?'':'none';});
-  document.getElementById('nores').style.display=any?'none':'block';
+  document.querySelectorAll('#atl3TocList .atl3-sec').forEach(hd=>{
+    hd.hidden=!secVis[hd.dataset.sec];});
+  const nr=document.getElementById('nores');
+  if(nr)nr.hidden=any;
+  if(window.SHELL&&SHELL.announce&&q)
+    SHELL.announce(any?'Chapitres filtrés.':'Aucun chapitre ne correspond.');
 }
 
-/* ── syncProgUI : met à jour toutes les zones de progression selon l'état auth ── */
-function syncProgUI(){
-  var p=window.SHELL&&window.SHELL.progress;
-  var loggedIn=!!(p&&p.isLoggedIn());
-  var done=p?p.getSet():new Set();
-  var total=33;var cnt=loggedIn?done.size:0;var pct=total?Math.round(cnt/total*100):0;
+/* Ouvrir un chapitre = écrire dans #chapSelect (l'état que toute la
+   liseuse lit déjà) puis rendre. La colonne de gauche est une VUE de ce
+   sélecteur, pas un second système de navigation. */
+function openChapter(g){
+  const sl=document.getElementById('chapSelect');
+  if(!sl||g<1||g>sl.options.length)return;
+  sl.selectedIndex=g-1;
+  showSelection(true);
+  renderTocRail();
+  renderMarge();
+}
 
-  /* Le bandeau de reprise ne dépend pas de la session (localStorage),
-     mais on le rafraîchit ici : c'est le point de synchronisation commun. */
-  if(typeof renderResumeBand==='function')renderResumeBand();
+/* ══════════════════════════════════════════════════════════════════════
+   LA MARGE (colonne de droite) — « Dans ce chapitre ».
+   Le point de toute la refonte. L'appareil critique n'est plus à un
+   onglet de distance : il est indexé sur le chapitre qu'on lit. Et la
+   matière existait déjà — META[rn].labo, META[rn].d et CHRONO[].chap
+   portaient le renvoi depuis toujours, en texte décoratif que rien ne
+   lisait.
+   ══════════════════════════════════════════════════════════════════════ */
+/* « chap. X · XXXI » → ['X','XXXI']. On compare des JETONS, jamais des
+   sous-chaînes : « X » est contenu dans « XXVII », et un chapitre X aurait
+   ramassé la moitié de la section VIII. */
+function romansOf(str){
+  return String(str||'').split(/[^IVXLC]+/).filter(Boolean);
+}
+function chronoFor(rn){
+  try{ return CHRONO.filter(e=>romansOf(e.chap).indexOf(rn)>=0); }catch(e){ return []; }
+}
+const EXPLO_FOR={'I':'x-feti','XIII':'x-coop','XIV':'x-coop','XV':'x-coop',
+  'XIX':'x-salaire','XX':'x-salaire','XXI':'x-salaire','XXII':'x-salaire'};
+const EXPLO_LABELS={'x-coop':'Coopération → machinisme','x-feti':'Le fétichisme',
+  'x-salaire':'La forme-salaire'};
 
-  /* Widget de progression de l'onglet Atelier-accueil */
-  var na2=document.getElementById('atlProgNA2');
-  var pr2=document.getElementById('atlProg2');
-  if(na2)na2.style.display=loggedIn?'none':'flex';
-  if(pr2)pr2.style.display=loggedIn?'':'none';
-  /* même bascule pour le widget compact de #nav (Parcourir) */
-  var na1=document.getElementById('atlProgNA');
-  var pr1=document.getElementById('atlProg');
-  if(na1)na1.style.display=loggedIn?'none':'flex';
-  if(pr1)pr1.style.display=loggedIn?'':'none';
-  if(loggedIn){
-    var fillEl=document.getElementById('atlFill2');
-    var cntEl=document.getElementById('atlCount2');
-    if(fillEl)fillEl.style.width=pct+'%';
-    if(cntEl)cntEl.textContent=cnt+' sur '+total+' chapitres'+(pct?' \u00b7 '+pct+'\u00a0%':'');
+let margeOpen=false;
+function margeSection(k,title,body){
+  return '<section class="atl3-m-sec"><h3 class="atl3-m-h">'+k+'</h3>'
+    +(title?'<p class="atl3-m-t">'+title+'</p>':'')+body+'</section>';
+}
+function renderMarge(){
+  const el=document.getElementById('atl3Marge');
+  if(!el)return;
+  const c=curChap();
+  if(!c){ el.innerHTML='<p class="atl3-m-empty">Choisissez un chapitre dans le sommaire.</p>'; return; }
+  const rn=c.chapRn, m=(typeof META!=='undefined'&&META[rn])||{};
+  /* Sous 1240 px la marge n'est plus une colonne : elle passe AU-DESSUS du
+     texte, repliée derrière ce bouton. Posée sous le texte, elle se
+     retrouvait à deux cent mille pixels du lecteur — une section entière
+     de Wikisource plus bas — c'est-à-dire nulle part. */
+  let h='<button type="button" class="atl3-m-toggle" id="atl3MToggle"'
+    +' aria-expanded="'+(margeOpen?'true':'false')+'">'
+    +'<span class="atl3-m-toggle-k">Dans ce chapitre</span>'
+    +'<span class="atl3-m-toggle-t">'+dEsc(c.chapTitle)+'</span></button>'
+    +'<div class="atl3-m-head"><span class="atl3-lab">Dans ce chapitre</span>'
+    +'<p class="atl3-m-ch"><em>'+rn+'</em> '+dEsc(c.chapTitle)+'</p></div>';
+
+  /* En clair — le résumé argumenté. Il vivait dans un popover de la barre
+     de lecture, derrière un bouton qu'il fallait connaître. */
+  if(m.s) h+=margeSection('En clair','','<div class="atl3-m-sum" id="atl3Sum">'+m.s+'</div>'
+    +'<button type="button" class="atl3-m-more" data-more="atl3Sum">Lire la suite</button>');
+
+  /* Le modèle — la station du laboratoire qui met CE chapitre en
+     mouvement. Elle s'ouvre dans le tiroir, à côté du texte. */
+  if(m.labo && LABO_LABELS[m.labo])
+    h+=margeSection('L\'instrument','',
+      '<button type="button" class="atl3-m-go" data-drawer="'+m.labo+'" data-kind="labo">'
+      +'<span class="atl3-m-go-t">'+dEsc(LABO_LABELS[m.labo].replace(/^Modèle /,''))+'</span>'
+      +'<span class="atl3-m-go-k">Faire varier →</span></button>');
+
+  /* La marche du cheminement où ce chapitre se situe. */
+  if(m.d && typeof STEPS!=='undefined' && STEPS[m.d-1])
+    h+=margeSection('Où l\'on en est','',
+      '<button type="button" class="atl3-m-go" data-drawer="'+m.d+'" data-kind="step">'
+      +'<span class="atl3-m-go-n">Marche '+m.d+' sur '+STEPS.length+'</span>'
+      +'<span class="atl3-m-go-t">'+dEsc(STEPS[m.d-1].t)+'</span>'
+      +'<span class="atl3-m-go-k">Voir la déduction →</span></button>');
+
+  /* Les dates que ce chapitre raconte. Elles sont courtes : elles vivent
+     ici même, dépliables — pas la peine d'un tiroir pour deux phrases. */
+  const ev=chronoFor(rn);
+  if(ev.length){
+    h+=margeSection('Ce qui s\'est passé','',
+      '<ul class="atl3-m-dates">'+ev.map((e,i)=>
+        '<li><button type="button" class="atl3-m-date" data-ev="'+i+'">'
+        +'<span class="atl3-m-y">'+e.year+'</span>'
+        +'<span class="atl3-m-evt">'+dEsc(e.title)+'</span></button>'
+        +'<p class="atl3-m-desc" hidden>'+e.desc+'</p></li>').join('')
+      +'</ul>');
   }
+
+  /* Une exploration, quand ce chapitre en a une. */
+  const x=EXPLO_FOR[rn];
+  if(x) h+=margeSection('À voir','',
+    '<button type="button" class="atl3-m-go" data-drawer="'+x+'" data-kind="explo">'
+    +'<span class="atl3-m-go-t">'+dEsc(EXPLO_LABELS[x])+'</span>'
+    +'<span class="atl3-m-go-k">Ouvrir →</span></button>');
+
+  /* Vos passages. Les annotations sont rangées par SECTION du livre (la
+     liseuse charge une section entière) : on le dit, plutôt que d'annoncer
+     un compte « du chapitre » qui n'en serait pas un. */
+  let n=0;
+  try{
+    const all=(window.SHELL&&SHELL.annotations&&SHELL.annotations.allNotes)?SHELL.annotations.allNotes():[];
+    n=all.filter(a=>a.work==='capital'&&+a.section===c.secNum).length;
+  }catch(e){}
+  /* Les deux pastilles flottantes vivent en bas à droite du viewport —
+     c'est-à-dire, sur cette mise en page, par-dessus le pied de la marge.
+     Plutôt que de les pousser sur le texte, on leur donne leur vraie
+     place : ici. Elles restent dans le document (le shell les possède),
+     on ne fait que les déclencher ; le CSS les masque tant que la marge
+     est une colonne. */
+  h+=margeSection('Vos passages','',
+    '<p class="atl3-m-note">'+(n
+      ? n+' passage'+(n>1?'s surlignés':' surligné')+' dans la section '+c.sectionRn+'.'
+      : 'Sélectionnez un passage du texte pour le surligner et y attacher une note.')
+    +'</p>'
+    +'<div class="atl3-m-notebtns">'
+      +'<button type="button" class="atl3-m-nb" data-fab="notesFab">Mes notes</button>'
+      +'<button type="button" class="atl3-m-nb" data-fab="pubFab">Notes partagées</button>'
+    +'</div>'
+    +'<a class="atl3-m-carnet" href="carnet.html">Ouvrir mon carnet →</a>');
+
+  el.innerHTML=h;
+  el.classList.toggle('is-open',margeOpen);
+  const mt=document.getElementById('atl3MToggle');
+  if(mt)mt.addEventListener('click',()=>{
+    margeOpen=!margeOpen;
+    el.classList.toggle('is-open',margeOpen);
+    mt.setAttribute('aria-expanded',margeOpen?'true':'false');
+  });
+
+  el.querySelectorAll('[data-more]').forEach(b=>b.addEventListener('click',()=>{
+    const t=document.getElementById(b.dataset.more);
+    const open=t.classList.toggle('is-open');
+    b.textContent=open?'Replier':'Lire la suite';
+  }));
+  el.querySelectorAll('[data-ev]').forEach(b=>b.addEventListener('click',()=>{
+    const d=b.parentNode.querySelector('.atl3-m-desc');
+    d.hidden=!d.hidden; b.classList.toggle('is-open',!d.hidden);
+  }));
+  el.querySelectorAll('[data-drawer]').forEach(b=>b.addEventListener('click',()=>
+    openDrawer(b.dataset.kind,b.dataset.drawer)));
+  el.querySelectorAll('[data-fab]').forEach(b=>b.addEventListener('click',()=>{
+    const f=document.getElementById(b.dataset.fab);
+    if(f)f.click();
+    else if(window.SHELL&&SHELL.announce)
+      SHELL.announce('Chargez un chapitre pour ouvrir vos notes.');
+  }));
 }
+
+/* ══════════════════════════════════════════════════════════════════════
+   LE TIROIR — l'appareil vient au texte.
+   Il DÉPLACE le nœud existant (#s-jour, #x-coop, la marche du
+   cheminement) et le remet exactement à sa place à la fermeture. Rien
+   n'est cloné : tout le JS du laboratoire adresse ses contrôles par
+   getElementById, un clone en aurait fait des doublons muets.
+   ══════════════════════════════════════════════════════════════════════ */
+let drawerNode=null,drawerHome=null,drawerNext=null,drawerOpener=null;
+function openDrawer(kind,target){
+  closeDrawer(true);
+  let node=null,title='';
+  if(kind==='labo'){
+    node=document.getElementById(target);
+    title=(LABO_LABELS[target]||'').replace(/^Modèle /,'');
+    activateSub(target);
+  }else if(kind==='explo'){
+    node=document.getElementById(target);
+    title=EXPLO_LABELS[target]||'';
+  }else if(kind==='step'){
+    node=document.querySelector('.walk-step[data-step="'+target+'"]');
+    title='Marche '+target+' — '+((STEPS[target-1]||{}).t||'');
+  }
+  if(!node)return;
+  drawerNode=node; drawerHome=node.parentNode; drawerNext=node.nextSibling;
+  drawerOpener=document.activeElement;
+  const body=document.getElementById('atlDrawerBody');
+  body.appendChild(node);
+  node.classList.add('atl-drawer-in');
+  document.getElementById('atlDrawerT').textContent=title;
+  const d=document.getElementById('atlDrawer');
+  d.hidden=false;
+  document.body.classList.add('atl-drawer-on');
+  /* Le graphe du TRPF a pu être dessiné sur un canevas de largeur nulle
+     (Dossier masqué) : on le retrace une fois posé dans le tiroir. */
+  if(target==='s-trpf')setTimeout(function(){try{drawTRPF();}catch(e){}},0);
+  setTimeout(syncGraphLabels,0);
+  const x=document.getElementById('atlDrawerX'); if(x)x.focus();
+  if(window.SHELL&&SHELL.announce)SHELL.announce('Ouvert : '+title);
+}
+function closeDrawer(silent){
+  const d=document.getElementById('atlDrawer');
+  if(!d||d.hidden){ if(!silent)return; }
+  if(drawerNode&&drawerHome){
+    drawerNode.classList.remove('atl-drawer-in');
+    drawerHome.insertBefore(drawerNode,drawerNext);
+  }
+  drawerNode=drawerHome=drawerNext=null;
+  if(d)d.hidden=true;
+  document.body.classList.remove('atl-drawer-on');
+  if(!silent&&drawerOpener&&drawerOpener.focus){try{drawerOpener.focus();}catch(e){}}
+  drawerOpener=null;
+}
+function closeTocDrop(){
+  const t=document.getElementById('atl3Toc'),b=document.getElementById('atl3TocToggle');
+  if(!t||!b)return;
+  t.classList.remove('is-open');
+  b.setAttribute('aria-expanded','false');
+}
+(function(){
+  const b=document.getElementById('atl3TocToggle'),t=document.getElementById('atl3Toc');
+  if(b&&t)b.addEventListener('click',()=>{
+    const open=t.classList.toggle('is-open');
+    b.setAttribute('aria-expanded',open?'true':'false');
+    if(open)renderTocRail();
+  });
+  const x=document.getElementById('atlDrawerX');
+  if(x)x.addEventListener('click',()=>closeDrawer());
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape'&&!document.getElementById('atlDrawer').hidden){
+      e.preventDefault();closeDrawer();}
+  });
+})();
+
+/* ── syncProgUI : la progression vit désormais dans le sommaire ── */
+function syncProgUI(){
+  renderTocRail();
+}
+/* Le nom que rappellent installShell et les changements de session. */
+function renderResume(){ renderTocRail(); renderMarge(); }
+function renderAtlList(){ renderTocRail(); }
 
 /* ── Bandeau invite discret (non connecté, scroll à 90%) ── */
 function showProgressInvite(){
@@ -2086,15 +2325,21 @@ async function showSelection(doScroll){
     if(window.SHELL&&SHELL.resume) SHELL.resume.set('capital-1',{sel:n+'|'+num+'|'+title,num:num,title:title});
     updateCapMarkDone(gnum);
     installCapScrollTracker(out,gnum);
+    /* Le sommaire marque le chapitre courant, la marge se recompose
+       sur lui : c'est ce qui fait que l'appareil suit la lecture. */
+    try{renderTocRail();renderMarge();}catch(e){}
     if(doScroll)scrollToAnchor(out,title);
     try{if(window.Anno)window.Anno.mount(n,out.querySelector('.ws-text'));}catch(e){}
     try{
       if(window.Reading){
         const m=META[num]||{};
         const sumHtml = m.s ? '<div class="rd-clear-body">'+m.s+'</div><div class="rd-note">Résumé argumenté repris du Navigateur — repère ici l’idée directrice avant ou pendant la lecture du texte intégral.</div>' : null;
+        /* Les chips de renvoi ont quitté la barre de lecture : la marge
+           de droite porte les mêmes renvois, en permanence et sans clic
+           préalable. Le résumé « En clair » reste, lui, dans la barre :
+           sous 1100 px la marge passe sous le texte, il redevient le
+           chemin court. */
         const xref=[];
-        if(m.labo) xref.push({label:'Voir dans le Laboratoire →', go:function(){ try{goLabo(m.labo);}catch(e){} }});
-        if(m.d)    xref.push({label:'Suivre dans le Cheminement → marche '+m.d, go:function(){ try{goDeriv(+m.d);}catch(e){} }});
         window.Reading.mount(out,{
           ctx:{id:num, title:title},
           textSel:'.ws-text',
@@ -2117,9 +2362,10 @@ async function showSelection(doScroll){
   }}
 const loadBtn=document.getElementById('loadBtn');
 if(loadBtn)loadBtn.addEventListener('click',()=>showSelection(true));
+/* Le sélecteur n'est plus manipulé à la main : openChapter() écrit
+   dedans puis charge. On garde seulement la mise à jour du contexte
+   d'annotation pour un changement venu d'ailleurs (deep-link). */
 sel.addEventListener('change',()=>{
-  const out=document.getElementById('readerOut');
-  out.innerHTML='<div class="reader"><div class="placeholder"><div class="pi"><svg viewBox="0 0 24 24" aria-hidden="true"><g class="s"><path d="M12 6.4C10 4.6 7.2 3.9 3.6 4.1v13.2c3.6-.2 6.4.5 8.4 2.3 2-1.8 4.8-2.5 8.4-2.3V4.1c-3.6-.2-6.4.5-8.4 2.3Z"/><path d="M12 6.4v13.2"/></g></svg></div><b>Prêt à charger.</b><br><span style="font-size:.9rem">Clique sur « Charger le texte intégral » pour afficher ce chapitre.</span></div></div>';
   try{const nn=+sel.value.split('|')[0];if(window.Anno&&nn)window.Anno.context(nn);}catch(e){}
 });
 
@@ -2685,6 +2931,73 @@ stair.querySelectorAll('.step-links .lk').forEach(btn=>btn.addEventListener('cli
 
 drawTRPF();
 
+/* ══════════════════════════════════════════════════════════════════════
+   L'OUVERTURE DU LIVRE.
+   Avant : on tombait sur « Pour entrer », trois cartes d'accroche, y
+   compris à la dixième visite. Désormais on tombe sur le TEXTE — celui
+   qu'on lisait, ou le premier chapitre. Les trois idées ne se montrent
+   qu'une fois, à qui n'a encore ni progression ni lecture en cours.
+   ══════════════════════════════════════════════════════════════════════ */
+const SEUIL_KEY='liremarx.capital.seuil.v1';
+function seuilSeen(){ try{return localStorage.getItem(SEUIL_KEY)==='1';}catch(e){return true;} }
+function markSeuil(){ try{localStorage.setItem(SEUIL_KEY,'1');}catch(e){} }
+
+/* Refermer le seuil pour de bon : on l'a vu, il ne revient pas. */
+function dismissSeuil(){
+  const sc=document.getElementById('atlSeuil');
+  if(!sc||sc.hidden)return;
+  markSeuil();
+  document.body.classList.remove('atl-seuil-on');
+  sc.hidden=true;
+  const a3=document.getElementById('atl3');
+  if(a3)a3.hidden=(curTab!=='lire');
+}
+function showSeuil(){
+  const sc=document.getElementById('atlSeuil');
+  const grid=document.querySelector('#entrer .cap-ideas-grid');
+  const host=document.getElementById('atlSeuilIdeas');
+  if(!sc||!grid||!host)return;
+  host.appendChild(grid.cloneNode(true));
+  document.body.classList.add('atl-seuil-on');
+  sc.hidden=false;
+  const a3=document.getElementById('atl3'); if(a3)a3.hidden=true;
+  const go=function(open){
+    dismissSeuil();
+    if(open)openChapter(curGnum()||1);
+  };
+  document.getElementById('atlSeuilStart').onclick=function(){go(true);};
+  document.getElementById('atlSeuilSkip').onclick=function(){go(false);};
+}
+
+function bootAtelier(){
+  const sl=document.getElementById('chapSelect');
+  if(!sl)return;
+  const r=(window.SHELL&&window.SHELL.resume)?window.SHELL.resume.get('capital-1'):null;
+  let g=1;
+  if(r&&r.sel){
+    sl.value=r.sel;
+    /* Une reprise enregistrée peut ne plus correspondre à aucune option
+       (liste retouchée, valeur d'une version ancienne) : poser .value ne
+       prend alors pas, et l'on repart du premier chapitre. */
+    if(sl.value) g=sl.selectedIndex+1;
+    else { try{window.SHELL.resume.clear('capital-1');}catch(e){} }
+  }
+  sl.selectedIndex=g-1;
+  renderTocRail();
+  renderMarge();
+
+  /* Un deep-link (#note=, #s=) a son propre aiguillage, qui ouvre la
+     bonne section et surligne le passage : on ne charge pas par-dessus. */
+  if(/^#(note=|s=)/.test(location.hash||'')) return;
+  if(curTab!=='lire') return;
+
+  if(!seuilSeen() && !(r&&r.sel)){ showSeuil(); return; }
+  openChapter(g);
+}
+if(document.readyState==='loading')
+  document.addEventListener('DOMContentLoaded',bootAtelier,{once:true});
+else bootAtelier();
+
 /* ===== Annotation — local-first, prêt pour synchronisation (Supabase) ===== */
 (function(){
   const WORK='capital';
@@ -2990,23 +3303,24 @@ try{if(window.Anno&&sel&&sel.value){const nn0=+sel.value.split('|')[0];if(nn0)wi
 installShell({
   workId: 'capital-1',
   workTitle: 'Le Capital — Livre I',
+  /* La sidebar listait les MÊMES huit destinations que la barre
+     d'onglets, mot pour mot, dans le même écran. Elle en porte deux. */
   tabs: [
-    {id:'entrer',  label:'Pour entrer'},
-    {id:'nav',     label:'Parcourir'},
-    {id:'lire',    label:'Texte intégral'},
-    {id:'deriv',   label:'Cheminement'},
-    {id:'labo',    label:'Modèles'},
-    {id:'explore', label:'Explorations'},
-    {id:'chrono',  label:'Chronologie'},
-    {id:'ressources', label:'Ressources'}
+    {id:'lire',    label:'Lire le texte'},
+    {id:'dossier', label:'Le dossier'}
   ]
 });
 /* Le bloc d'onglets s'initialise AVANT que shell.js ne soit chargé : au
    premier activateTab, SHELL.tabs n'existe pas encore et syncTabsA11y sort
    sans rien poser. On rejoue donc une fois le shell installé. */
 (function(){
-  var p=document.querySelector('.panel.active');
-  if(p&&typeof syncTabsA11y==='function')syncTabsA11y(p.id);
+  /* Ce rappel lisait `.panel.active` pour retrouver l'onglet courant. Depuis
+     que les six panneaux du Dossier restent actifs en permanence et que
+     #lire les précède dans le document, il retombait TOUJOURS sur « lire » :
+     il réécrivait le hash à #lire et marquait la mauvaise entrée de sidebar
+     alors qu'on venait d'ouvrir le Dossier par un deep-link. La destination
+     courante est `curTab`, et elle seule. */
+  if(typeof syncTabsA11y==='function')syncTabsA11y(typeof curTab!=='undefined'?curTab:'lire');
   if(typeof renderResume==='function')renderResume();
 })();
 // Le bouton « Confidentialité & données » du pied de page ouvre la modale RGPD

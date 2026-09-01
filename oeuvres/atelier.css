@@ -248,8 +248,9 @@ footer.wrap{padding-top:22px;padding-bottom:60px;}
    (topbar 44 + onglets + barre de lecture) mangerait trop d'un écran de
    900 px. La rangée d'onglets se décolle donc et défile normalement ; on y
    revient par la sidebar, par le menu en mobile, ou en remontant. */
-body.at-reading nav.tabs.worktabs{position:static;}
-body.at-reading .work-head{display:none;}
+/* `body.at-reading` ne replie plus rien : depuis que le texte est la page
+   elle-même (mission `atelier-texte-au-centre`), ces deux règles auraient
+   effacé l'en-tête de l'œuvre et décollé la barre en permanence. */
 
 /* ═══ Grammaire de tête de panneau (mission atelier-moderne) ═══
    Un panneau s'ouvre TOUJOURS pareil : titre Fraunces + lede italique à
@@ -465,3 +466,291 @@ h2.sec em{font-style:italic;font-weight:500;color:var(--red-text);}
    un <a> (« Ouvrir mon carnet → »), le navigateur ajoutait son trait. */
 a.btn,a.lk,a.cap-btn-dark,a.cap-btn-light,a.cap-btn-outline,a.prog-no-auth-btn{
   text-decoration:none;}
+
+/* ══════════════════════════════════════════════════════════════════════
+   L'ATELIER À TROIS COLONNES — mission `atelier-texte-au-centre`
+   Le texte au milieu, le sommaire à gauche, l'appareil en marge à droite.
+   Les colonnes latérales sont COLLANTES et défilent chacune pour son
+   compte : c'est ce qui fait qu'on ne perd jamais ni sa place dans le
+   livre, ni ce que le chapitre courant a d'outils.
+   ══════════════════════════════════════════════════════════════════════ */
+:root{ --atl-top:88px; }   /* topbar 44 + barre d'onglets 44 */
+
+/* Trois colonnes ne tiennent pas dans une mesure pensée pour une seule :
+   la page d'atelier reprend la largeur disponible. `body.at-atelier` est
+   posée dans le HTML de la page, pas en :has() — la règle maison. */
+@media (min-width:1240px){
+  body.at-atelier main.wrap,body.at-atelier footer.wrap{max-width:1250px;}
+}
+.atl3{display:grid;grid-template-columns:232px minmax(0,1fr) 288px;
+  gap:0;align-items:start;margin:0 -22px;}
+/* La liseuse garde SA mesure (760 px) et se centre dans la colonne : une
+   colonne plus large n'est pas une ligne de texte plus longue. */
+.atl3-mid .reader{max-width:760px;margin:0 auto;}
+.atl3[hidden]{display:none;}
+.atl3-col{position:sticky;top:calc(var(--atl-top) + 14px);
+  max-height:calc(100vh - var(--atl-top) - 28px);
+  display:flex;flex-direction:column;min-width:0;padding:18px 0 10px;}
+.atl3-toc{border-right:1px solid var(--line);padding-right:20px;}
+.atl3-marge{border-left:1px solid var(--line);padding-left:20px;}
+.atl3-mid{min-width:0;padding:14px 26px 0;}
+
+/* Le petit label de colonne — même grammaire que les labels de section
+   de l'accueil : capitales espacées, or. */
+.atl3-lab{font-family:var(--f-ui);font-size:.72rem;font-weight:700;
+  letter-spacing:.13em;text-transform:uppercase;color:var(--gold-deep);}
+
+/* ── Colonne gauche : le sommaire ── */
+.atl3-toc-head{display:flex;flex-direction:column;gap:9px;margin-bottom:12px;}
+.atl3-prog{min-height:20px;}
+.atl3-prog-bar{display:block;height:3px;border-radius:2px;background:var(--line);
+  overflow:hidden;margin-bottom:5px;}
+.atl3-prog-bar i{display:block;height:100%;background:var(--gold-deep);
+  transition:width .5s ease;}
+.atl3-prog-n{font-family:var(--f-ui);font-size:.76rem;color:var(--ink-soft);}
+.atl3-prog-log{font-family:var(--f-ui);font-size:.76rem;color:var(--gold);
+  background:none;border:none;padding:0;cursor:pointer;text-decoration:underline;
+  text-underline-offset:3px;text-align:left;}
+.atl3-prog-log:hover{color:var(--ink);}
+
+.atl3-filter{width:100%;font-family:var(--f-ui);font-size:.82rem;
+  padding:7px 10px;border-radius:100px;border:1px solid var(--line-strong);
+  background:var(--card);color:var(--ink);margin-bottom:10px;}
+.atl3-toc-list{overflow-y:auto;flex:1;min-height:0;
+  scrollbar-width:thin;scrollbar-color:var(--line-strong) transparent;}
+.atl3-nores{font-family:var(--f-ui);font-size:.8rem;color:var(--ink-soft);
+  padding:8px 2px;}
+
+.atl3-sec{display:flex;gap:7px;align-items:baseline;
+  font-family:var(--f-ui);font-size:.72rem;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink-soft);
+  margin:18px 0 6px;padding-bottom:5px;border-bottom:1px solid var(--line);}
+.atl3-sec:first-child{margin-top:0;}
+.atl3-sec-rn{font-family:'Fraunces',serif;font-style:italic;font-weight:600;
+  font-size:.82rem;letter-spacing:0;text-transform:none;color:var(--gold-deep);}
+
+/* Une ligne de sommaire. Le numéro en Fraunces italique or, comme les
+   années de la frise et les numéros de chapitre du site : c'est la rime
+   qui tient la page. */
+.atl3-ch{display:grid;grid-template-columns:34px minmax(0,1fr) 16px;
+  gap:8px;align-items:baseline;width:100%;text-align:left;
+  background:none;border:none;cursor:pointer;padding:6px 8px;border-radius:8px;
+  color:var(--ink-soft);transition:background .16s,color .16s;}
+.atl3-ch:hover{background:var(--hover);color:var(--ink);}
+.atl3-ch-n{font-family:'Fraunces',serif;font-style:italic;font-weight:600;
+  font-size:.84rem;color:var(--gold-deep);}
+.atl3-ch-t{font-family:var(--f-ui);font-size:.83rem;line-height:1.35;}
+.atl3-ch-st{color:var(--gold-deep);}
+.atl3-ch-st svg{width:12px;height:12px;display:block;}
+.atl3-ch.is-done .atl3-ch-t{color:var(--ink-soft);}
+.atl3-ch.is-cur{background:linear-gradient(150deg,#2c2117,#211a12,#1b150e);
+  color:var(--ink);box-shadow:inset 0 0 0 1px rgba(216,173,76,.20);}
+.atl3-ch.is-cur .atl3-ch-t{color:var(--ink);font-weight:600;}
+.atl3-ch.is-cur .atl3-ch-n{color:var(--gold);}
+
+/* ── Colonne droite : la marge ── */
+.atl3-m-head{padding-bottom:12px;margin-bottom:4px;border-bottom:1px solid var(--line);}
+.atl3-m-ch{font-family:'Fraunces',Georgia,serif;font-weight:700;font-size:1.02rem;
+  line-height:1.28;color:var(--ink);margin:7px 0 0;}
+.atl3-m-ch em{font-style:italic;font-weight:600;color:var(--gold);margin-right:6px;}
+.atl3-marge{overflow-y:auto;scrollbar-width:thin;
+  scrollbar-color:var(--line-strong) transparent;
+  /* Les pastilles flottantes « Mes notes » / « Notes partagées » se posent
+     en bas à droite du viewport, donc par-dessus le pied de cette colonne.
+     On arrête la colonne AU-DESSUS d'elles : ce qui dépasse défile dans la
+     marge au lieu de passer dessous. Les déplacer, elles, les aurait mises
+     par-dessus le texte — pire échange. */
+  max-height:calc(100vh - var(--atl-top) - 128px);}
+.atl3-m-sec{padding:14px 0;border-bottom:1px solid var(--line);}
+.atl3-m-sec:last-child{border-bottom:none;}
+.atl3-m-h{font-family:var(--f-ui);font-size:.72rem;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--gold-deep);
+  margin:0 0 9px;}
+.atl3-m-empty,.atl3-m-note{font-family:var(--f-ui);font-size:.8rem;
+  line-height:1.5;color:var(--ink-soft);margin:0;}
+
+/* Le résumé « en clair » : trois lignes, puis on déplie. */
+.atl3-m-sum{font-family:var(--f-serif);font-size:.86rem;
+  line-height:1.55;color:var(--ink-soft);
+  display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;
+  overflow:hidden;}
+.atl3-m-sum.is-open{display:block;}
+.atl3-m-sum b{color:var(--ink);font-weight:600;}
+.atl3-m-more{font-family:var(--f-ui);font-size:.75rem;color:var(--gold);
+  background:none;border:none;padding:4px 0 0;cursor:pointer;
+  text-decoration:underline;text-underline-offset:3px;}
+.atl3-m-more:hover{color:var(--ink);}
+
+/* Le renvoi vers un instrument : une vraie carte, pas un lien perdu. */
+.atl3-m-go{display:flex;flex-direction:column;gap:3px;width:100%;text-align:left;
+  background:var(--card);border:1px solid var(--line-strong);border-radius:12px;
+  padding:11px 12px;cursor:pointer;transition:background .16s,border-color .16s;}
+.atl3-m-go:hover{background:var(--hover);border-color:var(--gold-deep);}
+.atl3-m-go-n{font-family:var(--f-ui);font-size:.72rem;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);}
+.atl3-m-go-t{font-family:'Fraunces',Georgia,serif;font-weight:700;font-size:.92rem;
+  line-height:1.25;color:var(--ink);}
+.atl3-m-go-k{font-family:var(--f-ui);font-size:.75rem;color:var(--gold);}
+
+/* Les dates : l'année en folio, le titre à côté, la notice au dépli. */
+.atl3-m-dates{list-style:none;margin:0;padding:0;display:flex;
+  flex-direction:column;gap:2px;}
+.atl3-m-date{display:grid;grid-template-columns:38px minmax(0,1fr);gap:9px;
+  align-items:baseline;width:100%;text-align:left;background:none;border:none;
+  cursor:pointer;padding:5px 6px;border-radius:8px;transition:background .16s;}
+.atl3-m-date:hover{background:var(--hover);}
+.atl3-m-y{font-family:'Fraunces',serif;font-style:italic;font-weight:600;
+  font-size:.84rem;color:var(--gold-deep);}
+.atl3-m-evt{font-family:var(--f-ui);font-size:.8rem;line-height:1.35;
+  color:var(--ink-soft);}
+.atl3-m-date.is-open .atl3-m-evt{color:var(--ink);}
+.atl3-m-desc{font-family:var(--f-serif);font-size:.82rem;
+  line-height:1.5;color:var(--ink-soft);margin:2px 0 8px;padding:0 6px 0 53px;}
+.atl3-m-carnet{display:inline-block;font-family:var(--f-ui);font-size:.78rem;
+  color:var(--gold);margin-top:8px;text-decoration:underline;
+  text-underline-offset:3px;}
+
+/* ── Le seuil (première visite) ── */
+.atl-seuil{padding:34px 0 60px;max-width:1000px;}
+.atl-seuil-lab{font-family:var(--f-ui);font-size:.72rem;font-weight:700;
+  letter-spacing:.13em;text-transform:uppercase;color:var(--gold-deep);
+  display:block;margin-bottom:10px;}
+.atl-seuil-go{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px;}
+
+/* ── Le dossier ── */
+.atl-dossier[hidden]{display:none;}
+.atl-dossier-nav{position:sticky;top:var(--atl-top);z-index:30;
+  display:flex;flex-wrap:wrap;gap:6px;padding:12px 0;
+  background:var(--paper);border-bottom:1px solid var(--line);}
+.atl-dnav{font-family:var(--f-ui);font-size:.78rem;color:var(--ink-soft);
+  background:var(--card);border:1px solid var(--line);border-radius:100px;
+  padding:5px 13px;cursor:pointer;transition:color .16s,border-color .16s;}
+.atl-dnav:hover{color:var(--ink);border-color:var(--gold-deep);}
+
+/* ── Le tiroir : l'appareil vient au texte ── */
+.atl-drawer{position:fixed;top:var(--atl-top);right:0;bottom:0;width:min(620px,52vw);
+  z-index:110;display:flex;flex-direction:column;
+  background:var(--paper);border-left:1px solid var(--line-strong);
+  box-shadow:-24px 0 60px rgba(0,0,0,.45);animation:atlDrawerIn .22s ease;}
+.atl-drawer[hidden]{display:none;}
+@keyframes atlDrawerIn{from{transform:translateX(24px);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.atl-drawer{animation:none;}}
+.atl-drawer-bar{display:flex;align-items:baseline;gap:12px;
+  padding:14px 18px;border-bottom:1px solid var(--line);}
+.atl-drawer-k{font-family:var(--f-ui);font-size:.72rem;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--gold-deep);}
+.atl-drawer-t{font-family:'Fraunces',Georgia,serif;font-weight:700;font-size:1rem;
+  color:var(--ink);flex:1;min-width:0;}
+.atl-drawer-x{font-size:1.5rem;line-height:1;color:var(--ink-soft);
+  background:none;border:1px solid var(--line-strong);border-radius:100px;
+  width:32px;height:32px;cursor:pointer;flex:none;}
+.atl-drawer-x:hover{color:var(--ink);border-color:var(--gold-deep);}
+.atl-drawer-body{flex:1;overflow-y:auto;padding:18px;}
+/* Le nœud emprunté au Dossier s'affiche quoi qu'en dise sa classe
+   d'origine (.subpanel et .xpane sont en display:none au repos). */
+.atl-drawer-body .atl-drawer-in{display:block;margin:0;}
+.atl-drawer-body .walk-step .walk-axis{display:none;}
+
+/* ── Réponses ── */
+/* Le repli de la marge — sous 1240 px seulement, comme celui du sommaire. */
+.atl3-m-toggle{display:none;}
+@media (max-width:1240px){
+  .atl3{grid-template-columns:228px minmax(0,1fr);}
+  /* La marge cesse d'être une colonne, mais elle passe AU-DESSUS du texte,
+     repliée sur une ligne. Sous le texte — ce qui était le premier
+     réflexe — elle atterrissait après une section entière de Wikisource,
+     soit deux cent mille pixels plus bas : personne ne l'aurait vue. */
+  .atl3-toc{grid-column:1;grid-row:1 / span 2;}
+  .atl3-marge{grid-column:2;grid-row:1;position:static;max-height:none;
+    border-left:none;border-bottom:1px solid var(--line);
+    padding:16px 0 14px 26px;overflow:visible;}
+  .atl3-mid{grid-column:2;grid-row:2;padding-right:0;}
+  .atl3-m-toggle{display:flex;align-items:baseline;gap:10px;width:100%;
+    text-align:left;background:var(--card);border:1px solid var(--line-strong);
+    border-radius:12px;padding:10px 14px;cursor:pointer;}
+  .atl3-m-toggle::after{content:"▾";margin-left:auto;color:var(--gold-deep);}
+  .atl3-marge.is-open .atl3-m-toggle::after{content:"▴";}
+  .atl3-m-toggle-k{font-family:var(--f-ui);font-size:.72rem;font-weight:700;
+    letter-spacing:.12em;text-transform:uppercase;color:var(--gold-deep);}
+  .atl3-m-toggle-t{font-family:'Fraunces',Georgia,serif;font-weight:700;
+    font-size:.92rem;color:var(--ink);min-width:0;overflow:hidden;
+    text-overflow:ellipsis;white-space:nowrap;}
+  .atl3-marge .atl3-m-head,.atl3-marge .atl3-m-sec,.atl3-marge .atl3-m-empty{display:none;}
+  .atl3-marge.is-open .atl3-m-sec{display:block;}
+  .atl3-marge.is-open .atl3-m-empty{display:block;}
+  .atl-drawer{width:min(620px,72vw);}
+}
+@media (max-width:900px){
+  /* Une seule colonne : sommaire replié, marge repliée, puis le texte —
+     dans cet ordre, quel que soit l'ordre du document. */
+  /* `align-items:start`, écrit plus haut pour la GRILLE (où il aligne les
+     colonnes en haut), veut dire tout autre chose en flex colonne : il y
+     donne à chaque enfant la largeur de son CONTENU. La colonne de texte
+     passait ainsi à 729 px dans un viewport de 375, et toute la page
+     débordait horizontalement. `stretch` est le comportement voulu ; le
+     `min-width:0` va avec, sans quoi un enfant flex refuse de descendre
+     sous la largeur de son contenu (ici, les tableaux de Wikisource). */
+  .atl3{display:flex;flex-direction:column;align-items:stretch;margin:0;}
+  .atl3>*{min-width:0;max-width:100%;}
+  .atl3-toc{order:1;position:static;max-height:none;border-right:none;
+    padding:14px 0 0;}
+  .atl3-marge{order:2;padding:10px 0 14px;border-bottom:none;}
+  .atl3-mid{order:3;padding:16px 0 0;border-top:1px solid var(--line);}
+  .atl3-toc.is-open .atl3-toc-list{max-height:min(46vh,380px);}
+  /* Le tiroir n'a plus de place à côté du texte : il devient une feuille
+     pleine. Sous cette largeur, l'appareil ne peut pas être « à côté » —
+     autant qu'il soit franchement devant. */
+  .atl-drawer{top:0;left:0;width:auto;border-left:none;}
+}
+
+/* Le sélecteur de chapitre et son bouton restent dans le document — ils
+   portent l'état que lit toute la liseuse — mais ne s'affichent plus :
+   le sommaire de gauche est leur interface. */
+.atl3-shadow{position:absolute;width:1px;height:1px;overflow:hidden;
+  clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;}
+
+/* Le nœud emprunté par le tiroir sort de la portée de ses propres scrubs
+   (atelier-motion mesure une position dans le Dossier, qui est masqué).
+   Dans le tiroir, il s'affiche fini : ni pose, ni encre à révéler. */
+.atl-drawer-body .atl-drawer-in,
+.atl-drawer-body .atl-drawer-in *{opacity:1!important;transform:none!important;}
+.atl-drawer-body .walk-step{margin:0;}
+.atl-drawer-body .walk-card{width:auto;max-width:none;}
+
+/* Le repli du sommaire — sous 900 px seulement. */
+.atl3-toc-toggle{display:none;}
+@media (max-width:900px){
+  .atl3-toc-toggle{display:flex;align-items:baseline;gap:10px;width:100%;
+    text-align:left;background:var(--card);border:1px solid var(--line-strong);
+    border-radius:12px;padding:10px 14px;cursor:pointer;}
+  .atl3-toc-toggle::after{content:"▾";margin-left:auto;color:var(--gold-deep);}
+  .atl3-toc.is-open .atl3-toc-toggle::after{content:"▴";}
+  .atl3-toc-toggle-k{font-family:var(--f-ui);font-size:.72rem;font-weight:700;
+    letter-spacing:.12em;text-transform:uppercase;color:var(--gold-deep);}
+  .atl3-toc-toggle-t{font-family:'Fraunces',Georgia,serif;font-weight:700;
+    font-size:.92rem;color:var(--ink);min-width:0;overflow:hidden;
+    text-overflow:ellipsis;white-space:nowrap;}
+  .atl3-toc .atl3-toc-head,.atl3-toc .atl3-filter,
+  .atl3-toc .atl3-toc-list,.atl3-toc .atl3-nores{display:none;}
+  .atl3-toc.is-open .atl3-toc-head{display:flex;margin-top:12px;}
+  .atl3-toc.is-open .atl3-filter{display:block;}
+  .atl3-toc.is-open .atl3-toc-list{display:block;}
+  .atl3-toc.is-open .atl3-nores{display:block;}
+}
+
+/* Les notes se prennent depuis la marge quand la marge est une colonne :
+   les deux pastilles flottantes s'y posaient par-dessus, et les déplacer
+   les aurait mises par-dessus le texte. Elles restent dans le document —
+   c'est le shell qui les possède et la marge ne fait que les déclencher —
+   mais elles ne s'affichent plus qu'aux largeurs où la marge se replie. */
+.atl3-m-notebtns{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+.atl3-m-nb{font-family:var(--f-ui);font-size:.78rem;color:var(--ink);
+  background:var(--card);border:1px solid var(--line-strong);border-radius:100px;
+  padding:6px 13px;cursor:pointer;transition:border-color .16s,background .16s;}
+.atl3-m-nb:hover{border-color:var(--gold-deep);background:var(--hover);}
+@media (min-width:1241px){
+  body.at-atelier .notes-fab{display:none!important;}
+}
+@media (max-width:1240px){
+  .atl3-m-notebtns{display:none;}
+}

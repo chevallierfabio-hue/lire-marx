@@ -422,6 +422,16 @@
   function watchPanels() {
     var panels = document.querySelectorAll('section.panel');
     if (!panels.length || !window.MutationObserver) return;
+    /* Depuis la refonte `atelier-texte-au-centre`, les six panneaux du
+       Dossier de Capital ne changent plus JAMAIS de classe : ils restent
+       tous `.panel.active`, et c'est leur conteneur qui s'affiche ou non.
+       Sans cette seconde observation, leurs titres n'auraient jamais été
+       encrés (mesurés masqués, ils restaient invisibles) et leurs scrubs
+       seraient restés figés. On observe donc AUSSI l'attribut `hidden`
+       des deux conteneurs — toujours le DOM, jamais le code d'onglets de
+       la page, qui n'est pas le même d'une œuvre à l'autre. Absents des
+       Manuscrits : la liste est alors vide, et c'est sans effet. */
+    var boxes = document.querySelectorAll('.atl-dossier,.atl3');
     var mo = new MutationObserver(function () {
       /* deux passes : tout de suite, puis après la peinture — la mise en
          page du panneau qui vient de s'afficher n'est pas encore stable */
@@ -431,6 +441,9 @@
     });
     for (var i = 0; i < panels.length; i++) {
       mo.observe(panels[i], { attributes: true, attributeFilter: ['class'] });
+    }
+    for (var j = 0; j < boxes.length; j++) {
+      mo.observe(boxes[j], { attributes: true, attributeFilter: ['hidden'] });
     }
   }
 
