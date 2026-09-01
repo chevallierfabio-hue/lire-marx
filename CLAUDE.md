@@ -3421,6 +3421,29 @@ présent. À **375 px** : **zéro requête** Three.js, page complète, catalogue
 rendu. Zéro requête Bricolage dans les deux cas, console sans erreur,
 `detect.mjs` **28 constats / 0 erreur** — la base inchangée.
 
+**PIÈGE INTRODUIT PAR CETTE MISSION, puis corrigé — à retenir.** Retirer la
+balise `three.min.js` de `index.html` a rendu la page **solidaire** de
+`home.js`, qui porte `withThree()`. Or les deux n'ont pas le même cache :
+
+| fichier | `cache-control` |
+|---|---|
+| `index.html` | `max-age=0, must-revalidate` — toujours frais |
+| `assets/home.js` | **`max-age=14400`** — 4 h dans le navigateur |
+
+Un visiteur revenu dans les 4 h recevait donc le **nouvel** `index.html`
+(sans la balise) et l'**ancien** `home.js` (sans `withThree`) : Three.js
+n'était jamais chargé, décor mort jusqu'à expiration du cache. Constaté en
+production, et pas en local — le serveur de test ne pose aucun cache.
+
+Corrigé en versionnant l'URL : `assets/home.js?v=2`. Comme `index.html`
+n'est jamais mis en cache, une URL neuve force le rechargement.
+
+**La règle : dès que `index.html` et un actif mis en cache doivent changer
+ENSEMBLE, l'actif doit porter une version dans son URL — et il faut bumper
+ce numéro.** Ça vaut pour `home.js` comme pour toute feuille ou script que
+la page suppose à jour. Le symptôme est trompeur : la page semble correcte,
+`init()` tourne, les classes sont posées, mais un morceau ne s'arme jamais.
+
 **Ce que je n'ai PAS touché, volontairement** : les autres polices servent
 réellement, l'image du héros est déjà en WebP à 143 Ko, et le HTML est bien
 compressé (93 Ko → 28 Ko transférés). Il n'y a pas d'autre gain facile ici.
