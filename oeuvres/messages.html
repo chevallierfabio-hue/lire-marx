@@ -1,0 +1,703 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Messages — Vos conversations privées | Lire Marx</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Vos conversations privées avec les autres lecteurs de Marx.">
+<meta name="robots" content="noindex">
+<link rel="canonical" href="https://liremarx.com/oeuvres/messages.html">
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="atelier.css">
+<link rel="stylesheet" href="shell.css">
+<style>
+/* ═══════════════════════════════════════════════════════════════════
+   MESSAGES — le pendant PRIVÉ de la Place publique (mission
+   `messages-page`, septembre 2026)
+   -------------------------------------------------------------------
+   Là-bas on parle devant tout le monde, ici à quelqu'un. La page
+   remplace la modale Contacts, qui était déjà une page déguisée : un
+   pavé de 1000 px qui recouvrait le viewport, sans URL, sans lien
+   profond, sans piège de focus, et dont le code s'appelait déjà
+   `renderContactsPage`.
+
+   PARTAGE DES RÔLES : shell-social.js possède les données, le realtime
+   et le popover de la barre du haut ; cette page ne fait que rendre, et
+   s'abonne à SHELL.social.dm.onChange. Elle ne parle JAMAIS à Supabase
+   pour la messagerie — c'est la règle déjà posée pour SHELL.annotations
+   et « Mon carnet ».
+
+   RÈGLE QUI COMMANDE LE RENDU : le squelette est écrit une fois dans le
+   HTML et n'est jamais réécrit. Seuls quatre fragments se redessinent
+   (la liste, les suggestions, l'en-tête du fil, les bulles). Le
+   composeur, lui, est un nœud permanent : un `innerHTML` sur son
+   conteneur effacerait le message en cours de frappe à chaque tick du
+   polling de 15 s ou à chaque message reçu.
+
+   Comme sur les autres pages de site, le :root redéfinit AUSSI les
+   tokens du shell, sinon topbar/sidebar/modales resteraient claires.
+   ═══════════════════════════════════════════════════════════════════ */
+:root{
+  --bg:#15100b;--surface:#1e1710;--text:#f3e9d4;
+  --muted:#b7a888;--accent:#d5402f;--border:rgba(243,233,212,.13);
+
+  --paper:#15100b;--paper-2:#1e1710;--card:#221a12;
+  --ink:#f3e9d4;--ink-soft:#c7b599;
+  --red:#d5402f;--red-deep:#e5644f;--bright:#e5644f;--red-text:#e5644f;
+  --gold:#d8ad4c;--gold-deep:#bd8f38;--blue:#5c8aa3;--const:#9a8b72;
+  --line:rgba(243,233,212,.13);--line-soft:rgba(243,233,212,.07);
+  --line-strong:rgba(243,233,212,.34);--ok:#7fa855;
+  --hover:rgba(243,233,212,.05);
+  --candle:rgba(216,173,76,.18);
+  --f-ui:'Inter',system-ui,sans-serif;--f-serif:'Spectral',Georgia,serif;
+  --f-hand:'Caveat',cursive;
+}
+
+.mg{max-width:1120px;margin:0 auto;padding:24px 20px 60px;}
+.mg :focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+
+/* ── en-tête (grammaire des autres pages de site) ── */
+.mg-head{margin:4px 0 22px;}
+.mg-label{font-family:var(--f-ui);font-size:.72rem;font-weight:600;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;}
+.mg-h1{font-family:'Fraunces',Georgia,serif;font-weight:900;color:var(--text);
+  font-size:clamp(1.8rem,3.4vw,2.5rem);letter-spacing:-.03em;line-height:1.05;margin:0 0 10px;}
+.mg-lede{font-family:var(--f-serif);font-style:italic;font-size:1.02rem;
+  color:var(--ink-soft);max-width:64ch;margin:0;}
+
+/* ── deux colonnes : le rail des conversations, le fil ── */
+.mg-cols{display:grid;grid-template-columns:320px minmax(0,1fr);gap:22px;align-items:start;}
+/* `display:grid`/`flex` BAT la règle `[hidden]{display:none}` de l'agent
+   utilisateur, qui n'a qu'une spécificité d'attribut : sans ces trois
+   lignes, masquer une section ne la masque pas. Vécu à la première
+   ouverture de la page — le rail s'affichait sous l'écran d'accueil. */
+.mg-cols[hidden],.mg-pane[hidden],.mg-thread-pane[hidden]{display:none;}
+.mg-pane{background:var(--surface);border:1px solid var(--line);border-radius:18px;}
+.mg-rail{display:flex;flex-direction:column;min-height:0;
+  max-height:calc(100vh - 210px);overflow:hidden;position:sticky;top:60px;}
+.mg-rail-scroll{overflow-y:auto;padding:0 10px 12px;scrollbar-width:thin;}
+
+/* ── écrire à quelqu'un ── */
+.mg-seek{padding:14px 14px 12px;border-bottom:1px solid var(--line);}
+.mg-seek-lab{display:block;font-family:var(--f-ui);font-size:.72rem;font-weight:600;
+  letter-spacing:.11em;text-transform:uppercase;color:var(--ink-soft);margin:0 0 8px;}
+.mg-seek-row{display:flex;gap:8px;}
+.mg-inp{flex:1;min-width:0;font-family:var(--f-ui);font-size:.86rem;color:var(--ink);
+  background:var(--card);border:1px solid var(--line-strong);border-radius:999px;
+  padding:10px 15px;transition:border-color .16s,box-shadow .16s;}
+.mg-inp::placeholder{color:var(--const);}
+.mg-inp:focus{outline:none;border-color:var(--gold-deep);box-shadow:0 0 0 3px rgba(216,173,76,.24);}
+
+/* ── boutons pilule maison (autonomes : atelier.css n'est pas partout) ── */
+.mg-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  font-family:var(--f-ui);font-weight:600;font-size:.82rem;line-height:1;
+  min-height:38px;padding:10px 17px;border-radius:999px;cursor:pointer;
+  text-decoration:none;border:1px solid var(--line-strong);
+  background:transparent;color:var(--text);
+  transition:background .18s,border-color .18s,color .18s;}
+.mg-btn:hover{background:var(--hover);border-color:var(--gold);}
+.mg-btn.pri{background:var(--text);border-color:var(--text);color:var(--bg);}
+.mg-btn.pri:hover{background:var(--gold);border-color:var(--gold);color:#1a130c;}
+.mg-btn[disabled]{opacity:.5;cursor:default;}
+.mg-btn[disabled]:hover{background:transparent;border-color:var(--line-strong);color:var(--text);}
+
+/* ── une conversation dans le rail ── */
+.mg-group{font-family:var(--f-ui);font-size:.72rem;font-weight:600;
+  letter-spacing:.11em;text-transform:uppercase;color:var(--ink-soft);
+  margin:14px 6px 8px;}
+.mg-ct{display:flex;align-items:center;gap:11px;width:100%;text-align:left;
+  background:transparent;border:0;border-radius:13px;padding:10px;cursor:pointer;
+  font-family:inherit;transition:background .16s;}
+.mg-ct:hover{background:var(--hover);}
+.mg-ct.on{background:linear-gradient(150deg,#2c2117,#211a12,#1b150e);
+  box-shadow:inset 0 0 0 1px rgba(216,173,76,.24);}
+.mg-ava{flex:0 0 auto;width:38px;height:38px;border-radius:50%;position:relative;
+  overflow:hidden;background:var(--red);color:#fff;display:flex;align-items:center;
+  justify-content:center;font-family:'Fraunces',Georgia,serif;font-weight:700;font-size:.92rem;}
+.mg-ct-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;}
+.mg-ct-name{font-family:'Fraunces',Georgia,serif;font-weight:700;font-size:.95rem;
+  color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mg-ct-prev{font-family:var(--f-ui);font-size:.78rem;color:var(--const);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mg-ct.unread .mg-ct-prev{color:var(--ink-soft);}
+.mg-badge{flex:0 0 auto;min-width:20px;height:20px;padding:0 6px;border-radius:999px;
+  background:var(--red);color:#fff;font-family:var(--f-ui);font-weight:600;font-size:.72rem;
+  display:flex;align-items:center;justify-content:center;}
+.mg-when{flex:0 0 auto;font-family:var(--f-ui);font-size:.72rem;color:var(--const);}
+
+/* ── suggestions : les lecteurs de la Place publique ── */
+.mg-sug{display:flex;flex-direction:column;gap:2px;}
+.mg-sug .mg-ct-prev{font-style:italic;}
+.mg-sug-note{font-family:var(--f-ui);font-size:.76rem;line-height:1.5;
+  color:var(--const);margin:0 6px 8px;}
+
+/* ── le fil ── */
+.mg-thread-pane{display:flex;flex-direction:column;height:calc(100vh - 210px);min-height:420px;}
+.mg-conv-head{display:flex;align-items:center;gap:12px;padding:14px 18px;
+  border-bottom:1px solid var(--line);
+  background:linear-gradient(150deg,#2c2117,#211a12,#1b150e);
+  border-radius:18px 18px 0 0;}
+.mg-back{display:none;flex:0 0 auto;width:34px;height:34px;border-radius:50%;
+  border:1px solid var(--line-strong);background:transparent;color:var(--text);
+  font-size:1.2rem;line-height:1;cursor:pointer;}
+.mg-conv-name{font-family:'Fraunces',Georgia,serif;font-weight:900;font-size:1.12rem;
+  letter-spacing:-.02em;color:var(--text);margin:0;min-width:0;overflow-wrap:anywhere;}
+.mg-conv-sub{font-family:var(--f-ui);font-size:.74rem;color:var(--ink-soft);margin:2px 0 0;}
+.mg-thread{flex:1;min-height:0;overflow-y:auto;padding:18px;display:flex;
+  flex-direction:column;gap:8px;scrollbar-width:thin;}
+.mg-b{max-width:min(72%,560px);padding:9px 14px;border-radius:16px;
+  font-family:var(--f-serif);font-size:.96rem;line-height:1.5;color:var(--ink);
+  white-space:pre-wrap;overflow-wrap:anywhere;}
+.mg-b.me{align-self:flex-end;background:rgba(213,64,47,.22);
+  border:1px solid rgba(213,64,47,.42);border-bottom-right-radius:5px;}
+.mg-b.them{align-self:flex-start;background:var(--card);border:1px solid var(--line);
+  border-bottom-left-radius:5px;}
+/* .72rem et non .68 : le plancher du projet pour un texte fonctionnel est
+   11 px. Et --const ne tient pas sur la bulle rouge (4,26:1 mesuré) — la
+   même erreur que --red-text sur un fond déjà teinté. */
+.mg-b-t{display:block;font-family:var(--f-ui);font-size:.72rem;color:var(--ink-soft);
+  margin-top:4px;}
+.mg-day{align-self:center;font-family:var(--f-ui);font-size:.72rem;font-weight:600;
+  letter-spacing:.09em;text-transform:uppercase;color:var(--const);
+  padding:3px 12px;border:1px solid var(--line);border-radius:999px;margin:6px 0;}
+/* Ne pas arracher la lecture d'un vieux message quand un nouveau arrive est
+   la bonne règle — mais alors il faut DIRE qu'il est arrivé, sinon les
+   messages s'empilent hors du champ sans que rien ne le signale. */
+.mg-new{position:absolute;left:50%;bottom:96px;transform:translateX(-50%);
+  z-index:3;font-family:var(--f-ui);font-weight:600;font-size:.76rem;line-height:1;
+  color:var(--bg);background:var(--gold);border:0;border-radius:999px;
+  padding:9px 15px;cursor:pointer;box-shadow:0 10px 26px -10px rgba(0,0,0,.8);}
+.mg-new[hidden]{display:none;}
+.mg-thread-pane{position:relative;}
+.mg-compose{display:flex;gap:10px;align-items:flex-end;padding:14px 18px;
+  border-top:1px solid var(--line);}
+.mg-ta{flex:1;min-width:0;min-height:44px;max-height:170px;resize:none;
+  font-family:var(--f-serif);font-size:.96rem;line-height:1.45;color:var(--ink);
+  background:var(--card);border:1px solid var(--line-strong);border-radius:14px;
+  padding:11px 14px;transition:border-color .16s,box-shadow .16s;}
+.mg-ta::placeholder{color:var(--const);}
+.mg-ta:focus{outline:none;border-color:var(--gold-deep);box-shadow:0 0 0 3px rgba(216,173,76,.24);}
+.mg-hint{font-family:var(--f-ui);font-size:.72rem;color:var(--const);
+  padding:0 18px 12px;margin:-6px 0 0;}
+
+/* ── états vides et préalables ── */
+.mg-state{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:14px;text-align:center;padding:56px 26px;min-height:340px;}
+.mg-state-h{font-family:'Fraunces',Georgia,serif;font-weight:900;font-size:1.24rem;
+  letter-spacing:-.02em;color:var(--text);margin:0;}
+.mg-state p{font-family:var(--f-ui);font-size:.88rem;line-height:1.6;
+  color:var(--ink-soft);margin:0;max-width:46ch;}
+.mg-state b{color:var(--text);font-weight:600;}
+.mg-empty{font-family:var(--f-ui);font-size:.84rem;line-height:1.6;
+  color:var(--ink-soft);padding:14px 8px;}
+.mg-empty b{color:var(--text);font-weight:600;}
+/* le halo de la maison sur la carte d'accueil du fil */
+.mg-welcome{position:relative;isolation:isolate;}
+.mg-welcome::before{content:"";position:absolute;inset:0;z-index:-1;border-radius:18px;
+  background:radial-gradient(120% 130% at 50% 118%,rgba(216,173,76,.15),transparent 62%);}
+
+@media(max-width:900px){
+  .mg-cols{grid-template-columns:1fr;}
+  .mg-rail{position:static;max-height:none;}
+  .mg-rail-scroll{max-height:none;}
+  .mg-thread-pane{height:auto;min-height:0;}
+  .mg-thread{max-height:56vh;}
+  .mg-back{display:inline-flex;align-items:center;justify-content:center;}
+  .mg-conv-head{border-radius:18px 18px 0 0;}
+  /* Une conversation ouverte prend l'écran : deux colonnes empilées
+     obligeraient à passer la liste entière avant de lire la réponse. */
+  body.mg-convo .mg-rail{display:none;}
+  body:not(.mg-convo) .mg-thread-pane{display:none;}
+  /* Une conversation ouverte n'a pas besoin qu'on lui réexplique la page :
+     le lede rendait le premier message inatteignable sans défiler. */
+  body.mg-convo .mg-lede{display:none;}
+  body.mg-convo .mg-head{margin-bottom:14px;}
+}
+@media(max-width:560px){
+  .mg{padding:18px 14px 48px;}
+  .mg-b{max-width:86%;}
+  .mg-thread,.mg-compose,.mg-conv-head{padding-left:14px;padding-right:14px;}
+}
+@media (prefers-reduced-motion:reduce){
+  .mg-ct,.mg-btn,.mg-inp,.mg-ta{transition:none;}
+}
+</style>
+</head>
+<body>
+<main class="wrap" id="contenu" tabindex="-1">
+  <div class="mg">
+
+    <header class="mg-head">
+      <div class="mg-label">Lire Marx</div>
+      <h1 class="mg-h1">Messages</h1>
+      <p class="mg-lede">Le pendant privé de la Place publique&nbsp;: là-bas on écrit devant tout le monde, ici à quelqu'un.</p>
+    </header>
+
+    <!-- Préalables (non configuré / déconnecté / sans pseudo). Une seule
+         carte, à la place des deux colonnes. -->
+    <section class="mg-pane mg-welcome" id="mgGate" hidden>
+      <div class="mg-state">
+        <h2 class="mg-state-h" id="mgGateH"></h2>
+        <p id="mgGateP"></p>
+        <button class="mg-btn pri" id="mgGateBtn" type="button" hidden></button>
+      </div>
+    </section>
+
+    <div class="mg-cols" id="mgCols" hidden>
+
+      <aside class="mg-pane mg-rail" aria-label="Vos conversations">
+        <div class="mg-seek">
+          <label class="mg-seek-lab" for="mgSeek">Écrire à un lecteur</label>
+          <div class="mg-seek-row">
+            <input class="mg-inp" id="mgSeek" type="text" autocomplete="off"
+                   spellcheck="false" placeholder="son pseudo…" list="mgSeekList">
+            <datalist id="mgSeekList"></datalist>
+            <button class="mg-btn" id="mgSeekBtn" type="button">Ouvrir</button>
+          </div>
+        </div>
+        <div class="mg-rail-scroll">
+          <p class="mg-group" id="mgListH">Vos conversations</p>
+          <div id="mgList"></div>
+          <div id="mgSugWrap" hidden>
+            <p class="mg-group">Des lecteurs de la Place publique</p>
+            <p class="mg-sug-note">Ils ont écrit publiquement&nbsp;; vous pouvez leur écrire en privé.</p>
+            <div class="mg-sug" id="mgSug"></div>
+          </div>
+        </div>
+      </aside>
+
+      <section class="mg-pane mg-thread-pane" id="mgConv" hidden aria-label="Conversation">
+        <div class="mg-conv-head">
+          <button class="mg-back" id="mgBack" type="button" aria-label="Revenir aux conversations">&lsaquo;</button>
+          <span class="mg-ava" id="mgConvAva"></span>
+          <div>
+            <h2 class="mg-conv-name" id="mgConvName"></h2>
+            <p class="mg-conv-sub" id="mgConvSub"></p>
+          </div>
+        </div>
+        <div class="mg-thread" id="mgThread" role="log" aria-live="polite" aria-label="Messages"></div>
+        <button class="mg-new" id="mgNew" type="button" hidden>Nouveau message ↓</button>
+        <div class="mg-compose">
+          <textarea class="mg-ta" id="mgTa" rows="1" aria-label="Votre message" placeholder="Votre message…"></textarea>
+          <button class="mg-btn pri" id="mgSend" type="button">Envoyer</button>
+        </div>
+        <p class="mg-hint">Entrée envoie, Maj+Entrée va à la ligne.</p>
+      </section>
+
+      <section class="mg-pane mg-welcome" id="mgWelcome">
+        <div class="mg-state">
+          <h2 class="mg-state-h">Choisissez une conversation</h2>
+          <p id="mgWelcomeP">Ou écrivez à un lecteur&nbsp;: son pseudo suffit.</p>
+        </div>
+      </section>
+
+    </div>
+
+  </div>
+</main>
+
+<script src="../config.js"></script>
+<script src="shell.js"></script>
+<script src="shell-social.js"></script>
+<script>
+installShell({
+  workTitle: 'Messages',
+  tabs: []
+});
+
+(function(){
+  'use strict';
+
+  var DM = null;                    // SHELL.social.dm, une fois le module là
+  var authSettled = false;          // SHELL.auth a-t-il rendu son premier verdict ?
+  var seenIds = {};                 // ids déjà rendus dans le fil courant
+  var threadFor = null;             // id de la conversation actuellement peinte
+  var sugLoaded = false;
+  var lastConvoKey = null;
+
+  var gate = document.getElementById('mgGate');
+  var gateH = document.getElementById('mgGateH');
+  var gateP = document.getElementById('mgGateP');
+  var gateBtn = document.getElementById('mgGateBtn');
+  var cols = document.getElementById('mgCols');
+  var listEl = document.getElementById('mgList');
+  var listH = document.getElementById('mgListH');
+  var sugWrap = document.getElementById('mgSugWrap');
+  var sugEl = document.getElementById('mgSug');
+  var seek = document.getElementById('mgSeek');
+  var seekList = document.getElementById('mgSeekList');
+  var seekBtn = document.getElementById('mgSeekBtn');
+  var conv = document.getElementById('mgConv');
+  var welcome = document.getElementById('mgWelcome');
+  var convAva = document.getElementById('mgConvAva');
+  var convName = document.getElementById('mgConvName');
+  var convSub = document.getElementById('mgConvSub');
+  var thread = document.getElementById('mgThread');
+  var ta = document.getElementById('mgTa');
+  var sendBtn = document.getElementById('mgSend');
+  var backBtn = document.getElementById('mgBack');
+  var newBtn = document.getElementById('mgNew');
+
+  function esc(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+  function announce(m){ if(window.SHELL && SHELL.announce) SHELL.announce(m); }
+
+  /* ── deep-link ────────────────────────────────────────────────────────
+     #c=<pseudo> : une conversation a une adresse, et le bouton retour du
+     navigateur ramène à la liste. C'est le contrat de la Place publique
+     (#d=<id>), appliqué ici — la modale, elle, n'avait pas d'URL du tout. */
+  function hashName(){
+    var m = String(location.hash || '').match(/[#&]c=([^&]+)/);
+    return m ? decodeURIComponent(m[1]) : '';
+  }
+  function setHash(name, push){
+    var h = name ? '#c=' + encodeURIComponent(name) : location.pathname;
+    try {
+      if(push) history.pushState({ c: name || '' }, '', h);
+      else history.replaceState({ c: name || '' }, '', h);
+    } catch(e){}
+  }
+
+  // ── rendu : les préalables ───────────────────────────────────────────
+  function showGate(h, p, label, act){
+    gate.hidden = false;
+    cols.hidden = true;
+    gateH.textContent = h;
+    gateP.innerHTML = p;
+    if(label){
+      gateBtn.hidden = false;
+      gateBtn.textContent = label;
+      gateBtn.onclick = act;
+    } else {
+      gateBtn.hidden = true;
+      gateBtn.onclick = null;
+    }
+  }
+
+  function openAccount(){
+    if(window.SHELL && SHELL.auth && SHELL.auth.openModal) SHELL.auth.openModal();
+  }
+
+  // ── rendu : le rail ──────────────────────────────────────────────────
+  function ctHtml(c, active){
+    var prev = c.last ? esc(String(c.last.body || '').slice(0, 64))
+                      : 'Aucun message échangé';
+    return '<button class="mg-ct' + (active ? ' on' : '') + (c.unread ? ' unread' : '')
+      + '" type="button" data-id="' + esc(c.id) + '" data-name="' + esc(c.username) + '">'
+      + '<span class="mg-ava">' + DM.ava(c.username, c.avatar) + '</span>'
+      + '<span class="mg-ct-main"><span class="mg-ct-name">' + esc(c.username) + '</span>'
+      + '<span class="mg-ct-prev">' + prev + '</span></span>'
+      + (c.unread ? '<span class="mg-badge">' + c.unread + '</span>'
+                  : (c.last ? '<span class="mg-when">' + esc(DM.ago(c.last.created)) + '</span>' : ''))
+      + '</button>';
+  }
+
+  function renderRail(){
+    var list = DM.contacts();
+    var cur = DM.convo();
+    listH.textContent = list.length
+      ? ('Vos conversations · ' + list.length)
+      : 'Vos conversations';
+    listEl.innerHTML = list.length
+      ? list.map(function(c){ return ctHtml(c, cur && cur.id === c.id); }).join('')
+      : '<p class="mg-empty">Aucune conversation pour l’instant. <b>Écrivez à un lecteur</b> — son pseudo suffit, et ceux qui parlent sur la Place publique sont proposés ci-dessous.</p>';
+    // La liste des pseudos connus alimente l'autocomplétion du champ.
+    seekList.innerHTML = list.map(function(c){
+      return '<option value="' + esc(c.username) + '"></option>';
+    }).join('');
+  }
+
+  function renderSug(items){
+    if(!items || !items.length){ sugWrap.hidden = true; return; }
+    sugWrap.hidden = false;
+    sugEl.innerHTML = items.map(function(s){
+      return '<button class="mg-ct" type="button" data-id="' + esc(s.id) + '" data-name="' + esc(s.username) + '">'
+        + '<span class="mg-ava">' + DM.ava(s.username, s.avatar) + '</span>'
+        + '<span class="mg-ct-main"><span class="mg-ct-name">' + esc(s.username) + '</span>'
+        + '<span class="mg-ct-prev">a écrit ' + esc(DM.ago(s.last)) + '</span></span></button>';
+    }).join('');
+  }
+
+  function loadSug(){
+    if(sugLoaded || !DM.status().ready) return;
+    sugLoaded = true;
+    DM.suggestions().then(renderSug);
+  }
+
+  // ── rendu : le fil ───────────────────────────────────────────────────
+  var JOURS = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
+  var MOIS = ['janvier','février','mars','avril','mai','juin','juillet','août',
+              'septembre','octobre','novembre','décembre'];
+  function dayLabel(ts){
+    var d = new Date(+ts), now = new Date();
+    var sameDay = d.toDateString() === now.toDateString();
+    if(sameDay) return "Aujourd'hui";
+    var hier = new Date(now.getTime() - 864e5);
+    if(d.toDateString() === hier.toDateString()) return 'Hier';
+    if(now - d < 6 * 864e5) return JOURS[d.getDay()];
+    return d.getDate() + ' ' + MOIS[d.getMonth()]
+         + (d.getFullYear() !== now.getFullYear() ? ' ' + d.getFullYear() : '');
+  }
+  function hhmm(ts){
+    var d = new Date(+ts);
+    return ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
+  }
+
+  /* Le fil s'AJOUTE, il ne se réécrit pas. Trois raisons, toutes vécues :
+     une région `aria-live` réécrite en entier relit tout le fil à chaque
+     message ; un innerHTML remet le défilement en haut, donc arrache la
+     lecture d'un vieux message au moindre tick du polling ; et le nœud du
+     composeur ne doit jamais être détruit. */
+  function renderThread(){
+    var cur = DM.convo();
+    if(!cur){ return; }
+    if(threadFor !== cur.id){
+      threadFor = cur.id;
+      seenIds = {};
+      thread.innerHTML = '';
+      lastConvoKey = null;
+      newBtn.hidden = true;
+    }
+    var msgs = DM.messages();
+    if(!msgs.length && !Object.keys(seenIds).length){
+      thread.innerHTML = '<p class="mg-empty">Aucun message. <b>Écrivez le premier.</b></p>';
+      return;
+    }
+    var me = DM.me();
+    var atBottom = (thread.scrollHeight - thread.scrollTop - thread.clientHeight) < 60;
+    var added = 0;
+    msgs.forEach(function(m){
+      if(seenIds[m.id]) return;
+      seenIds[m.id] = 1;
+      if(added === 0 && thread.querySelector('.mg-empty')) thread.innerHTML = '';
+      var key = dayLabel(m.created);
+      if(key !== lastConvoKey){
+        lastConvoKey = key;
+        var sep = document.createElement('div');
+        sep.className = 'mg-day';
+        sep.textContent = key;
+        thread.appendChild(sep);
+      }
+      var b = document.createElement('div');
+      b.className = 'mg-b ' + (m.sender_id === me ? 'me' : 'them');
+      b.textContent = m.body || '';
+      var t = document.createElement('span');
+      t.className = 'mg-b-t';
+      t.textContent = hhmm(m.created);
+      b.appendChild(t);
+      thread.appendChild(b);
+      added++;
+    });
+    if(added && (atBottom || added === msgs.length)){
+      thread.scrollTop = thread.scrollHeight;
+      newBtn.hidden = true;
+    } else if(added){
+      newBtn.hidden = false;
+    }
+  }
+
+  function renderConvHead(){
+    var cur = DM.convo();
+    if(!cur) return;
+    var found = null, list = DM.contacts();
+    for(var i = 0; i < list.length; i++){ if(list[i].id === cur.id){ found = list[i]; break; } }
+    convAva.innerHTML = DM.ava(cur.username, found ? found.avatar : '');
+    convName.textContent = cur.username;
+    convSub.textContent = 'Conversation privée';
+  }
+
+  // ── rendu global ─────────────────────────────────────────────────────
+  function render(){
+    if(!DM) return;
+    var st = DM.status();
+    /* `isConfigured()` rend false tant que l'import Supabase n'a pas
+       abouti — indiscernable d'un vrai « pas de clés ». Annoncer
+       l'indisponibilité au premier rendu serait donc un mensonge une fois
+       sur deux : on attend que SHELL.auth ait parlé (authSettled). Même
+       précaution que la modale Mon compte avec `configured === null`. */
+    if(!authSettled){
+      showGate('Un instant', 'Vos conversations arrivent.', '', null);
+      return;
+    }
+    if(!st.configured){
+      showGate('Messagerie indisponible',
+        'La synchronisation par compte n’est pas branchée sur cette installation. La messagerie s’activera avec elle.', '', null);
+      return;
+    }
+    if(!st.signedIn){
+      showGate('Connectez-vous pour écrire',
+        'Les messages privés demandent un compte&nbsp;: c’est lui qui vous identifie auprès des autres lecteurs.',
+        'Se connecter', openAccount);
+      return;
+    }
+    if(!st.named){
+      showGate('Choisissez un pseudo',
+        'Les autres lecteurs vous reconnaissent à votre pseudo. Il se choisit dans <b>Mon compte</b>, onglet Profil.',
+        'Ouvrir mon compte', openAccount);
+      return;
+    }
+    gate.hidden = true;
+    cols.hidden = false;
+    renderRail();
+    loadSug();
+    var cur = DM.convo();
+    document.body.classList.toggle('mg-convo', !!cur);
+    if(cur){
+      conv.hidden = false;
+      welcome.hidden = true;
+      renderConvHead();
+      renderThread();
+    } else {
+      conv.hidden = true;
+      welcome.hidden = false;
+      threadFor = null;
+    }
+  }
+
+  // ── actions ──────────────────────────────────────────────────────────
+  function openWith(id, name, push){
+    DM.open(id, name);
+    setHash(name, push !== false);
+    announce('Conversation avec ' + name + ' ouverte.');
+    if(!window.matchMedia('(max-width:900px)').matches){
+      setTimeout(function(){ try { ta.focus(); } catch(e){} }, 60);
+    }
+  }
+  function leave(push){
+    DM.close();
+    if(push !== false) setHash('', true);
+  }
+
+  function clickList(e){
+    var b = e.target.closest ? e.target.closest('[data-id]') : null;
+    if(!b) return;
+    openWith(b.dataset.id, b.dataset.name);
+  }
+  listEl.addEventListener('click', clickList);
+  sugEl.addEventListener('click', clickList);
+
+  function seekGo(){
+    var v = (seek.value || '').trim();
+    if(!v) return;
+    // Déjà dans la liste ? On ouvre, sans écrire en base.
+    var list = DM.contacts();
+    for(var i = 0; i < list.length; i++){
+      if(list[i].username.toLowerCase() === v.replace(/^@/, '').toLowerCase()){
+        seek.value = '';
+        openWith(list[i].id, list[i].username);
+        return;
+      }
+    }
+    seekBtn.disabled = true;
+    DM.add(v).then(function(r){
+      seekBtn.disabled = false;
+      if(r && r.ok){
+        seek.value = '';
+        sugLoaded = false;
+        loadSug();
+        openWith(r.id, r.username);
+      } else {
+        try { seek.focus(); seek.select(); } catch(e){}
+      }
+    });
+  }
+  seekBtn.addEventListener('click', seekGo);
+  seek.addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){ e.preventDefault(); seekGo(); }
+  });
+
+  function grow(){
+    ta.style.height = 'auto';
+    ta.style.height = Math.min(ta.scrollHeight, 170) + 'px';
+  }
+  function send(){
+    var v = ta.value;
+    if(!v.trim()) return;
+    ta.value = '';
+    grow();
+    DM.send(v);
+  }
+  sendBtn.addEventListener('click', send);
+  ta.addEventListener('input', grow);
+  ta.addEventListener('keydown', function(e){
+    if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); send(); }
+  });
+  backBtn.addEventListener('click', function(){ leave(); });
+  newBtn.addEventListener('click', function(){
+    thread.scrollTop = thread.scrollHeight;
+    newBtn.hidden = true;
+  });
+  thread.addEventListener('scroll', function(){
+    if((thread.scrollHeight - thread.scrollTop - thread.clientHeight) < 60) newBtn.hidden = true;
+  });
+
+  window.addEventListener('popstate', function(){
+    var n = hashName();
+    if(!n){ DM.close(); return; }
+    var list = DM.contacts();
+    for(var i = 0; i < list.length; i++){
+      if(list[i].username === n){ DM.open(list[i].id, list[i].username); return; }
+    }
+  });
+
+  /* Un lien profond n'est résoluble qu'une fois les contacts chargés : on
+     ne le consomme donc qu'au premier rendu qui en dispose. */
+  var deepDone = false;
+  function resolveDeep(){
+    if(deepDone) return;
+    var n = hashName();
+    if(!n){ deepDone = true; return; }
+    var list = DM.contacts();
+    if(!list.length) return;
+    deepDone = true;
+    for(var i = 0; i < list.length; i++){
+      if(list[i].username === n){ openWith(list[i].id, list[i].username, false); return; }
+    }
+    // pseudo inconnu de mes conversations : on tente de l'ajouter
+    DM.add(n).then(function(r){ if(r && r.ok) openWith(r.id, r.username, false); });
+  }
+
+  // ── démarrage ────────────────────────────────────────────────────────
+  function boot(){
+    if(!(window.SHELL && SHELL.social && SHELL.social.dm)){
+      showGate('Messagerie indisponible',
+        'Le module de messagerie ne s’est pas chargé. Rechargez la page&nbsp;; si cela persiste, c’est un problème du site.', '', null);
+      return;
+    }
+    DM = SHELL.social.dm;
+    DM.onChange(function(){ render(); resolveDeep(); });
+    /* La messagerie tout entière dépend de la session : c'est SHELL.auth
+       qui dit quand on sait. Son premier rappel est immédiat, mais il
+       arrive AVANT que getSession ait répondu — d'où le second passage. */
+    if(window.SHELL && SHELL.auth && SHELL.auth.onChange){
+      var first = true;
+      SHELL.auth.onChange(function(){
+        if(first){ first = false; render(); return; }
+        authSettled = true;
+        render();
+        DM.refresh().then(function(){ render(); resolveDeep(); });
+      });
+      // Filet : si aucun second rappel n'arrive (pas de clés du tout), on
+      // tranche au bout d'un instant plutôt que de laisser « Un instant ».
+      setTimeout(function(){
+        if(authSettled) return;
+        authSettled = true;
+        render();
+        DM.refresh().then(function(){ render(); resolveDeep(); });
+      }, 2500);
+    } else {
+      authSettled = true;
+    }
+    render();
+  }
+  // shell-social._init() est appelé par installShell(), déjà exécuté
+  // au-dessus : le module est là. On garde malgré tout un filet.
+  if(window.SHELL && SHELL.social && SHELL.social.dm) boot();
+  else setTimeout(boot, 300);
+})();
+</script>
+</body>
+</html>
