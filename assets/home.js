@@ -1453,6 +1453,71 @@
     }
   }
 
+  /* — Questions fréquentes : le fil et la lumière —
+       Le motif « journey » : une lumière descend un fil et allume chaque
+       question au moment où elle l'atteint. C'est ce que fait déjà le
+       cheminement de l'atelier et le tracé de la frise — ici dans la
+       matière de l'accueil, fil doré et lumière de bougie.
+
+       Piloté par la POSITION de défilement, donc réversible : on remonte,
+       la lumière se retire. Le module ne fait qu'écrire `--draw` sur la
+       liste et `--lit` / `--pass` sur chaque dépliant ; tout le rendu vit
+       dans le CSS, dont le défaut est l'état fini. — */
+  function faqScrub() {
+    if (REDUCE || window.innerWidth < 768) return;
+    var list = document.querySelector('.hs-faq-list');
+    var items = list ? [].slice.call(list.querySelectorAll('.hs-faq-item')) : [];
+    if (items.length < 2) return;
+    document.documentElement.classList.add('js-faq');
+
+    function cl01(v) { return v < 0 ? 0 : (v > 1 ? 1 : v); }
+    function ease(v) { return v * v * (3 - 2 * v); }
+
+    /* LA LIGNE DE LECTURE, PAS UNE COURSE À PART. Première version calée sur
+       une fenêtre à soi : le fil finissait sa descente pendant que la
+       section arrivait encore, cinq questions allumées avant qu'on ait pu
+       en lire une, et la dernière jamais atteinte (mesuré : --draw à 1 et
+       la neuvième bloquée à 0,12). Même erreur que sur les marches de
+       l'atelier, même remède — la lumière est là où l'œil est. */
+    var READ = 0.80;
+
+    addScrollSub(function (y, vh) {
+      var lr = list.getBoundingClientRect();
+      if (!lr.height) return true;
+      var rl = vh * READ;
+      /* la tête du tracé se tient sur la ligne de lecture, dans la liste */
+      list.style.setProperty('--draw', cl01((rl - lr.top) / lr.height).toFixed(4));
+      /* La position de chaque question se MESURE, elle ne se déduit pas d'un
+         index : les dépliants n'ont pas la même hauteur, et celui qu'on
+         ouvre change celle de tous les suivants. Un échelonnement régulier
+         allumerait des questions que le fil n'a pas atteintes. */
+      for (var i = 0; i < items.length; i++) {
+        var ir = items[i].getBoundingClientRect();
+        /* centré sur la PASTILLE (25 px sous le haut du dépliant) : elle se
+           remplit pile quand la lumière la traverse, pas 80 px plus loin */
+        var lit = ease(cl01((rl - (ir.top + 25) + 46) / 92));
+        items[i].style.setProperty('--lit', lit.toFixed(4));
+        /* la lueur ne vit que PENDANT le passage de la lumière */
+        items[i].style.setProperty('--pass', (4 * lit * (1 - lit)).toFixed(4));
+      }
+      return true;
+    });
+
+    /* Ouvrir une réponse déplace tout ce qui suit : il faut remesurer.
+       `toggle` ne remonte pas — d'où la capture sur la liste. */
+    list.addEventListener('toggle', onScrollDriver, true);
+
+    /* La mise en page bouge sous nos pieds : le catalogue, juste au-dessus,
+       est peuplé par fetch, et le navigateur a pu sauter sur une ancre.
+       Sans ce rappel, la seule mesure de l'inscription laisserait la
+       section figée tant que le lecteur ne défile pas. */
+    requestAnimationFrame(onScrollDriver);
+    setTimeout(onScrollDriver, 400);
+    if (document.readyState !== 'complete') {
+      window.addEventListener('load', onScrollDriver, { once: true });
+    }
+  }
+
   /* — 2 bis. Place publique : les notes se déposent —
        La seule partie vivante de la page (données réelles, gens réels).
        Chacune arrive décalée, poussée de quelques pixels, et le filet rouge
@@ -1786,6 +1851,7 @@
     try { doCards(); } catch (e) { /* non bloquant */ }
     try { magneticButtons(); } catch (e) { /* non bloquant */ }
     try { communeScrub(); } catch (e) { /* non bloquant */ }
+    try { faqScrub(); } catch (e) { /* non bloquant */ }
     try { closerCandle(); } catch (e) { /* non bloquant */ }
     try { heroHint(); } catch (e) { /* non bloquant */ }
     /* timelineStrip() et libraryScrub() sont appelés par catalogue(),

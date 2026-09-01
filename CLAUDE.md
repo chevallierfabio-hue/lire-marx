@@ -273,6 +273,46 @@ Ne pas laisser les dépliants ouverts par défaut (la section ferait trois
 écrans), ni tous fermés (elle se lirait comme une liste de titres) : le
 premier est ouvert, les autres non.
 
+**Le fil et la lumière (`faqScrub`, classe `js-faq`).** Le geste propre à la
+section : une lumière descend un fil à gauche de la colonne et allume chaque
+question quand elle l'atteint — la pastille se remplit, l'encre passe de
+`--muted` à `--text`, le liseré prend l'or, une lueur traverse la carte
+(`--pass`, en cloche : elle ne vit que PENDANT le passage). C'est le motif
+« journey » de zonixlab.com dit dans le dialecte de la maison — celui du
+cheminement de l'atelier et du tracé de la frise. Piloté par la POSITION,
+donc réversible.
+
+- **LA LIGNE DE LECTURE, PAS UNE COURSE À SOI.** Première version calée sur
+  une fenêtre propre à la section : le fil finissait sa descente pendant que
+  la section arrivait encore — cinq questions allumées avant qu'on ait pu en
+  lire une, et la neuvième jamais atteinte (mesuré : `--draw` à 1 et la
+  dernière bloquée à 0,12). C'est le piège déjà payé sur les marches de
+  l'atelier. `READ = 0.80` : la lumière est là où l'œil est, et le seuil de
+  chaque question est centré sur SA PASTILLE, pas sur le haut de la carte.
+- **Ouvrir une réponse déplace tout ce qui suit**, donc il faut remesurer :
+  `toggle` ne remonte pas, d'où la capture sur la liste. Vérifié en
+  neutralisant les transitions (la liste passe de 852 à 999 px et les
+  questions repoussées sous la ligne s'éteignent).
+- **Aucune opacité sur la carte ni sur le texte.** Une question éteinte reste
+  en `--muted`, soit 7,57:1 sur la surface ; allumée, 14,7:1. L'extinction se
+  dit par la couleur, le liseré et la pastille — le piège de la pastille à
+  62 % d'opacité (2,6:1) ne se rejoue pas ici.
+- **L'amélioration porte son propre état fini** : `--draw` et `--lit` valent 1
+  par défaut, et le rail n'existe pas du tout sans `js-faq` (donc jamais sous
+  768 px ni en reduced-motion) — la section y est celle d'avant, au pixel près.
+- **La réponse se déroule** via `::details-content` + `interpolate-size`, posé
+  sur la LISTE et non sur `:root` : à la racine, il rendrait animable toute
+  hauteur `auto` de la page. Là où le sélecteur n'existe pas, le dépliant
+  s'ouvre d'un coup — c'est le repli, pas une panne.
+
+**Pour tester ce geste, la sonde est obligatoire et le piège est retors** :
+`onScrollDriver` diffère à `requestAnimationFrame`, gelé dans une pane
+masquée, et `scrollQueued` reste bloqué à `true` dès le PREMIER appel — que
+déclenche `resize_window` via l'écouteur `resize`. Remplacer
+`requestAnimationFrame` après coup ne débloque rien. Exposer temporairement
+`window.__hsProbe = runScrollSubs`, avancer position par position, **et la
+retirer avant le commit**.
+
 **Sur la traduction du Capital, la réponse dit les DEUX.** Roy (1872-1875)
 est révisée par Marx, qui écrit dans son « Avis au lecteur » du 28 avril 1875
 qu'elle « possède une valeur scientifique indépendante de l'original » — mais
