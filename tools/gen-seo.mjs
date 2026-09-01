@@ -59,26 +59,28 @@ const EDITION = {
     dateCreated: '1844',
     datePublished: '1932',
     alternateName: 'Manuscrits économico-philosophiques de 1844',
-    // PAS DE translator, et PAS DE license. La page affichait « traduction
-    // J.-M. Palmier · domaine public » : les deux étaient faux, et le second
-    // l'est nécessairement.
+    // Le traducteur est ÉTABLI, et il ne l'a pas toujours été. La page a
+    // longtemps affiché « J.-M. Palmier · domaine public » : les deux termes
+    // étaient faux. La note de traduction servie par le site est signée
+    // « E. B. » et décrit un travail achevé après des corrections reçues de
+    // Moscou au printemps 1961 — Jean-Michel Palmier, né en 1944, avait alors
+    // dix-sept ans. Le catalogue de la BnF a tranché : « Oeuvres complètes
+    // [7], Manuscrits de 1844, économie politique et philosophie », traduit
+    // par Émile Bottigelli (1910-1975), 1962. On le nomme donc.
+    translator: 'Émile Bottigelli',
     //
-    // Le traducteur : la note de traduction servie par le site (oeuvres/
-    // manuscrits-1844/textes/note-traducteur.html) est signée « E. B. » et
-    // décrit un travail achevé après des corrections reçues de l'Institut du
-    // Marxisme-Léninisme de Moscou au PRINTEMPS 1961. Jean-Michel Palmier,
-    // né en 1944, avait alors dix-sept ans : ce n'est pas lui. Les initiales,
-    // la date et l'appui sur l'édition MEGA de 1932 désignent très
-    // probablement Émile Bottigelli (Éditions sociales, 1962), mais c'est une
-    // INFÉRENCE — on ne remplace pas un nom invérifié par un autre. Le champ
-    // reste vide tant que la source ne le dit pas noir sur blanc.
-    //
-    // La licence : elle ne dépend pas de l'identification. Une traduction
-    // achevée après 1961 ne peut pas être dans le domaine public en 2026 —
-    // il faudrait que son auteur soit mort avant 1956 (vie + 70 ans en
-    // France). L'original de Marx est libre ; sa traduction ne l'est pas du
-    // fait de l'original. (isAccessibleForFree reste vrai : la page est bien
-    // gratuite, ce qui est une autre question que la licence.)
+    // TOUJOURS PAS DE license, et cette fois avec une date : Bottigelli est
+    // mort en 1975, sa traduction entre dans le domaine public le
+    // 1er janvier 2046 (vie + 70 ans en France). L'original de Marx est
+    // libre ; sa traduction ne l'est pas du fait de l'original.
+    // Et il n'existe AUCUNE traduction française libre à lui substituer : le
+    // texte n'ayant paru qu'en 1932, la plus ancienne traduction française
+    // est celle de 1962. Recherche faite au catalogue de la BnF —
+    // Papaïoannou (1972, mort en 1981), Gougeon (1996), Fischbach (2007)
+    // sont tous postérieurs, et Costes/Molitor ne l'a jamais traduit (ses
+    // tomes VI et VII sont L'Idéologie allemande).
+    // (isAccessibleForFree reste vrai : la page est gratuite, ce qui est une
+    // autre question que la licence.)
     source: { name: 'Manuscrits de 1844 — Marxists Internet Archive',
               url: 'https://www.marxists.org/francais/marx/works/1844/00/km18440000/' }
   }

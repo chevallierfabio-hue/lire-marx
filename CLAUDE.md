@@ -4342,22 +4342,69 @@ de savoir qui est « E. B. » pour savoir que la mention était fausse.
   `gen-seo.mjs` — donc du `Book` en JSON-LD. Le `license` n'y avait jamais
   été mis, et c'était le bon réflexe.
 
-**On n'a PAS écrit « Bottigelli » à la place.** Les initiales, la date et
-l'appui sur la MEGA de 1932 désignent très probablement Émile Bottigelli
-(Éditions sociales, 1962), mais c'est une **inférence** — et remplacer un
-nom invérifié par un autre aurait refait l'erreur qu'on corrige. Le champ
-reste vide tant qu'une source ne le dit pas noir sur blanc. **Si le nom est
-un jour établi, l'ajouter est un plaisir&nbsp;: un traducteur a droit à son
-nom.**
+**Le nom a d'abord été laissé VIDE**, l'identification n'étant qu'une
+inférence — remplacer un nom invérifié par un autre aurait refait l'erreur
+qu'on corrigeait.
+
+**Puis il a été ÉTABLI, et rendu** (mission `bottigelli`, le même jour). Le
+catalogue de la BnF donne&nbsp;: *Œuvres complètes [7], Manuscrits de 1844,
+économie politique et philosophie*, traduit par **Émile Bottigelli
+(1910-1975)**, 1962. Cela confirme exactement ce que la note « E. B. »
+laissait attendre. Le nom est donc de retour sur la ligne d'identité, dans
+le `sourceNote` et dans le `translator` du `Book` — **un traducteur a droit
+à son nom.**
+
+### Il n'existe AUCUNE traduction française libre — recherche faite
+
+Question du propriétaire, et la réponse est nette. Le texte n'a été publié
+qu'en **1932, en allemand**&nbsp;: toute traduction française lui est
+postérieure, et pour être libre en France il faudrait que son traducteur
+soit mort avant 1956. Relevé au catalogue de la BnF&nbsp;:
+
+| traduction | traducteur | mort | domaine public |
+|---|---|---|---|
+| **1962** | Émile Bottigelli | 1975 | **2046** |
+| 1972 / 2007 | Kostas Papaïoannou | 1981 | 2052 |
+| 1996 / 2008 | Jacques-Pierre Gougeon | vivant | — |
+| 2007 | Fischbach (Vrin) | vivant | — |
+
+**La plus ancienne traduction française est de 1962.** Deux fausses pistes
+écartées au passage, pour qu'on ne les reprenne pas&nbsp;:
+
+- **Wikisource n'a rien** — l'auteur Karl Marx n'y porte que *Le Capital*
+  (Roy/Lachâtre 1872). Or Wikisource n'héberge que du libre&nbsp;: son
+  silence est un signal.
+- **Costes/Molitor ne l'a jamais traduit.** La série *Œuvres philosophiques*
+  (1927-1947) va du tome I au tome IX, et ses tomes VI et VII sont
+  *L'Idéologie allemande*, pas les Manuscrits. La piste était bonne — une
+  traduction des années 1930 aurait pu être libre — mais elle n'existe pas.
+
+Donc **rien à substituer avant 2046**. Ne pas relancer cette recherche&nbsp;:
+elle est faite, et la conclusion ne changera pas d'ici là.
 
 ### ⚠️ CE QUI RESTE, et qui n'est pas technique
 
-Le site **sert 59 000 mots d'une traduction sous droits** jusqu'en 2046 au
-plus tôt. Le `noindex` posé sur les fragments (mission `_headers`) limite
-l'exposition, il ne règle rien sur le fond. Trois issues, toutes éditoriales
-et toutes du ressort du propriétaire&nbsp;: obtenir une autorisation,
-basculer sur une traduction réellement libre, ou retirer le texte intégral
-en gardant l'appareil. **Ne pas trancher ça à sa place.**
+Le site **sert 59 000 mots de la traduction Bottigelli**, protégée jusqu'au
+1er janvier **2046**. Le `noindex` posé sur les fragments (mission
+`_headers`) limite l'exposition, il ne règle rien sur le fond.
+
+La recherche ci-dessus ferme la deuxième issue&nbsp;: il n'y a pas de
+traduction libre à substituer. Il en reste **deux**, toutes deux éditoriales
+et du ressort du propriétaire&nbsp;:
+
+1. **Demander l'autorisation** aux Éditions sociales.
+2. **Cesser de servir le texte et le lier** — garder tout l'appareil (les
+   résumés, les instruments, le cheminement, la chronologie, la marge, le
+   glossaire), qui est la valeur propre du site, et renvoyer au MIA pour le
+   texte. Un lien n'est pas une reproduction.
+
+⚠️ La seconde a un **coût réel qu'il ne faut pas minimiser**&nbsp;: les
+Manuscrits perdraient leur liseuse, donc le surlignage, les annotations, le
+suivi de lecture et la marge qui suit le chapitre — c'est-à-dire ce qui fait
+l'atelier. Le Capital n'a pas ce problème&nbsp;: Roy est mort en 1900, et le
+texte vient de Wikisource.
+
+**Ne pas trancher ça à la place du propriétaire.**
 
 ### Le lien de source tenait une promesse vide
 
