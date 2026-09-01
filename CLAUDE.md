@@ -409,6 +409,30 @@ développement** tant qu'on ne défilait pas. D'où le `requestAnimationFrame`
 + `setTimeout(…, 400)` + `window.load` à la fin de `libraryScrub()`. Tout
 nouvel abonné qui mesure un élément peuplé par `fetch` doit faire pareil.
 
+**`.hw` porte `overflow-x: clip`, JAMAIS `hidden` — et c'est structurel.**
+La spec ne laisse pas `overflow-y:visible` à côté d'un `overflow-x:hidden` :
+l'axe vertical passe alors à `auto`, et `.hw` devient une **boîte à
+défilement**. Elle ne défile pourtant jamais (sa hauteur suit son contenu),
+mais elle devient le SCROLLPORT le plus proche de tous ses descendants : le
+`position:sticky` de `.circuit-band` s'y calait au lieu de se caler sur la
+fenêtre, **l'épinglage du jeu ne prenait pas**, et les 230vh de
+`.circuit-pin` se lisaient comme **1 170 px de trou** entre le jeu et le
+corpus — la bande passait en 900 px, puis plus rien. Vestige de l'époque où
+`.hw` ÉTAIT le conteneur de défilement (l'intro immersive) ; ses règles
+`::-webkit-scrollbar` sont parties avec. C'est le même piège que celui déjà
+documenté pour `.walk-cards` sur l'atelier — **toute nouvelle règle
+`overflow-x` sur un ancêtre doit s'écrire `clip`.**
+
+Deux façons de se tromper en diagnostiquant ça dans la pane : le
+`position:sticky` y fonctionne parfaitement (un témoin neuf le prouve —
+donc un sticky qui ne colle pas est un VRAI bug, pas un artefact) ; en
+revanche `--cp` reste figé quoi qu'on fasse, parce que `onScrollDriver`
+diffère à `requestAnimationFrame`, gelé dans une pane masquée, et que
+`scrollQueued` reste bloqué à `true` dès le premier scroll réel — même en
+remplaçant `requestAnimationFrame` après coup. Le scrub se vérifie alors à
+son ENTRÉE (`-r.top / (r.height - vh)` doit aller de 0 à 1 sur la course),
+pas à sa sortie.
+
 **Section « Le circuit du capital » (le jeu) — habillage.** Sur la ligne
 A–M–P–M′–A′, ce qui circule est un **curseur lumineux** (`.circuit-spark`,
 CSS pur : tête + traînée de comète, or puis rouge après P). Il n'y a plus

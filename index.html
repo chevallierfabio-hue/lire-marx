@@ -88,12 +88,19 @@ header.topbar.tb-solid{background:rgba(21,16,11,.92);
 .cm-card:hover{background:var(--card);border-color:var(--red);box-shadow:0 6px 20px rgba(0,0,0,.5);}
 
 /* ── Home wrapper (décalé de la sidebar + topbar fixées) ── */
-.hw{width:100%;overflow-x:hidden;
+/* `clip` et NON `hidden` : la spec ne laisse pas `overflow-y:visible` à
+   côté d'un `overflow-x:hidden` — l'axe vertical passe alors à `auto`, et
+   .hw devient une boîte à défilement. Elle ne défile pourtant jamais (sa
+   hauteur suit son contenu), mais elle devient le SCROLLPORT le plus
+   proche : le `position:sticky` de .circuit-band s'y calait au lieu de se
+   caler sur la fenêtre, l'épinglage du jeu ne prenait pas, et les 230vh de
+   .circuit-pin se lisaient comme un trou de 1170 px entre le jeu et le
+   corpus. .hw n'est plus un conteneur de défilement depuis la sortie de
+   l'intro (voir scrollRoot() dans home.js) : ses règles de barre de
+   défilement sont parties avec. Même piège que sur .walk-cards. */
+.hw{width:100%;overflow-x:clip;
   color:var(--text);font-family:'Inter',system-ui,sans-serif;background:var(--bg);
   box-sizing:border-box;padding-top:44px;padding-left:208px;}
-.hw::-webkit-scrollbar{width:5px;}
-.hw::-webkit-scrollbar-track{background:var(--bg);}
-.hw::-webkit-scrollbar-thumb{background:rgba(243,233,212,.18);border-radius:3px;}
 body.sb-collapsed .hw{padding-left:0;}
 @media(max-width:860px){.hw{padding-left:0;}}
 
