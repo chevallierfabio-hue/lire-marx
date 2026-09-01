@@ -3125,6 +3125,122 @@ chapitre par chapitre. C'est le rôle attendu d'une page de livre.
   signalement, masquage et rétablissement testés en vrai. La 3e passe
   (forum) reprend les mêmes appels `SHELL.mod` à l'identique.
 
+## SEO technique : les URL réelles, les schémas (mission `seo-urls-reelles`, sept. 2026)
+
+**Le défaut de fond : le site se désignait lui-même par des URL qui
+redirigent.** Cloudflare Pages sert des URL PROPRES — mesuré en production,
+`/oeuvres/capital-1.html` répond **308** vers `/oeuvres/capital-1`. Or les
+cinq entrées du sitemap, tous les `rel="canonical"` et tous les `og:url`
+étaient en `.html`. Chaque canonique désignait donc une page qui redirige,
+ce qui est exactement ce qu'une canonique ne doit pas faire. C'est le
+COUSIN du piège déjà documenté pour `shell.js` (« Cloudflare Pages sert des
+URL propres »), qui avait fait échouer en silence le marquage de la sidebar
+en production — même cause, autre surface.
+
+**Les deux pages les plus importantes du site n'avaient AUCUNE canonique** :
+`capital-1.html` et `manuscrits-1844.html` ne portaient qu'un `og:url`.
+
+Corrigé : les huit pages portent une canonique sans extension, `og:url` est
+aligné, et l'`url` du `CollectionPage` de la bibliothèque aussi (elle était
+restée en `.html` — un `url` de JSON-LD qui redirige est le même défaut).
+**Vérifié en production, pas seulement en local** : les cinq URL du sitemap
+et les sept canoniques répondent 200, zéro redirection.
+
+### `tools/gen-seo.mjs` — le sitemap et les Book sont DÉRIVÉS
+
+Comme le FAQPage de l'accueil, et pour la même raison : deux copies d'une
+même donnée divergent en silence. Le script lit `oeuvres/bibliotheque.json`
+(**source unique**) et récrit (a) le bloc `Book` de chaque œuvre
+`available`, (b) `sitemap.xml`. Il n'est **pas** une étape de build — le
+site reste statique, Cloudflare ne l'exécute jamais ; c'est un outil de
+dépôt, comme `tools/export-chariot.mjs`. On le lance à la main, on commite
+le résultat.
+
+```
+node tools/gen-seo.mjs           # régénère
+node tools/gen-seo.mjs --check   # sort 1 si le dépôt est périmé
+```
+
+Il est **idempotent** et **échoue bruyamment** si une œuvre passe en
+`available` sans faits d'édition — on ne peut pas publier un Book muet par
+distraction. Les titres, descriptions et concepts ne sont jamais recopiés :
+ils sont lus. Seuls les faits d'édition absents de `bibliotheque.json`
+vivent dans la table `EDITION`, **chacun annoté de l'endroit où il est
+VISIBLE dans la page** — un JSON-LD ne doit affirmer que ce que le lecteur
+peut vérifier de ses yeux.
+
+Note : `lastmod` vient de `git log` du fichier, donc au moment de la
+génération il ignore le commit qui va suivre. Granularité au jour, on
+régénère et on commite le même jour — sans conséquence, mais à savoir.
+
+### Ce que les schémas disent, et ce qu'ils TAISENT
+
+`Book` pour Le Capital : Roy traducteur, `bookEdition` (1872-1875, revue par
+Marx), `translationOfWork` vers l'original allemand, `isBasedOn` vers
+Wikisource — **la source réelle du texte affiché**, celle que `loadSection()`
+appelle. Pour les Manuscrits : `dateCreated` 1844 **et** `datePublished`
+1932, parce que les 88 ans d'écart sont le fait qui situe l'œuvre. L'auteur
+porte `sameAs` vers Wikidata Q9061 (vérifié) : c'est l'ancrage d'entité qui
+vaut le plus pour un moteur de réponse.
+
+**Le silence est délibéré sur la licence des Manuscrits.** La page affiche
+« domaine public », mais la traduction est de **J.-M. Palmier**, une
+traduction française du XXe siècle — elle n'est pas dans le domaine public
+du seul fait que l'original de 1844 l'est. Un `license:` en JSON-LD est une
+affirmation juridique lisible par machine : on l'omet plutôt que de l'écrire
+sans pouvoir l'établir. `isAccessibleForFree` reste vrai (la page est bien
+gratuite). Le Capital garde sa licence : Roy est mort en 1900, sa traduction
+est sûrement dans le domaine public. **La mention « domaine public » affichée
+sous les Manuscrits reste à vérifier — elle est hors périmètre de cette
+mission, mais elle est signalée.**
+
+Et le nom du traducteur est laissé tel que la page l'imprime (« J.-M.
+Palmier »), pas « complété » en Jean-Michel Palmier : le schéma ne doit rien
+affirmer de plus que ce qui est à l'écran.
+
+### Le carnet et la messagerie sont HORS du sitemap — c'est un choix
+
+`oeuvres/carnet.html` et `oeuvres/messages.html` n'y sont pas. Déconnecté,
+ces deux pages n'ont **aucun contenu à indexer** : elles n'affichent qu'une
+invitation à se connecter. Les annoncer dans un sitemap, c'est demander à un
+moteur de venir chercher une page vide, et diluer le signal des cinq pages
+qui portent vraiment le corpus. Elles restent **crawlables** (`robots.txt`
+dit `Allow: /`) et portent **chacune leur canonique** — on ne les cache pas,
+on ne les met simplement pas en avant. `oeuvres/index.html` en est absente
+aussi : c'est une redirection 301 (voir `_redirects`).
+
+*Suite possible, non faite (décision du propriétaire) :* leur poser un
+`noindex` serait le geste cohérent jusqu'au bout. Ça les retire de la
+recherche pour de bon — c'est éditorial, pas technique, donc pas tranché ici.
+
+### L'Organization, le `sameAs` et l'homonyme
+
+`sameAs` ne contient QUE le dépôt public du site
+(`github.com/chevallierfabio-hue/lire-marx`, vérifié 200). **Ne rien y
+inventer : un `sameAs` faux est pire qu'un `sameAs` absent.** Ajouter un
+profil le jour où il existe vraiment.
+
+**Il existe un homonyme actif : `liremarx.noblogs.org`**, blog savant sur
+Marx (recensions, Hegel, ontologie), bien référencé sur les mêmes sujets. Il
+dispute la requête de marque et un moteur de réponse peut fondre les deux
+entités. Arbitrage du propriétaire : **on ne renomme pas.** « Lire Marx » est
+dans le brandmark, le H1 et le suffixe des huit titres de page — renommer
+coûterait bien plus que le gain, et un schéma qui nommerait l'entité
+autrement que la page mentirait. La distinction passe donc par la
+**description** de l'Organization (ce qu'on y FAIT : texte intégral,
+appareil en marge, simulations, forum) et par l'**ancrage d'entité**
+(`url` + `sameAs`) — pour un moteur, ce sont eux qui séparent deux
+homonymes, pas le nom. Ne pas rouvrir sans le propriétaire.
+
+### Rappel
+
+Le FAQPage de l'accueil reste **dérivé du balisage `#questions`** et ne se
+récrit jamais à la main (voir son commentaire dans `index.html`). Vérifié
+intact après cette mission : les neuf questions du JSON-LD correspondent mot
+pour mot au visible. Et Google ne montre plus de résultat enrichi FAQ depuis
+août 2023 hors sites gouvernementaux et de santé : ce balisage sert la
+**lecture machine**, pas un snippet — ne rien promettre d'autre.
+
 ## Conventions de travail
 
 - **Une mission par session.** Une demande utilisateur = un objectif clair,
