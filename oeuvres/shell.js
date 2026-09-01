@@ -98,7 +98,12 @@
            « Messages » depuis toujours. C'est le pendant PRIVÉ de la Place
            publique, comme « Mon carnet » l'est pour les notes. */
         '<button class="sb-item" type="button" data-act="messages"><span class="sb-dot" style="background:var(--blue)"></span>Messages</button>' +
-        '<button class="sb-item sb-soon" type="button" disabled><span class="sb-dot" style="background:var(--gold)"></span>Jeux<span class="sb-soon-tag">à venir</span></button>' +
+        /* « Le jeu » et non « Jeux » : il y en a un, et l'entrée dit son
+           nom au singulier comme le fait la section de l'accueil. Elle
+           mène à /jeu — la page qui le présente — et non à /jeu/jouer :
+           le jeu prend tout l'écran, on ne l'ouvre pas d'un clic de
+           sidebar sans avoir dit ce que c'est. */
+        '<button class="sb-item" type="button" data-act="jeu"><span class="sb-dot" style="background:var(--gold)"></span>Le jeu</button>' +
         '<button class="sb-item sb-soon" type="button" disabled><span class="sb-dot" style="background:var(--blue)"></span>À propos<span class="sb-soon-tag">à venir</span></button>' +
         '<button class="sb-item" type="button" data-act="cgu"><span class="sb-dot" style="background:var(--ink-soft)"></span>CGU &amp; règles</button>' +
         sbWork +
@@ -200,6 +205,12 @@
     if(/\/carnet$/.test(here)) mark(carnetBtn);
     var msgBtnSb = sb.querySelector('[data-act="messages"]');
     if(/\/messages$/.test(here)) mark(msgBtnSb);
+    /* Le jeu vit dans un DOSSIER : /jeu est la page de présentation,
+       /jeu/jouer la partie. `here` peut donc valoir « /jeu » (URL propre
+       de Cloudflare) ou « /jeu/ » (le .replace de /index.html ci-dessus).
+       Les trois marquent la même entrée. */
+    var jeuBtn = sb.querySelector('[data-act="jeu"]');
+    if(/^\/jeu\/?$/.test(here) || /^\/jeu\/jouer$/.test(here)) mark(jeuBtn);
 
     // Items de navigation inter-pages
     sb.querySelectorAll('.sb-item[data-act]').forEach(function(b){
@@ -208,6 +219,16 @@
       b.addEventListener('click', function(){
         if(act === 'open-capital'){ location.href = '/oeuvres/capital-1.html'; return; }
         if(act === 'open-manuscrits-1844'){ location.href = '/oeuvres/manuscrits-1844.html'; return; }
+        // Le jeu : sa page de présentation. URL PROPRE, sans extension —
+        // Cloudflare Pages répond 308 sur les .html, et il n'y a aucune
+        // raison d'ajouter un aller-retour à une entrée neuve.
+        if(act === 'jeu'){
+          if(window.matchMedia('(max-width:860px)').matches){
+            document.body.classList.remove('sb-open');
+          }
+          location.href = '/jeu';
+          return;
+        }
         // Place publique : page dédiée (oeuvres/place-publique.html).
         // Plus de modale ni de redirection vers capital-1.html.
         if(act === 'commune'){

@@ -1,0 +1,519 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Le circuit du capital — le jeu de la plus-value | Lire Marx</title>
+<!-- Le logo du site : le M de Fraunces et le point rouge du brandmark
+     « Lire.Marx ». Chemins ABSOLUS — la page vit sous /jeu/, un chemin
+     relatif y résoudrait contre le dossier du jeu. -->
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="48x48" href="/assets/img/logo/icon-48.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/assets/img/logo/icon-192.png">
+<link rel="apple-touch-icon" href="/assets/img/logo/apple-touch-icon.png">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Vous avancez l'argent, vous achetez la force de travail, vous lancez la production — et l'argent revient grossi. Le jeu ne dit pas d'où vient la différence : il vous la fait produire, puis vous laisse lever le voile.">
+<meta property="og:title" content="Le circuit du capital — le jeu de la plus-value">
+<meta property="og:description" content="Avancer l'argent, acheter la force de travail, produire, vendre — et lever le voile sur ce qui s'est passé. Le mécanisme central du Capital, rendu jouable.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://liremarx.com/jeu">
+<meta property="og:image" content="https://liremarx.com/assets/img/jeu/circuit-plan-large.jpg">
+<meta property="og:locale" content="fr_FR">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://liremarx.com/jeu">
+<link rel="preload" href="/assets/img/jeu/circuit-plan-large.webp" as="image">
+<link rel="stylesheet" href="/oeuvres/fonts/fonts.css" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="/oeuvres/fonts/fonts.css"></noscript>
+<style>
+/* ═══════════════════════════════════════════════════════════════════
+   /jeu — la page qui présente et lance « Le circuit du capital »
+   -------------------------------------------------------------------
+   Le jeu occupe tout l'écran (html,body{overflow:hidden}, #app en fixed) :
+   il ne peut pas s'embarquer dans une page qui défile. Il vit donc à côté,
+   sous /jeu/jouer, et cette page-ci est son seuil — le chez-soi où l'on
+   revient, et la seule surface indexable des deux.
+
+   Elle ne charge PAS atelier.css : comme l'accueil, c'est une page de
+   site et non un atelier, et atelier.css poserait au passage son
+   scroll-behavior:smooth. Elle redéfinit donc les tokens du shell dans
+   son :root, exactement comme /index.html — sinon topbar, sidebar et
+   modales resteraient en clair.
+
+   Le mouvement est réduit au strict nécessaire (une révélation au
+   défilement, éteinte sous 768 px et en reduced-motion) et l'état par
+   défaut du CSS est l'état FINI : sans JavaScript, la page est complète.
+   ═══════════════════════════════════════════════════════════════════ */
+:root{
+  --bg:#15100b;--surface:#1e1710;--text:#f3e9d4;
+  --muted:#b7a888;--accent:#d5402f;--border:rgba(243,233,212,.13);
+
+  /* shell.css → palette sombre. --red-deep vaut le rouge FAIBLE sur
+     brun-nuit (2,9:1) : repointé sur le rouge clair, comme sur l'accueil. */
+  --paper:#15100b;--paper-2:#1e1710;--card:#221a12;
+  --ink:#f3e9d4;--ink-soft:#c7b599;
+  --red:#d5402f;--red-deep:#e5644f;--red-text:#e5644f;--bright:#e5644f;
+  --line-strong:rgba(243,233,212,.34);--hover:rgba(243,233,212,.05);
+  --gold:#d8ad4c;--gold-deep:#bd8f38;--blue:#5c8aa3;--const:#9a8b72;
+  --line:rgba(243,233,212,.13);--line-soft:rgba(243,233,212,.07);--ok:#7fa855;
+  --f-ui:'Inter',system-ui,sans-serif;--f-serif:'Spectral',Georgia,serif;--f-hand:'Caveat',cursive;
+  --candle:rgba(216,173,76,.18);
+
+  /* La surface d'emphase du socle : c'est celle sur laquelle tombe la
+     bougie. Sur brun-nuit, une emphase ne s'obtient JAMAIS en inversant
+     vers le clair — ça donne un pavé crème en pleine page. */
+  --emphase:linear-gradient(150deg,#2c2117,#211a12,#1b150e);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{background:var(--bg);}
+body{background:var(--bg);color:var(--text);
+  font-family:var(--f-ui);-webkit-font-smoothing:antialiased;}
+.jw{max-width:1000px;margin:0 auto;padding:0 clamp(20px,4vw,42px) 0;}
+.jw :focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:4px;}
+
+/* ── grammaire de section, aux valeurs de l'accueil ── */
+.j-label{font-size:.72rem;font-weight:600;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.j-h{font-family:'Fraunces',serif;font-weight:900;
+  font-size:clamp(1.7rem,3.4vw,2.4rem);letter-spacing:-.03em;
+  line-height:1.06;margin-bottom:14px;}
+.j-lede{font-size:.97rem;line-height:1.72;color:var(--muted);max-width:56ch;}
+.j-sec{padding:clamp(52px,8vh,88px) 0;border-top:1px solid var(--border);}
+
+/* ── héros ── */
+/* `overflow:clip` et JAMAIS `hidden` — la spec ne laisse pas un
+   overflow-y:visible à côté d'un overflow-x:hidden : l'axe vertical
+   passerait en `auto` et la section deviendrait une boîte à défilement
+   (piège déjà payé sur .hw et sur .walk-cards).
+   Il est ici NÉCESSAIRE : le halo ci-dessous fait 620 px en dur, et sans
+   clip il posait 245 px de défilement horizontal à 375 px de large — un
+   débordement invisible à l'inspection, parce qu'un pseudo-élément n'est
+   pas rendu par querySelectorAll. */
+.j-hero{padding:clamp(46px,7vh,78px) 0 clamp(30px,4vh,44px);position:relative;
+  overflow:clip;}
+.j-hero::before{content:'';position:absolute;top:-40px;left:-6%;width:620px;height:380px;
+  pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse at center,rgba(213,64,47,.10) 0%,transparent 68%);}
+.j-hero>*{position:relative;z-index:1;}
+.j-h1{font-family:'Fraunces',serif;font-weight:900;
+  font-size:clamp(2.2rem,5vw,3.5rem);line-height:1.02;letter-spacing:-.03em;
+  margin-bottom:20px;}
+.j-h1 em{font-style:italic;font-weight:500;color:var(--accent);}
+.j-hero .j-lede{font-size:1.03rem;max-width:54ch;}
+.j-btns{display:flex;gap:11px;flex-wrap:wrap;margin-top:26px;}
+.j-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 26px;
+  border-radius:999px;font-size:.9rem;font-weight:600;text-decoration:none;
+  border:1px solid transparent;cursor:pointer;font-family:inherit;
+  transition:opacity .18s,border-color .18s,background .18s,transform .18s;}
+.j-btn-plein{background:var(--accent);color:#fff;}
+.j-btn-plein:hover{opacity:.88;transform:translateY(-1px);}
+.j-btn-trait{border-color:rgba(243,233,212,.28);color:var(--text);font-weight:500;}
+.j-btn-trait:hover{border-color:var(--gold);background:rgba(243,233,212,.05);}
+.j-btn svg{flex:none;}
+
+/* ── la vue du monde ── */
+.j-vue{position:relative;border-radius:18px;overflow:hidden;
+  border:1px solid var(--border);background:#0d0a07;margin-top:6px;}
+.j-vue img{display:block;width:100%;height:auto;
+  /* Le tirage est une capture du jeu, pas une photographie d'archive :
+     pas de duotone. Juste assombri d'un souffle pour qu'il tienne dans
+     la nuit de la page au lieu d'en être l'objet le plus clair. */
+  filter:brightness(.93) contrast(1.03) saturate(.96);}
+.j-vue figcaption{position:absolute;left:0;right:0;bottom:0;
+  /* 11 px et non les 10 de .hs-img-caption sur l'accueil : cette légende
+     n'est pas décorative, c'est le seul endroit qui NOMME les stations
+     visibles sur l'image. Le plancher du projet pour un texte qu'on doit
+     pouvoir lire est 11 px. */
+  padding:34px 16px 12px;font-size:11px;letter-spacing:.04em;line-height:1.5;
+  color:rgba(251,249,244,.9);
+  background:linear-gradient(to top,rgba(13,10,7,.86),transparent);}
+
+/* ── les stations : le circuit est un LIEU ── */
+.j-stations{display:flex;flex-direction:column;gap:2px;margin-top:8px;}
+.j-station{display:grid;grid-template-columns:74px 1fr;gap:clamp(14px,3vw,30px);
+  align-items:baseline;padding:20px 4px;border-top:1px solid var(--line-soft);}
+.j-station:first-child{border-top:0;}
+/* La lettre reprend le traitement des années de la frise de l'accueil :
+   Fraunces italique or. C'est la rime qui tient le site. */
+.j-station-l{font-family:'Fraunces',serif;font-style:italic;font-weight:500;
+  font-size:clamp(1.7rem,3.4vw,2.15rem);color:var(--gold);
+  line-height:1;letter-spacing:-.02em;}
+.j-station h3{font-family:'Fraunces',serif;font-weight:600;font-size:1.06rem;
+  color:var(--text);margin-bottom:5px;letter-spacing:-.01em;}
+.j-station p{font-size:.92rem;line-height:1.68;color:var(--muted);max-width:56ch;}
+.j-station p b{color:var(--text);font-weight:600;}
+
+/* ── le voile ── */
+.j-voile{display:grid;grid-template-columns:1fr 1fr;gap:1px;
+  background:var(--border);border:1px solid var(--border);
+  border-radius:16px;overflow:hidden;margin-top:8px;}
+.j-colonne{padding:26px clamp(18px,2.6vw,28px) 28px;background:var(--surface);}
+/* La colonne du voile levé est la surface d'emphase du socle : le halo
+   monte du BAS, une bougie n'éclaire pas du plafond. */
+.j-colonne--sous{background:var(--emphase);position:relative;
+  box-shadow:inset 0 0 0 1px rgba(216,173,76,.20);}
+.j-colonne--sous::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse at 50% 118%,var(--candle) 0%,transparent 62%);}
+.j-colonne>*{position:relative;z-index:1;}
+.j-colonne-t{font-size:.72rem;font-weight:600;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:16px;}
+.j-colonne--sous .j-colonne-t{color:var(--gold);}
+.j-mesures{list-style:none;display:flex;flex-direction:column;gap:0;}
+.j-mesures li{font-size:.9rem;line-height:1.5;color:var(--text);
+  padding:8px 0;border-top:1px solid var(--line-soft);}
+.j-mesures li:first-child{border-top:0;}
+.j-mesures li span{color:var(--muted);font-size:.82rem;}
+.j-voile-note{margin-top:22px;font-size:.95rem;line-height:1.72;color:var(--muted);
+  max-width:62ch;}
+.j-voile-note b{color:var(--text);font-weight:600;}
+.j-touche{display:inline-flex;align-items:center;justify-content:center;
+  min-width:24px;height:24px;padding:0 7px;margin:0 2px;
+  border:1px solid var(--line-strong);border-radius:5px;
+  font-family:var(--f-ui);font-size:.74rem;font-weight:600;color:var(--text);
+  background:rgba(243,233,212,.06);vertical-align:baseline;}
+
+/* ── ce que la partie raconte ── */
+.j-cartes{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:8px;}
+.j-carte{border:1px solid var(--border);border-radius:16px;background:var(--surface);
+  padding:24px 22px 26px;transition:border-color .22s,box-shadow .22s,transform .4s cubic-bezier(.16,1,.3,1);}
+.j-carte:hover{border-color:var(--gold);box-shadow:0 22px 48px -20px rgba(0,0,0,.7);}
+.j-carte h3{font-family:'Fraunces',serif;font-weight:600;font-size:1.02rem;
+  color:var(--text);margin-bottom:9px;letter-spacing:-.01em;}
+.j-carte p{font-size:.9rem;line-height:1.68;color:var(--muted);}
+
+/* ── avant de commencer ── */
+.j-pratique{list-style:none;margin-top:8px;max-width:64ch;}
+.j-pratique li{display:grid;grid-template-columns:22px 1fr;gap:14px;
+  padding:13px 0;border-top:1px solid var(--line-soft);
+  font-size:.93rem;line-height:1.66;color:var(--muted);}
+.j-pratique li:first-child{border-top:0;}
+.j-pratique li b{color:var(--text);font-weight:600;}
+/* Marques DESSINÉES, jamais d'emoji dans une pastille d'interface. */
+.j-pratique svg{margin-top:3px;color:var(--gold);flex:none;}
+
+/* ── la dernière page ── */
+/* La bande finale est pleine largeur, mais son TEXTE doit tomber sur la même
+   verticale que tout le reste de la page. Le rembourrage horizontal vit donc
+   sur l'intérieur, qui reprend la géométrie exacte de .jw — posé sur la
+   section, il décalait la dernière page de 36 px vers la gauche (mesuré). */
+.j-fin{position:relative;overflow:clip;border-top:1px solid var(--border);
+  padding:clamp(56px,9vh,96px) 0 clamp(60px,10vh,104px);}
+.j-fin::before{content:'';position:absolute;left:8%;bottom:-30%;
+  width:min(700px,90%);height:420px;pointer-events:none;
+  background:radial-gradient(ellipse at center,var(--candle) 0%,transparent 66%);}
+.j-fin-inner{position:relative;z-index:1;max-width:1000px;margin:0 auto;
+  padding:0 clamp(20px,4vw,42px);}
+.j-fin-line{font-family:'Fraunces',serif;font-weight:900;
+  font-size:clamp(1.6rem,3.2vw,2.3rem);letter-spacing:-.03em;line-height:1.1;
+  margin-bottom:22px;max-width:22ch;}
+.j-fin-line em{font-style:italic;font-weight:500;color:var(--gold);}
+
+/* ── révélation au défilement — l'état FINI est le défaut ── */
+html.js-jeu .j-rev{opacity:0;transform:translateY(18px);}
+html.js-jeu .j-rev.in{opacity:1;transform:none;
+  transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1);}
+
+/* ── responsive ── */
+@media(max-width:860px){
+  .j-voile{grid-template-columns:1fr;}
+  .j-cartes{grid-template-columns:1fr;}
+}
+@media(max-width:560px){
+  .j-station{grid-template-columns:1fr;gap:6px;}
+  .j-station-l{font-size:1.5rem;}
+  .j-btn{flex:1 1 auto;justify-content:center;}
+}
+@media(prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important;}
+}
+</style>
+<link rel="preload" href="/oeuvres/shell.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="/oeuvres/shell.css"></noscript>
+<!-- VideoGame — le jeu est bien une œuvre logicielle à part entière, et
+     ce bloc n'affirme QUE ce que la page montre : il est gratuit, il se
+     joue dans un navigateur, il porte sur Le Capital. Pas de note, pas
+     d'avis, pas de date de sortie inventée. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "VideoGame",
+  "name": "Le circuit du capital",
+  "url": "https://liremarx.com/jeu",
+  "description": "Un jeu où l'on tient le rôle du capitaliste : avancer l'argent, acheter des moyens de production et de la force de travail, lancer la production, vendre — et lever le voile sur les rapports sociaux qui ont produit la différence.",
+  "inLanguage": "fr",
+  "isAccessibleForFree": true,
+  "applicationCategory": "GameApplication",
+  "gamePlatform": "Navigateur web",
+  "playMode": "SinglePlayer",
+  "operatingSystem": "Navigateur avec WebGL",
+  "image": "https://liremarx.com/assets/img/jeu/circuit-plan-large.jpg",
+  "publisher": { "@type": "Organization", "name": "Lire Marx", "url": "https://liremarx.com/" },
+  "about": {
+    "@type": "Book",
+    "name": "Le Capital, Livre I",
+    "author": { "@type": "Person", "name": "Karl Marx", "sameAs": "https://www.wikidata.org/wiki/Q9061" },
+    "url": "https://liremarx.com/oeuvres/capital-1"
+  }
+}
+</script>
+</head>
+<body>
+<main class="wrap" id="contenu" tabindex="-1">
+<div class="jw">
+
+  <!-- ── Le seuil ── -->
+  <section class="j-hero">
+    <p class="j-label">Le jeu</p>
+    <h1 class="j-h1">Le circuit <em>du capital</em></h1>
+    <p class="j-lede">Vous avancez l'argent. Vous achetez des machines et de la
+      force de travail. Vous lancez la production, vous vendez — et l'argent
+      revient plus gros qu'il n'est parti. Le jeu ne vous explique pas d'où
+      vient la différence&nbsp;: il vous la fait produire, cycle après cycle,
+      puis il vous laisse lever le voile sur ce qui s'est réellement passé.</p>
+    <div class="j-btns">
+      <a class="j-btn j-btn-plein" href="/jeu/jouer">
+        <svg width="13" height="14" viewBox="0 0 13 14" aria-hidden="true"><path d="M1 1.4v11.2a.6.6 0 0 0 .92.5l8.9-5.6a.6.6 0 0 0 0-1L1.92.9A.6.6 0 0 0 1 1.4Z" fill="currentColor"/></svg>
+        Jouer
+      </a>
+      <a class="j-btn j-btn-trait" href="/oeuvres/capital-1#labo">Le laboratoire du <i>Capital</i></a>
+    </div>
+  </section>
+
+  <figure class="j-vue j-rev">
+    <img src="/assets/img/jeu/circuit-plan-large.webp" width="1600" height="900"
+         alt="Le monde du jeu au lever du jour : au premier plan un chariot à
+              lanterne sur une route pavée ; de part et d'autre, les bâtiments
+              étiquetés « A — Banque », « M — Marché des moyens », « Ft —
+              Marché du travail », « P — Usine », « M′ — Entrepôt » et le
+              quartier ouvrier.">
+    <figcaption>La route et ses stations&nbsp;: la Banque en A, les deux marchés en
+      M, l'Usine en P, l'Entrepôt en M′. Le chariot est votre curseur.</figcaption>
+  </figure>
+
+  <!-- ── Le circuit est un lieu ── -->
+  <section class="j-sec j-rev">
+    <p class="j-label">Ce que vous y faites</p>
+    <h2 class="j-h">La formule devient un trajet</h2>
+    <p class="j-lede">A—M—P—M′—A′ n'est plus une ligne dans un livre&nbsp;:
+      c'est une route, et chaque lettre est un endroit où il faut aller.</p>
+
+    <div class="j-stations">
+      <div class="j-station">
+        <span class="j-station-l" aria-hidden="true">A</span>
+        <div>
+          <h3>La Banque — vous avancez l'argent</h3>
+          <p>Non pour consommer&nbsp;: pour qu'il revienne grossi. Et comme vous
+            n'en avez pas assez, vous <b>empruntez</b> — la dette entre dans la
+            partie dès le premier geste, avec son taux et sa pression.</p>
+        </div>
+      </div>
+      <div class="j-station">
+        <span class="j-station-l" aria-hidden="true">M</span>
+        <div>
+          <h3>Les deux marchés — vous achetez deux choses très différentes</h3>
+          <p>Au marché des moyens, des machines et des matières&nbsp;: elles
+            transmettent leur valeur, sans en ajouter. Au marché du travail, la
+            <b>force de travail</b> — la seule marchandise qui produise plus de
+            valeur qu'elle ne coûte. Tout le jeu tient dans cet écart.</p>
+        </div>
+      </div>
+      <div class="j-station">
+        <span class="j-station-l" aria-hidden="true">P</span>
+        <div>
+          <h3>L'Usine — vous lancez la production</h3>
+          <p>Le seul endroit du monde où de la valeur <b>neuve</b> apparaît. Vous
+            réglez la journée, l'embauche, les machines&nbsp;; chaque tour de vis
+            arrache un peu plus — et fabrique ses propres contradictions.</p>
+        </div>
+      </div>
+      <div class="j-station">
+        <span class="j-station-l" aria-hidden="true">M′</span>
+        <div>
+          <h3>L'Entrepôt — la marchandise sort grossie</h3>
+          <p>Elle vaut plus qu'elle n'a coûté. Mais elle ne vaut encore rien
+            tant qu'elle est là&nbsp;: les <b>stocks invendus</b> sont de la
+            plus-value qui n'existe pas.</p>
+        </div>
+      </div>
+      <div class="j-station">
+        <span class="j-station-l" aria-hidden="true">A′</span>
+        <div>
+          <h3>La vente — vous encaissez</h3>
+          <p>Elle réalise en argent ce que le travail a produit. Vous remboursez,
+            et vous relancez plus grand&nbsp;: c'est <b>l'accumulation</b>, et
+            c'est elle qui, en grossissant, finit par vous poser des problèmes
+            que vous n'aviez pas au premier cycle.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Le voile — le cœur de l'affaire ── -->
+  <section class="j-sec j-rev">
+    <p class="j-label">Le geste propre au jeu</p>
+    <h2 class="j-h">Lever le voile</h2>
+    <p class="j-lede">Le tableau de bord vous montre d'abord ce que regarde un
+      patron. Une touche le redit dans une autre langue — la même partie, les
+      mêmes chiffres, décrits comme des rapports entre des gens.</p>
+
+    <div class="j-voile">
+      <div class="j-colonne">
+        <p class="j-colonne-t">Ce que voit le comptable</p>
+        <ul class="j-mesures">
+          <li>Capital <span>— ce qu'il vous reste en caisse</span></li>
+          <li>Dette <span>— ce que la banque attend</span></li>
+          <li>Profit du cycle <span>— la différence, sans son origine</span></li>
+          <li>Stocks <span>— ce qui n'est pas vendu</span></li>
+          <li>Chômage <span>— une donnée de marché</span></li>
+        </ul>
+      </div>
+      <div class="j-colonne j-colonne--sous">
+        <p class="j-colonne-t">Sous le voile — rapports sociaux</p>
+        <ul class="j-mesures">
+          <li>Plus-value <span>— le travail que vous n'avez pas payé</span></li>
+          <li>Taux d'exploitation <span>— sa part dans la journée</span></li>
+          <li>Capital constant (c) <span>— les machines, qui ne créent rien</span></li>
+          <li>Capital variable (v) <span>— les salaires, qui créent tout</span></li>
+          <li>Composition organique c/v <span>— et sa pente</span></li>
+          <li>Taux de profit <span>— pourquoi il baisse tout seul</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="j-voile-note">Rien n'a bougé dans la partie&nbsp;: c'est la
+      <b>même situation, dite autrement</b>. Le profit du premier tableau et la
+      plus-value du second sont le même nombre — sauf que le second dit d'où il
+      vient. C'est très exactement le geste du <i>Capital</i>, et c'est pour ça
+      que le voile ne s'ouvre pas d'emblée&nbsp;: il se lève au moment où votre
+      premier circuit se referme et où l'argent revient augmenté — l'instant
+      que le jeu appelle <i>la naissance du capital</i>. Il faut avoir fait la
+      chose pour avoir quelque chose à démasquer. Ensuite, la touche
+      <span class="j-touche">V</span> l'ouvre et le referme quand vous voulez.</p>
+  </section>
+
+  <!-- ── Ce que la partie raconte ── -->
+  <section class="j-sec j-rev">
+    <p class="j-label">Ce que ça devient</p>
+    <h2 class="j-h">La partie ne s'arrête pas au profit</h2>
+    <p class="j-lede">Accumuler marche — jusqu'à ce que l'accumulation
+      elle-même devienne le problème. Le jeu va au bout de cette phrase.</p>
+
+    <div class="j-cartes">
+      <div class="j-carte">
+        <h3>Vos gains vous reviennent</h3>
+        <p>Chaque machine arrache plus de valeur en moins de temps — et rend une
+          part des bras superflue. Le chômage que vous produisez fait pression
+          sur les salaires, la colère ouvrière monte, et le risque de crise avec
+          elle. Vous ne subissez pas ces courbes&nbsp;: vous les avez faites.</p>
+      </div>
+      <div class="j-carte">
+        <h3>La forme change en route</h3>
+        <p>La Bourse se fonde et le capital devient financier&nbsp;; ailleurs le
+          conflit se canalise en droits sociaux et en syndicats reconnus, et un
+          capitalisme régulé se stabilise. La formation sociale de votre partie
+          n'est pas décidée d'avance.</p>
+      </div>
+      <div class="j-carte">
+        <h3>Il y a une sortie</h3>
+        <p>Une fin possible s'appelle la Commune&nbsp;: l'accumulation cède la
+          place à la coordination. Elle tient — ou elle s'effondre, selon ce que
+          la partie a laissé debout. C'est la seule où vous cessez d'être le
+          personnage principal.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Avant de commencer ── -->
+  <section class="j-sec j-rev">
+    <p class="j-label">En pratique</p>
+    <h2 class="j-h">Avant de commencer</h2>
+
+    <ul class="j-pratique">
+      <li>
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><rect x="1.6" y="4.2" width="16.8" height="10.4" rx="1.6" stroke="currentColor" stroke-width="1.3"/><path d="M5 17.4h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        <span><b>Un ordinateur, et un clavier.</b> Le chariot ne se conduit
+          qu'aux touches — Z Q S D, ou W A S D selon votre disposition. Faute de
+          commandes tactiles, le jeu ne se joue pas au téléphone.</span>
+      </li>
+      <li>
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="7.3" stroke="currentColor" stroke-width="1.3"/><path d="M2.9 10h14.2M10 2.7c1.9 2 2.9 4.5 2.9 7.3s-1 5.3-2.9 7.3c-1.9-2-2.9-4.5-2.9-7.3s1-5.3 2.9-7.3Z" stroke="currentColor" stroke-width="1.3"/></svg>
+        <span><b>Une carte graphique et un navigateur récent.</b> La scène est en
+          trois dimensions, rendue par WebGL. Le premier chargement pèse environ
+          six mégaoctets — l'essentiel est le ciel qui éclaire la scène — et il
+          se met ensuite en cache.</span>
+      </li>
+      <li>
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M3.4 3.4h9.4l3.8 3.8v9.4a.9.9 0 0 1-.9.9H3.4a.9.9 0 0 1-.9-.9V4.3a.9.9 0 0 1 .9-.9Z" stroke="currentColor" stroke-width="1.3"/><path d="M6.2 3.4v4.3h6.1M6.2 17.5v-5h7.6v5" stroke="currentColor" stroke-width="1.3"/></svg>
+        <span><b>Trois parties, et aucun compte.</b> Le jeu enregistre tout seul,
+          à chaque cycle, dans votre navigateur. Rien ne part sur un serveur, et
+          rien ne se synchronise d'un appareil à l'autre — contrairement à votre
+          carnet de lecture, qui, lui, a besoin d'un compte.</span>
+      </li>
+      <li>
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="7.3" stroke="currentColor" stroke-width="1.3"/><path d="M10 6.1v4.6M10 13.6v.1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        <span><b>C'est une première version.</b> Le jeu est jouable de bout en
+          bout, il n'est pas fini pour autant&nbsp;: il s'écrit encore, et ce que
+          vous voyez aujourd'hui bougera.</span>
+      </li>
+    </ul>
+  </section>
+
+</div>
+
+<!-- ── La dernière page ── -->
+<section class="j-fin">
+  <div class="j-fin-inner j-rev">
+    <p class="j-label">Pour commencer</p>
+    <p class="j-fin-line">Le plus court chemin vers la plus-value, c'est
+      <em>de la produire</em>.</p>
+    <div class="j-btns">
+      <a class="j-btn j-btn-plein" href="/jeu/jouer">
+        <svg width="13" height="14" viewBox="0 0 13 14" aria-hidden="true"><path d="M1 1.4v11.2a.6.6 0 0 0 .92.5l8.9-5.6a.6.6 0 0 0 0-1L1.92.9A.6.6 0 0 0 1 1.4Z" fill="currentColor"/></svg>
+        Jouer
+      </a>
+      <a class="j-btn j-btn-trait" href="/oeuvres/bibliotheque">Revenir à la bibliothèque</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<script src="/config.js"></script>
+<script src="/oeuvres/shell.js"></script>
+<script src="/oeuvres/shell-social.js"></script>
+<script>
+installShell({ workTitle: 'Le jeu', tabs: [] });
+
+(function(){
+  'use strict';
+  // La largeur se lit à la MEDIA QUERY et non à innerWidth : au moment où
+  // ce script tourne, la fenêtre peut encore annoncer 0 (onglet ouvert en
+  // arrière-plan, onglet piloté) — piège déjà payé sur l'accueil et sur
+  // l'entrée du carnet.
+  var m = window.matchMedia;
+  if(m('(max-width:767px)').matches || m('(prefers-reduced-motion:reduce)').matches) return;
+  if(!('IntersectionObserver' in window)) return;
+
+  var els = document.querySelectorAll('.j-rev');
+  if(!els.length) return;
+  // On ne pose la classe de gating qu'une fois qu'on est SÛR de pouvoir
+  // rendre la main : sans elle, le CSS est déjà l'état fini, donc un échec
+  // du script ne laisse jamais une section invisible.
+  document.documentElement.classList.add('js-jeu');
+
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(!e.isIntersecting) return;
+      e.target.classList.add('in');
+      io.unobserve(e.target);
+    });
+  }, { rootMargin: '0px 0px -12% 0px' });
+  els.forEach(function(el){ io.observe(el); });
+
+  // Filet : si l'observateur ne se déclenche jamais (onglet resté masqué —
+  // les rappels d'IntersectionObserver n'y sont PAS délivrés, pas même le
+  // rappel initial que la spec garantit), la page s'affiche entière.
+  setTimeout(function(){
+    for(var i=0;i<els.length;i++) els[i].classList.add('in');
+  }, 4000);
+})();
+</script>
+</body>
+</html>

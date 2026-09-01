@@ -78,7 +78,12 @@ const EDITION = {
 const SITE_PAGES = [
   { file: 'index.html',                 url: '/',                       priority: '1.0', changefreq: 'weekly' },
   { file: 'oeuvres/bibliotheque.html',  url: '/oeuvres/bibliotheque',   priority: '0.8', changefreq: 'weekly' },
-  { file: 'oeuvres/place-publique.html',url: '/oeuvres/place-publique', priority: '0.7', changefreq: 'weekly' }
+  { file: 'oeuvres/place-publique.html',url: '/oeuvres/place-publique', priority: '0.7', changefreq: 'weekly' },
+  /* /jeu — la page qui présente « Le circuit du capital ». C'est ELLE qui
+     entre au sitemap, pas /jeu/jouer : la partie est une application sans
+     contenu à indexer, et elle porte un noindex posé par
+     tools/import-jeu.mjs. */
+  { file: 'jeu/index.html',             url: '/jeu',                    priority: '0.8', changefreq: 'monthly' }
 ];
 
 /* HORS SITEMAP, et c'est un choix motivé — voir CLAUDE.md :

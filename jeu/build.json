@@ -1,0 +1,9 @@
+{
+  "_": "Généré par tools/import-jeu.mjs — ne pas éditer à la main.",
+  "version": "0.66.0",
+  "three": "^0.168.0",
+  "commit": "3862a22",
+  "branche": "servir-sous-un-chemin",
+  "importe": "2026-09-01",
+  "base": "/jeu/"
+}

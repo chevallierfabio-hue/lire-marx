@@ -690,6 +690,11 @@ viewport < 640 px, pas de WebGL), donc **aucun écouteur clavier n'existe**
 dans ces cas — et le CSS masque fiche, bandeau et voile sous 768 px.
 
 **Statut de la refonte par page** (à mettre à jour à chaque page migrée) :
+- ✅ **Le jeu (`/jeu`)** — page neuve de septembre 2026, née directement
+  dans la DA sombre-chaude (mission `brancher-le-jeu`, voir plus bas). Le
+  jeu lui-même (`/jeu/jouer`) garde SA direction artistique — papier crème,
+  encre, rouge brique — et c'est volontaire : c'est une œuvre à part, pas
+  une page du site. Ne pas chercher à l'aligner sur la palette de la maison.
 - ✅ Accueil général du site (`/index.html`) — enrichi + animé (voir
   ci-dessus). **Plus d'intro cinématique depuis septembre 2026** : elle est
   passée à l'entrée du carnet.
@@ -3637,10 +3642,10 @@ arrondis. Le liseré or essayé autour du carré a été écarté, il boue à 16
   (« sans prérequis », le forum, les simulations) ont été mesurées à 169,
   179 et 211 : dans toutes, le jeu passait à la trappe.
 - **La description ne dit plus « bientôt »** (arbitrage du propriétaire, qui
-  branche la v1 du jeu). ⚠️ La section du circuit porte encore
-  `Le jeu · bientôt` et le badge `En développement` : les deux doivent tomber
-  le jour où la v1 est en ligne, sinon le résultat Google promet ce que la
-  page dément.
+  branche la v1 du jeu). ✅ **SOLDÉ en septembre 2026** par la mission
+  `brancher-le-jeu` : le micro-libellé dit « Le jeu » et le badge
+  `En développement` a été supprimé, le jour même où la v1 est passée en
+  ligne. La page ne dément plus le résultat Google.
 - `og:title` et `og:description` suivent. `og:image` reste le portrait Mayall
   — pour un partage social, un portrait vaut mieux qu'une pastille.
 
@@ -3787,6 +3792,217 @@ la page suppose à jour. Le symptôme est trompeur : la page semble correcte,
 **Ce que je n'ai PAS touché, volontairement** : les autres polices servent
 réellement, l'image du héros est déjà en WebP à 143 Ko, et le HTML est bien
 compressé (93 Ko → 28 Ko transférés). Il n'y a pas d'autre gain facile ici.
+
+## Le jeu est branché sur le site (mission `brancher-le-jeu`, sept. 2026)
+
+*Le Circuit du Capital* vivait dans un dépôt séparé
+(`~/Desktop/circuit-du-capital`, `github.com/chevallierfabio-hue/circuit-du-capital`)
+et n'était accessible nulle part depuis le site, qui l'annonçait pourtant
+« bientôt » depuis des mois — et dont la **description Google le promettait
+déjà au présent**. Il est en ligne.
+
+**Deux arbitrages du propriétaire au lancement :**
+1. **Le jeu est construit et COMMITÉ dans le dépôt du site**, sous `jeu/` —
+   plutôt qu'un second projet Cloudflare Pages sur un sous-domaine. Un seul
+   domaine, un seul déploiement, rien à faire au tableau de bord. Le prix est
+   d'environ **6,3 Mo d'actifs construits versionnés**.
+2. **On y entre par une vraie page du site**, dans la DA de la maison —
+   plutôt que droit dans le jeu. C'est la seule surface indexable des deux,
+   et le chez-soi où l'on revient.
+
+### Deux URL, et pourquoi ce découpage
+
+```
+/jeu          → jeu/index.html   la page de présentation, ÉCRITE À LA MAIN
+/jeu/jouer    → jeu/jouer.html   la partie, IMPORTÉE (ne jamais éditer)
+/jeu/assets/  /jeu/draco/        les actifs du build
+```
+
+Le jeu **occupe tout l'écran** (`html,body{overflow:hidden}`, `#app` en
+`position:fixed`) : il ne peut pas s'embarquer dans une page qui défile, ni
+partager la coquille. Il vit donc à côté, et la page est son seuil. Le
+découpage `/jeu` + `/jeu/jouer` évite la collision qu'aurait produite un
+`jeu.html` à côté d'un dossier `jeu/` — Cloudflare servirait les deux à
+`/jeu` et l'arbitrage serait implicite.
+
+### `tools/import-jeu.mjs` — le jeu est un actif importé, pas une dépendance
+
+Comme `export-chariot.mjs` et `gen-seo.mjs` : **ce n'est PAS une étape de
+build**, Cloudflare ne l'exécute jamais, le site reste 100 % statique. On le
+lance à la main quand le jeu change, on commite le résultat.
+
+```
+node tools/import-jeu.mjs             # construit puis importe
+node tools/import-jeu.mjs --no-build  # importe un dist/ déjà là
+```
+
+Il construit avec `VITE_BASE=/jeu/`, copie `dist/` dans `jeu/` en renommant
+`index.html` → `jouer.html`, et **échoue bruyamment** plutôt que de publier
+un jeu qui ne chargerait pas : il vérifie que le script est bien référencé
+sous `/jeu/`, que la base est inlinée dans le bundle, que les actifs sont
+là, et que les deux greffes sont posées. Il écrit `jeu/build.json` (version,
+révision, date) — **c'est là qu'on lit quelle version du jeu est en ligne**.
+
+**Deux fichiers du build ne sont pas servis** : les `.map` (4 Mo — on ne
+publie pas les sources d'un bundle minifié ; la référence
+`sourceMappingURL` est retirée du JS pour ne pas ouvrir un 404 dès qu'on
+ouvre les outils de développement), et `draco_encoder.js` (932 Ko — il
+ENCODE, le runtime ne fait que décoder).
+
+**Deux greffes sont faites sur `jouer.html`**, et elles n'ont de sens que
+sur ce site — d'où leur place dans le script d'import et non dans le dépôt
+du jeu, où elles pollueraient un déploiement autonome :
+- **`noindex, follow`** — la partie est une application, pas un document.
+  C'est `/jeu` qui porte le texte. Même raisonnement que pour le carnet et
+  la messagerie.
+- **Le lien de retour** (`.lm-retour`, « ← Lire Marx », vers `/jeu`). Le jeu
+  est en plein écran sans coquille : branché sur liremarx.com, on y entrerait
+  **sans porte de sortie**. Il se pose **en bas à droite, le seul coin que le
+  jeu laisse libre** (à gauche le tableau de bord et le journal ; à droite en
+  haut l'aide, la formation sociale et l'objectif — vérifié : zéro
+  chevauchement), et il emprunte l'habit du jeu (papier, encre, ombre portée)
+  parce qu'il se pose sur SON interface et non sur celle du site. Il s'efface
+  sous `body.mcinema-on`, comme tout le reste pendant la cinématique.
+
+### Le dépôt du jeu a dû changer — et sans ça, l'import échoue
+
+Le jeu chargeait ses actifs par chemins **absolus** (`'/draco/'`,
+`'/basis/'`, `'/assets/hdri/…'`, `'/assets/models/…'`) : servi sous `/jeu/`,
+il serait allé les chercher à la racine du domaine et le préchargement aurait
+échoué. Ils passent désormais par `import.meta.env.BASE_URL`
+(`src/assets/AssetManager.js`), et `base` se règle par la variable
+`VITE_BASE` (`vite.config.js`). **Sans la variable, rien ne change** : base
+`/`, le `npm run dev` et un déploiement autonome se comportent comme avant.
+
+⚠️ **Ce correctif vit sur la branche `servir-sous-un-chemin` du dépôt du
+jeu.** Tant qu'elle n'est pas fusionnée dans son `main`, un `import-jeu.mjs`
+lancé depuis un dépôt du jeu à jour **s'arrêtera net** avec le message qui
+renvoie à cette branche — c'est voulu, plutôt que de publier un jeu muet.
+
+### `tools/capture-jeu.mjs` — l'image de la page est reproductible
+
+L'image du héros n'est pas une capture prise à la main : un outil ouvre
+`jeu/jouer.html` dans un Chrome piloté (puppeteer-core **emprunté au dépôt
+du jeu** via `createRequire` — le site n'a ni `package.json` ni
+`node_modules`, et n'en aura pas), sert le site lui-même sur un port
+éphémère sans cache, lance une partie, masque **tout** le décorum
+d'interface et photographie la scène à **t = 17 s**.
+
+Cet instant n'est pas un hasard : la cinématique vient de s'achever, le
+soleil se lève, le chariot est au premier plan lanterne allumée — **le même
+chariot que celui qui traverse l'accueil** — et la route aligne derrière lui
+la Banque en A, les deux marchés en M, l'Usine en P, l'Entrepôt en M′. C'est
+le seul instant où tout cela tient dans un cadre. `--planches` tire une
+planche-contact pour en rechoisir un ; ne pas déplacer `at` sans elle.
+
+Sorties : `assets/img/jeu/circuit-plan-large.webp` (72 Ko, servi) et `.jpg`
+(296 Ko, repli et `og:image`) — le motif des images d'archive.
+
+### Ce qui a bougé ailleurs
+
+- **La sidebar** : l'entrée `Jeux — à venir`, **désactivée**, devient
+  `Le jeu` (`data-act="jeu"` → `/jeu`). Au singulier, comme la section de
+  l'accueil : il y en a un. Elle mène à la présentation et **jamais droit à
+  `/jeu/jouer`** — six mégaoctets, un clavier obligatoire et rien sur
+  téléphone, trois choses qu'il faut avoir dites avant. Le marquage couvre
+  `/jeu`, `/jeu/` **et** `/jeu/jouer` : la page vit dans un DOSSIER, donc
+  `here` peut valoir l'un ou l'autre. URL propre, sans `.html` — aucune
+  raison d'ajouter un 308 à une entrée neuve.
+- **L'accueil** : `Le jeu · bientôt` → `Le jeu`, le badge `En développement`
+  et sa règle `.circuit-soon-tag` **supprimés**, et la bande mène enfin
+  quelque part (`.circuit-go` → `/jeu`). Toute la mécanique d'épinglage est
+  intacte (vérifié : `js-circuit`, bande `sticky`, cale de 2 070 px).
+- **Le SEO** : `/jeu` entre au sitemap par `SITE_PAGES` dans `gen-seo.mjs`
+  (source unique — ne pas éditer `sitemap.xml` à la main). `/jeu/jouer` n'y
+  est **pas** : application sans contenu, et elle porte son `noindex`. La
+  page porte un `VideoGame` en JSON-LD qui n'affirme que ce que l'écran
+  montre — gratuit, dans un navigateur, à propos du *Capital* ; pas de note,
+  pas d'avis, pas de date de sortie inventée.
+
+### La page elle-même
+
+Elle **ne charge pas `atelier.css`** : comme l'accueil, c'est une page de
+site et non un atelier — et `atelier.css` poserait au passage son
+`scroll-behavior:smooth`. Elle redéfinit donc les tokens du shell dans son
+`:root`, avec le jeu de valeurs **corrigé** de l'accueil (`--red-deep` sur
+`#e5644f`, plus `--red-text`, `--line-strong`, `--hover`).
+
+Sa matière : le seuil, la vue du monde en pleine largeur, **les cinq
+stations** (la lettre en Fraunces italique or — le traitement des années de
+la frise, la rime qui tient le site), **le voile** en deux colonnes dont
+celle de droite est la surface d'emphase du socle, ce que la partie devient
+(chômage et colère produits par vos propres gains, la Bourse, le compromis
+régulé, la Commune), et l'état des lieux pratique.
+
+**Le voile est le cœur de la page, et il est vérifié dans le code du jeu** :
+il ne s'ouvre pas d'emblée, il se lève à l'écran « le capital est né » —
+`unlockVoile()`, à la fin de la phase 0, quand le premier circuit se referme
+et que l'argent revient augmenté. Ne pas écrire qu'il faut « un certain
+nombre de cycles » : c'est faux.
+
+Le mouvement est réduit à une révélation au défilement, éteinte sous 768 px
+et en `prefers-reduced-motion`, et **l'état par défaut du CSS est l'état
+fini** : la classe de gating `js-jeu` n'est posée qu'une fois le module sûr
+de pouvoir rendre la main, et un filet de 4 s révèle tout si
+l'`IntersectionObserver` ne se déclenche jamais.
+
+### Pièges rencontrés
+
+1. **Un pseudo-élément posait 245 px de défilement horizontal à 375 px, et
+   il était INVISIBLE à l'inspection.** Le halo du héros (`.j-hero::before`)
+   fait **620 px en dur** ; une sonde qui parcourt `querySelectorAll('body *')`
+   ne voit **pas** les pseudo-éléments, et ne trouvait donc aucun coupable
+   alors que `scrollWidth` valait exactement `620`. Le nombre lui-même était
+   l'indice. Corrigé par `overflow:clip` sur la section — **`clip` et jamais
+   `hidden`**, règle déjà écrite pour `.hw` et `.walk-cards`. Quand un
+   débordement n'a pas de coupable, chercher dans les pseudo-éléments et
+   comparer `scrollWidth` aux largeurs écrites en dur dans le CSS.
+2. **Un rembourrage horizontal posé sur une bande pleine largeur désaligne
+   son texte.** `.j-fin` portait son `padding` latéral, et sa dernière page
+   tombait **36 px à gauche** de tout le reste (mesuré). Le rembourrage vit
+   sur l'intérieur, qui reprend la géométrie exacte de `.jw`.
+3. **`detect.mjs` ne résout pas les `clamp()`** : ses trois
+   `cramped-padding` sur `.j-voile`, `.j-colonne` et `.j-fin` sont des faux
+   positifs — mesurés au rendu, 26/28/28/28 px sur les colonnes et 81 px en
+   haut de la bande. `.j-voile` a bien 0 rembourrage, et c'est **voulu** :
+   c'est le conteneur en grille dont le `gap` de 1 px DESSINE le filet, ses
+   enfants portent l'air.
+4. Le `low-contrast` à 4,1:1 est le faux positif déjà documenté pour
+   `404.html` : `--accent` sur `--bg`, mais sur du texte mesuré au-delà de
+   24 px, dont le seuil est 3:1. Ne pas le « corriger ».
+
+### Vérifié
+
+Sonde de contraste sur le rendu : **0 échec sur 102 mesures** avec la
+coquille, aucune cible sous 24 × 24, et le seul texte sous 11 px qui
+m'appartenait (la légende de l'image) relevé à 11 px — le plancher du
+projet. Détecteur statique : **0 erreur**, et l'accueil passe de **28 à 27
+constats**, le delta étant exactement l'`undersized-ui-text` du badge
+supprimé — rien d'autre n'a bougé. Testé à 1280 et 375 px : **zéro
+débordement horizontal**, les cinq blocs alignés sur la même verticale, le
+voile et les cartes qui se replient en une colonne. Le jeu chargé pour de
+vrai sous `/jeu/` : *Boot OK · three 168 · IBL · DRACO OK*, **zéro requête
+en échec**, gate refermé. Lien de retour mesuré à 109 × 32 px, sans
+chevauchement avec aucun panneau du jeu, et qui s'efface bien sous
+`body.mcinema-on`. Accueil sans erreur de console, épinglage du circuit
+intact. `gen-seo.mjs` idempotent, et **seul `sitemap.xml` a bougé** — le
+piège de la regex qui avait mangé 779 lignes de Capital ne s'est pas
+rejoué.
+
+### Ce qui reste
+
+- **La HDRI pèse 4,2 Mo sur les 6,3.** C'est le ciel qui éclaire la scène
+  (`industrial_sunset_puresky_2k.hdr`). La passer en 1k, ou en `.exr`
+  compressé, diviserait le poids du jeu par deux — mais c'est un arbitrage
+  d'actif du dépôt du jeu, pas du site.
+- **Le jeu TUTOIE, le site VOUVOIE.** « Commence par déplacer le chariot »,
+  « le chariot est ton curseur ». Tout le site est passé au vous depuis la
+  mission `compte-refonte`. C'est une passe éditoriale à faire dans le dépôt
+  du jeu, sur ses centaines de chaînes — hors périmètre ici, mais l'écart
+  s'entend dès la première minute de jeu.
+- Le jeu s'annonce encore « prototype 3D v66 » dans son `<title>` et son
+  écran de préchargement. La page le dit honnêtement (« c'est une première
+  version ») ; si le nom doit changer, c'est côté jeu.
 
 ## Conventions de travail
 

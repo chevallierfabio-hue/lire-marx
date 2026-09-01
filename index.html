@@ -960,12 +960,20 @@ header.topbar.tb-solid .topbar-in{max-width:1180px;margin:0 auto;height:46px;
 .circuit-step b{color:var(--text);font-weight:600;}
 .circuit-node.lit b{transform:scale(1.08);}
 .circuit-node b{transition:color .35s ease,text-shadow .35s ease,transform .35s ease;}
+/* Le jeu est EN LIGNE depuis septembre 2026 : la mention « bientôt » du
+   micro-libellé et le badge « En développement » sont tombés avec sa mise en
+   service — la description de la page le promet dans les résultats de
+   recherche, une page qui le démentirait serait un mensonge. La bande mène
+   maintenant à /jeu, la page qui le présente et le lance : pas droit à
+   /jeu/jouer, parce que le jeu pèse six mégaoctets, réclame un clavier et ne
+   tourne pas sur téléphone — trois choses qu'il faut avoir dites avant. */
 .circuit-soon{margin:clamp(22px,4vh,40px) auto 0;max-width:46ch;
   font-family:'Inter',system-ui,sans-serif;font-size:.82rem;line-height:1.6;color:var(--muted);}
-.circuit-soon-tag{display:inline-block;margin-right:9px;padding:3px 10px;border-radius:999px;
-  font-size:.62rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
-  color:var(--gold);background:rgba(216,173,76,.12);border:1px solid rgba(216,173,76,.28);
-  vertical-align:1px;}
+.circuit-go{display:inline-flex;align-items:center;gap:8px;margin-top:18px;
+  padding:11px 24px;border-radius:999px;background:var(--accent);color:#fff;
+  font-family:'Inter',system-ui,sans-serif;font-size:14px;font-weight:600;
+  text-decoration:none;transition:opacity .18s,transform .18s;}
+.circuit-go:hover{opacity:.86;transform:translateY(-1px);}
 
 /* — épinglage (desktop, hors reduced-motion) — */
 .js-circuit .circuit-pin{height:230vh;}
@@ -1275,7 +1283,7 @@ html.no-motion header.topbar,html.no-motion header.topbar .topbar-in{transition:
         <button type="button" class="circuit-reins-go" id="chariotReinsGo">Prendre les r&ecirc;nes</button>
       </div>
       <div class="circuit-inner">
-        <p class="hs-sec-label">Le jeu · bientôt</p>
+        <p class="hs-sec-label">Le jeu</p>
         <h2 class="hs-sec-h">Le circuit du capital</h2>
         <p class="circuit-intro">Un jeu où vous tenez le rôle du capitaliste : avancer
           l'argent, acheter la force de travail, lancer la production — et voir la
@@ -1303,8 +1311,10 @@ html.no-motion header.topbar,html.no-motion header.topbar .topbar-in{transition:
             vente la réalise en argent. Vous relancez, à plus grande échelle : c'est
             l'accumulation.</p>
         </div>
-        <p class="circuit-soon"><span class="circuit-soon-tag">En développement</span>
-          Annoncé prochainement — la boucle ci-dessus, à faire tourner vous-même.</p>
+        <p class="circuit-soon">La boucle ci-dessus, à faire tourner vous-même&nbsp;:
+          avancer, embaucher, produire, vendre — et lever le voile sur ce qui
+          s'est passé.</p>
+        <a class="circuit-go" href="/jeu">Découvrir le jeu</a>
       </div>
     </section>
     </div>
