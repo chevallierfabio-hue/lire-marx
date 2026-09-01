@@ -42,6 +42,24 @@ header{padding:38px 0 14px;text-align:center;}
 .ws-text dl{margin:10px 0;}.ws-text dd{margin-left:1.4em;color:var(--ink-soft);}
 .ws-text .mw-parser-output>div:first-child:empty{display:none;}
 .ws-text center,.ws-text .center{text-align:center;}
+/* Les formules du texte : du MathML, jamais une image distante (voir
+   mathWS). Elles vivent dans la ligne : pas de bloc centré sauf quand
+   Wikisource l'a demandé. */
+.ws-math{display:inline-block;vertical-align:middle;line-height:1;}
+.ws-math math{color:inherit;}
+.ws-math-block{display:block;text-align:center;margin:12px 0;}
+.ws-text td .ws-math,.ws-text th .ws-math{vertical-align:middle;}
+/* L'accolade des tableaux de la forme-valeur : elle prend la hauteur des
+   lignes qu'elle accole (la cellule porte le rowspan, donc le tracé s'y
+   cale en absolu), et son trait garde son épaisseur malgré l'étirement
+   (vector-effect). --red-deep parce que c'est le token que CHAQUE thème de
+   liseuse redéfinit : 5,1:1 en atelier, 5,7:1 en papier, 9,3:1 en nuit. */
+.ws-brace{display:block;height:100%;min-height:2.4em;width:.72em;margin:0 .25em;color:var(--red-deep);}
+.ws-brace svg{display:block;width:100%;height:100%;}
+.ws-brace-left{transform:scaleX(-1);}
+.ws-text .ws-brace-cell{position:relative;width:1.4em;}
+.ws-text .ws-brace-cell .ws-brace{position:absolute;top:4%;bottom:4%;left:.25em;right:.25em;width:auto;height:auto;min-height:0;margin:0;}
+.ws-text .ws-brace-cell .ws-brace-left{transform:scaleX(-1);}
 
 /* Laboratoire & Dérivation : styles repris */
 /* ── Les strips de stations (troisième niveau) ───────────────────────
@@ -2847,10 +2865,107 @@ ROY_STRUCT.forEach((sec,si)=>{const secNum=si+1;const og=document.createElement(
     o.value=secNum+"|"+num+"|"+title;o.textContent="Ch. "+num+". "+title;og.appendChild(o);});
   sel.appendChild(og);});
 const SECT_CACHE={};
-function cleanWS(raw){const tmp=document.createElement('div');tmp.innerHTML=raw;
+/* Le texte alternatif d'une formule, débarrassé de ses commandes TeX :
+   le dernier recours quand la page ne livre pas de MathML. */
+function texPlain(alt){return (alt||'')
+  .replace(/^\{?\\displaystyle\s*/,'').replace(/\}$/,'')
+  .replace(/\\(?:text|mathrm|scriptstyle|scriptscriptstyle|textstyle|displaystyle)\b/g,'')
+  .replace(/\\frac\s*\{([^{}]*)\}\s*\{([^{}]*)\}/g,'$1 / $2')
+  .replace(/\\acute\s*\{([a-z])\}/gi,'$1')
+  .replace(/\\[a-z]+/gi,' ').replace(/[{}~]/g,' ').replace(/\\;|\\,/g,' ')
+  .replace(/\s+/g,' ').trim();}
+const MSPACE={veryverythinmathspace:'0.0556em',verythinmathspace:'0.1111em',
+  thinmathspace:'0.1667em',mediummathspace:'0.2222em',thickmathspace:'0.2778em',
+  verythickmathspace:'0.3333em',veryverythickmathspace:'0.3889em'};
+/* Wikisource sert les formules sous DEUX formes, et les deux se croisent
+   dans le Livre I :
+   1. une image SVG de wikimedia.org, doublée d'un MathML masqué en ligne
+      (style="display:none") — le gros du livre ;
+   2. du MathML natif, sans image, l'élément <math> portant lui-même la
+      classe mwe-math-element — toute la section VI.
+   Le nettoyage retirait « img » en bloc et laissait le MathML masqué : la
+   formule disparaissait donc ENTIÈREMENT sous la forme 1 — y compris, au
+   chapitre du taux de la plus-value, les égalités qui en sont le propos.
+   On garde partout le MathML et on le démasque : il ne coûte aucune
+   requête, il hérite de la couleur du texte, et c'est de la vraie
+   typographie mathématique. À défaut de MathML, on retombe sur le texte
+   alternatif de l'image, débarrassé de ses commandes TeX. */
+function mathWS(root){
+  root.querySelectorAll('.mwe-math-element').forEach(el=>{
+    if(!el.parentNode)return;                       /* déjà traité (imbrication) */
+    const doc=el.ownerDocument,parent=el.parentNode,next=el.nextSibling;
+    const img=el.matches('img')?el:el.querySelector('img');
+    const alt=img?(img.getAttribute('alt')||''):'';
+    const block=/-display\b/.test(el.className||'')||(img&&/-display\b/.test(img.className||''));
+    const box=doc.createElement('span');
+    box.className='ws-math'+(block?' ws-math-block':'');
+    const m=el.matches('math')?el:el.querySelector('math');
+    if(!m){
+      box.textContent=texPlain(alt);
+      if(!box.textContent)return void el.remove();
+      el.remove();parent.insertBefore(box,next);return;
+    }
+    /* L'annotation TeX part d'abord : les navigateurs qui rendent le
+       MathML l'ignorent, les autres la déverseraient en clair dans la
+       prose — et tant qu'elle est là, le texte du MathML n'est pas
+       lisible pour décider de la suite. */
+    m.querySelectorAll('annotation,annotation-xml').forEach(a=>a.remove());
+    m.removeAttribute('class');
+    m.removeAttribute('style');
+    /* Les accolades des tableaux de la forme-valeur (chapitre I) ne sont
+       pas des formules mais un TRAIT : \left\} posé sur une matrice vide,
+       que Wikisource étire sur toute la hauteur des lignes accolées.
+       Chrome ne met pas en page les <mtable> : la matrice y est haute de
+       zéro et l'accolade ne s'étire sur rien. On la dessine — un tracé qui
+       remplit la cellule, quel que soit son rowspan. */
+    if(/^[\s{}.]*$/.test(m.textContent)){
+      const mo=m.querySelector('mo');
+      box.className='ws-brace'+(mo&&mo.textContent.trim()==='{'?' ws-brace-left':'');
+      box.setAttribute('aria-hidden','true');
+      box.innerHTML='<svg viewBox="0 0 10 100" preserveAspectRatio="none" focusable="false">'
+        +'<path d="M2.2 1 C6.4 1 4.4 18 4.4 31 C4.4 43 7.6 49 9 50 C7.6 51 4.4 57 4.4 69 C4.4 82 6.4 99 2.2 99" '
+        +'fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>';
+      /* La cellule est marquée ICI et non par un `:has()` : c'est elle qui
+         porte le rowspan, donc la hauteur à remplir, et le tracé s'y cale
+         en absolu — une hauteur en pourcentage dans un <td> à hauteur
+         automatique ne se résout pas de façon fiable (mesuré : l'accolade
+         couvrait cinq lignes sur sept). */
+      const cell=el.closest('td,th');
+      if(cell)cell.classList.add('ws-brace-cell');
+      el.remove();parent.insertBefore(box,next);return;
+    }
+    /* Wikisource enveloppe ses formules dans \scriptstyle pour que l'IMAGE
+       tienne dans la ligne : en MathML cela devient un scriptlevel positif,
+       et la formule arrive deux crans trop petite pour la mesure de la
+       liseuse — les fractions du taux de la plus-value y étaient
+       illisibles. On ramène ces enveloppes au niveau du texte ; le
+       rétrécissement propre aux fractions et aux exposants, lui, reste
+       calculé par le rendu. */
+    m.querySelectorAll('mstyle[scriptlevel]').forEach(st=>{
+      if(/^\d+$/.test(st.getAttribute('scriptlevel')||''))st.setAttribute('scriptlevel','0');});
+    /* MathML Core ne connaît plus les espaces NOMMÉES de MathML 3 : un
+       width="thickmathspace" y vaut zéro, et « 3 livres sterling 11
+       shillings » se rendait en un seul mot collé. On les convertit en
+       longueurs. */
+    m.querySelectorAll('mspace[width]').forEach(sp=>{
+      const w=MSPACE[sp.getAttribute('width')];if(w)sp.setAttribute('width',w);});
+    box.appendChild(m);                             /* détache m de l'arbre */
+    parent.insertBefore(box,next);
+    if(el!==m&&el.parentNode)el.remove();
+  });}
+/* Le HTML de Wikisource est parsé dans un document INERTE (DOMParser) et
+   non dans un <div> détaché : un div appartient au document courant, donc
+   lui poser un innerHTML lance IMMÉDIATEMENT le chargement de toutes ses
+   images. Les retirer à la ligne suivante n'annule rien — les requêtes
+   sont parties. Les quarante-neuf formules du Livre I réclamaient ainsi
+   autant de SVG à wikimedia.org, aussitôt avortés : autant d'erreurs en
+   console pour des images qu'on ne voulait pas afficher. Dans un document
+   sans contexte de navigation, aucune ressource n'est chargée. */
+function cleanWS(raw){const tmp=new DOMParser().parseFromString(raw,'text/html').body;
+  mathWS(tmp);
   tmp.querySelectorAll('.mw-editsection,sup.reference,sup[class*="reference"],style,link,.mw-references-wrap,ol.references,.references,.ws-noexport,.noprint,#toc,img,.thumb,.mw-empty-elt,[class*="header"]').forEach(e=>e.remove());
   tmp.querySelectorAll('table').forEach(t=>{if(/[◄►]|biblioth[èe]que libre|section\s*(suivante|pr[ée]c[ée]dente)/i.test(t.textContent))t.remove();});
-  tmp.querySelectorAll('a').forEach(a=>a.replaceWith(document.createTextNode(a.textContent)));
+  tmp.querySelectorAll('a').forEach(a=>a.replaceWith(tmp.ownerDocument.createTextNode(a.textContent)));
   return tmp.innerHTML;}
 async function loadSection(n){
   if(SECT_CACHE[n])return SECT_CACHE[n];

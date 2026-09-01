@@ -2889,6 +2889,65 @@ carnet, Capital, Manuscrits). Chemins réels testés contre Supabase :
 connexion refusée et mot de passe trop court, tous deux en français.
 
 
+## La liseuse et les formules (mission `formules-sans-images`, sept. 2026)
+
+**`cleanWS()` parse dans un document INERTE (`DOMParser`), jamais dans un
+`<div>` détaché.** Un div appartient au document courant : lui poser un
+`innerHTML` lance IMMÉDIATEMENT le chargement de toutes ses images, et le
+`img` retiré à la ligne suivante n'annule rien — les requêtes sont
+parties. Les **quarante-neuf formules du Livre I** réclamaient ainsi
+autant de SVG à `wikimedia.org`, aussitôt avortés : autant d'erreurs en
+console pour des images qu'on ne voulait pas afficher. Les URL, elles,
+étaient parfaitement valides (vérifié : 200) — ne pas partir en chasse
+d'une réécriture de `src`. **Toute future manipulation de HTML distant
+doit passer par DOMParser.**
+
+**Wikisource sert ses formules sous DEUX formes, et les deux se croisent
+dans le Livre I** : (1) une image SVG doublée d'un MathML masqué en ligne
+(`style="display:none"`) — le gros du livre ; (2) du MathML natif sans
+image, l'élément `<math>` portant LUI-MÊME la classe `mwe-math-element` —
+toute la section VI. Un `el.querySelector('math')` ne voit pas la seconde
+et l'aurait supprimée : `el.matches('math')?el:el.querySelector('math')`.
+
+Sous la forme 1, le nettoyage faisait **disparaître la formule
+entièrement** (image retirée, MathML masqué) — y compris, au chapitre du
+taux de la plus-value, les égalités qui en sont le propos. On garde
+partout le MathML et on le démasque (`mathWS`) : aucune requête, la
+couleur du texte, les trois thèmes de liseuse suivis.
+
+Trois corrections sans lesquelles ce MathML n'est pas lisible :
+1. Wikisource enveloppe ses formules dans `\scriptstyle` pour que
+   l'IMAGE tienne dans la ligne → `scriptlevel` positif, formule deux
+   crans trop petite. On ramène ces `mstyle` à `0`.
+2. **MathML Core ne connaît plus les espaces NOMMÉES de MathML 3** : un
+   `width="thickmathspace"` y vaut zéro, et « 3 livres sterling 11
+   shillings » se rendait en un seul mot collé. Table `MSPACE`.
+3. Les accolades des tableaux de la forme-valeur ne sont pas des formules
+   mais un **trait** (`\left\}` sur une matrice vide, étirée par
+   Wikisource sur les lignes accolées). **Chrome ne met pas en page les
+   `<mtable>`** : la matrice y est haute de zéro et l'accolade ne s'étire
+   sur rien. Elle est dessinée (`.ws-brace`, SVG `preserveAspectRatio="none"`
+   + `vector-effect`), calée en absolu sur la cellule qui porte le
+   `rowspan` — **cellule marquée depuis le JS, pas par un `:has()`** :
+   une hauteur en pourcentage dans un `<td>` à hauteur automatique ne se
+   résout pas de façon fiable (mesuré : cinq lignes sur sept). Sa couleur
+   passe par **`--red-deep`**, le seul token rouge que CHAQUE thème de
+   liseuse redéfinit (`--red-text` n'existe pas en sépia).
+
+**Vérifié** : huit sections (zéro requête wikimedia, zéro image, zéro
+`mwe-math-element` restant, zéro scriptlevel positif, zéro espace nommée) ;
+chapitres I (accolades), IX (fractions), XX (MathML natif) et XV (sans
+formule) chargés en vrai, console sans erreur, liseuse et annotations
+montées, zéro débordement horizontal à 1280 et 375 px ; contraste de
+l'accolade 5,12 / 5,74 / 9,26:1 dans les trois thèmes ; `detect.mjs`
+20 constats, 0 erreur (niveau d'avant la mission).
+
+**Piège d'outillage ajouté** : les requêtes d'images avortées n'apparaissent
+PAS dans `read_console_messages` (elles viennent de la pile réseau, pas de
+l'API `console`) — c'est `performance.getEntriesByType('resource')` qui les
+montre. Et une ressource tierce sans `Timing-Allow-Origin` rend toujours
+`responseStatus:0` / `transferSize:0` : ce n'est pas la preuve d'un échec.
+
 ## `capital-1.html` = livre comme les autres
 
 Depuis la sous-mission `retrait-shell-host` (6f), Capital est **un livre
