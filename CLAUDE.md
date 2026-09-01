@@ -3629,21 +3629,44 @@ arrondis. Le liseré or essayé autour du carré a été écarté, il boue à 16
 
 ### Le titre et la description
 
-- Titre : **« Lire Marx — Atelier numérique pour lire Marx »** (formulation
-  du propriétaire, gardée telle quelle).
+- Titre : **« Lire Marx — Le Capital et les Manuscrits, lus et expliqués »**.
 - Description : **« Le Capital et les Manuscrits de 1844 en texte intégral,
-  l'appareil critique en marge du chapitre — et bientôt Le circuit du
-  capital, le jeu de la plus-value. »** — 157 caractères, donc le jeu tient
-  **avant la troncature** de Google (~155-160). Trois rédactions plus riches
+  l'appareil critique en marge du chapitre — et Le circuit du capital, le jeu
+  de la plus-value. »** — 149 caractères, donc le jeu tient **avant la
+  troncature** de Google (~155-160). Trois rédactions plus riches
   (« sans prérequis », le forum, les simulations) ont été mesurées à 169,
   179 et 211 : dans toutes, le jeu passait à la trappe.
-- **Le jeu se dit « bientôt ».** Sa section porte `Le jeu · bientôt` et
-  l'étiquette `En développement` : une description qui le promettrait jouable
-  démentirait la page.
-- La description porte désormais **seule** les deux titres d'œuvres : le
-  nouveau titre ne les nomme plus, or ce sont les requêtes qui amènent.
+- **La description ne dit plus « bientôt »** (arbitrage du propriétaire, qui
+  branche la v1 du jeu). ⚠️ La section du circuit porte encore
+  `Le jeu · bientôt` et le badge `En développement` : les deux doivent tomber
+  le jour où la v1 est en ligne, sinon le résultat Google promet ce que la
+  page dément.
 - `og:title` et `og:description` suivent. `og:image` reste le portrait Mayall
   — pour un partage social, un portrait vaut mieux qu'une pastille.
+
+**Pourquoi ce titre, et pas « Atelier numérique pour lire Marx »** (la
+première formulation, écartée après mesure) :
+
+- **Le titre disposait de 200 px gratuits.** Google coupe vers 600 px (Arial
+  20 px, mesuré au canvas) ; « Lire Marx — Atelier numérique pour lire Marx »
+  n'en occupait que **399**, dont une centaine à répéter la marque que le
+  chercheur vient de lire dans le nom de domaine. Le titre retenu en fait 509.
+- **« Atelier numérique » appartient à Google en France** : *Google Ateliers
+  Numériques*, leur programme de formation depuis 2012 (1 M+ de personnes,
+  400 partenaires). La formule n'apporte donc **aucune visibilité de
+  recherche** — c'est du positionnement, parfait dans un H1 ou un sous-titre,
+  cher dans soixante caractères.
+- **Le vrai terrain** : sur « lire Le Capital texte intégral », les
+  concurrents sont Wikisource, marxists.org, les Classiques de l'UQAC,
+  Gallica, Palim Psao, Internet Archive — **tous du texte brut ou du PDF**. On
+  ne bat pas Wikisource sur le texte ; on gagne le clic sur ce qu'aucun d'eux
+  ne peut écrire, d'où « lus et **expliqués** ».
+- **La marque reste en DEUX MOTS.** « LireMarx » en un seul a été proposé puis
+  écarté : le H1, le brandmark, le `name` de l'`Organization` et les sept
+  autres titres de page disent tous « Lire Marx » (12 occurrences dans
+  l'accueil, 0 en un mot), et c'est cet ancrage cohérent qui sépare le site de
+  l'homonyme `liremarx.noblogs.org` — lequel occupe déjà le terrain sur
+  « par où commencer pour lire Marx ».
 
 ### Le piège : les balises de favicon ont effacé 779 lignes de Capital
 
