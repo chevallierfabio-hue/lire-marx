@@ -491,7 +491,11 @@ a.btn,a.lk,a.cap-btn-dark,a.cap-btn-light,a.cap-btn-outline,a.prog-no-auth-btn{
   gap:0;align-items:start;margin:0;}
 /* La liseuse garde SA mesure (760 px) et se centre dans la colonne : une
    colonne plus large n'est pas une ligne de texte plus longue. */
-.atl3-mid .reader{max-width:760px;margin:0 auto;}
+.atl3-mid .reader{max-width:760px;margin:0 auto;
+  /* Le rembourrage de 54 px de chaque côté était dimensionné pour une
+     liseuse pleine largeur ; dans la colonne il mangeait la barre d'outils
+     et poussait la moitié des boutons sur une troisième rangée. */
+  padding:28px clamp(18px,3vw,34px);}
 .atl3[hidden]{display:none;}
 .atl3-col{position:sticky;top:calc(var(--atl-top) + 14px);
   max-height:calc(100vh - var(--atl-top) - 28px);
@@ -562,12 +566,15 @@ a.btn,a.lk,a.cap-btn-dark,a.cap-btn-light,a.cap-btn-outline,a.prog-no-auth-btn{
 .atl3-m-ch em{font-style:italic;font-weight:600;color:var(--gold);margin-right:6px;}
 .atl3-marge{overflow-y:auto;scrollbar-width:thin;
   scrollbar-color:var(--line-strong) transparent;
-  /* Les pastilles flottantes « Mes notes » / « Notes partagées » se posent
-     en bas à droite du viewport, donc par-dessus le pied de cette colonne.
-     On arrête la colonne AU-DESSUS d'elles : ce qui dépasse défile dans la
-     marge au lieu de passer dessous. Les déplacer, elles, les aurait mises
-     par-dessus le texte — pire échange. */
-  max-height:calc(100vh - var(--atl-top) - 128px);}
+  /* La colonne descend jusqu'en bas de l'écran. Elle s'arrêtait 128 px plus
+     haut pour ne pas passer sous les deux pastilles flottantes — mais
+     depuis que la marge porte elle-même « Mes notes » et « Notes
+     partagées », ces pastilles sont masquées à cette largeur : la place
+     est libre. `height` et pas seulement `max-height` : sur un chapitre à
+     la marge courte, la colonne s'arrêtait au milieu de l'écran et son
+     filet avec elle — on croyait la page finie là. */
+  height:calc(100vh - var(--atl-top) - 18px);
+  max-height:calc(100vh - var(--atl-top) - 18px);}
 .atl3-m-sec{padding:14px 0;border-bottom:1px solid var(--line);}
 .atl3-m-sec:last-child{border-bottom:none;}
 .atl3-m-h{font-family:var(--f-ui);font-size:.72rem;font-weight:700;
@@ -668,7 +675,8 @@ a.btn,a.lk,a.cap-btn-dark,a.cap-btn-light,a.cap-btn-outline,a.prog-no-auth-btn{
      réflexe — elle atterrissait après une section entière de Wikisource,
      soit deux cent mille pixels plus bas : personne ne l'aurait vue. */
   .atl3-toc{grid-column:1;grid-row:1 / span 2;}
-  .atl3-marge{grid-column:2;grid-row:1;position:static;max-height:none;
+  .atl3-marge{grid-column:2;grid-row:1;position:static;
+    height:auto;max-height:none;
     border-left:none;border-bottom:1px solid var(--line);
     padding:16px 0 14px 26px;overflow:visible;}
   .atl3-mid{grid-column:2;grid-row:2;padding-right:0;}
@@ -814,9 +822,34 @@ a.btn,a.lk,a.cap-btn-dark,a.cap-btn-light,a.cap-btn-outline,a.prog-no-auth-btn{
 .atl3-midbar[hidden]{display:none;}
 /* Dans la barre de lecture, il se distingue des six autres outils par l'or
    — c'est un changement de MODE, pas un réglage de plus. */
+/* Le bouton de mode est épinglé À GAUCHE, hors de la rangée qui défile ;
+   les outils de lecture gardent toute leur place à sa droite. Un filet
+   sépare les deux : c'est un changement de MODE, pas un réglage de plus. */
+.atl3-toolhead{display:flex;align-items:flex-start;gap:11px;min-width:0;}
+.atl3-toolhead>.rd-row{flex:1 1 auto;min-width:0;}
+/* La barre de lecture SE REPLIE dans la colonne de l'atelier.
+   reader-tools la tient sur une seule rangée (`nowrap` + défilement
+   horizontal) — décision prise pour une liseuse pleine largeur, où sept
+   boutons se repliaient sur trois rangées. Dans une colonne de cinq cents
+   pixels, la même règle cache quatre outils sur sept derrière un
+   défilement que rien n'annonce : Écouter, En clair, Glossaire et Réglages
+   devenaient introuvables. Deux rangées de coquille valent mieux que la
+   moitié des outils invisibles. Portée à `.atl3-mid` : ailleurs, et en
+   plein écran où la colonne est large, rien ne change — le repli ne joue
+   que s'il manque de la place. */
+.atl3-mid .rd-row{flex-wrap:wrap;overflow-x:visible;row-gap:6px;}
+/* La barre de lecture se bloque SOUS la barre d'onglets, pas dessous elle.
+   reader-tools la colle à 44 px — la hauteur de la seule topbar, ce qui
+   était juste avant que l'atelier n'ajoute sa propre barre collante. Les
+   onglets occupent 44→88 et passent devant (z-index 62 contre 58) : le
+   haut de la barre de lecture, et donc le haut de ses boutons, disparaissait
+   dessous. */
+.atl3-mid .rd-toolbar{top:var(--atl-top);}
 .atl3-full{display:inline-flex;align-items:center;gap:7px;flex:0 0 auto;
   white-space:nowrap;font-size:.78rem;padding:7px 14px;
-  border-color:var(--gold-deep);color:var(--gold);}
+  border-color:var(--gold-deep);color:var(--gold);position:relative;}
+.atl3-toolhead>.atl3-full::after{content:"";position:absolute;right:-6px;
+  top:5px;bottom:5px;width:1px;background:var(--line);}
 .atl3-full:hover{background:var(--gold);color:var(--bg);border-color:var(--gold);}
 .atl3-full[aria-pressed="true"]{background:var(--gold);color:var(--bg);}
 .atl3-full-i{width:14px;height:14px;fill:none;stroke:currentColor;
@@ -864,3 +897,33 @@ body.at-plein .notes-fab{display:inline-flex!important;}
 .atl3-full-exit kbd{font-family:var(--f-ui);font-size:.72rem;
   color:var(--paper);background:rgba(21,16,11,.22);
   border-radius:5px;padding:1px 6px;}
+
+
+
+
+/* ── On voit qu'il y a une suite ────────────────────────────────────────
+   La marge défile pour son propre compte, et rien ne le disait : elle
+   s'arrêtait net en bas de l'écran, comme si le contenu s'arrêtait là.
+   Un voile dégradé ancré au bas de la colonne, plus un chevron — les deux
+   disparaissent quand on a touché le fond. Le voile est `position:sticky`
+   et non un `::after` : un pseudo-élément du conteneur DÉFILERAIT avec le
+   contenu, et se retrouverait au milieu du texte. */
+.atl3-marge-fade{position:sticky;bottom:0;height:62px;margin-top:-62px;
+  pointer-events:none;display:flex;align-items:flex-end;justify-content:center;
+  padding-bottom:5px;opacity:0;transition:opacity .22s;
+  background:linear-gradient(to bottom,rgba(21,16,11,0),var(--paper) 78%);}
+.atl3-marge.is-scrollable .atl3-marge-fade{opacity:1;}
+.atl3-marge.is-scrollable.is-end .atl3-marge-fade{opacity:0;}
+.atl3-marge-fade span{font-family:var(--f-ui);font-size:.72rem;font-weight:600;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--gold-deep);
+  display:inline-flex;align-items:center;gap:6px;}
+.atl3-marge-fade span::after{content:"↓";font-size:.9rem;letter-spacing:0;}
+@media (prefers-reduced-motion:reduce){.atl3-marge-fade{transition:none;}}
+/* La barre de défilement de la colonne se voit, elle aussi. */
+.atl3-marge.is-scrollable{scrollbar-color:var(--gold-deep) transparent;}
+.atl3-marge::-webkit-scrollbar{width:7px;}
+.atl3-marge::-webkit-scrollbar-thumb{background:var(--line-strong);
+  border-radius:4px;}
+.atl3-marge.is-scrollable::-webkit-scrollbar-thumb{background:var(--gold-deep);}
+/* Repliée sous 1240 px, la marge n'a plus de défilement propre. */
+@media (max-width:1240px){.atl3-marge-fade{display:none;}}

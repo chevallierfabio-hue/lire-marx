@@ -597,19 +597,33 @@ mark.anno.flashmk{box-shadow:0 0 0 3px var(--red);}
    constante, sinon la page saute sous le curseur d'un onglet à l'autre
    (le défaut déjà corrigé du temps des deux rangées). Les neuf entrées
    tiennent à 1016 px ; en dessous, la barre défile horizontalement. */
-nav.tabs.worktabs{display:flex;gap:2px;flex-wrap:nowrap;margin:0;
-  justify-content:flex-start;text-align:left;
-  overflow-x:auto;scrollbar-width:none;
+/* LES DEUX DESTINATIONS — un sélecteur segmenté, pas un onglet souligné.
+   À huit onglets, le filet de 2 px sous l'actif suffisait à dire lequel
+   l'était. À deux, il laissait deux mots nus dans le vide et l'état
+   sélectionné se lisait mal. L'actif prend la surface éclairée du socle
+   (dégradé chaud + filet or), l'inactif reste en creux.
+   Ces règles vivent ICI et non dans atelier.css : à spécificité égale, le
+   <style> de la page passe après la feuille commune et gagne — le socle ne
+   pouvait pas les corriger de l'extérieur (piège déjà consigné). */
+nav.tabs.worktabs{display:flex;gap:6px;flex-wrap:nowrap;margin:0;
+  justify-content:flex-start;text-align:left;align-items:center;
+  min-height:44px;overflow-x:auto;scrollbar-width:none;
   background:transparent;border-top:none;
   border-bottom:1px solid var(--line);}
 nav.tabs.worktabs::-webkit-scrollbar{display:none;}
 nav.tabs.worktabs .tab{font-family:var(--f-ui);font-weight:600;
-  font-size:.86rem;color:var(--muted);background:none;border:none;
-  border-bottom:2px solid transparent;padding:11px 11px;cursor:pointer;
-  white-space:nowrap;flex:0 0 auto;
-  transition:color .15s,border-color .15s;}
-nav.tabs.worktabs .tab:hover{color:var(--ink);}
-nav.tabs.worktabs .tab.active{color:var(--ink);border-bottom-color:var(--accent);}
+  font-size:.86rem;color:var(--muted);background:none;
+  border:1px solid transparent;border-radius:999px;
+  padding:7px 17px;cursor:pointer;white-space:nowrap;flex:0 0 auto;
+  transition:color .16s,background .16s,border-color .16s;}
+nav.tabs.worktabs .tab:hover{color:var(--ink);background:var(--hover);}
+nav.tabs.worktabs .tab.active{color:var(--ink);
+  background:linear-gradient(150deg,#2c2117,#211a12,#1b150e);
+  border-color:rgba(216,173,76,.28);}
+/* La pilule EST la marque : le filet d'accent n'a plus lieu d'être. */
+nav.tabs.worktabs .tab.active::after{display:none;}
+nav.tabs.worktabs .tab:focus-visible{outline:2px solid var(--gold);
+  outline-offset:2px;}
 /* Masquer le sous-nav quand "Commencer" (accueil) est actif */
 
 /* ── Onglet "Lire Le Capital" — 2 cartes ── */
@@ -2158,6 +2172,25 @@ const EXPLO_LABELS={'x-coop':'Coopération → machinisme','x-feti':'Le fétichi
   'x-salaire':'La forme-salaire'};
 
 let margeOpen=false, margeNotes=[];
+
+/* La marge défile pour son propre compte : on le DIT (voile + chevron +
+   barre de défilement colorée), et on retire la marque une fois le fond
+   atteint. Mesuré à chaque rendu, à chaque défilement de la colonne et à
+   chaque redimensionnement — le contenu change de hauteur d'un chapitre à
+   l'autre. */
+function margeFade(){
+  const el=document.getElementById('atl3Marge');
+  if(!el)return;
+  const peut=el.scrollHeight>el.clientHeight+4;
+  el.classList.toggle('is-scrollable',peut);
+  el.classList.toggle('is-end',peut&&el.scrollTop+el.clientHeight>=el.scrollHeight-6);
+}
+(function(){
+  const el=document.getElementById('atl3Marge');
+  if(!el)return;
+  el.addEventListener('scroll',margeFade,{passive:true});
+  window.addEventListener('resize',margeFade);
+})();
 function margeSection(k,title,body){
   return '<section class="atl3-m-sec"><h3 class="atl3-m-h">'+k+'</h3>'
     +(title?'<p class="atl3-m-t">'+title+'</p>':'')+body+'</section>';
@@ -2274,8 +2307,10 @@ function renderMarge(){
     const all=(window.SHELL&&SHELL.annotations&&SHELL.annotations.allNotes)?SHELL.annotations.allNotes():[];
     n=all.filter(a=>a.work==='capital'&&+a.section===c.secNum).length;
   }catch(e){}
+  h+='<div class="atl3-marge-fade" aria-hidden="true"><span>Défiler</span></div>';
   el.innerHTML=h;
   el.classList.toggle('is-open',margeOpen);
+  margeFade();
   const mt=document.getElementById('atl3MToggle');
   if(mt)mt.addEventListener('click',()=>{
     margeOpen=!margeOpen;
@@ -2416,9 +2451,24 @@ function installFullBtn(){
   const b=document.createElement('button');
   b.type='button'; b.id='atlFullBtn'; b.className='btn atl3-full';
   b.setAttribute('aria-pressed',pleinEcran()?'true':'false');
-  b.innerHTML=FULL_SVG+' Lecture plein écran';
+  /* « Plein écran » et non « Lecture plein écran » : le libellé long
+     coûtait cinquante-cinq pixels sur une rangée déjà trop courte, et
+     n'apprenait rien de plus — on est dans la barre de la liseuse. */
+  b.innerHTML=FULL_SVG+' Plein écran';
   b.addEventListener('click',()=>setPlein(!pleinEcran()));
-  host.appendChild(b);
+  if(!row){ host.appendChild(b); return; }
+  /* À GAUCHE, et HORS de la zone qui défile.
+     `.rd-row` est en `nowrap` avec défilement horizontal, et dans une
+     colonne de cinq cents pixels elle déborde déjà avec ses sept outils.
+     Ajouté à la fin, le bouton tombait hors champ ; mis en tête DANS la
+     rangée, il poussait quatre outils dehors à sa place. On l'épingle donc
+     à côté de la rangée : il reste visible, et les outils de lecture
+     retrouvent exactement la place qu'ils avaient. */
+  const wrap=document.createElement('div');
+  wrap.className='atl3-toolhead';
+  row.parentNode.insertBefore(wrap,row);
+  wrap.appendChild(b);
+  wrap.appendChild(row);
 }
 (function(){
   installFullBtn();          /* avant tout chargement : le repli suffit */

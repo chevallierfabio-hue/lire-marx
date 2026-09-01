@@ -1085,6 +1085,49 @@ l'était, la valeur était figée en cours de transition. Neutraliser la
 transition (`style.transition='none'`) pour mesurer, et **ne pas
 « corriger » une cascade qui fonctionne**.
 
+### Les finitions de la barre et de la marge (3e passe)
+
+- **La barre de lecture se bloque sous la barre d'onglets**
+  (`.atl3-mid .rd-toolbar{top:var(--atl-top)}`). reader-tools la colle à
+  44 px — la hauteur de la seule topbar, ce qui était juste avant que
+  l'atelier n'ajoute sa propre barre collante. Les onglets occupent 44→88
+  et passent devant (z-index 62 contre 58) : **le haut des boutons de la
+  liseuse disparaissait dessous**, mesuré à six pixels près.
+- **Le bouton de plein écran est épinglé à GAUCHE, hors de la rangée qui
+  défile** (`.atl3-toolhead`). Trois essais avant d'y arriver : à la fin de
+  `.rd-row` il tombait hors champ (la rangée est en `nowrap` avec
+  défilement horizontal) ; en tête DE la rangée il poussait quatre outils
+  dehors à sa place. Il vit donc À CÔTÉ de la rangée, qui garde sa largeur.
+- **La barre de lecture se replie sur deux rangées dans la colonne**
+  (`.atl3-mid .rd-row{flex-wrap:wrap}`). reader-tools la tient sur une
+  seule — décision prise pour une liseuse pleine largeur. Dans une colonne
+  de cinq cents pixels, la même règle cachait **quatre outils sur sept**
+  derrière un défilement que rien n'annonce. Deux rangées valent mieux.
+  Le libellé est passé à « Plein écran » et le rembourrage de `.reader` a
+  été réduit dans la colonne : sans ces deux gains, on tombait à TROIS
+  rangées et 146 px de coquille collante — ce que reader-tools voulait
+  précisément éviter.
+- **La marge descend jusqu'en bas** (`height`, pas seulement `max-height` :
+  sur un chapitre à la marge courte, la colonne s'arrêtait au milieu de
+  l'écran, filet compris, et l'on croyait la page finie là) **et elle dit
+  qu'elle défile** — voile dégradé + chevron, qui s'effacent une fois le
+  fond atteint, plus une barre de défilement colorée. Le voile est en
+  `position:sticky` et **non un `::after`** : un pseudo-élément du
+  conteneur défilerait avec le contenu et se retrouverait au milieu du
+  texte.
+- **Les deux destinations sont un sélecteur segmenté**, plus un onglet
+  souligné : à deux entrées, le filet de 2 px laissait deux mots nus dans
+  le vide. L'actif prend la surface éclairée du socle. La barre garde ses
+  **44 px** (règle déjà posée : une hauteur variable fait sauter la page
+  d'un onglet à l'autre).
+
+**PIÈGE DE CASCADE, revécu** : ces règles d'onglet ont dû être écrites dans
+le `<style>` de la page, PAS dans atelier.css. `nav.tabs.worktabs .tab` y
+existait déjà avec la même spécificité (0,3,1) que
+`body.at-atelier .worktabs .tab` — et le `<style>` de la page passe après la
+feuille commune. Le socle ne pouvait pas les corriger de l'extérieur. On
+corrige à la source, jamais en surenchérissant.
+
 ### Pièges rencontrés — tous vécus, aucun théorique
 
 1. **`atelier-motion.js` observait la CLASSE des panneaux.** Les six
