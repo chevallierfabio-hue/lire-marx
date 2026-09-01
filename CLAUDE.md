@@ -2047,7 +2047,7 @@ l'onglet actif, halos radiaux, capitales des micro-libellés, Fraunces +
 Inter, tirets cadratins. Ce sont des choix de DA documentés plus haut, pas
 des défauts : ne pas les « corriger ».
 Non testé faute d'environnement : lecteur d'écran réel, `forced-colors`,
-et tout ce qui exige une session Supabase authentifiée (modale Contacts,
+et tout ce qui exige une session Supabase authentifiée (page Messages,
 popovers Messages et Notifications — le motif de modale y est identique,
 donc les correctifs de focus s'y appliquent, mais restent à vérifier).
 
@@ -2480,6 +2480,155 @@ pas supprimer ses fichiers.
 inactifs (chemin prévu) ; tout le reste fonctionne.
 
 
+## La page Messages (mission `messages-page`, septembre 2026)
+
+`oeuvres/messages.html` — **le pendant PRIVÉ de la Place publique** : là-bas
+on écrit devant tout le monde, ici à quelqu'un. Elle remplace la modale
+Contacts, **supprimée**.
+
+Diagnostic mesuré avant de toucher au code :
+
+- **La même chose portait DEUX NOMS.** La sidebar disait « Contacts »,
+  l'icône de la barre du haut et son popover disaient « Messages ».
+- **C'était déjà une page déguisée.** Le code s'appelait
+  `renderContactsPage()`, les classes étaient `.cv-*` (« contacts view »),
+  le lien du popover disait littéralement « Ouvrir la page Contacts → » — et
+  cela ouvrait un pavé de 1000 px qui recouvrait tout le viewport, masquant
+  au passage l'entrée de sidebar qui venait de l'ouvrir.
+- **Aucune URL, donc aucun lien profond** vers une conversation, et le
+  bouton retour du navigateur ne servait à rien.
+- **Le bouton d'envoi du popover portait `.btn red`**, qui n'existe que dans
+  `atelier.css` : sur `/index.html` c'était le bouton gris de l'agent
+  utilisateur — le défaut exact corrigé pour Mon compte, encore en place ici.
+- **Aucun piège de focus, aucun `_enterModal`** : le shell les avait pourtant
+  exposés pour cette modale (c'est écrit plus haut), elle ne les a jamais
+  appelés.
+- **Tutoiement** partout, quand tout le reste du site est passé au vous.
+- **On ne pouvait joindre quelqu'un qu'en tapant son pseudo au caractère
+  près.** Aucune découverte : pour un nouveau venu, la messagerie était
+  inutilisable.
+
+**Deux arbitrages du propriétaire au lancement :** une page « Messages »
+(les conversations sont le sujet, les contacts n'en sont que le moyen), et
+la découverte des lecteurs **depuis l'activité publique**.
+
+### Le partage des rôles
+
+**`shell-social.js` possède les données, le realtime et le popover ; la page
+ne fait que rendre.** C'est le motif de `SHELL.annotations` avec « Mon
+carnet » : la page ne parle JAMAIS à Supabase pour la messagerie. Elle
+consomme `SHELL.social.dm` :
+
+```
+dm.status()      → {configured, signedIn, named, ready}  (pour dire POURQUOI c'est vide)
+dm.contacts()    → [{id, username, avatar, last, unread}]
+dm.convo()       dm.messages()   dm.me()   dm.myName()
+dm.open(id,nom)  dm.close()  dm.send(txt)  dm.add(pseudo)  dm.refresh()
+dm.suggestions() → les lecteurs de la Place publique, moins mes contacts
+dm.onChange(cb)  → rappelé à CHAQUE changement de données
+dm.ago/ava/esc/toast — les petits outils, pour que la page n'en redéclare pas
+```
+
+`emitDM()` remplace les huit `if(modalVisible()) renderContactsPage()` qui
+parsemaient le module, et le paramètre `surface` ('pop' | 'page') des
+fonctions d'écriture a disparu avec eux.
+
+### La règle qui commande le rendu
+
+**Le squelette est écrit une fois dans le HTML et n'est jamais réécrit.**
+Seuls quatre fragments se redessinent : la liste, les suggestions, l'en-tête
+du fil, les bulles. **Le composeur est un nœud permanent** — un `innerHTML`
+sur son conteneur effacerait le message en cours de frappe à chaque tick du
+polling de 15 s ou à chaque message reçu. Vérifié à la mesure : on tape, un
+rafraîchissement passe, le texte est toujours là et c'est le même nœud.
+
+**Le fil s'AJOUTE, il ne se réécrit pas** (`seenIds`). Trois raisons, toutes
+vécues ailleurs : une région `aria-live` réécrite en entier **relit tout le
+fil** à chaque message ; un `innerHTML` remet le défilement en haut, donc
+**arrache la lecture d'un vieux message** au moindre tick ; et le nœud du
+composeur ne doit pas être détruit. On ne défile en bas que si l'on y était
+déjà — et comme un message peut alors arriver hors du champ sans que rien ne
+le dise, une pastille **« Nouveau message ↓ »** apparaît (c'est le corollaire
+obligatoire de ne pas défiler d'office).
+
+### Deux pièges rencontrés, tous deux vécus
+
+1. **`display:grid` / `display:flex` BAT `[hidden]{display:none}`** — la
+   règle de l'agent utilisateur n'a qu'une spécificité d'attribut. Masquer
+   `.mg-cols` ne la masquait donc pas : le rail s'affichait sous l'écran
+   d'accueil, et ses contrôles restaient dans le parcours de tabulation. Il
+   faut `.mg-cols[hidden],.mg-pane[hidden],.mg-thread-pane[hidden]{display:none}`.
+   **Tout conteneur à qui l'on donne un `display` et que l'on masque par
+   `hidden` a besoin de cette ligne.**
+2. **`SHELL.auth.isConfigured()` rend `false` tant que l'import Supabase n'a
+   pas abouti**, ce qui est indiscernable d'un vrai « pas de clés ». Au
+   premier rendu, la page annonçait donc « Messagerie indisponible » sur un
+   site parfaitement configuré. Elle attend maintenant que `SHELL.auth` ait
+   parlé (`authSettled`, posé au SECOND rappel d'`onChange` — le premier est
+   immédiat et arrive avant `getSession`), avec un filet de 2,5 s. Même
+   précaution que la modale Mon compte avec `configured === null`.
+
+### Les détails qui font la page
+
+- **Deep-link `#c=<pseudo>`** (pushState + popstate) : une conversation a une
+  adresse, et le bouton retour ramène à la liste. C'est le contrat de la
+  Place publique (`#d=<id>`). Un lien profond n'est résoluble qu'une fois les
+  contacts chargés : il n'est consommé qu'au premier rendu qui en dispose, et
+  si le pseudo n'est pas dans mes conversations on tente de l'ajouter.
+- **La découverte** lit `public_notes` (auteur + profil), retire moi-même et
+  mes contacts, et en garde douze. **Aucune table ni policy nouvelle** — rien
+  de plus que ce que le forum montre déjà. Le brut est mis en cache mais le
+  filtrage se refait à chaque appel, sinon un contact ajouté après le fetch
+  resterait proposé.
+- **Séparateurs de jour** (Aujourd'hui / Hier / le jour de la semaine / la
+  date) et heure sous chaque bulle.
+- **Sous 900 px, une conversation prend l'écran** (`body.mg-convo`) et le
+  lede de la page s'efface : empilées, les deux colonnes obligeaient à
+  passer toute la liste avant de lire la réponse.
+- **`--const` ne tient pas sur la bulle rouge** (4,26:1 mesuré) : l'heure
+  passe à `--ink-soft`. Même famille d'erreur que `--red-text` sur un fond
+  déjà teinté, notée pour Mon compte.
+
+### Ce qui a été supprimé
+
+- La modale `#contactsModal` et tout `renderContactsPage` /
+  `modalVisible` / `closeContacts` / `avatarOf`.
+- Les `.ct-*` et `.cv-*` de `shell.css`, remplacés par **`.msg-send`** — le
+  bouton pilule que le popover n'avait pas.
+- Dans `capital-1.html` : les blocs `socCss4`, `socCss5`, `socCss6`, la
+  moitié `.cv-*` de `socCss2` et de `socCss7`, et la section
+  **`#contactsView`** — vide, masquée en dur et peuplée par plus rien depuis
+  que Capital consomme `SHELL.social` (6f).
+- L'entrée de sidebar `data-act="contacts"` devient `data-act="messages"` et
+  mène à la page ; `SHELL.social.showContacts()` est conservé sous son nom
+  (c'est l'API que shell.js appelle) mais **navigue** au lieu d'ouvrir une
+  modale, et ne fait rien si l'on y est déjà. La sidebar a la même garde :
+  recharger la page rouvrirait la conversation à zéro.
+
+### Vérifié
+
+Sonde de contraste sur le rendu : **0 échec** sur cinq états (conversation,
+liste vide, pastille de nouveau message, déconnecté, sans pseudo), minimum
+**4,56:1** — le blanc sur rouge de la pastille de non-lus, valeur maison.
+Aucun texte sous 11,4 px à l'écran, aucune cible sous 24 × 24. Détecteur
+statique : **0 erreur** (9 constats, tous de la famille de DA documentée).
+Testé à 1280 et 375 px, **zéro débordement horizontal**. Éprouvé : clic dans
+le rail → hash écrit ; retour navigateur → liste ; arrivée directe sur
+`#c=<pseudo>` → conversation ouverte ; frappe qui survit à un rafraîchissement
+(même nœud) ; 30 messages sans doublon après plusieurs `emitDM` ; défilement
+tenu en haut quand un message arrive, pastille affichée. Sidebar marquée sur
+la page, popover qui mène à la page, et aucune exception JS sur les six pages
+qui chargent le shell.
+
+**Découverte validée en vrai** : la liste des lecteurs proposés est revenue
+peuplée depuis la base de production (avec leurs photos de profil).
+
+**Défaut ANTÉRIEUR relevé au passage, hors périmètre** : le chargement d'une
+section du texte intégral produit une cinquantaine d'erreurs 400 — les images
+de formules mathématiques venant de `wikimedia.org/api/rest_v1/media/math/
+render/svg/…`. Constaté identique à HEAD.
+
+
 ## Shell partagé : atelier.css + shell.css + shell.js (+ shell-social.js)
 
 Toutes les pages (bibliothèque comme livres) partagent :
@@ -2492,8 +2641,8 @@ Toutes les pages (bibliothèque comme livres) partagent :
   page individuelle.
 - `oeuvres/shell.css` — coquille visuelle (topbar 44 px sticky avec
   brandmark/recherche/compte, sidebar 208 px avec Bibliothèque/Place
-  publique/Contacts/CGU/sb-work, modales compte/RGPD/Place
-  publique/Contacts, popover messages, toast).
+  publique/Mon carnet/Messages/CGU/sb-work, modales compte/RGPD,
+  popover messages, toast).
 - `oeuvres/shell.js` — injection DOM + comportements minimaux. Expose
   `installShell({workId, workTitle, tabs:[{id, label}…]})`. Une page de
   livre l'appelle avec ses onglets ; shell.js câble alors le sb-work pour
@@ -2600,7 +2749,7 @@ dans `public_notes` (avec `before/quote/after`). La modération
 (deep-link au passage) et le profil membre cliquable (notes publiques
 + « aller au passage ») partagent le même contrat de deep-link et
 sortiront avec la mission annotations. En attendant, le bouton
-« Voir le profil » est masqué dans la modale Contacts, et un clic sur
+« Voir le profil » n'existe pas encore sur la page Messages, et un clic sur
 une notification ouvrira la page de l'œuvre sans surligner le passage
 exact.
 

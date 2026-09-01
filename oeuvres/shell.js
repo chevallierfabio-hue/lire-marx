@@ -93,7 +93,11 @@
            les notes partagées, ici les vôtres — d'où sa place juste en
            dessous. */
         '<button class="sb-item" type="button" data-act="carnet"><span class="sb-dot" style="background:var(--gold)"></span>Mon carnet</button>' +
-        '<button class="sb-item" type="button" data-act="contacts"><span class="sb-dot" style="background:var(--blue)"></span>Contacts</button>' +
+        /* « Messages », et non « Contacts » : la même chose portait deux
+           noms — l'icône de la barre du haut et son popover disent
+           « Messages » depuis toujours. C'est le pendant PRIVÉ de la Place
+           publique, comme « Mon carnet » l'est pour les notes. */
+        '<button class="sb-item" type="button" data-act="messages"><span class="sb-dot" style="background:var(--blue)"></span>Messages</button>' +
         '<button class="sb-item sb-soon" type="button" disabled><span class="sb-dot" style="background:var(--gold)"></span>Jeux<span class="sb-soon-tag">à venir</span></button>' +
         '<button class="sb-item sb-soon" type="button" disabled><span class="sb-dot" style="background:var(--blue)"></span>À propos<span class="sb-soon-tag">à venir</span></button>' +
         '<button class="sb-item" type="button" data-act="cgu"><span class="sb-dot" style="background:var(--ink-soft)"></span>CGU &amp; règles</button>' +
@@ -194,6 +198,8 @@
     if(/\/place-publique$/.test(here)) mark(communeBtn);
     var carnetBtn = sb.querySelector('[data-act="carnet"]');
     if(/\/carnet$/.test(here)) mark(carnetBtn);
+    var msgBtnSb = sb.querySelector('[data-act="messages"]');
+    if(/\/messages$/.test(here)) mark(msgBtnSb);
 
     // Items de navigation inter-pages
     sb.querySelectorAll('.sb-item[data-act]').forEach(function(b){
@@ -228,14 +234,17 @@
           }
           return;
         }
-        // Contacts : modale messagerie de SHELL.social (shell-social.js).
-        if(act === 'contacts'){
+        // Messages : page dédiée (oeuvres/messages.html) depuis la mission
+        // `messages-page`. La modale Contacts n'existe plus.
+        if(act === 'messages'){
           if(window.matchMedia('(max-width:860px)').matches){
             document.body.classList.remove('sb-open');
           }
-          if(window.SHELL && window.SHELL.social && window.SHELL.social.showContacts){
-            window.SHELL.social.showContacts();
-          }
+          /* Ne pas recharger la page qu'on regarde : sur Messages, un
+             rechargement referme la conversation ouverte. (Les URL propres
+             de Cloudflare font que les deux formes doivent être testées.) */
+          if(/\/oeuvres\/messages(\.html)?$/.test(location.pathname)) return;
+          location.href = '/oeuvres/messages.html';
           return;
         }
       });

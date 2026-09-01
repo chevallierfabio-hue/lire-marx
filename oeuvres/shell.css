@@ -355,24 +355,16 @@
 .msg-poplink{display:block;width:100%;text-align:center;margin-top:8px;font-family:'Fraunces',serif;font-weight:600;font-size:.8rem;color:var(--red-deep);background:transparent;border:0;border-top:1px solid var(--line-soft);padding-top:9px;cursor:pointer;}
 .msg-poplink:hover{color:var(--red-text,#e5644f);}
 
-/* Modale Contacts plein écran (#contactsModal) — enfant direct de body, deux panneaux. */
-.ct-modal{position:fixed;inset:0;z-index:150;background:rgba(28,20,14,.46);display:flex;align-items:flex-start;justify-content:center;padding:4vh 16px 16px;overflow:auto;}
-.ct-modal[hidden]{display:none;}
-.ct-modal-box{position:relative;width:100%;max-width:1000px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:22px 24px 18px;box-shadow:0 24px 60px rgba(0,0,0,.25);}
-.ct-modal-x{position:absolute;top:-12px;right:-12px;z-index:1;width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:1.4rem;line-height:1;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.2);}
-.ct-modal-x:hover{border-color:var(--red);color:var(--red-text,#e5644f);}
-.ct-modal-body{max-height:84vh;overflow:auto;}
-.cv-head{font-family:'Fraunces',serif;font-weight:900;font-size:1.6rem;color:var(--ink);margin:0 0 4px;}
-.cv-sub{font-family:'Spectral',Georgia,serif;font-style:italic;color:var(--ink-soft);margin:0 0 16px;}
-.cv-grid{display:grid;grid-template-columns:300px 1fr;gap:18px;align-items:start;}
-.cv-pane{border:1px solid var(--line);border-radius:13px;background:var(--paper);padding:14px;}
-.cv-left{min-height:50vh;}
-.cv-right{min-height:50vh;display:flex;flex-direction:column;}
-.cv-right .msg-thread{flex:1;min-height:280px;}
-.cv-ph{margin:auto;color:var(--const);font-family:var(--f-ui);font-size:.9rem;text-align:center;padding:40px 14px;line-height:1.6;}
-.cv-rowbtns{display:flex;gap:9px;align-items:center;margin-bottom:10px;}
-.cv-conv-h{margin:0;font-family:'Fraunces',serif;font-size:1.1rem;color:var(--ink);}
-@media(max-width:760px){.cv-grid{grid-template-columns:1fr;}.cv-left,.cv-right{min-height:0;}.cv-right .msg-thread{min-height:260px;}.ct-modal{padding:2vh 8px 8px;}.ct-modal-box{padding:18px 14px 12px;}}
+/* La modale Contacts (#contactsModal, .ct-* / .cv-*) a été SUPPRIMÉE :
+   la messagerie a sa page, oeuvres/messages.html (mission `messages-page`,
+   septembre 2026). Ce qui reste ici, ce sont les .msg-* du POPOVER de la
+   barre du haut, la seule surface que le module rende encore lui-même. */
+/* Le bouton d'envoi du popover portait `.btn red`, qui n'existe QUE dans
+   atelier.css : sur /index.html il retombait donc sur le bouton gris de
+   l'agent utilisateur. Le shell a maintenant le sien. */
+.msg-send{flex:0 0 auto;font-family:var(--f-ui);font-weight:600;font-size:.8rem;line-height:1;min-height:34px;padding:9px 14px;border-radius:999px;cursor:pointer;border:1px solid var(--ink);background:var(--ink);color:var(--paper);transition:background .16s,border-color .16s;}
+.msg-send:hover{background:var(--gold);border-color:var(--gold);color:#1a130c;}
+.msg-send:disabled{opacity:.5;cursor:default;}
 
 /* Notifications (popover notifBtn) — rendu des éléments .nt-* (item, top,
    who/kind/when, snippet, meta). Avant 6c, ce CSS vivait inline dans

@@ -18,10 +18,20 @@
 // la sous-mission 4b dans ce même fichier. Depuis 6f le notifBtn est
 // entièrement géré par SHELL.social — plus de redirection.
 //
+// LA MESSAGERIE A SA PAGE depuis septembre 2026 (mission `messages-page`) :
+// oeuvres/messages.html. La modale Contacts a été SUPPRIMÉE — elle était
+// déjà une page déguisée (renderContactsPage, classes .cv-* pour « contacts
+// view », un pavé de 1000 px qui recouvrait tout le viewport, et un lien de
+// popover qui disait « Ouvrir la page Contacts → »).
+//
+// Le partage des rôles est celui de SHELL.annotations avec « Mon carnet » :
+// CE MODULE possède les données, le realtime et le popover de la barre du
+// haut ; la page ne fait que rendre, et s'abonne via SHELL.social.dm.
+// Elle ne parle jamais à Supabase pour la messagerie.
+//
 // Profil membre cliquable + saut précis dans la liseuse : différés à
 // la mission annotations (contrat de deep-link commun avec
-// SHELL.commune). Le bouton « Voir le profil » est masqué dans cette
-// version de la modale Contacts.
+// SHELL.commune).
 
 (function(){
   var SHELL = window.SHELL = window.SHELL || {};
@@ -38,8 +48,8 @@
   var dmChannel = null;          // canal realtime supabase
   var socPoll = null;            // setInterval de secours
   var msgPop = null;             // popover #msgBtn (.tb-pop.msg-pop)
-  var modalEl = null;            // #contactsModal
-  var bodyEl = null;             // corps scrollable de la modale
+  var dmSubs = [];               // abonnés de SHELL.social.dm (la page Messages)
+  var sugRaw = null;             // cache des lecteurs à suggérer
   var initialized = false;
   // notifications (sous-mission 4b)
   var notifItems = [];           // [{id, kind:'reply'|'mention', work, section, who, snip, created}]
@@ -86,21 +96,25 @@
     if(url) return '<img class="ava-img" src="' + esc(url) + '" alt="">' + ini;
     return ini;
   }
-  function avatarOf(id){
-    for(var i = 0; i < socContacts.length; i++){
-      if(socContacts[i].id === id) return socContacts[i].avatar || '';
-    }
-    return '';
-  }
-
   function socClosePops(except){
     document.querySelectorAll('.tb-pop').forEach(function(p){ if(p !== except) p.hidden = true; });
   }
   function socReady(){
     return !!(sb && user && profile && profile.username);
   }
-  function modalVisible(){
-    return !!(modalEl && !modalEl.hidden);
+  /* Les surfaces qui affichent la messagerie s'abonnent ici. Le module
+     possède les données et le realtime ; la page Messages ne fait que se
+     redessiner quand on la prévient. Même motif que SHELL.annotations avec
+     « Mon carnet ». */
+  function emitDM(){
+    for(var i = 0; i < dmSubs.length; i++){ try { dmSubs[i](); } catch(e){} }
+  }
+  /* Cloudflare Pages sert des URL PROPRES : la page vit à /oeuvres/messages,
+     pas seulement /oeuvres/messages.html. Le test doit couvrir les deux —
+     le piège déjà documenté pour le marquage de la sidebar. */
+  var MSG_URL = '/oeuvres/messages.html';
+  function onMessagesPage(){
+    return /\/oeuvres\/messages(\.html)?$/.test(location.pathname);
   }
 
   // ----- toast flottant -----
@@ -162,44 +176,13 @@
     try { localStorage.setItem(notifSeenKey(), String(ts || Date.now())); } catch(e){}
   }
 
-  // ----- modale Contacts -----
-  function ensureModal(){
-    if(modalEl) return modalEl;
-    modalEl = document.getElementById('contactsModal');
-    if(modalEl){ bodyEl = modalEl.querySelector('#contactsBody'); return modalEl; }
-    var el = document.createElement('div');
-    el.id = 'contactsModal';
-    el.className = 'ct-modal';
-    el.hidden = true;
-    el.innerHTML = ''
-      + '<div class="ct-modal-box" role="dialog" aria-modal="true" aria-label="Contacts">'
-      +   '<button class="ct-modal-x" type="button" aria-label="Fermer">&times;</button>'
-      +   '<div class="ct-modal-body" id="contactsBody"></div>'
-      + '</div>';
-    document.body.appendChild(el);
-    modalEl = el;
-    bodyEl = el.querySelector('#contactsBody');
-    el.addEventListener('click', function(e){ if(e.target === el) closeContacts(); });
-    el.querySelector('.ct-modal-x').addEventListener('click', closeContacts);
-    return modalEl;
-  }
-
+  // ----- la messagerie a sa page -----
+  /* Conservé sous son ancien nom : c'est l'API que shell.js appelle depuis
+     l'entrée de sidebar. Elle ne montre plus une modale, elle mène à la
+     page — et ne fait rien si l'on y est déjà. */
   function showContacts(){
-    ensureModal();
-    socConvo = null;
-    modalEl.hidden = false;
-    document.body.style.overflow = 'hidden';
-    renderContactsPage();
-    loadContacts().then(function(){ if(!socConvo) renderContactsPage(); });
-    refreshDM();
-    if(window.matchMedia('(max-width:860px)').matches){
-      document.body.classList.remove('sb-open');
-    }
-  }
-  function closeContacts(){
-    if(!modalEl) return;
-    modalEl.hidden = true;
-    document.body.style.overflow = '';
+    if(onMessagesPage()) return;
+    location.href = MSG_URL;
   }
 
   // ----- ouverture de la modale Mon compte (passerelle vers SHELL.auth) -----
@@ -237,6 +220,7 @@
         return tb - ta || a.username.localeCompare(b.username);
       });
     } catch(e){ /* silencieux */ }
+    emitDM();
   }
 
   async function refreshDM(){
@@ -249,7 +233,7 @@
     } catch(e){}
     updateMsgDot();
     if(msgPop && !msgPop.hidden && !socConvo) renderMsgPop();
-    if(modalVisible() && !socConvo) renderContactsPage();
+    emitDM();
   }
 
   function updateMsgDot(){
@@ -260,21 +244,34 @@
     d.style.display = n > 0 ? 'block' : 'none';
   }
 
-  async function addContact(name, surface){
-    if(!socReady()){ toast('Choisis d\'abord un pseudo (Mon compte).'); return; }
+  /* Renvoie un résultat en plus de lever un toast : le popover se contente
+     du toast, la page Messages veut savoir qui elle vient d'ajouter pour
+     ouvrir la conversation dans la foulée. */
+  async function addContact(name){
+    if(!socReady()) { toast('Choisissez d’abord un pseudo (Mon compte).'); return { ok:false, msg:'pseudo' }; }
     name = (name || '').trim();
     if(name.charAt(0) === '@') name = name.slice(1);
-    if(!name) return;
-    if(name.toLowerCase() === String(profile.username || '').toLowerCase()){ toast('C\'est toi !'); return; }
+    if(!name) return { ok:false, msg:'vide' };
+    if(name.toLowerCase() === String(profile.username || '').toLowerCase()){
+      toast('C’est vous !'); return { ok:false, msg:'moi' };
+    }
     try {
       var pr = await sb.from('profiles').select('id,username').eq('username', name).maybeSingle();
-      if(pr.error || !pr.data){ toast('Aucun membre nommé « ' + name + ' ».'); return; }
+      if(pr.error || !pr.data){
+        var m = 'Aucun lecteur nommé « ' + name + ' ».';
+        toast(m); return { ok:false, msg:m };
+      }
       var res = await sb.from('contacts').upsert({ user_id: user.id, contact_id: pr.data.id });
-      if(res.error){ toast('Contact : ' + res.error.message); return; }
-      toast(pr.data.username + ' ajouté à tes contacts.');
+      if(res.error){ toast('Contact : ' + res.error.message); return { ok:false, msg:res.error.message }; }
+      toast(pr.data.username + ' rejoint vos conversations.');
+      sugRaw = null;
       await loadContacts();
-      if(surface === 'page') renderContactsPage(); else renderMsgPop();
-    } catch(e){ toast('Contact : ' + ((e && e.message) || e)); }
+      renderMsgPop();
+      return { ok:true, id: pr.data.id, username: pr.data.username };
+    } catch(e){
+      var em = (e && e.message) || String(e);
+      toast('Contact : ' + em); return { ok:false, msg:em };
+    }
   }
 
   async function loadConvo(){
@@ -290,33 +287,75 @@
         .eq('recipient_id', me).eq('sender_id', them).is('read_at', null)
         .then(function(){ refreshDM(); });
     } catch(e){}
+    emitDM();
   }
 
-  async function sendMsg(text, surface){
-    if(!sb || !user || !socConvo) return;
+  async function sendMsg(text){
+    if(!sb || !user || !socConvo) return { ok:false };
     text = (text || '').trim();
-    if(!text) return;
+    if(!text) return { ok:false };
     var row = { id: uid(), sender_id: user.id, recipient_id: socConvo.id, body: text, created: Date.now(), read_at: null };
     try {
       var res = await sb.from('direct_messages').insert(row);
-      if(res.error){ toast('Envoi : ' + res.error.message); return; }
+      if(res.error){ toast('Envoi : ' + res.error.message); return { ok:false, msg:res.error.message }; }
       socMsgs.push(row);
-      if(surface === 'page') renderContactsPage(); else renderMsgPop();
-    } catch(e){ toast('Envoi : ' + ((e && e.message) || e)); }
+      renderMsgPop();
+      emitDM();
+      return { ok:true };
+    } catch(e){
+      var em = (e && e.message) || String(e);
+      toast('Envoi : ' + em); return { ok:false, msg:em };
+    }
   }
 
-  async function openConvo(id, uname, surface){
+  async function openConvo(id, uname){
     socConvo = { id: id, username: uname };
     socMsgs = [];
-    if(surface === 'page') renderContactsPage(); else renderMsgPop();
+    renderMsgPop();
+    emitDM();
     await loadConvo();
-    if(surface === 'page') renderContactsPage(); else renderMsgPop();
+    renderMsgPop();
+  }
+  function closeConvo(){
+    socConvo = null; socMsgs = [];
+    renderMsgPop();
+    emitDM();
+  }
+
+  /* Découverte des lecteurs. Sans elle on ne peut joindre quelqu'un qu'en
+     tapant son pseudo au caractère près, ce qui rend la messagerie
+     inutilisable pour un nouveau venu. Les lecteurs proposés sont ceux qui
+     ont ÉCRIT SUR LA PLACE PUBLIQUE : rien de plus que ce que le forum
+     montre déjà, et aucune table ni policy nouvelle à rejouer.
+     Le brut est mis en cache, le filtrage se refait à chaque appel — sinon
+     un contact ajouté après le fetch resterait proposé. */
+  async function suggestions(){
+    if(!socReady()) return [];
+    if(!sugRaw){
+      try {
+        var r = await sb.from('public_notes')
+          .select('author_id,created,profiles(username,avatar_url)')
+          .eq('hidden', false).order('created', { ascending: false }).limit(200);
+        if(r.error) return [];
+        var seen = {}, out = [];
+        (r.data || []).forEach(function(n){
+          var id = n.author_id, pr = n.profiles || {};
+          if(!id || id === user.id || seen[id] || !pr.username) return;
+          seen[id] = 1;
+          out.push({ id: id, username: pr.username, avatar: pr.avatar_url || '', last: +n.created || 0 });
+        });
+        sugRaw = out;
+      } catch(e){ return []; }
+    }
+    var known = {};
+    socContacts.forEach(function(c){ known[c.id] = 1; });
+    return sugRaw.filter(function(x){ return !known[x.id]; }).slice(0, 12);
   }
 
   // ----- rendu : popover msgPop -----
   function bubblesHtml(){
     var me = user ? user.id : null, h = '';
-    if(!socMsgs.length) h += '<div class="msg-empty">Aucun message. Écris le premier !</div>';
+    if(!socMsgs.length) h += '<div class="msg-empty">Aucun message. Écrivez le premier.</div>';
     else socMsgs.forEach(function(m){
       var mine = m.sender_id === me;
       h += '<div class="msg-b ' + (mine ? 'me' : 'them') + '">' + esc(m.body)
@@ -325,7 +364,7 @@
     return h;
   }
   function contactListHtml(activeId){
-    if(!socContacts.length) return '<div class="msg-empty">Aucune conversation. Ajoute un contact par son pseudo.</div>';
+    if(!socContacts.length) return '<div class="msg-empty">Aucune conversation pour l’instant.</div>';
     var h = '';
     socContacts.forEach(function(c, i){
       var ub = socUnreadBy[c.id] || 0;
@@ -347,90 +386,42 @@
       return;
     }
     if(!user){
-      msgPop.innerHTML = '<div class="tb-pop-h">Messages</div><div class="msg-state">Connecte-toi pour échanger des messages privés.</div><a class="tb-pop-cta" data-soc="login" href="#">Se connecter</a>';
+      msgPop.innerHTML = '<div class="tb-pop-h">Messages</div><div class="msg-state">Connectez-vous pour échanger des messages privés.</div><a class="tb-pop-cta" data-soc="login" href="#">Se connecter</a>';
       var lb = msgPop.querySelector('[data-soc="login"]');
       if(lb) lb.onclick = function(e){ e.preventDefault(); socClosePops(null); openAcctModal(); };
       return;
     }
     if(!(profile && profile.username)){
-      msgPop.innerHTML = '<div class="tb-pop-h">Messages</div><div class="msg-state">Choisis un pseudo (Mon compte) pour la messagerie.</div>';
+      msgPop.innerHTML = '<div class="tb-pop-h">Messages</div><div class="msg-state">Choisissez un pseudo (Mon compte) pour la messagerie.</div>';
       return;
     }
     var h;
     if(socConvo){
       h = '<div class="msg-head"><button class="msg-back" data-back="1" type="button" aria-label="Retour">‹</button><h3>' + esc(socConvo.username) + '</h3></div>'
         + '<div class="msg-thread" id="popThread">' + bubblesHtml() + '</div>'
-        + '<div class="msg-compose"><textarea id="popIn" aria-label="Votre message" placeholder="Ton message…"></textarea><button class="btn red" data-send="1" type="button">Envoyer</button></div>';
+        + '<div class="msg-compose"><textarea id="popIn" aria-label="Votre message" placeholder="Votre message…"></textarea><button class="msg-send" data-send="1" type="button">Envoyer</button></div>';
     } else {
       h = '<div class="tb-pop-h">Messages</div>'
-        + '<div class="msg-add"><input id="popAddIn" type="text" autocomplete="off" placeholder="Ajouter (pseudo)…" /><button class="btn red" data-add="1" type="button">+</button></div>'
+        + '<div class="msg-add"><input id="popAddIn" type="text" autocomplete="off" placeholder="Écrire à (pseudo)…" /><button class="msg-send" data-add="1" type="button" aria-label="Ajouter ce lecteur">+</button></div>'
         + '<div class="msg-list">' + contactListHtml(null) + '</div>'
-        + '<button class="msg-poplink" data-full="1" type="button">Ouvrir la page Contacts →</button>';
+        + '<button class="msg-poplink" data-full="1" type="button">Toutes les conversations →</button>';
     }
     msgPop.innerHTML = h;
     var th = msgPop.querySelector('#popThread'); if(th) th.scrollTop = th.scrollHeight;
     var back = msgPop.querySelector('[data-back]');
-    if(back) back.onclick = function(){ socConvo = null; loadContacts().then(renderMsgPop); renderMsgPop(); };
+    if(back) back.onclick = function(){ closeConvo(); loadContacts().then(renderMsgPop); };
     var addIn = msgPop.querySelector('#popAddIn'), addB = msgPop.querySelector('[data-add]');
-    if(addB) addB.onclick = function(){ addContact(addIn ? addIn.value : '', 'pop'); if(addIn) addIn.value = ''; };
-    if(addIn) addIn.onkeydown = function(e){ if(e.key === 'Enter'){ e.preventDefault(); addContact(addIn.value, 'pop'); addIn.value = ''; } };
+    if(addB) addB.onclick = function(){ addContact(addIn ? addIn.value : ''); if(addIn) addIn.value = ''; };
+    if(addIn) addIn.onkeydown = function(e){ if(e.key === 'Enter'){ e.preventDefault(); addContact(addIn.value); addIn.value = ''; } };
     msgPop.querySelectorAll('[data-ci]').forEach(function(b){
-      b.onclick = function(){ var c = socContacts[+b.dataset.ci]; if(c) openConvo(c.id, c.username, 'pop'); };
+      b.onclick = function(){ var c = socContacts[+b.dataset.ci]; if(c) openConvo(c.id, c.username); };
     });
     var ta = msgPop.querySelector('#popIn'), sd = msgPop.querySelector('[data-send]');
-    function go(){ var v = ta ? ta.value : ''; if(ta) ta.value = ''; sendMsg(v, 'pop'); }
+    function go(){ var v = ta ? ta.value : ''; if(ta) ta.value = ''; sendMsg(v); }
     if(sd) sd.onclick = go;
     if(ta) ta.onkeydown = function(e){ if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); go(); } };
     var fl = msgPop.querySelector('[data-full]');
     if(fl) fl.onclick = function(){ socClosePops(null); showContacts(); };
-  }
-
-  // ----- rendu : modale Contacts -----
-  function renderContactsPage(){
-    if(!bodyEl){ ensureModal(); }
-    if(!bodyEl) return;
-    var configured = SHELL.auth && SHELL.auth.isConfigured && SHELL.auth.isConfigured();
-    var head = '<div class="cv-head">Contacts</div><div class="cv-sub">Tes conversations privées et les membres de l\'atelier.</div>';
-    if(!configured){
-      bodyEl.innerHTML = head + '<div class="cv-pane"><div class="cv-ph">La messagerie sera disponible une fois la synchronisation des comptes activée (sur le site en ligne).</div></div>';
-      return;
-    }
-    if(!user){
-      bodyEl.innerHTML = head + '<div class="cv-pane"><div class="cv-ph">Connecte-toi pour voir tes contacts et tes messages.<br><br><button class="btn red" data-soc="login" type="button">Se connecter</button></div></div>';
-      var lb = bodyEl.querySelector('[data-soc="login"]');
-      if(lb) lb.onclick = function(){ openAcctModal(); };
-      return;
-    }
-    if(!(profile && profile.username)){
-      bodyEl.innerHTML = head + '<div class="cv-pane"><div class="cv-ph">Choisis un pseudo (Mon compte) pour utiliser la messagerie.</div></div>';
-      return;
-    }
-    var left = '<div class="cv-pane cv-left"><div class="msg-add"><input id="cvAddIn" type="text" autocomplete="off" placeholder="Ajouter un contact (pseudo)…" /><button class="btn red" id="cvAddBtn" type="button">Ajouter</button></div>'
-      + '<div class="msg-list" id="cvList">' + contactListHtml(socConvo && socConvo.id) + '</div></div>';
-    var right;
-    if(socConvo){
-      // Le bouton « Voir le profil » est masqué tant que la mission
-      // annotations n'a pas livré le profil membre + deep-link.
-      right = '<div class="cv-pane cv-right"><div class="cv-rowbtns">'
-        + '<span class="msg-ava" style="width:30px;height:30px;font-size:.8rem">' + avaHtml(socConvo.username, avatarOf(socConvo.id)) + '</span>'
-        + '<h3 class="cv-conv-h">' + esc(socConvo.username) + '</h3></div>'
-        + '<div class="msg-thread" id="cvThread">' + bubblesHtml() + '</div>'
-        + '<div class="msg-compose"><textarea id="cvIn" aria-label="Votre message" placeholder="Ton message…"></textarea><button class="btn red" id="cvSend" type="button">Envoyer</button></div></div>';
-    } else {
-      right = '<div class="cv-pane cv-right"><div class="cv-ph">Choisis une conversation à gauche, ou ajoute un contact pour commencer à discuter.</div></div>';
-    }
-    bodyEl.innerHTML = head + '<div class="cv-grid">' + left + right + '</div>';
-    var addIn = bodyEl.querySelector('#cvAddIn'), addB = bodyEl.querySelector('#cvAddBtn');
-    if(addB) addB.onclick = function(){ addContact(addIn ? addIn.value : '', 'page'); if(addIn) addIn.value = ''; };
-    if(addIn) addIn.onkeydown = function(ev){ if(ev.key === 'Enter'){ ev.preventDefault(); addContact(addIn.value, 'page'); addIn.value = ''; } };
-    bodyEl.querySelectorAll('[data-ci]').forEach(function(b){
-      b.onclick = function(){ var c = socContacts[+b.dataset.ci]; if(c) openConvo(c.id, c.username, 'page'); };
-    });
-    var th = bodyEl.querySelector('#cvThread'); if(th) th.scrollTop = th.scrollHeight;
-    var ta = bodyEl.querySelector('#cvIn'), sd = bodyEl.querySelector('#cvSend');
-    function go(){ var v = ta ? ta.value : ''; if(ta) ta.value = ''; sendMsg(v, 'page'); }
-    if(sd) sd.onclick = go;
-    if(ta) ta.onkeydown = function(ev){ if(ev.key === 'Enter' && !ev.shiftKey){ ev.preventDefault(); go(); } };
   }
 
   // ----- notifications : fetch (multi-œuvres) -----
@@ -569,7 +560,7 @@
 
   function onIncomingDM(row){
     if(!row || !user) return;
-    var convOpen = socConvo && row.sender_id === socConvo.id && ((msgPop && !msgPop.hidden) || modalVisible());
+    var convOpen = socConvo && row.sender_id === socConvo.id;
     if(convOpen){
       var dup = false;
       for(var i = 0; i < socMsgs.length; i++){ if(socMsgs[i].id === row.id){ dup = true; break; } }
@@ -579,14 +570,14 @@
           .then(function(){ refreshDM(); });
       } catch(e){}
       if(msgPop && !msgPop.hidden) renderMsgPop();
-      if(modalVisible()) renderContactsPage();
+      emitDM();
     } else {
       var nm = '';
       for(var j = 0; j < socContacts.length; j++){ if(socContacts[j].id === row.sender_id){ nm = socContacts[j].username; break; } }
       try { toast('Nouveau message' + (nm ? (' de ' + nm) : '') + '.'); } catch(e){}
       loadContacts().then(function(){
         if(msgPop && !msgPop.hidden && !socConvo) renderMsgPop();
-        if(modalVisible() && !socConvo) renderContactsPage();
+        emitDM();
       });
       refreshDM();
     }
@@ -687,8 +678,6 @@
     document.addEventListener('click', function(){ socClosePops(null); });
     document.addEventListener('keydown', function(e){
       if(e.key !== 'Escape') return;
-      // priorité à la modale plein écran si elle est ouverte
-      if(modalVisible()){ closeContacts(); return; }
       socClosePops(null);
     });
 
@@ -709,19 +698,13 @@
             SHELL.auth.getClient().then(function(c){
               sb = c;
               ensureRealtime();
-              loadContacts().then(function(){
-                renderMsgPop();
-                if(modalVisible()) renderContactsPage();
-              });
+              loadContacts().then(function(){ renderMsgPop(); });
               refreshDM();
               refreshNotif();
             });
           } else {
             ensureRealtime();
-            loadContacts().then(function(){
-              renderMsgPop();
-              if(modalVisible()) renderContactsPage();
-            });
+            loadContacts().then(function(){ renderMsgPop(); });
             refreshDM();
             refreshNotif();
           }
@@ -733,7 +716,8 @@
           updateNotifDot();
           renderMsgPop();
           renderNotif();
-          if(modalVisible()) renderContactsPage();
+          sugRaw = null;
+          emitDM();
         }
       });
     }
@@ -745,20 +729,56 @@
       ensureRealtime();
       refreshDM();
       refreshNotif();
-      if(socConvo && ((msgPop && !msgPop.hidden) || modalVisible())){
+      if(socConvo){
         loadConvo().then(function(){
           if(msgPop && !msgPop.hidden) renderMsgPop();
-          if(modalVisible()) renderContactsPage();
         });
       }
     }, 15000);
   }
 
   // ----- API exposée -----
+  /* ── L'API que la page Messages consomme ──────────────────────────────
+     Le module possède les données, le realtime et le popover ; la page ne
+     fait que rendre ce qu'on lui donne et se redessine sur onChange. Elle
+     ne touche jamais Supabase pour la messagerie — c'est la règle déjà
+     posée pour SHELL.annotations et « Mon carnet ». */
+  var dm = {
+    // état des préalables, pour que la page dise POURQUOI elle est vide
+    status: function(){
+      var configured = !!(SHELL.auth && SHELL.auth.isConfigured && SHELL.auth.isConfigured());
+      return { configured: configured, signedIn: !!user,
+               named: !!(profile && profile.username), ready: socReady() };
+    },
+    me: function(){ return user ? user.id : null; },
+    myName: function(){ return (profile && profile.username) || ''; },
+    contacts: function(){
+      return socContacts.map(function(c){
+        return { id:c.id, username:c.username, avatar:c.avatar, last:c.last,
+                 unread: socUnreadBy[c.id] || 0 };
+      });
+    },
+    convo: function(){ return socConvo ? { id:socConvo.id, username:socConvo.username } : null; },
+    messages: function(){ return socMsgs.slice(); },
+    open: openConvo,
+    close: closeConvo,
+    send: sendMsg,
+    add: addContact,
+    suggestions: suggestions,
+    refresh: function(){ return loadContacts().then(refreshDM); },
+    onChange: function(cb){ if(typeof cb === 'function') dmSubs.push(cb); },
+    // petits outils, pour que la page n'en redéclare pas de variantes
+    ago: pcAgo,
+    ava: avaHtml,
+    esc: esc,
+    toast: toast
+  };
+
   SHELL.social = {
     _init: _init,
     showContacts: showContacts,
-    closeContacts: closeContacts,
+    messagesUrl: MSG_URL,
+    dm: dm,
     // helpers réexposés pour la sous-mission 4b (notifications)
     _esc: esc,
     _pcAgo: pcAgo,
