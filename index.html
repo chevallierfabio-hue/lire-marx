@@ -1483,7 +1483,14 @@ html.no-motion header.topbar,html.no-motion header.topbar .topbar-in{transition:
      reduced-motion, ni < 768 px). Voir withThree(). -->
 
 <!-- Mouvement de l'accueil (révélations, marquee, fond WebGL) -->
-<script src="assets/home.js" defer></script>
+<!-- ?v= OBLIGATOIRE quand home.js et index.html doivent changer ENSEMBLE.
+     index.html est servi en max-age=0 (toujours frais) mais assets/home.js
+     en max-age=14400 : sans version dans l'URL, un visiteur revenu dans les
+     4 h reçoit le nouvel index.html et l'ancien home.js. C'est arrivé quand
+     la balise three.min.js a quitté cette page alors que withThree() vivait
+     dans home.js : décor mort jusqu'à expiration du cache.
+     BUMPER CE NUMÉRO à chaque fois que les deux fichiers sont solidaires. -->
+<script src="assets/home.js?v=2" defer></script>
 
 <!-- Shell de navigation (topbar + sidebar + auth + social) -->
 <script src="config.js"></script>
