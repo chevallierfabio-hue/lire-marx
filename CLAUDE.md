@@ -235,12 +235,26 @@ s'arrête d'elle-même quand la liasse est sortie et que la rafale est
 retombée, et repart au premier scroll (`start()` dans l'abonné).
 
 **Section « Questions fréquentes » (`#questions`, entre les chiffres clés et
-la bande finale).** Huit dépliants `<details>`, à la grammaire de carte de la
-maison. Elle sert autant les lecteurs que les moteurs de réponse, et deux
-règles en découlent :
+la bande finale).** Neuf dépliants `<details>`, à la grammaire de carte de la
+maison.
+
+**Les questions se choisissent sur la demande RÉELLE, pas sur ce qu'un
+visiteur déjà présent se demande.** Première version écrite à l'envers : cinq
+des huit questions étaient des questions de marque (« qu'est-ce que Lire
+Marx&nbsp;? », « qu'est-ce que la Place publique&nbsp;? ») — personne ne les
+pose ailleurs, elles ne seront jamais citées. Six portent maintenant sur
+Marx lui-même (par où commencer, quelle traduction, faut-il tout lire, où le
+lire légalement, ce qui sépare le jeune Marx du *Capital*), trois restent
+pratiques pour les gens (gratuité et compte, annotation, corpus).
+
+**Et Google ne montre PLUS de résultats enrichis FAQ** depuis août 2023, sauf
+sites gouvernementaux et de santé : le `FAQPage` reste utile comme structure
+lisible par machine, il ne produira pas de snippet. Ne pas promettre l'inverse.
+
+Deux règles de fabrication :
 
 - **Le balisage est la source, le `FAQPage` du `<head>` en est DÉRIVÉ.** Un
-  script le regénère depuis la section (voir le commit) ; le texte des deux
+  script le regénère depuis la section (voir les commits) ; le texte des deux
   doit coïncider mot pour mot — une donnée structurée qui promet une réponse
   absente de la page est un mensonge, et Google la sanctionne. **Piège vécu
   en écrivant cette section** : une retouche de phrase faite par
@@ -255,9 +269,18 @@ règles en découlent :
   de script. La cascade générique s'arrêtant au 4e enfant, `.hs-faq-list`
   prolonge les délais jusqu'au 8e.
 
-Ne pas laisser les huit dépliants ouverts par défaut (la section ferait deux
+Ne pas laisser les dépliants ouverts par défaut (la section ferait trois
 écrans), ni tous fermés (elle se lirait comme une liste de titres) : le
 premier est ouvert, les autres non.
+
+**Sur la traduction du Capital, la réponse dit les DEUX.** Roy (1872-1875)
+est révisée par Marx, qui écrit dans son « Avis au lecteur » du 28 avril 1875
+qu'elle « possède une valeur scientifique indépendante de l'original » — mais
+les spécialistes recommandent aujourd'hui Lefebvre (Éditions sociales, 1983,
+révisée 2016), plus fidèle à l'allemand. Le site sert Roy parce que c'est la
+seule dans le domaine public, et la réponse le dit. Une première rédaction ne
+mentionnait que Roy « revue par Marx », ce qui laissait croire à un choix
+éditorial alors que c'est une contrainte de droits.
 
 **Bande finale — « la dernière page ».** Elle était désaccordée du reste :
 centrée quand tout le reste de la page est aligné à gauche (et juste après
