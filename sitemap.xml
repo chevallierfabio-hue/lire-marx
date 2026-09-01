@@ -1,44 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- DÉRIVÉ par tools/gen-seo.mjs depuis oeuvres/bibliotheque.json.
+     Ne pas éditer à la main : `node tools/gen-seo.mjs`.
+     Les URL sont SANS extension — Cloudflare Pages sert des URL propres et
+     répond 308 sur les .html. Le carnet et la messagerie sont volontairement
+     absents : déconnecté, ils n'ont aucun contenu à indexer. -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-
-  <!-- Bibliothèque (accueil du site) -->
   <url>
     <loc>https://liremarx.com/</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-09-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
-
-  <!-- Le Capital, Livre I -->
   <url>
-    <loc>https://liremarx.com/oeuvres/capital-1.html</loc>
-    <lastmod>2026-08-22</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-
-  <!-- Manuscrits économico-philosophiques de 1844 -->
-  <url>
-    <loc>https://liremarx.com/oeuvres/manuscrits-1844.html</loc>
-    <lastmod>2026-08-22</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-
-  <!-- Bibliothèque (le corpus, par où commencer) -->
-  <url>
-    <loc>https://liremarx.com/oeuvres/bibliotheque.html</loc>
-    <lastmod>2026-08-28</lastmod>
+    <loc>https://liremarx.com/oeuvres/bibliotheque</loc>
+    <lastmod>2026-09-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
-
-  <!-- Place publique (forum ouvert) -->
   <url>
-    <loc>https://liremarx.com/oeuvres/place-publique.html</loc>
-    <lastmod>2026-08-22</lastmod>
+    <loc>https://liremarx.com/oeuvres/place-publique</loc>
+    <lastmod>2026-09-01</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
-
+  <url>
+    <loc>https://liremarx.com/oeuvres/capital-1</loc>
+    <lastmod>2026-09-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://liremarx.com/oeuvres/manuscrits-1844</loc>
+    <lastmod>2026-09-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
 </urlset>

@@ -504,7 +504,11 @@
     }
     function catLabel(c) { return CAT[c] || 'Œuvre'; }
     function localPath(p) {
-      p = String(p || '');
+      /* Cloudflare Pages sert des URL propres : un lien de catalogue en
+         .html part en 308 pour rien. Le `path` de bibliotheque.json garde
+         son extension — c'est ici qu'on la retire, comme href() de la
+         bibliothèque et hrefOf() de tools/gen-seo.mjs. */
+      p = String(p || '').replace(/\.html$/, '');
       return p.indexOf('oeuvres/') === 0 ? p : ('oeuvres/' + p);
     }
 

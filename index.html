@@ -1064,14 +1064,23 @@ html.no-motion header.topbar,html.no-motion header.topbar .topbar-in{transition:
 </style>
 <link rel="preload" href="oeuvres/shell.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="oeuvres/shell.css"></noscript>
+<!-- Organization. Le nom reste « Lire Marx » : il est dans le brandmark, le
+     H1 et le suffixe des titres de page — un schéma qui nommerait l'entité
+     autrement mentirait sur ce que la page montre. Ce qui distingue ce site
+     de ses homonymes tient donc à la description (ce qu'on y FAIT) et à
+     l'ancrage d'entité par url + sameAs, pas au nom.
+     sameAs n'accepte que des profils réels et vérifiés. Ne rien y inventer :
+     un sameAs faux est pire qu'un sameAs absent. -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "Organization",
   "name": "Lire Marx",
   "url": "https://liremarx.com/",
-  "description": "Ateliers de lecture guidée du Capital et des Manuscrits de 1844 de Karl Marx, en accès libre.",
-  "sameAs": []
+  "description": "Ateliers de lecture guidée des œuvres de Karl Marx : texte intégral, appareil critique en marge du chapitre, simulations des modèles économiques et forum entre lecteurs. Le Capital (Livre I) et les Manuscrits de 1844, en accès libre et sans compte obligatoire.",
+  "sameAs": [
+    "https://github.com/chevallierfabio-hue/lire-marx"
+  ]
 }
 </script>
 <!-- FAQPage : DÉRIVÉ de la section #questions (script en tête du commit).
@@ -1170,7 +1179,7 @@ html.no-motion header.topbar,html.no-motion header.topbar .topbar-in{transition:
         <h1 class="hs-h1">Lire Marx,<br>mais surtout le comprendre</h1>
         <p class="hs-desc">Un espace et des outils numériques pour saisir la pensée de Marx.</p>
         <div class="hs-btns">
-          <a href="oeuvres/bibliotheque.html" class="btn-filled">Entrer dans la bibliothèque<span class="btn-ar" aria-hidden="true">→</span></a>
+          <a href="oeuvres/bibliotheque" class="btn-filled">Entrer dans la bibliothèque<span class="btn-ar" aria-hidden="true">→</span></a>
           <a href="#catalogue" class="btn-outline">Voir le catalogue</a>
         </div>
       </div>
@@ -1315,7 +1324,7 @@ html.no-motion header.topbar,html.no-motion header.topbar .topbar-in{transition:
           <p class="hs-sec-label">En ce moment</p>
           <h2 class="hs-sec-h">Sur la Place publique</h2>
         </div>
-        <a class="hs-commune-more" href="oeuvres/place-publique.html">Toutes les discussions →</a>
+        <a class="hs-commune-more" href="oeuvres/place-publique">Toutes les discussions →</a>
       </div>
       <div id="homeCommune"></div>
     </section>
@@ -1386,7 +1395,7 @@ html.no-motion header.topbar,html.no-motion header.topbar .topbar-in{transition:
       </details>
       </div>
       <p class="hs-faq-more">Une autre question&nbsp;? Elle a sa place sur la
-        <a href="oeuvres/place-publique.html">Place publique</a>.</p>
+        <a href="oeuvres/place-publique">Place publique</a>.</p>
     </section>
 
     <!-- Bande finale : la dernière page. Même structure que toutes les
@@ -1411,7 +1420,7 @@ html.no-motion header.topbar,html.no-motion header.topbar .topbar-in{transition:
         <p class="hs-sec-label">Pour commencer</p>
         <p class="hs-closer-line">Le plus court chemin vers Marx,
           c'est <em>de le lire</em>.</p>
-        <a href="oeuvres/capital-1.html" class="btn-filled">Commencer par le chapitre premier<span class="btn-ar" aria-hidden="true">→</span></a>
+        <a href="oeuvres/capital-1" class="btn-filled">Commencer par le chapitre premier<span class="btn-ar" aria-hidden="true">→</span></a>
       </div>
     </section>
 
