@@ -259,23 +259,70 @@
      Décalage de 0,14 d'une carte à l'autre, comme les œuvres du
      catalogue. */
   function developIdeas() {
-    var cards = [].slice.call(document.querySelectorAll('.cap-idea-card'));
-    if (!cards.length) return;
+    var all = [].slice.call(document.querySelectorAll('.cap-idea-card'));
+    if (!all.length) return;
     document.documentElement.classList.add('js-atdev');
     /* le fondu global ne doit pas les faire apparaître d'un coup en plein
        développement */
     var grid = document.querySelector('.cap-ideas-grid');
     if (grid) grid.classList.remove('reveal-stagger');
 
+    function put(card, d) {
+      card.style.setProperty('--dev', d.toFixed(3));
+      card.style.setProperty('--in', clamp01(d * 5).toFixed(3));
+      card.style.setProperty('--bar', (d > 0.004 && d < 0.996 ? 1 : 0));
+      card.style.setProperty('--txt', clamp01((d - 0.45) / 0.4).toFixed(3));
+    }
+
+    /* Depuis que la section « Pour entrer » du Dossier a été supprimée,
+       les trois idées de Capital ne vivent plus que dans le SEUIL — qui
+       s'affiche au chargement, en position de lecture, et se referme au
+       premier clic. Il n'y a donc AUCUN défilement sous elles : scrubbées,
+       elles resteraient à demi tirées pour de bon. C'est une ENTRÉE
+       ORCHESTRÉE, exactement comme le bandeau de départ (règle déjà posée
+       : ce qui apparaît toujours en position de lecture ne se scrubbe
+       pas). Le scrub reste pour les cartes qui vivent dans une page qui
+       défile — celles des Manuscrits. */
+    var seuil = document.querySelector('.atl-seuil');
+    var inSeuil = [], cards = [];
+    all.forEach(function (c) {
+      (seuil && seuil.contains(c) ? inSeuil : cards).push(c);
+    });
+
+    if (seuil && inSeuil.length) {
+      var played = false;
+      var develop = function () {
+        if (played || !shown(seuil)) return;
+        played = true;
+        var t0 = 0, done = false;
+        function step(now) {
+          if (done) return;
+          if (!t0) t0 = now;
+          var p = Math.min(1, (now - t0) / 1400);
+          inSeuil.forEach(function (c, i) { put(c, clamp01((p - i * 0.14) / 0.62)); });
+          if (p >= 1) { done = true; return; }
+          requestAnimationFrame(step);
+        }
+        inSeuil.forEach(function (c) { put(c, 0); });
+        requestAnimationFrame(step);
+        /* Le filet : un rAF bridé ne doit JAMAIS laisser un tirage à
+           moitié sorti du bain. */
+        setTimeout(function () {
+          if (!done) { done = true; inSeuil.forEach(function (c) { put(c, 1); }); }
+        }, 2600);
+      };
+      develop();
+      if (window.MutationObserver)
+        new MutationObserver(develop).observe(seuil,
+          { attributes: true, attributeFilter: ['hidden'] });
+    }
+
+    if (!cards.length) return;
     addSub(function (y, vh) {
       cards.forEach(function (card, i) {
         if (!shown(card)) return;
         var p = through(card, vh, 0.95, 0.5);
-        var d = clamp01((p - i * 0.14) / 0.62);
-        card.style.setProperty('--dev', d.toFixed(3));
-        card.style.setProperty('--in', clamp01(d * 5).toFixed(3));
-        card.style.setProperty('--bar', (d > 0.004 && d < 0.996 ? 1 : 0));
-        card.style.setProperty('--txt', clamp01((d - 0.45) / 0.4).toFixed(3));
+        put(card, clamp01((p - i * 0.14) / 0.62));
       });
     });
   }

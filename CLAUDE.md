@@ -939,13 +939,14 @@ Deux destinations, et le texte est la première : `TABS = [lire, dossier]`.
   (`lb.click()`). **Le sélecteur est le modèle, le sommaire est sa vue** —
   les vider aurait voulu dire réécrire la liseuse.
 - **Le Dossier est un CONTENEUR, pas un panneau** : `#dossier` regroupe les
-  six anciens onglets (Pour entrer, Cheminement, Modèles, Explorations,
-  Chronologie, Ressources), qui restent **tous `class="panel active"` en
+  anciens onglets (Cheminement, Chronologie, Modèles, Explorations,
+  Ressources), qui restent **tous `class="panel active"` en
   permanence** ; c'est le conteneur qui s'affiche ou non, avec une
   navigation d'ancres (`#dossierNav`).
 - **Le seuil** — les trois idées ne s'affichent qu'à la **première visite**
   (`localStorage`, `liremarx.capital.seuil.v1`), et jamais à qui a déjà une
-  reprise. Elles restent en tête du Dossier.
+  reprise. **C'est leur SEUL emplacement depuis septembre 2026** — voir
+  « Le Dossier n'a plus de section Pour entrer » plus bas.
 - Le bandeau de reprise (`.resume-band`, `renderResumeBand`) est **supprimé** :
   la page ouvre elle-même le chapitre où l'on s'était arrêté, le bandeau
   n'aurait fait que le redire.
@@ -1368,6 +1369,45 @@ scopées `.atl-dossier`, et le filtre d'`inkTitles` ne matche rien là-bas.
 12 marches et 11 moteurs. Rien n'a été retiré (c'est la pièce signée de la
 section, et `walkDeduce` en dépend), mais si le Dossier doit encore
 raccourcir, c'est là.
+
+### Le Dossier n'a plus de section « Pour entrer » (sept. 2026)
+
+Demande du propriétaire. La section I du Dossier redisait **mot pour mot**
+les trois idées du seuil de première visite : deux surfaces pour le même
+contenu, à trois clics l'une de l'autre. Elle est supprimée, et le Dossier
+compte **cinq** sections numérotées I–V (cheminement, chronologie,
+laboratoire, explorations, ressources).
+
+Ce qui a bougé avec elle :
+- **Les trois cartes n'ont plus qu'UN emplacement, le seuil** : le
+  `.cap-ideas-grid` a été DÉPLACÉ dans `#atlSeuil` (il y était jusque-là
+  `cloneNode`é depuis `#entrer` à chaque première visite). `showSeuil()` ne
+  clone donc plus rien, et `#atlSeuilIdeas` n'existe plus. Les trois
+  destinations (`goLabo('s-jour')`, ch. I, ch. VI) sont intactes.
+- `DOSSIER`, `DOSSIER_LABELS` et `DOSSIER_ROM` perdent leur première
+  entrée — la source unique de l'ordre reste `DOSSIER`.
+- `#entrer` n'est plus une ancre valide : `tabForHash` rend `null`, comme
+  pour n'importe quel hash inconnu. Vérifié qu'aucun lien du dépôt ne le
+  visait (les Manuscrits gardent LEUR panneau `#entrer`, intouché).
+
+**Le geste du révélateur a dû changer de nature** (`developIdeas`,
+atelier-motion.js). Les cartes vivaient dans une page qui défile : leur
+tirage était **scrubbé**. Dans le seuil, il n'y a aucun défilement sous
+elles — l'écran s'affiche au chargement, en position de lecture, et se
+referme au premier clic : scrubbées, elles seraient restées **à demi
+tirées pour de bon**. C'est exactement la règle déjà écrite pour le titre
+de panneau et le bandeau de départ. Les cartes du seuil ont donc une
+**entrée orchestrée** (1,4 s, décalage 0,14, filet à 2,6 s qui pose tout à
+1 si le rAF est bridé), jouée quand `.atl-seuil` perd son `hidden`
+(MutationObserver) ; le scrub reste pour les cartes qui vivent dans une
+page qui défile — celles des Manuscrits.
+
+**Vérifié** : Dossier à cinq ouvertures I–V, barre d'ancres alignée,
+deep-links `#labo`/`#ressources` (saut instantané, dégagement sous les deux
+barres collantes), seuil de première visite à 1280 px (trois cartes, zéro
+débordement horizontal, tirage complet), clic d'une carte → seuil refermé,
+marqué vu, laboratoire ouvert. Console sans erreur ; `detect.mjs` :
+**0 erreur**.
 
 **Le rappel qui vaut pour toute la page** : dans la pane masquée
 (`document.hidden`), `innerWidth`/`innerHeight` valent **0** — tout calcul

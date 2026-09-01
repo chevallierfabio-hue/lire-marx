@@ -898,13 +898,56 @@ nav.tabs.worktabs{position:sticky;top:44px;z-index:62;
 
   <!-- LE SEUIL — les trois idées, à la PREMIÈRE visite seulement. Elles
        accueillaient jusqu'ici tout le monde, à chaque retour, devant le
-       livre qu'on venait déjà de choisir. Elles restent en tête du
-       Dossier pour qui veut y revenir. -->
+       livre qu'on venait déjà de choisir.
+       C'est désormais leur SEUL emplacement : la section « Pour entrer »
+       du Dossier, qui les redisait à l'identique, a été supprimée. Le
+       seuil ne les clone donc plus, il les porte. -->
   <section class="atl-seuil" id="atlSeuil" hidden aria-labelledby="atlSeuilH">
     <span class="atl-seuil-lab">Avant d'ouvrir le livre</span>
     <h2 class="sec" id="atlSeuilH">Trois idées qui ouvrent <em>Le Capital</em></h2>
     <p class="lead">Chacune mène à l'endroit du livre où elle se démontre. Vous pouvez aussi entrer directement dans le texte.</p>
-    <div id="atlSeuilIdeas"></div>
+  <div class="cap-ideas-grid">
+
+        <!-- Idée 1 — filature de coton, 1909 (domaine public) -->
+        <article class="cap-idea-card" role="link" tabindex="0" aria-label="Le profit vient du travail — ouvrir la simulation de la journée de travail" onclick="goLabo('s-jour')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();goLabo('s-jour');}">
+          <div class="cap-idea-vignette">
+            <img src="../assets/img/archive/filature.jpg" alt="Intérieur d'une filature de coton, 1909" loading="lazy">
+            <figcaption class="hs-img-caption">Filature de coton, 1909 · domaine public</figcaption>
+          </div>
+          <div class="cap-idea-body">
+            <div class="cap-idea-title">Le profit vient du travail — pas du talent des patrons</div>
+            <div class="cap-idea-desc">Chaque heure travaillée crée plus de valeur qu'elle ne coûte au patron. Cette différence, c'est la source de tout profit : Marx l'appelle la plus-value.</div>
+            <div class="cap-idea-cta" aria-hidden="true">Ouvrir la simulation — la journée de travail →</div>
+          </div>
+        </article>
+
+        <!-- Idée 2 — Halles de Paris, carte postale ancienne (CC0) -->
+        <article class="cap-idea-card" role="link" tabindex="0" aria-label="Le prix cache du temps de vie — lire le chapitre premier, La marchandise" onclick="goLire(1,'I','La marchandise');window.scrollTo({top:0,behavior:'smooth'});" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
+          <div class="cap-idea-vignette">
+            <img src="../assets/img/archive/halles-paris.jpg" alt="Marchandes de poissons aux Halles centrales de Paris" loading="lazy">
+            <figcaption class="hs-img-caption">Les Halles de Paris · carte postale ancienne · CC0</figcaption>
+          </div>
+          <div class="cap-idea-body">
+            <div class="cap-idea-title">Le prix d'un objet cache du temps de vie humain</div>
+            <div class="cap-idea-desc">Ce qui fait la valeur d'une marchandise, ce n'est pas son utilité ni son prix de marché — c'est le temps de travail social qu'il a fallu pour la produire.</div>
+            <div class="cap-idea-cta" aria-hidden="true">Lire le chapitre I — La marchandise →</div>
+          </div>
+        </article>
+
+        <!-- Idée 3 — La Sortie de l'usine Lumière, 1895 (domaine public) -->
+        <article class="cap-idea-card" role="link" tabindex="0" aria-label="Le salarié est libre — lire le chapitre six, Achat et vente de la force de travail" onclick="goLire(2,'VI','Achat et vente de la force de travail');window.scrollTo({top:0,behavior:'smooth'});" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
+          <div class="cap-idea-vignette">
+            <img src="../assets/img/archive/sortie-usine.jpg" alt="La Sortie de l'usine Lumière à Lyon, 1895" loading="lazy">
+            <figcaption class="hs-img-caption">La Sortie de l'usine Lumière, 1895 · domaine public</figcaption>
+          </div>
+          <div class="cap-idea-body">
+            <div class="cap-idea-title">Le salarié est libre — et c'est là le piège</div>
+            <div class="cap-idea-desc">Le travailleur vend librement sa force de travail, contrairement au serf ou à l'esclave. Mais il n'a que ça à vendre : sa liberté est aussi sa dépossession.</div>
+            <div class="cap-idea-cta" aria-hidden="true">Lire le chapitre VI — la force de travail →</div>
+          </div>
+        </article>
+
+      </div>
     <div class="atl-seuil-go">
       <button class="btn red" type="button" id="atlSeuilStart">Entrer dans le texte →</button>
       <button class="btn" type="button" id="atlSeuilSkip">Ne plus afficher</button>
@@ -985,65 +1028,14 @@ nav.tabs.worktabs{position:sticky;top:44px;z-index:62;
   </div>
 
   <!-- ===================== LE DOSSIER =====================
-       Ce qui était six onglets de même rang que le texte — Pour entrer,
-       Cheminement, Modèles, Explorations, Chronologie, Ressources — est
+       Ce qui était six onglets de même rang que le texte — Cheminement,
+       Modèles, Explorations, Chronologie, Ressources — est
        une seule page d'annexe, avec une navigation d'ancres. Le lecteur
        n'a plus à choisir entre six portes pour trouver l'appareil : il le
        rencontre en marge du texte, et vient ici quand il veut le
        parcourir pour lui-même. -->
   <div class="atl-dossier" id="dossier" hidden>
   <nav class="atl-dossier-nav" id="dossierNav" aria-label="Sections du dossier"></nav>
-  <section class="panel active" id="entrer">
-    <div class="panel-head">
-      <div class="panel-head-main">
-        <h2 class="sec">Trois idées qui ouvrent <em>Le Capital</em></h2>
-        <p class="lead">Chacune mène à l'endroit du livre où elle se démontre — un chapitre, ou l'instrument qui la met en mouvement.</p>
-      </div>
-    </div>
-<div class="cap-ideas-grid">
-
-      <!-- Idée 1 — filature de coton, 1909 (domaine public) -->
-      <article class="cap-idea-card" role="link" tabindex="0" aria-label="Le profit vient du travail — ouvrir la simulation de la journée de travail" onclick="goLabo('s-jour')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();goLabo('s-jour');}">
-        <div class="cap-idea-vignette">
-          <img src="../assets/img/archive/filature.jpg" alt="Intérieur d'une filature de coton, 1909" loading="lazy">
-          <figcaption class="hs-img-caption">Filature de coton, 1909 · domaine public</figcaption>
-        </div>
-        <div class="cap-idea-body">
-          <div class="cap-idea-title">Le profit vient du travail — pas du talent des patrons</div>
-          <div class="cap-idea-desc">Chaque heure travaillée crée plus de valeur qu'elle ne coûte au patron. Cette différence, c'est la source de tout profit : Marx l'appelle la plus-value.</div>
-          <div class="cap-idea-cta" aria-hidden="true">Ouvrir la simulation — la journée de travail →</div>
-        </div>
-      </article>
-
-      <!-- Idée 2 — Halles de Paris, carte postale ancienne (CC0) -->
-      <article class="cap-idea-card" role="link" tabindex="0" aria-label="Le prix cache du temps de vie — lire le chapitre premier, La marchandise" onclick="goLire(1,'I','La marchandise');window.scrollTo({top:0,behavior:'smooth'});" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
-        <div class="cap-idea-vignette">
-          <img src="../assets/img/archive/halles-paris.jpg" alt="Marchandes de poissons aux Halles centrales de Paris" loading="lazy">
-          <figcaption class="hs-img-caption">Les Halles de Paris · carte postale ancienne · CC0</figcaption>
-        </div>
-        <div class="cap-idea-body">
-          <div class="cap-idea-title">Le prix d'un objet cache du temps de vie humain</div>
-          <div class="cap-idea-desc">Ce qui fait la valeur d'une marchandise, ce n'est pas son utilité ni son prix de marché — c'est le temps de travail social qu'il a fallu pour la produire.</div>
-          <div class="cap-idea-cta" aria-hidden="true">Lire le chapitre I — La marchandise →</div>
-        </div>
-      </article>
-
-      <!-- Idée 3 — La Sortie de l'usine Lumière, 1895 (domaine public) -->
-      <article class="cap-idea-card" role="link" tabindex="0" aria-label="Le salarié est libre — lire le chapitre six, Achat et vente de la force de travail" onclick="goLire(2,'VI','Achat et vente de la force de travail');window.scrollTo({top:0,behavior:'smooth'});" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
-        <div class="cap-idea-vignette">
-          <img src="../assets/img/archive/sortie-usine.jpg" alt="La Sortie de l'usine Lumière à Lyon, 1895" loading="lazy">
-          <figcaption class="hs-img-caption">La Sortie de l'usine Lumière, 1895 · domaine public</figcaption>
-        </div>
-        <div class="cap-idea-body">
-          <div class="cap-idea-title">Le salarié est libre — et c'est là le piège</div>
-          <div class="cap-idea-desc">Le travailleur vend librement sa force de travail, contrairement au serf ou à l'esclave. Mais il n'a que ça à vendre : sa liberté est aussi sa dépossession.</div>
-          <div class="cap-idea-cta" aria-hidden="true">Lire le chapitre VI — la force de travail →</div>
-        </div>
-      </article>
-
-    </div>
-  </section>
-
   <!-- DÉRIVATION -->
   <section class="panel active" id="deriv">
         <div class="panel-head">
@@ -1545,8 +1537,8 @@ document.addEventListener('input', function(e){
 /* ── Le bandeau de reprise ────────────────────────────────────────────
    Ce qui reste de l'ancien panneau « Commencer » : la seule chose qu'il
    disait en propre. Le reste s'est réparti — l'identité est dans
-   l'en-tête, les trois portes dans « Pour entrer », la progression dans
-   « Parcourir », le carnet a sa page. La reprise, elle, ne valait pas un
+   l'en-tête, les trois portes dans le seuil de première visite, la
+   progression dans « Parcourir », le carnet a sa page. La reprise, elle, ne valait pas un
    panneau : elle vaut une ligne, mais visible partout.
    Rien n'est affiché s'il n'y a rien à reprendre : pas de bandeau qui
    s'excuse d'être vide. ── */
@@ -1562,29 +1554,29 @@ function dEsc(x){return String(x==null?'':x).replace(/[&<>"]/g,function(c){
 const TABS=[{id:'lire',label:'Lire le texte'},{id:'dossier',label:'Le dossier'}];
 /* ── L'ORDRE DU DOSSIER VIT ICI, ET NULLE PART AILLEURS ──────────────
    Il vivait à DEUX endroits qui ne disaient pas la même chose : cette
-   liste (entrer, deriv, labo, explore, chrono, ressources) et l'ordre
-   réel des sections dans le document (entrer, labo, deriv, chrono,
+   liste (deriv, labo, explore, chrono, ressources) et l'ordre
+   réel des sections dans le document (labo, deriv, chrono,
    explore, ressources). Descendre la barre d'ancres faisait donc sauter
    en avant puis en arrière dans la page. Les deux sont désormais alignés,
    et c'est cette liste qui numérote, nomme et ordonne — le document la
    suit.
 
    L'ordre est celui du lecteur, pas celui des départements du site :
-   on entre (trois idées), on voit le livre se déduire (le cheminement),
-   puis l'histoire réelle sur laquelle il repose (la chronologie — que le
+   on voit le livre se déduire (le cheminement), puis l'histoire réelle
+   sur laquelle il repose (la chronologie — que le
    texte de la section annonce lui-même comme « le pendant concret de la
    Dérivation », et qui en était séparée par deux sections), on manipule
    les lois (le laboratoire), on regarde les renversements (explorations),
    on va plus loin (ressources). */
-const DOSSIER=['entrer','deriv','chrono','labo','explore','ressources'];
+const DOSSIER=['deriv','chrono','labo','explore','ressources'];
 /* Le libellé de la barre est IMPRIMÉ à destination (`.dos-rub`) : on
    clique un mot, on retrouve ce mot en tête de la section. Avant, la
    barre disait « Modèles » et l'on atterrissait sur « Le laboratoire des
    lois » — six fois le même décalage. */
-const DOSSIER_LABELS={entrer:'Pour entrer',deriv:'Le cheminement',
+const DOSSIER_LABELS={deriv:'Le cheminement',
   chrono:'La chronologie',labo:'Le laboratoire',
   explore:'Les explorations',ressources:'Les ressources'};
-const DOSSIER_ROM=['I','II','III','IV','V','VI'];
+const DOSSIER_ROM=['I','II','III','IV','V'];
 let curTab='lire';
 
 /* Les anciens hash (#labo, #chrono, #nav…) vivent dans des liens partagés
@@ -1815,8 +1807,8 @@ function showWork(id){
   document.querySelectorAll('.work-view').forEach(w=>{w.style.display='none';});
   const w=document.getElementById(id);
   if(w){w.style.display='block';}
-  /* 'entrer' n'est pas une destination : activateTab n'en connaît que deux
-     et le coerçait silencieusement en 'lire'. On l'écrit. */
+  /* activateTab n'en connaît que deux et coerçait silencieusement tout
+     le reste en 'lire'. On l'écrit. */
   activateTab('lire');
   window.scrollTo(0, 0);
   setTimeout(function(){ window.scrollTo(0, 0); }, 0);
@@ -3476,10 +3468,7 @@ function dismissSeuil(){
 }
 function showSeuil(){
   const sc=document.getElementById('atlSeuil');
-  const grid=document.querySelector('#entrer .cap-ideas-grid');
-  const host=document.getElementById('atlSeuilIdeas');
-  if(!sc||!grid||!host)return;
-  host.appendChild(grid.cloneNode(true));
+  if(!sc)return;
   document.body.classList.add('atl-seuil-on');
   sc.hidden=false;
   const a3=document.getElementById('atl3'); if(a3)a3.hidden=true;
