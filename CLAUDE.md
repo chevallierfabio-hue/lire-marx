@@ -1342,6 +1342,41 @@ au lieu du brun-nuit réel. La sonde sur le rendu donne 0 échec. Ne pas
    porte deux boutons qui déclenchent les vraies pastilles (le shell les
    possède, la marge ne fait que les cliquer).
 
+5. **`.j-carte p` bat `.j-carte-n`, et le numéro n'a jamais pris l'encre.**
+   Le numéro de chapitre est un `<p>` : `.j-carte p` vaut **(0,1,1)** contre
+   **(0,1,0)** pour `.j-carte-n`, si bien que la couleur du numéro était
+   écrasée par celle du corps et restait en `--muted` même une fois le
+   feuillet posé. Trouvé à la mesure (`getComputedStyle` rendait un `rgb()`
+   plat là où un `color-mix` aurait rendu `color(srgb …)`), pas à l'œil.
+   Les deux règles sont écrites en `.j-carte .j-carte-n`. **Toute règle qui
+   vise une classe sur un élément que le conteneur stylise déjà par son nom
+   de balise doit gagner en spécificité.**
+6. **UNE EXTINCTION NE SE DIT JAMAIS PAR L'OPACITÉ.** Premier jet : la
+   lettre de station à `opacity:.42` et le numéro de carte à `.28` quand le
+   fil ne les a pas atteints. Mesuré : **2,5:1** et **2:1** sur le fond.
+   C'est très exactement le piège de la pastille du cheminement, déjà
+   documenté et rejoué ici. Les deux s'éteignent désormais par la COULEUR,
+   en `color-mix` de `--muted` (8,1:1) vers `--gold` (9,0:1) : les deux
+   extrémités passent. Seule la lueur de passage joue en transparence, et
+   c'est une ombre, pas du texte.
+7. **Une dernière section ne peut pas se chronométrer sur son haut** — la
+   règle était déjà écrite pour la bougie de l'accueil, et je l'ai quand
+   même rejouée. Rien ne défile au-delà de la bande finale, donc son bas ne
+   remonte jamais au-dessus du pli : une course calée sur une fraction de la
+   hauteur d'écran ne se termine jamais (mesuré : `--lum` plafonnait à 0,73
+   en bas de page). **La course d'une dernière bande est SA PROPRE
+   HAUTEUR** : quand on touche le bas du document, son bas est le bas de
+   l'écran et le geste vaut exactement 1.
+8. **Le script de tête décide au PARSE, et une page légère parse trop
+   tôt.** `no-anim` / `no-motion` n'étaient jamais posés à 375 px sur cette
+   page — alors que l'accueil, plus lourd, les posait correctement dans les
+   mêmes conditions. Ce n'était donc pas un artefact de la pane : la tête de
+   cette page est analysée avant que la taille du viewport ne soit établie.
+   Le script de tête reste nécessaire (il faut décider AVANT le premier
+   rendu), mais le module lui donne désormais un **filet** : il redit ce que
+   la media query dit une fois la page chargée. Le contrôle qui a tranché :
+   charger l'accueil dans le même onglet, à la même taille, et comparer.
+
 ### Vérifié
 
 Contraste (sonde maison : 0 échec sur la coquille et le tiroir) **et**
@@ -3919,7 +3954,13 @@ Sorties : `assets/img/jeu/circuit-plan-large.webp` (72 Ko, servi) et `.jpg`
   montre — gratuit, dans un navigateur, à propos du *Capital* ; pas de note,
   pas d'avis, pas de date de sortie inventée.
 
-### La page elle-même
+### La page elle-même — ELLE PARLE LA LANGUE DE L'ACCUEIL
+
+**Deuxième passe, sur retour du propriétaire** : « trop de texte de
+présentation sous le titre, ça rend la page assez moche — s'inspirer
+globalement de ce qu'on a fait sur l'accueil pour agencer et animer ». La
+première version empilait un pavé de six lignes sous un titre pleine
+largeur, puis l'image, puis des sections sans le moindre geste. Refaite.
 
 Elle **ne charge pas `atelier.css`** : comme l'accueil, c'est une page de
 site et non un atelier — et `atelier.css` poserait au passage son
@@ -3927,12 +3968,32 @@ site et non un atelier — et `atelier.css` poserait au passage son
 `:root`, avec le jeu de valeurs **corrigé** de l'accueil (`--red-deep` sur
 `#e5644f`, plus `--red-text`, `--line-strong`, `--hover`).
 
-Sa matière : le seuil, la vue du monde en pleine largeur, **les cinq
-stations** (la lettre en Fraunces italique or — le traitement des années de
-la frise, la rime qui tient le site), **le voile** en deux colonnes dont
-celle de droite est la surface d'emphase du socle, ce que la partie devient
-(chômage et colère produits par vos propres gains, la Bourse, le compromis
-régulé, la Commune), et l'état des lieux pratique.
+**L'agencement est celui de l'accueil** : un héros en DEUX COLONNES (badge,
+titre, UNE phrase, deux pilules à gauche ; la vue du jeu à droite), l'invite
+« Faire défiler », puis des sections à la grammaire commune
+(`.j-label` / `.j-h` / `.j-lede` aux valeurs exactes de `.hs-sec-label` et
+`.hs-sec-h`). Le texte a été divisé : les ledes tiennent en une ligne, les
+stations en deux, et « En pratique » est passé d'une liste de paragraphes à
+**quatre faits** en colonnes.
+
+**Les gestes sont ceux de `assets/home.js`, repris un par un** — et chacun
+dit ce que sa section dit, jamais une décoration :
+
+| section | geste | emprunté à |
+|---|---|---|
+| tous les titres | l'encre prend, mot à mot | `scrubReveal` (`.rw` / `--wp`) |
+| les cinq stations | le fil et la lumière — le circuit est une ROUTE, une lumière la descend et allume chaque station qu'elle atteint | `faqScrub` (`--draw`/`--lit`/`--pass`) |
+| le voile | un rideau MONTE et découvre les rapports sociaux, sa barre dorée en ourlet — le mot de la section pris au pied de la lettre | `libraryScrub` (`--dev`/`--bar`) |
+| ce que ça devient | les feuillets se posent de biais, décalés, et le numéro prend l'encre après la pose | `doCards` (`--drop`/`--tilt`/`--ink`) |
+| la dernière page | elle s'allume, la lueur montant du bas | `closerCandle` (`--lum`) |
+
+**Le pilote de défilement est DUPLIQUÉ, pas partagé** : `home.js` ne se
+charge que sur l'accueil, et la règle de la maison est de dupliquer les
+petits outils plutôt que de coupler. Tout est piloté par la POSITION, donc
+**réversible** — vérifié : on remonte, le fil se range, le voile retombe, la
+bande s'éteint. Le JS est **inliné** et non externe : la page n'est jamais
+mise en cache, ce qui évite d'emblée le piège du `?v=` documenté pour
+`home.js`.
 
 **Le voile est le cœur de la page, et il est vérifié dans le code du jeu** :
 il ne s'ouvre pas d'emblée, il se lève à l'écran « le capital est né » —
@@ -3940,11 +4001,15 @@ il ne s'ouvre pas d'emblée, il se lève à l'écran « le capital est né » �
 et que l'argent revient augmenté. Ne pas écrire qu'il faut « un certain
 nombre de cycles » : c'est faux.
 
-Le mouvement est réduit à une révélation au défilement, éteinte sous 768 px
-et en `prefers-reduced-motion`, et **l'état par défaut du CSS est l'état
-fini** : la classe de gating `js-jeu` n'est posée qu'une fois le module sûr
-de pouvoir rendre la main, et un filet de 4 s révèle tout si
-l'`IntersectionObserver` ne se déclenche jamais.
+**La hauteur du héros est PLAFONNÉE à 640 px**, et ce n'est pas un caprice :
+l'accueil se permet un héros plein écran parce que son fac-similé fait cinq
+cents pixels de haut (4/5) et remplit sa colonne. La vue du jeu est un
+**16/9**, large et basse — à `100vh` le contenu ne faisait que 280 px dans
+856, soit 294 px de vide au-dessus et 286 en dessous (mesuré). Avec le
+plafond et une colonne de droite un peu plus large (`1fr 1.18fr`, sans quoi
+l'image est bridée par la colonne et non par son `max-width`), le
+remplissage passe de 33 % à **52 %** — l'accueil est à 58 %. Ne pas lui
+rendre les 100vh sans changer d'image.
 
 ### Pièges rencontrés
 
@@ -3957,10 +4022,13 @@ l'`IntersectionObserver` ne se déclenche jamais.
    `hidden`**, règle déjà écrite pour `.hw` et `.walk-cards`. Quand un
    débordement n'a pas de coupable, chercher dans les pseudo-éléments et
    comparer `scrollWidth` aux largeurs écrites en dur dans le CSS.
-2. **Un rembourrage horizontal posé sur une bande pleine largeur désaligne
-   son texte.** `.j-fin` portait son `padding` latéral, et sa dernière page
-   tombait **36 px à gauche** de tout le reste (mesuré). Le rembourrage vit
-   sur l'intérieur, qui reprend la géométrie exacte de `.jw`.
+2. **Un rembourrage horizontal incohérent désaligne une bande pleine
+   largeur.** Vécu à la première passe, quand la page avait encore un
+   conteneur à largeur maximale : la dernière page tombait **36 px à
+   gauche** de tout le reste (mesuré). Depuis la 2e passe il n'y a plus de
+   conteneur du tout — toutes les sections sont pleine largeur avec le même
+   `padding: … clamp(24px,5vw,80px)`, exactement comme l'accueil, et la
+   question ne se pose plus.
 3. **`detect.mjs` ne résout pas les `clamp()`** : ses trois
    `cramped-padding` sur `.j-voile`, `.j-colonne` et `.j-fin` sont des faux
    positifs — mesurés au rendu, 26/28/28/28 px sur les colonnes et 81 px en
@@ -3973,21 +4041,36 @@ l'`IntersectionObserver` ne se déclenche jamais.
 
 ### Vérifié
 
-Sonde de contraste sur le rendu : **0 échec sur 102 mesures** avec la
-coquille, aucune cible sous 24 × 24, et le seul texte sous 11 px qui
-m'appartenait (la légende de l'image) relevé à 11 px — le plancher du
-projet. Détecteur statique : **0 erreur**, et l'accueil passe de **28 à 27
-constats**, le delta étant exactement l'`undersized-ui-text` du badge
-supprimé — rien d'autre n'a bougé. Testé à 1280 et 375 px : **zéro
-débordement horizontal**, les cinq blocs alignés sur la même verticale, le
-voile et les cartes qui se replient en une colonne. Le jeu chargé pour de
-vrai sous `/jeu/` : *Boot OK · three 168 · IBL · DRACO OK*, **zéro requête
-en échec**, gate refermé. Lien de retour mesuré à 109 × 32 px, sans
-chevauchement avec aucun panneau du jeu, et qui s'efface bien sous
-`body.mcinema-on`. Accueil sans erreur de console, épinglage du circuit
-intact. `gen-seo.mjs` idempotent, et **seul `sitemap.xml` a bougé** — le
-piège de la regex qui avait mangé 779 lignes de Capital ne s'est pas
-rejoué.
+**Sonde de contraste sur le rendu : 0 échec sur 126 mesures** (coquille
+comprise), aucune cible sous 24 × 24, aucun texte à moi sous 11 px. Le
+minimum, 4,14:1, est le faux positif documenté — `--accent` sur `--bg`,
+mais sur un `em` **mesuré à 58 px**, dont le seuil est 3:1. Les deux états
+de chaque élément à deux états ont été mesurés séparément : station éteinte
+**8,08:1**, allumée **9,00:1** ; numéro de carte éteint **7,57:1**, encré
+**9,00:1**.
+
+**Détecteur statique : 0 erreur**, 15 constats tous dans les familles de DA
+documentées (halo radial, lueur dorée du fil, capitales des micro-libellés,
+Fraunces + Inter, tirets cadratins, et les `cramped-padding` que le
+détecteur produit faute de résoudre les `clamp()` — mesurés au rendu à 90 px
+en haut de section et 26/28/28/28 dans les colonnes du voile).
+
+**Le mouvement, position par position** (sonde temporaire, retirée avant le
+commit — le rAF est gelé dans l'onglet piloté, sans elle on croit à tort que
+rien ne bouge) : le fil se trace de 0 à 1 et allume les cinq stations dans
+l'ordre, le voile se lève de 0 à 1 avec sa barre en cloche, les trois
+feuillets se posent en décalé, la bande finale monte régulièrement de 0 à 1
+sur sa propre hauteur. **Entièrement réversible** — on remonte en haut,
+tout se range (`--draw` 0, `--dev` 0, `--lum` 0, feuillets à 0,05).
+
+**Dégradations** : à 375 px, `no-anim no-motion` posés, `js-jeu` absent,
+rideau du voile en `display:none`, rail inexistant, tout à l'opacité 1 —
+la page est finie et fixe. Zéro débordement horizontal à 1440 comme à
+375 px. Console sans erreur.
+
+**Composition** : les colonnes du héros mesurées à 466/550 px, contenu à
+52 % de la hauteur du héros (l'accueil est à 58 %), et le titre ne casse
+plus après l'article.
 
 ### Ce qui reste
 

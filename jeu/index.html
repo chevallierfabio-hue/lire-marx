@@ -3,6 +3,13 @@
 <head>
 <meta charset="utf-8">
 <title>Le circuit du capital — le jeu de la plus-value | Lire Marx</title>
+<!-- La largeur se lit à la MEDIA QUERY et jamais à innerWidth : au parse, la
+     fenêtre peut encore annoncer 0 (onglet ouvert en arrière-plan, onglet
+     piloté) et la page partirait sans la moindre animation. Piège déjà payé
+     sur l'accueil et sur l'entrée du carnet. -->
+<script>(function(){var d=document.documentElement,m=window.matchMedia;
+if(m('(max-width:767px)').matches||m('(prefers-reduced-motion:reduce)').matches){
+d.classList.add('no-anim');d.classList.add('no-motion');}})();</script>
 <!-- Le logo du site : le M de Fraunces et le point rouge du brandmark
      « Lire.Marx ». Chemins ABSOLUS — la page vit sous /jeu/, un chemin
      relatif y résoudrait contre le dossier du jeu. -->
@@ -11,7 +18,7 @@
 <link rel="icon" type="image/png" sizes="192x192" href="/assets/img/logo/icon-192.png">
 <link rel="apple-touch-icon" href="/assets/img/logo/apple-touch-icon.png">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="Vous avancez l'argent, vous achetez la force de travail, vous lancez la production — et l'argent revient grossi. Le jeu ne dit pas d'où vient la différence : il vous la fait produire, puis vous laisse lever le voile.">
+<meta name="description" content="Vous avancez l'argent, vous achetez la force de travail, vous produisez, vous vendez. L'argent revient plus gros — et le jeu vous laisse lever le voile sur d'où vient la différence.">
 <meta property="og:title" content="Le circuit du capital — le jeu de la plus-value">
 <meta property="og:description" content="Avancer l'argent, acheter la force de travail, produire, vendre — et lever le voile sur ce qui s'est passé. Le mécanisme central du Capital, rendu jouable.">
 <meta property="og:type" content="website">
@@ -20,7 +27,7 @@
 <meta property="og:locale" content="fr_FR">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="canonical" href="https://liremarx.com/jeu">
-<link rel="preload" href="/assets/img/jeu/circuit-plan-large.webp" as="image">
+<link rel="preload" href="/assets/img/jeu/circuit-plan-large.webp" as="image" fetchpriority="high">
 <link rel="stylesheet" href="/oeuvres/fonts/fonts.css" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="/oeuvres/fonts/fonts.css"></noscript>
 <style>
@@ -32,15 +39,27 @@
    sous /jeu/jouer, et cette page-ci est son seuil — le chez-soi où l'on
    revient, et la seule surface indexable des deux.
 
-   Elle ne charge PAS atelier.css : comme l'accueil, c'est une page de
-   site et non un atelier, et atelier.css poserait au passage son
-   scroll-behavior:smooth. Elle redéfinit donc les tokens du shell dans
-   son :root, exactement comme /index.html — sinon topbar, sidebar et
-   modales resteraient en clair.
+   ELLE PARLE LA LANGUE DE L'ACCUEIL, et pas une langue à elle (demande du
+   propriétaire, septembre 2026 — la première version empilait un pavé de
+   texte sous le titre). Même grammaire de section, même héros en deux
+   colonnes, et les MÊMES gestes, repris de assets/home.js :
+     · le titre prend l'encre mot à mot          (scrubReveal → .rw / --wp)
+     · le fil et la lumière sur les stations     (faqScrub    → --draw/--lit/--pass)
+     · le voile se lève sous sa barre dorée      (libraryScrub→ --dev / --bar)
+     · les feuillets se posent de biais          (doCards     → --drop/--tilt/--ink)
+     · la dernière page s'allume par le bas      (closerCandle→ --lum)
+   Le pilote de défilement est DUPLIQUÉ et non partagé : home.js ne se
+   charge que sur l'accueil, et la règle de la maison est de dupliquer les
+   petits outils plutôt que de coupler.
 
-   Le mouvement est réduit au strict nécessaire (une révélation au
-   défilement, éteinte sous 768 px et en reduced-motion) et l'état par
-   défaut du CSS est l'état FINI : sans JavaScript, la page est complète.
+   Elle ne charge PAS atelier.css : comme l'accueil, c'est une page de site
+   et non un atelier, et atelier.css poserait son scroll-behavior:smooth.
+   Elle redéfinit donc les tokens du shell dans son :root — sinon topbar,
+   sidebar et modales resteraient en clair.
+
+   Tout est piloté par la POSITION de défilement, donc RÉVERSIBLE, et
+   l'état par défaut du CSS est l'état FINI : sans JavaScript, sous
+   reduced-motion ou en dessous de 768 px, la page est complète et fixe.
    ═══════════════════════════════════════════════════════════════════ */
 :root{
   --bg:#15100b;--surface:#1e1710;--text:#f3e9d4;
@@ -57,98 +76,188 @@
   --f-ui:'Inter',system-ui,sans-serif;--f-serif:'Spectral',Georgia,serif;--f-hand:'Caveat',cursive;
   --candle:rgba(216,173,76,.18);
 
-  /* La surface d'emphase du socle : c'est celle sur laquelle tombe la
-     bougie. Sur brun-nuit, une emphase ne s'obtient JAMAIS en inversant
-     vers le clair — ça donne un pavé crème en pleine page. */
+  /* La surface d'emphase du socle : celle sur laquelle tombe la bougie. Sur
+     brun-nuit, une emphase ne s'obtient JAMAIS en inversant vers le clair —
+     ça donne un pavé crème en pleine page. */
   --emphase:linear-gradient(150deg,#2c2117,#211a12,#1b150e);
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 html{background:var(--bg);}
 body{background:var(--bg);color:var(--text);
   font-family:var(--f-ui);-webkit-font-smoothing:antialiased;}
-.jw{max-width:1000px;margin:0 auto;padding:0 clamp(20px,4vw,42px) 0;}
-.jw :focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:4px;}
+:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:4px;}
 
-/* ── grammaire de section, aux valeurs de l'accueil ── */
-.j-label{font-size:.72rem;font-weight:600;letter-spacing:.11em;
-  text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+/* ── grammaire de section, aux valeurs exactes de l'accueil ── */
+.j-sec{position:relative;padding:clamp(64px,10vh,112px) clamp(24px,5vw,80px);
+  border-top:1px solid var(--border);}
+.j-label{font-family:var(--f-ui);font-size:.72rem;font-weight:600;
+  letter-spacing:.11em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
 .j-h{font-family:'Fraunces',serif;font-weight:900;
-  font-size:clamp(1.7rem,3.4vw,2.4rem);letter-spacing:-.03em;
+  font-size:clamp(1.7rem,3.4vw,2.5rem);letter-spacing:-.03em;color:var(--text);
   line-height:1.06;margin-bottom:14px;}
-.j-lede{font-size:.97rem;line-height:1.72;color:var(--muted);max-width:56ch;}
-.j-sec{padding:clamp(52px,8vh,88px) 0;border-top:1px solid var(--border);}
+.j-h em{font-style:italic;font-weight:500;color:var(--gold);}
+.j-lede{font-size:.95rem;line-height:1.72;color:var(--muted);max-width:52ch;
+  margin-bottom:38px;}
 
-/* ── héros ── */
-/* `overflow:clip` et JAMAIS `hidden` — la spec ne laisse pas un
-   overflow-y:visible à côté d'un overflow-x:hidden : l'axe vertical
-   passerait en `auto` et la section deviendrait une boîte à défilement
-   (piège déjà payé sur .hw et sur .walk-cards).
-   Il est ici NÉCESSAIRE : le halo ci-dessous fait 620 px en dur, et sans
-   clip il posait 245 px de défilement horizontal à 375 px de large — un
-   débordement invisible à l'inspection, parce qu'un pseudo-élément n'est
-   pas rendu par querySelectorAll. */
-.j-hero{padding:clamp(46px,7vh,78px) 0 clamp(30px,4vh,44px);position:relative;
-  overflow:clip;}
-.j-hero::before{content:'';position:absolute;top:-40px;left:-6%;width:620px;height:380px;
-  pointer-events:none;z-index:0;
+/* ══ 1. HÉROS — deux colonnes, la grammaire de .hs-hero ══════════════ */
+/* LA HAUTEUR DU HÉROS EST PLAFONNÉE, et ce n'est pas un caprice : l'accueil
+   se permet un héros plein écran parce que son portrait fait cinq cents
+   pixels de haut (fac-similé en 4/5) et remplit sa colonne. La vue du jeu
+   est large et BASSE — un 16/9 —, donc à 100vh le contenu ne faisait que
+   280 px dans 856, soit 294 px de vide au-dessus et 286 en dessous (mesuré).
+   Le plafond resserre la composition ; le min() garde le héros à sa place
+   sur un écran court. La colonne de droite est un peu plus large que celle
+   de gauche pour que l'image respire — à colonnes égales elle est bridée
+   par la largeur, pas par son max-width. */
+.j-hero{position:relative;display:grid;grid-template-columns:1fr 1.18fr;
+  gap:clamp(40px,5vw,84px);align-items:center;
+  padding:clamp(48px,7vh,84px) clamp(24px,5vw,80px) clamp(52px,6vh,78px);
+  min-height:min(calc(100vh - 44px), 640px);overflow:clip;}
+/* `clip` et JAMAIS `hidden` : la spec ne laisse pas un overflow-y:visible à
+   côté d'un overflow-x:hidden — l'axe vertical passerait en `auto` et la
+   section deviendrait une boîte à défilement (piège déjà payé sur .hw et
+   .walk-cards). Il est ici nécessaire : le halo ci-dessous fait 700 px en
+   dur et posait sinon du défilement horizontal sous 768 px — un débordement
+   INVISIBLE à l'inspection, un pseudo-élément n'étant pas rendu par
+   querySelectorAll. */
+.j-halo{position:absolute;top:50%;left:30%;transform:translate(-50%,-50%);
+  width:660px;height:400px;pointer-events:none;z-index:0;
   background:radial-gradient(ellipse at center,rgba(213,64,47,.10) 0%,transparent 68%);}
-.j-hero>*{position:relative;z-index:1;}
+.j-left{position:relative;z-index:1;display:flex;flex-direction:column;gap:22px;}
+.j-badge{display:inline-flex;align-items:center;gap:7px;width:fit-content;
+  font-size:12px;font-weight:500;color:var(--muted);
+  background:rgba(243,233,212,.04);border:1px solid var(--border);
+  border-radius:999px;padding:5px 14px;letter-spacing:.02em;}
+.j-badge i{width:5px;height:5px;border-radius:50%;background:var(--ok);
+  flex:none;font-style:normal;}
 .j-h1{font-family:'Fraunces',serif;font-weight:900;
-  font-size:clamp(2.2rem,5vw,3.5rem);line-height:1.02;letter-spacing:-.03em;
-  margin-bottom:20px;}
+  font-size:clamp(2.3rem,4.8vw,3.6rem);line-height:1.02;
+  letter-spacing:-.03em;color:var(--text);}
 .j-h1 em{font-style:italic;font-weight:500;color:var(--accent);}
-.j-hero .j-lede{font-size:1.03rem;max-width:54ch;}
-.j-btns{display:flex;gap:11px;flex-wrap:wrap;margin-top:26px;}
-.j-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 26px;
-  border-radius:999px;font-size:.9rem;font-weight:600;text-decoration:none;
+.j-desc{font-size:.97rem;line-height:1.72;color:var(--muted);max-width:42ch;}
+.j-btns{display:flex;gap:11px;flex-wrap:wrap;margin-top:4px;}
+.j-btn{display:inline-flex;align-items:center;gap:9px;padding:11px 24px;
+  border-radius:999px;font-size:14px;font-weight:600;text-decoration:none;
   border:1px solid transparent;cursor:pointer;font-family:inherit;
   transition:opacity .18s,border-color .18s,background .18s,transform .18s;}
 .j-btn-plein{background:var(--accent);color:#fff;}
-.j-btn-plein:hover{opacity:.88;transform:translateY(-1px);}
+.j-btn-plein:hover{opacity:.86;transform:translateY(-1px);}
 .j-btn-trait{border-color:rgba(243,233,212,.28);color:var(--text);font-weight:500;}
 .j-btn-trait:hover{border-color:var(--gold);background:rgba(243,233,212,.05);}
 .j-btn svg{flex:none;}
 
-/* ── la vue du monde ── */
-.j-vue{position:relative;border-radius:18px;overflow:hidden;
-  border:1px solid var(--border);background:#0d0a07;margin-top:6px;}
+/* la vue du monde, à droite — le motif .hs-portrait */
+.j-right{position:relative;z-index:1;display:flex;justify-content:center;}
+.j-vue{position:relative;width:100%;max-width:540px;border-radius:18px;
+  overflow:hidden;background:#0d0a07;margin:0;
+  box-shadow:0 30px 70px -34px rgba(0,0,0,.85);}
 .j-vue img{display:block;width:100%;height:auto;
-  /* Le tirage est une capture du jeu, pas une photographie d'archive :
-     pas de duotone. Juste assombri d'un souffle pour qu'il tienne dans
-     la nuit de la page au lieu d'en être l'objet le plus clair. */
-  filter:brightness(.93) contrast(1.03) saturate(.96);}
+  /* Le tirage est une capture du jeu, pas une photographie d'archive : pas
+     de duotone. Juste assombri d'un souffle pour qu'il tienne dans la nuit
+     de la page au lieu d'en être l'objet le plus clair. */
+  filter:brightness(.94) contrast(1.03) saturate(.96);}
 .j-vue figcaption{position:absolute;left:0;right:0;bottom:0;
-  /* 11 px et non les 10 de .hs-img-caption sur l'accueil : cette légende
-     n'est pas décorative, c'est le seul endroit qui NOMME les stations
-     visibles sur l'image. Le plancher du projet pour un texte qu'on doit
-     pouvoir lire est 11 px. */
-  padding:34px 16px 12px;font-size:11px;letter-spacing:.04em;line-height:1.5;
+  padding:34px 15px 11px;font-size:11px;letter-spacing:.04em;line-height:1.5;
   color:rgba(251,249,244,.9);
-  background:linear-gradient(to top,rgba(13,10,7,.86),transparent);}
+  background:linear-gradient(to top,rgba(13,10,7,.88),transparent);}
 
-/* ── les stations : le circuit est un LIEU ── */
-.j-stations{display:flex;flex-direction:column;gap:2px;margin-top:8px;}
-.j-station{display:grid;grid-template-columns:74px 1fr;gap:clamp(14px,3vw,30px);
-  align-items:baseline;padding:20px 4px;border-top:1px solid var(--line-soft);}
+/* l'invite à descendre — le héros tient tout l'écran, il faut le dire */
+.j-hint{position:absolute;z-index:2;left:50%;bottom:clamp(14px,2.6vh,26px);
+  transform:translateX(-50%);pointer-events:none;
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--muted);white-space:nowrap;}
+.j-hint i{display:block;width:1px;height:32px;
+  background:linear-gradient(to bottom,transparent,var(--gold));}
+html:not(.no-motion) .j-hint i{animation:j-drip 1.8s ease-out infinite;}
+@keyframes j-drip{0%{transform:scaleY(.2);transform-origin:top}
+  60%{transform:scaleY(1);transform-origin:top}100%{transform:scaleY(1)}}
+@media(max-height:719px){.j-hint{display:none;}}
+
+/* ── entrée orchestrée du héros ──
+   ATTENTION À LA SPÉCIFICITÉ — le piège coûteux de l'accueil, où le
+   portrait est resté invisible des mois : la règle qui CACHE vaut (0,3,1)
+   à cause du `html` (un élément) et du `:not(.no-anim)` (une classe).
+   Toute règle `.lit` doit donc être préfixée du même `html:not(.no-anim)`,
+   sinon elle perd. */
+html:not(.no-anim) .j-hero .j-left>*,
+html:not(.no-anim) .j-hero .j-right{
+  opacity:0;transform:translateY(18px);
+  transition:opacity .8s ease,transform .9s cubic-bezier(.16,1,.3,1);}
+html:not(.no-anim) .j-hero.lit .j-left>.j-badge{opacity:1;transform:none;transition-delay:.05s;}
+html:not(.no-anim) .j-hero.lit .j-left>.j-h1{opacity:1;transform:none;transition-delay:.16s;}
+html:not(.no-anim) .j-hero.lit .j-left>.j-desc{opacity:1;transform:none;transition-delay:.30s;}
+html:not(.no-anim) .j-hero.lit .j-left>.j-btns{opacity:1;transform:none;transition-delay:.42s;}
+html:not(.no-anim) .j-hero.lit .j-right{opacity:1;transform:none;transition-delay:.24s;}
+html:not(.no-anim) .j-hero .j-hint{opacity:0;transition:opacity .7s ease .9s;}
+html:not(.no-anim) .j-hero.lit .j-hint{opacity:1;}
+
+/* ══ 2. LES STATIONS — le fil et la lumière ═════════════════════════
+   Le geste de faqScrub, et il dit ici exactement ce que la section dit :
+   le circuit est une ROUTE, une lumière la descend et allume chaque
+   station quand elle l'atteint. Rien n'existe devant elle. ═══════════ */
+.j-stations{display:flex;flex-direction:column;gap:0;max-width:74ch;}
+.j-station{position:relative;display:grid;grid-template-columns:72px 1fr;
+  gap:clamp(14px,3vw,28px);align-items:baseline;
+  padding:22px 0;border-top:1px solid var(--line-soft);}
 .j-station:first-child{border-top:0;}
 /* La lettre reprend le traitement des années de la frise de l'accueil :
    Fraunces italique or. C'est la rime qui tient le site. */
 .j-station-l{font-family:'Fraunces',serif;font-style:italic;font-weight:500;
-  font-size:clamp(1.7rem,3.4vw,2.15rem);color:var(--gold);
+  font-size:clamp(1.8rem,3.6vw,2.3rem);color:var(--gold);
   line-height:1;letter-spacing:-.02em;}
-.j-station h3{font-family:'Fraunces',serif;font-weight:600;font-size:1.06rem;
+.j-station h3{font-family:'Fraunces',serif;font-weight:600;font-size:1.05rem;
   color:var(--text);margin-bottom:5px;letter-spacing:-.01em;}
-.j-station p{font-size:.92rem;line-height:1.68;color:var(--muted);max-width:56ch;}
+.j-station p{font-size:.92rem;line-height:1.68;color:var(--muted);max-width:52ch;}
 .j-station p b{color:var(--text);font-weight:600;}
 
-/* ── le voile ── */
+/* le rail n'existe QUE sous js-jeu : sans lui la section est celle d'avant,
+   au pixel près — l'amélioration porte son propre état fini */
+html.js-jeu .j-stations{position:relative;padding-left:34px;--draw:1;}
+html.js-jeu .j-stations::before,
+html.js-jeu .j-stations::after{content:"";position:absolute;left:0;top:10px;width:1px;}
+html.js-jeu .j-stations::before{bottom:10px;background:var(--border);}
+/* la tête du tracé est la partie claire du dégradé : c'est elle qui éclaire */
+html.js-jeu .j-stations::after{height:calc(var(--draw) * (100% - 20px));
+  background:linear-gradient(180deg,rgba(216,173,76,.12),var(--gold));
+  box-shadow:0 0 9px rgba(216,173,76,.34);}
+html.js-jeu .j-station{--lit:1;--pass:0;}
+/* AUCUNE OPACITÉ sur le texte : une station éteinte reste en --muted, soit
+   7,5:1 sur le fond. L'extinction se dit par la COULEUR et la pastille —
+   le piège de la pastille à 62 % d'opacité (2,6:1) ne se rejoue pas ici. */
+html.js-jeu .j-station::before,
+html.js-jeu .j-station::after{content:"";position:absolute;left:-38px;top:29px;
+  width:9px;height:9px;border-radius:50%;box-sizing:border-box;}
+html.js-jeu .j-station::before{border:1px solid var(--border);background:var(--surface);}
+html.js-jeu .j-station::after{background:var(--gold);opacity:var(--lit);
+  transform:scale(calc(.3 + var(--lit)*.7));}
+/* JAMAIS d'opacité sur la lettre : à 42 % l'or tombe à 2,5:1 sur le fond —
+   le piège de la pastille du cheminement, mesuré et documenté. Elle s'éteint
+   par la COULEUR, de --muted (7,5:1) vers --gold : les deux extrémités
+   passent. Seule la lueur de passage joue en transparence, et c'est une
+   ombre, pas du texte. */
+html.js-jeu .j-station-l{color:var(--muted);
+  text-shadow:0 0 18px rgba(216,173,76,calc(var(--pass)*.55));}
+@supports (color:color-mix(in srgb,red,blue)){
+  html.js-jeu .j-station-l{
+    color:color-mix(in srgb,var(--gold) calc(var(--lit)*100%),var(--muted));}
+  html.js-jeu .j-station h3{
+    color:color-mix(in srgb,var(--text) calc(var(--lit)*100%),var(--muted));}
+}
+
+/* ══ 3. LE VOILE — il se lève, sous sa barre dorée ══════════════════
+   Le geste du révélateur du catalogue (libraryScrub), redressé à la
+   verticale : ce n'est plus un tirage qui vient au bain, c'est un voile
+   qui MONTE et découvre les rapports sociaux. Le mot de la section est
+   pris au pied de la lettre. ════════════════════════════════════════ */
 .j-voile{display:grid;grid-template-columns:1fr 1fr;gap:1px;
   background:var(--border);border:1px solid var(--border);
-  border-radius:16px;overflow:hidden;margin-top:8px;}
-.j-colonne{padding:26px clamp(18px,2.6vw,28px) 28px;background:var(--surface);}
+  border-radius:16px;overflow:clip;max-width:980px;}
+.j-colonne{position:relative;padding:26px clamp(18px,2.6vw,28px) 28px;
+  background:var(--surface);}
 /* La colonne du voile levé est la surface d'emphase du socle : le halo
    monte du BAS, une bougie n'éclaire pas du plafond. */
-.j-colonne--sous{background:var(--emphase);position:relative;
+.j-colonne--sous{background:var(--emphase);
   box-shadow:inset 0 0 0 1px rgba(216,173,76,.20);}
 .j-colonne--sous::after{content:'';position:absolute;inset:0;pointer-events:none;
   background:radial-gradient(ellipse at 50% 118%,var(--candle) 0%,transparent 62%);}
@@ -156,13 +265,27 @@ body{background:var(--bg);color:var(--text);
 .j-colonne-t{font-size:.72rem;font-weight:600;letter-spacing:.11em;
   text-transform:uppercase;color:var(--muted);margin-bottom:16px;}
 .j-colonne--sous .j-colonne-t{color:var(--gold);}
-.j-mesures{list-style:none;display:flex;flex-direction:column;gap:0;}
+.j-mesures{list-style:none;}
 .j-mesures li{font-size:.9rem;line-height:1.5;color:var(--text);
   padding:8px 0;border-top:1px solid var(--line-soft);}
 .j-mesures li:first-child{border-top:0;}
 .j-mesures li span{color:var(--muted);font-size:.82rem;}
-.j-voile-note{margin-top:22px;font-size:.95rem;line-height:1.72;color:var(--muted);
-  max-width:62ch;}
+
+/* le voile lui-même — inexistant sans js-jeu */
+.j-voile-rideau{display:none;}
+html.js-jeu .j-colonne--sous{--dev:1;--bar:0;}
+html.js-jeu .j-voile-rideau{display:block;position:absolute;inset:0;z-index:3;
+  pointer-events:none;background:var(--surface);
+  transform:translateY(calc(var(--dev) * -101%));}
+/* l'ourlet du voile : la barre dorée du révélateur, couchée. Elle vit sur
+   le bord BAS du rideau, donc elle descend avec lui. */
+html.js-jeu .j-voile-rideau::after{content:"";position:absolute;
+  left:0;right:0;bottom:0;height:2px;opacity:var(--bar);
+  background:linear-gradient(90deg,transparent,var(--gold) 22%,var(--gold) 78%,transparent);
+  box-shadow:0 0 14px rgba(216,173,76,.5);}
+
+.j-voile-note{margin-top:24px;font-size:.94rem;line-height:1.72;
+  color:var(--muted);max-width:60ch;}
 .j-voile-note b{color:var(--text);font-weight:600;}
 .j-touche{display:inline-flex;align-items:center;justify-content:center;
   min-width:24px;height:24px;padding:0 7px;margin:0 2px;
@@ -170,67 +293,108 @@ body{background:var(--bg);color:var(--text);
   font-family:var(--f-ui);font-size:.74rem;font-weight:600;color:var(--text);
   background:rgba(243,233,212,.06);vertical-align:baseline;}
 
-/* ── ce que la partie raconte ── */
-.j-cartes{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:8px;}
-.j-carte{border:1px solid var(--border);border-radius:16px;background:var(--surface);
-  padding:24px 22px 26px;transition:border-color .22s,box-shadow .22s,transform .4s cubic-bezier(.16,1,.3,1);}
+/* ══ 4. CE QUE ÇA DEVIENT — les feuillets se posent ═════════════════ */
+.j-cartes{display:grid;grid-template-columns:repeat(3,1fr);
+  gap:clamp(16px,2.4vw,26px);max-width:1080px;}
+.j-carte{--drop:0px;--tilt:0deg;--ink:1;
+  border:1px solid var(--border);border-radius:16px;background:var(--surface);
+  padding:26px 24px 28px;
+  transform:translateY(var(--drop)) rotate(var(--tilt));
+  transition:border-color .22s,box-shadow .22s;}
 .j-carte:hover{border-color:var(--gold);box-shadow:0 22px 48px -20px rgba(0,0,0,.7);}
+/* le numéro prend l'encre une fois le feuillet posé — le traitement des
+   années de la frise, encore */
+/* Même règle que la lettre de station : l'encre vient par la COULEUR et non
+   par l'opacité — un or à 28 % ne fait que 2:1 sur le fond.
+   PIÈGE DE SPÉCIFICITÉ, mesuré : le numéro est un <p>, donc `.j-carte p`
+   (0,1,1) bat `.j-carte-n` (0,1,0) et la couleur ne s'appliquait JAMAIS —
+   le numéro restait en --muted même une fois le feuillet posé. Les deux
+   règles sont donc écrites en `.j-carte .j-carte-n` (0,2,1). */
+.j-carte .j-carte-n{font-family:'Fraunces',serif;font-style:italic;font-weight:500;
+  font-size:1.5rem;line-height:1;letter-spacing:-.02em;margin-bottom:12px;
+  color:var(--muted);}
+@supports (color:color-mix(in srgb,red,blue)){
+  .j-carte .j-carte-n{
+    color:color-mix(in srgb,var(--gold) calc(var(--ink)*100%),var(--muted));}
+}
 .j-carte h3{font-family:'Fraunces',serif;font-weight:600;font-size:1.02rem;
   color:var(--text);margin-bottom:9px;letter-spacing:-.01em;}
 .j-carte p{font-size:.9rem;line-height:1.68;color:var(--muted);}
 
-/* ── avant de commencer ── */
-.j-pratique{list-style:none;margin-top:8px;max-width:64ch;}
-.j-pratique li{display:grid;grid-template-columns:22px 1fr;gap:14px;
-  padding:13px 0;border-top:1px solid var(--line-soft);
-  font-size:.93rem;line-height:1.66;color:var(--muted);}
-.j-pratique li:first-child{border-top:0;}
-.j-pratique li b{color:var(--text);font-weight:600;}
-/* Marques DESSINÉES, jamais d'emoji dans une pastille d'interface. */
-.j-pratique svg{margin-top:3px;color:var(--gold);flex:none;}
+/* ══ 5. EN PRATIQUE — quatre faits, pas un paragraphe ═══════════════ */
+.j-faits{display:grid;grid-template-columns:repeat(4,1fr);
+  gap:clamp(18px,2.6vw,34px);max-width:1080px;}
+.j-fait{border-top:1px solid var(--line-strong);padding-top:16px;}
+.j-fait svg{color:var(--gold);display:block;margin-bottom:11px;}
+.j-fait h3{font-family:var(--f-ui);font-size:.72rem;font-weight:600;
+  letter-spacing:.11em;text-transform:uppercase;color:var(--text);margin-bottom:8px;}
+.j-fait p{font-size:.87rem;line-height:1.64;color:var(--muted);}
 
-/* ── la dernière page ── */
-/* La bande finale est pleine largeur, mais son TEXTE doit tomber sur la même
-   verticale que tout le reste de la page. Le rembourrage horizontal vit donc
-   sur l'intérieur, qui reprend la géométrie exacte de .jw — posé sur la
-   section, il décalait la dernière page de 36 px vers la gauche (mesuré). */
+/* ══ 6. LA DERNIÈRE PAGE — elle s'allume par le bas ═════════════════ */
 .j-fin{position:relative;overflow:clip;border-top:1px solid var(--border);
-  padding:clamp(56px,9vh,96px) 0 clamp(60px,10vh,104px);}
-.j-fin::before{content:'';position:absolute;left:8%;bottom:-30%;
-  width:min(700px,90%);height:420px;pointer-events:none;
+  padding:clamp(60px,10vh,104px) clamp(24px,5vw,80px) clamp(66px,11vh,116px);
+  --lum:1;}
+.j-fin::before{content:'';position:absolute;left:10%;bottom:-34%;
+  width:min(720px,86%);height:440px;pointer-events:none;
+  opacity:var(--lum);
+  transform:translateY(calc((1 - var(--lum)) * 40px));
   background:radial-gradient(ellipse at center,var(--candle) 0%,transparent 66%);}
-.j-fin-inner{position:relative;z-index:1;max-width:1000px;margin:0 auto;
-  padding:0 clamp(20px,4vw,42px);}
+.j-fin-inner{position:relative;z-index:1;}
 .j-fin-line{font-family:'Fraunces',serif;font-weight:900;
-  font-size:clamp(1.6rem,3.2vw,2.3rem);letter-spacing:-.03em;line-height:1.1;
-  margin-bottom:22px;max-width:22ch;}
+  font-size:clamp(1.7rem,3.4vw,2.5rem);letter-spacing:-.03em;line-height:1.1;
+  margin-bottom:24px;max-width:20ch;}
 .j-fin-line em{font-style:italic;font-weight:500;color:var(--gold);}
+.j-fin .j-btn-plein{box-shadow:0 14px 34px -16px rgba(216,173,76,calc(var(--lum)*.7));}
 
-/* ── révélation au défilement — l'état FINI est le défaut ── */
-html.js-jeu .j-rev{opacity:0;transform:translateY(18px);}
-html.js-jeu .j-rev.in{opacity:1;transform:none;
-  transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1);}
+/* ══ le titre prend l'encre, mot à mot (scrubReveal) ════════════════ */
+html.js-jeu .j-h .rw,
+html.js-jeu .j-fin-line .rw{display:inline-block;white-space:pre;
+  opacity:calc(.16 + .84 * var(--wp,1));
+  filter:blur(calc((1 - var(--wp,1)) * 5px));
+  transform:translateY(calc((1 - var(--wp,1)) * .2em));
+  transition:opacity .12s linear,filter .12s linear,transform .12s linear;
+  will-change:opacity,filter,transform;}
 
-/* ── responsive ── */
-@media(max-width:860px){
+/* ══ responsive ════════════════════════════════════════════════════ */
+@media(max-width:1100px){
+  .j-faits{grid-template-columns:repeat(2,1fr);}
+}
+@media(max-width:900px){
+  .j-hero{grid-template-columns:1fr;min-height:auto;gap:38px;}
+  .j-vue{max-width:none;}
+  .j-halo{left:50%;}
   .j-voile{grid-template-columns:1fr;}
   .j-cartes{grid-template-columns:1fr;}
 }
 @media(max-width:560px){
   .j-station{grid-template-columns:1fr;gap:6px;}
-  .j-station-l{font-size:1.5rem;}
+  .j-station-l{font-size:1.55rem;}
+  .j-faits{grid-template-columns:1fr;}
   .j-btn{flex:1 1 auto;justify-content:center;}
 }
+
+/* ══ dégradations ══════════════════════════════════════════════════
+   Sans JavaScript, personne ne pose jamais `.lit` : le héros resterait à
+   l'opacité 0, c'est-à-dire la page vide pour qui n'exécute pas de script.
+   Elle s'affiche donc finie. Même filet que sur l'accueil. ═══════════ */
+@media (scripting: none){
+  .j-hero .j-left>*,.j-hero .j-right,.j-hero .j-hint{
+    opacity:1!important;transform:none!important;transition:none!important;}
+}
+html.no-motion .j-hero .j-left>*,
+html.no-motion .j-hero .j-right,
+html.no-motion .j-hero .j-hint{
+  opacity:1!important;transform:none!important;transition:none!important;}
 @media(prefers-reduced-motion:reduce){
   *{animation:none!important;transition:none!important;}
 }
 </style>
 <link rel="preload" href="/oeuvres/shell.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="/oeuvres/shell.css"></noscript>
-<!-- VideoGame — le jeu est bien une œuvre logicielle à part entière, et
-     ce bloc n'affirme QUE ce que la page montre : il est gratuit, il se
-     joue dans un navigateur, il porte sur Le Capital. Pas de note, pas
-     d'avis, pas de date de sortie inventée. -->
+<!-- VideoGame — le jeu est bien une œuvre logicielle à part entière, et ce
+     bloc n'affirme QUE ce que la page montre : il est gratuit, il se joue
+     dans un navigateur, il porte sur Le Capital. Pas de note, pas d'avis,
+     pas de date de sortie inventée. -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -257,108 +421,114 @@ html.js-jeu .j-rev.in{opacity:1;transform:none;
 </head>
 <body>
 <main class="wrap" id="contenu" tabindex="-1">
-<div class="jw">
 
-  <!-- ── Le seuil ── -->
+  <!-- ── 1. Le seuil ── -->
   <section class="j-hero">
-    <p class="j-label">Le jeu</p>
-    <h1 class="j-h1">Le circuit <em>du capital</em></h1>
-    <p class="j-lede">Vous avancez l'argent. Vous achetez des machines et de la
-      force de travail. Vous lancez la production, vous vendez — et l'argent
-      revient plus gros qu'il n'est parti. Le jeu ne vous explique pas d'où
-      vient la différence&nbsp;: il vous la fait produire, cycle après cycle,
-      puis il vous laisse lever le voile sur ce qui s'est réellement passé.</p>
-    <div class="j-btns">
-      <a class="j-btn j-btn-plein" href="/jeu/jouer">
-        <svg width="13" height="14" viewBox="0 0 13 14" aria-hidden="true"><path d="M1 1.4v11.2a.6.6 0 0 0 .92.5l8.9-5.6a.6.6 0 0 0 0-1L1.92.9A.6.6 0 0 0 1 1.4Z" fill="currentColor"/></svg>
-        Jouer
-      </a>
-      <a class="j-btn j-btn-trait" href="/oeuvres/capital-1#labo">Le laboratoire du <i>Capital</i></a>
+    <div class="j-halo" aria-hidden="true"></div>
+
+    <div class="j-left">
+      <span class="j-badge"><i aria-hidden="true"></i>Jouable · dans le navigateur, sans compte</span>
+      <!-- « du capital » reste soudé : à la largeur de la colonne, le titre
+           cassait en « Le circuit du / capital » et laissait l'article seul en
+           fin de ligne. -->
+      <h1 class="j-h1">Le circuit <em>du&nbsp;capital</em></h1>
+      <p class="j-desc">Vous avancez l'argent, vous achetez la force de travail,
+        vous produisez, vous vendez. L'argent revient plus gros&nbsp;— reste à
+        savoir d'où vient la différence.</p>
+      <div class="j-btns">
+        <a class="j-btn j-btn-plein" href="/jeu/jouer">
+          <svg width="13" height="14" viewBox="0 0 13 14" aria-hidden="true"><path d="M1 1.4v11.2a.6.6 0 0 0 .92.5l8.9-5.6a.6.6 0 0 0 0-1L1.92.9A.6.6 0 0 0 1 1.4Z" fill="currentColor"/></svg>
+          Jouer
+        </a>
+        <a class="j-btn j-btn-trait" href="/oeuvres/capital-1#labo">Le laboratoire du <i>Capital</i></a>
+      </div>
     </div>
+
+    <div class="j-right">
+      <figure class="j-vue">
+        <picture>
+          <source srcset="/assets/img/jeu/circuit-plan-large.webp" type="image/webp">
+          <img src="/assets/img/jeu/circuit-plan-large.jpg" width="1600" height="900"
+               fetchpriority="high"
+               alt="Le monde du jeu au lever du jour : au premier plan un chariot
+                    à lanterne sur une route pavée ; de part et d'autre, les
+                    bâtiments étiquetés « A — Banque », « M — Marché des
+                    moyens », « Ft — Marché du travail », « P — Usine » et
+                    « M′ — Entrepôt ».">
+        </picture>
+        <figcaption>La Banque en A, les deux marchés en M, l'Usine en P,
+          l'Entrepôt en M′. Le chariot est votre curseur.</figcaption>
+      </figure>
+    </div>
+
+    <div class="j-hint" aria-hidden="true"><i></i>Faire défiler</div>
   </section>
 
-  <figure class="j-vue j-rev">
-    <img src="/assets/img/jeu/circuit-plan-large.webp" width="1600" height="900"
-         alt="Le monde du jeu au lever du jour : au premier plan un chariot à
-              lanterne sur une route pavée ; de part et d'autre, les bâtiments
-              étiquetés « A — Banque », « M — Marché des moyens », « Ft —
-              Marché du travail », « P — Usine », « M′ — Entrepôt » et le
-              quartier ouvrier.">
-    <figcaption>La route et ses stations&nbsp;: la Banque en A, les deux marchés en
-      M, l'Usine en P, l'Entrepôt en M′. Le chariot est votre curseur.</figcaption>
-  </figure>
-
-  <!-- ── Le circuit est un lieu ── -->
-  <section class="j-sec j-rev">
+  <!-- ── 2. Les stations ── -->
+  <section class="j-sec">
     <p class="j-label">Ce que vous y faites</p>
     <h2 class="j-h">La formule devient un trajet</h2>
     <p class="j-lede">A—M—P—M′—A′ n'est plus une ligne dans un livre&nbsp;:
-      c'est une route, et chaque lettre est un endroit où il faut aller.</p>
+      c'est une route, et chaque lettre est un endroit où aller.</p>
 
     <div class="j-stations">
       <div class="j-station">
-        <span class="j-station-l" aria-hidden="true">A</span>
+        <span class="j-station-l">A</span>
         <div>
-          <h3>La Banque — vous avancez l'argent</h3>
-          <p>Non pour consommer&nbsp;: pour qu'il revienne grossi. Et comme vous
-            n'en avez pas assez, vous <b>empruntez</b> — la dette entre dans la
-            partie dès le premier geste, avec son taux et sa pression.</p>
+          <h3>La Banque</h3>
+          <p>Vous avancez l'argent pour qu'il revienne grossi. Vous n'en avez
+            pas assez&nbsp;: la <b>dette</b> entre dans la partie dès le premier geste.</p>
         </div>
       </div>
       <div class="j-station">
-        <span class="j-station-l" aria-hidden="true">M</span>
+        <span class="j-station-l">M</span>
         <div>
-          <h3>Les deux marchés — vous achetez deux choses très différentes</h3>
-          <p>Au marché des moyens, des machines et des matières&nbsp;: elles
-            transmettent leur valeur, sans en ajouter. Au marché du travail, la
-            <b>force de travail</b> — la seule marchandise qui produise plus de
-            valeur qu'elle ne coûte. Tout le jeu tient dans cet écart.</p>
+          <h3>Les deux marchés</h3>
+          <p>Des machines, qui transmettent leur valeur sans en ajouter. Et de
+            la <b>force de travail</b>, la seule marchandise qui en produise plus
+            qu'elle ne coûte.</p>
         </div>
       </div>
       <div class="j-station">
-        <span class="j-station-l" aria-hidden="true">P</span>
+        <span class="j-station-l">P</span>
         <div>
-          <h3>L'Usine — vous lancez la production</h3>
-          <p>Le seul endroit du monde où de la valeur <b>neuve</b> apparaît. Vous
-            réglez la journée, l'embauche, les machines&nbsp;; chaque tour de vis
-            arrache un peu plus — et fabrique ses propres contradictions.</p>
+          <h3>L'Usine</h3>
+          <p>Le seul endroit où de la valeur <b>neuve</b> apparaît. Vous réglez la
+            journée, l'embauche, les machines — et vous fabriquez vos propres
+            contradictions.</p>
         </div>
       </div>
       <div class="j-station">
-        <span class="j-station-l" aria-hidden="true">M′</span>
+        <span class="j-station-l">M′</span>
         <div>
-          <h3>L'Entrepôt — la marchandise sort grossie</h3>
-          <p>Elle vaut plus qu'elle n'a coûté. Mais elle ne vaut encore rien
-            tant qu'elle est là&nbsp;: les <b>stocks invendus</b> sont de la
-            plus-value qui n'existe pas.</p>
+          <h3>L'Entrepôt</h3>
+          <p>La marchandise sort grossie. Mais tant qu'elle est là, elle ne vaut
+            rien&nbsp;: un <b>stock invendu</b> est de la plus-value qui n'existe pas.</p>
         </div>
       </div>
       <div class="j-station">
-        <span class="j-station-l" aria-hidden="true">A′</span>
+        <span class="j-station-l">A′</span>
         <div>
-          <h3>La vente — vous encaissez</h3>
-          <p>Elle réalise en argent ce que le travail a produit. Vous remboursez,
-            et vous relancez plus grand&nbsp;: c'est <b>l'accumulation</b>, et
-            c'est elle qui, en grossissant, finit par vous poser des problèmes
-            que vous n'aviez pas au premier cycle.</p>
+          <h3>La vente</h3>
+          <p>Elle réalise en argent ce que le travail a produit. Vous relancez
+            plus grand&nbsp;: c'est <b>l'accumulation</b>, et c'est elle qui finira par
+            vous poser problème.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ── Le voile — le cœur de l'affaire ── -->
-  <section class="j-sec j-rev">
+  <!-- ── 3. Le voile ── -->
+  <section class="j-sec">
     <p class="j-label">Le geste propre au jeu</p>
-    <h2 class="j-h">Lever le voile</h2>
-    <p class="j-lede">Le tableau de bord vous montre d'abord ce que regarde un
-      patron. Une touche le redit dans une autre langue — la même partie, les
-      mêmes chiffres, décrits comme des rapports entre des gens.</p>
+    <h2 class="j-h">Lever le <em>voile</em></h2>
+    <p class="j-lede">Une touche redit la même partie dans une autre langue.</p>
 
     <div class="j-voile">
       <div class="j-colonne">
         <p class="j-colonne-t">Ce que voit le comptable</p>
         <ul class="j-mesures">
-          <li>Capital <span>— ce qu'il vous reste en caisse</span></li>
+          <li>Capital <span>— ce qu'il reste en caisse</span></li>
           <li>Dette <span>— ce que la banque attend</span></li>
           <li>Profit du cycle <span>— la différence, sans son origine</span></li>
           <li>Stocks <span>— ce qui n'est pas vendu</span></li>
@@ -366,113 +536,107 @@ html.js-jeu .j-rev.in{opacity:1;transform:none;
         </ul>
       </div>
       <div class="j-colonne j-colonne--sous">
+        <span class="j-voile-rideau" aria-hidden="true"></span>
         <p class="j-colonne-t">Sous le voile — rapports sociaux</p>
         <ul class="j-mesures">
           <li>Plus-value <span>— le travail que vous n'avez pas payé</span></li>
           <li>Taux d'exploitation <span>— sa part dans la journée</span></li>
           <li>Capital constant (c) <span>— les machines, qui ne créent rien</span></li>
           <li>Capital variable (v) <span>— les salaires, qui créent tout</span></li>
-          <li>Composition organique c/v <span>— et sa pente</span></li>
+          <li>Composition organique <span>— et sa pente</span></li>
           <li>Taux de profit <span>— pourquoi il baisse tout seul</span></li>
         </ul>
       </div>
     </div>
 
-    <p class="j-voile-note">Rien n'a bougé dans la partie&nbsp;: c'est la
-      <b>même situation, dite autrement</b>. Le profit du premier tableau et la
-      plus-value du second sont le même nombre — sauf que le second dit d'où il
-      vient. C'est très exactement le geste du <i>Capital</i>, et c'est pour ça
-      que le voile ne s'ouvre pas d'emblée&nbsp;: il se lève au moment où votre
-      premier circuit se referme et où l'argent revient augmenté — l'instant
-      que le jeu appelle <i>la naissance du capital</i>. Il faut avoir fait la
-      chose pour avoir quelque chose à démasquer. Ensuite, la touche
-      <span class="j-touche">V</span> l'ouvre et le referme quand vous voulez.</p>
+    <p class="j-voile-note">Le profit du premier tableau et la plus-value du
+      second sont <b>le même nombre</b>&nbsp;— le second dit d'où il vient. Le voile
+      ne s'ouvre pas d'emblée&nbsp;: il se lève quand votre premier circuit se
+      referme, l'instant que le jeu appelle <i>la naissance du capital</i>.
+      Ensuite, la touche <span class="j-touche">V</span> l'ouvre et le referme.</p>
   </section>
 
-  <!-- ── Ce que la partie raconte ── -->
-  <section class="j-sec j-rev">
+  <!-- ── 4. Ce que ça devient ── -->
+  <section class="j-sec">
     <p class="j-label">Ce que ça devient</p>
     <h2 class="j-h">La partie ne s'arrête pas au profit</h2>
-    <p class="j-lede">Accumuler marche — jusqu'à ce que l'accumulation
-      elle-même devienne le problème. Le jeu va au bout de cette phrase.</p>
+    <p class="j-lede">Accumuler marche — jusqu'à ce que l'accumulation devienne
+      le problème.</p>
 
     <div class="j-cartes">
       <div class="j-carte">
+        <p class="j-carte-n" aria-hidden="true">I</p>
         <h3>Vos gains vous reviennent</h3>
-        <p>Chaque machine arrache plus de valeur en moins de temps — et rend une
-          part des bras superflue. Le chômage que vous produisez fait pression
-          sur les salaires, la colère ouvrière monte, et le risque de crise avec
-          elle. Vous ne subissez pas ces courbes&nbsp;: vous les avez faites.</p>
+        <p>Chaque machine rend des bras superflus. Le chômage que vous produisez
+          pèse sur les salaires, la colère ouvrière monte, et le risque de crise
+          avec elle.</p>
       </div>
       <div class="j-carte">
+        <p class="j-carte-n" aria-hidden="true">II</p>
         <h3>La forme change en route</h3>
         <p>La Bourse se fonde et le capital devient financier&nbsp;; ailleurs le
-          conflit se canalise en droits sociaux et en syndicats reconnus, et un
-          capitalisme régulé se stabilise. La formation sociale de votre partie
-          n'est pas décidée d'avance.</p>
+          conflit se canalise en droits sociaux. Votre formation sociale n'est
+          pas décidée d'avance.</p>
       </div>
       <div class="j-carte">
+        <p class="j-carte-n" aria-hidden="true">III</p>
         <h3>Il y a une sortie</h3>
-        <p>Une fin possible s'appelle la Commune&nbsp;: l'accumulation cède la
-          place à la coordination. Elle tient — ou elle s'effondre, selon ce que
-          la partie a laissé debout. C'est la seule où vous cessez d'être le
-          personnage principal.</p>
+        <p>Une fin s'appelle la Commune&nbsp;: l'accumulation cède à la
+          coordination. Elle tient, ou elle s'effondre. C'est la seule où vous
+          cessez d'être le personnage principal.</p>
       </div>
     </div>
   </section>
 
-  <!-- ── Avant de commencer ── -->
-  <section class="j-sec j-rev">
+  <!-- ── 5. En pratique ── -->
+  <section class="j-sec">
     <p class="j-label">En pratique</p>
     <h2 class="j-h">Avant de commencer</h2>
 
-    <ul class="j-pratique">
-      <li>
+    <div class="j-faits">
+      <div class="j-fait">
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><rect x="1.6" y="4.2" width="16.8" height="10.4" rx="1.6" stroke="currentColor" stroke-width="1.3"/><path d="M5 17.4h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-        <span><b>Un ordinateur, et un clavier.</b> Le chariot ne se conduit
-          qu'aux touches — Z Q S D, ou W A S D selon votre disposition. Faute de
-          commandes tactiles, le jeu ne se joue pas au téléphone.</span>
-      </li>
-      <li>
+        <h3>Au clavier</h3>
+        <p>Z Q S D, ou W A S D. Faute de commandes tactiles, le jeu ne se joue
+          pas au téléphone.</p>
+      </div>
+      <div class="j-fait">
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="7.3" stroke="currentColor" stroke-width="1.3"/><path d="M2.9 10h14.2M10 2.7c1.9 2 2.9 4.5 2.9 7.3s-1 5.3-2.9 7.3c-1.9-2-2.9-4.5-2.9-7.3s1-5.3 2.9-7.3Z" stroke="currentColor" stroke-width="1.3"/></svg>
-        <span><b>Une carte graphique et un navigateur récent.</b> La scène est en
-          trois dimensions, rendue par WebGL. Le premier chargement pèse environ
-          six mégaoctets — l'essentiel est le ciel qui éclaire la scène — et il
-          se met ensuite en cache.</span>
-      </li>
-      <li>
+        <h3>En trois dimensions</h3>
+        <p>WebGL et un navigateur récent. Six mégaoctets au premier chargement,
+          mis en cache ensuite.</p>
+      </div>
+      <div class="j-fait">
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M3.4 3.4h9.4l3.8 3.8v9.4a.9.9 0 0 1-.9.9H3.4a.9.9 0 0 1-.9-.9V4.3a.9.9 0 0 1 .9-.9Z" stroke="currentColor" stroke-width="1.3"/><path d="M6.2 3.4v4.3h6.1M6.2 17.5v-5h7.6v5" stroke="currentColor" stroke-width="1.3"/></svg>
-        <span><b>Trois parties, et aucun compte.</b> Le jeu enregistre tout seul,
-          à chaque cycle, dans votre navigateur. Rien ne part sur un serveur, et
-          rien ne se synchronise d'un appareil à l'autre — contrairement à votre
-          carnet de lecture, qui, lui, a besoin d'un compte.</span>
-      </li>
-      <li>
+        <h3>Sans compte</h3>
+        <p>Trois parties, enregistrées toutes seules dans votre navigateur. Rien
+          ne part sur un serveur.</p>
+      </div>
+      <div class="j-fait">
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="7.3" stroke="currentColor" stroke-width="1.3"/><path d="M10 6.1v4.6M10 13.6v.1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-        <span><b>C'est une première version.</b> Le jeu est jouable de bout en
-          bout, il n'est pas fini pour autant&nbsp;: il s'écrit encore, et ce que
-          vous voyez aujourd'hui bougera.</span>
-      </li>
-    </ul>
+        <h3>Première version</h3>
+        <p>Jouable de bout en bout, pas fini pour autant. Ce que vous voyez
+          aujourd'hui bougera.</p>
+      </div>
+    </div>
   </section>
 
-</div>
-
-<!-- ── La dernière page ── -->
-<section class="j-fin">
-  <div class="j-fin-inner j-rev">
-    <p class="j-label">Pour commencer</p>
-    <p class="j-fin-line">Le plus court chemin vers la plus-value, c'est
-      <em>de la produire</em>.</p>
-    <div class="j-btns">
-      <a class="j-btn j-btn-plein" href="/jeu/jouer">
-        <svg width="13" height="14" viewBox="0 0 13 14" aria-hidden="true"><path d="M1 1.4v11.2a.6.6 0 0 0 .92.5l8.9-5.6a.6.6 0 0 0 0-1L1.92.9A.6.6 0 0 0 1 1.4Z" fill="currentColor"/></svg>
-        Jouer
-      </a>
-      <a class="j-btn j-btn-trait" href="/oeuvres/bibliotheque">Revenir à la bibliothèque</a>
+  <!-- ── 6. La dernière page ── -->
+  <section class="j-fin">
+    <div class="j-fin-inner">
+      <p class="j-label">Pour commencer</p>
+      <p class="j-fin-line">Le plus court chemin vers la plus-value,
+        c'est <em>de la produire</em>.</p>
+      <div class="j-btns">
+        <a class="j-btn j-btn-plein" href="/jeu/jouer">
+          <svg width="13" height="14" viewBox="0 0 13 14" aria-hidden="true"><path d="M1 1.4v11.2a.6.6 0 0 0 .92.5l8.9-5.6a.6.6 0 0 0 0-1L1.92.9A.6.6 0 0 0 1 1.4Z" fill="currentColor"/></svg>
+          Jouer
+        </a>
+        <a class="j-btn j-btn-trait" href="/oeuvres/bibliotheque">Revenir à la bibliothèque</a>
+      </div>
     </div>
-  </div>
-</section>
+  </section>
+
 </main>
 
 <script src="/config.js"></script>
@@ -481,38 +645,242 @@ html.js-jeu .j-rev.in{opacity:1;transform:none;
 <script>
 installShell({ workTitle: 'Le jeu', tabs: [] });
 
+/* ═══════════════════════════════════════════════════════════════════════
+   Le mouvement de la page — le vocabulaire de assets/home.js, dupliqué.
+   Un seul pilote de défilement (rAF, plusieurs abonnés), tout piloté par
+   la POSITION donc réversible, tout coupé sous reduced-motion et en
+   dessous de 768 px, et le défaut CSS est l'état posé.
+   ═══════════════════════════════════════════════════════════════════════ */
 (function(){
   'use strict';
-  // La largeur se lit à la MEDIA QUERY et non à innerWidth : au moment où
-  // ce script tourne, la fenêtre peut encore annoncer 0 (onglet ouvert en
-  // arrière-plan, onglet piloté) — piège déjà payé sur l'accueil et sur
-  // l'entrée du carnet.
+  var docEl = document.documentElement;
   var m = window.matchMedia;
-  if(m('(max-width:767px)').matches || m('(prefers-reduced-motion:reduce)').matches) return;
-  if(!('IntersectionObserver' in window)) return;
+  var REDUCE = m('(prefers-reduced-motion:reduce)').matches;
+  /* La largeur se lit à la MEDIA QUERY, jamais à innerWidth — même piège
+     que dans le <head>. */
+  var ETROIT = m('(max-width:767px)').matches;
 
-  var els = document.querySelectorAll('.j-rev');
-  if(!els.length) return;
-  // On ne pose la classe de gating qu'une fois qu'on est SÛR de pouvoir
-  // rendre la main : sans elle, le CSS est déjà l'état fini, donc un échec
-  // du script ne laisse jamais une section invisible.
-  document.documentElement.classList.add('js-jeu');
+  /* FILET SUR LE SCRIPT DE TÊTE, et il ne relève pas de la théorie : mesuré
+     dans un onglet piloté, la tête de CETTE page est analysée avant que la
+     taille du viewport ne soit établie — la page est légère, elle parse trop
+     tôt —, si bien que `no-anim` n'était jamais posé à 375 px alors que
+     l'accueil, plus lourd, le posait correctement. Le script de tête reste
+     nécessaire (il faut décider AVANT le premier rendu) mais il décide une
+     fois pour toutes ; on redit donc ici ce que la media query dit une fois
+     la page chargée. Dans ce cas rien ne s'arme et rien ne s'anime : c'est
+     `no-anim` qui montre le héros, `.lit` n'a pas à être posée. */
+  if (REDUCE || ETROIT) {
+    docEl.classList.add('no-anim');
+    docEl.classList.add('no-motion');
+    return;
+  }
 
-  var io = new IntersectionObserver(function(entries){
-    entries.forEach(function(e){
-      if(!e.isIntersecting) return;
-      e.target.classList.add('in');
-      io.unobserve(e.target);
+  /* Le héros s'allume tout de suite : la coquille est là au premier rendu,
+     il n'y a rien à attendre. */
+  var hero = document.querySelector('.j-hero');
+  if (hero) hero.classList.add('lit');
+
+  /* — le pilote commun — */
+  var subs = [], queued = false, wired = false;
+  function run(){
+    queued = false;
+    var y = window.pageYOffset || 0, vh = window.innerHeight || 1;
+    for (var i = subs.length - 1; i >= 0; i--){
+      var keep = true;
+      try { keep = subs[i](y, vh); } catch(e){}
+      if (keep === false) subs.splice(i, 1);
+    }
+  }
+  function driver(){ if (queued) return; queued = true; requestAnimationFrame(run); }
+  function addSub(fn){
+    subs.push(fn);
+    if (!wired){
+      wired = true;
+      document.addEventListener('scroll', driver, { passive:true, capture:true });
+      window.addEventListener('resize', driver);
+    }
+    try { fn(window.pageYOffset || 0, window.innerHeight || 1); } catch(e){}
+  }
+  function cl01(v){ return v < 0 ? 0 : (v > 1 ? 1 : v); }
+  function ease(v){ return v * v * (3 - 2 * v); }
+
+  docEl.classList.add('js-jeu');
+
+  /* — A. L'invite à descendre —
+     PIÈGE : un style inline BAT le gating CSS de l'entrée
+     (`html:not(.no-anim) .j-hero .j-hint{opacity:0}`). Tant que le héros
+     n'est pas `.lit`, on n'écrit rien — sinon l'invite s'allume par-dessus
+     l'entrée du héros. */
+  (function heroHint(){
+    var hint = document.querySelector('.j-hint');
+    if (!hint) return;
+    addSub(function(y, vh){
+      if (hero && !hero.classList.contains('lit')){
+        if (hint.style.opacity) hint.style.opacity = '';
+        return true;
+      }
+      hint.style.opacity = (1 - cl01(y / (vh * 0.1))).toFixed(3);
+      return true;
     });
-  }, { rootMargin: '0px 0px -12% 0px' });
-  els.forEach(function(el){ io.observe(el); });
+  })();
 
-  // Filet : si l'observateur ne se déclenche jamais (onglet resté masqué —
-  // les rappels d'IntersectionObserver n'y sont PAS délivrés, pas même le
-  // rappel initial que la spec garantit), la page s'affiche entière.
-  setTimeout(function(){
-    for(var i=0;i<els.length;i++) els[i].classList.add('in');
-  }, 4000);
+  /* — B. Les titres prennent l'encre, mot à mot — */
+  (function inkTitles(){
+    var heads = [].slice.call(document.querySelectorAll('.j-h, .j-fin-line'));
+    if (!heads.length) return;
+    var INLINE = { EM:1, I:1, B:1, STRONG:1, SPAN:1 };
+    var items = heads.map(function(h){
+      var words = [];
+      [].slice.call(h.childNodes).forEach(function(node){
+        if (node.nodeType === 3){
+          var frag = document.createDocumentFragment();
+          node.textContent.split(/(\s+)/).forEach(function(p){
+            if (!p) return;
+            if (/^\s+$/.test(p)){ frag.appendChild(document.createTextNode(p)); return; }
+            var s = document.createElement('span');
+            s.className = 'rw'; s.textContent = p;
+            frag.appendChild(s); words.push(s);
+          });
+          h.replaceChild(frag, node);
+        } else if (node.nodeType === 1 && INLINE[node.tagName]){
+          node.classList.add('rw'); words.push(node);
+        }
+      });
+      return { el:h, words:words, done:false };
+    });
+    function fill(it, v){
+      for (var i = 0; i < it.words.length; i++) it.words[i].style.setProperty('--wp', v);
+    }
+    /* Défaut à 0 : le CSS met --wp à 1 en repli, mais dès que le scrub
+       existe c'est lui qui commande. */
+    items.forEach(function(it){ fill(it, '0'); });
+
+    addSub(function(y, vh){
+      var pending = false;
+      items.forEach(function(it){
+        if (it.done) return;
+        pending = true;
+        var top = it.el.getBoundingClientRect().top;
+        var p = cl01((vh * 0.92 - top) / (vh * 0.92 - vh * 0.5));
+        var n = it.words.length || 1;
+        for (var i = 0; i < it.words.length; i++){
+          it.words[i].style.setProperty('--wp', cl01((p - (i / n) * 0.55) / 0.45).toFixed(3));
+        }
+        if (p >= 1){ fill(it, '1'); it.done = true; }
+      });
+      return pending;
+    });
+    /* Filet : si le rAF est bridé (onglet masqué), les titres s'encrent
+       quand même plutôt que de rester en blanc flou. */
+    setTimeout(function(){
+      items.forEach(function(it){ if (!it.done){ fill(it, '1'); it.done = true; } });
+    }, 7000);
+  })();
+
+  /* — C. Les stations : le fil et la lumière —
+     LA LIGNE DE LECTURE, PAS UNE COURSE À SOI : la tête du tracé se tient
+     là où est l'œil (80 % de la hauteur), sinon le fil finit sa descente
+     pendant que la section arrive encore et les dernières stations ne
+     s'allument jamais. Erreur déjà payée sur la FAQ de l'accueil et sur
+     les marches de l'atelier.
+     Et la position de chaque station se MESURE : elles n'ont pas la même
+     hauteur, un échelonnement par index allumerait des stations que le fil
+     n'a pas atteintes. */
+  (function stationsScrub(){
+    var list = document.querySelector('.j-stations');
+    var items = list ? [].slice.call(list.querySelectorAll('.j-station')) : [];
+    if (items.length < 2) return;
+    var READ = 0.80;
+    addSub(function(y, vh){
+      var lr = list.getBoundingClientRect();
+      if (!lr.height) return true;
+      var rl = vh * READ;
+      list.style.setProperty('--draw', cl01((rl - lr.top) / lr.height).toFixed(4));
+      for (var i = 0; i < items.length; i++){
+        var ir = items[i].getBoundingClientRect();
+        /* centré sur la PASTILLE (29 px sous le haut de la station) */
+        var lit = ease(cl01((rl - (ir.top + 29) + 46) / 92));
+        items[i].style.setProperty('--lit', lit.toFixed(4));
+        /* la lueur ne vit que PENDANT le passage de la lumière */
+        items[i].style.setProperty('--pass', (4 * lit * (1 - lit)).toFixed(4));
+      }
+      return true;
+    });
+  })();
+
+  /* — D. Le voile se lève —
+     Le révélateur du catalogue, redressé : le rideau monte et découvre les
+     rapports sociaux, sa barre dorée en ourlet. --bar est une CLOCHE : elle
+     ne vit que pendant le mouvement, comme --pass. */
+  (function veilScrub(){
+    var col = document.querySelector('.j-colonne--sous');
+    if (!col || !col.querySelector('.j-voile-rideau')) return;
+    addSub(function(y, vh){
+      var r = col.getBoundingClientRect();
+      /* course : haut de colonne de 88 % à 34 % de la hauteur d'écran */
+      var a = vh * 0.88, b = vh * 0.34;
+      var d = ease(cl01((a - r.top) / (a - b)));
+      col.style.setProperty('--dev', d.toFixed(4));
+      col.style.setProperty('--bar', (4 * d * (1 - d)).toFixed(4));
+      return true;
+    });
+  })();
+
+  /* — E. Les feuillets se posent — */
+  (function poseCards(){
+    var grid = document.querySelector('.j-cartes');
+    var cards = grid ? [].slice.call(grid.querySelectorAll('.j-carte')) : [];
+    if (!cards.length) return;
+    var TILT = [-2.6, 1.9, -1.5];   /* chaque feuillet tombe de biais */
+    var LEAD = 0.13, SPAN = 0.58;
+    addSub(function(y, vh){
+      var r = grid.getBoundingClientRect();
+      var q = cl01((vh * 0.94 - r.top) / (vh * 0.94 - vh * 0.34));
+      for (var i = 0; i < cards.length; i++){
+        var e = ease(cl01((q - i * LEAD) / SPAN));
+        var ink = cl01((e - 0.45) / 0.55);   /* l'encre vient après la pose */
+        cards[i].style.opacity = (0.05 + 0.95 * e).toFixed(3);
+        cards[i].style.setProperty('--drop', ((1 - e) * 30).toFixed(1) + 'px');
+        cards[i].style.setProperty('--tilt', ((1 - e) * TILT[i % 3]).toFixed(2) + 'deg');
+        cards[i].style.setProperty('--ink', ink.toFixed(3));
+      }
+      return true;
+    });
+  })();
+
+  /* — F. La dernière page s'allume —
+     PIÈGE DÉJÀ PAYÉ SUR LA BOUGIE DE L'ACCUEIL, et rejoué ici à la première
+     écriture : la bande est la DERNIÈRE section de la page, donc son bas ne
+     remonte jamais au-dessus du pli — rien ne défile au-delà. Une course
+     calée sur une fraction de la hauteur d'écran ne se termine donc jamais
+     (mesuré : --lum plafonnait à 0,73 en bas de page, et la bande n'était
+     jamais tout à fait allumée).
+     La course est sa PROPRE HAUTEUR : quand on touche le bas du document,
+     le bas de la bande est le bas de l'écran, et --lum vaut exactement 1. */
+  (function closerLum(){
+    var fin = document.querySelector('.j-fin');
+    if (!fin) return;
+    addSub(function(y, vh){
+      var r = fin.getBoundingClientRect();
+      var course = Math.min(vh, r.height) || 1;
+      fin.style.setProperty('--lum', ease(cl01((vh - r.top) / course)).toFixed(4));
+      return true;
+    });
+  })();
+
+  /* La mise en page peut bouger juste après (polices chargées en swap,
+     saut du navigateur sur une ancre) : sans ces rappels, la seule mesure
+     de l'inscription laisserait la page figée tant qu'on ne défile pas. */
+  requestAnimationFrame(driver);
+  /* Ces rappels appellent run() DIRECTEMENT et non driver() : driver diffère
+     à requestAnimationFrame, et un rAF bridé (onglet en arrière-plan) les
+     rendrait inopérants — or c'est précisément le cas qu'ils rattrapent. */
+  setTimeout(run, 400);
+  setTimeout(run, 2000);
+  if (document.readyState !== 'complete'){
+    window.addEventListener('load', run, { once:true });
+  }
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(run);
 })();
 </script>
 </body>
