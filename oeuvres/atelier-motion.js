@@ -95,7 +95,8 @@
        position de lecture, d'où l'entrée orchestrée. Les titres de
        SECTION (.at-sec-h) vivent sous le pli — ils sont scrubbés par
        inkSections(). */
-    var heads = [].slice.call(document.querySelectorAll('.panel-head h2.sec'));
+    var heads = [].slice.call(document.querySelectorAll('.panel-head h2.sec'))
+      .filter(function (h) { return !h.closest || !h.closest('.atl-dossier'); });
     if (!heads.length) return;
     document.documentElement.classList.add('js-atviv');
 
@@ -162,7 +163,15 @@
      on l'atteint en descendant — c'est donc un vrai scrub, réversible,
      et le petit label le précède d'un souffle. */
   function inkSections() {
-    var heads = [].slice.call(document.querySelectorAll('.at-sec-h'));
+    /* Les six titres du Dossier de Capital sont des titres de SECTION et
+       non de panneau, malgré leur balisage : les six panneaux y sont
+       affichés d'un coup, empilés sur onze mille pixels. Confiés à
+       inkTitles(), ils s'encraient donc TOUS À LA FOIS à l'ouverture du
+       Dossier (mesuré : --wp valait 1 sur les six) — cinq gestes sur six
+       dépensés sous le pli, invisibles. Ils reviennent ici, au scrub :
+       chaque titre s'écrit quand on l'atteint. */
+    var heads = [].slice.call(document.querySelectorAll(
+      '.at-sec-h, .atl-dossier .panel-head h2.sec'));
     var labels = [].slice.call(document.querySelectorAll('.at-sec-label'));
     if (!heads.length) return;
     document.documentElement.classList.add('js-atviv');
@@ -412,6 +421,24 @@
     });
   }
 
+  /* ── G bis. L'ouverture d'une section se pose ────────────────────────
+     Le numéro et la rubrique montent en lumière, le filet se tire de la
+     gauche : la section s'annonce au moment où on l'atteint. Fonction de
+     la POSITION → on remonte, elle se range. Le défaut CSS est l'état
+     posé (`var(--dp, 1)`), donc sans JS la page s'affiche finie. */
+  function dossierOpen() {
+    var opens = [].slice.call(document.querySelectorAll('.dos-open'));
+    if (!opens.length) return;
+    addSub(function (y, vh) {
+      for (var i = 0; i < opens.length; i++) {
+        if (!shown(opens[i])) continue;
+        var p = through(opens[i], vh, 0.96, 0.62);
+        opens[i].style.setProperty('--dp',
+          (1 - Math.pow(1 - p, 3)).toFixed(3));
+      }
+    });
+  }
+
   /* ── H. Remesurer quand un onglet s'ouvre ────────────────────────────
      Un panneau qui devient actif apparaît à sa place définitive sans
      qu'aucun défilement n'ait lieu : sans ce rappel, ses sections
@@ -456,6 +483,7 @@
     walkDeduce();
     tocInscribe();
     poseParts();
+    dossierOpen();
     watchPanels();
     /* Le contenu arrive par fetch (catalogue, listes) et le navigateur peut
        sauter sur une ancre : on remesure après coup, comme sur l'accueil. */

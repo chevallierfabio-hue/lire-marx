@@ -1194,6 +1194,137 @@ CSS de la coquille (`.atl3`, le tiroir, les replis) vit déjà dans
 `atelier.css` : le portage est surtout du câblage, plus une table
 d'index chapitre → appareil propre aux Manuscrits.
 
+## Le Dossier remis en ordre (mission `dossier-lisible`, sept. 2026)
+
+Demande du propriétaire : « unifier, ordonner, faire respirer, styliser,
+animer au scroll — plus lisible, en se mettant à la place de l'usager ».
+Diagnostic mesuré avant de toucher au code :
+
+- **11 278 px d'un seul défilement**, 2 248 mots, six sections ;
+- **30 px** séparaient deux sujets — pas de filet, pas de numéro, rien ne
+  disait qu'on avait changé de section ;
+- la barre d'ancres **ne marquait jamais laquelle on lisait** : aucun état
+  actif, aucun repère de position. Dans onze mille pixels, c'était le
+  défaut d'orientation majeur ;
+- **l'ordre de la barre n'était pas celui du document.** `DOSSIER` disait
+  entrer → deriv → labo → explore → chrono → ressources ; le document
+  disait entrer → labo → deriv → chrono → explore → ressources. Descendre
+  la barre faisait sauter en avant puis en arrière ;
+- **les mots de la barre n'étaient pas ceux de l'arrivée** : « Modèles » →
+  « Le laboratoire des lois », « Cheminement » → « L'ascension de
+  l'abstrait au concret ». Six fois le même décalage ;
+- **les six titres s'encraient TOUS EN MÊME TEMPS** (mesuré : `--wp` valait
+  1 sur les six dès l'ouverture du Dossier) — cinq gestes sur six dépensés
+  sous le pli, invisibles.
+
+### Ce qui a été fait
+
+**L'ordre vit à un seul endroit** — la constante `DOSSIER`, que le document
+suit désormais. Il est celui du lecteur : on entre (trois idées), on voit
+le livre se déduire (le cheminement), puis **l'histoire réelle sur laquelle
+il repose (la chronologie)** — que le texte de la section annonce lui-même
+comme « le pendant concret de la Dérivation » et qui en était séparée par
+deux sections —, on manipule les lois (le laboratoire), on regarde les
+renversements (explorations), on va plus loin (ressources).
+
+**Chaque section s'ouvre sur son numéro et sur le mot exact de la barre**
+(`.dos-open` : chiffre romain en Fraunces italique or — la rime des années
+de la frise —, rubrique en capitales, filet). Généré par `buildDossier()`
+depuis `DOSSIER`/`DOSSIER_LABELS` : on clique un mot, on retrouve ce mot.
+78 px d'air avant chaque ouverture, contre 30 px auparavant.
+
+**La barre dit où l'on est** — scroll-spy (`.atl-dnav.on`, `aria-current`)
++ rail de progression doré. Elle passe en `nowrap` + défilement horizontal
+(sa hauteur ne doit jamais changer, règle déjà posée pour les onglets) et
+**fait glisser la pilule active dans le champ**.
+
+**Le repère n'est PAS décoratif : il vit dans la page, pas dans
+`atelier-motion.js`** — ce module s'éteint sous reduced-motion et en
+dessous de 768 px, où l'on a précisément le plus besoin de savoir où l'on
+est.
+
+**Les titres du Dossier sont passés au SCRUB** (`inkSections`, plus
+`inkTitles`). La doctrine était déjà écrite — « un titre de panneau arrive
+toujours en position de lecture, un titre de section vit sous le pli » —
+elle ne s'appliquait simplement pas : dans le Dossier les six panneaux sont
+affichés d'un coup, donc cinq de leurs titres vivent sous le pli. Le
+`.dos-open` se pose de même (`--dp`, position → réversible).
+
+### Trois destinations mortes, corrigées au passage
+
+`activateTab` ne connaît que `lire` et `dossier` et **coerçait tout le
+reste en `lire`** sans rien dire. Trois renvois tombaient donc dans la
+liseuse puis sautaient en haut de page : `goExplore` (les pièces
+d'exploration, appelées depuis le cheminement et par le deep-link
+`#feti`), `goChrono` (la frise) et `activateTab('entrer')` dans
+`showWork`. Ils nomment maintenant leur destination et leur ancre.
+
+`dosGo()` remplace `scrollIntoView({block:'start'})` partout, **deep-links
+compris** : deux barres collantes se superposent (onglets + ancres), et
+`scrollIntoView` les ignore — on cliquait « Modèles » et l'on atterrissait
+140 px SOUS son titre. Mesuré à 10 px de dégagement après correction.
+
+### Trois rangs de pilules, et le rang doit rester lisible
+
+Destinations → ancres du dossier → stations d'une section. Les trois
+partagent maintenant **la même manière de dire « celui-ci »** (le dégradé
+chaud + filet or du socle) : `.subtab.active` et `.xsub.active` étaient
+un **aplat CRÈME** (`background:var(--ink)`), donc l'objet le plus clair de
+l'écran, plus criard que le titre de la section — l'erreur exacte que le
+socle sombre avait corrigée partout ailleurs.
+
+Le rang se dit alors par **l'échelle et le repos** : au repos une station
+n'a ni fond ni contour, elle s'efface dans la page. Et un petit label la
+précède (« Les neuf stations », « Les trois pièces ») pour qu'on ne la
+confonde pas avec la barre d'ancres, qui elle QUITTE la section.
+`.formebtn` (le sélecteur de valeur, rouge) n'est pas touché : c'est le
+niveau le plus profond, celui qu'on manipule vraiment, et il a le droit
+d'être fort.
+
+### Une barre de défilement horizontale, antérieure, supprimée
+
+Le Dossier s'ouvrait avec **12 px de défilement horizontal**, à HEAD comme
+après la refonte (vérifié en remisant les modifications). Cause :
+`.js-atwalk .walk-cards .walk-step.right .walk-card{--from:34px}` — les
+cartes de droite du cheminement ATTENDENT décalées de 34 px vers
+l'extérieur et rentrent quand la déduction les allume ; tant qu'elles ne
+sont pas allumées, elles débordent le serpentin, donc la page. Corrigé par
+`overflow-x:clip` sur `.walk-cards` : `clip` et non `hidden`, parce que
+c'est le seul mot-clé que la spec autorise à côté d'un `overflow-y:visible`
+— avec `hidden`, l'axe vertical serait passé en `auto` et le serpentin de
+4 433 px serait devenu une boîte à défilement. Geste vérifié intact après
+coup (tracé 0 → 33 → 81 %, cartes de +34 px à 0, réversible).
+
+### Vérifié
+
+Sonde de contraste (18 éléments neufs, **0 échec**, minimum 5,84:1) **et**
+détecteur statique (`detect.mjs` : 57 constats, **0 erreur** ; base 55 —
+le delta est deux usages de Fraunces, la rime documentée). Testé à 1280 et
+375 px, **zéro débordement horizontal** ; scroll-spy exact sur les six sections
+et rail monotone ; scrub réversible (on remonte, tout se range) ; page
+finie sans JS et sous 768 px (`--dp` par défaut à 1) ; deep-links `#labo`,
+`#explore`, `#dossier` ; les cinq renvois croisés ; le tiroir emprunte et
+rend `#s-jour` à sa place exacte. **Manuscrits non touché** — vérifié
+(9 panneaux, un seul visible, son titre joué) : les règles CSS sont
+scopées `.atl-dossier`, et le filtre d'`inkTitles` ne matche rien là-bas.
+
+### Ce qui reste
+
+**Le poids des sections est très inégal** : le cheminement fait 4 783 px
+(42 % du Dossier) pour 742 mots — `#stair` à lui seul en fait 4 433, avec
+12 marches et 11 moteurs. Rien n'a été retiré (c'est la pièce signée de la
+section, et `walkDeduce` en dépend), mais si le Dossier doit encore
+raccourcir, c'est là.
+
+**Le rappel qui vaut pour toute la page** : dans la pane masquée
+(`document.hidden`), `innerWidth`/`innerHeight` valent **0** — tout calcul
+de scrub rend alors 0 et l'on croit à un bug. `resize_window` avec une
+taille explicite rend un vrai viewport, et c'est la seule façon de mesurer
+ces gestes ici. S'y ajoutent les pièges déjà connus : rAF gelé (une sonde
+temporaire est obligatoire), `behavior:'smooth'` qui ne progresse pas, et
+les captures noires sur un document très haut (masquer les sections
+voisines pour ramener la zone en haut de page).
+
 ## L'en-tête d'œuvre et la barre plate (mission `entete-et-barre-plate`)
 
 > **PARTIELLEMENT SUPERSÉDÉ sur Capital** par `atelier-texte-au-centre`

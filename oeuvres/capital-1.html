@@ -44,9 +44,34 @@ header{padding:38px 0 14px;text-align:center;}
 .ws-text center,.ws-text .center{text-align:center;}
 
 /* Laboratoire & Dérivation : styles repris */
+/* ── Les strips de stations (troisième niveau) ───────────────────────
+   Ils ne sont PAS de la navigation : ils choisissent quoi regarder DANS
+   la section qu'on lit déjà. Deux corrections d'unité :
+   1. l'actif était un aplat CRÈME (background:var(--ink)) — sur brun-nuit
+      c'était l'objet le plus clair de l'écran, plus criard que le titre
+      de la section. Il prend la surface éclairée du socle, comme l'onglet
+      actif et la pilule active du dossier : une seule manière de dire
+      « celui-ci » sur tout le site ;
+   2. un petit label les annonce, pour qu'on ne les confonde pas avec la
+      barre d'ancres qui, elle, quitte la section. */
+.strip-lab{display:block;font-family:var(--f-ui);font-size:.72rem;font-weight:700;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);
+  margin:0 0 11px;}
 .subtabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px;}
-.subtab{font-family:var(--f-ui);font-weight:600;font-size:.86rem;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--ink-soft);padding:9px 15px;border-radius:30px;transition:all .18s;}
-.subtab:hover{border-color:var(--ink);color:var(--ink);}.subtab.active{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+/* Trois rangs de pilules se suivent maintenant à l'écran (destinations,
+   ancres du dossier, stations) : ils partagent la même manière de dire
+   « celui-ci », c'est voulu, mais le RANG doit rester lisible. Il se dit
+   par l'échelle et par le repos — au repos une station n'a ni fond ni
+   contour, elle s'efface dans la page ; seule l'active se détache. C'est
+   la grammaire de la barre de destinations, une taille en dessous. */
+.subtab,.xsub{font-family:var(--f-ui);font-weight:600;font-size:.8rem;
+  cursor:pointer;border:1px solid transparent;background:none;
+  color:var(--muted);padding:7px 14px;border-radius:999px;
+  transition:color .18s,background .18s,border-color .18s;}
+.subtab:hover,.xsub:hover{border-color:transparent;background:var(--hover);color:var(--ink);}
+.subtab.active,.xsub.active{background:linear-gradient(150deg,#2c2117,#211a12,#1b150e);
+  color:var(--ink);border-color:rgba(216,173,76,.42);}
+.subtab:focus-visible,.xsub:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
 .subpanel{display:none;}.subpanel.active{display:block;animation:fade .35s;}
 .lab{display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:start;}@media(max-width:760px){.lab{grid-template-columns:1fr;}}
 .controls,.readout{border:1px solid var(--line);background:var(--card);border-radius:16px;padding:24px;}
@@ -263,9 +288,8 @@ svg.circuits{width:100%;height:auto;display:block;margin:6px 0 4px;font-family:'
 .vbar-fill.m{background:var(--red);transition:width .3s ease;}
 
 /* ===== Explorations ===== */
-.xsub{font-family:var(--f-ui);font-weight:600;font-size:.88rem;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--ink-soft);padding:9px 16px;border-radius:30px;transition:all .18s;}
-.xsub:hover{border-color:var(--ink);color:var(--ink);}
-.xsub.active{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+/* .xsub partage désormais la règle de .subtab, plus haut : les deux
+   strips sont le même objet et n'avaient aucune raison de diverger. */
 .xpane{display:none;}.xpane.active{display:block;animation:fade .35s;}
 svg.x-scene{width:100%;height:auto;display:block;background:var(--card);border:1px solid var(--line);border-radius:8px;margin-bottom:14px;font-family:'Fraunces',serif;}
 .x-row{display:flex;justify-content:space-between;gap:14px;padding:10px 0;border-bottom:1px solid var(--line-soft);font-size:.93rem;align-items:baseline;}
@@ -1020,6 +1044,60 @@ nav.tabs.worktabs{position:sticky;top:44px;z-index:62;
     </div>
   </section>
 
+  <!-- DÉRIVATION -->
+  <section class="panel active" id="deriv">
+        <div class="panel-head">
+      <div class="panel-head-main">
+  <h2 class="sec">L'ascension de l'abstrait au concret</h2>
+      <p class="lead">Le <i>Capital</i> ne juxtapose pas des thèmes : il <em>déduit</em>. Chaque catégorie révèle une contradiction qui rend la suivante nécessaire.</p>
+      </div>
+    </div>
+    <div class="method-note"><b>Ordre d'exposition ≠ ordre de recherche.</b> La marchandise est le point de départ logique dont tout découle. Le moteur, à chaque marche, est une <b>contradiction</b>.</div>
+    <div class="stair" id="stair"></div>
+    <div class="closing">⟶ Les Livres II et III poursuivent l'ascension : circulation, puis procès d'ensemble — profit, prix de production, intérêt, rente, formule trinitaire.</div>
+  </section>
+
+  <!-- CHRONOLOGIE -->
+  <section class="panel active" id="chrono">
+        <div class="panel-head">
+      <div class="panel-head-main">
+  <h2 class="sec">La chronologie du Capital</h2>
+      <p class="lead">Le pendant <em>concret</em> de la Dérivation : non plus la marche logique des catégories, mais l'histoire réelle sur laquelle elles reposent — une frise qu'on ne lit pas, qu'on <b>joue</b>.</p>
+      </div>
+    </div>
+    <div class="method-note"><b>Deux actes, un seul mouvement.</b> D'abord la <b>genèse</b> violente du capital (l'accumulation primitive : expropriation, lois sanglantes, colonies) ; puis, une fois le rapport institué, la <b>bataille de la journée de travail</b>, où la loi vient enfin disputer au capital la durée du travail. Entre les deux, un passage de relais : ce qui fut imposé par la force se met à se reproduire de lui-même.</div>
+    <div class="howto"><span class="pin">i</span><div><b>Comment jouer :</b> appuie sur <b>Jouer</b> : la frise avance et <b>s'arrête sur chaque événement</b> le temps de le lire, puis repart. Tu peux aussi faire glisser le curseur ou cliquer une pastille pour aller directement à un moment. Le tableau de bord se met à jour en direct.</div></div>
+
+    <div class="chrono-controls">
+      <button class="btn red" id="chronoPlay" type="button">▶ Jouer</button>
+      <button class="btn" id="chronoReset" type="button">⟲ Début</button>
+      <div class="chrono-year" id="chronoYear">1450</div>
+    </div>
+    <div class="chrono-track" id="chronoTrack" role="slider" tabindex="0" aria-label="Curseur chronologique — flèches pour avancer d'une année, Page haut/bas pour dix ans" aria-valuemin="1450" aria-valuemax="1870" aria-valuenow="1450">
+      <div class="chrono-actband act1" id="band1"></div>
+      <div class="chrono-actband act2" id="band2"></div>
+      <div class="chrono-axis" id="chronoAxis"></div>
+      <div class="chrono-events" id="chronoEvents"></div>
+      <div class="chrono-head" id="chronoHead"></div>
+    </div>
+    <div class="chrono-actlabels"><span>Acte I — la genèse (accumulation primitive)</span><span>Acte II — la journée de travail</span></div>
+
+    <div class="lab" style="margin-top:24px">
+      <div class="controls">
+        <h3>Tableau de bord</h3>
+        <div class="chrono-phase" id="chronoPhase">Avant-propos</div>
+        <div class="instrument" id="instDepo"></div>
+        <div class="instrument" id="instDay"></div>
+      </div>
+      <div class="readout" aria-live="polite">
+        <h3>L'événement</h3>
+        <div class="chrono-eventcard" id="chronoCard"></div>
+      </div>
+    </div>
+
+    <div class="concepts-wrap"><h3>Comprendre les concepts</h3><div class="csub">Les notions de l'accumulation primitive et de la journée de travail.</div><div class="concept-cards" id="cc-chrono"></div></div>
+  </section>
+
   <!-- LABORATOIRE -->
   <section class="panel active" id="labo">
         <div class="panel-head">
@@ -1028,6 +1106,7 @@ nav.tabs.worktabs{position:sticky;top:44px;z-index:62;
       <p class="lead">L'appareil quantitatif rendu manipulable. Chaque station explique ses concepts puis te laisse les faire varier.</p>
       </div>
     </div>
+    <span class="strip-lab">Les neuf stations</span>
     <div class="subtabs">
       <button class="subtab active" data-sub="s-taux">Taux &amp; profit</button>
       <button class="subtab" data-sub="s-trpf">Baisse tendancielle</button>
@@ -1244,60 +1323,6 @@ nav.tabs.worktabs{position:sticky;top:44px;z-index:62;
        matières de « Parcourir », avec son propre widget de progression.
        La barre plate ne l'expose plus, la sidebar ne l'a jamais exposé.) -->
 
-  <!-- DÉRIVATION -->
-  <section class="panel active" id="deriv">
-        <div class="panel-head">
-      <div class="panel-head-main">
-  <h2 class="sec">L'ascension de l'abstrait au concret</h2>
-      <p class="lead">Le <i>Capital</i> ne juxtapose pas des thèmes : il <em>déduit</em>. Chaque catégorie révèle une contradiction qui rend la suivante nécessaire.</p>
-      </div>
-    </div>
-    <div class="method-note"><b>Ordre d'exposition ≠ ordre de recherche.</b> La marchandise est le point de départ logique dont tout découle. Le moteur, à chaque marche, est une <b>contradiction</b>.</div>
-    <div class="stair" id="stair"></div>
-    <div class="closing">⟶ Les Livres II et III poursuivent l'ascension : circulation, puis procès d'ensemble — profit, prix de production, intérêt, rente, formule trinitaire.</div>
-  </section>
-
-  <!-- CHRONOLOGIE -->
-  <section class="panel active" id="chrono">
-        <div class="panel-head">
-      <div class="panel-head-main">
-  <h2 class="sec">La chronologie du Capital</h2>
-      <p class="lead">Le pendant <em>concret</em> de la Dérivation : non plus la marche logique des catégories, mais l'histoire réelle sur laquelle elles reposent — une frise qu'on ne lit pas, qu'on <b>joue</b>.</p>
-      </div>
-    </div>
-    <div class="method-note"><b>Deux actes, un seul mouvement.</b> D'abord la <b>genèse</b> violente du capital (l'accumulation primitive : expropriation, lois sanglantes, colonies) ; puis, une fois le rapport institué, la <b>bataille de la journée de travail</b>, où la loi vient enfin disputer au capital la durée du travail. Entre les deux, un passage de relais : ce qui fut imposé par la force se met à se reproduire de lui-même.</div>
-    <div class="howto"><span class="pin">i</span><div><b>Comment jouer :</b> appuie sur <b>Jouer</b> : la frise avance et <b>s'arrête sur chaque événement</b> le temps de le lire, puis repart. Tu peux aussi faire glisser le curseur ou cliquer une pastille pour aller directement à un moment. Le tableau de bord se met à jour en direct.</div></div>
-
-    <div class="chrono-controls">
-      <button class="btn red" id="chronoPlay" type="button">▶ Jouer</button>
-      <button class="btn" id="chronoReset" type="button">⟲ Début</button>
-      <div class="chrono-year" id="chronoYear">1450</div>
-    </div>
-    <div class="chrono-track" id="chronoTrack" role="slider" tabindex="0" aria-label="Curseur chronologique — flèches pour avancer d'une année, Page haut/bas pour dix ans" aria-valuemin="1450" aria-valuemax="1870" aria-valuenow="1450">
-      <div class="chrono-actband act1" id="band1"></div>
-      <div class="chrono-actband act2" id="band2"></div>
-      <div class="chrono-axis" id="chronoAxis"></div>
-      <div class="chrono-events" id="chronoEvents"></div>
-      <div class="chrono-head" id="chronoHead"></div>
-    </div>
-    <div class="chrono-actlabels"><span>Acte I — la genèse (accumulation primitive)</span><span>Acte II — la journée de travail</span></div>
-
-    <div class="lab" style="margin-top:24px">
-      <div class="controls">
-        <h3>Tableau de bord</h3>
-        <div class="chrono-phase" id="chronoPhase">Avant-propos</div>
-        <div class="instrument" id="instDepo"></div>
-        <div class="instrument" id="instDay"></div>
-      </div>
-      <div class="readout" aria-live="polite">
-        <h3>L'événement</h3>
-        <div class="chrono-eventcard" id="chronoCard"></div>
-      </div>
-    </div>
-
-    <div class="concepts-wrap"><h3>Comprendre les concepts</h3><div class="csub">Les notions de l'accumulation primitive et de la journée de travail.</div><div class="concept-cards" id="cc-chrono"></div></div>
-  </section>
-
   <!-- EXPLORATIONS -->
   <section class="panel active" id="explore">
         <div class="panel-head">
@@ -1306,6 +1331,7 @@ nav.tabs.worktabs{position:sticky;top:44px;z-index:62;
       <p class="lead">Deux pièces moins quantitatives que qualitatives : non des lois à régler, mais des transformations et des renversements à voir de ses propres yeux.</p>
       </div>
     </div>
+    <span class="strip-lab">Les trois pièces</span>
     <div class="subtabs">
       <button class="xsub active" data-x="x-coop">L'atelier : coopération → machinisme</button>
       <button class="xsub" data-x="x-feti">Le fétichisme</button>
@@ -1534,9 +1560,31 @@ function dEsc(x){return String(x==null?'':x).replace(/[&<>"]/g,function(c){
    intégral » y avait exactement le même rang que « Chronologie ».
    ══════════════════════════════════════════════════════════════════════ */
 const TABS=[{id:'lire',label:'Lire le texte'},{id:'dossier',label:'Le dossier'}];
-const DOSSIER=['entrer','deriv','labo','explore','chrono','ressources'];
-const DOSSIER_LABELS={entrer:'Pour entrer',deriv:'Cheminement',labo:'Modèles',
-  explore:'Explorations',chrono:'Chronologie',ressources:'Ressources'};
+/* ── L'ORDRE DU DOSSIER VIT ICI, ET NULLE PART AILLEURS ──────────────
+   Il vivait à DEUX endroits qui ne disaient pas la même chose : cette
+   liste (entrer, deriv, labo, explore, chrono, ressources) et l'ordre
+   réel des sections dans le document (entrer, labo, deriv, chrono,
+   explore, ressources). Descendre la barre d'ancres faisait donc sauter
+   en avant puis en arrière dans la page. Les deux sont désormais alignés,
+   et c'est cette liste qui numérote, nomme et ordonne — le document la
+   suit.
+
+   L'ordre est celui du lecteur, pas celui des départements du site :
+   on entre (trois idées), on voit le livre se déduire (le cheminement),
+   puis l'histoire réelle sur laquelle il repose (la chronologie — que le
+   texte de la section annonce lui-même comme « le pendant concret de la
+   Dérivation », et qui en était séparée par deux sections), on manipule
+   les lois (le laboratoire), on regarde les renversements (explorations),
+   on va plus loin (ressources). */
+const DOSSIER=['entrer','deriv','chrono','labo','explore','ressources'];
+/* Le libellé de la barre est IMPRIMÉ à destination (`.dos-rub`) : on
+   clique un mot, on retrouve ce mot en tête de la section. Avant, la
+   barre disait « Modèles » et l'on atterrissait sur « Le laboratoire des
+   lois » — six fois le même décalage. */
+const DOSSIER_LABELS={entrer:'Pour entrer',deriv:'Le cheminement',
+  chrono:'La chronologie',labo:'Le laboratoire',
+  explore:'Les explorations',ressources:'Les ressources'};
+const DOSSIER_ROM=['I','II','III','IV','V','VI'];
 let curTab='lire';
 
 /* Les anciens hash (#labo, #chrono, #nav…) vivent dans des liens partagés
@@ -1571,13 +1619,118 @@ function buildTabs(){
   bar.querySelectorAll('.tab').forEach(b=>
     b.addEventListener('click',()=>activateTab(b.dataset.panel)));
 
+  buildDossier();
+}
+
+/* ── LE DOSSIER : une barre qui dit OÙ L'ON EST ─────────────────────────
+   Onze mille pixels d'un seul défilement, six sections, et une barre de
+   six pilules qui ne marquait jamais laquelle on lisait : c'était le
+   défaut d'orientation majeur de la page. Elle porte maintenant un état
+   actif (scroll-spy), un rail de progression, et chaque section s'ouvre
+   sur son numéro et son nom. */
+function dosOffset(){
+  /* deux barres collantes se superposent : les onglets (--atl-top) et la
+     barre d'ancres. `scrollIntoView({block:'start'})` les ignorait — on
+     cliquait « Modèles » et l'on atterrissait 140 px SOUS son titre. */
+  const cs=getComputedStyle(document.documentElement);
+  const top=parseFloat(cs.getPropertyValue('--atl-top'))||88;
+  const nav=document.getElementById('dossierNav');
+  return top+(nav?nav.getBoundingClientRect().height:0)+10;
+}
+function dosGo(id,smooth){
+  const el=document.getElementById(id);if(!el)return;
+  const y=el.getBoundingClientRect().top+window.scrollY-dosOffset();
+  const rm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  window.scrollTo({top:Math.max(0,y),behavior:(smooth&&!rm)?'smooth':'instant'});
+}
+
+let dosPills=[],dosOn=null;
+function buildDossier(){
   const dn=document.getElementById('dossierNav');
-  if(dn) dn.innerHTML=DOSSIER.map(id=>
-    `<button type="button" class="atl-dnav" data-go="${id}">${DOSSIER_LABELS[id]}</button>`).join('');
-  if(dn) dn.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>{
-    const el=document.getElementById(b.dataset.go);
-    if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
-  }));
+  if(!dn)return;
+
+  /* 1. La barre. `nowrap` + défilement horizontal : repliée sur deux
+        rangées, sa hauteur changeait et la page sautait sous le curseur
+        — la règle déjà posée pour la barre d'onglets. */
+  dn.innerHTML='<div class="dos-pills" id="dosPills">'+DOSSIER.map((id,i)=>
+      `<button type="button" class="atl-dnav" data-go="${id}">`+
+      `<b class="dos-pn">${DOSSIER_ROM[i]}</b>${DOSSIER_LABELS[id]}</button>`).join('')+
+    '</div><span class="dos-rail"><i class="dos-rail-fill" id="dosRail"></i></span>';
+  dosPills=[].slice.call(dn.querySelectorAll('[data-go]'));
+  dosPills.forEach(b=>b.addEventListener('click',()=>dosGo(b.dataset.go,true)));
+
+  /* 2. L'ouverture de chaque section — numéro, nom de la barre, filet.
+        Générée ici pour que l'ordre et les noms n'existent qu'une fois
+        (règle de la source unique). */
+  DOSSIER.forEach((id,i)=>{
+    const sec=document.getElementById(id);
+    if(!sec||sec.querySelector('.dos-open'))return;
+    const o=document.createElement('div');
+    o.className='dos-open';
+    o.innerHTML=`<span class="dos-no">${DOSSIER_ROM[i]}</span>`+
+                `<span class="dos-rub">${DOSSIER_LABELS[id]}</span>`+
+                '<span class="dos-fil" aria-hidden="true"></span>';
+    sec.insertBefore(o,sec.firstElementChild);
+    /* Six <section> sans nom accessible dans une page unique : un lecteur
+       d'écran n'avait aucun moyen de sauter de l'une à l'autre. */
+    const h2=sec.querySelector('.panel-head h2.sec');
+    if(h2){ if(!h2.id)h2.id='dos-h-'+id; sec.setAttribute('aria-labelledby',h2.id); }
+  });
+
+  /* 3. Le repère. Deux mécanismes plutôt qu'un : l'IntersectionObserver
+        se déclenche exactement quand la réponse change et se moque de la
+        manière dont on a défilé ; l'écouteur de défilement tient le rail
+        de progression. Ni l'un ni l'autre n'est décoratif — c'est de
+        l'orientation : ils vivent donc ICI et non dans atelier-motion.js,
+        qui s'éteint sous reduced-motion et en dessous de 768 px. */
+  const rail=document.getElementById('dosRail');
+  let q=false;
+  function paint(){
+    q=false;
+    const dos=document.getElementById('dossier');
+    if(!dos||dos.hidden)return;
+    const line=dosOffset()+4;
+    let cur=DOSSIER[0];
+    for(const id of DOSSIER){
+      const el=document.getElementById(id);
+      if(el&&el.getBoundingClientRect().top<=line)cur=id;
+    }
+    if(cur!==dosOn){
+      dosOn=cur;
+      dosPills.forEach(b=>{
+        const on=b.dataset.go===cur;
+        b.classList.toggle('on',on);
+        if(on)b.setAttribute('aria-current','true');else b.removeAttribute('aria-current');
+        /* la pilule active doit rester visible dans une barre qui défile */
+        if(on&&b.parentNode&&b.parentNode.scrollWidth>b.parentNode.clientWidth+2){
+          const p=b.parentNode,l=b.offsetLeft,r=l+b.offsetWidth;
+          if(l<p.scrollLeft+8)p.scrollLeft=l-8;
+          else if(r>p.scrollLeft+p.clientWidth-8)p.scrollLeft=r-p.clientWidth+8;
+        }
+      });
+    }
+    if(rail){
+      const r=dos.getBoundingClientRect(),run=r.height-window.innerHeight;
+      const f=run>0?Math.min(1,Math.max(0,(line-r.top)/run)):1;
+      rail.style.transform='scaleX('+f.toFixed(4)+')';
+    }
+  }
+  function ping(){if(q)return;q=true;requestAnimationFrame(paint);}
+  document.addEventListener('scroll',ping,{passive:true,capture:true});
+  window.addEventListener('resize',ping);
+  if(window.IntersectionObserver){
+    const io=new IntersectionObserver(ping,{threshold:[0,1]});
+    DOSSIER.forEach(id=>{const e=document.getElementById(id);if(e)io.observe(e);});
+  }
+  /* le conteneur s'ouvre sans qu'aucun défilement n'ait lieu : on remesure
+     à ce moment-là (« le piège de la mesure unique »). */
+  const box=document.getElementById('dossier');
+  /* Un basculement de destination est un événement DISCRET : on veut la
+     réponse tout de suite, et non au prochain rAF. Le throttle reste pour
+     le défilement, qui lui est continu. */
+  if(box&&window.MutationObserver)
+    new MutationObserver(()=>{dosOn=null;paint();}).observe(box,{attributes:true,attributeFilter:['hidden']});
+  paint();
 }
 
 /* Le Dossier est un CONTENEUR, pas un panneau : ses six sections restent
@@ -1614,10 +1767,10 @@ function activateTab(id,anchor){
        `window.scrollTo(0,0)` de fin de page, comme la restauration du
        navigateur, gagnerait la course contre un défilement animé. */
     const boot=!a11yBooted;
-    const el=document.getElementById(anchor);
-    if(el)setTimeout(()=>{
-      el.scrollIntoView({behavior:boot?'instant':'smooth',block:'start'});
-    },boot?90:60);
+    /* dosGo, et non scrollIntoView : les deux barres collantes doivent
+       être décomptées, sinon un deep-link `#labo` dépose le lecteur
+       140 px sous le titre de la section qu'il venait chercher. */
+    setTimeout(()=>{ dosGo(anchor,!boot); },boot?90:60);
   }else if(a11yBooted){
     var _rm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     window.scrollTo({top:0,behavior:_rm?'auto':'smooth'});
@@ -1662,7 +1815,9 @@ function showWork(id){
   document.querySelectorAll('.work-view').forEach(w=>{w.style.display='none';});
   const w=document.getElementById(id);
   if(w){w.style.display='block';}
-  activateTab('entrer');
+  /* 'entrer' n'est pas une destination : activateTab n'en connaît que deux
+     et le coerçait silencieusement en 'lire'. On l'écrit. */
+  activateTab('lire');
   window.scrollTo(0, 0);
   setTimeout(function(){ window.scrollTo(0, 0); }, 0);
 }
@@ -3277,8 +3432,16 @@ const STEPS=[
  {t:"La loi générale",pose:"Une <b>armée industrielle de réserve</b> régule les salaires.",contra:"Tout suppose, comme donné, le rapport capitaliste.",pass:"Remonter au présupposé historique.",motor:"D'où vient ce point de départ ?",links:[{k:'labo',t:'s-accum',label:'Armée de réserve'},{k:'labo',t:'s-trpf',label:'Baisse tendancielle'}]},
  {t:"L'accumulation primitive",pose:"Genèse <b>violente</b> : expropriation, colonialisme.",contra:"Le présupposé est posé comme résultat d'une histoire.",pass:"L'exposition du Livre I est close.",motor:"Le commencement comme résultat",links:[{k:'chrono',label:'Chronologie'}]}];
 function stairColor(t){const a=[57,89,107],b=[165,42,33];return 'rgb('+a.map((v,k)=>Math.round(v+(b[k]-v)*t)).join(',')+')';}
-function goExplore(xid){activateTab('explore');document.querySelectorAll('.xsub').forEach(x=>x.classList.toggle('active',x.dataset.x===xid));document.querySelectorAll('.xpane').forEach(p=>p.classList.toggle('active',p.id===xid));window.scrollTo({top:0,behavior:'smooth'});}
-function goChrono(){activateTab('chrono');window.scrollTo({top:0,behavior:'smooth'});}
+/* Le Dossier est UNE page : remonter en haut du document ferait quitter
+   la section qu'on vient de demander. On se pose sur elle. */
+function goExplore(xid){activateTab('dossier','explore');
+  document.querySelectorAll('.xsub').forEach(x=>x.classList.toggle('active',x.dataset.x===xid));
+  document.querySelectorAll('.xpane').forEach(p=>p.classList.toggle('active',p.id===xid));}
+/* `activateTab('chrono')` était coercé en 'lire' (`if(id!=='dossier')
+   id='lire'`) : les renvois du cheminement vers la frise ouvraient donc
+   la LISEUSE, puis sautaient en haut de page. La destination est le
+   Dossier, l'ancre est la section. */
+function goChrono(){activateTab('dossier','chrono');}
 const stair=document.getElementById('stair');stair.className='walk';const WN=STEPS.length;
 STEPS.forEach((s,i)=>{const side=i%2===0?'left':'right',col=stairColor(i/(WN-1));
   const lh=(s.links||[]).map(l=>`<button class="lk ${l.k==='labo'?'labo':l.k==='explore'?'expl':'chrono'}" data-k="${l.k}" data-t="${l.t||''}">${l.label} →</button>`).join('');

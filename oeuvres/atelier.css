@@ -368,6 +368,13 @@ h2.sec em{font-style:italic;font-weight:500;color:var(--red-text);}
 
 /* — variante « cartes » (Le Capital) : la marche arrive de SON côté,
      l'alternance gauche/droite devient un mouvement — */
+/* Le décalage d'entrée des cartes de DROITE (+34 px) débordait du
+   serpentin, et donc de la page : le Dossier s'ouvrait avec une barre de
+   défilement horizontale de 12 px, tant que la déduction n'avait pas
+   allumé ces cartes. `clip` et non `hidden` : c'est l'axe unique que la
+   spec autorise à côté d'un `overflow-y:visible`, et le fil de l'axe,
+   posé à 50 %, n'est pas touché. */
+.js-atwalk .walk-cards{overflow-x:clip;}
 .js-atwalk .walk-cards .walk-step .walk-card{
   opacity:calc(.12 + .88 * var(--lit,1));
   transform:translateX(calc((1 - var(--lit,1)) * var(--from,0px)));}
@@ -631,15 +638,75 @@ a.btn,a.lk,a.cap-btn-dark,a.cap-btn-light,a.cap-btn-outline,a.prog-no-auth-btn{
   display:block;margin-bottom:10px;}
 .atl-seuil-go{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px;}
 
-/* ── Le dossier ── */
+/* ── Le dossier ─────────────────────────────────────────────────────────
+   Six sections, onze mille pixels, un seul défilement. Ce qui manquait
+   n'était pas du style mais des REPÈRES : trente pixels séparaient deux
+   sujets, la barre d'ancres ne marquait jamais où l'on était, et ses mots
+   n'étaient pas ceux qu'on trouvait à l'arrivée. Chaque section s'ouvre
+   donc sur son numéro et sur le mot exact de la barre, et la barre dit en
+   permanence laquelle on lit et ce qu'il reste. */
 .atl-dossier[hidden]{display:none;}
+.atl-dossier{padding-bottom:40px;}
+
+/* La barre. `nowrap` + défilement : sa hauteur ne doit JAMAIS changer,
+   sinon la page saute sous le curseur d'une section à l'autre. */
 .atl-dossier-nav{position:sticky;top:var(--atl-top);z-index:30;
-  display:flex;flex-wrap:wrap;gap:6px;padding:12px 0;
-  background:var(--paper);border-bottom:1px solid var(--line);}
-.atl-dnav{font-family:var(--f-ui);font-size:.78rem;color:var(--ink-soft);
+  padding:10px 0 0;background:var(--paper);
+  border-bottom:1px solid var(--line);}
+.dos-pills{display:flex;flex-wrap:nowrap;gap:6px;overflow-x:auto;
+  padding-bottom:10px;scrollbar-width:none;scroll-behavior:smooth;}
+.dos-pills::-webkit-scrollbar{display:none;}
+.atl-dnav{display:inline-flex;align-items:baseline;gap:7px;flex:none;
+  font-family:var(--f-ui);font-size:.78rem;color:var(--ink-soft);
   background:var(--card);border:1px solid var(--line);border-radius:100px;
-  padding:5px 13px;cursor:pointer;transition:color .16s,border-color .16s;}
+  padding:5px 14px;cursor:pointer;white-space:nowrap;
+  transition:color .16s,border-color .16s,background .16s;}
+.dos-pn{font-family:'Fraunces',Georgia,serif;font-style:italic;font-weight:900;
+  font-size:.76rem;color:var(--gold-deep);transition:color .16s;}
 .atl-dnav:hover{color:var(--ink);border-color:var(--gold-deep);}
+/* L'actif prend la surface éclairée du socle — la même que partout
+   ailleurs sur ce site quand une chose est « celle-ci ». */
+.atl-dnav.on{color:var(--ink);border-color:rgba(216,173,76,.42);
+  background:linear-gradient(150deg,#2c2117,#211a12,#1b150e);}
+.atl-dnav.on .dos-pn{color:var(--gold);}
+
+/* Le rail : combien du dossier est derrière soi. */
+.dos-rail{display:block;height:2px;background:var(--line-soft);
+  margin:0 0 -1px;overflow:hidden;}
+.dos-rail-fill{display:block;height:100%;transform-origin:0 50%;
+  transform:scaleX(0);background:linear-gradient(90deg,var(--gold-deep),var(--gold));}
+
+/* ── L'ouverture d'une section ──────────────────────────────────────────
+   Le numéro en Fraunces italique or : le traitement des années de la
+   frise et des numéros de chapitre — la rime qui tient tout le site. */
+.atl-dossier .panel{padding-top:0;}
+.dos-open{display:flex;align-items:center;gap:14px;
+  padding:78px 0 22px;--dp:1;}
+.atl-dossier .panel:first-of-type .dos-open{padding-top:34px;}
+.dos-no{font-family:'Fraunces',Georgia,serif;font-style:italic;font-weight:900;
+  font-size:1.5rem;line-height:1;color:var(--gold);flex:none;
+  opacity:calc(.25 + .75 * var(--dp));}
+.dos-rub{font-family:var(--f-ui);font-size:.74rem;font-weight:700;
+  letter-spacing:.15em;text-transform:uppercase;color:var(--gold-deep);
+  flex:none;opacity:calc(.25 + .75 * var(--dp));}
+.dos-fil{flex:1;height:1px;background:linear-gradient(90deg,
+  var(--line-strong),var(--line) 60%,transparent);
+  transform:scaleX(var(--dp));transform-origin:0 50%;}
+@media (prefers-reduced-motion:reduce){
+  .dos-no,.dos-rub{opacity:1;}.dos-fil{transform:none;}
+}
+
+/* Faire respirer : le lede ne court pas sur toute la largeur, et le pied
+   de section laisse le sujet se refermer avant le suivant. */
+.atl-dossier .panel-head{margin-bottom:26px;}
+.atl-dossier .panel > :last-child{margin-bottom:0;}
+
+@media (max-width:760px){
+  .dos-open{padding:52px 0 18px;gap:11px;}
+  .atl-dossier .panel:first-of-type .dos-open{padding-top:24px;}
+  .dos-no{font-size:1.25rem;}
+  .dos-rub{font-size:.7rem;letter-spacing:.11em;}
+}
 
 /* ── Le tiroir : l'appareil vient au texte ── */
 .atl-drawer{position:fixed;top:var(--atl-top);right:0;bottom:0;width:min(620px,52vw);
