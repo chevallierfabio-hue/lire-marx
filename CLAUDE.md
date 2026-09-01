@@ -2614,6 +2614,132 @@ exact.
 6. Ajouter l'entrée dans `oeuvres/bibliotheque.json` (`status:'planned'`
    au début, puis `'available'` quand la page fonctionne réellement).
 
+## Mon compte — le panneau (mission `compte-refonte`, septembre 2026)
+
+Demande du propriétaire : « refaire la section Mon compte, l'enrichir, la
+mettre à jour UI/UX et design conformément au reste du site ». Diagnostic
+mesuré avant de toucher au code :
+
+- **Sur `/index.html`, le bouton « Se connecter » était le bouton GRIS de
+  l'agent utilisateur** — bordure `2px outset` noire, Arial, rayon 0. Le
+  panneau utilisait `.btn`, qui n'existe que dans `atelier.css` ; l'accueil
+  ne charge que `shell.css`. Le défaut vivait sur la page la plus visitée.
+- **Le panneau ne disait rien du compte.** Une carte de 440 px empilait
+  identité, pseudo, photo, description, déconnexion et suppression au même
+  niveau — sept commandes, aucune hiérarchie — alors que la synchronisation
+  des passages est sa seule raison d'être.
+- **On ne pouvait pas changer son mot de passe une fois connecté** :
+  `updatePassword` n'était atteignable que par « mot de passe oublié »,
+  donc déconnecté.
+- **`.ac-t.on` était un aplat CRÈME** (`background:var(--ink)`) — l'erreur
+  exacte que le socle sombre avait corrigée partout ailleurs.
+- **Trois pages portaient une COPIE des règles `.ac-*`** dans leur
+  `<style>` (`capital-1.html` en entier, plus deux surcharges sur
+  `index.html` et `bibliotheque.html`). À spécificité égale, c'est l'ordre
+  des feuilles qui tranchait : le panneau changeait de tête d'une page à
+  l'autre.
+- **Deux tokens manquaient** au `:root` d'`index.html` et de
+  `bibliotheque.html` (`--red-text`, `--line-strong`, `--hover`), et
+  `--red-deep` y valait encore `#b5372a`, soit **2,9:1** — les composants
+  du shell qui l'emploient (`.cm-go`, `.cm-all`, `.pub-author`,
+  `.msg-poplink`, `.ac-err`) y étaient illisibles.
+
+### La forme
+
+Une tête d'identité sur la **surface d'emphase du socle** (dégradé chaud
+`150deg,#2c2117,#211a12,#1b150e`, filet or à 20 %, halo radial qui monte du
+bas — la bougie éclaire d'en bas), puis **trois destinations** en sélecteur
+segmenté, l'actif prenant cette même surface :
+
+- **Profil** — ce que les autres voient : pseudo, description, photo, et un
+  **aperçu de la signature telle qu'elle paraît sur la Place publique**
+  (cachet + Caveat or), qui suit la frappe **sans re-rendu** — re-rendre
+  volerait le focus du champ à chaque lettre.
+- **Lecture** — ce que le compte porte : quatre chiffres, la reprise, les
+  trois derniers passages (barre à la couleur du surlignage, citation en
+  Spectral, note en Caveat), « Ouvrir mon carnet ».
+- **Compte** — connexion, changement de mot de passe (déplié à la demande),
+  confidentialité, export du carnet, et la **zone de danger** séparée.
+
+**Les chiffres viennent TOUS de Supabase, jamais du localStorage.** Ce
+panneau parle du COMPTE, pas de ce navigateur — et c'est aussi ce qui le
+rend identique partout : `/index.html`, `bibliotheque.html` et
+`place-publique.html` ne chargent pas `shell-annotations.js`, le carnet
+local n'y serait pas lisible. Quatre `count:'exact', head:true` sur
+`annotations`, `reading_progress` et `public_notes`, lancés **à l'ouverture
+de la modale** et non au chargement de la page (la plupart des visites ne
+l'ouvrent pas), donc **hors du verrou GoTrue**.
+
+La reprise, elle, reste **locale** — c'est un fait d'appareil, et la
+section le dit : « Reprendre sur cet appareil ».
+
+### Ce qui a changé de règle
+
+- **`shell.css` est le système de record du panneau, et tout y est scopé
+  sous `#acctView`** (et `#privacyModal`). C'est ce qui le rend indifférent
+  à l'ordre des feuilles et aux copies de page. Le bloc `.ac-*` recopié
+  dans `capital-1.html` a été supprimé, ainsi que les fragments du même
+  ordre dans `socCss7`.
+- **Le panneau ne dépend plus d'`atelier.css`** : ses boutons sont les
+  siens (`.ac-btn`, `.ac-btn.pri` = la pilule pleine de la maison,
+  `.ac-btn.danger`, `.ac-quiet`). Toute nouvelle commande du shell doit
+  faire pareil — `.btn` n'existe pas sur l'accueil.
+- **Un seul « Enregistrer » pour le pseudo ET la description.** Deux
+  boutons d'enregistrement dans la même carte, c'est une chance sur deux de
+  cliquer le mauvais.
+- **Les messages de GoTrue sont traduits** (`ERR_FR` / `errFr`) :
+  « Invalid login credentials » était la phrase la plus vue du site, en
+  anglais. Les messages inconnus **passent tels quels** — mieux vaut un
+  message anglais qu'un « Échec » qui n'apprend rien.
+- **Le panneau et la modale Confidentialité passent au VOUVOIEMENT**, comme
+  le carnet, la marge de l'atelier et la bibliothèque. Le compte était le
+  dernier îlot de tutoiement.
+- **Les deux filets latéraux de 3 px** (`.ac-err`, `.ac-ok`) ont disparu au
+  profit d'un liseré complet à rayon 12 — la grammaire d'encart déjà posée
+  par `atelier-moderne`.
+
+### Pièges rencontrés
+
+1. **`--red-text` (#e5644f) ne passe PAS sur un fond déjà teinté de
+   rouge** : mesuré à 4,33:1 sur `.ac-btn.danger` et 4,44:1 sur `.ac-err`.
+   Le rouge clair de la maison (`#f0917f`, celui des pastilles de
+   recherche) repasse la barre sans changer la couleur perçue. La règle
+   « le rouge du texte passe par `--red-text` » vaut sur `--bg` et
+   `--card`, pas sur une surface teintée.
+2. **`bibLite()` ne doit pas vivre derrière la garde de cache de
+   `loadExtras()`** : à la deuxième ouverture du panneau, les comptes sont
+   en cache, la fonction sortait tôt — et la bibliothèque n'était jamais
+   chargée, donc ni titre d'œuvre ni lien de passage.
+3. **Le panneau est réécrit en entier à chaque rendu** : sans
+   `view.focusSel`, le focus retombe sur `<body>` dès qu'on change d'onglet
+   ou qu'on déplie un champ. La confirmation de suppression met le focus
+   sur **Annuler**, jamais sur le bouton destructeur.
+4. **`animation … both` + pane masquée** : les animations CSS y sont gelées,
+   la carte reste donc à l'opacité 0 de sa keyframe d'entrée et **toute
+   sonde qui filtre sur l'opacité voit une page vide**. Neutraliser
+   `animation` ET `transition` avant de mesurer (le piège était déjà
+   documenté pour les transitions ; il vaut aussi pour `fill-mode`).
+5. Rappel confirmé une fois de plus : sur `capital-1.html` (133 000 px de
+   document) **toute capture revient noire**. Le panneau se vérifie à la
+   mesure DOM, et à l'écran depuis une page courte.
+
+### Vérifié
+
+Sonde de contraste sur le rendu : **0 échec sur 11 états** (profil,
+lecture, compte, mot de passe déplié, zone de danger, messages d'erreur et
+de succès, invité, inscription, récupération, confidentialité), minimum
+**5,15:1**, aucun texte sous 11 px. Détecteur statique : **0 erreur**, et le
+total des cinq fichiers touchés passe de 87 à 86 constats (deux
+`side-tab` de moins — les filets de 3 px retirés). Testé à 1280 et 375 px :
+**zéro débordement horizontal**, aucune cible sous 24 × 24. Clavier :
+flèches et tabindex roulant sur le sélecteur segmenté, `aria-selected`
+exact, focus restitué après chaque re-rendu, Échap qui ferme
+Confidentialité puis le panneau, `inert` rendu. Console sans erreur sur les
+six pages qui chargent le shell (accueil, bibliothèque, Place publique,
+carnet, Capital, Manuscrits). Chemins réels testés contre Supabase :
+connexion refusée et mot de passe trop court, tous deux en français.
+
+
 ## `capital-1.html` = livre comme les autres
 
 Depuis la sous-mission `retrait-shell-host` (6f), Capital est **un livre

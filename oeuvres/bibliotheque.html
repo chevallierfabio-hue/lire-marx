@@ -36,7 +36,10 @@
   /* shell.css → palette sombre */
   --paper:#15100b;--paper-2:#1e1710;--card:#221a12;
   --ink:#f3e9d4;--ink-soft:#c7b599;
-  --red:#d5402f;--red-deep:#b5372a;--bright:#e5644f;
+  /* voir /index.html : --red-deep ne peut pas porter de texte sur brun-nuit. */
+  --red:#d5402f;--red-deep:#e5644f;--red-text:#e5644f;--bright:#e5644f;
+  --line-strong:rgba(243,233,212,.34);--hover:rgba(243,233,212,.05);
+  --f-hand:'Caveat',cursive;
   --gold:#d8ad4c;--gold-deep:#bd8f38;--blue:#5c8aa3;--const:#9a8b72;
   --line:rgba(243,233,212,.13);--line-soft:rgba(243,233,212,.07);--ok:#7fa855;
   --f-ui:'Inter',system-ui,sans-serif;--f-serif:'Spectral',Georgia,serif;
@@ -51,7 +54,7 @@ body{color:var(--text);font-family:'Inter',system-ui,sans-serif;}
 .tb-btn,.acct-chip,#tbSearch,.tb-tabs{background:rgba(255,255,255,.05);border-color:var(--line);color:var(--ink);}
 .tb-btn:hover,.acct-chip:hover{border-color:var(--gold);}
 .acct-chip.guest{background:var(--gold-deep);border-color:var(--gold-deep);color:#1a130c;}
-.tb-tab.on,.ac-t.on{color:#1a130c;}
+.tb-tab.on{color:#1a130c;}
 header.topbar{background:rgba(21,16,11,.96);border-bottom-color:var(--line);}
 .sidebar{background:rgba(21,16,11,.97);border-right-color:var(--line);}
 .sb-item{color:var(--ink);}
