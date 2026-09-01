@@ -253,14 +253,25 @@ lisible par machine, il ne produira pas de snippet. Ne pas promettre l'inverse.
 
 Deux règles de fabrication :
 
-- **Le balisage est la source, le `FAQPage` du `<head>` en est DÉRIVÉ.** Un
-  script le regénère depuis la section (voir les commits) ; le texte des deux
-  doit coïncider mot pour mot — une donnée structurée qui promet une réponse
-  absente de la page est un mensonge, et Google la sanctionne. **Piège vécu
-  en écrivant cette section** : une retouche de phrase faite par
-  `replace(..., 1)` sur le fichier entier a frappé la COPIE JSON-LD, qui est
-  plus haut dans le document, et les deux ont divergé en silence. Toute
-  retouche se fait dans la section, puis on regénère.
+- **Le balisage est la source, le `FAQPage` du `<head>` en est DÉRIVÉ.** La
+  dérivation vit dans **`tools/gen-seo.mjs`** depuis septembre 2026 (mission
+  `seo-maillage-interne`) — avant, elle était tenue par un script jetable
+  « voir les commits », ce qui n'est pas une source. `node tools/gen-seo.mjs`
+  la regénère, `--check` la surveille. Le texte des deux doit coïncider mot
+  pour mot : une donnée structurée qui promet une réponse absente de la page
+  est un mensonge, et Google la sanctionne. **Piège vécu en écrivant cette
+  section** : une retouche de phrase faite par `replace(..., 1)` sur le
+  fichier entier a frappé la COPIE JSON-LD, qui est plus haut dans le
+  document, et les deux ont divergé en silence. Toute retouche se fait dans
+  la section, puis on regénère.
+  **L'espace se pose aux frontières de BLOC, et seulement là.** Sans elle,
+  deux paragraphes se recollent (« …dans sa préface.Sur ce site… ») ; posée à
+  TOUTE frontière de balise, elle sépare l'italique de sa ponctuation
+  (« Le Capital , Livre I »). C'est la nuance que la leçon déjà écrite pour
+  `headText()` ne disait pas : les éléments EN LIGNE ne prennent pas
+  d'espace. La dérivation a été validée en vérifiant qu'elle reproduisait le
+  bloc existant **à l'octet près** avant d'ajouter quoi que ce soit — c'est
+  le test qui prouve à la fois l'extracteur et l'absence de divergence.
 - **Une réponse repliée reste dans le HTML** — c'est ce qui la rend citable.
   En revanche `.reveal-stagger` la met à `opacity:0` tant que le JS n'a pas
   posé `.in`, et le filet de fin de page est lui-même du script : **sans
@@ -3559,12 +3570,16 @@ le retirent** — `href()` de la bibliothèque, `localPath()` de `home.js`
 Plus les quatre liens en dur de `index.html`. **Zéro lien interne en
 `.html` dans le HTML du site.**
 
-**Reste à faire, volontairement hors périmètre :** `shell.js` navigue
-encore vers des `.html` (~9 occurrences — sidebar, popovers). Ça ne coûte
-rien au référencement (un crawler ne clique pas un bouton JS) mais impose
-un aller-retour 308 à chaque clic de sidebar. Le correctif est d'une ligne ;
-c'est la **revérification des six pages** qu'impose toute retouche du shell
-qui a fait remettre ça à une mission dédiée.
+**~~Reste à faire~~ — FAIT en septembre 2026** (mission
+`seo-maillage-interne`) : `shell.js` naviguait encore vers des `.html`
+(sidebar, popovers, plus deux vraies ancres — « Ouvrir mon carnet » et
+« Voir toutes les notes → », cette dernière montée sur l'accueil et la
+bibliothèque). Neuf URL corrigées dans `shell.js` et `shell-social.js`, plus
+trois ancres relatives en dur (`carnet.html` sur les deux ateliers,
+`bibliotheque.html` sur le carnet). **Il ne reste aucune ancre interne en
+`.html` dans tout le site.** Les tests de chemin, eux, acceptent toujours
+les deux formes (`/\/oeuvres\/messages(\.html)?$/`) — ne pas les resserrer,
+c'est ce qui rend le marquage robuste.
 
 ### Le `noindex` du carnet et de la messagerie existait déjà
 
@@ -4105,6 +4120,112 @@ plus après l'article.
 - Le jeu s'annonce encore « prototype 3D v66 » dans son `<title>` et son
   écran de préchargement. La page le dit honnêtement (« c'est une première
   version ») ; si le nom doit changer, c'est côté jeu.
+
+## Le maillage interne, et les URL qui répondent (mission `seo-maillage-interne`, sept. 2026)
+
+Suite directe de `brancher-le-jeu` : le jeu était en ligne mais **atteignable
+depuis deux endroits seulement** (la bande de l'accueil, l'entrée de sidebar),
+et le site continuait de payer des redirections sur ses propres liens.
+
+### Le serveur de test IMITE désormais Cloudflare — et c'est la vraie leçon
+
+Le piège des URL propres a été payé **trois fois** sur ce dépôt : le marquage
+de la sidebar qui ne marchait qu'en local (`seo-registre-servi`), les
+canoniques en `.html` (`seo-urls-reelles`), et `/jeu` qui redirigeait vers
+`/jeu/` (`brancher-le-jeu`). Chaque fois pour la même raison : **`python3 -m
+http.server` sert `/page.html` sans broncher et ne connaît pas les URL
+propres**, donc une vérification locale ne prouve rien sur les URL.
+
+Le serveur de test reproduit maintenant les trois comportements de
+Cloudflare Pages :
+
+```
+/oeuvres/bibliotheque      → sert oeuvres/bibliotheque.html
+/oeuvres/bibliotheque.html → 308 vers /oeuvres/bibliotheque
+/jeu                       → 308 vers /jeu/        (index de dossier)
+```
+
+⚠️ **L'ordre de résolution compte** : `oeuvres/capital-1` est À LA FOIS un
+`.html` et un dossier (celui des textes). C'est le **fichier** qui gagne —
+vérifié en production, `/oeuvres/capital-1` y répond 200. Un serveur qui
+teste le dossier d'abord redirige vers `/oeuvres/capital-1/` et l'on croit à
+un bug qui n'existe pas.
+
+L'imitation a été **validée URL par URL contre la production** (dix URL,
+codes identiques) avant de servir à quoi que ce soit. Une imitation qu'on
+n'a pas confrontée au vrai ne vaut pas mieux que pas d'imitation.
+
+### Plus aucune ancre interne en `.html`
+
+Neuf URL dans `shell.js` / `shell-social.js` (sidebar, popovers, et deux
+**vraies ancres** : « Ouvrir mon carnet » et « Voir toutes les notes → »,
+cette dernière montée sur l'accueil et la bibliothèque), plus trois ancres
+relatives en dur — `carnet.html` sur les deux ateliers, `bibliotheque.html`
+sur le carnet. Le « reste à faire » de `seo-registre-servi` est soldé.
+
+Les **tests** de chemin gardent leur `(\.html)?` : ils doivent accepter les
+deux formes, c'est ce qui rend le marquage robuste. Ne pas les resserrer.
+
+**Les huit pages qui chargent la coquille ont été revérifiées** — c'est la
+règle du projet pour toute retouche du shell, et c'est ce qui l'avait fait
+remettre à plus tard. Coquille montée partout, marquage exact partout
+(Accueil, Bibliothèque, Place publique, Mon carnet, Messages, Le jeu, et
+l'onglet d'œuvre sur les deux ateliers), console sans erreur.
+
+### La FAQ gagne sa dixième question, et sa dérivation devient un outil
+
+**« Qu'est-ce que la plus-value, en clair ? »** — placée juste après la
+question qui NOMME la plus-value parmi le vocabulaire à construire. Elle
+répond vraiment (force de travail achetée à sa valeur, journée coupée en
+travail nécessaire et surtravail, et la plus-value ne sort pas de l'échange
+mais de la production), elle cite le chapitre VII et le chapitre X, et elle
+porte **les deux seuls liens de la FAQ** : vers le laboratoire et vers le
+jeu. C'est le maillage interne le mieux placé du site — une question que
+l'on pose vraiment, dont la réponse mène à l'outil qui la démontre.
+
+Le chapitre VII est vérifié dans les données de la page elle-même
+(« Production de valeurs d'usage et production de la plus-value », `labo:
+'s-jour'`), pas supposé.
+
+La cascade de `.hs-faq-list` s'arrêtait au 8e enfant ; elle va jusqu'au 10e.
+
+Et **la dérivation du `FAQPage` vit désormais dans `tools/gen-seo.mjs`** —
+voir la règle réécrite plus haut. Elle a été validée en vérifiant qu'elle
+reproduisait le bloc existant à l'octet près.
+
+### Le laboratoire renvoie au jeu
+
+`.labo-jeu`, au pied de `#labo` sur `capital-1.html` : « Le même mécanisme,
+joué ». Le laboratoire règle chaque loi **dans son bocal**, le jeu les fait
+tourner **ensemble** — et sa station « A-M-A′ vs M-A-M » en est le sujet
+même. C'est un `<a>` et non un bouton `.lk` comme les autres renvois du
+Dossier : **un renvoi qui compte doit être suivable par un robot, pas
+seulement cliquable.**
+
+Le style est local à `capital-1.html` parce que le renvoi l'est aussi (le
+jeu porte sur *Le Capital*, pas sur les Manuscrits) ; il réutilise
+`.strip-lab` et `.btn`, sans nouveau composant.
+
+### Vérifié
+
+`gen-seo.mjs --check` : les cinq dérivations à jour, FAQPage compris, et
+idempotent. Détecteur statique sur les trois fichiers touchés : **0 erreur**,
+et les bases documentées tenues au constat près — `capital-1.html` reste à
+**20**, `index.html` à **27**, `jeu/index.html` à **15**. Contraste du
+renvoi mesuré au rendu : 6,44 / 9,45 / 15,68:1, bouton à 118 × 42. Zéro
+débordement horizontal. Les dix URL de l'imitation locale alignées sur la
+production.
+
+### Ce qui reste, et ce que je n'ai pas fait
+
+- **La bibliothèque ne renvoie pas au jeu, volontairement** : elle présente
+  le CORPUS, œuvre par œuvre, et le jeu n'est pas une œuvre. L'y glisser
+  aurait brouillé ce que la page dit.
+- Le `noindex` du carnet et de la messagerie coexiste avec leur canonique.
+  C'est redondant, sans conséquence pratique, et noté ici pour ne pas le
+  redécouvrir une quatrième fois.
+- Le jeu **tutoie** quand tout le site vouvoie (voir la mission précédente) :
+  toujours vrai, toujours une passe éditoriale du dépôt du jeu.
 
 ## Conventions de travail
 

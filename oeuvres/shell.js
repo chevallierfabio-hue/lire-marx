@@ -182,7 +182,7 @@
 
     // Bibliothèque : la page dédiée « Par où commencer ».
     var bib = sb.querySelector('[data-act="biblio"]');
-    bib.addEventListener('click', function(){ location.href = '/oeuvres/bibliotheque.html'; });
+    bib.addEventListener('click', function(){ location.href = '/oeuvres/bibliotheque'; });
 
     // Marque l'entrée correspondant à la page courante.
     // PIÈGE : Cloudflare Pages sert des URL PROPRES — la page vit à
@@ -217,8 +217,8 @@
       var act = b.dataset.act;
       if(act === 'home' || act === 'biblio' || (act && act.indexOf('tab:') === 0)) return; // déjà gérés
       b.addEventListener('click', function(){
-        if(act === 'open-capital'){ location.href = '/oeuvres/capital-1.html'; return; }
-        if(act === 'open-manuscrits-1844'){ location.href = '/oeuvres/manuscrits-1844.html'; return; }
+        if(act === 'open-capital'){ location.href = '/oeuvres/capital-1'; return; }
+        if(act === 'open-manuscrits-1844'){ location.href = '/oeuvres/manuscrits-1844'; return; }
         // Le jeu : sa page de présentation. AVEC le slash final — c'est
         // l'index d'un dossier, et Cloudflare répond 308 de /jeu vers
         // /jeu/ comme il répond 308 de /page.html vers /page. Le but est
@@ -236,14 +236,14 @@
           if(window.matchMedia('(max-width:860px)').matches){
             document.body.classList.remove('sb-open');
           }
-          location.href = '/oeuvres/place-publique.html';
+          location.href = '/oeuvres/place-publique';
           return;
         }
         if(act === 'carnet'){
           if(window.matchMedia('(max-width:860px)').matches){
             document.body.classList.remove('sb-open');
           }
-          location.href = '/oeuvres/carnet.html';
+          location.href = '/oeuvres/carnet';
           return;
         }
         // CGU & règles / Confidentialité : modale RGPD de SHELL.auth.
@@ -266,7 +266,7 @@
              rechargement referme la conversation ouverte. (Les URL propres
              de Cloudflare font que les deux formes doivent être testées.) */
           if(/\/oeuvres\/messages(\.html)?$/.test(location.pathname)) return;
-          location.href = '/oeuvres/messages.html';
+          location.href = '/oeuvres/messages';
           return;
         }
       });
@@ -1180,7 +1180,7 @@
     } else {
       h += '<p class="ac-empty">Aucun passage sur ce compte pour l’instant. <b>Surlignez une phrase</b> en lisant : elle vous suivra d’un appareil à l’autre.</p>';
     }
-    h += '<div class="ac-actions"><a class="ac-btn" href="/oeuvres/carnet.html">Ouvrir mon carnet</a></div></div>';
+    h += '<div class="ac-actions"><a class="ac-btn" href="/oeuvres/carnet">Ouvrir mon carnet</a></div></div>';
     return h;
   }
 
@@ -1844,7 +1844,7 @@
     var tops = opts.limit ? data.tops.slice(0, opts.limit) : data.tops;
     var html = tops.map(function(n){ return cardHtml(n, data.counts, biblio); }).join('');
     if(opts.compact && data.tops.length > tops.length){
-      html += '<a class="cm-all" href="/oeuvres/place-publique.html">Voir toutes les notes →</a>';
+      html += '<a class="cm-all" href="/oeuvres/place-publique">Voir toutes les notes →</a>';
     }
     container.innerHTML = html;
     wireCards(container);

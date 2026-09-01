@@ -83,6 +83,10 @@ header{padding:38px 0 14px;text-align:center;}
 .strip-lab{display:block;font-family:var(--f-ui);font-size:.72rem;font-weight:700;
   letter-spacing:.14em;text-transform:uppercase;color:var(--gold-deep);
   margin:0 0 11px;}
+.labo-jeu{margin-top:34px;padding-top:26px;border-top:1px solid var(--line);
+  max-width:66ch;}
+.labo-jeu p{font-size:.93rem;line-height:1.7;color:var(--ink-soft);margin:0 0 16px;}
+.labo-jeu .btn{display:inline-block;text-decoration:none;}
 .subtabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px;}
 /* Trois rangs de pilules se suivent maintenant à l'écran (destinations,
    ancres du dossier, stations) : ils partagent la même manière de dire
@@ -1284,6 +1288,21 @@ nav.tabs.worktabs{position:sticky;top:44px;z-index:62;
       </div>
       <div class="concepts-wrap"><h3>Comprendre les concepts</h3><div class="concept-cards" id="cc-monnaie"></div></div>
     </div>
+
+    <!-- Renvoi vers le jeu. Le laboratoire règle les lois UNE PAR UNE ; le
+         jeu les fait tourner ensemble — c'est le prolongement naturel de
+         cette section, et la station « A-M-A′ vs M-A-M » en est le sujet
+         même. C'est un <a> et non un bouton : un renvoi qui compte doit
+         être suivable par un robot, pas seulement cliquable. -->
+    <div class="labo-jeu">
+      <span class="strip-lab">Le même mécanisme, joué</span>
+      <p>Les neuf stations règlent chaque loi dans son bocal. <i>Le circuit du
+        capital</i> les fait tourner ensemble&nbsp;: vous avancez l'argent, vous
+        achetez la force de travail, vous produisez, vous vendez — et la
+        plus-value se forme sous vos yeux, avec le chômage et le risque de
+        crise qu'elle entraîne.</p>
+      <a class="btn" href="/jeu/">Ouvrir le jeu</a>
+    </div>
   </section>
 
   <!-- ATELIER — LISTE DES CHAPITRES -->
@@ -2412,7 +2431,7 @@ function renderMarge(){
     +'<button type="button" class="atl3-m-nb" data-fab="notesFab">Mes notes</button>'
     +'<button type="button" class="atl3-m-nb" data-fab="pubFab">Notes partagées'+pub+'</button>'
     +'</div>'
-    +'<a class="atl3-m-carnet" href="carnet.html">Ouvrir mon carnet →</a>';
+    +'<a class="atl3-m-carnet" href="carnet">Ouvrir mon carnet →</a>';
   h+='<section class="atl3-m-sec atl3-pass">'+ph+'</section>';
 
   /* En clair — le résumé argumenté. Il vivait dans un popover de la barre

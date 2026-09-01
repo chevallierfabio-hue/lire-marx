@@ -285,6 +285,74 @@ function flatRegister(biblio) {
   writeIfNeeded(file, next, file + ' (registre)');
 }
 
+/* ---------------------------- FAQPage ---------------------------- */
+/* Le BALISAGE de #questions est la source, ce bloc en est DÉRIVÉ — la règle
+ * était déjà écrite dans CLAUDE.md, mais elle était tenue par un script
+ * jetable, et les deux avaient divergé une fois : une retouche faite au
+ * `replace` sur le fichier entier avait frappé la COPIE JSON-LD, qui est plus
+ * haut dans le document. Elle vit ici désormais, et `--check` la surveille.
+ *
+ * Une donnée structurée qui promet une réponse absente de la page est un
+ * mensonge, et Google la sanctionne. Rappel : il ne montre PLUS de résultat
+ * enrichi FAQ depuis août 2023 hors sites gouvernementaux et de santé — ce
+ * balisage sert la lecture machine, pas un snippet. Ne rien promettre d'autre.
+ */
+const ENTITES = { nbsp: ' ', amp: '&', lt: '<', gt: '>', quot: '"', '#39': "'" };
+
+/* L'espace se pose aux frontières de BLOC, et seulement là. Sans elle, deux
+ * paragraphes se recollent (« …dans sa préface.Sur ce site… ») ; posée à
+ * TOUTE frontière de balise, elle sépare l'italique de sa ponctuation
+ * (« Le Capital , Livre I »). C'est la nuance que la leçon déjà écrite pour
+ * headText() ne disait pas : les éléments EN LIGNE ne prennent pas d'espace. */
+const BLOCS = /<\/(?:p|div|li|ul|ol|h[1-6]|section)\s*>|<br\s*\/?>/gi;
+
+function texteNu(html) {
+  return html
+    .replace(BLOCS, ' ')                                      // fin de bloc = une espace
+    .replace(/<[^>]+>/g, '')                                  // le reste du balisage tombe
+    .replace(/&(nbsp|amp|lt|gt|quot|#39);/g, (_, e) => ENTITES[e])
+    .replace(/\s+/g, ' ')                                     // espaces recomposés
+    .trim();
+}
+
+function questionsDe(src) {
+  const i = src.indexOf('id="questions"');
+  if (i < 0) throw new Error('Section #questions introuvable dans index.html.');
+  const fin = src.indexOf('</section>', i);
+  const zone = src.slice(i, fin);
+  const out = [];
+  // Un dépliant = <summary> … <span class="hs-faq-q">Q</span> … <div class="hs-faq-a">R</div>
+  const re = /<span class="hs-faq-q">([\s\S]*?)<\/span>[\s\S]*?<div class="hs-faq-a">([\s\S]*?)<\/div>/g;
+  let m;
+  while ((m = re.exec(zone))) {
+    const q = texteNu(m[1]), a = texteNu(m[2]);
+    if (!q || !a) throw new Error(`Dépliant vide dans #questions : « ${q || a} »`);
+    out.push({ '@type': 'Question', name: q,
+               acceptedAnswer: { '@type': 'Answer', text: a } });
+  }
+  if (out.length < 2) throw new Error(`Seulement ${out.length} question(s) relevée(s) — le gabarit du balisage a changé.`);
+  return out;
+}
+
+{
+  const file = 'index.html';
+  const src = readFileSync(file, 'utf8');
+  const json = JSON.stringify(
+    { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: questionsDe(src) },
+    null, 2);
+
+  /* On repère le bloc par son CONTENU (« FAQPage ») puis on remonte à sa
+   * balise ouvrante par index — pas de motif qui puisse courir au-delà, le
+   * piège qui avait mangé 779 lignes de capital-1.html. */
+  const k = src.indexOf('"@type": "FAQPage"');
+  if (k < 0) throw new Error('Bloc FAQPage introuvable dans index.html.');
+  const deb = src.lastIndexOf(OPEN, k);
+  const f   = src.indexOf(CLOSE, k);
+  if (deb < 0 || f < 0) throw new Error('Bloc FAQPage mal délimité.');
+  writeIfNeeded(file, src.slice(0, deb + OPEN.length) + '\n' + json + '\n' + src.slice(f),
+                file + ' (FAQPage)');
+}
+
 /* --------------------------- sitemap --------------------------- */
 const entries = [
   ...SITE_PAGES.map(p => ({ ...p, loc: ORIGIN + p.url })),
@@ -318,7 +386,8 @@ if (check) {
     process.exit(1);
   }
   console.log('À jour : ' + [...available.map(w => w.path),
-    'oeuvres/bibliotheque.html (registre)', 'sitemap.xml'].join(', '));
+    'oeuvres/bibliotheque.html (registre)', 'index.html (FAQPage)',
+    'sitemap.xml'].join(', '));
 } else {
   console.log(changed.length ? 'Récrit : ' + changed.join(', ') : 'Rien à faire.');
 }

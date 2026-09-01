@@ -112,7 +112,7 @@
   /* Cloudflare Pages sert des URL PROPRES : la page vit à /oeuvres/messages,
      pas seulement /oeuvres/messages.html. Le test doit couvrir les deux —
      le piège déjà documenté pour le marquage de la sidebar. */
-  var MSG_URL = '/oeuvres/messages.html';
+  var MSG_URL = '/oeuvres/messages';
   function onMessagesPage(){
     return /\/oeuvres\/messages(\.html)?$/.test(location.pathname);
   }
