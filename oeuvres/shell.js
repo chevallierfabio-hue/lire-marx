@@ -219,14 +219,15 @@
       b.addEventListener('click', function(){
         if(act === 'open-capital'){ location.href = '/oeuvres/capital-1.html'; return; }
         if(act === 'open-manuscrits-1844'){ location.href = '/oeuvres/manuscrits-1844.html'; return; }
-        // Le jeu : sa page de présentation. URL PROPRE, sans extension —
-        // Cloudflare Pages répond 308 sur les .html, et il n'y a aucune
-        // raison d'ajouter un aller-retour à une entrée neuve.
+        // Le jeu : sa page de présentation. AVEC le slash final — c'est
+        // l'index d'un dossier, et Cloudflare répond 308 de /jeu vers
+        // /jeu/ comme il répond 308 de /page.html vers /page. Le but est
+        // le même dans les deux cas : ne pas payer un aller-retour.
         if(act === 'jeu'){
           if(window.matchMedia('(max-width:860px)').matches){
             document.body.classList.remove('sb-open');
           }
-          location.href = '/jeu';
+          location.href = '/jeu/';
           return;
         }
         // Place publique : page dédiée (oeuvres/place-publique.html).

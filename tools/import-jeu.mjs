@@ -115,7 +115,7 @@ const RETOUR = `
   .lm-retour:focus-visible{outline:2px solid #8a2c1d;outline-offset:2px;}
   body.mcinema-on .lm-retour{opacity:0;pointer-events:none;transition:opacity .5s;}
 </style>
-<a class="lm-retour" href="/jeu">&#8592;&nbsp;Lire Marx</a>
+<a class="lm-retour" href="/jeu/">&#8592;&nbsp;Lire Marx</a>
 `;
 let jouer = fs.readFileSync(path.join(DIST, 'index.html'), 'utf8');
 if (!/<\/head>/i.test(jouer) || !/<\/body>/i.test(jouer))

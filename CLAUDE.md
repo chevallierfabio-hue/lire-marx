@@ -3947,8 +3947,9 @@ Sorties : `assets/img/jeu/circuit-plan-large.webp` (72 Ko, servi) et `.jpg`
   et sa règle `.circuit-soon-tag` **supprimés**, et la bande mène enfin
   quelque part (`.circuit-go` → `/jeu`). Toute la mécanique d'épinglage est
   intacte (vérifié : `js-circuit`, bande `sticky`, cale de 2 070 px).
-- **Le SEO** : `/jeu` entre au sitemap par `SITE_PAGES` dans `gen-seo.mjs`
-  (source unique — ne pas éditer `sitemap.xml` à la main). `/jeu/jouer` n'y
+- **Le SEO** : `/jeu/` entre au sitemap par `SITE_PAGES` dans `gen-seo.mjs`
+  (source unique — ne pas éditer `sitemap.xml` à la main). **Avec le slash
+  final, et c'est impératif** : voir le piège 9. `/jeu/jouer` n'y
   est **pas** : application sans contenu, et elle porte son `noindex`. La
   page porte un `VideoGame` en JSON-LD qui n'affirme que ce que l'écran
   montre — gratuit, dans un navigateur, à propos du *Capital* ; pas de note,
@@ -4038,6 +4039,24 @@ rendre les 100vh sans changer d'image.
 4. Le `low-contrast` à 4,1:1 est le faux positif déjà documenté pour
    `404.html` : `--accent` sur `--bg`, mais sur du texte mesuré au-delà de
    24 px, dont le seuil est 3:1. Ne pas le « corriger ».
+
+9. **UN DOSSIER REDIRIGE, COMME UN `.html`.** La mission
+   `seo-urls-reelles` a posé la règle « les URL n'ont pas d'extension » :
+   Cloudflare Pages répond 308 de `/page.html` vers `/page`. Le PENDANT
+   n'était écrit nulle part, et je l'ai payé le jour même de la mise en
+   ligne — Cloudflare répond aussi **308 de `/jeu` vers `/jeu/`**, parce que
+   la présentation du jeu est l'index d'un DOSSIER. La canonique, l'`og:url`,
+   l'`url` du JSON-LD, l'entrée de sitemap, le bouton de l'accueil, l'entrée
+   de sidebar et le lien de retour du jeu désignaient donc tous les sept une
+   URL qui redirige : exactement le défaut que `seo-urls-reelles` avait
+   corrigé, reproduit en miroir. **Mesuré en production, pas en local** — le
+   serveur de test sert `/jeu` sans broncher, et c'est précisément le piège
+   déjà documenté pour le marquage de la sidebar. Corrigé partout ; le slash
+   est commenté aux trois endroits qui comptent pour qu'on ne le « nettoie »
+   pas au nom de la règle sur les extensions.
+   **La règle complète, désormais : une page-fichier se désigne SANS
+   extension, une page-index de dossier se désigne AVEC son slash — et l'on
+   vérifie sur liremarx.com, jamais sur le serveur local.**
 
 ### Vérifié
 
