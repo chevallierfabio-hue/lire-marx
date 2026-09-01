@@ -7,6 +7,36 @@
 <meta name="description" content="Votre carnet de lecture : les passages surlignés dans les œuvres de Marx, vos notes en marge et vos pages libres — chaque passage ramène à son endroit dans le texte.">
 <meta name="robots" content="noindex">
 <link rel="canonical" href="https://liremarx.com/oeuvres/carnet.html">
+<script>
+/* L'ENTRÉE DU CARNET — la décision se prend ICI, avant le premier rendu.
+   Si elle était prise dans carnet-intro.js (chargé en defer), le carnet
+   s'afficherait une fraction de seconde puis disparaîtrait sous la scène.
+   On pose `cn-anim` sur <html> ; le CSS et le module ne font que la lire.
+
+   L'intro ne joue QU'UNE FOIS PAR SESSION : le carnet est une page de
+   travail qu'on rouvre dix fois dans l'après-midi, une cérémonie à chaque
+   ouverture serait une taxe. Elle est également sautée quand on arrive par
+   un lien profond (#note=, #s=) — on vient chercher un passage précis —
+   sur mobile, sous prefers-reduced-motion, et avec ?skip-anim.
+
+   PIÈGE (déjà rencontré sur bibliotheque.html) : la LARGEUR ne se teste
+   pas ici. Au moment où le <head> s'exécute, la fenêtre peut ne pas avoir
+   sa taille définitive — un onglet piloté annonçait 0, et l'intro ne
+   s'armait jamais. Le seuil des 768 px vit donc dans une media query (le
+   CSS) et dans carnet-intro.js, qui mesure au moment de décider. */
+(function(){
+  var play = !window.matchMedia('(prefers-reduced-motion:reduce)').matches
+    && location.search.indexOf('skip-anim') === -1
+    && !location.hash;
+  if(play){
+    try{
+      if(sessionStorage.getItem('lm-carnet-ouvert')) play = false;
+      else sessionStorage.setItem('lm-carnet-ouvert','1');
+    }catch(e){ /* navigation privée : l'intro jouera, c'est le moindre mal */ }
+  }
+  if(play) document.documentElement.classList.add('cn-anim');
+})();
+</script>
 <link rel="stylesheet" href="fonts/fonts.css">
 <link rel="stylesheet" href="atelier.css">
 <link rel="stylesheet" href="shell.css">
@@ -221,9 +251,95 @@ a.cnb-act{font-weight:600;}
   body{background:#fff!important;}
   .cnb-book{box-shadow:none;background:#fff;--pk:#000;--pk2:#333;--pk3:#5a4008;}
 }
+/* ═══════════════════════════════════════════════════════════════════
+   L'ENTRÉE — la scène cinématique qui vivait sur l'accueil du site.
+   Tout est gaté par `html.cn-anim`, posée dans le <head> : si l'intro
+   ne doit pas jouer, aucune de ces règles n'existe et le carnet
+   s'affiche normalement. Le JS vit dans carnet-intro.js.
+   ═══════════════════════════════════════════════════════════════════ */
+/* Le seuil des 768 px est ICI et dans le module, jamais dans le <head> :
+   au parse, la fenêtre peut mentir sur sa taille. Sous ce seuil, aucun
+   élément de la scène n'est affiché — pas même une image de flash — et
+   carnet-intro.js les retire du document. */
+@media(min-width:768px){
+  html.cn-anim body{background:radial-gradient(ellipse at 50% 46%,#1a1410 0%,#0d0b0a 60%,#070605 100%);}
+  /* la coquille n'arrive qu'avec le carnet : on n'ouvre pas un carnet
+     au milieu d'une barre d'outils. */
+  html.cn-anim body:not(.cn-open) header.topbar,
+  html.cn-anim body:not(.cn-open) aside.sidebar,
+  html.cn-anim body:not(.cn-open) .sb-backdrop{display:none;}
+  html.cn-anim body:not(.cn-open) main.wrap{opacity:0;}
+  html.cn-anim main.wrap{transform-origin:50% 40%;will-change:opacity,transform;}
+  html.cn-anim #cnScene{display:block;}
+  html.cn-anim .cn-cine{display:flex;}
+  html.cn-anim .cn-loading{display:flex;}
+}
+
+#cnScene,.cn-cine,.cn-loading{display:none;}
+#cnScene{position:fixed;top:0;left:0;width:100%;height:100%;z-index:200;}
+.cn-cine{position:fixed;inset:0;z-index:210;pointer-events:none;
+  flex-direction:column;justify-content:space-between;
+  padding:28px clamp(22px,6vw,80px) 34px;transition:opacity .5s;}
+.cn-cine .cn-brand{font-family:var(--f-ui);font-weight:800;letter-spacing:-.02em;
+  font-size:1.05rem;color:#efe6d6;}
+.cn-cine .cn-brand span{color:var(--red);}
+.cn-mid{margin-top:clamp(16px,4vh,40px);max-width:56%;}
+.cn-kicker{font-family:var(--f-ui);font-weight:600;font-size:.74rem;letter-spacing:.34em;
+  text-transform:uppercase;color:var(--gold);margin-bottom:14px;
+  opacity:0;transform:translateY(14px);transition:.9s .3s;}
+.cn-big{font-family:'Fraunces',serif;font-weight:900;line-height:.86;letter-spacing:-.035em;
+  font-size:clamp(2.6rem,7.4vw,5.4rem);color:#f4ecdb;}
+.cn-big .cn-ln{display:block;overflow:hidden;}
+.cn-big .cn-w{display:inline-block;transform:translateY(115%);
+  transition:transform 1.1s cubic-bezier(.16,1,.3,1);}
+.cn-big em{font-style:italic;font-weight:500;color:var(--red);}
+/* la colonne de titre se pose SUR la scène : sans ombre portée, le lede
+   passait au travers des livres du bureau et devenait illisible. */
+.cn-lede{font-family:'Spectral',serif;font-style:italic;font-size:1.02rem;line-height:1.6;
+  color:#cbbb9b;margin-top:18px;max-width:32ch;opacity:0;transition:.9s .8s;
+  text-shadow:0 1px 14px rgba(8,5,3,.95),0 0 34px rgba(8,5,3,.8);}
+.cn-big,.cn-kicker{text-shadow:0 2px 22px rgba(8,5,3,.75);}
+.cn-lit .cn-kicker{opacity:1;transform:none;}
+.cn-lit .cn-ln1 .cn-w{transform:none;transition-delay:.4s;}
+.cn-lit .cn-ln2 .cn-w{transform:none;transition-delay:.55s;}
+.cn-lit .cn-lede{opacity:1;}
+.cn-foot{display:flex;justify-content:center;align-items:flex-end;}
+.cn-hint{font-family:var(--f-ui);font-size:.74rem;letter-spacing:.22em;text-transform:uppercase;
+  color:#8a7d68;display:flex;align-items:center;gap:11px;opacity:0;transition:1s 1.4s;
+  background:rgba(13,11,10,.4);padding:10px 18px;border-radius:30px;}
+.cn-lit .cn-hint{opacity:1;}
+.cn-hint i{width:7px;height:7px;border-radius:50%;background:var(--red);
+  animation:cn-pulse 1.6s ease-in-out infinite;font-style:normal;}
+@keyframes cn-pulse{0%,100%{opacity:.3;transform:scale(.8);}50%{opacity:1;transform:scale(1.3);}}
+.cn-cine.hide{opacity:0;}
+.cn-loading{position:fixed;inset:0;z-index:220;align-items:center;justify-content:center;
+  background:#0d0b0a;font-family:var(--f-ui);font-size:.8rem;letter-spacing:.24em;
+  text-transform:uppercase;color:#6b6051;transition:opacity .6s;}
+.cn-loading.gone{opacity:0;pointer-events:none;}
+@media(max-width:900px){.cn-mid{max-width:100%;}}
 </style>
 </head>
 <body>
+<!-- L'entrée du carnet. Ces trois éléments sont retirés du document par
+     carnet-intro.js — soit à la fin de la scène, soit tout de suite s'il
+     ne peut pas la jouer. Ils n'existent que sous html.cn-anim. -->
+<div class="cn-loading" id="cnLoading">Reliure du carnet…</div>
+<canvas id="cnScene"></canvas>
+<div class="cn-cine" id="cnCine">
+  <div class="cn-brand">Lire<span>.</span>Marx</div>
+  <div class="cn-mid">
+    <p class="cn-kicker">Vos passages, vos notes</p>
+    <p class="cn-big">
+      <span class="cn-ln cn-ln1"><span class="cn-w">Mon</span></span>
+      <span class="cn-ln cn-ln2"><span class="cn-w"><em>carnet</em></span></span>
+    </p>
+    <p class="cn-lede">Ce que vous avez souligné, et ce que vous en avez écrit.</p>
+  </div>
+  <div class="cn-foot">
+    <div class="cn-hint"><i></i>Cliquez (ou faites défiler) pour ouvrir le carnet</div>
+  </div>
+</div>
+
 <main class="wrap" id="contenu" tabindex="-1">
   <div class="cnb">
 
@@ -273,6 +389,10 @@ a.cnb-act{font-weight:600;}
 
   </div>
 </main>
+
+<!-- L'entrée du carnet : three.js puis la scène (defer garde l'ordre). -->
+<script src="../vendor/three.min.js" defer></script>
+<script src="carnet-intro.js" defer></script>
 
 <script src="../config.js"></script>
 <script src="shell.js"></script>

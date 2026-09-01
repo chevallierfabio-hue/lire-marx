@@ -127,10 +127,25 @@ chargement initial pour l'onglet par défaut. **Toute nouvelle logique
 d'onglet doit appeler explicitement le rendu de l'onglet actif au
 chargement**, pas seulement au clic.
 
-**Accueil animé (`/index.html`, racine).** L'accueil canonique est
+**Accueil (`/index.html`, racine).** L'accueil canonique est
 `/index.html` (`oeuvres/index.html` = simple redirection 301 ; `_redirects`).
-Il porte : (1) l'intro cinématique Three.js (desktop, gated `no-anim`) ;
-(2) le contenu réel dans `.hw` (conteneur de défilement) — héros deux
+
+**L'INTRO CINÉMATIQUE N'EST PLUS ICI** (septembre 2026, mission
+`intro-vers-carnet`). La scène Three.js — la pièce à la bougie, le livre
+qui s'ouvre, la plongée dans la page — a été **déplacée à l'entrée du
+carnet** sur arbitrage du propriétaire : l'accueil s'ouvre désormais
+directement sur son héros. Tout ce qui la servait a disparu du fichier :
+`#scene`, `.cine`, `.loading`, l'iframe `#app`, la couche d'immersion
+`#sheet` (`.hw` est maintenant enfant direct de `<body>`), `body.intro-run`
+et son gating de `#hero-bg`, le bloc de 400 lignes de scène, et les
+~30 Ko de base64 de l'affiche. `?skip-anim` n'est plus consulté ici — il
+vaut désormais pour le carnet — et les liens internes qui le portaient
+(brandmark et « Accueil » dans shell.js, bibliotheque.html, capital-1.html)
+pointent `/`. Voir « L'entrée du carnet » plus bas pour la scène elle-même.
+**Ne pas la réintroduire sur l'accueil** : elle n'y a plus sa place, et le
+site s'ouvre plus carré ainsi.
+
+La page porte donc le contenu réel dans `.hw` — héros deux
 colonnes, marquee de concepts, « Ce que vous pouvez faire », bande
 « circuit du capital » animée (A–M–P–M′–A′), **catalogue**, aperçu Place
 publique (`SHELL.commune.mount(#homeCommune,{limit:4})`), chiffres clés,
@@ -147,58 +162,28 @@ dans `#lib-available` ; « En préparation » = index typographique par année
 Le mouvement vit dans **`assets/home.js`** (chargé
 `defer`) : révélations au scroll (`IntersectionObserver`, classes
 `.reveal` / `.reveal-stagger` / `.in` ; racine = `.hw` si elle défile,
-sinon viewport), duplication du marquee, et **fond WebGL discret**
-(`#hero-bg`, la liasse de feuillets — voir ci-dessous) — **coupé si
-`prefers-reduced-motion` ou largeur < 768**, ne démarre qu'une fois
-`body.shell-active`. Le script
-inline en bas de page pose `.lit` sur `.hs-hero` (entrée orchestrée) et
-`shell-active` dès que `#sheet` s'ouvre **ou** immédiatement si
-`skip-anim` / reduced-motion / **largeur < 768** (ce dernier corrige un
-bug où la topbar/sidebar restaient masquées sur mobile). Deux marqueurs
-sur `<html>` : `no-anim` (pas d'intro) et `no-motion` (pas d'animations
-du tout — mobile étroit ou reduced-motion). CSS de l'accueil = **inline**
-(critique LCP) ; JS = **externe + `defer`**. Ne pas réintroduire de
-Three.js bloquant. `SHELL.commune` vient de `shell.js` (déjà chargé).
+sinon viewport — depuis la sortie de l'intro `.hw` ne défile plus, c'est
+donc le viewport qui pilote), duplication du marquee, et **fond WebGL
+discret** (`#hero-bg`, la liasse de feuillets — voir ci-dessous) — **coupé
+si `prefers-reduced-motion` ou largeur < 768**, ne démarre qu'une fois
+`body.shell-active`. Le script inline en bas de page pose `shell-active` et
+`.lit` sur `.hs-hero` **immédiatement** : il n'y a plus rien à attendre.
+Deux marqueurs sur `<html>` : `no-anim` (pas d'entrée orchestrée du héros)
+et `no-motion` (pas d'animations du tout) — les deux posés ensemble, sur
+mobile étroit ou reduced-motion. CSS de l'accueil = **inline**
+(critique LCP) ; JS = **externe + `defer`**. `vendor/three.min.js` reste
+chargé, non plus pour l'intro mais pour les décors WebGL de home.js (la
+liasse, le chariot). Ne pas réintroduire de Three.js bloquant.
+`SHELL.commune` vient de `shell.js` (déjà chargé).
 
-**On entre dans le site par le haut, et sans rien déclencher — `body.intro-run`.**
-À `p>0.6`, l'intro pose `.show` sur `#sheet`, qui passe donc en
-`pointer-events:auto` alors qu'il reste un bon tiers d'animation. Deux dégâts,
-tous deux corrigés par une classe posée sur `<body>` pendant l'intro :
-
-1. **Le clic ouvrait « Une page réelle du manuscrit ».** `#sheet` porte pourtant
-   `pointer-events:none` — mais `#hero-bg` le REPREND avec un
-   `pointer-events:auto` explicite, et **une déclaration sur l'enfant annule le
-   `none` de l'ancêtre**. Le canvas du héros était donc cliquable dès la
-   première image, et `heroBg()` y attache son raycaster sans attendre
-   `shell-active`. D'où `body.intro-run #hero-bg{pointer-events:none}`.
-2. **On débouchait sur l'accueil déjà descendu.** La molette qui sert à entrer
-   se mettait à faire défiler `.hw` dès `.show`. `frame()` épingle donc
-   `hw.scrollTop = 0` à chaque image tant que l'intro tourne.
-
-**L'épinglage est une remise à zéro par image, pas un `overflow:hidden` à
-retirer** : si la boucle mourait, un verrou CSS ne se rouvrirait jamais et la
-page resterait bloquée en haut — pire que le bug corrigé. Même raison pour le
-filet de `releaseIntro()`, appelé **au plus tard 8 s après l'entrée** : un rAF
-ralenti ne doit pas pouvoir sceller la page. La classe
-n'est posée que si la boucle démarre vraiment (jamais en `no-anim` ni sous
-reduced-motion), et si elle restait par accident on ne perdrait que le
-raccourci souris — `#msCartel` est le chemin d'ouverture officiel du panneau.
-
-**Le verrou tombe quand la page a FINI D'APPARAÎTRE, pas quand `p` touche 1.**
-`p += (targetP-p)*0.035` converge de façon asymptotique : `sv` vaut 1 à
-`p=0.96`, soit la 90e image, quand `p>0.995` n'arrive qu'à la 149e. Libérer
-sur `p>0.995` laissait donc **une seconde pleine de défilement mort** (le
-double sur une machine lente) pendant laquelle l'accueil est entièrement
-visible et ignore la molette — c'est remonté comme bug. Le test est `sv >= 1` :
-à cet instant `#sheet` est à pleine opacité et à l'échelle 1, et le canvas de
-l'intro est à 0,18 % d'opacité. Rien ne distingue plus cet instant de la fin.
-Ne pas remonter ce seuil.
-
-**Pour tester tout ceci, la sonde est obligatoire.** Le rAF est si bridé dans
-un onglet piloté que l'intro n'avance pas du tout : `p` reste à 0, rien n'est
-observable, et on croit à tort que le clic ne marche plus. Exposer
-temporairement `{enter, frame, getP, setP, getLocked}` sur `window`, avancer
-`frame()` en pas-à-pas, **et retirer la sonde avant le commit**.
+**La largeur ne se teste PAS à `innerWidth` dans un script de tête.** Au
+moment où il s'exécute, la fenêtre peut encore annoncer 0 (onglet ouvert en
+arrière-plan, onglet piloté) : l'accueil partait alors en `no-anim` +
+`no-motion`, c'est-à-dire sans la moindre animation, pour un visiteur en
+1440 px. Le seuil passe par `matchMedia('(max-width:767px)')`, qui décrit le
+viewport CSS — celui qui a servi à mettre la page en page. Même remède dans
+`carnet-intro.js`. C'est le cousin du piège déjà documenté sur
+`bibliotheque.html` (« la décision se prend au moment de décider »).
 
 **L'invite à descendre (`.hs-hint`, `heroHint()` dans home.js).**
 L'accueil s'ouvre sur un héros plein écran et ne disait pas qu'il
@@ -207,15 +192,13 @@ pages (filet vertical dégradé + « Faire défiler » en capitales
 espacées), au pied du héros ; son opacité est pilotée par la POSITION
 de défilement — éteinte sur le premier dixième d'écran, et elle revient
 si l'on remonte. Masquée sous 720 px (le héros y perd sa hauteur plein
-écran, et le geste va de soi). L'intro cinématique garde SA propre
-invite (« Cliquez ou faites défiler pour ouvrir la page ») : deux
-moments, deux invites.
+écran, et le geste va de soi). C'est désormais la seule invite de la
+page : celle de l'intro cinématique est partie avec elle, au carnet.
 
-**Un style INLINE bat le gating CSS de l'entrée — piège de la même
-famille que le `pointer-events` de `#hero-bg`.** `heroHint()` écrivait
+**Un style INLINE bat le gating CSS de l'entrée.** `heroHint()` écrivait
 `style.opacity` dès l'inscription de son abonné ; cet inline passe
 devant `html:not(.no-anim) .hs-hero .hs-hint{opacity:0}`, et l'invite
-s'allumait donc PAR-DESSUS l'intro cinématique. L'abonné n'écrit rien
+s'allumait donc PAR-DESSUS l'entrée du héros. L'abonné n'écrit rien
 tant que `.hs-hero` n'a pas `.lit`, et efface l'inline sinon. Toute
 nouvelle fonction qui pilote en inline une propriété par ailleurs gatée
 par `.lit` doit faire pareil.
@@ -227,12 +210,12 @@ fois.** Les éléments du héros sont cachés par
 *et* du `html` qui compte comme un élément. Les règles de révélation de la
 colonne gauche (`.hs-hero.lit .hs-left>.hs-h1`, quatre classes) passent
 devant ; celle du portrait (`.hs-hero.lit .hs-right`, trois classes) perdait,
-et **le portrait restait invisible dans tout le chemin immersif** — donc
-partout sauf `?skip-anim`, mobile et reduced-motion, c'est-à-dire les trois
-modes dans lesquels on teste. Le bug a vécu longtemps pour cette raison.
+et **le portrait restait invisible partout sauf en `no-anim`** — c'est-à-dire
+partout sauf dans les modes où l'on teste (mobile, reduced-motion, et à
+l'époque `?skip-anim`). Le bug a vécu longtemps pour cette raison.
 Corrigé en préfixant la règle par le même `html:not(.no-anim)`. **Toute
 nouvelle règle `.lit` doit être vérifiée contre la spécificité (0,3,1) de la
-règle qui cache**, et testée au moins une fois hors `skip-anim`.
+règle qui cache**, et testée au moins une fois hors `no-anim`.
 
 **Héros de l'accueil — « la liasse » (`heroBg()` dans `home.js`).** Les
 feuillets d'archive ne dérivent plus en boucle : au repos ils sont
@@ -265,8 +248,8 @@ image qui réclame le regard — la page s'ouvre sur une liasse de manuscrits
 et se referme sur un feuillet de la même main. Le halo a suivi le bouton à
 gauche.
 
-**Il y a une vraie bougie.** `.hs-closer-candle` reprend celle de l'intro
-cinématique, aux mêmes couleurs : bougeoir laiton `#9a7b30`, cire crème
+**Il y a une vraie bougie.** `.hs-closer-candle` reprend celle de l'entrée
+du carnet (jadis l'intro de cette page même), aux mêmes couleurs : bougeoir laiton `#9a7b30`, cire crème
 `#e9ddc2`, flamme `#ffd27a`, halo orangé `#ff9c3a`, et jusqu'au filet de
 fumée. Le **bougeoir** n'est pas une pastille : c'est une
 coupelle (`.cd-pan`) et une douille qui serre la cire (`.cd-socket`) — sans
@@ -595,7 +578,9 @@ viewport < 640 px, pas de WebGL), donc **aucun écouteur clavier n'existe**
 dans ces cas — et le CSS masque fiche, bandeau et voile sous 768 px.
 
 **Statut de la refonte par page** (à mettre à jour à chaque page migrée) :
-- ✅ Accueil général du site (`/index.html`) — enrichi + animé (voir ci-dessus)
+- ✅ Accueil général du site (`/index.html`) — enrichi + animé (voir
+  ci-dessus). **Plus d'intro cinématique depuis septembre 2026** : elle est
+  passée à l'entrée du carnet.
 - ✅ Accueil de l'œuvre Le Capital (hero + onglets Lire/Atelier/Ressources)
 - ✅ Page de lecture d'un chapitre (Le Capital) — bandeau + lettrine
   rubriquée + colonne de notes en marge retirée (redondante avec
@@ -831,6 +816,75 @@ lisant.
 
 L'alias hérité `'capital'` → `'capital-1'` est redit ici (comme dans
 place-publique) plutôt que de coupler la page à `SHELL.commune`.
+
+### L'entrée du carnet (mission `intro-vers-carnet`, septembre 2026)
+
+**La scène cinématique du site vit désormais ICI**, et nulle part ailleurs :
+`oeuvres/carnet-intro.js` + le bloc CSS `html.cn-anim` en fin du `<style>`
+de `carnet.html`. Arbitrage du propriétaire : l'accueil s'ouvre directement,
+la cérémonie ne joue plus qu'à l'entrée du carnet.
+
+Le décor n'a pas changé de sens en changeant de page — c'est le bureau à la
+bougie de la bibliothèque — mais deux choses ont bougé :
+- **le volume qu'on ouvre est VOTRE carnet** : `coverTop()` dessine une
+  toile sombre, une étiquette de cahier collée (« Lire Marx / *Mon carnet* /
+  passages & notes ») et un signet rouge qui dépasse, au lieu de la
+  couverture rouge et or du *Capital* ;
+- **l'affiche « Prolétaires de tous les pays » a disparu** : elle
+  transportait ~30 Ko de base64 pour une page qu'on rouvre dix fois par
+  jour, et elle ne disait rien du carnet. À sa place, une page manuscrite
+  posée à plat sur le bureau — même papier, même écriture que celle qu'on
+  va ouvrir. `silTex()` (la silhouette de Marx) était déjà du code mort
+  dans l'accueil : supprimée aussi.
+
+**Elle ne joue QU'UNE FOIS PAR SESSION** (`sessionStorage`,
+`lm-carnet-ouvert`). Le carnet est une page de travail : une cérémonie à
+chaque ouverture serait une taxe, pas un accueil — c'est exactement
+l'arbitrage déjà rendu pour les ateliers (mission `bureau-decriture`
+abandonnée). Sautée aussi par un **lien profond** (`#note=`, `#s=` — on
+vient chercher un passage précis, et le drapeau de session n'est alors PAS
+consommé), sous `prefers-reduced-motion`, avec `?skip-anim`, et sous
+768 px.
+
+**La décision se prend dans le `<head>`, pas dans le module.** Elle doit
+être connue avant le premier rendu, sinon le carnet apparaît puis
+disparaît sous la scène. Le head pose `html.cn-anim` ; le CSS et le module
+ne font que la lire, et le module la retire s'il ne peut pas jouer (pas de
+THREE, pas de WebGL, fenêtre étroite) — `forfeit()` retire alors les trois
+éléments du document et pose `cn-open`. **La largeur, elle, ne se teste ni
+ici ni là à `innerWidth`** : media query des deux côtés, même seuil, ils
+bougent ensemble (voir le piège documenté sur l'accueil).
+
+Ce qu'il ne faut pas casser :
+- **`releaseIntro()` EFFACE le transform inline de `<main>`** (et n'écrit
+  plus rien après). Un transform sur un ancêtre fait d'un `position:fixed`
+  descendant un `position:absolute` : les modales du shell s'y caleraient.
+  Vérifié après coup — `#acctModal` est enfant de `<body>` et reste centré.
+- **Le verrou est un ÉPINGLAGE PAR IMAGE** (`window.scrollTo(0,0)` tant que
+  `introLocked`), jamais un `overflow:hidden` : si la boucle mourait, un
+  verrou CSS ne se rouvrirait plus et le carnet resterait bloqué — pire que
+  le bug qu'on évite. Même raison pour le filet des **8 s** dans `frame()`.
+- **On rend la main quand la page a FINI D'APPARAÎTRE (`sv >= 1`), pas
+  quand `p` touche 1** : `p += (targetP-p)*0.035` converge de façon
+  asymptotique, et libérer sur `p>0.995` laisserait une seconde pleine de
+  défilement mort. Ne pas remonter ce seuil.
+- **Le clavier ouvre aussi** (`keydown` : Tab, Entrée, Espace, Échap,
+  Flèche bas, Page suivante, Fin). L'intro d'origine n'écoutait que la
+  molette et le clic — sur l'accueil c'était déjà un défaut, sur une page
+  utilitaire ce serait un piège : quelqu'un qui ne se sert pas de la souris
+  resterait devant la scène sans moyen d'atteindre son carnet.
+- **La scène est DÉMONTÉE à la fin** (`teardown()` : dispose du renderer,
+  des géométries, des matériaux et des textures, puis retrait du canvas, de
+  la couche de titre et du voile). On ne laisse pas tourner un contexte
+  WebGL derrière le papier d'une page de travail.
+
+**Pour la tester, la sonde est obligatoire**, et le piège est plus retors
+qu'ailleurs : dans la pane pilotée le document est souvent `hidden`, donc
+`innerWidth`, `clientWidth` ET les media queries valent 0/false — l'intro
+ne s'arme jamais et on croit à un bug. Vérifier `document.hidden` avant de
+conclure ; le démarrage automatique se valide dans un vrai navigateur, la
+chorégraphie s'avance en pas-à-pas avec une sonde
+`{enter, frame, getP, tgt}` — **retirée avant le commit**.
 
 ## L'en-tête d'œuvre et la barre plate (mission `entete-et-barre-plate`)
 
@@ -1583,11 +1637,22 @@ est idempotente (garde `scene3d`).
 Avant, « Bibliothèque » menait à l'accueil et le site n'avait aucun retour
 explicite vers sa page d'accueil. Désormais, dans `shell.js` :
 
-- **Accueil** (`data-act="home"`) → `/?skip-anim` — l'accueil sans rejouer
-  l'intro cinématique, comme le brandmark.
+- **Accueil** (`data-act="home"`) → `/`, comme le brandmark. (Ils
+  pointaient `/?skip-anim` tant que l'accueil portait l'intro.)
 - **Bibliothèque** (`data-act="biblio"`) → `/oeuvres/bibliotheque.html`.
 
-L'entrée correspondant à la page courante prend `.on`. Noter que les pages de
+L'entrée correspondant à la page courante prend `.on` **et
+`aria-current="page"`**.
+
+**PIÈGE, corrigé en septembre 2026 après avoir vécu longtemps :
+Cloudflare Pages sert des URL PROPRES.** La page vit à
+`/oeuvres/carnet`, pas `/oeuvres/carnet.html`. Les trois tests de
+marquage portaient sur `.html` : ils passaient en local (où
+`python3 -m http.server` sert bien le fichier) et n'attrapaient
+**rien en production** — aucune entrée n'était jamais mise en avant sur
+le site en ligne. `here` normalise donc en retirant l'extension. Tout
+nouveau test sur `location.pathname` doit faire pareil, et se vérifier
+sur liremarx.com et pas seulement en local. Noter que les pages de
 livre ont **elles aussi** un onglet « Accueil » dans leur `sb-work` : c'est
 l'accueil de l'œuvre, pas celui du site, et le titre de section au-dessus
 (`LE CAPITAL — LIVRE I`) est ce qui les distingue.

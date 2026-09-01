@@ -162,12 +162,14 @@
     });
     bk.addEventListener('click', function(){ document.body.classList.remove('sb-open'); });
 
-    // Brandmark → accueil (/) avec skip-anim pour éviter l'animation d'entrée
-    document.getElementById('shellBrand').addEventListener('click', function(){ location.href = '/?skip-anim'; });
+    // Brandmark → accueil. Plus de ?skip-anim : depuis que l'intro
+    // cinématique a été déplacée à l'entrée du carnet, l'accueil s'ouvre
+    // directement et le paramètre n'a plus d'objet.
+    document.getElementById('shellBrand').addEventListener('click', function(){ location.href = '/'; });
 
-    // Accueil : la page d'accueil, sans rejouer l'animation d'entrée.
+    // Accueil : la page d'accueil du site.
     var home = sb.querySelector('[data-act="home"]');
-    home.addEventListener('click', function(){ location.href = '/?skip-anim'; });
+    home.addEventListener('click', function(){ location.href = '/'; });
 
     // Bibliothèque : la page dédiée « Par où commencer ».
     var bib = sb.querySelector('[data-act="biblio"]');
