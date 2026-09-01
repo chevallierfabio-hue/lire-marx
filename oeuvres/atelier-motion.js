@@ -474,7 +474,77 @@
     }
   }
 
+  /* ── J. L'ATELIER À TROIS COLONNES ───────────────────────────────────
+     (mission `atelier-texte-au-centre`)
+
+     RÈGLE QUI COMMANDE TOUT LE RESTE : la colonne de TEXTE ne bouge
+     jamais. Ni à l'entrée, ni au défilement. Le lecteur vient lire ; une
+     ligne qui glisse sous l'œil, si discrète soit-elle, est une gêne et
+     non un agrément. Le mouvement vit donc dans les deux colonnes
+     latérales et aux MOMENTS DE TRANSITION — l'arrivée sur la page,
+     l'ouverture d'un chapitre — jamais en continu sous le regard.
+
+     Corollaire de sécurité : on ne cache JAMAIS le texte en attendant une
+     animation. Les entrées sont des `@keyframes` en `fill-mode:both` et
+     non des états de classe : une animation finit toujours, alors qu'une
+     classe qu'on oublie de poser laisse la page vide. */
+  function threeCols() {
+    var toc = document.getElementById('atl3Toc');
+    var marge = document.getElementById('atl3Marge');
+    if (!toc && !marge) return;                 /* pas cette page */
+    document.documentElement.classList.add('js-at3');
+
+    /* Les deux colonnes latérales se posent à l'arrivée — l'animation est
+       accrochée à `js-at3` SEULE, sans seconde classe à poser après coup :
+       si le script échouait entre les deux, les colonnes resteraient
+       invisibles pour toujours. Poser la classe, c'est déclencher
+       l'animation ; il n'y a pas d'entre-deux. */
+
+    /* PAS d'inscription ligne à ligne du sommaire — geste essayé puis
+       retiré. Le sommaire est rebâti par `renderTocRail()` à la fin du
+       chargement du texte, soit environ une seconde après l'entrée : la
+       cascade en cours était détruite en plein vol et rejouée à plat sur
+       les nouvelles lignes. Un geste qui se contredit lui-même vaut moins
+       que pas de geste ; l'entrée de la colonne (`at3ColG`) le dit déjà,
+       et elle, rien ne la reconstruit. */
+
+    /* La marge se recompose à chaque chapitre : ses blocs arrivent d'un
+       souffle, échelonnés. Court (moins de trois cents millisecondes en
+       tout) parce que ce geste se rejoue à chaque chapitre traversé —
+       une entrée spectaculaire deviendrait vite une taxe. */
+    if (marge && window.MutationObserver) {
+      var reposer = function () {
+        if (!shown(marge)) return;
+        var secs = marge.querySelectorAll('.atl3-m-sec');
+        for (var i = 0; i < secs.length; i++) secs[i].style.setProperty('--i', String(i));
+        /* on relance l'animation en la retirant puis la reposant */
+        marge.classList.remove('at3-repose');
+        void marge.offsetWidth;
+        marge.classList.add('at3-repose');
+      };
+      reposer();
+      new MutationObserver(reposer).observe(marge, { childList: true });
+    }
+
+    /* Le bandeau de chapitre S'ALLUME à chaque ouverture — la lueur monte
+       du bas, comme le bandeau de départ et la bougie de l'accueil. C'est
+       le seul geste qui touche la colonne de texte, et il se joue AVANT
+       qu'on lise, sur le titre, jamais sur le texte. */
+    var out = document.getElementById('readerOut');
+    if (out && window.MutationObserver) {
+      var allumer = function () {
+        var head = out.querySelector('.rdr-header');
+        if (!head || head.dataset.at3Lit || !shown(head)) return;
+        head.dataset.at3Lit = '1';
+        head.classList.add('at3-alight');
+      };
+      allumer();
+      new MutationObserver(allumer).observe(out, { childList: true, subtree: true });
+    }
+  }
+
   function init() {
+    threeCols();
     inkTitles();
     inkSections();
     startBand();

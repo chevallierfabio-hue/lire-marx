@@ -1128,6 +1128,59 @@ existait déjà avec la même spécificité (0,3,1) que
 feuille commune. Le socle ne pouvait pas les corriger de l'extérieur. On
 corrige à la source, jamais en surenchérissant.
 
+### Le mouvement de la vue de lecture (passe DA + mouvement)
+
+Ajouté dans `atelier-motion.js` (`threeCols()`), donc sous les gardes du
+module : rien ne s'arme sous `prefers-reduced-motion` ni en dessous de
+768 px, et le défaut CSS est l'état posé.
+
+**LA RÈGLE QUI COMMANDE TOUT : la colonne de TEXTE ne bouge jamais.** Ni à
+l'entrée, ni au défilement. Le lecteur vient lire ; une ligne qui glisse
+sous l'œil est une gêne, pas un agrément. Le mouvement vit dans les deux
+colonnes latérales et aux MOMENTS DE TRANSITION — l'arrivée, l'ouverture
+d'un chapitre — jamais en continu sous le regard. On ne masque jamais le
+texte en attendant une animation.
+
+Trois gestes, et trois seulement :
+- les deux colonnes latérales se posent à l'arrivée (`at3ColG`/`at3ColD`) ;
+- la marge se recompose à chaque chapitre, blocs échelonnés (`at3Bloc`,
+  moins de 300 ms en tout — ce geste se rejoue à chaque chapitre traversé,
+  une entrée spectaculaire deviendrait une taxe) ;
+- le bandeau de chapitre s'allume, la lueur montant du bas (`at3Alight` +
+  `at3Halo`) — le seul geste qui touche la colonne de texte, sur le TITRE,
+  avant qu'on lise.
+
+**ANIMATION et non transition, accrochée à `js-at3` SEULE.** Une transition
+suppose qu'une seconde classe arrive derrière pour la déclencher ; si elle
+n'arrive pas, la colonne reste à zéro d'opacité — invisible pour de bon.
+Poser la classe doit ÊTRE le déclenchement, sans entre-deux.
+
+**`setProperty` veut une CHAÎNE.** `el.style.setProperty('--i', 3)` est
+ignoré en silence : tout l'échelonnement retombait à zéro. Le module
+écrivait déjà `.toFixed(3)` partout ailleurs — c'est la raison.
+
+**Geste essayé puis RETIRÉ : l'inscription ligne à ligne du sommaire.**
+`renderTocRail()` rebâtit la liste à la fin du chargement du texte, environ
+une seconde après l'entrée : la cascade en cours était détruite en plein
+vol et rejouée à plat sur les nouvelles lignes. Un geste qui se contredit
+lui-même vaut moins que pas de geste — l'entrée de la colonne le dit déjà,
+et elle, rien ne la reconstruit. Ne pas la reproposer sans régler d'abord
+le rebâtissage.
+
+**Alignement sur l'accueil** (demande explicite) : micro-libellés aux
+valeurs exactes de `.hs-sec-label` (`.72rem` / **600** / `.11em`), cartes au
+rayon **16** avec survol vers `--gold`, ombre longue et basse et la courbe
+`cubic-bezier(.16,1,.3,1)` de `.hs-w-card`, titre de marge en Fraunces
+**900** `-.02em`. La carte « Vos passages » prend le halo radial or de la
+maison — le site s'éclaire à la bougie, ses surfaces d'emphase portent
+cette lumière.
+
+**Un constat `low-contrast` du détecteur est un FAUX POSITIF** :
+« #ffffff on #beb6a5 » correspond à `.subtab:hover` — `--ink` (#f3e9d4) lu
+comme blanc, et `--hover` (crème à 5 %) composité sur un fond clair supposé
+au lieu du brun-nuit réel. La sonde sur le rendu donne 0 échec. Ne pas
+« corriger » ce contraste : on casserait un survol correct.
+
 ### Pièges rencontrés — tous vécus, aucun théorique
 
 1. **`atelier-motion.js` observait la CLASSE des panneaux.** Les six
