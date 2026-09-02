@@ -827,8 +827,8 @@ function identite(nom) {
 <link rel="stylesheet" href="/oeuvres/fonts/fonts.css" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="/oeuvres/fonts/fonts.css"></noscript>
 <link rel="stylesheet" href="/glossaire/notion.css">
-<link rel="preload" href="/oeuvres/shell.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="/oeuvres/shell.css"></noscript>
+<link rel="preload" href="/oeuvres/shell.css?v=2" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="/oeuvres/shell.css?v=2"></noscript>
 ${ld}
 </head>
 <body>
@@ -885,7 +885,7 @@ ${voisines.map((v) => `      <a href="${v.page ? `/glossaire/${v.id}` : `/glossa
 </main>
 ${PIED}
 <script src="/config.js"></script>
-<script src="/oeuvres/shell.js"></script>
+<script src="/oeuvres/shell.js?v=2"></script>
 <script src="/oeuvres/shell-social.js"></script>
 <script>installShell({ workTitle: 'Glossaire', tabs: [] });</script>
 </body>

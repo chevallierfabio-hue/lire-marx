@@ -528,6 +528,14 @@ body.at-reading .notes-fab{display:inline-flex;}
 .pub-rpta{width:100%;min-height:54px;resize:vertical;background:var(--card);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-family:var(--f-ui);font-size:.85rem;padding:8px 10px;}
 .pub-rpta:focus-visible{border-color:var(--red);outline:none;}
 
+/* ⚠️ shell.css EST MIS EN CACHE 4 HEURES (`max-age=14400`) alors que le HTML
+   ne l'est pas. Dès qu'une règle d'ici doit arriver EN MÊME TEMPS qu'un
+   changement de balisage, les liens `shell.css?v=N` des vingt-deux pages
+   doivent être bumpés — sinon un visiteur revenu dans les quatre heures
+   reçoit le nouveau HTML avec l'ancien CSS. Vécu en production le jour du
+   pied de page : il s'est affiché centré, italique, liens en bleu.
+   `node tools/gen-seo.mjs` NE le fait PAS : c'est un geste à la main. */
+
 /* ─────────────────────────── LE PIED DE PAGE ────────────────────────────
    Balisage STATIQUE, dérivé par tools/gen-seo.mjs, et c'est tout son objet :
    la sidebar est injectée par shell.js, donc invisible à qui n'exécute pas
