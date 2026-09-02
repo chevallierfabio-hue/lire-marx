@@ -5253,6 +5253,48 @@ déjà documentée.
 est autonome, ne charge ni shell.js ni shell.css, et une page d'erreur ne doit
 pas dépendre de ce qu'on n'a pas réussi à servir.
 
+### ⚠️ LE CACHE A CASSÉ LE PIED DE PAGE EN PRODUCTION
+
+Constaté à la vérification du déploiement, pas avant : le pied de page
+s'affichait **centré, en italique, liens en bleu souligné, bouton gris de
+l'agent utilisateur** — entièrement dépourvu de style. Le fichier était
+pourtant bon à l'origine.
+
+```
+/oeuvres/shell.css        cache-control: public, max-age=14400, must-revalidate
+/oeuvres/place-publique                          max-age=0,     must-revalidate
+```
+
+**Quatre heures pour la feuille, zéro pour le HTML.** Un visiteur venu dans
+les quatre dernières heures recevait le NOUVEAU balisage avec l'ANCIEN CSS —
+et comme le nouveau balisage n'existait pas encore pour l'ancien CSS, il
+tombait sur les règles génériques d'`atelier.css`. `must-revalidate` n'y
+change rien : il ne force la revalidation qu'APRÈS expiration.
+
+C'est **mot pour mot** le piège déjà écrit pour `assets/home.js?v=2` dans
+`perf-poids-accueil`. Il s'est rejoué parce que la règle avait été appliquée
+au seul fichier où on l'avait rencontrée, au lieu d'être tenue pour générale.
+Elle l'est :
+
+> **Dès qu'un actif mis en cache doit changer EN MÊME TEMPS qu'un balisage,
+> il doit porter une version dans son URL — et il faut bumper ce numéro.**
+> Ça vaut pour `shell.css`, `shell.js`, `atelier.css`, `home.js` et toute
+> feuille ou script servi avec un `max-age`. `gen-seo.mjs` ne le fait PAS :
+> c'est un geste à la main.
+
+Soixante références sont passées en `?v=2` (`shell.css` et `shell.js`, les
+deux fichiers modifiés ce jour-là) dans les vingt-deux pages et dans le
+gabarit des notions. Le remplacement ne vise que `src=` et `href=` — les
+mentions en prose dans les commentaires ne sont pas touchées.
+`shell-social.js`, `shell-annotations.js` et `shell-progress.js` n'ont pas été
+versionnés : ils n'avaient pas changé.
+
+**Le symptôme est trompeur** — la page se charge, la coquille se monte, le
+balisage est là, la console est vide. Seul le rendu ment. **Vérifier un
+déploiement, c'est le REGARDER**, pas seulement compter des liens dans le HTML
+servi : les huit contrôles automatiques de cette mission étaient tous au vert
+pendant que la page était cassée.
+
 ### Ce qui reste
 
 Le maillage interne est désormais complet pour tout le monde. Ce qui manque
