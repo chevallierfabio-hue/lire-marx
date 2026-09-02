@@ -50,7 +50,7 @@
     return el(
       '<header class="topbar"><div class="topbar-in">' +
         '<button id="sbToggle" class="sb-toggle" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="sidebar"><span aria-hidden="true">☰</span></button>' +
-        '<button class="brandmark" type="button" id="shellBrand" aria-label="Lire Marx — revenir à la bibliothèque">Lire<span class="d">.</span>Marx</button>' +
+        '<a class="brandmark" id="shellBrand" href="/" aria-label="Lire Marx — retour à l\'accueil">Lire<span class="d">.</span>Marx</a>' +
         '<div class="tb-search">' +
           '<span class="tb-search-ic" aria-hidden="true">⌕</span>' +
           '<input id="tbSearch" type="text" autocomplete="off" spellcheck="false" placeholder="Rechercher un concept, une date, un chapitre…" aria-label="Rechercher" role="combobox" aria-expanded="false" aria-controls="tbResults" aria-autocomplete="list" aria-haspopup="listbox">' +
@@ -86,31 +86,31 @@
       : '';
     return el(
       '<aside class="sidebar" id="sidebar" aria-label="Navigation de l\'atelier">' +
-        '<button class="sb-item" type="button" data-act="home"><span class="sb-dot" style="background:var(--gold)"></span>Accueil</button>' +
-        '<button class="sb-item" type="button" data-act="biblio"><span class="sb-dot" style="background:var(--ink-soft)"></span>Bibliothèque</button>' +
+        '<a class="sb-item" href="/" data-act="home"><span class="sb-dot" style="background:var(--gold)"></span>Accueil</a>' +
+        '<a class="sb-item" href="/oeuvres/bibliotheque" data-act="biblio"><span class="sb-dot" style="background:var(--ink-soft)"></span>Bibliothèque</a>' +
                 /* Le glossaire suit la Bibliothèque : ce sont les deux outils du
            CORPUS, l'un qui dit quelles œuvres existent, l'autre les mots
            qu'elles construisent. C'est un ABÉCÉDAIRE GLOBAL, toutes œuvres
            confondues, et il vit à la racine (/glossaire) et non sous
            /oeuvres/ — arbitrage du propriétaire : il ne dépend d'aucune
            œuvre en particulier. */
-        '<button class="sb-item" type="button" data-act="glossaire"><span class="sb-dot" style="background:var(--ink-soft)"></span>Glossaire</button>' +
-'<button class="sb-item" type="button" data-act="commune"><span class="sb-dot" style="background:var(--red)"></span>Place publique</button>' +
+        '<a class="sb-item" href="/glossaire/" data-act="glossaire"><span class="sb-dot" style="background:var(--ink-soft)"></span>Glossaire</a>' +
+'<a class="sb-item" href="/oeuvres/place-publique" data-act="commune"><span class="sb-dot" style="background:var(--red)"></span>Place publique</a>' +
         /* le carnet est le pendant PRIVÉ de la Place publique : là-bas
            les notes partagées, ici les vôtres — d'où sa place juste en
            dessous. */
-        '<button class="sb-item" type="button" data-act="carnet"><span class="sb-dot" style="background:var(--gold)"></span>Mon carnet</button>' +
+        '<a class="sb-item" href="/oeuvres/carnet" data-act="carnet"><span class="sb-dot" style="background:var(--gold)"></span>Mon carnet</a>' +
         /* « Messages », et non « Contacts » : la même chose portait deux
            noms — l'icône de la barre du haut et son popover disent
            « Messages » depuis toujours. C'est le pendant PRIVÉ de la Place
            publique, comme « Mon carnet » l'est pour les notes. */
-        '<button class="sb-item" type="button" data-act="messages"><span class="sb-dot" style="background:var(--blue)"></span>Messages</button>' +
+        '<a class="sb-item" href="/oeuvres/messages" data-act="messages"><span class="sb-dot" style="background:var(--blue)"></span>Messages</a>' +
         /* « Le jeu » et non « Jeux » : il y en a un, et l'entrée dit son
            nom au singulier comme le fait la section de l'accueil. Elle
            mène à /jeu — la page qui le présente — et non à /jeu/jouer :
            le jeu prend tout l'écran, on ne l'ouvre pas d'un clic de
            sidebar sans avoir dit ce que c'est. */
-        '<button class="sb-item" type="button" data-act="jeu"><span class="sb-dot" style="background:var(--gold)"></span>Le jeu</button>' +
+        '<a class="sb-item" href="/jeu/" data-act="jeu"><span class="sb-dot" style="background:var(--gold)"></span>Le jeu</a>' +
         '<button class="sb-item" type="button" data-act="cgu"><span class="sb-dot" style="background:var(--ink-soft)"></span>CGU &amp; règles</button>' +
         sbWork +
       '</aside>'
@@ -177,18 +177,15 @@
     });
     bk.addEventListener('click', function(){ document.body.classList.remove('sb-open'); });
 
-    // Brandmark → accueil. Plus de ?skip-anim : depuis que l'intro
+    // Brandmark → accueil. C'est une ANCRE, pas un bouton : plus rien à
+    // câbler ici. Plus de ?skip-anim non plus — depuis que l'intro
     // cinématique a été déplacée à l'entrée du carnet, l'accueil s'ouvre
     // directement et le paramètre n'a plus d'objet.
-    document.getElementById('shellBrand').addEventListener('click', function(){ location.href = '/'; });
 
-    // Accueil : la page d'accueil du site.
+    // Accueil et Bibliothèque : leur href suffit, on ne garde la référence
+    // que pour le marquage de la page courante.
     var home = sb.querySelector('[data-act="home"]');
-    home.addEventListener('click', function(){ location.href = '/'; });
-
-    // Bibliothèque : la page dédiée « Par où commencer ».
     var bib = sb.querySelector('[data-act="biblio"]');
-    bib.addEventListener('click', function(){ location.href = '/oeuvres/bibliotheque'; });
 
     // Marque l'entrée correspondant à la page courante.
     // PIÈGE : Cloudflare Pages sert des URL PROPRES — la page vit à
@@ -224,69 +221,33 @@
     var jeuBtn = sb.querySelector('[data-act="jeu"]');
     if(/^\/jeu\/?$/.test(here) || /^\/jeu\/jouer$/.test(here)) mark(jeuBtn);
 
-    // Items de navigation inter-pages
+    // Items de navigation inter-pages.
+    // Les destinations sont des ANCRES : leur href fait la navigation, et
+    // c'est ce qui les rend EXPLORABLES — un robot ne clique pas un bouton
+    // et ne suit pas un `location.href` posé dans un écouteur. Il ne reste
+    // ici que les deux cas qui ne sont pas de simples destinations.
     sb.querySelectorAll('.sb-item[data-act]').forEach(function(b){
       var act = b.dataset.act;
-      if(act === 'home' || act === 'biblio' || (act && act.indexOf('tab:') === 0)) return; // déjà gérés
-      b.addEventListener('click', function(){
-        if(act === 'open-capital'){ location.href = '/oeuvres/capital-1'; return; }
-        if(act === 'open-manuscrits-1844'){ location.href = '/oeuvres/manuscrits-1844'; return; }
-        // Le jeu : sa page de présentation. AVEC le slash final — c'est
-        // l'index d'un dossier, et Cloudflare répond 308 de /jeu vers
-        // /jeu/ comme il répond 308 de /page.html vers /page. Le but est
-        // le même dans les deux cas : ne pas payer un aller-retour.
-        if(act === 'glossaire'){
-          if(window.matchMedia('(max-width:860px)').matches){
-            document.body.classList.remove('sb-open');
-          }
-          location.href = '/glossaire/';
-          return;
-        }
-        if(act === 'jeu'){
-          if(window.matchMedia('(max-width:860px)').matches){
-            document.body.classList.remove('sb-open');
-          }
-          location.href = '/jeu/';
-          return;
-        }
-        // Place publique : page dédiée (oeuvres/place-publique.html).
-        // Plus de modale ni de redirection vers capital-1.html.
-        if(act === 'commune'){
-          if(window.matchMedia('(max-width:860px)').matches){
-            document.body.classList.remove('sb-open');
-          }
-          location.href = '/oeuvres/place-publique';
-          return;
-        }
-        if(act === 'carnet'){
-          if(window.matchMedia('(max-width:860px)').matches){
-            document.body.classList.remove('sb-open');
-          }
-          location.href = '/oeuvres/carnet';
-          return;
+      b.addEventListener('click', function(e){
+        // Sur mobile, la sidebar est un tiroir : on le referme. Inutile
+        // quand on navigue (la page part), indispensable quand on ouvre
+        // une modale ou qu'on reste sur place.
+        if(window.matchMedia('(max-width:860px)').matches){
+          document.body.classList.remove('sb-open');
         }
         // CGU & règles / Confidentialité : modale RGPD de SHELL.auth.
+        // Ce n'est pas une page, l'entrée reste donc un <button>.
         if(act === 'cgu'){
-          if(window.matchMedia('(max-width:860px)').matches){
-            document.body.classList.remove('sb-open');
-          }
           if(window.SHELL && window.SHELL.auth && window.SHELL.auth.openPrivacy){
             window.SHELL.auth.openPrivacy();
           }
           return;
         }
-        // Messages : page dédiée (oeuvres/messages.html) depuis la mission
-        // `messages-page`. La modale Contacts n'existe plus.
-        if(act === 'messages'){
-          if(window.matchMedia('(max-width:860px)').matches){
-            document.body.classList.remove('sb-open');
-          }
-          /* Ne pas recharger la page qu'on regarde : sur Messages, un
-             rechargement referme la conversation ouverte. (Les URL propres
-             de Cloudflare font que les deux formes doivent être testées.) */
-          if(/\/oeuvres\/messages(\.html)?$/.test(location.pathname)) return;
-          location.href = '/oeuvres/messages';
-          return;
+        // Messages : ne pas recharger la page qu'on regarde — un
+        // rechargement y referme la conversation ouverte. (Les URL propres
+        // de Cloudflare font que les deux formes doivent être testées.)
+        if(act === 'messages' && /\/oeuvres\/messages(\.html)?$/.test(location.pathname)){
+          e.preventDefault();
         }
       });
     });
