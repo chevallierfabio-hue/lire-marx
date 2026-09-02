@@ -4258,6 +4258,16 @@ cette dernière montée sur l'accueil et la bibliothèque), plus trois ancres
 relatives en dur — `carnet.html` sur les deux ateliers, `bibliotheque.html`
 sur le carnet. Le « reste à faire » de `seo-registre-servi` est soldé.
 
+⚠️ **La promesse « il ne reste AUCUNE ancre interne en `.html` » était trop
+large** : deux avaient survécu à cette mission — les ponts croisés entre les
+deux ateliers (`capital-1.html` → `manuscrits-1844.html#anatomie` et son
+symétrique). Elles ont été trouvées et corrigées par `maillage-explorable`
+(voir plus bas). La leçon n'est pas sur le `.html` mais sur la
+VÉRIFICATION : un balayage qui ne regarde pas dans le corps des pages
+d'atelier — 130 000 px de document, des ancres au milieu de nulle part — ne
+prouve rien. Le contrôle qui a fini par les attraper parcourt les `<a href>`
+de CHAQUE fichier, script retiré, sans présumer d'où ils sortent.
+
 Les **tests** de chemin gardent leur `(\.html)?` : ils doivent accepter les
 deux formes, c'est ce qui rend le marquage robuste. Ne pas les resserrer.
 
@@ -5003,6 +5013,147 @@ déjà la lettre). Zéro débordement horizontal, console sans erreur,
 - **Une seule pastille de formule par fiche** est supposée (mesuré : 68 en
   ont une, 7 aucune). Si le générateur venait à en émettre deux, elles
   s'empileraient.
+
+## La navigation devient explorable (mission `maillage-explorable`, sept. 2026)
+
+Question du propriétaire — « comment tout indexer ? ». La réponse a commencé
+par un constat qui n'était pas celui qu'on cherchait : **le sitemap ne
+manquait de rien.** Ses dix-neuf URL couvrent tout l'indexable, le reste en
+est écarté exprès (`noindex` sur carnet, messages, `jeu/jouer` et la 404 ;
+301 sur `oeuvres/index.html` ; `_headers` sur les fragments). Le défaut était
+en amont.
+
+### La sidebar n'était pas explorable, et elle est la seule navigation
+
+`buildSidebar()` produisait des **`<button>` + `location.href` posé dans un
+écouteur**. Googlebot exécute le JS et suit les ancres du DOM rendu, mais **il
+ne clique aucun bouton et ne lit pas un `location.href` d'écouteur**. La
+navigation présente sur les huit pages ne transmettait donc rien : ni
+découverte, ni autorité interne.
+
+Ce qui restait, ce sont les ancres en dur, et le compte le disait :
+
+| URL | liens entrants réels, avant |
+|---|---|
+| `/oeuvres/capital-1` | ~160 (les notions du glossaire) |
+| `/glossaire/` | 49 |
+| `/oeuvres/manuscrits-1844` | 23 |
+| `/jeu/` · `/oeuvres/bibliotheque` | 4 |
+| `/oeuvres/place-publique` | **2** |
+
+Et en sortie, les deux ateliers — les pages les plus lourdes du site —
+n'émettaient qu'**une à deux** ancres à eux deux. Tout le maillage reposait
+sur les douze pages de notion.
+
+**Les sept destinations de la sidebar sont désormais des ANCRES**, le
+brandmark aussi. Restent des `<button>` les deux entrées qui ne sont pas des
+destinations : « CGU & règles » (elle ouvre la modale RGPD) et les onglets
+`tab:` de l'œuvre courante (ils agissent sur la page où l'on est). **C'est le
+critère, et il vaut pour toute entrée future : une DESTINATION est une ancre,
+une ACTION est un bouton.**
+
+La boucle d'écouteurs y perd l'essentiel de sa matière — l'href navigue — et
+ne garde que les deux cas qui n'en sont pas : la modale des CGU, et la garde
+de Messages (`preventDefault` sur sa propre page, un rechargement y referme la
+conversation ouverte). Le retrait du tiroir mobile est remonté en tête : il ne
+sert à rien quand on navigue, il est indispensable quand on reste sur place.
+`open-capital` et `open-manuscrits-1844` sont partis avec — plus rien
+n'émettait ces deux actes.
+
+### Le piège de la bascule : ce que l'agent utilisateur pose par défaut
+
+Une ancre sans `text-decoration` **se souligne**, et une ancre sans `color`
+part au **bleu**. `.sb-item` et `.brandmark` déclaraient bien `color` — c'est
+le soulignement qui manquait. C'est le cousin exact du défaut déjà documenté
+pour `.lk` et `.rd-chip` au moment du socle sombre, et pour les douze liens
+de notion de l'abécédaire, restés en bleu à 1,3:1. **Changer le TYPE d'un
+élément, c'est changer ce que l'agent utilisateur lui applique : vérifier
+`color` ET `text-decoration` à chaque fois.**
+
+Au passage, l'`aria-label` du brandmark disait encore « revenir à la
+bibliothèque » alors que son href est l'accueil depuis que les deux entrées
+ont été séparées.
+
+### ⚠️ CE QUE CETTE MISSION NE FAIT PAS
+
+**La sidebar est INJECTÉE par `shell.js`.** Le gain est donc réel pour
+Google, qui rend la page — et nul pour les crawlers des moteurs de réponse
+(GPTBot, ClaudeBot, PerplexityBot), qui lisent le HTML brut. Mesuré **après**
+le commit, dans le HTML servi :
+
+```
+/                        6 liens internes
+/glossaire/             15
+/oeuvres/capital-1       2
+/oeuvres/manuscrits-1844 1
+/oeuvres/place-publique  0
+```
+
+Fermer cette moitié demande une navigation **dans le HTML servi** — un pied
+de page commun, par exemple : sept des huit pages n'en ont aucun, et celui de
+`capital-1.html` dit encore « L'Atelier du Capital », un nom qui n'existe
+plus. C'est une décision de DA, laissée au propriétaire. **Ne pas conclure de
+cette mission que le maillage est réglé : il l'est pour Google, à moitié pour
+le reste.**
+
+### Place publique ne sera pas indexée, et ce n'est pas technique
+
+Elle sert **112 mots** — tout le forum est en JS — et recevait 2 liens
+entrants. Google la classera « Explorée, actuellement non indexée ». Deux
+issues, toutes deux éditoriales : pré-rendre les derniers fils comme
+`seo-registre-servi` a pré-rendu le registre, ou lui poser un `noindex` franc
+et assumer qu'un forum vide n'est pas un actif de recherche.
+
+### Le site est enfin déclaré à Search Console
+
+Il ne l'avait jamais été : rien ne remontait de l'indexation, et l'on parlait
+donc de référencement sans aucune donnée. Balise
+`google-site-verification` dans le `<head>` de l'accueil, propriété
+« Préfixe de l'URL » `https://liremarx.com/`, validée en production.
+
+**LA BALISE ET NON LE FICHIER `googleXXXX.html`**, et c'est notre 308 qui le
+commande — la règle déjà payée trois fois (le marquage de la sidebar, les
+canoniques, `/jeu`). Vérifié en production : `/index.html` répond **308** vers
+`/`, `/oeuvres/capital-1.html` **308** vers `/oeuvres/capital-1`. Google
+demande le fichier à son URL exacte et attend un 200 : il reçoit une
+redirection, et la validation échoue avec « Impossible de trouver le fichier
+de validation » — ce qui est arrivé. Le fichier fourni par Google n'est pas
+versionné, et ne doit pas l'être. **Toute future vérification de propriété
+(Bing, un autre outil) doit prendre la balise ou le DNS, jamais le fichier.**
+
+La balise ne vit que sur l'accueil : la propriété désigne la racine, c'est là
+que Google la cherche. Ne pas la retirer — la propriété serait perdue, et tout
+l'historique de Search Console avec elle.
+
+### Vérifié
+
+Les **huit pages** qui chargent la coquille (règle du projet pour toute
+retouche du shell) : coquille montée, sept ancres de sidebar, marquage exact
+partout — Accueil, Bibliothèque, Glossaire, Place publique, Mon carnet,
+Messages, Le jeu, et l'onglet d'œuvre sur les deux ateliers —, console sans
+erreur. Navigation par clic réel. Modale CGU ouverte sans changement d'URL.
+Garde de Messages : défaut bien annulé sur sa propre page. Tiroir mobile
+refermé à 375 px, **zéro débordement horizontal**. Contraste sur le rendu :
+minimum **5,64:1**, aucune cible sous 24 × 24. `detect.mjs` : **20 constats
+sur Capital, 13 sur les Manuscrits, 0 erreur** — les bases documentées au
+constat près. `gen-seo.mjs --check` à jour et idempotent (le `lastmod` des
+trois fichiers touchés a suivi). Puis **en production** : balise servie,
+racine en 200 sans redirection, sitemap à 19 URL, les deux ponts entre
+ateliers en 200, sidebar en sept ancres, console propre.
+
+### Ce qui reste
+
+- **Le pied de page commun** — la moitié « moteurs de réponse » du maillage,
+  ci-dessus. C'est la suite directe de cette mission.
+- **Aucune page « À propos », aucun auteur nommé, aucun contact.** Le dernier
+  commit avant cette mission (`92c43ee`) a même retiré l'entrée de sidebar,
+  qui était un bouton mort. C'est le trou le plus large côté autorité : un
+  site anonyme, en concurrence avec Wikipédia, l'UQAC et les universités, ne
+  sera pas cité par un moteur de réponse. Une page qui dit qui parle, avec
+  quelles éditions et quelle méthode, vaut plus que n'importe quel balisage.
+- **Les liens entrants externes**, qui restent la variable la plus lourde et
+  la moins technique. `sameAs` ne contient que le dépôt GitHub, et c'est le
+  bon réflexe — on n'invente pas un profil. Il faut en gagner de vrais.
 
 ## Conventions de travail
 
