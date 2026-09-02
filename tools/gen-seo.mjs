@@ -25,6 +25,12 @@ import { readFileSync, writeFileSync, readdirSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 
 const ORIGIN = 'https://liremarx.com';
+/* La signature de l'auteur. Elle vit ici parce qu'elle est affirmée à DEUX
+   endroits — le corps de /a-propos et le `founder` de son JSON-LD — et
+   qu'un schéma qui nommerait l'auteur autrement que la page serait un
+   mensonge lisible par machine. Un pseudonyme est une identité : on le
+   déclare, on ne le laisse pas vide. */
+const AUTEUR = 'PSEUDO_A_DEFINIR';
 const BIBLIO = 'oeuvres/bibliotheque.json';
 
 /* ------------------------------------------------------------------ *
@@ -114,7 +120,11 @@ const SITE_PAGES = [
      avait corrigé, reproduit en miroir. Ne pas « nettoyer » ce slash. */
   { file: 'jeu/index.html',             url: '/jeu/',                   priority: '0.8', changefreq: 'monthly' },
   /* Le glossaire — page dérivée, voir plus bas. */
-  { file: 'glossaire/index.html',      url: '/glossaire/',             priority: '0.7', changefreq: 'monthly' }
+  { file: 'glossaire/index.html',      url: '/glossaire/',             priority: '0.7', changefreq: 'monthly' },
+  /* /a-propos — page-FICHIER, donc SANS extension et SANS slash final.
+     C'est l'autre moitié de la règle du slash rappelée juste au-dessus :
+     un dossier prend son slash, un fichier n'en prend pas. */
+  { file: 'a-propos.html',             url: '/a-propos',               priority: '0.6', changefreq: 'yearly' }
 ];
 
 /* HORS SITEMAP, et c'est un choix motivé — voir CLAUDE.md :
@@ -215,6 +225,7 @@ const PIED_FIN = '<!-- PIED:FIN -->';
    doit pas dépendre de ce qu'on n'a pas réussi à servir. */
 const PIED_PAGES = [
   'index.html',
+  'a-propos.html',
   'oeuvres/bibliotheque.html',
   'oeuvres/capital-1.html',
   'oeuvres/manuscrits-1844.html',
@@ -266,6 +277,7 @@ ${lien('/jeu/', 'Le circuit du capital')}
         <ul>
 ${lien('/', 'Accueil')}
 ${lien('/oeuvres/place-publique', 'Place publique')}
+${lien('/a-propos', 'À propos')}
           <li><button type="button" class="lm-foot-cgu">CGU &amp; confidentialité</button></li>
         </ul>
       </div>
@@ -935,6 +947,58 @@ const entries = [
     priority: '0.9', changefreq: 'monthly', title: w.title
   }))
 ];
+
+/* ------------------------------ /a-propos ------------------------------ *
+ * La page qui dit qui tient le site. Deux blocs y sont dérivés, et pour la
+ * même raison que partout ailleurs : ils affirment des faits d'édition qui
+ * vivent déjà dans EDITION et dans bibliotheque.json. Une notice de sources
+ * qui diverge de ce que le pied de page et les Book affirment serait pire
+ * que pas de notice — c'est exactement l'erreur de l'affaire Palmier.
+ * ---------------------------------------------------------------------- */
+{
+  const f = 'a-propos.html';
+  const src = readFileSync(f, 'utf8');
+
+  const sources = '\n' + available.map(w => {
+    const e = EDITION[w.id];
+    return `      <li>\n` +
+      `        <b class="ap-src-t">${esc(w.title)}</b>\n` +
+      `        <p class="ap-src-d">${esc(e.colophon.charAt(0).toUpperCase() + e.colophon.slice(1))}.` +
+      ` <a href="${esc(e.source.url)}" rel="noopener">${esc(e.source.name)} &rsaquo;</a></p>\n` +
+      `      </li>`;
+  }).join('\n') + '\n    ';
+
+  const ld = {
+    '@context': 'https://schema.org',
+    '@type': 'AboutPage',
+    name: 'À propos — qui tient Lire Marx, et comment',
+    url: `${ORIGIN}/a-propos`,
+    inLanguage: 'fr',
+    isPartOf: { '@id': `${ORIGIN}/#organisation` },
+    /* Le `mainEntity` est l'Organization : c'est d'ELLE que la page parle.
+       L'auteur y est rattaché en `Person` — un pseudonyme reste une identité,
+       et une identité stable vaut infiniment mieux qu'une page anonyme. On
+       n'affirme RIEN de plus que ce que la page imprime : pas de jobTitle
+       inventé, pas d'affiliation, pas de sameAs qu'on ne peut pas vérifier. */
+    mainEntity: {
+      '@type': 'Organization',
+      '@id': `${ORIGIN}/#organisation`,
+      name: 'Lire Marx',
+      url: ORIGIN,
+      founder: { '@type': 'Person', name: AUTEUR },
+      email: 'contact@liremarx.com'
+    }
+  };
+
+  let page = entreMarqueurs(src,
+    '<!-- SOURCES:DÉBUT — DÉRIVÉ par tools/gen-seo.mjs, ne pas éditer à la main -->',
+    '<!-- SOURCES:FIN -->', `\n    <ul class="ap-src">${sources}</ul>\n    `, f);
+  page = entreMarqueurs(page,
+    '<!-- A-PROPOS:LD:DÉBUT — DÉRIVÉ par tools/gen-seo.mjs, ne pas éditer à la main -->',
+    '<!-- A-PROPOS:LD:FIN -->',
+    `\n${OPEN}\n${JSON.stringify(ld, null, 2)}\n${CLOSE}\n`, f);
+  writeIfNeeded(f, page, f + ' (sources + JSON-LD)');
+}
 
 /* Le pied de page, écrit entre ses marqueurs dans les neuf pages tenues à la
    main. Les douze pages de notion le reçoivent par leur gabarit, plus bas —

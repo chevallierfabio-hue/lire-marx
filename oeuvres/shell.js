@@ -111,6 +111,11 @@
            le jeu prend tout l'écran, on ne l'ouvre pas d'un clic de
            sidebar sans avoir dit ce que c'est. */
         '<a class="sb-item" href="/jeu/" data-act="jeu"><span class="sb-dot" style="background:var(--gold)"></span>Le jeu</a>' +
+        /* « À propos » revient — l'entrée avait été retirée (92c43ee) parce
+           qu'elle était un bouton `disabled` annonçant une page que personne
+           n'écrivait. La page existe : c'est une ANCRE, comme toute
+           destination. */
+        '<a class="sb-item" href="/a-propos" data-act="apropos"><span class="sb-dot" style="background:var(--ink-soft)"></span>À propos</a>' +
         '<button class="sb-item" type="button" data-act="cgu"><span class="sb-dot" style="background:var(--ink-soft)"></span>CGU &amp; règles</button>' +
         sbWork +
       '</aside>'
@@ -218,6 +223,8 @@
        (/glossaire/plus-value). Un test ancré sur la fin ne couvrait que
        l'index, et la sidebar se dé-marquait dès qu'on ouvrait une notion. */
     if(/^\/glossaire(\/|$)/.test(here)) mark(gloBtn);
+    var aproposBtn = sb.querySelector('[data-act="apropos"]');
+    if(/^\/a-propos$/.test(here)) mark(aproposBtn);
     var jeuBtn = sb.querySelector('[data-act="jeu"]');
     if(/^\/jeu\/?$/.test(here) || /^\/jeu\/jouer$/.test(here)) mark(jeuBtn);
 

@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>À propos — qui tient Lire Marx, et comment | Lire Marx</title>
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="48x48" href="/assets/img/logo/icon-48.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/assets/img/logo/icon-192.png">
+<link rel="apple-touch-icon" href="/assets/img/logo/apple-touch-icon.png">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Qui tient Lire Marx, pourquoi le site existe, quelles éditions il sert et d'où viennent les textes. La méthode, les sources, et comment signaler une erreur.">
+<meta property="og:title" content="À propos — qui tient Lire Marx, et comment">
+<meta property="og:description" content="Un lecteur, deux œuvres en texte intégral, un appareil critique écrit à la main. Les sources, la méthode, et comment signaler une erreur.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Lire Marx">
+<meta property="og:url" content="https://liremarx.com/a-propos">
+<meta property="og:image" content="https://liremarx.com/assets/img/archive/marx-portrait.jpg">
+<meta property="og:locale" content="fr_FR">
+<meta name="twitter:card" content="summary_large_image">
+<!-- Page-FICHIER, donc canonique SANS extension et SANS slash final : c'est
+     /a-propos et non /a-propos/. La règle complète est dans CLAUDE.md — une
+     page-fichier se désigne sans extension, une page-index de dossier avec
+     son slash. Vérifié en production. -->
+<link rel="canonical" href="https://liremarx.com/a-propos">
+<link rel="stylesheet" href="/oeuvres/fonts/fonts.css" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="/oeuvres/fonts/fonts.css"></noscript>
+<!-- shell.css : la coquille (topbar, sidebar, modales) ET le pied de page.
+     Elle porte un `?v=` parce qu'elle est mise en cache 4 h alors que le
+     HTML ne l'est pas — voir le bloc du pied de page dans la feuille. -->
+<link rel="stylesheet" href="/oeuvres/shell.css?v=2">
+<style>
+/* ═══════════════════════════════════════════════════════════════════
+   /a-propos — qui tient le site, et comment il est fait
+   -------------------------------------------------------------------
+   Page « de site » et non atelier : elle ne charge donc PAS atelier.css
+   (qui poserait au passage son scroll-behavior:smooth) et redéclare les
+   tokens du shell dans son :root, avec le jeu de valeurs CORRIGÉ —
+   --red-deep sur le rouge clair, plus --red-text, --line-strong, --hover.
+
+   AUCUNE ANIMATION, et c'est délibéré. La règle de la maison est que le
+   geste doit être pertinent vis-à-vis de ce qu'il exprime : cette page
+   est une notice, on y vient chercher un fait précis (qui, quelle
+   édition, comment écrire), on la lit une fois. Un mouvement y serait
+   décoratif, c'est-à-dire exactement ce que le projet refuse.
+
+   Le corps est en SPECTRAL, comme les pages de notion : c'est le second
+   endroit du site, avec la liseuse, où l'on tient plusieurs centaines de
+   mots d'affilée. L'Inter d'interface n'y a pas sa place.
+   ═══════════════════════════════════════════════════════════════════ */
+:root{
+  --bg:#15100b;--surface:#1e1710;--text:#f3e9d4;
+  --muted:#b7a888;--accent:#d5402f;--border:rgba(243,233,212,.13);
+  --paper:#15100b;--paper-2:#1e1710;--card:#221a12;
+  --ink:#f3e9d4;--ink-soft:#c7b599;
+  --red:#d5402f;--red-deep:#e5644f;--red-text:#e5644f;--bright:#e5644f;
+  --line-strong:rgba(243,233,212,.34);--hover:rgba(243,233,212,.05);
+  --gold:#d8ad4c;--gold-deep:#bd8f38;--blue:#5c8aa3;--const:#9a8b72;
+  --line:rgba(243,233,212,.13);--line-soft:rgba(243,233,212,.07);--ok:#7fa855;
+  --f-ui:'Inter',system-ui,sans-serif;--f-serif:'Spectral',Georgia,serif;--f-hand:'Caveat',cursive;
+  --candle:rgba(216,173,76,.18);
+  --emphase:linear-gradient(150deg,#2c2117,#211a12,#1b150e);
+}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--f-ui);}
+.ap{max-width:760px;margin:0 auto;padding:52px clamp(20px,5vw,40px) 0;}
+.ap-fil{font-size:.78rem;color:var(--const);margin:0 0 26px;}
+.ap-fil a{color:var(--const);text-decoration:none;}
+.ap-fil a:hover{color:var(--gold);}
+.ap-label{font-size:.72rem;font-weight:600;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--gold);margin:0 0 12px;}
+h1{font-family:'Fraunces',serif;font-weight:900;letter-spacing:-.02em;line-height:1.06;
+  font-size:clamp(2.1rem,5.4vw,3.1rem);color:var(--ink);margin:0 0 20px;}
+h1 em{font-style:italic;font-weight:500;color:var(--accent);}
+.ap-chapo{font-family:var(--f-serif);font-size:1.12rem;line-height:1.66;color:var(--muted);
+  margin:0 0 8px;}
+.ap-sec{border-top:1px solid var(--line);margin-top:56px;padding-top:30px;}
+h2{font-family:'Fraunces',serif;font-weight:900;letter-spacing:-.015em;
+  font-size:1.42rem;color:var(--ink);margin:0 0 16px;line-height:1.2;}
+.ap p{font-family:var(--f-serif);font-size:1.01rem;line-height:1.72;color:var(--muted);
+  margin:0 0 15px;}
+.ap p b{color:var(--ink);font-weight:600;}
+.ap p em{color:var(--ink-soft);}
+.ap a{color:var(--red-text);text-decoration:none;border-bottom:1px solid rgba(229,100,79,.36);}
+.ap a:hover{color:var(--gold);border-bottom-color:var(--gold);}
+.ap-fil a,.ap-src a{border-bottom:0;}
+/* Les sources : une ligne par œuvre servie, dérivée de la même table que le
+   colophon du pied de page et que les Book en JSON-LD. */
+.ap-src{list-style:none;margin:0;padding:0;}
+.ap-src li{border-top:1px solid var(--line-soft);padding:15px 0;}
+.ap-src li:first-child{border-top:0;padding-top:4px;}
+.ap-src-t{font-family:'Fraunces',serif;font-weight:600;font-size:1.02rem;color:var(--ink);
+  margin:0 0 4px;display:block;}
+.ap-src-d{font-family:var(--f-serif);font-size:.95rem;line-height:1.6;color:var(--muted);margin:0;}
+.ap-src a{color:var(--gold);font-family:var(--f-ui);font-size:.82rem;}
+.ap-src a:hover{color:var(--ink);}
+/* Le bloc de contact : la surface d'emphase du socle — la bougie éclaire
+   d'en bas, jamais un aplat plus clair. */
+.ap-contact{background:var(--emphase);border:1px solid rgba(216,173,76,.20);
+  border-radius:16px;padding:26px 28px;margin-top:22px;}
+.ap-contact p:last-child{margin-bottom:0;}
+.ap-mail{display:inline-block;font-family:var(--f-ui);font-size:.92rem;font-weight:600;
+  color:var(--ink);background:transparent;border:1px solid var(--line-strong);
+  border-radius:100px;padding:9px 20px;text-decoration:none;margin-top:6px;}
+.ap-mail:hover{border-color:var(--gold);color:var(--gold);}
+.ap-fin{margin:64px 0 0;}
+@media(max-width:700px){
+  .ap{padding-top:34px;}
+  .ap-sec{margin-top:42px;padding-top:24px;}
+  .ap-contact{padding:20px;}
+}
+</style>
+<!-- A-PROPOS:LD:DÉBUT — DÉRIVÉ par tools/gen-seo.mjs, ne pas éditer à la main -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "AboutPage",
+  "name": "À propos — qui tient Lire Marx, et comment",
+  "url": "https://liremarx.com/a-propos",
+  "inLanguage": "fr",
+  "isPartOf": {
+    "@id": "https://liremarx.com/#organisation"
+  },
+  "mainEntity": {
+    "@type": "Organization",
+    "@id": "https://liremarx.com/#organisation",
+    "name": "Lire Marx",
+    "url": "https://liremarx.com",
+    "founder": {
+      "@type": "Person",
+      "name": "PSEUDO_A_DEFINIR"
+    },
+    "email": "contact@liremarx.com"
+  }
+}
+</script>
+<!-- A-PROPOS:LD:FIN -->
+</head>
+<body>
+
+<main class="wrap" id="contenu" tabindex="-1">
+<div class="ap">
+
+  <p class="ap-fil"><a href="/">Lire Marx</a> &rsaquo; À propos</p>
+
+  <p class="ap-label">À propos</p>
+  <h1>Le site, et <em>qui le tient</em></h1>
+  <p class="ap-chapo">Lire Marx sert deux œuvres en texte intégral, avec l’appareil critique
+  en marge du chapitre plutôt que dans un volume séparé. Cette page dit qui le fabrique,
+  d’où viennent les textes et comment signaler une erreur.</p>
+
+  <section class="ap-sec">
+    <h2>Ce que fait ce site</h2>
+    <p>Il donne à lire <b>Le Capital, Livre I</b> et les <b>Manuscrits de 1844</b> en entier,
+    et il pose autour du texte ce qui manque d’ordinaire quand on lit Marx seul : un résumé
+    en clair de chaque chapitre, une chronologie des faits que le chapitre raconte, un
+    cheminement qui montre comment une catégorie appelle la suivante, et des <b>simulations</b>
+    où l’on manipule soi-même les grandeurs — la journée de travail, le taux de plus-value,
+    la composition du capital.</p>
+    <p>S’y ajoutent un <a href="/glossaire/">abécédaire de soixante-quinze notions</a>, un
+    <a href="/oeuvres/place-publique">forum</a> où les discussions restent attachées au
+    passage qui les a fait naître, un carnet privé d’annotations, et
+    <a href="/jeu/">un jeu</a> où l’on fait tourner le circuit du capital pour voir d’où
+    vient la différence entre ce qu’on avance et ce qui revient.</p>
+  </section>
+
+  <section class="ap-sec">
+    <h2>Pourquoi il existe</h2>
+    <p>Le texte de Marx est disponible partout et gratuitement — Wikisource, les Classiques
+    de l’UQAC, le Marxists Internet Archive. Ce qui manque n’est pas le texte : c’est
+    <em>tout ce qu’il faut avoir à côté pour le lire</em>. On trouve d’un côté du texte brut
+    sans le moindre appareil, de l’autre des commentaires qui parlent du livre sans jamais
+    le donner. Entre les deux, rien.</p>
+    <p>Ce site a été fabriqué pour combler ce trou, et d’abord pour l’usage de celui qui
+    l’écrit. L’ordre d’exposition du <em>Capital</em> n’est pas celui dans lequel on peut
+    l’aborder ; ses trois premiers chapitres découragent la plupart des lecteurs avant qu’ils
+    aient atteint le seul endroit où le livre devient limpide. Il fallait un outil qui tienne
+    le texte et son explication dans le même écran.</p>
+  </section>
+
+  <section class="ap-sec">
+    <h2>Qui le tient</h2>
+    <p>Une seule personne, qui signe <b>PSEUDO_A_DEFINIR</b>. Pas un
+    universitaire : un lecteur de Marx de longue date, largement autodidacte, avec une
+    formation en sciences sociales, et développeur de métier — ce qui explique la forme du
+    site autant que son contenu.</p>
+    <p>Cela vaut d’être dit clairement, parce que c’est ce qui permet de juger ce qu’on lit
+    ici. <b>L’appareil critique de ce site n’est pas une source universitaire.</b> Il n’est
+    ni relu par des pairs, ni adossé à une institution. C’est une lecture, faite avec soin,
+    qui s’efforce de rester au plus près du texte et de dire d’où elle tient ce qu’elle
+    avance. Là où une question est disputée, le site le signale plutôt que de trancher.</p>
+    <p>En revanche, <b>rien n’y est produit automatiquement</b>. Les résumés, les
+    définitions, le cheminement, la chronologie et les simulations sont écrits et vérifiés à
+    la main, un par un. Ce qui est dérivé l’est de données du site lui-même — le catalogue,
+    les fiches de concept — et jamais d’un texte fabriqué à la volée.</p>
+  </section>
+
+  <section class="ap-sec">
+    <h2>Les textes servis, et d’où ils viennent</h2>
+    <p>Le site n’établit aucun texte : il sert des éditions existantes, et il les nomme.</p>
+    <!-- SOURCES:DÉBUT — DÉRIVÉ par tools/gen-seo.mjs, ne pas éditer à la main -->
+    <ul class="ap-src">
+      <li>
+        <b class="ap-src-t">Le Capital — Livre I</b>
+        <p class="ap-src-d">Traduction Joseph Roy (1872) revue par Marx, domaine public, servie depuis Wikisource. <a href="https://fr.wikisource.org/wiki/Le_Capital" rel="noopener">Le Capital sur Wikisource &rsaquo;</a></p>
+      </li>
+      <li>
+        <b class="ap-src-t">Manuscrits de 1844</b>
+        <p class="ap-src-d">Traduction Émile Bottigelli (1962), importée du Marxists Internet Archive. <a href="https://www.marxists.org/francais/marx/works/1844/00/km18440000/" rel="noopener">Manuscrits de 1844 — Marxists Internet Archive &rsaquo;</a></p>
+      </li>
+    </ul>
+    <!-- SOURCES:FIN -->
+    <p>La traduction employée est indiquée sur la page de chaque œuvre et dans le pied de
+    page du site. Quand elle n’est pas dans le domaine public, le site ne prétend pas le
+    contraire : une mention erronée a d’ailleurs été affichée pendant des mois sur les
+    <em>Manuscrits</em>, puis corrigée après enquête — le traducteur n’était pas celui qu’on
+    croyait, et la traduction n’était pas libre.</p>
+  </section>
+
+  <section class="ap-sec">
+    <h2>Une erreur, une correction, une question</h2>
+    <p>Les erreurs sont probables et les signalements sont bienvenus — sur un contresens,
+    une date, une attribution, un lien mort, une formulation qui induit en erreur. C’est la
+    seule façon dont un site tenu par une personne peut devenir fiable.</p>
+    <div class="ap-contact">
+      <p>Le code du site est public, et son historique documente chaque décision éditoriale
+      et technique — y compris les erreurs et la façon dont elles ont été corrigées.</p>
+      <p><a class="ap-mail" href="mailto:contact@liremarx.com">contact@liremarx.com</a>
+      &nbsp;<a class="ap-mail" href="https://github.com/chevallierfabio-hue/lire-marx">Le dépôt public</a></p>
+    </div>
+  </section>
+
+  <p class="ap-fin"></p>
+
+</div>
+</main>
+
+<!-- PIED:DÉBUT — DÉRIVÉ par tools/gen-seo.mjs, ne pas éditer à la main -->
+<footer class="lm-foot wrap">
+  <div class="lm-foot-in">
+    <div class="lm-foot-id">
+      <p class="lm-foot-mark">Lire<span class="d">.</span>Marx</p>
+      <p class="lm-foot-lede">Marx en texte intégral, l&rsquo;appareil critique en marge du chapitre.</p>
+    </div>
+    <nav class="lm-foot-nav" aria-label="Pied de page">
+      <div class="lm-foot-col">
+        <p class="lm-foot-h">Le corpus</p>
+        <ul>
+        <li><a href="/oeuvres/capital-1">Le Capital — Livre I</a></li>
+        <li><a href="/oeuvres/manuscrits-1844">Manuscrits de 1844</a></li>
+        <li><a href="/oeuvres/bibliotheque">Toute la bibliothèque</a></li>
+        </ul>
+      </div>
+      <div class="lm-foot-col">
+        <p class="lm-foot-h">Comprendre</p>
+        <ul>
+        <li><a href="/glossaire/">L’abécédaire de Marx</a></li>
+        <li><a href="/jeu/">Le circuit du capital</a></li>
+        </ul>
+      </div>
+      <div class="lm-foot-col">
+        <p class="lm-foot-h">Le site</p>
+        <ul>
+        <li><a href="/">Accueil</a></li>
+        <li><a href="/oeuvres/place-publique">Place publique</a></li>
+        <li><a href="/a-propos">À propos</a></li>
+          <li><button type="button" class="lm-foot-cgu">CGU &amp; confidentialité</button></li>
+        </ul>
+      </div>
+    </nav>
+  </div>
+  <p class="lm-foot-colophon"><b>Le Capital — Livre I</b> — traduction Joseph Roy (1872) revue par Marx, domaine public, servie depuis Wikisource. <b>Manuscrits de 1844</b> — traduction Émile Bottigelli (1962), importée du Marxists Internet Archive. Appareil critique, simulations et organisation éditoriale&nbsp;: Lire Marx.</p>
+</footer>
+<!-- PIED:FIN -->
+
+<script src="/config.js"></script>
+<script src="/oeuvres/shell.js?v=2"></script>
+<script src="/oeuvres/shell-social.js"></script>
+<script>installShell({ workTitle: 'À propos', tabs: [] });</script>
+</body>
+</html>
