@@ -65,6 +65,10 @@
   --line:rgba(243,233,212,.13);--line-soft:rgba(243,233,212,.07);--ok:#7fa855;
   --f-ui:'Inter',system-ui,sans-serif;--f-serif:'Spectral',Georgia,serif;--f-hand:'Caveat',cursive;
   --candle:rgba(216,173,76,.18);
+  /* La flèche des renvois est DESSINÉE et non un caractère : posée en
+     ::after textuel, elle serait annoncée par un lecteur d'écran, qui a
+     déjà le lien. En masque, elle prend la couleur qu'on lui donne. */
+  --fleche:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 13 9'%3E%3Cpath d='M.7 4.5h10.4M7.7 1.1l3.6 3.4-3.6 3.4' fill='none' stroke='%23000' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 html{background:var(--bg);}
@@ -72,7 +76,13 @@ body{background:var(--bg);color:var(--text);font-family:var(--f-ui);
   -webkit-font-smoothing:antialiased;}
 :focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:4px;}
 
-.gl{max-width:960px;margin:0 auto;padding:clamp(44px,7vh,76px) clamp(24px,5vw,56px) clamp(64px,10vh,104px);}
+/* La gouttière de DROITE est plus large que celle de gauche : c'est là
+   que vit la tranche (le pouce-index fixe), et le texte ne doit jamais
+   passer dessous. clamp(50,5vw,56) garantit 50 px partout : 36 px de
+   tranche, 6 px de bord, et 8 px de dégagement à 375. */
+.gl{--pad-g:clamp(24px,5vw,56px);--pad-d:clamp(50px,5vw,56px);
+  max-width:960px;margin:0 auto;
+  padding:clamp(44px,7vh,76px) var(--pad-d) clamp(64px,10vh,104px) var(--pad-g);}
 
 /* ── tête ── */
 .gl-label{font-size:.72rem;font-weight:600;letter-spacing:.11em;
@@ -86,47 +96,159 @@ body{background:var(--bg);color:var(--text);font-family:var(--f-ui);
 .gl-compte{margin-top:16px;font-size:.72rem;font-weight:600;letter-spacing:.11em;
   text-transform:uppercase;color:var(--gold);}
 
-/* ── le filtre : ajouté seulement si le JS tourne ── */
-.gl-filtre{margin-top:30px;position:relative;max-width:420px;}
-.gl-filtre[hidden]{display:none;}
+/* ══ LA BARRE — le filtre reste sous la main ══════════════════════════
+   Le filtre est une COMMODITÉ, pas la page : les notions sont dans le HTML
+   servi, lisibles sans une ligne de script. La barre n'apparaît donc que si
+   le JS tourne — sinon on afficherait un contrôle mort.
+   Elle est COLLANTE parce que la page fait 11 383 px à 1280 et 21 719 px à
+   375 (mesuré) : dans la version précédente, le champ sortait de l'écran au
+   bout du premier et ne revenait jamais. */
+/* `top` n'est PAS 44 px. La topbar fait bien 44 px à 1280, mais elle se
+   replie sur trois rangées en dessous de 720 — mesuré à 375 : 121 px. Une
+   barre calée sur la constante s'enfonçait de 77 px dessous, c'est-à-dire
+   disparaissait à l'endroit même où elle sert le plus. `--gl-top` est écrit
+   par le script depuis la hauteur réelle, et suivi au redimensionnement. */
+.gl-barre{position:sticky;top:var(--gl-top,44px);z-index:50;
+  display:flex;align-items:center;gap:14px;
+  margin:26px calc(-1 * var(--pad-d)) 0 calc(-1 * var(--pad-g));
+  padding:11px var(--pad-d) 12px var(--pad-g);
+  background:var(--bg);border-bottom:1px solid var(--border);}
+.gl-barre[hidden]{display:none;}
+.gl-filtre{position:relative;flex:1 1 auto;min-width:0;max-width:420px;}
 .gl-filtre input{width:100%;font-family:inherit;font-size:.92rem;color:var(--text);
   background:var(--surface);border:1px solid var(--line-strong);border-radius:999px;
-  padding:11px 18px 11px 42px;}
+  padding:11px 40px 11px 42px;}
 .gl-filtre input::placeholder{color:var(--const);}
 .gl-filtre input:focus{border-color:var(--gold);outline:none;}
-.gl-filtre svg{position:absolute;left:16px;top:50%;transform:translateY(-50%);
+/* Le champ porte son propre bouton d'effacement : celui de WebKit ne suit ni
+   la palette ni la taille de cible de la maison, et deux croix côte à côte
+   seraient une de trop. */
+.gl-filtre input::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none;}
+.gl-filtre>svg{position:absolute;left:16px;top:50%;transform:translateY(-50%);
   color:var(--const);pointer-events:none;}
+.gl-vider{position:absolute;right:6px;top:50%;transform:translateY(-50%);
+  display:inline-flex;align-items:center;justify-content:center;
+  width:28px;height:28px;padding:0;border:0;border-radius:50%;
+  background:transparent;color:var(--muted);cursor:pointer;
+  transition:color .16s,background .16s;}
+.gl-vider[hidden]{display:none;}
+.gl-vider:hover{color:var(--text);background:var(--hover);}
+/* Le compte VIVANT. L'ancien compte de tête (« 75 notions · 16 lettres · 2
+   œuvres ») ne bougeait pas pendant le filtrage : il mentait, et il n'y
+   avait qu'un SHELL.announce pour dire la vérité — donc rien à l'écran.
+   Celui-ci ne parle QUE pendant le filtrage : au repos il redirait le
+   compte de tête, à trois centimètres au-dessus. La parole aux lecteurs
+   d'écran, elle, continue de passer par SHELL.announce, canal unique. */
+.gl-tenue{flex:0 0 auto;margin-left:auto;
+  font-size:.72rem;font-weight:600;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--gold);white-space:nowrap;}
+.gl-tenue:empty{display:none;}
 .gl-vide{margin-top:26px;color:var(--muted);font-size:.93rem;}
 .gl-vide[hidden]{display:none;}
 
-/* ── l'alphabet ── */
-.gl-alpha{display:flex;flex-wrap:wrap;gap:5px;margin-top:24px;}
-.gl-alpha a,.gl-alpha span{display:inline-flex;align-items:center;justify-content:center;
-  min-width:30px;height:30px;border-radius:8px;font-family:'Fraunces',serif;
-  font-weight:600;font-size:.9rem;text-decoration:none;}
-.gl-alpha a{color:var(--text);background:var(--surface);border:1px solid var(--border);}
-.gl-alpha a:hover{border-color:var(--gold);color:var(--gold);}
-/* Une lettre sans notion n'est pas un lien mort : elle reste visible, en
-   retrait, pour que l'alphabet garde sa forme d'alphabet. */
-.gl-alpha span{color:var(--const);border:1px solid var(--line-soft);}
+/* ══ LA TRANCHE — l'alphabet devient un pouce-index fixe ══════════════
+   L'abécédaire fait 11 383 px à 1280 et 21 719 px à 375 (mesuré). Passé le
+   premier écran, l'alphabet disparaissait pour de bon : sur 96 % de la
+   page, un abécédaire n'offrait plus aucun moyen d'atteindre une lettre.
+   C'est le défaut d'orientation déjà corrigé sur le Dossier, en pire.
+
+   Ce n'est PAS un second alphabet : c'est le MÊME <nav> dérivé (entre
+   marqueurs) sorti du flux. Une seule source, rien à synchroniser.
+
+   Il ne montre QUE les lettres qui existent — un pouce-index est un outil,
+   il ne liste pas les onglets absents. Seize cibles de 24 px font 384 px,
+   ce qui tient dans n'importe quel écran ; les vingt-six en feraient 624,
+   ce qui déborderait un téléphone en paysage.
+
+   Il fonctionne SANS JavaScript (ce sont des ancres) : seul le marquage de
+   la lettre courante est du script. L'amélioration porte son état fini. */
+.gl-alpha{position:fixed;z-index:60;right:6px;top:50%;transform:translateY(-50%);
+  display:flex;flex-direction:column;gap:1px;margin:0;padding:6px;
+  max-height:calc(100vh - 84px);overflow-y:auto;overscroll-behavior:contain;
+  background:var(--bg);border:1px solid var(--line-soft);border-radius:999px;}
+.gl-alpha span{display:none;}
+.gl-alpha a{display:flex;align-items:center;justify-content:center;
+  width:26px;min-width:26px;height:24px;border-radius:7px;
+  font-family:'Fraunces',serif;font-weight:600;font-size:.72rem;
+  color:var(--muted);text-decoration:none;
+  transition:color .16s,background .16s;}
+.gl-alpha a:hover{color:var(--gold);background:var(--hover);}
+/* `overflow-y:auto` fait de la tranche une boîte à défilement, qui rogne
+   ce qui déborde sa boîte de rembourrage : l'anneau de focus par défaut,
+   posé à 3 px de décalage, sortait du cadre. Six pixels de rembourrage et
+   un décalage d'un seul suffisent à le tenir dedans. */
+.gl-alpha a:focus-visible{outline-offset:1px;}
+/* La lettre où l'on est. Une extinction ne se dit JAMAIS par l'opacité :
+   --muted vaut 7,6:1 sur --bg et --gold 9,0:1, les deux extrémités passent.
+   La lettre courante prend le fond doré et l'encre du fond — la pastille
+   pleine de la maison. */
+.gl-alpha a.gl-ici{color:var(--bg);background:var(--gold);}
+/* Une lettre dont le filtre a vidé le bloc n'est plus une destination : on
+   la retire des deux parcours, souris et clavier (le tabindex est posé par
+   le script), plutôt que de laisser un lien qui ne mène nulle part.
+   Elle REND AUSSI le fond : à spécificité égale c'est cette règle qui passe
+   en dernier, donc sa couleur bat celle de `.gl-ici` — mais le fond doré de
+   `.gl-ici`, lui, resterait, et l'on aurait --const sur --gold, soit 1,6:1.
+   L'ordonnancement du script rend la combinaison impossible ; une paire de
+   classes ne doit pas dépendre d'un ordre d'appel pour rester lisible. */
+.gl-alpha a.gl-eteint{color:var(--const);background:transparent;pointer-events:none;}
 
 /* ── une lettre ── */
 .gl-bloc{margin-top:clamp(40px,5.5vh,60px);}
 .gl-bloc[hidden]{display:none;}
-.gl-lettre{font-family:'Fraunces',serif;font-weight:900;font-size:1.9rem;
-  line-height:1;letter-spacing:-.03em;color:var(--gold);
+.gl-lettre{position:relative;font-family:'Fraunces',serif;font-weight:900;
+  font-size:1.9rem;line-height:1;letter-spacing:-.03em;color:var(--gold);
   padding-bottom:12px;border-bottom:1px solid var(--border);margin-bottom:6px;
   scroll-margin-top:56px;}
+/* Le filet passait sous la lettre sans lui appartenir. Le cran doré la
+   rattache à sa règle, et rime avec la lettre courante de la tranche. */
+.gl-lettre::after{content:'';position:absolute;left:0;bottom:-1px;
+  width:34px;height:1px;background:var(--gold);}
 
 /* ── un terme ── */
-.gl-liste{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;
+/* FLEX et non grid, et le motif compte. La grille laissait une CELLULE VIDE
+   au bout de toute lettre en nombre impair : le fond du conteneur (--border,
+   crème à 13 %) y apparaissait en grand rectangle gris. Visible en
+   permanence sur B, H, J et O, et à chaque filtrage qui rend un nombre
+   impair de fiches. En flex, une fiche seule sur sa rangée GRANDIT et
+   occupe la place — il n'y a plus de trou à remplir. Et c'est robuste au
+   filtre, là où un `:nth-child` ne l'aurait pas été : masquer une fiche
+   décale le rang de toutes les suivantes. La base de 300 px remplace au
+   passage la bascule à une colonne : sous 620 px de colonne, une seule
+   fiche tient par rangée. */
+.gl-liste{display:flex;flex-wrap:wrap;gap:1px;
   background:var(--border);border:1px solid var(--border);border-radius:14px;
   overflow:hidden;}
-.gl-terme{background:var(--surface);padding:19px 21px 21px;scroll-margin-top:60px;}
+.gl-terme{flex:1 1 300px;min-width:0;
+  background:var(--surface);padding:19px 21px 21px;scroll-margin-top:60px;}
 .gl-terme[hidden]{display:none;}
 .gl-terme:target{background:var(--card);box-shadow:inset 3px 0 0 var(--gold);}
 .gl-t{font-family:'Fraunces',serif;font-weight:600;font-size:1.02rem;
   letter-spacing:-.01em;color:var(--text);margin-bottom:7px;}
+/* ── BUG CORRIGÉ ICI ────────────────────────────────────────────────────
+   `.gl-t a` n'avait AUCUNE règle de couleur. Les douze liens les plus
+   précieux de la page — les seuls qui en font sortir, vers les notions qui
+   ont leur propre page — tombaient donc sur le bleu de l'agent utilisateur,
+   mesuré à rgb(0,0,238) souligné : environ 1,3:1 sur --surface.
+   C'est exactement le défaut déjà documenté pour `.lk` et `.rd-chip` au
+   moment du socle sombre, rejoué sur un <a> au lieu d'un <button> :
+   VÉRIFIER `color` SUR TOUT COMPOSANT BÂTI SUR UN ÉLÉMENT QUI EN PORTE UNE
+   PAR DÉFAUT. Une page sombre ne pardonne pas ce qu'une page claire cachait.
+
+   Le titre garde la couleur de ses voisins, pour que la colonne des termes
+   se lise d'un trait : c'est la FLÈCHE qui dit « celle-ci a sa page ».
+   Et 24 px de haut, parce que ce lien n'est pas en ligne dans une phrase —
+   l'exception de WCAG 2.5.8 qui couvre les renvois de fiche ne le couvre
+   pas, lui. C'est la leçon déjà payée sur « Le voir fonctionner ». */
+.gl-t a{display:inline-flex;align-items:center;gap:7px;min-height:24px;
+  color:inherit;text-decoration:none;transition:color .16s;}
+.gl-t a::after{content:'';flex:0 0 auto;width:13px;height:9px;
+  color:var(--gold);background:currentColor;
+  -webkit-mask:var(--fleche) no-repeat center/13px 9px;
+  mask:var(--fleche) no-repeat center/13px 9px;
+  transition:transform .18s cubic-bezier(.16,1,.3,1);}
+.gl-t a:hover,.gl-t a:focus-visible{color:var(--gold);}
+.gl-t a:hover::after{transform:translateX(3px);}
 .gl-d{font-size:.9rem;line-height:1.66;color:var(--muted);}
 /* .72rem et non .68 : le plancher du projet pour un texte fonctionnel est
    11 px, et .68rem tombe à 10,9. C'est la valeur des micro-libellés de la
@@ -141,7 +263,15 @@ body{background:var(--bg);color:var(--text);font-family:var(--f-ui);
 .gl-src{display:block;margin-top:11px;font-size:.76rem;line-height:1.6;color:var(--muted);}
 .gl-src a{color:var(--gold);text-decoration:none;text-underline-offset:3px;}
 .gl-src a:hover{text-decoration:underline;}
-.gl-f{margin-top:10px;margin-right:8px;display:inline-block;font-family:var(--f-ui);
+/* La pastille prend SA ligne. En colonne étroite le texte se repliait avant
+   elle, ce qui la posait naturellement dessous ; dès qu'une fiche occupe
+   toute la largeur, elle se collait à la fin de la dernière phrase — or ce
+   n'est pas la phrase, c'est un autre registre.
+   `width:fit-content` sur un bloc : la pastille garde sa largeur d'étiquette.
+   Mesuré : soixante-huit fiches en portent UNE, sept n'en portent aucune. Si
+   le générateur venait à en émettre deux, elles s'empileraient — à revoir ce
+   jour-là, pas avant. */
+.gl-f{margin-top:10px;margin-right:8px;display:block;width:fit-content;font-family:var(--f-ui);
   font-size:.72rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
   color:var(--gold);background:rgba(216,173,76,.10);
   border:1px solid rgba(216,173,76,.26);border-radius:999px;padding:3px 10px;}
@@ -156,8 +286,16 @@ body{background:var(--bg);color:var(--text);font-family:var(--f-ui);
   font-weight:600;text-decoration:none;transition:opacity .18s,transform .18s;}
 .gl-btn:hover{opacity:.86;transform:translateY(-1px);}
 
+/* La barre collante recouvre 66 px de plus : une ancre calée sur la seule
+   topbar déposerait le lecteur SOUS le titre qu'il vient de demander. Le
+   supplément n'est posé que si la barre existe — c'est le script qui pose
+   `js-gl`, et qui mesure `--gl-top`. */
+.js-gl .gl-lettre{scroll-margin-top:calc(var(--gl-top,44px) + 76px);}
+.js-gl .gl-terme{scroll-margin-top:calc(var(--gl-top,44px) + 80px);}
+
 @media(max-width:720px){
-  .gl-liste{grid-template-columns:1fr;}
+  /* La topbar y prend déjà trois rangées : la barre rend ce qu'elle peut. */
+  .gl-barre{padding-top:9px;padding-bottom:10px;}
 }
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;}}
 </style>
@@ -784,14 +922,28 @@ body{background:var(--bg);color:var(--text);font-family:var(--f-ui);
     d'où il vient&nbsp;: l'œuvre qui le construit, et l'instrument qui le fait
     varier.</p>
   <!-- GLOSSAIRE:COMPTE:DÉBUT --><p class="gl-compte">75 notions · 16 lettres · 2 œuvres</p><!-- GLOSSAIRE:COMPTE:FIN -->
-  <!-- ALPHABET:DÉBUT --><nav class="gl-alpha" aria-label="Aller à une lettre"><a href="#lettre-A">A</a><a href="#lettre-B">B</a><a href="#lettre-C">C</a><a href="#lettre-D">D</a><a href="#lettre-E">E</a><a href="#lettre-F">F</a><span aria-hidden="true">G</span><a href="#lettre-H">H</a><span aria-hidden="true">I</span><a href="#lettre-J">J</a><span aria-hidden="true">K</span><a href="#lettre-L">L</a><a href="#lettre-M">M</a><span aria-hidden="true">N</span><a href="#lettre-O">O</a><a href="#lettre-P">P</a><span aria-hidden="true">Q</span><a href="#lettre-R">R</a><a href="#lettre-S">S</a><a href="#lettre-T">T</a><span aria-hidden="true">U</span><a href="#lettre-V">V</a><span aria-hidden="true">W</span><span aria-hidden="true">X</span><span aria-hidden="true">Y</span><span aria-hidden="true">Z</span></nav><!-- ALPHABET:FIN -->
 
-  <div class="gl-filtre" id="glFiltre" hidden>
-    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true"><circle cx="6.4" cy="6.4" r="4.6" stroke="currentColor" stroke-width="1.4"/><path d="M10 10l3.4 3.4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-    <label class="sr-only" for="glQ">Filtrer les notions</label>
-    <input type="search" id="glQ" placeholder="Filtrer — plus-value, fétichisme…" autocomplete="off">
+  <div class="gl-barre" id="glBarre" hidden>
+    <div class="gl-filtre">
+      <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true"><circle cx="6.4" cy="6.4" r="4.6" stroke="currentColor" stroke-width="1.4"/><path d="M10 10l3.4 3.4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      <label class="sr-only" for="glQ">Filtrer les notions</label>
+      <input type="search" id="glQ" placeholder="Filtrer — plus-value, fétichisme…" autocomplete="off">
+      <button type="button" class="gl-vider" id="glVider" hidden aria-label="Effacer le filtre">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true"><path d="M1.5 1.5l10 10M11.5 1.5l-10 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <!-- Le compte est VISUEL : la parole aux lecteurs d'écran passe par
+         SHELL.announce, canal unique — deux régions live pour le même fait
+         feraient tout entendre deux fois. -->
+    <p class="gl-tenue" id="glTenue" aria-hidden="true"></p>
   </div>
-  <p class="gl-vide" id="glVide" hidden role="status">Aucune notion ne correspond.</p>
+  <p class="gl-vide" id="glVide" hidden>Aucune notion ne correspond.</p>
+
+  <!-- La tranche : ce <nav> est SORTI DU FLUX par le CSS (pouce-index fixe
+       à droite). Il vit après la barre pour que le parcours de tabulation
+       donne d'abord l'outil le plus rapide — le filtre — puis les seize
+       lettres, puis les fiches. -->
+  <!-- ALPHABET:DÉBUT --><nav class="gl-alpha" aria-label="Aller à une lettre"><a href="#lettre-A">A</a><a href="#lettre-B">B</a><a href="#lettre-C">C</a><a href="#lettre-D">D</a><a href="#lettre-E">E</a><a href="#lettre-F">F</a><span aria-hidden="true">G</span><a href="#lettre-H">H</a><span aria-hidden="true">I</span><a href="#lettre-J">J</a><span aria-hidden="true">K</span><a href="#lettre-L">L</a><a href="#lettre-M">M</a><span aria-hidden="true">N</span><a href="#lettre-O">O</a><a href="#lettre-P">P</a><span aria-hidden="true">Q</span><a href="#lettre-R">R</a><a href="#lettre-S">S</a><a href="#lettre-T">T</a><span aria-hidden="true">U</span><a href="#lettre-V">V</a><span aria-hidden="true">W</span><span aria-hidden="true">X</span><span aria-hidden="true">Y</span><span aria-hidden="true">Z</span></nav><!-- ALPHABET:FIN -->
 
   <!-- GLOSSAIRE:DÉBUT — DÉRIVÉ de capital-1.html par tools/gen-seo.mjs.
        Ne rien écrire ici à la main : ce serait écrasé, et ce serait une
@@ -1414,49 +1566,168 @@ body{background:var(--bg);color:var(--text);font-family:var(--f-ui);
 installShell({ workTitle: 'Glossaire', tabs: [] });
 
 /* Le filtre est une COMMODITÉ, pas la page : les soixante-quinze notions
-   sont dans le HTML servi, lisibles sans une ligne de script. Le champ
+   sont dans le HTML servi, lisibles sans une ligne de script. La barre
    n'apparaît donc que si le JS tourne — sinon on afficherait un contrôle
-   mort. */
+   mort. La tranche, elle, est faite d'ancres : elle marche sans nous, et
+   le script ne fait qu'y marquer la lettre où l'on est. */
 (function(){
   'use strict';
-  var boite = document.getElementById('glFiltre');
-  var q = document.getElementById('glQ');
-  var vide = document.getElementById('glVide');
-  if (!boite || !q) return;
-  var termes = [].slice.call(document.querySelectorAll('.gl-terme'));
-  var blocs = [].slice.call(document.querySelectorAll('.gl-bloc'));
-  if (!termes.length) return;
-  boite.hidden = false;
+  var barre  = document.getElementById('glBarre');
+  var q      = document.getElementById('glQ');
+  var vider  = document.getElementById('glVider');
+  var tenue  = document.getElementById('glTenue');
+  var vide   = document.getElementById('glVide');
+  var rail   = document.querySelector('.gl-alpha');
+  if (!barre || !q) return;
 
-  /* On indexe une fois : filtrer 75 termes à chaque frappe en relisant le
-     DOM serait du travail refait pour rien. Sans accents ni casse. */
-  var index = termes.map(function(el){
-    return (el.textContent || '').toLowerCase()
-      .normalize('NFD').replace(/[̀-ͯ]/g, '');
+  var termes = [].slice.call(document.querySelectorAll('.gl-terme'));
+  var blocs  = [].slice.call(document.querySelectorAll('.gl-bloc'));
+  if (!termes.length) return;
+
+  document.documentElement.classList.add('js-gl');
+  barre.hidden = false;
+  var TOTAL = termes.length;
+  var mot = function(n){ return n + (n > 1 ? ' notions' : ' notion'); };
+
+  var sansAccent = function(x){
+    return (x || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  };
+  /* On indexe une fois : filtrer soixante-quinze termes à chaque frappe en
+     relisant le DOM serait du travail refait pour rien. */
+  var index = termes.map(function(el){ return sansAccent(el.textContent); });
+
+  /* ── la tranche : où l'on est ─────────────────────────────────────────
+     Un bloc masqué par le filtre mesure zéro et son titre rendrait un
+     rect à l'origine — donc « au-dessus de la ligne », donc choisi. Il faut
+     l'écarter AVANT de comparer, sinon la tranche marque une lettre qui
+     n'est plus affichée. */
+  var lettres = [];
+  blocs.forEach(function(b){
+    var h = b.querySelector('.gl-lettre');
+    if (!h) return;
+    lettres.push({ bloc: b, titre: h,
+      onglet: rail ? rail.querySelector('a[href="#' + h.id + '"]') : null });
   });
 
+  /* La ligne de lecture, pas le haut de l'écran : la topbar et la barre
+     collante mangent le haut de la page — et la topbar ne fait 44 px qu'au
+     large ; elle en fait 121 à 375. On mesure au lieu de supposer, et l'on
+     écrit la hauteur dans `--gl-top`, dont la barre et les ancres héritent. */
+  var topbar = document.querySelector('.topbar');
+  var LIGNE = 132;
+  function mesurer(){
+    var h = topbar ? Math.round(topbar.getBoundingClientRect().height) : 44;
+    if (!h) return;                      /* onglet en arrière-plan : on garde */
+    document.documentElement.style.setProperty('--gl-top', h + 'px');
+    LIGNE = h + Math.round(barre.getBoundingClientRect().height) + 22;
+  }
+  var ici = null, enAttente = false;
+
+  function marquer(){
+    enAttente = false;
+    var choix = null;
+    for (var i = 0; i < lettres.length; i++){
+      if (lettres[i].bloc.hidden) continue;
+      if (lettres[i].titre.getBoundingClientRect().top - LIGNE <= 0) choix = lettres[i];
+      else break;
+    }
+    if (choix === ici) return;
+    if (ici && ici.onglet){
+      ici.onglet.classList.remove('gl-ici');
+      ici.onglet.removeAttribute('aria-current');
+    }
+    ici = choix;
+    if (ici && ici.onglet){
+      ici.onglet.classList.add('gl-ici');
+      ici.onglet.setAttribute('aria-current', 'true');
+    }
+  }
+  function planifier(){
+    if (enAttente) return;
+    enAttente = true;
+    requestAnimationFrame(marquer);
+  }
+  addEventListener('scroll', planifier, { passive: true });
+  addEventListener('resize', function(){ mesurer(); planifier(); });
+  /* La topbar change de hauteur sans que la fenêtre bouge (la recherche s'y
+     replie, le pseudo s'y installe une fois la session ouverte). */
+  if (window.ResizeObserver && topbar){
+    new ResizeObserver(function(){ mesurer(); planifier(); }).observe(topbar);
+  }
+  mesurer();
+  marquer();
+  /* Le piège de la mesure unique, déjà payé sur le catalogue de l'accueil :
+     la topbar est bâtie par installShell juste avant nous, et elle GRANDIT
+     ensuite — les polices arrivent, la recherche se replie sur sa rangée.
+     Mesurée une seule fois, elle valait 83 px là où elle en fait 121, et la
+     barre s'enfonçait de 38 px dessous. On remesure jusqu'à ce que la page
+     ait fini de bouger. */
+  function reposer(){ mesurer(); planifier(); }
+  requestAnimationFrame(reposer);
+  setTimeout(reposer, 400);
+  addEventListener('load', reposer);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(reposer);
+
+  /* ── le filtre ────────────────────────────────────────────────────── */
   var minuteur = null;
   q.addEventListener('input', function(){
     clearTimeout(minuteur);
     minuteur = setTimeout(filtrer, 90);
   });
+  q.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && q.value){ e.stopPropagation(); effacer(); }
+  });
+  vider.addEventListener('click', effacer);
+
+  function effacer(){
+    q.value = '';
+    clearTimeout(minuteur);
+    filtrer();
+    q.focus();
+  }
 
   function filtrer(){
-    var v = q.value.trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+    var v = sansAccent(q.value.trim());
     var n = 0;
     for (var i = 0; i < termes.length; i++){
       var ok = !v || index[i].indexOf(v) !== -1;
       termes[i].hidden = !ok;
       if (ok) n++;
     }
-    /* Une lettre dont tous les termes sont masqués n'a plus de raison d'être :
-       sa capitale resterait seule au-dessus du vide. */
+    /* Une lettre dont tous les termes sont masqués n'a plus de raison
+       d'être : sa capitale resterait seule au-dessus du vide. */
     blocs.forEach(function(b){
       b.hidden = !b.querySelector('.gl-terme:not([hidden])');
     });
-    vide.hidden = n > 0;
+    /* Et son onglet de tranche n'est plus une destination — on le retire
+       des deux parcours, souris (CSS) et clavier (ici). */
+    lettres.forEach(function(L){
+      if (!L.onglet) return;
+      L.onglet.classList.toggle('gl-eteint', L.bloc.hidden);
+      if (L.bloc.hidden) L.onglet.setAttribute('tabindex', '-1');
+      else L.onglet.removeAttribute('tabindex');
+    });
+
+    vide.hidden  = n > 0;
+    vider.hidden = !q.value;
+    tenue.textContent = v ? (n + ' sur ' + TOTAL) : '';
+
+    /* Filtrer depuis le milieu de onze mille pixels laissait le lecteur
+       SOUS ses propres résultats : le navigateur ramène le défilement dans
+       le document raccourci, donc au bas de la liste filtrée. On remonte à
+       la tête des résultats — jamais en revanche quand on efface, où ce
+       serait perdre la place qu'on avait. Saut instantané : `smooth` ne
+       progresse pas dans un onglet piloté, et perdrait la course. */
+    if (v){
+      var tete = null;
+      for (var b = 0; b < blocs.length; b++) if (!blocs[b].hidden){ tete = blocs[b]; break; }
+      var cible = tete ? tete.getBoundingClientRect().top + scrollY - 120 : 0;
+      if (scrollY > cible) scrollTo({ top: Math.max(0, cible), behavior: 'instant' });
+    }
+    marquer();
+
     if (window.SHELL && SHELL.announce){
-      SHELL.announce(n ? (n + ' notions affichées') : 'Aucune notion ne correspond');
+      SHELL.announce(n ? (mot(n) + ' affichées') : 'Aucune notion ne correspond');
     }
   }
 })();

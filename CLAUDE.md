@@ -4695,6 +4695,172 @@ notion elles-mêmes** (les cinq restants sont sur l'index), les douze URL en
   notion** — le seuil est plutôt trois cents. L'abécédaire reste donc une
   page, et c'est le bon choix tant qu'on n'aura pas écrit davantage.
 
+## L'abécédaire se parcourt (mission `glossaire-ui`, sept. 2026)
+
+Demande du propriétaire : « il faut travailler l'UI UX de la page
+glossaire ». Diagnostic mesuré avant de toucher au code, et il est chiffré.
+
+**1. Les douze liens les plus précieux de la page étaient en BLEU d'agent
+utilisateur.** `.gl-t a` n'avait AUCUNE règle de couleur : mesuré
+`rgb(0,0,238)` souligné sur `--surface`, soit **1,3:1**. Ce sont les douze
+notions qui ont leur propre page — les seuls liens qui font sortir de
+l'abécédaire. C'est exactement le défaut déjà documenté pour `.lk` et
+`.rd-chip` au moment du socle sombre, rejoué sur un `<a>` au lieu d'un
+`<button>` : **vérifier `color` sur tout composant bâti sur un élément qui
+en porte une par défaut.** Une page claire le cachait, une page sombre non.
+
+**2. Rien ne ramenait à l'alphabet.** Le document fait **11 383 px** à 1280
+et **21 719 px** à 375. Passé le premier écran (~500 px), l'alphabet ET le
+filtre disparaissaient pour de bon : sur 96 % de la page, un abécédaire
+n'offrait plus aucun moyen d'atteindre une lettre. C'est le défaut
+d'orientation déjà corrigé sur le Dossier, en pire.
+
+**3. Le filtre ne rendait son résultat qu'aux lecteurs d'écran.**
+`SHELL.announce` disait « 32 notions affichées » ; à l'écran, le compte de
+tête (« 75 notions · 16 lettres · 2 œuvres ») ne bougeait pas — il mentait
+pendant tout le filtrage.
+
+### La tranche du dictionnaire
+
+**Option tranchée par le propriétaire** (l'autre était une seule barre
+collante en haut, alphabet compris) : un **pouce-index vertical** collé à
+droite, comme la tranche d'un dictionnaire ou l'onglet de cahier du carnet,
+qui marque la lettre où l'on est ; le filtre prend une barre collante.
+
+- **Ce n'est PAS un second alphabet** : c'est le MÊME `<nav>` dérivé (entre
+  marqueurs) sorti du flux par le CSS. Une seule source, rien à
+  synchroniser, et **le générateur n'a pas été touché** — `--check` reste
+  vert sans avoir rien à regénérer.
+- **Il ne montre que les lettres qui existent** (`.gl-alpha span{display:none}`)
+  — un pouce-index est un outil, il ne liste pas les onglets absents. Seize
+  cibles de 24 px font 384 px, ce qui tient dans n'importe quel écran ;
+  vingt-six en feraient 624, ce qui déborderait un téléphone en paysage.
+- **Il marche SANS JavaScript** : ce sont des ancres. Seul le marquage de la
+  lettre courante est du script — l'amélioration porte son état fini.
+- La lettre courante prend la **pastille pleine** dorée. Une extinction ne
+  se dit jamais par l'opacité : `--muted` vaut 8,1:1 et `--gold` 9,0:1.
+- Le repère est **piloté par la POSITION**, donc réversible : on remonte, la
+  tranche se range. Vérifié position par position, monotone de A à V, et V
+  atteinte au bas du document.
+
+### La barre, et le compte qui ne ment plus
+
+Le champ devient une barre collante ; elle porte le compte **uniquement
+pendant le filtrage** (« 34 sur 75 ») — au repos il redirait le compte de
+tête, à trois centimètres au-dessus. La parole aux lecteurs d'écran
+continue de passer par `SHELL.announce`, **canal unique** : deux régions
+live pour le même fait feraient tout entendre deux fois. S'y ajoutent un
+bouton d'effacement (celui de WebKit est neutralisé — deux croix seraient
+une de trop) et Échap dans le champ.
+
+**Filtrer depuis le milieu de onze mille pixels laissait le lecteur SOUS
+ses propres résultats** : le navigateur ramène le défilement dans le
+document raccourci, donc au bas de la liste filtrée. On remonte à la tête
+des résultats — **jamais en revanche quand on efface**, où ce serait perdre
+sa place.
+
+### `top` n'est PAS 44 px — le vrai piège de cette mission
+
+La topbar fait bien 44 px à 1280, mais elle se replie sur **trois rangées**
+en dessous de 720 : **mesuré à 375, elle fait 121 px**. La barre calée sur
+la constante s'enfonçait de **77 px dessous** — elle disparaissait à
+l'endroit même où elle sert le plus. `--gl-top` est désormais écrit par le
+script depuis la hauteur RÉELLE, et la barre comme les deux
+`scroll-margin-top` en héritent.
+
+Et **la mesure unique ne suffit pas** : la topbar est bâtie par
+`installShell` juste avant, puis elle GRANDIT quand les polices arrivent —
+mesurée une seule fois elle valait **83 px** là où elle en fait 121. D'où
+le `requestAnimationFrame` + `setTimeout(…, 400)` + `load` +
+`document.fonts.ready`, plus un `ResizeObserver` sur la topbar (elle change
+aussi de hauteur sans que la fenêtre bouge : le pseudo s'y installe une
+fois la session ouverte). **C'est le piège de la mesure unique de
+`libraryScrub`, rejoué sur un élément du shell.**
+
+### Deux défauts trouvés en chemin
+
+- **La grille laissait une CELLULE VIDE** au bout de toute lettre en nombre
+  impair : le fond du conteneur (`--border`, crème à 13 %) y apparaissait en
+  grand rectangle gris. Visible en permanence sur B, H, J et O, et à chaque
+  filtrage rendant un nombre impair de fiches. `.gl-liste` passe en **flex** :
+  une fiche seule sur sa rangée GRANDIT et occupe la place. C'est robuste au
+  filtre, là où un `:nth-child` ne l'aurait pas été — masquer une fiche
+  décale le rang de toutes les suivantes. La base de 300 px remplace au
+  passage la bascule à une colonne.
+- **La pastille de formule se collait à la fin de la phrase** dès qu'une
+  fiche occupait toute la largeur (en colonne étroite le texte se repliait
+  avant elle, ce qui la posait dessous par accident). Elle prend sa ligne.
+
+### Pièges d'outillage, tous revécus
+
+1. **Les transitions CSS sont GELÉES dans la pane masquée** — déjà écrit, et
+   je m'y suis quand même laissé prendre : `.gl-eteint` rendait `--muted` au
+   lieu de `--const`, et `.gl-ici` un fond transparent au lieu du doré. Rien
+   n'était cassé : les valeurs étaient figées au DÉBUT de la transition. Le
+   test qui départage est de neutraliser `transition` ET `animation` avant
+   de mesurer, jamais de « corriger » une cascade qu'on a vérifiée correcte
+   dans le CSSOM.
+2. **Les rappels de `ResizeObserver` ne sont pas délivrés non plus** quand
+   `document.hidden` — ils passent par les étapes de rendu, comme le rAF. Un
+   `dispatchEvent(new Event('resize'))` à la main prouve que la logique est
+   bonne.
+3. **Les captures reviennent NOIRES** au-delà du premier écran sur ce
+   document : tout se vérifie à la mesure DOM, et pour une image on masque
+   les blocs précédents pour ramener la zone en haut de page.
+4. `:focus-visible` ne matche pas dans l'onglet piloté (`document.activeElement`
+   est pourtant bon) : la géométrie de l'anneau se vérifie au dégagement
+   mesuré, pas au style calculé.
+
+### Un mot sur `:has()`
+
+`.gl-terme:has(.gl-t a)` n'a **pas** été utilisé, et le marquage dérivé
+n'a pas eu à bouger : l'affordance des douze notions tient dans une flèche
+`::after` posée sur `.gl-t a`, **dessinée en masque** et non écrite en
+caractère — un `::after` textuel serait annoncé par un lecteur d'écran, qui
+a déjà le lien. Le titre garde la couleur de ses voisins pour que la colonne
+des termes se lise d'un trait, et il passe à 24 px de haut : ce lien n'est
+pas en ligne dans une phrase, l'exception de WCAG 2.5.8 qui couvre les
+renvois de fiche ne le couvre pas.
+
+### Vérifié
+
+Sonde de contraste sur le rendu, coquille comprise : **0 échec sur trois
+états** (repos 577 mesures, filtré 294, vide 44), minimum **4,14** — le
+faux positif documenté (`--accent` sur `--bg`, sur un `em` mesuré à 50 px,
+seuil 3:1). Aucune cible sous 24 × 24 ; le seul texte sous 11 px est le
+`sb-soon-tag` du shell, antérieur. Détecteur statique : **5 constats,
+0 erreur** — la base documentée, au constat près. `gen-seo.mjs --check` à
+jour et idempotent sur les sept dérivations (rien de dérivé n'a été
+touché). Testé à 1280 et 375 px, **zéro débordement horizontal**, console
+sans erreur. Éprouvé : repère de lecture monotone sur les seize lettres et
+réversible ; filtre par vraie frappe (« fetichisme » → 6, « argent » → 9,
+« travail » → 34, « ALIENE » sans accent ni casse → 4, « mehrwert » → 6,
+« zzz » → message de vide, champ vidé → les 75 reviennent) ; clic sur une
+lettre de la tranche (dégagement 10 px à 1280, 14 px à 375) ; deep-link
+`#surtravail` depuis une page de notion (13,8 px, `:target` posé) ;
+parcours de tabulation champ → seize lettres → fiches ; HTML servi complet
+sans script (75 fiches, 12 liens de notion, barre `hidden`).
+
+**Périmètre strict** : `glossaire/index.html` seul. Les douze pages de
+notion et `notion.css` n'ont pas été touchés — vérifié, leurs liens
+portaient déjà tous une couleur.
+
+### Ce qui reste
+
+- **La tranche s'ancre au bord de la FENÊTRE**, pas à la colonne de texte :
+  au-delà de 1900 px elle s'en éloigne beaucoup. C'est l'idiome (la tranche
+  d'un livre est au bord), et c'est ce qui garantit qu'elle ne recouvre
+  jamais rien ; si on veut la rapprocher un jour, le calcul devra tenir
+  compte de la sidebar, qui se replie.
+- **Le repli sans JavaScript garde ses anciennes ancres** (`scroll-margin-top:56px`,
+  soit la topbar au large) : à 375 px sans script, une ancre dépose encore
+  sous la topbar de 121 px. C'était déjà vrai avant la mission, et le
+  corriger en CSS seul demanderait de coder en dur une hauteur de topbar
+  qu'on ne peut pas connaître.
+- **Une seule pastille de formule par fiche** est supposée (mesuré : 68 en
+  ont une, 7 aucune). Si le générateur venait à en émettre deux, elles
+  s'empileraient.
+
 ## Conventions de travail
 
 - **Une mission par session.** Une demande utilisateur = un objectif clair,
