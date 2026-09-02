@@ -3976,10 +3976,12 @@ il serait allé les chercher à la racine du domaine et le préchargement aurait
 `VITE_BASE` (`vite.config.js`). **Sans la variable, rien ne change** : base
 `/`, le `npm run dev` et un déploiement autonome se comportent comme avant.
 
-⚠️ **Ce correctif vit sur la branche `servir-sous-un-chemin` du dépôt du
-jeu.** Tant qu'elle n'est pas fusionnée dans son `main`, un `import-jeu.mjs`
-lancé depuis un dépôt du jeu à jour **s'arrêtera net** avec le message qui
-renvoie à cette branche — c'est voulu, plutôt que de publier un jeu muet.
+✅ **Fusionné dans le `main` du jeu** (commit `3862a22`) — la branche
+`servir-sous-un-chemin` existe encore mais n'a plus rien à part. Un
+`import-jeu.mjs` lancé depuis un dépôt du jeu à jour fonctionne donc
+directement ; le garde-fou qui s'arrêtait net reste en place au cas où le
+correctif disparaîtrait, et c'est voulu — mieux vaut refuser d'importer que
+publier un jeu muet.
 
 ### `tools/capture-jeu.mjs` — l'image de la page est reproductible
 
@@ -4157,6 +4159,47 @@ la page est finie et fixe. Zéro débordement horizontal à 1440 comme à
 **Composition** : les colonnes du héros mesurées à 466/550 px, contenu à
 52 % de la hauteur du héros (l'accueil est à 58 %), et le titre ne casse
 plus après l'article.
+
+### Une partie reprise était injouable (sept. 2026, dépôt du jeu)
+
+Signalé par le propriétaire : à la reprise d'une sauvegarde, plus moyen de
+lancer un cycle — le panneau ne s'affiche pas. C'était exact, et la partie
+était bloquée pour de bon.
+
+**La cause.** `.formation` est en `display:none` et ne passe à
+`display:block` qu'avec la classe `on`. Le SEUL endroit qui posait cette
+classe était `enterSocialFormation()`. Une reprise restaure bien
+`gameMode='socialFormation'` et `resynchroniser()` REMPLIT le panneau — mais
+ne le montre jamais ; et `enterSocialFormation()` ne peut plus rien réparer
+puisqu'elle sort d'entrée sur ce même `gameMode`. Le bouton « Lancer le
+cycle productif » vivant DANS ce panneau, il n'y avait plus aucun moyen
+d'avancer. Le mode Commune était touché deux fois : le panneau n'était pas
+montré, et `resynchroniser()` ne le rendait même pas (la garde était sur
+`socialFormation` alors que `renderFormationPanel()` dispatche elle-même).
+
+**La règle qui en sort, et elle vaut au-delà de ce bug : SÉPARER ENTRER
+DANS UN ÉTAT DE LE METTRE EN SCÈNE.** Entrer narre, débloque, révèle — et ne
+joue qu'une fois. Mettre en scène décrit ce que l'écran doit montrer tant
+qu'on y est — et doit se rejouer à chaque restauration. Toute fonction
+`enterX()` gardée par un drapeau qui pose aussi de l'état d'écran fabrique
+ce bug : au retour, le drapeau est déjà posé, la fonction sort, et l'écran
+ne se remet jamais. `stageMode()` ne lit que `gameMode`, est idempotente, et
+est appelée par les trois chemins.
+
+**Vérifié avec un CONTRÔLE, qui est ce qui rend la démonstration valide** :
+le même harnais puppeteer joué sur HEAD reproduit le bug (`display:none`,
+bouton hors d'atteinte, panneau de quête resté affiché ; en Commune, `f-age`
+disait encore « Atelier »), et sur le correctif tout passe. Puis, sur le
+BUNDLE MINIFIÉ servi par le site sous `/jeu/`, avec une vraie sauvegarde
+injectée et une reprise par CLIC sur le bouton « Reprendre » : panneau
+`formation on`, bouton atteignable, quête masquée, et « Cycle 0 · An 1 » →
+« Cycle 1 · An 1 ». Zéro erreur de console.
+
+**Le contrôle du bundle vaut la peine d'être noté** : on peut vérifier qu'un
+correctif est bien DANS l'artefact minifié en comptant des marqueurs stables
+avant/après (`classList.toggle("on",` 3 → 4, `?"none":""` 0 → 2,
+`classList.add("on")` 21 → 20). L'ancien bundle est dans git, il suffit de
+le sortir avec `git show HEAD:jeu/assets/<ancien>.js`.
 
 ### Ce qui reste
 
