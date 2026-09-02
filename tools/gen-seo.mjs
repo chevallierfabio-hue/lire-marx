@@ -49,7 +49,12 @@ const EDITION = {
     },
     // loadSection() appelle fr.wikisource.org — c'est la source réelle du
     // texte affiché, pas une référence de politesse.
-    source: { name: 'Le Capital sur Wikisource', url: 'https://fr.wikisource.org/wiki/Le_Capital' }
+    source: { name: 'Le Capital sur Wikisource', url: 'https://fr.wikisource.org/wiki/Le_Capital' },
+    // Ligne de colophon du pied de page. Elle est ici et non dans le gabarit
+    // parce que c'est un FAIT D'ÉDITION, au même titre que le traducteur —
+    // et parce qu'un colophon doit pouvoir être relu à côté de ce qu'il
+    // affirme. Elle peut dire « domaine public » : Roy est mort en 1900.
+    colophon: 'traduction Joseph Roy (1872) revue par Marx, domaine public, servie depuis Wikisource'
   },
 
   'manuscrits-1844': {
@@ -82,7 +87,12 @@ const EDITION = {
     // (isAccessibleForFree reste vrai : la page est gratuite, ce qui est une
     // autre question que la licence.)
     source: { name: 'Manuscrits de 1844 — Marxists Internet Archive',
-              url: 'https://www.marxists.org/francais/marx/works/1844/00/km18440000/' }
+              url: 'https://www.marxists.org/francais/marx/works/1844/00/km18440000/' },
+    // Elle ne dit PAS « domaine public », et c'est le même silence délibéré
+    // que l'absence de `license` juste au-dessus : la traduction Bottigelli
+    // est protégée jusqu'au 1er janvier 2046. Un colophon qui l'affirmerait
+    // serait la mention fausse que la mission `affaire-palmier` a retirée.
+    colophon: "traduction Émile Bottigelli (1962), importée du Marxists Internet Archive"
   }
 };
 
@@ -167,6 +177,105 @@ function bookFor(w) {
   return book;
 }
 
+/* ============================ LE PIED DE PAGE ============================ *
+ * La sidebar du shell est INJECTÉE par shell.js. Googlebot rend la page et
+ * suit ses ancres ; les crawlers des moteurs de réponse (GPTBot, ClaudeBot,
+ * PerplexityBot) lisent le HTML brut et ne voyaient rien. Mesuré avant :
+ * le HTML servi portait 2 liens internes sur Capital, 1 sur les Manuscrits,
+ * 0 sur Place publique.
+ *
+ * Le pied de page est donc du BALISAGE STATIQUE, présent dans le fichier —
+ * c'est tout son objet. Et comme il vit dans vingt-deux pages, il est DÉRIVÉ :
+ * deux copies d'une même donnée divergent en silence, la règle est déjà celle
+ * du FAQPage, du registre et des Book.
+ *
+ * Le corpus se lit dans bibliotheque.json : une troisième œuvre passée en
+ * `available` apparaît dans le pied de page des vingt-deux pages sans qu'on
+ * touche à rien.
+ * ======================================================================== */
+
+/* Remplace ce qui vit entre deux marqueurs. Le contenu est réécrit à chaque
+   passage, donc idempotent : on teste le POINT D'INSERTION, jamais le
+   changement — un garde qui lève parce que « rien n'a bougé » crie au défaut
+   quand tout va bien (piège de `seo-registre-servi`). */
+function entreMarqueurs(src, deb, fin, contenu, fichier) {
+  const i = src.indexOf(deb), j = src.indexOf(fin);
+  if (i < 0 || j < 0) throw new Error(`Marqueurs du pied de page introuvables dans ${fichier}.`);
+  return src.slice(0, i + deb.length) + contenu + src.slice(j);
+}
+
+const PIED_DEB = '<!-- PIED:DÉBUT — DÉRIVÉ par tools/gen-seo.mjs, ne pas éditer à la main -->';
+const PIED_FIN = '<!-- PIED:FIN -->';
+
+/* Les pages qui portent le pied de page. Le carnet et la messagerie en font
+   partie : elles sont en `noindex`, mais un lecteur connecté doit pouvoir en
+   sortir comme d'ailleurs — le pied de page est d'abord une navigation.
+   `404.html` en est EXCLUE, et c'est déjà écrit dans sa mission : elle est
+   autonome, elle ne charge ni shell.js ni shell.css, et une page d'erreur ne
+   doit pas dépendre de ce qu'on n'a pas réussi à servir. */
+const PIED_PAGES = [
+  'index.html',
+  'oeuvres/bibliotheque.html',
+  'oeuvres/capital-1.html',
+  'oeuvres/manuscrits-1844.html',
+  'oeuvres/place-publique.html',
+  'oeuvres/carnet.html',
+  'oeuvres/messages.html',
+  'glossaire/index.html',
+  'jeu/index.html'
+];
+
+function lien(href, texte) { return `        <li><a href="${href}">${esc(texte)}</a></li>`; }
+
+function piedDePage() {
+  /* Le corpus, dans l'ordre du fichier — le même que la bibliothèque. */
+  const corpus = available.map(w => lien(hrefOf(w), w.title)).join('\n');
+
+  /* Le colophon : une ligne par œuvre servie, avec sa provenance réelle.
+     Il reprend ce que disaient les deux vieux pieds de page des ateliers,
+     que celui-ci remplace — et il le dit sur les vingt-deux pages, ce qui
+     est le propre d'un colophon. */
+  const colophon = available
+    .map(w => `<b>${esc(w.title)}</b> — ${esc(EDITION[w.id].colophon)}.`)
+    .join(' ');
+
+  return `
+<footer class="lm-foot wrap">
+  <div class="lm-foot-in">
+    <div class="lm-foot-id">
+      <p class="lm-foot-mark">Lire<span class="d">.</span>Marx</p>
+      <p class="lm-foot-lede">Marx en texte intégral, l&rsquo;appareil critique en marge du chapitre.</p>
+    </div>
+    <nav class="lm-foot-nav" aria-label="Pied de page">
+      <div class="lm-foot-col">
+        <p class="lm-foot-h">Le corpus</p>
+        <ul>
+${corpus}
+${lien('/oeuvres/bibliotheque', 'Toute la bibliothèque')}
+        </ul>
+      </div>
+      <div class="lm-foot-col">
+        <p class="lm-foot-h">Comprendre</p>
+        <ul>
+${lien('/glossaire/', 'L’abécédaire de Marx')}
+${lien('/jeu/', 'Le circuit du capital')}
+        </ul>
+      </div>
+      <div class="lm-foot-col">
+        <p class="lm-foot-h">Le site</p>
+        <ul>
+${lien('/', 'Accueil')}
+${lien('/oeuvres/place-publique', 'Place publique')}
+          <li><button type="button" class="lm-foot-cgu">CGU &amp; confidentialité</button></li>
+        </ul>
+      </div>
+    </nav>
+  </div>
+  <p class="lm-foot-colophon">${colophon} Appareil critique, simulations et organisation éditoriale&nbsp;: Lire Marx.</p>
+</footer>
+`;
+}
+
 const HEAD = '<!-- Book : DÉRIVÉ de oeuvres/bibliotheque.json par tools/gen-seo.mjs.\n' +
              '     Ne pas éditer à la main — corriger la source, puis regénérer :\n' +
              '       node tools/gen-seo.mjs\n' +
@@ -228,6 +337,13 @@ const hrefOf = w => {
   const p = String(w.path || '').replace(/\.html$/, '');
   return p && p[0] !== '/' ? '/' + p : p;
 };
+
+/* L'APPEL vit ICI et non à côté de la fonction : `esc` et `hrefOf` sont des
+   `const` déclarés plus bas dans le module, donc en zone morte temporelle
+   tant qu'on n'y est pas passé. Appelée plus haut, piedDePage() jetait un
+   ReferenceError — le piège déjà payé par drawTRPF() sur capital-1. */
+const PIED = piedDePage();
+
 
 function flatRegister(biblio) {
   const works = (biblio.works || []).filter(w => w && w.id);
@@ -767,7 +883,7 @@ ${voisines.map((v) => `      <a href="${v.page ? `/glossaire/${v.id}` : `/glossa
 
 </article>
 </main>
-
+${PIED}
 <script src="/config.js"></script>
 <script src="/oeuvres/shell.js"></script>
 <script src="/oeuvres/shell-social.js"></script>
@@ -820,6 +936,14 @@ const entries = [
   }))
 ];
 
+/* Le pied de page, écrit entre ses marqueurs dans les neuf pages tenues à la
+   main. Les douze pages de notion le reçoivent par leur gabarit, plus bas —
+   elles sont entièrement générées, elles n'ont pas besoin de marqueurs. */
+for (const f of PIED_PAGES) {
+  const src = readFileSync(f, 'utf8');
+  writeIfNeeded(f, entreMarqueurs(src, PIED_DEB, PIED_FIN, PIED, f), f + ' (pied de page)');
+}
+
 const xml =
 `<?xml version="1.0" encoding="UTF-8"?>
 <!-- DÉRIVÉ par tools/gen-seo.mjs depuis oeuvres/bibliotheque.json.
@@ -845,6 +969,7 @@ if (check) {
   }
   console.log('À jour : ' + [...available.map(w => w.path),
     'oeuvres/bibliotheque.html (registre)', 'index.html (FAQPage)',
+    ...PIED_PAGES.map(f => f + ' (pied de page)'),
     'glossaire/index.html', ...PAGES_NOTIONS.map(p => p.file),
     'sitemap.xml'].join(', '));
 } else {

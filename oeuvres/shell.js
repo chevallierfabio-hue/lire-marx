@@ -252,6 +252,18 @@
       });
     });
 
+    /* Le pied de page appartient au HTML de la page (il doit être SERVI),
+       mais son bouton CGU ouvre une modale que seul le shell possède : c'est
+       donc ici qu'on le câble, et non dans chacune des vingt-deux pages.
+       C'est un <button> et non une ancre — une ACTION, pas une destination. */
+    document.querySelectorAll('.lm-foot-cgu').forEach(function(b){
+      b.addEventListener('click', function(){
+        if(window.SHELL && window.SHELL.auth && window.SHELL.auth.openPrivacy){
+          window.SHELL.auth.openPrivacy();
+        }
+      });
+    });
+
     // sb-work : aiguillage vers les onglets de l'œuvre courante via la
     // fonction window.activateTab(id) que la page de livre doit fournir.
     sb.querySelectorAll('.sb-item[data-act^="tab:"]').forEach(function(b){

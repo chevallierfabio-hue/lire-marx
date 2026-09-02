@@ -527,3 +527,54 @@ body.at-reading .notes-fab{display:inline-flex;}
 .pub-hidden-tag{font-family:var(--f-ui);font-size:.64rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--red-text,#e5644f);background:rgba(213,64,47,.14);border-radius:999px;padding:1px 8px;margin-left:6px;}
 .pub-rpta{width:100%;min-height:54px;resize:vertical;background:var(--card);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-family:var(--f-ui);font-size:.85rem;padding:8px 10px;}
 .pub-rpta:focus-visible{border-color:var(--red);outline:none;}
+
+/* ─────────────────────────── LE PIED DE PAGE ────────────────────────────
+   Balisage STATIQUE, dérivé par tools/gen-seo.mjs, et c'est tout son objet :
+   la sidebar est injectée par shell.js, donc invisible à qui n'exécute pas
+   le JS. Le style vit ICI parce que shell.css est la SEULE feuille que les
+   vingt-deux pages partagent — l'accueil, l'abécédaire, les pages de notion
+   et le jeu ne chargent pas atelier.css.
+   D'où l'annulation EXPLICITE de `footer{text-align:center;font-style:italic}`
+   d'atelier.css : cette règle ne s'applique qu'à la moitié des pages, et sans
+   la neutraliser le pied de page n'aurait pas la même tête d'une moitié du
+   site à l'autre. `.lm-foot` (0,1,0) bat `footer` (0,0,1), mais seulement sur
+   les propriétés qu'il redéclare. */
+.lm-foot{margin-top:96px;border-top:1px solid var(--line);background:var(--paper);
+  text-align:left;font-style:normal;color:var(--ink-soft);font-family:var(--f-ui);
+  font-size:.84rem;line-height:1.55;padding:44px clamp(20px,4vw,56px) 32px;}
+.lm-foot-in{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,2fr);
+  gap:40px 56px;align-items:start;max-width:1180px;}
+.lm-foot-mark{font-family:'Fraunces',serif;font-weight:900;font-size:1.05rem;
+  letter-spacing:-.02em;color:var(--ink);margin:0 0 8px;}
+.lm-foot-mark .d{color:var(--bright);}
+.lm-foot-lede{margin:0;max-width:34ch;color:var(--const);}
+.lm-foot-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px;}
+.lm-foot-h{margin:0 0 10px;font-size:.72rem;font-weight:600;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--gold);}
+.lm-foot-col ul{list-style:none;margin:0;padding:0;}
+/* Cibles : 5 px de rembourrage vertical portent la ligne au-delà des 24 px
+   du critere 2.5.8 — un lien de pied de page n'est PAS « dans une phrase »,
+   l'exception qui couvre les renvois de fiche de l'abécédaire ne joue pas. */
+.lm-foot-col a,.lm-foot-cgu{display:inline-block;color:var(--ink-soft);
+  text-decoration:none;font-family:var(--f-ui);font-size:.84rem;line-height:1.5;
+  background:transparent;border:0;padding:5px 0;cursor:pointer;text-align:left;}
+.lm-foot-col a:hover,.lm-foot-cgu:hover{color:var(--gold);}
+.lm-foot-col a:focus-visible,.lm-foot-cgu:focus-visible{outline:2px solid var(--gold);
+  outline-offset:3px;border-radius:3px;}
+.lm-foot-colophon{margin:36px 0 0;padding-top:18px;border-top:1px solid var(--line-soft);
+  max-width:94ch;font-size:.76rem;line-height:1.6;color:var(--const);}
+/* `atelier.css` pose un `b{font-family:'Fraunces'}` — le colophon rendait donc
+   en serif sur les pages qui la chargent et en Inter sur les autres. Fraunces
+   est réservée aux TITRES : on la redit ici, sinon le pied de page n'a pas la
+   même typographie d'une moitié du site à l'autre. */
+.lm-foot-colophon b{font-family:var(--f-ui);font-weight:600;color:var(--ink-soft);}
+@media(max-width:860px){
+  .lm-foot{margin-top:64px;padding:36px 20px 28px;}
+  .lm-foot-in{grid-template-columns:1fr;gap:28px;}
+  .lm-foot-nav{grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 18px;}
+}
+@media(max-width:420px){.lm-foot-nav{grid-template-columns:1fr;}}
+/* Une liste de liens n'a rien à faire sur du papier. La règle vit ICI et non
+   dans la feuille print du carnet : le pied de page appartient à la coquille,
+   et l'argument vaut pour toutes les pages, pas seulement celle qui s'imprime. */
+@media print{.lm-foot{display:none!important;}}
