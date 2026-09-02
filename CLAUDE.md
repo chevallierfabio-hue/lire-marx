@@ -4845,6 +4845,106 @@ sans script (75 fiches, 12 liens de notion, barre `hidden`).
 notion et `notion.css` n'ont pas été touchés — vérifié, leurs liens
 portaient déjà tous une couleur.
 
+### Le mouvement — « la page s'imprime » (même mission, 2e passe)
+
+Demande du propriétaire : « fais des animations au scroll, il faut être
+original ». La contrainte de la maison commande tout : **le geste doit être
+pertinent vis-à-vis de ce qu'il exprime**. Ce que dit cette page-ci, c'est
+qu'elle est une page de dictionnaire — ses gestes sont donc ceux de
+l'imprimerie et de la reliure, et surtout PAS ceux déjà écrits ailleurs sur
+le site (le révélateur du catalogue, le fil et la lumière de la FAQ, les
+feuillets qui se posent, le rideau du jeu, l'encre qui prend mot à mot).
+
+**1. La lettrine s'imprime.** Le caractère arrive levé au-dessus du papier
+(20 % plus grand, en `--muted`), frappe, et se pose à sa taille en prenant
+l'or ; son filet se tire juste après, avec un temps de retard. Seize fois,
+une par lettre. La frappe se joue entre 92 % et 62 % de la hauteur d'écran :
+**la lettre est posée AVANT qu'on la lise, jamais pendant.**
+
+**2. Le pouce descend la tranche.** Le repère n'est plus une pastille qui
+saute d'une lettre à l'autre : c'est un onglet doré qui **glisse en
+continu** le long du pouce-index, en interpolant entre deux lettres à mesure
+qu'on traverse un bloc — on descend la tranche d'un livre, on ne clique pas
+dedans. Un fil se remplit derrière lui : la tranche dit du même coup *où
+l'on est* et *combien de chemin est fait*. Fil et pouce vivent sur le bord
+**extérieur** de la tranche, côté écran : de ce côté il n'y a rien à
+dégager, et c'est là que se trouve l'onglet d'un vrai pouce-index.
+
+**3. Le titre courant.** Le mot-guide qu'un dictionnaire imprime en tête de
+page : la lettre, puis la première entrée de la rangée où l'on est. Il
+partage sa place avec le compte du filtre — au repos il dit où l'on en est,
+pendant le filtrage c'est le compte qui parle. Les deux ne sont jamais
+utiles en même temps, donc ils ne se disputent rien.
+
+### ET LES SOIXANTE-QUINZE FICHES NE BOUGENT PAS
+
+C'est délibéré, et c'est la règle du site : **le texte ne bouge jamais sous
+le regard.** Écrite pour la colonne de lecture de l'atelier, elle vaut a
+fortiori pour soixante-quinze définitions qu'on parcourt à la recherche d'un
+mot — un geste vu soixante-quinze fois n'est plus un geste, c'est une taxe.
+Le mouvement vit donc dans le **mobilier** de la page : la lettre, la
+tranche, le mot-guide. Ne pas « animer les fiches » sans rouvrir cet
+arbitrage.
+
+### Le partage orientation / mouvement
+
+C'est celui déjà rendu pour le repère du Dossier, et il n'est pas
+cosmétique : **le pouce, le fil et le titre courant sont de l'ORIENTATION**,
+ils vivent donc partout — reduced-motion et téléphone compris, où l'on en a
+le plus besoin. **Seule la lettrine est du mouvement**, gardée par `js-glm`
+(≥ 768 px, hors reduced-motion). Sans la classe, la lettre est or, à
+l'échelle 1, filet complet : l'état fini, vérifié à la mesure.
+
+Le seuil se lit à `matchMedia`, jamais à `innerWidth` — au moment où le
+script s'exécute la fenêtre peut encore annoncer 0. C'est le piège déjà
+documenté pour l'accueil et pour `carnet-intro.js`.
+
+### Une seule passe par image
+
+`cadre()` nourrit les quatre choses d'un coup : le repère, la frappe des
+seize lettrines, le pouce et le mot-guide. **Seize rectangles de bloc, plus
+les fiches du bloc courant — jamais les soixante-quinze.** Les écritures de
+propriétés sont gardées par comparaison (`toFixed(3)`) : seize écritures par
+image, autant n'en faire aucune pour rien.
+
+### Deux pièges, tous deux payés
+
+1. **Une règle qu'on remplace se SUPPRIME.** J'ai écrit la nouvelle
+   `.gl-alpha a.gl-ici{color:var(--gold)}` en laissant l'ancienne
+   (`color:var(--bg);background:var(--gold)`) plus haut dans la feuille. À
+   spécificité égale la mienne gagnait sur `color` — mais le **fond doré**
+   de l'ancienne restait, et la lettre courante était **de l'or sur de l'or,
+   mesuré à 1,0:1**. Ajouter une règle qui n'écrase qu'une propriété sur
+   deux ne remplace rien. Trouvé par la sonde de contraste, pas à l'œil : à
+   l'écran, une pastille dorée un peu terne ne saute pas aux yeux.
+2. **Le mot-guide s'éteignait à chaque changement de lettre.** Entre le
+   titre d'une lettre et sa première fiche, aucune entrée n'a passé la ligne
+   — il rendait donc le vide, et l'on croyait à un raté. Le repli est aussi
+   la bonne pratique typographique : tant qu'aucune entrée n'est atteinte,
+   le mot-guide donne la PREMIÈRE de la page, ce qu'imprime un dictionnaire.
+
+### Vérifié (2e passe)
+
+Sonde de contraste sur le rendu, coquille comprise : **0 échec sur quatre
+états** — repos (577 mesures), **en pleine frappe** (`--lev` 0,569, 579
+mesures), mot-guide affiché, et filtré. Minimum 4,14, le faux positif
+documenté. Le caractère parcourt le segment `--muted` → `--gold`, soit de
+8,1:1 à 9,0:1 : **les deux extrémités et tout l'entre-deux passent** — une
+extinction ne se dit pas par l'opacité, pas même en passant.
+
+La frappe mesurée pas à pas (sonde temporaire, retirée avant le commit — le
+rAF est gelé dans l'onglet piloté) : `--lev` 1,000 → 0,802 → 0,569 → 0,337 →
+0,104 → 0,000, `scale` 1,2 → 1, filet 0 → 16,1 → 33,7 → 34 px, et
+**entièrement réversible** (on remonte, le caractère se relève). Le pouce
+glisse en continu de 13 à 380 px sur la descente, le fil suit, le mot-guide
+nomme la bonne entrée à chaque arrêt (« Accumulation », « Communisme »,
+« Le hiéroglyphe social », « Moyen de paiement », « Taux d'exploitation e₀ »).
+
+À 375 px : `motion` faux, pas de `js-glm`, pas d'enveloppe — **mais le pouce
+et le fil marchent** (mesurés), et le mot-guide est masqué (la tranche dit
+déjà la lettre). Zéro débordement horizontal, console sans erreur,
+`detect.mjs` **5 constats, 0 erreur** (la base), `gen-seo --check` à jour.
+
 ### Ce qui reste
 
 - **La tranche s'ancre au bord de la FENÊTRE**, pas à la colonne de texte :

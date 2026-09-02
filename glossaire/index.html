@@ -178,19 +178,15 @@ body{background:var(--bg);color:var(--text);font-family:var(--f-ui);
    posé à 3 px de décalage, sortait du cadre. Six pixels de rembourrage et
    un décalage d'un seul suffisent à le tenir dedans. */
 .gl-alpha a:focus-visible{outline-offset:1px;}
-/* La lettre où l'on est. Une extinction ne se dit JAMAIS par l'opacité :
-   --muted vaut 7,6:1 sur --bg et --gold 9,0:1, les deux extrémités passent.
-   La lettre courante prend le fond doré et l'encre du fond — la pastille
-   pleine de la maison. */
-.gl-alpha a.gl-ici{color:var(--bg);background:var(--gold);}
+/* La lettre où l'on est prend l'or. Une extinction ne se dit JAMAIS par
+   l'opacité : --muted vaut 8,1:1 sur --bg et --gold 9,0:1, les deux
+   extrémités passent. Sa règle vit avec le pouce, plus bas — c'est lui qui
+   la désigne. */
 /* Une lettre dont le filtre a vidé le bloc n'est plus une destination : on
    la retire des deux parcours, souris et clavier (le tabindex est posé par
    le script), plutôt que de laisser un lien qui ne mène nulle part.
-   Elle REND AUSSI le fond : à spécificité égale c'est cette règle qui passe
-   en dernier, donc sa couleur bat celle de `.gl-ici` — mais le fond doré de
-   `.gl-ici`, lui, resterait, et l'on aurait --const sur --gold, soit 1,6:1.
-   L'ordonnancement du script rend la combinaison impossible ; une paire de
-   classes ne doit pas dépendre d'un ordre d'appel pour rester lisible. */
+   Elle rend aussi le fond, par précaution : une paire de classes ne doit
+   pas dépendre d'un ordre d'appel pour rester lisible. */
 .gl-alpha a.gl-eteint{color:var(--const);background:transparent;pointer-events:none;}
 
 /* ── une lettre ── */
@@ -293,9 +289,88 @@ body{background:var(--bg);color:var(--text);font-family:var(--f-ui);
 .js-gl .gl-lettre{scroll-margin-top:calc(var(--gl-top,44px) + 76px);}
 .js-gl .gl-terme{scroll-margin-top:calc(var(--gl-top,44px) + 80px);}
 
+/* ══ LE MOUVEMENT — « la page s'imprime » ═════════════════════════════
+   Doctrine de la maison, tenue ici comme ailleurs : aucun geste décoratif —
+   chacun dit ce que dit son objet ; tout est piloté par la POSITION, donc
+   réversible ; le défaut CSS est l'état FINI, et c'est le script qui pose
+   la classe.
+
+   Ce que dit cette page-ci, c'est qu'elle est une page de dictionnaire. Ses
+   gestes sont donc ceux de l'imprimerie et de la reliure, et surtout PAS
+   ceux déjà écrits ailleurs sur le site — le révélateur du catalogue, le
+   fil et la lumière de la FAQ, les feuillets qui se posent, le rideau du
+   jeu, l'encre qui prend mot à mot :
+
+     · la LETTRINE frappe le papier, et son filet se tire ;
+     · le POUCE descend la tranche, et le fil se remplit derrière lui ;
+     · le TITRE COURANT suit l'entrée, comme le mot-guide d'un dictionnaire.
+
+   ET LES SOIXANTE-QUINZE FICHES NE BOUGENT PAS. C'est le texte, et la règle
+   du site est que le texte ne bouge jamais sous le regard — écrite pour la
+   colonne de lecture de l'atelier, elle vaut a fortiori pour soixante-quinze
+   définitions qu'on parcourt à la recherche d'un mot. Un geste vu
+   soixante-quinze fois n'est plus un geste, c'est une taxe. Le mouvement
+   vit donc dans le MOBILIER de la page : la lettre, la tranche, le
+   mot-guide.
+
+   PARTAGE, et il suit un arbitrage déjà rendu pour le repère du Dossier :
+   le pouce, le fil et le titre courant sont de l'ORIENTATION, ils vivent
+   donc PARTOUT — reduced-motion et téléphone compris, où l'on en a le plus
+   besoin. Seule la lettrine est du mouvement, et elle est gardée par
+   `js-glm`. */
+
+/* ── la lettrine s'imprime ──
+   La frappe se joue entre 92 % et 62 % de la hauteur d'écran : la lettre
+   est POSÉE avant qu'on la lise, jamais pendant. `--lev` vaut 1 quand le
+   caractère est encore levé au-dessus du papier, 0 quand il a frappé ;
+   `--tir` tire le filet juste après, avec un temps de retard.
+   Le caractère va de --muted (8,1:1) à --gold (9,0:1) : les deux extrémités
+   passent. Une extinction ne se dit jamais par l'opacité, pas même en
+   passant — la règle vaut aussi pour les états transitoires. */
+.js-glm .gl-lettre .gl-l{display:inline-block;transform-origin:0 86%;
+  transform:translateY(calc(var(--lev,0) * -.15em)) scale(calc(1 + var(--lev,0) * .20));
+  color:color-mix(in srgb, var(--muted) calc(var(--lev,0) * 100%), var(--gold));}
+.js-glm .gl-lettre::after{width:calc(var(--tir,1) * 34px);}
+
+/* ── le pouce sur la tranche ──
+   Le fil et le pouce vivent sur le bord EXTÉRIEUR de la tranche, côté écran,
+   et non côté texte : là il n'y a rien à dégager, et c'est de ce côté que
+   se trouve l'onglet d'un vrai pouce-index. Le pouce glisse en CONTINU —
+   il interpole entre deux lettres à mesure qu'on traverse un bloc — au lieu
+   de sauter d'une lettre à l'autre : on descend la tranche, on ne clique
+   pas dedans. */
+.gl-fil,.gl-pouce{position:absolute;right:1px;border-radius:3px;
+  pointer-events:none;background:var(--gold);}
+.gl-fil{top:0;width:2px;height:0;opacity:.28;}
+.gl-pouce{top:0;width:4px;height:24px;opacity:0;transition:opacity .2s ease;}
+.gl-pouce.on{opacity:1;}
+/* La lettre courante n'a PLUS de pastille pleine : le pouce est juste à
+   côté et il le dit mieux, et une pastille dorée sous un pouce doré ne
+   voulait plus rien dire.
+   PIÈGE PAYÉ ICI : j'ai d'abord écrit cette règle en laissant l'ancienne
+   (`color:var(--bg);background:var(--gold)`) plus haut dans la feuille. À
+   spécificité égale la mienne gagnait sur `color` — mais le FOND doré de
+   l'ancienne restait, et la lettre courante était de l'or sur de l'or,
+   mesuré à 1,0:1. Une règle qu'on remplace se SUPPRIME ; en ajouter une
+   qui n'écrase qu'une propriété sur deux ne remplace rien. */
+.gl-alpha a.gl-ici{color:var(--gold);}
+
+/* ── le titre courant ── */
+.gl-guide{flex:0 1 auto;margin-left:auto;min-width:0;
+  display:flex;align-items:baseline;gap:9px;color:var(--muted);
+  font-size:.83rem;}
+.gl-guide:empty{display:none;}
+.gl-guide b{flex:0 0 auto;font-family:'Fraunces',serif;font-weight:900;
+  font-size:1rem;line-height:1;color:var(--gold);}
+.gl-guide i{min-width:0;font-style:normal;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
 @media(max-width:720px){
   /* La topbar y prend déjà trois rangées : la barre rend ce qu'elle peut. */
   .gl-barre{padding-top:9px;padding-bottom:10px;}
+  /* Le mot-guide y prendrait la place du champ, et la tranche dit déjà la
+     lettre. Le compte, lui, reste : c'est la réponse au filtre. */
+  .gl-guide{display:none;}
 }
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;}}
 </style>
@@ -934,6 +1009,11 @@ body{background:var(--bg);color:var(--text);font-family:var(--f-ui);
          SHELL.announce, canal unique — deux régions live pour le même fait
          feraient tout entendre deux fois. -->
     <p class="gl-tenue" id="glTenue" aria-hidden="true"></p>
+    <!-- Le TITRE COURANT — le mot-guide en tête de page de dictionnaire. Il
+         partage sa place avec le compte : au repos il dit où l'on en est,
+         pendant le filtrage c'est le compte qui parle. Les deux ne sont
+         jamais utiles en même temps, et ils ne se disputent donc rien. -->
+    <p class="gl-guide" id="glGuide" aria-hidden="true"></p>
   </div>
   <p class="gl-vide" id="glVide" hidden>Aucune notion ne correspond.</p>
 
@@ -1575,6 +1655,7 @@ installShell({ workTitle: 'Glossaire', tabs: [] });
   var vider  = document.getElementById('glVider');
   var tenue  = document.getElementById('glTenue');
   var vide   = document.getElementById('glVide');
+  var guide  = document.getElementById('glGuide');
   var rail   = document.querySelector('.gl-alpha');
   if (!barre || !q) return;
 
@@ -1604,8 +1685,53 @@ installShell({ workTitle: 'Glossaire', tabs: [] });
     var h = b.querySelector('.gl-lettre');
     if (!h) return;
     lettres.push({ bloc: b, titre: h,
+      fiches: [].slice.call(b.querySelectorAll('.gl-terme')),
       onglet: rail ? rail.querySelector('a[href="#' + h.id + '"]') : null });
   });
+
+  /* ── le mobilier du mouvement ─────────────────────────────────────────
+     Le fil et le pouce sont de l'ORIENTATION : ils existent partout, y
+     compris sous reduced-motion et sur téléphone. Seule la lettrine est du
+     mouvement, et elle attend `js-glm`. C'est le partage déjà arbitré pour
+     le repère du Dossier — un repère ne doit pas disparaître là où l'on en
+     a le plus besoin. */
+  var fil = null, pouce = null;
+  if (rail){
+    fil   = document.createElement('i');
+    pouce = document.createElement('i');
+    fil.className = 'gl-fil';   fil.setAttribute('aria-hidden', 'true');
+    pouce.className = 'gl-pouce'; pouce.setAttribute('aria-hidden', 'true');
+    rail.appendChild(fil); rail.appendChild(pouce);
+  }
+
+  /* `matchMedia` et non `innerWidth` : au moment où ce script s'exécute la
+     fenêtre peut encore annoncer 0 (onglet ouvert en arrière-plan, onglet
+     piloté), et la page partirait alors sans un geste pour un visiteur en
+     1440 px. La media query, elle, décrit le viewport CSS. */
+  var motion = matchMedia('(min-width:768px)').matches
+            && !matchMedia('(prefers-reduced-motion:reduce)').matches;
+  if (motion){
+    document.documentElement.classList.add('js-glm');
+    /* La lettre est enveloppée pour pouvoir être frappée sans que la boîte
+       du titre bouge : un transform sur l'enfant ne déplace pas le bord du
+       parent, donc ni le filet, ni l'ancre, ni le repère de lecture. */
+    lettres.forEach(function(L){
+      var t = L.titre.textContent;
+      L.titre.textContent = '';
+      var sp = document.createElement('span');
+      sp.className = 'gl-l'; sp.textContent = t;
+      L.titre.appendChild(sp);
+    });
+  }
+
+  var borne = function(x){ return x < 0 ? 0 : x > 1 ? 1 : x; };
+  var ecrire = function(el, nom, v){
+    var s = v.toFixed(3);
+    if (el['_' + nom] === s) return;   /* seize écritures par image, autant
+                                          n'en faire aucune pour rien */
+    el['_' + nom] = s;
+    el.style.setProperty(nom, s);
+  };
 
   /* La ligne de lecture, pas le haut de l'écran : la topbar et la barre
      collante mangent le haut de la page — et la topbar ne fait 44 px qu'au
@@ -1621,29 +1747,118 @@ installShell({ workTitle: 'Glossaire', tabs: [] });
   }
   var ici = null, enAttente = false;
 
-  function marquer(){
+  var fiche = null;
+
+  /* UNE SEULE PASSE par image, et elle nourrit les quatre choses à la fois :
+     le repère de lecture, la frappe des lettrines, le pouce sur la tranche
+     et le mot-guide. Seize rectangles de bloc, plus les fiches du bloc
+     courant — jamais les soixante-quinze. */
+  function cadre(){
     enAttente = false;
-    var choix = null;
+    var vh = innerHeight || 0;
+    var vus = [];
+
     for (var i = 0; i < lettres.length; i++){
-      if (lettres[i].bloc.hidden) continue;
-      if (lettres[i].titre.getBoundingClientRect().top - LIGNE <= 0) choix = lettres[i];
-      else break;
+      var L = lettres[i];
+      if (L.bloc.hidden) continue;              /* un bloc masqué mesure zéro,
+                                                   son rect serait « au-dessus
+                                                   de la ligne », donc choisi */
+      var rb = L.bloc.getBoundingClientRect();
+      var rt = L.titre.getBoundingClientRect();
+      L.haut = rt.top; L.bas = rb.bottom;
+      vus.push(L);
+
+      if (motion && vh){
+        /* La frappe se joue entre 92 % et 62 % de la hauteur d'écran : la
+           lettre est posée AVANT qu'on la lise, jamais pendant. */
+        var lev = borne((rt.top - vh * 0.62) / (vh * 0.30));
+        ecrire(L.titre, '--lev', lev);
+        /* Le filet se tire une fois le caractère presque descendu. */
+        ecrire(L.titre, '--tir', borne(((1 - lev) - 0.45) / 0.45));
+      }
     }
-    if (choix === ici) return;
-    if (ici && ici.onglet){
-      ici.onglet.classList.remove('gl-ici');
-      ici.onglet.removeAttribute('aria-current');
+
+    /* ── le repère de lecture ── */
+    var k = -1;
+    for (var j = 0; j < vus.length; j++){
+      if (vus[j].haut - LIGNE <= 0) k = j; else break;
     }
-    ici = choix;
-    if (ici && ici.onglet){
-      ici.onglet.classList.add('gl-ici');
-      ici.onglet.setAttribute('aria-current', 'true');
+    var choix = k < 0 ? null : vus[k];
+    if (choix !== ici){
+      if (ici && ici.onglet){
+        ici.onglet.classList.remove('gl-ici');
+        ici.onglet.removeAttribute('aria-current');
+      }
+      ici = choix;
+      if (ici && ici.onglet){
+        ici.onglet.classList.add('gl-ici');
+        ici.onglet.setAttribute('aria-current', 'true');
+      }
+    }
+
+    /* ── le pouce et le fil ── */
+    if (pouce && rail){
+      if (!choix || !choix.onglet){
+        pouce.classList.remove('on');
+        fil.style.height = '0px';
+      } else {
+        var suiv = vus[k + 1];
+        /* La fraction se prend sur la traversée du bloc : d'un titre au
+           suivant. C'est ce qui rend la descente CONTINUE — le pouce glisse
+           le long de la tranche au lieu de sauter d'une lettre à l'autre. */
+        var fin = suiv ? suiv.haut : choix.bas;
+        var f = fin > choix.haut ? borne((LIGNE - choix.haut) / (fin - choix.haut)) : 0;
+        var b = rail.clientTop;
+        var ya = choix.onglet.offsetTop - b;
+        var yb = (suiv && suiv.onglet) ? suiv.onglet.offsetTop - b : ya;
+        var y = ya + (yb - ya) * f;
+        pouce.style.transform = 'translateY(' + y.toFixed(1) + 'px)';
+        pouce.classList.add('on');
+        fil.style.height = (y + 12).toFixed(1) + 'px';
+      }
+    }
+
+    /* ── le mot-guide ──
+       La première entrée de la RANGÉE où l'on est, comme un dictionnaire
+       imprime le premier mot de sa page. En deux colonnes, c'est la fiche
+       de gauche : les fiches sont dans l'ordre du document, donc la
+       première rencontrée à chaque nouveau haut de rangée est la bonne. */
+    if (guide){
+      var cible = null;
+      if (choix && !q.value){
+        var hautRang = -1e9, cs = choix.fiches;
+        for (var c = 0; c < cs.length; c++){
+          if (cs[c].hidden) continue;
+          var r = cs[c].getBoundingClientRect();
+          /* Tant qu'aucune entrée n'a passé la ligne, on est SUR le titre de
+             la lettre : le mot-guide donne alors la première entrée, ce qui
+             est très exactement ce qu'imprime un dictionnaire en tête de
+             page. Sans ce repli il s'éteignait à chaque changement de
+             lettre, et l'on croyait à un raté. */
+          if (!cible) cible = cs[c];
+          if (r.top - LIGNE > 0) break;
+          if (r.top > hautRang + 2){ hautRang = r.top; cible = cs[c]; }
+        }
+      }
+      if (cible !== fiche){
+        fiche = cible;
+        if (!fiche) guide.textContent = '';
+        else {
+          var t = fiche.querySelector('.gl-t');
+          var de = t.querySelector('.gl-de');
+          var nom = de ? t.textContent.replace(de.textContent, '') : t.textContent;
+          guide.innerHTML = '';
+          var bb = document.createElement('b'); bb.textContent = choix.titre.textContent;
+          var ii = document.createElement('i'); ii.textContent = nom.trim();
+          guide.appendChild(bb); guide.appendChild(ii);
+        }
+      }
     }
   }
   function planifier(){
     if (enAttente) return;
     enAttente = true;
-    requestAnimationFrame(marquer);
+    requestAnimationFrame(cadre);
   }
   addEventListener('scroll', planifier, { passive: true });
   addEventListener('resize', function(){ mesurer(); planifier(); });
@@ -1653,7 +1868,7 @@ installShell({ workTitle: 'Glossaire', tabs: [] });
     new ResizeObserver(function(){ mesurer(); planifier(); }).observe(topbar);
   }
   mesurer();
-  marquer();
+  cadre();
   /* Le piège de la mesure unique, déjà payé sur le catalogue de l'accueil :
      la topbar est bâtie par installShell juste avant nous, et elle GRANDIT
      ensuite — les polices arrivent, la recherche se replie sur sa rangée.
@@ -1722,7 +1937,7 @@ installShell({ workTitle: 'Glossaire', tabs: [] });
       var cible = tete ? tete.getBoundingClientRect().top + scrollY - 120 : 0;
       if (scrollY > cible) scrollTo({ top: Math.max(0, cible), behavior: 'instant' });
     }
-    marquer();
+    cadre();
 
     if (window.SHELL && SHELL.announce){
       SHELL.announce(n ? (mot(n) + ' affichées') : 'Aucune notion ne correspond');
