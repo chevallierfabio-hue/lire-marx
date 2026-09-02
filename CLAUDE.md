@@ -5089,12 +5089,10 @@ le commit, dans le HTML servi :
 /oeuvres/place-publique  0
 ```
 
-Fermer cette moitié demande une navigation **dans le HTML servi** — un pied
-de page commun, par exemple : sept des huit pages n'en ont aucun, et celui de
-`capital-1.html` dit encore « L'Atelier du Capital », un nom qui n'existe
-plus. C'est une décision de DA, laissée au propriétaire. **Ne pas conclure de
-cette mission que le maillage est réglé : il l'est pour Google, à moitié pour
-le reste.**
+✅ **SOLDÉ le jour même** par `pied-de-page` (voir juste en dessous) : un pied
+de page commun, servi dans le HTML des vingt-deux pages. Les comptes ci-dessus
+sont donc ceux d'un état intermédiaire — ils valent comme mesure du défaut,
+plus comme état du site.
 
 ### Place publique ne sera pas indexée, et ce n'est pas technique
 
@@ -5154,6 +5152,113 @@ ateliers en 200, sidebar en sept ancres, console propre.
 - **Les liens entrants externes**, qui restent la variable la plus lourde et
   la moins technique. `sameAs` ne contient que le dépôt GitHub, et c'est le
   bon réflexe — on n'invente pas un profil. Il faut en gagner de vrais.
+
+## Un pied de page, servi (mission `pied-de-page`, sept. 2026)
+
+Suite directe de `maillage-explorable`, qui n'avait fermé qu'une moitié du
+problème. La sidebar est injectée par shell.js : Google la voit, les crawlers
+des moteurs de réponse non. Le pied de page est du **balisage statique
+présent dans le fichier**, et c'est tout son objet.
+
+| HTML servi | avant | après |
+|---|---|---|
+| `/` | 6 | 10 |
+| `/oeuvres/capital-1` | 2 | **7** |
+| `/oeuvres/manuscrits-1844` | 1 | **7** |
+| `/oeuvres/place-publique` | **0** | **7** |
+| `/glossaire/` | 15 | 19 |
+| `/jeu/` | 3 | 8 |
+
+### Il est DÉRIVÉ, et c'est la seule façon de le tenir
+
+Vingt-deux pages : deux copies d'une même donnée divergent en silence — la
+règle est déjà celle du FAQPage, du registre et des `Book`. `gen-seo.mjs`
+l'écrit entre `<!-- PIED:DÉBUT -->` / `<!-- PIED:FIN -->` dans les **neuf**
+pages tenues à la main, et l'injecte dans le **gabarit** des douze pages de
+notion, générées en entier (elles n'ont donc pas de marqueurs).
+
+- **Le corpus se lit dans `bibliotheque.json`** : une troisième œuvre passée
+  en `available` apparaîtra partout sans qu'on touche à rien.
+- **Le colophon se lit dans `EDITION`**, où chaque œuvre a un champ
+  `colophon`. C'est un fait d'édition, il vit à côté du traducteur et de la
+  licence — et il se relit à côté de ce qu'il affirme. Celui des Manuscrits
+  ne dit **pas** « domaine public » : même silence délibéré que l'absence de
+  `license`, Bottigelli est protégé jusqu'en 2046.
+
+Il **remplace** les deux vieux pieds de page des ateliers (« L'Atelier du
+Capital », « L'Atelier des Manuscrits de 1844 » — des noms qui n'existent
+plus) ; leur mention de source est reprise par le colophon, et sur les
+vingt-deux pages plutôt que sur deux. `#footPrivacy` part avec : le bouton CGU
+est câblé une fois pour toutes dans shell.js, qui possède la modale.
+
+Le critère de `maillage-explorable` est tenu : les huit destinations sont des
+ancres, « CGU & confidentialité » est un bouton.
+
+### Le CSS vit dans shell.css, et il doit ANNULER atelier.css
+
+`shell.css` est la **seule** feuille que les vingt-deux pages partagent —
+l'accueil, l'abécédaire, les pages de notion et le jeu ne chargent pas
+`atelier.css`. Or celle-ci pose `footer{text-align:center;font-style:italic}`
+**et** `footer b{font-family:'Fraunces'}`. Sans annulation explicite, le pied
+de page était centré et italique sur une moitié du site, aligné à gauche et
+romain sur l'autre, et son colophon rendait en serif d'un côté, en Inter de
+l'autre. Trouvé à la mesure, pas à l'œil. **Tout composant de coquille qui
+réutilise un nom de balise déjà stylé par `atelier.css` doit redéclarer les
+propriétés concernées.**
+
+Le pied de page porte `class="lm-foot wrap"` : c'est `.wrap` qui lui donne les
+208 px de dégagement de la sidebar **et** la transition qui le fait glisser en
+même temps que le contenu au repli. Sur l'accueil, il se pose APRÈS `.hw`
+(qui porte `padding-left:208px`), donc `.wrap` lui rend le même décalage. Et
+`@media print{.lm-foot{display:none}}` : une liste de liens n'a rien à faire
+sur du papier — la règle est dans shell.css et non dans la feuille print du
+carnet, parce que l'argument vaut pour toutes les pages.
+
+### Deux pièges, dont un revécu en plein
+
+1. **TDZ dans `gen-seo.mjs`.** `piedDePage()` appelle `esc` et `hrefOf`, deux
+   `const` déclarés plus bas. Défini en tête, l'APPEL jetait un
+   ReferenceError — le piège exact déjà payé par `drawTRPF()`. La fonction
+   reste en tête (les déclarations sont hissées), l'appel vit après `hrefOf`.
+2. **⚠️ MESURER DANS UNE PANE MASQUÉE NE PROUVE RIEN, et j'ai failli
+   « corriger » une mise en page correcte.** Trois pages ont rendu un pied de
+   page de **40 px de large** et jusqu'à **267 px de débordement horizontal**.
+   Aucun des deux n'existait : `document.hidden` était vrai, donc
+   `innerWidth` valait **0**, `body` aussi, et 40 px c'est exactement le
+   rembourrage seul (2 × 20). Le test qui départage : remesurer sans
+   renaviguer, et lire `document.hidden` / `innerWidth` AVANT de conclure.
+   `resize_window` avec une taille explicite rend un vrai viewport — c'est la
+   seule façon de mesurer ici.
+
+### Vérifié
+
+Neuf pages à 1280 px (accueil, bibliothèque, les deux ateliers, Place
+publique, carnet, messagerie, abécédaire, une notion, le jeu) : pied de page à
+1072 px calé à 208 px, **zéro débordement horizontal**, console sans erreur. À
+375 px : une colonne, zéro débordement, aucune cible sous 24 × 24. Contraste
+sur le rendu **minimum 5,68:1**, plus petit texte **11,5 px**. Bouton CGU qui
+ouvre la modale sans changer d'URL, sur une page qui ne charge pas
+atelier.css. `gen-seo --check` à jour et idempotent.
+
+`detect.mjs` mesuré **en remisant les modifications** — le seul contrôle qui
+vaille : **0 erreur**, bases de `glossaire/index` (5), `jeu` (15), `capital-1`
+(20) et `manuscrits-1844` (13) inchangées. L'accueil passe de 27 à **29**,
+Place publique de 7 à **8** ; le delta est deux fois le même
+`transition: margin-left` — la règle `.wrap` du shell appliquée à un élément
+de plus, **à garder** (sans elle le pied de page sauterait pendant que le
+contenu glisse) — et une fois les tirets cadratins du colophon, famille de DA
+déjà documentée.
+
+**`404.html` n'en reçoit pas**, et c'est écrit dans sa propre mission : elle
+est autonome, ne charge ni shell.js ni shell.css, et une page d'erreur ne doit
+pas dépendre de ce qu'on n'a pas réussi à servir.
+
+### Ce qui reste
+
+Le maillage interne est désormais complet pour tout le monde. Ce qui manque
+n'est plus technique : **aucune page « À propos », aucun auteur nommé, aucun
+contact**, et **aucun lien entrant externe** — `sameAs` ne contient que le
+dépôt GitHub. C'est là que se joue la suite.
 
 ## Conventions de travail
 
