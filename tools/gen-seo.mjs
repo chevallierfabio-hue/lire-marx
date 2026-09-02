@@ -30,7 +30,7 @@ const ORIGIN = 'https://liremarx.com';
    qu'un schéma qui nommerait l'auteur autrement que la page serait un
    mensonge lisible par machine. Un pseudonyme est une identité : on le
    déclare, on ne le laisse pas vide. */
-const AUTEUR = 'PSEUDO_A_DEFINIR';
+const AUTEUR = 'maradomarx';
 const BIBLIO = 'oeuvres/bibliotheque.json';
 
 /* ------------------------------------------------------------------ *
