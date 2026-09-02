@@ -1955,8 +1955,6 @@ const fmt=(x,d=2)=>x.toLocaleString('fr-FR',{minimumFractionDigits:d,maximumFrac
         '</div>';
       shelf.appendChild(card);
     });
-    const sbSoon=document.querySelector('#sbBiblio .sb-soon');
-    if(sbSoon)sbSoon.innerHTML='<span class="sb-dot" style="background:var(--gold)"></span>'+pending+' en preparation<span class="sb-soon-tag">a venir</span>';
   }
   function load(){
     fetch('bibliotheque.json',{cache:'no-cache'})

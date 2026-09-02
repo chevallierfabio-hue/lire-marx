@@ -111,7 +111,6 @@
            le jeu prend tout l'écran, on ne l'ouvre pas d'un clic de
            sidebar sans avoir dit ce que c'est. */
         '<button class="sb-item" type="button" data-act="jeu"><span class="sb-dot" style="background:var(--gold)"></span>Le jeu</button>' +
-        '<button class="sb-item sb-soon" type="button" disabled><span class="sb-dot" style="background:var(--blue)"></span>À propos<span class="sb-soon-tag">à venir</span></button>' +
         '<button class="sb-item" type="button" data-act="cgu"><span class="sb-dot" style="background:var(--ink-soft)"></span>CGU &amp; règles</button>' +
         sbWork +
       '</aside>'
