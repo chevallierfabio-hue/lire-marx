@@ -1528,7 +1528,7 @@ nav.tabs.worktabs{position:sticky;top:44px;z-index:62;
         <li><a href="/">Accueil</a></li>
         <li><a href="/oeuvres/place-publique">Place publique</a></li>
         <li><a href="/a-propos">À propos</a></li>
-          <li><button type="button" class="lm-foot-cgu">CGU &amp; confidentialité</button></li>
+        <li><a href="/mentions-legales">CGU &amp; confidentialité</a></li>
         </ul>
       </div>
     </nav>
@@ -4021,7 +4021,6 @@ else bootAtelier();
   // login gates) appellent encore openAcctModal() ; on les laisse marcher via
   // SHELL.auth.openModal().
   function openAcctModal(){ if(window.SHELL&&window.SHELL.auth)window.SHELL.auth.openModal(); }
-  function openPrivacy(){ if(window.SHELL&&window.SHELL.auth)window.SHELL.auth.openPrivacy(); }
 
   function capitalSectionLabel(n){
     try{ var s = ROY_STRUCT[(+n)-1]; if(s) return 'Section '+s.rn+' \u00b7 '+s.t; }catch(e){}
@@ -4067,8 +4066,8 @@ try{if(window.Anno&&sel&&sel.value){const nn0=+sel.value.split('|')[0];if(nn0)wi
    installés et câblés par shell.js (installShell appelé en fin de body).
    Plus aucune redirection vers capital-1.html pour une fonctionnalité :
    compte → SHELL.auth ; Place publique → place-publique.html ; Contacts
-   → SHELL.social ; CGU → SHELL.auth.openPrivacy ; recherche + soutien
-   → autonomes côté shell. Capital = livre comme les autres. */
+   → SHELL.social ; CGU → une vraie page (/mentions-legales) ; recherche +
+   soutien → autonomes côté shell. Capital = livre comme les autres. */
 
 /* ===== Deep-link au passage (#note=<id> ou #s=N&q=...&b=...&a=...)
    Contrat SHELL.reader.resolveDeepLink : la page d'œuvre fetch la cible,
@@ -4140,10 +4139,6 @@ installShell({
      courante est `curTab`, et elle seule. */
   if(typeof syncTabsA11y==='function')syncTabsA11y(typeof curTab!=='undefined'?curTab:'lire');
   if(typeof renderResume==='function')renderResume();
-})();
-// Le bouton « Confidentialité & données » du pied de page ouvre la modale RGPD
-// fournie par SHELL.auth (shell.js).
-(function(){
 })();
 /* Dernier filet : après que installShell a injecté la topbar en body.prepend,
    le navigateur peut avoir décalé le scroll de 44px. On repose à 0. */

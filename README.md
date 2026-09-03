@@ -265,21 +265,19 @@ Le site reste statique et compatible Cloudflare Pages (aucune compilation).
   site, notamment l'atelier du Capital, Livre I. Voir « Mise en route
   Supabase » ci-dessous.
 
-- **Phase 3 — notes publiques + modération** *(en cours)*
+- **Phase 3 — notes publiques + modération** *(fait)*
   Table `public_notes` (forum) : notes publiques ancrées à un passage, avec
   fils de réponses, lisibles par tous, écriture réservée aux comptes ayant un
-  pseudo. **Fait** : la mécanique du forum (table + RLS, panneau « Notes
-  partagées », publication, réponses, suppression de ses contributions, saut
-  au passage) **et la modération** (bouton « Signaler », table `reports`,
-  rôle modérateur via la table `moderators`, masquage/affichage des notes,
-  file de signalements côté modérateur) **et une première couche RGPD** (avis
-  de confidentialité accessible partout, et « Supprimer mes données » qui
-  efface annotations, notes/réponses publiques, pseudo et signalements de
-  l'utilisateur). **À faire avant d'ouvrir au public** : compléter le texte de
-  l'avis de confidentialité (passages entre crochets), prévoir la suppression
-  *complète* du compte `auth.users` (fonction côté serveur / Edge Function),
-  et éventuellement des notes éditoriales / mise en avant. Tant que ces
-  garde-fous ne sont pas complets, garder l'accès restreint.
+  pseudo. La mécanique du forum (table + RLS, panneau « Notes partagées »,
+  publication, réponses, suppression de ses contributions, saut au passage),
+  la modération (bouton « Signaler », table `reports`, rôle modérateur via la
+  table `moderators`, masquage/affichage des notes, file de signalements côté
+  modérateur) et l'apparat légal complet (mentions légales, CGU, avis de
+  confidentialité conforme RGPD, sur `/mentions-legales`) sont en place. La
+  suppression de compte (bouton « Supprimer mon compte ») efface la ligne
+  `auth.users` elle-même via la fonction Edge `delete-account` (voir
+  « Fonction Edge : suppression de compte » ci-dessous), pas seulement les
+  données applicatives — c'est ce qui rend le droit à l'effacement réel.
 
   > **Se désigner modérateur** : Supabase → Authentication → Users → copier
   > son UID, puis Table Editor → `moderators` → Insert (coller l'UID), ou en
@@ -334,3 +332,64 @@ est l'identité publique réservée au futur forum ; l'e-mail reste privé.
 > **Si tu mets à jour un projet Supabase déjà créé** : re-exécute simplement
 > `supabase/schema.sql` en entier dans le SQL Editor — il est idempotent et
 > ajoute la table `profiles` sans toucher aux annotations existantes.
+
+---
+
+## Fonction Edge : suppression de compte
+
+`supabase/functions/delete-account/` — supprime **définitivement** la ligne
+`auth.users` de l'appelant (identifié par son propre jeton, jamais par un
+identifiant reçu dans la requête). C'est ce qui rend le bouton « Supprimer
+mon compte » (Mon compte → *Compte* → zone de danger) réel et pas seulement
+applicatif : sans cette fonction, `auth.users` — l'e-mail, l'historique de
+connexion — resterait en base après un « effacement » qui n'en efface qu'une
+partie.
+
+**Déploiement** (une fois, ou après modification du fichier) :
+
+```bash
+supabase functions deploy delete-account --no-verify-jwt --project-ref <ref-du-projet>
+```
+
+`--no-verify-jwt` laisse passer le préflight CORS du navigateur ; c'est la
+fonction elle-même qui vérifie le jeton, dans son propre code. Les trois
+variables `SUPABASE_URL` / `SUPABASE_ANON_KEY` / `SUPABASE_SERVICE_ROLE_KEY`
+sont injectées automatiquement par Supabase — rien à configurer côté
+tableau de bord au-delà du déploiement.
+
+**Vérifier qu'elle est en ligne**, sans compte de test :
+
+```bash
+curl -X POST https://<ref-du-projet>.supabase.co/functions/v1/delete-account
+```
+
+Une réponse `401 {"error":"Non authentifié."}` confirme qu'elle est déployée
+et qu'elle refuse bien tout appel sans jeton. Un `404` ou une erreur de
+connexion signifierait qu'elle ne l'est pas — le bouton « Supprimer mon
+compte » échouerait alors silencieusement dans le navigateur.
+
+⚠️ **Le cascade n'est vérifiable qu'en base**, pas depuis ce dépôt : `profiles`,
+`annotations`, `public_notes`, `direct_messages` et `reading_progress` ne sont
+pas créées par `supabase/schema.sql` (elles ont été créées à la main dans le
+tableau de bord, comme `moderators`/`reports` à l'origine). Pour confirmer
+que la suppression de `auth.users` efface bien tout en cascade, exécuter dans
+le **SQL Editor** :
+
+```sql
+select
+  tc.table_name, kcu.column_name, rc.delete_rule
+from information_schema.table_constraints tc
+join information_schema.key_column_usage kcu
+  on tc.constraint_name = kcu.constraint_name
+join information_schema.referential_constraints rc
+  on tc.constraint_name = rc.constraint_name
+join information_schema.constraint_column_usage ccu
+  on rc.unique_constraint_name = ccu.constraint_name
+where tc.constraint_type = 'FOREIGN KEY'
+  and ccu.table_schema = 'auth' and ccu.table_name = 'users';
+```
+
+Chaque table qui porte des données personnelles doit y apparaître avec
+`delete_rule = CASCADE`. Une ligne absente de ce résultat, ou portant
+`NO ACTION`/`RESTRICT`, signifie que ses données survivent à la suppression
+du compte — ce qui contredirait l'avis de confidentialité (`/mentions-legales`).

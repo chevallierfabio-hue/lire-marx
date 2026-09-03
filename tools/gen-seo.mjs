@@ -127,7 +127,10 @@ const SITE_PAGES = [
   /* /a-propos — page-FICHIER, donc SANS extension et SANS slash final.
      C'est l'autre moitié de la règle du slash rappelée juste au-dessus :
      un dossier prend son slash, un fichier n'en prend pas. */
-  { file: 'a-propos.html',             url: '/a-propos',               priority: '0.6', changefreq: 'yearly' }
+  { file: 'a-propos.html',             url: '/a-propos',               priority: '0.6', changefreq: 'yearly' },
+  /* /mentions-legales — page-FICHIER elle aussi. Priorité basse : ce n'est
+     pas une page qu'on cherche, mais elle doit rester trouvable. */
+  { file: 'mentions-legales.html',     url: '/mentions-legales',       priority: '0.3', changefreq: 'yearly' }
 ];
 
 /* HORS SITEMAP, et c'est un choix motivé — voir CLAUDE.md :
@@ -229,6 +232,7 @@ const PIED_FIN = '<!-- PIED:FIN -->';
 const PIED_PAGES = [
   'index.html',
   'a-propos.html',
+  'mentions-legales.html',
   'oeuvres/bibliotheque.html',
   'oeuvres/capital-1.html',
   'oeuvres/manuscrits-1844.html',
@@ -273,7 +277,7 @@ ${lien('/jeu/', 'Le circuit du capital')}
 ${lien('/', 'Accueil')}
 ${lien('/oeuvres/place-publique', 'Place publique')}
 ${lien('/a-propos', 'À propos')}
-          <li><button type="button" class="lm-foot-cgu">CGU &amp; confidentialité</button></li>
+${lien('/mentions-legales', 'CGU & confidentialité')}
         </ul>
       </div>
     </nav>

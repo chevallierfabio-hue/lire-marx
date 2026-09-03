@@ -116,7 +116,10 @@
            n'écrivait. La page existe : c'est une ANCRE, comme toute
            destination. */
         '<a class="sb-item" href="/a-propos" data-act="apropos"><span class="sb-dot" style="background:var(--ink-soft)"></span>À propos</a>' +
-        '<button class="sb-item" type="button" data-act="cgu"><span class="sb-dot" style="background:var(--ink-soft)"></span>CGU &amp; règles</button>' +
+        /* « CGU & règles » mène désormais à une vraie page — mentions
+           légales, conditions d'utilisation et confidentialité en un seul
+           document — et non plus à une modale. C'est donc une ANCRE. */
+        '<a class="sb-item" href="/mentions-legales" data-act="cgu"><span class="sb-dot" style="background:var(--ink-soft)"></span>CGU &amp; règles</a>' +
         sbWork +
       '</aside>'
     );
@@ -132,32 +135,6 @@
         '<div class="acct-modal-box" role="dialog" aria-modal="true" aria-label="Mon compte">' +
           '<button class="acct-modal-x" type="button" aria-label="Fermer">&times;</button>' +
           '<div id="acctView"></div>' +
-        '</div>' +
-      '</div>'
-    );
-  }
-
-  // Texte canonique copié depuis capital-1.html (l. 484-493). Les
-  // passages [À COMPLÉTER : …] restent tels quels — c'est à Fabio de
-  // les remplir, pas au shell de les inventer. La suppression de
-  // compte est déjà active partout via SHELL.auth.eraseMyData (bouton
-  // « Supprimer mon compte » dans Mon compte).
-  function buildPrivacyModal(){
-    return el(
-      '<div id="privacyModal" class="acct-modal" hidden>' +
-        '<div class="acct-modal-box" role="dialog" aria-modal="true" aria-label="Confidentialité">' +
-          '<button class="acct-modal-x" type="button" aria-label="Fermer">&times;</button>' +
-          '<div class="ac-card privacy-text">' +
-            '<h3>Confidentialité &amp; données</h3>' +
-            '<p class="pz-warn">Modèle de départ, à relire et compléter (les passages entre crochets) ; ce n\'est pas un conseil juridique.</p>' +
-            '<p><b>Responsable.</b> [À COMPLÉTER : nom ou structure, et qualité]. Contact : [À COMPLÉTER : adresse e-mail].</p>' +
-            '<p><b>Données traitées.</b> Adresse e-mail (connexion uniquement, jamais affichée), pseudo (public), annotations privées, notes et réponses publiques, signalements. Aucune donnée n\'est revendue ni utilisée à des fins publicitaires.</p>' +
-            '<p><b>Finalités &amp; base légale.</b> Fournir la lecture annotée, la synchronisation entre appareils et les notes partagées modérées (exécution du service demandé) ; assurer la modération et la sécurité (intérêt légitime).</p>' +
-            '<p><b>Hébergement.</b> Authentification et base de données via Supabase. [À COMPLÉTER : région d\'hébergement, par ex. Union européenne].</p>' +
-            '<p><b>Conservation.</b> Vos données sont conservées tant que votre compte existe, et supprimées à votre demande.</p>' +
-            '<p><b>Vos droits (RGPD).</b> Accès, rectification, effacement, opposition. Vous pouvez supprimer vous-même votre compte et l\'ensemble de vos données depuis « Mon compte » → <i>Compte</i> → <i>Supprimer mon compte</i> (effacement définitif et immédiat). Pour toute autre demande : [À COMPLÉTER : adresse e-mail].</p>' +
-            '<p><b>Stockage local.</b> Le site conserve vos surlignages et votre session de connexion dans votre navigateur. C\'est un stockage <i>fonctionnel</i> (nécessaire au service), sans pistage ni cookie publicitaire.</p>' +
-          '</div>' +
         '</div>' +
       '</div>'
     );
@@ -225,6 +202,8 @@
     if(/^\/glossaire(\/|$)/.test(here)) mark(gloBtn);
     var aproposBtn = sb.querySelector('[data-act="apropos"]');
     if(/^\/a-propos$/.test(here)) mark(aproposBtn);
+    var cguBtn = sb.querySelector('[data-act="cgu"]');
+    if(/^\/mentions-legales$/.test(here)) mark(cguBtn);
     var jeuBtn = sb.querySelector('[data-act="jeu"]');
     if(/^\/jeu\/?$/.test(here) || /^\/jeu\/jouer$/.test(here)) mark(jeuBtn);
 
@@ -242,31 +221,11 @@
         if(window.matchMedia('(max-width:860px)').matches){
           document.body.classList.remove('sb-open');
         }
-        // CGU & règles / Confidentialité : modale RGPD de SHELL.auth.
-        // Ce n'est pas une page, l'entrée reste donc un <button>.
-        if(act === 'cgu'){
-          if(window.SHELL && window.SHELL.auth && window.SHELL.auth.openPrivacy){
-            window.SHELL.auth.openPrivacy();
-          }
-          return;
-        }
         // Messages : ne pas recharger la page qu'on regarde — un
         // rechargement y referme la conversation ouverte. (Les URL propres
         // de Cloudflare font que les deux formes doivent être testées.)
         if(act === 'messages' && /\/oeuvres\/messages(\.html)?$/.test(location.pathname)){
           e.preventDefault();
-        }
-      });
-    });
-
-    /* Le pied de page appartient au HTML de la page (il doit être SERVI),
-       mais son bouton CGU ouvre une modale que seul le shell possède : c'est
-       donc ici qu'on le câble, et non dans chacune des vingt-deux pages.
-       C'est un <button> et non une ancre — une ACTION, pas une destination. */
-    document.querySelectorAll('.lm-foot-cgu').forEach(function(b){
-      b.addEventListener('click', function(){
-        if(window.SHELL && window.SHELL.auth && window.SHELL.auth.openPrivacy){
-          window.SHELL.auth.openPrivacy();
         }
       });
     });
@@ -592,7 +551,6 @@
     document.querySelector('header.topbar').after(sidebar);
     sidebar.after(buildBackdrop());
     body.appendChild(buildAcctModal());
-    body.appendChild(buildPrivacyModal());
     wire(cfg);
     // Branche SHELL.auth sur le shell installé (chip + modales) et amorce
     // le client Supabase + l'état d'auth. Sans erreur si config absente.
@@ -670,7 +628,6 @@
   var listeners = [];
   var loggedInRenderer = null;     // fn(container, ctx) — fourni par la page
   var modalEl = null;              // élément #acctModal installé par installShell
-  var privacyEl = null;            // élément #privacyModal
   var chipEl = null;               // élément #acctChip (topbar)
 
   function emit(){
@@ -780,20 +737,6 @@
     document.body.style.overflow = '';
     leaveModal(modalEl);
   }
-  function openPrivacy(){
-    if(!privacyEl) privacyEl = document.getElementById('privacyModal');
-    if(!privacyEl) return;
-    privacyEl.hidden = false;
-    document.body.style.overflow = 'hidden';
-    enterModal(privacyEl);
-  }
-  function closePrivacy(){
-    if(!privacyEl) return;
-    privacyEl.hidden = true;
-    leaveModal(privacyEl);
-    if(!modalEl || modalEl.hidden) document.body.style.overflow = '';
-  }
-
   // ----- flows Supabase --------------------------------------------------
   /* Les messages de GoTrue arrivent en anglais : « Invalid login
      credentials » est la phrase que le lecteur voit le plus souvent sur un
@@ -1210,7 +1153,7 @@
 
     var carnet = !!(window.SHELL && window.SHELL.annotations && window.SHELL.annotations.allNotes);
     h += '<div class="ac-sec"><p class="ac-sec-h">Vos données</p><div class="ac-row">'
-      + '<button class="ac-btn" data-act="privacy" type="button">Confidentialité &amp; données</button>'
+      + '<a class="ac-btn" href="/mentions-legales#confidentialite">Confidentialité &amp; données</a>'
       + (carnet ? '<button class="ac-btn" data-act="export" type="button">Télécharger mon carnet</button>' : '')
       + '</div>'
       + (carnet ? '<p class="ac-note">Un fichier JSON avec les passages et les notes de ce navigateur.</p>' : '')
@@ -1321,7 +1264,7 @@
                 signup ? 'signup' : 'signin', 'Se connecter ou créer un compte')
       + '<div class="ac-pane" id="acPane" role="tabpanel" aria-labelledby="acTab-' + (signup ? 'signup' : 'signin') + '">'
       + err + ok + guestBody(signup, inv)
-      + '<div class="ac-foot"><button class="ac-quiet" data-act="privacy" type="button">Confidentialité &amp; données</button>'
+      + '<div class="ac-foot"><a class="ac-quiet" href="/mentions-legales#confidentialite">Confidentialité &amp; données</a>'
       + '<span class="ac-pv-when">Aucun pistage, aucun cookie publicitaire.</span></div>'
       + '</div></div>';
     wireModalActions(slot);
@@ -1346,7 +1289,6 @@
           updatePassword(pw).then(function(r){ if(r && r.ok){ view.pwOpen = false; renderModal(); } });
         }
         else if(a === 'signout'){ signOut(); }
-        else if(a === 'privacy'){ openPrivacy(); }
         else if(a === 'export'){
           view.err = ''; view.notice = '';
           if(exportCarnet()) view.notice = 'Carnet téléchargé.';
@@ -1523,19 +1465,13 @@
   function wireChrome(){
     if(!chipEl) chipEl = document.getElementById('acctChip');
     if(!modalEl) modalEl = document.getElementById('acctModal');
-    if(!privacyEl) privacyEl = document.getElementById('privacyModal');
     if(chipEl){ chipEl.onclick = function(){ view.err = ''; view.notice = ''; openModal(); }; }
     if(modalEl){
       modalEl.addEventListener('click', function(e){ if(e.target === modalEl) closeModal(); });
       var x = modalEl.querySelector('.acct-modal-x'); if(x) x.onclick = closeModal;
     }
-    if(privacyEl){
-      privacyEl.addEventListener('click', function(e){ if(e.target === privacyEl) closePrivacy(); });
-      var xp = privacyEl.querySelector('.acct-modal-x'); if(xp) xp.onclick = closePrivacy;
-    }
     document.addEventListener('keydown', function(e){
       if(e.key !== 'Escape') return;
-      if(privacyEl && !privacyEl.hidden){ closePrivacy(); return; }
       if(modalEl && !modalEl.hidden){ closeModal(); }
     });
   }
@@ -1621,7 +1557,6 @@
     resetPassword: resetPassword, updatePassword: updatePassword,
     // UI
     openModal: openModal, closeModal: closeModal,
-    openPrivacy: openPrivacy, closePrivacy: closePrivacy,
     /* Mis à disposition de shell-social.js : sa modale Contacts reprend le
        même motif et souffrait des mêmes défauts de focus. */
     _enterModal: enterModal, _leaveModal: leaveModal,
