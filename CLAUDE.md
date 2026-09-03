@@ -5302,6 +5302,109 @@ n'est plus technique : **aucune page « À propos », aucun auteur nommé, aucun
 contact**, et **aucun lien entrant externe** — `sameAs` ne contient que le
 dépôt GitHub. C'est là que se joue la suite.
 
+## La page qui dit qui parle (mission `a-propos`, sept. 2026)
+
+Le site servait deux œuvres en texte intégral, soixante-quinze notions, un jeu
+et un appareil critique écrit à la main — et ne disait **nulle part** qui l'a
+fait, sur quelles éditions, ni comment le joindre. C'était le trou le plus
+large côté autorité, et le dernier levier entièrement dans le dépôt : face à
+Wikisource, l'UQAC et les universités, un site anonyme n'est pas une source
+qu'un moteur de réponse met en avant.
+
+`/a-propos` — page-**FICHIER**, donc sans extension et **sans slash final** :
+l'autre moitié de la règle dont `/jeu/` porte la première.
+
+### Ce qu'elle affirme, et ce qu'elle refuse d'affirmer
+
+Le site est signé **maradomarx** — un lecteur de longue date, largement
+autodidacte, formation en sciences sociales, développeur de métier. Un
+pseudonyme est une identité, et une identité stable vaut infiniment mieux
+qu'une page anonyme.
+
+Et la page écrit noir sur blanc que **l'appareil critique de ce site n'est pas
+une source universitaire** : ni relu par des pairs, ni adossé à une
+institution. **Une page « À propos » qui gonfle sa légitimité produit
+l'inverse de ce qu'elle cherche** — celle-ci dit ce qu'elle est, ce qui permet
+au lecteur de juger. Elle raconte d'ailleurs l'affaire Bottigelli : une
+mention fausse affichée des mois, puis corrigée après enquête. C'est un gage
+de sérieux plus fort qu'une déclaration d'exactitude.
+
+Elle dit aussi que **rien n'y est produit automatiquement** — résumés,
+définitions, cheminement, chronologie et simulations sont écrits et vérifiés
+un par un. C'est vrai, et c'est ce qui distingue ce site de ce qui se publie
+en masse sur les mêmes mots-clés.
+
+### Le nom vit dans UNE constante
+
+`AUTEUR` dans `gen-seo.mjs`. Il est affirmé à deux endroits — le corps de la
+page et le `founder` de son JSON-LD — et **un schéma qui nommerait l'auteur
+autrement que la page serait un mensonge lisible par machine**. Même raison
+pour la notice des sources et le `AboutPage`, tous deux dérivés de `EDITION` :
+une notice qui divergerait du pied de page et des `Book` serait pire que pas
+de notice — c'est exactement l'erreur de l'affaire Palmier.
+
+Le JSON-LD n'affirme QUE ce que la page imprime : `AboutPage` +
+`Organization` (avec l'`@id` déjà posé sur l'accueil) + `Person`. **Pas de
+`jobTitle`, pas d'affiliation, pas de `sameAs` invérifiable.**
+
+### La forme : aucune animation, délibérément
+
+Page « de site » : pas d'`atelier.css`, tokens redéclarés avec le jeu corrigé,
+corps en **Spectral** comme les pages de notion — c'est le second endroit du
+site, avec la liseuse, où l'on tient plusieurs centaines de mots d'affilée.
+
+**Et pas un seul geste.** La règle de la maison est que le mouvement doit être
+pertinent vis-à-vis de ce qu'il exprime : c'est une notice, on y vient
+chercher un fait précis, on la lit une fois. Un mouvement y serait décoratif,
+c'est-à-dire ce que le projet refuse partout ailleurs. Ne pas « l'animer pour
+faire comme les autres pages ».
+
+### `contact@liremarx.com` existe vraiment
+
+Cloudflare Email Routing, vérifié au DNS avant de publier l'adresse : MX sur
+`route1/2/3.mx.cloudflare.net`, SPF `include:_spf.mx.cloudflare.net`, DMARC
+`p=none`. **Une adresse qui rebondit est pire que pas d'adresse** — pour un
+lecteur comme pour un moteur. Le test d'envoi depuis Gmail vers soi-même est
+INCONCLUANT (Gmail dédoublonne) : c'est le DNS qui prouve le routage, et un
+envoi depuis une autre adresse qui prouve la remise.
+
+### Deux pièges
+
+1. **`shell.css` oublié dans le `<head>`.** La coquille et le pied de page
+   tombaient sur les styles par défaut : liens de pied de page à **2,01:1**,
+   16 px. **Toute page neuve qui monte la coquille doit charger `shell.css`,
+   avec son `?v=`.** Trouvé par la sonde, jamais à l'œil.
+2. **⚠️ J'AI FAILLI « CORRIGER » UNE CASCADE CORRECTE.** La sonde donnait le
+   bouton « Se connecter » à **1,1:1**, sombre sur sombre — et le défaut se
+   reproduisait sur `/jeu/` et `/glossaire/`, ce qui ressemblait à un bug
+   antérieur sur quinze pages. Il n'y en a aucun : `.acct-chip` porte
+   `transition:background .16s`, **les transitions sont gelées dans une pane
+   masquée**, et la mesure attrapait le fond À MI-TRANSITION. `color` n'étant
+   pas dans la liste des propriétés animées, il avait déjà changé — d'où un
+   couple incohérent, très convaincant. Transition neutralisée : **15,68:1**.
+   Le piège était documenté ; la leçon qui manquait est qu'il faut neutraliser
+   `transition` ET `animation` **avant** de mesurer, pas après avoir douté.
+
+### Vérifié
+
+Sonde de contraste, transitions et animations neutralisées : **0 échec sur 76
+mesures**, minimum 4,14 — le faux positif documenté (`--accent` sur `--bg`,
+sur un `em` mesuré à **49,6 px**, dont le seuil est 3:1). Plus petit texte
+11,5 px, aucune cible sous 24 × 24. `detect.mjs` : **5 constats, 0 erreur** —
+dont le `flat-type-hierarchy` habituel, faux positif faute de résoudre les
+`clamp()`. Testé à 1280 et 375 px, zéro débordement. Puis **en production** :
+`/a-propos` en 200 sans redirection, `/a-propos.html` en 308, canonique juste,
+signature et sources dérivées présentes, sidebar marquée, pied de page à huit
+liens, **les vingt URL du sitemap en 200 sans redirection**, console propre.
+
+### Ce qui reste, et ce n'est plus dans le dépôt
+
+**Les liens entrants externes.** `sameAs` ne contient que le dépôt GitHub, et
+c'est le bon réflexe — on n'invente pas un profil. Il faut en gagner de vrais :
+Wikidata, les liens externes des articles Wikipédia FR, les profs de SES et de
+philo (le jeu est le meilleur argument auprès d'eux). C'est la variable la
+plus lourde et la seule qui ne se code pas.
+
 ## Conventions de travail
 
 - **Une mission par session.** Une demande utilisateur = un objectif clair,
