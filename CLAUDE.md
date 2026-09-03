@@ -5316,10 +5316,20 @@ l'autre moitié de la règle dont `/jeu/` porte la première.
 
 ### Ce qu'elle affirme, et ce qu'elle refuse d'affirmer
 
-Le site est signé **maradomarx** — un lecteur de longue date, largement
-autodidacte, formation en sciences sociales, développeur de métier. Un
-pseudonyme est une identité, et une identité stable vaut infiniment mieux
-qu'une page anonyme.
+Le site est signé **maradomarx** — **étudiant en philosophie**, lecteur de
+Marx de longue date. Un pseudonyme est une identité, et une identité stable
+vaut infiniment mieux qu'une page anonyme.
+
+⚠️ **La première version disait « largement autodidacte, formation en sciences
+sociales, développeur de métier ». C'était FAUX**, et publié dans la section
+même qui réclame la confiance du lecteur. Le profil avait été construit à
+partir d'options que j'avais proposées, sans qu'aucune soit confirmée fait par
+fait. C'est la seconde mention biographique fausse publiée puis retirée de ce
+site, après « J.-M. Palmier · domaine public ». **La règle : on ne comble pas
+un blanc par une supposition plausible, fût-elle vraisemblable.** Le sujet de
+ses travaux universitaires n'est nommé nulle part — ni sur la page, ni dans
+les messages de commit, qui sont publics : arbitrage explicite du
+propriétaire.
 
 Et la page écrit noir sur blanc que **l'appareil critique de ce site n'est pas
 une source universitaire** : ni relu par des pairs, ni adossé à une
@@ -5347,17 +5357,83 @@ Le JSON-LD n'affirme QUE ce que la page imprime : `AboutPage` +
 `Organization` (avec l'`@id` déjà posé sur l'accueil) + `Person`. **Pas de
 `jobTitle`, pas d'affiliation, pas de `sameAs` invérifiable.**
 
-### La forme : aucune animation, délibérément
+### La forme — LA PAGE FAIT CE QU'ELLE DÉCRIT (refonte, sept. 2026)
 
 Page « de site » : pas d'`atelier.css`, tokens redéclarés avec le jeu corrigé,
 corps en **Spectral** comme les pages de notion — c'est le second endroit du
 site, avec la liseuse, où l'on tient plusieurs centaines de mots d'affilée.
 
-**Et pas un seul geste.** La règle de la maison est que le mouvement doit être
-pertinent vis-à-vis de ce qu'il exprime : c'est une notice, on y vient
-chercher un fait précis, on la lit une fois. Un mouvement y serait décoratif,
-c'est-à-dire ce que le projet refuse partout ailleurs. Ne pas « l'animer pour
-faire comme les autres pages ».
+**La première version était une colonne sobre sans aucun geste**, et je l'avais
+défendue comme telle. Le propriétaire a demandé une refonte, et le diagnostic
+lui a donné raison : cinq sections traitées à l'identique (titre +
+paragraphes), aucune matière, et les trois choses qui comptent — la signature,
+l'aveu de non-universitarité, les sources — pesaient exactement autant que le
+reste. Plus une redondance : « À propos » était écrit **trois fois** dans le
+premier écran (fil d'Ariane, sur-titre, titre). Le sur-titre est supprimé.
+
+**La forme est devenue l'argument.** Le geste signature du site est « le texte
+au centre, l'appareil en marge du chapitre » — ce que fait l'atelier, et ce que
+cette page RACONTAIT. Elle l'adopte : `.ap-bloc` est une grille
+`marge | texte` que **chaque section rejoue**, si bien que chaque note est à la
+hauteur exacte du passage qu'elle annote. Pas une ligne de JS pour ça. C'est la
+seule forme que cette page pouvait prendre en propre : personne ne peut la
+copier sans copier la méthode.
+
+**La marge a le droit d'être vide, et une section l'est.** De la marginalia
+partout n'est plus de la marginalia : c'est le vide qui donne son poids au
+reste. Ne pas « remplir » les marges vides.
+
+**Les chiffres de la marge sont RELEVÉS, pas estimés** : 33 chapitres (les clés
+de `META`, de I à XXXIII), 3 cahiers (`MAN_STRUCT`), 75 notions et 12 œuvres
+comptés dans les fichiers. Un chiffre faux dans une page qui réclame la
+confiance coûte plus qu'il ne rapporte.
+
+**Sous 900 px la marge passe AU-DESSUS de sa section, jamais dessous** : sous
+le texte elle serait hors de vue au moment où elle sert — le piège déjà payé
+par la marge de l'atelier, qui atterrissait à deux cent mille pixels du
+lecteur. Et elle prend alors son propre blanc (`margin-bottom`), sans quoi la
+signature colle au titre qu'elle annote.
+
+### Le geste, et il n'y en a qu'un
+
+Les notes de marge **s'inscrivent** à mesure qu'on descend, comme on porte une
+annotation en lisant. **Le texte, lui, ne bouge jamais** — règle posée pour la
+colonne de lecture de l'atelier, et elle vaut ici : on vient lire. Piloté par
+la POSITION donc réversible (vérifié : on remonte, les notes se rangent), armé
+par `js-ap` que le module pose seul ; sans JS, sous 900 px ou en
+reduced-motion, la règle n'existe pas et la page est déjà dans son état fini.
+
+⚠️ **LE PIÈGE DE LA MESURE UNIQUE, dans une variante que le projet n'avait pas
+encore rencontrée** : ce script s'exécute **avant `shell.js`**, qui monte
+ensuite la topbar et la sidebar et déplace donc tout le contenu — la première
+mesure porte sur une mise en page qui n'est pas la bonne. D'où
+`requestAnimationFrame` + `setTimeout(400)` + `load` + `fonts.ready`, le motif
+de `libraryScrub`. Sans eux, une note pouvait rester à zéro tant qu'on n'avait
+pas défilé. **Tout script inline d'une page qui monte la coquille mesure une
+page provisoire.**
+
+Deux surfaces que le navigateur dessinait encore à notre place prennent le
+thème : `::selection` (la bibliothèque et le carnet le font déjà) et l'anneau
+de focus.
+
+### La voix, et le style
+
+**La section « Qui le tient » est à la première personne — et elle seule.** Le
+site continue d'être décrit à la troisième. Une page « qui suis-je » écrite sur
+soi à la troisième personne sonne faux, et celle-ci le faisait.
+
+Le propriétaire a renvoyé à ses propres écrits pour la manière. Ce qui en a été
+repris, et rien d'autre : **des phrases articulées plutôt que courtes**, la
+causalité explicitée (« en cela que », « dès lors que », « or »), l'habitude de
+**justifier l'ordre** dans lequel une chose est dite, un vocabulaire précis, et
+**aucun slogan**. Aucun contenu emprunté. Toute retouche future de ce texte
+doit tenir ce registre — une phrase courte et frappante y détonnerait.
+
+Le texte y a gagné un argument qu'il n'avait pas : la disposition du site est
+désormais justifiée par ce qu'elle résout — *la difficulté du Capital n'est pas
+celle de son vocabulaire mais celle de son ordre, dès lors que chaque chapitre
+suppose acquis ce que le précédent a établi*. La page disait ce qu'elle
+faisait ; elle dit maintenant pourquoi.
 
 ### `contact@liremarx.com` existe vraiment
 
@@ -5387,12 +5463,16 @@ envoi depuis une autre adresse qui prouve la remise.
 
 ### Vérifié
 
-Sonde de contraste, transitions et animations neutralisées : **0 échec sur 76
-mesures**, minimum 4,14 — le faux positif documenté (`--accent` sur `--bg`,
+Sonde de contraste, transitions et animations neutralisées : **0 échec** —
+76 mesures avant la refonte, **91 après**, minimum 4,14 — le faux positif documenté (`--accent` sur `--bg`,
 sur un `em` mesuré à **49,6 px**, dont le seuil est 3:1). Plus petit texte
-11,5 px, aucune cible sous 24 × 24. `detect.mjs` : **5 constats, 0 erreur** —
+11,5 px, aucune cible sous 24 × 24. `detect.mjs` : **6 constats, 0 erreur** —
 dont le `flat-type-hierarchy` habituel, faux positif faute de résoudre les
-`clamp()`. Testé à 1280 et 375 px, zéro débordement. Puis **en production** :
+`clamp()` (le h1 fait 54 px, pas 21). Les deux cibles à 17 px sont les liens de
+source **en ligne dans une phrase**, cas que WCAG 2.5.8 exempte explicitement :
+ne pas en faire des boutons pour satisfaire une sonde qui ignore l'exception.
+Le scrub a été relevé position par position à la sonde temporaire, retirée
+avant le commit. Testé à 1280 et 375 px, zéro débordement. Puis **en production** :
 `/a-propos` en 200 sans redirection, `/a-propos.html` en 308, canonique juste,
 signature et sources dérivées présentes, sidebar marquée, pied de page à huit
 liens, **les vingt URL du sitemap en 200 sans redirection**, console propre.
