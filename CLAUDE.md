@@ -5335,9 +5335,13 @@ Et la page écrit noir sur blanc que **l'appareil critique de ce site n'est pas
 une source universitaire** : ni relu par des pairs, ni adossé à une
 institution. **Une page « À propos » qui gonfle sa légitimité produit
 l'inverse de ce qu'elle cherche** — celle-ci dit ce qu'elle est, ce qui permet
-au lecteur de juger. Elle raconte d'ailleurs l'affaire Bottigelli : une
-mention fausse affichée des mois, puis corrigée après enquête. C'est un gage
-de sérieux plus fort qu'une déclaration d'exactitude.
+au lecteur de juger.
+
+La page a un temps RACONTÉ l'affaire Bottigelli — la mention fausse affichée
+des mois, puis corrigée après enquête. **Le propriétaire l'a fait retirer**, et
+la phrase sur les licences s'arrête désormais à « le site ne prétend pas le
+contraire ». Ne pas la réintroduire : une page « À propos » n'a pas à étaler
+ses propres errata, l'engagement suffit.
 
 Elle dit aussi que **rien n'y est produit automatiquement** — résumés,
 définitions, cheminement, chronologie et simulations sont écrits et vérifiés
