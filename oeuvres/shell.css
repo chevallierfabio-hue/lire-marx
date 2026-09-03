@@ -569,13 +569,6 @@ body.at-reading .notes-fab{display:inline-flex;}
 .lm-foot-col a:hover,.lm-foot-cgu:hover{color:var(--gold);}
 .lm-foot-col a:focus-visible,.lm-foot-cgu:focus-visible{outline:2px solid var(--gold);
   outline-offset:3px;border-radius:3px;}
-.lm-foot-colophon{margin:36px 0 0;padding-top:18px;border-top:1px solid var(--line-soft);
-  max-width:94ch;font-size:.76rem;line-height:1.6;color:var(--const);}
-/* `atelier.css` pose un `b{font-family:'Fraunces'}` — le colophon rendait donc
-   en serif sur les pages qui la chargent et en Inter sur les autres. Fraunces
-   est réservée aux TITRES : on la redit ici, sinon le pied de page n'a pas la
-   même typographie d'une moitié du site à l'autre. */
-.lm-foot-colophon b{font-family:var(--f-ui);font-weight:600;color:var(--ink-soft);}
 @media(max-width:860px){
   .lm-foot{margin-top:64px;padding:36px 20px 28px;}
   .lm-foot-in{grid-template-columns:1fr;gap:28px;}

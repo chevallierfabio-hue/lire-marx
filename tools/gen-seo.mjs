@@ -56,10 +56,13 @@ const EDITION = {
     // loadSection() appelle fr.wikisource.org — c'est la source réelle du
     // texte affiché, pas une référence de politesse.
     source: { name: 'Le Capital sur Wikisource', url: 'https://fr.wikisource.org/wiki/Le_Capital' },
-    // Ligne de colophon du pied de page. Elle est ici et non dans le gabarit
-    // parce que c'est un FAIT D'ÉDITION, au même titre que le traducteur —
-    // et parce qu'un colophon doit pouvoir être relu à côté de ce qu'il
-    // affirme. Elle peut dire « domaine public » : Roy est mort en 1900.
+    // La ligne de provenance. Elle a d'abord servi le colophon du pied de
+    // page, retiré depuis sur demande du propriétaire ; elle alimente
+    // désormais la notice des sources de /a-propos, qui est son seul et bon
+    // endroit — c'est là qu'on vient chercher d'où vient le texte.
+    // Elle est ici parce que c'est un FAIT D'ÉDITION, au même titre que le
+    // traducteur, et qu'il doit pouvoir se relire à côté de ce qu'il affirme.
+    // Elle peut dire « domaine public » : Roy est mort en 1900.
     colophon: 'traduction Joseph Roy (1872) revue par Marx, domaine public, servie depuis Wikisource'
   },
 
@@ -242,14 +245,6 @@ function piedDePage() {
   /* Le corpus, dans l'ordre du fichier — le même que la bibliothèque. */
   const corpus = available.map(w => lien(hrefOf(w), w.title)).join('\n');
 
-  /* Le colophon : une ligne par œuvre servie, avec sa provenance réelle.
-     Il reprend ce que disaient les deux vieux pieds de page des ateliers,
-     que celui-ci remplace — et il le dit sur les vingt-deux pages, ce qui
-     est le propre d'un colophon. */
-  const colophon = available
-    .map(w => `<b>${esc(w.title)}</b> — ${esc(EDITION[w.id].colophon)}.`)
-    .join(' ');
-
   return `
 <footer class="lm-foot wrap">
   <div class="lm-foot-in">
@@ -283,7 +278,6 @@ ${lien('/a-propos', 'À propos')}
       </div>
     </nav>
   </div>
-  <p class="lm-foot-colophon">${colophon} Appareil critique, simulations et organisation éditoriale&nbsp;: Lire Marx.</p>
 </footer>
 `;
 }

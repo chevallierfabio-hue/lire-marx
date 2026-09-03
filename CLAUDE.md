@@ -5179,16 +5179,19 @@ notion, générées en entier (elles n'ont donc pas de marqueurs).
 
 - **Le corpus se lit dans `bibliotheque.json`** : une troisième œuvre passée
   en `available` apparaîtra partout sans qu'on touche à rien.
-- **Le colophon se lit dans `EDITION`**, où chaque œuvre a un champ
-  `colophon`. C'est un fait d'édition, il vit à côté du traducteur et de la
-  licence — et il se relit à côté de ce qu'il affirme. Celui des Manuscrits
+⚠️ **Le colophon a été RETIRÉ du pied de page** (sept. 2026, demande du
+  propriétaire). Il donnait sur les vingt-deux pages la provenance de chaque
+  traduction ; cette information vit désormais au seul endroit où on vient la
+  chercher — la notice des sources de `/a-propos`. Le champ `colophon`
+  d'`EDITION` reste, puisque c'est lui qui l'alimente, et son commentaire dit
+  ce changement. Ne pas le réintroduire au pied de page. Celui des Manuscrits
   ne dit **pas** « domaine public » : même silence délibéré que l'absence de
   `license`, Bottigelli est protégé jusqu'en 2046.
 
 Il **remplace** les deux vieux pieds de page des ateliers (« L'Atelier du
 Capital », « L'Atelier des Manuscrits de 1844 » — des noms qui n'existent
-plus) ; leur mention de source est reprise par le colophon, et sur les
-vingt-deux pages plutôt que sur deux. `#footPrivacy` part avec : le bouton CGU
+plus) ; leur mention de source a d'abord été reprise par le colophon du pied
+de page, puis, celui-ci retiré, par la notice des sources de `/a-propos`. `#footPrivacy` part avec : le bouton CGU
 est câblé une fois pour toutes dans shell.js, qui possède la modale.
 
 Le critère de `maillage-explorable` est tenu : les huit destinations sont des
@@ -5204,7 +5207,8 @@ de page était centré et italique sur une moitié du site, aligné à gauche et
 romain sur l'autre, et son colophon rendait en serif d'un côté, en Inter de
 l'autre. Trouvé à la mesure, pas à l'œil. **Tout composant de coquille qui
 réutilise un nom de balise déjà stylé par `atelier.css` doit redéclarer les
-propriétés concernées.**
+propriétés concernées.** (La règle qui corrigeait le `b` du colophon est
+partie avec lui ; la leçon, elle, vaut toujours.)
 
 Le pied de page porte `class="lm-foot wrap"` : c'est `.wrap` qui lui donne les
 208 px de dégagement de la sidebar **et** la transition qui le fait glisser en
@@ -5247,7 +5251,7 @@ Place publique de 7 à **8** ; le delta est deux fois le même
 `transition: margin-left` — la règle `.wrap` du shell appliquée à un élément
 de plus, **à garder** (sans elle le pied de page sauterait pendant que le
 contenu glisse) — et une fois les tirets cadratins du colophon, famille de DA
-déjà documentée.
+déjà documentée. Ce dernier constat est retombé avec le colophon.
 
 **`404.html` n'en reçoit pas**, et c'est écrit dans sa propre mission : elle
 est autonome, ne charge ni shell.js ni shell.css, et une page d'erreur ne doit
