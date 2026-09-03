@@ -30,22 +30,21 @@
 <link rel="stylesheet" href="/oeuvres/shell.css?v=2">
 <style>
 /* ═══════════════════════════════════════════════════════════════════
-   /a-propos — qui tient le site, et comment il est fait
+   /a-propos — LA PAGE FAIT CE QU'ELLE DÉCRIT
    -------------------------------------------------------------------
-   Page « de site » et non atelier : elle ne charge donc PAS atelier.css
-   (qui poserait au passage son scroll-behavior:smooth) et redéclare les
-   tokens du shell dans son :root, avec le jeu de valeurs CORRIGÉ —
-   --red-deep sur le rouge clair, plus --red-text, --line-strong, --hover.
+   Le geste signature du site est « le texte au centre, l'appareil en
+   marge du chapitre » (voir l'atelier). Cette page l'ADOPTE au lieu de
+   le raconter : la prose au centre, et en marge les faits qui
+   l'étayent — la signature, les chiffres réels, les provenances, les
+   dates. Une démonstration vaut mieux qu'une description, et c'est la
+   seule forme que cette page-ci pouvait prendre en propre.
 
-   AUCUNE ANIMATION, et c'est délibéré. La règle de la maison est que le
-   geste doit être pertinent vis-à-vis de ce qu'il exprime : cette page
-   est une notice, on y vient chercher un fait précis (qui, quelle
-   édition, comment écrire), on la lit une fois. Un mouvement y serait
-   décoratif, c'est-à-dire exactement ce que le projet refuse.
+   Page « de site » : pas d'atelier.css (qui poserait au passage son
+   scroll-behavior:smooth), tokens du shell redéclarés avec le jeu
+   CORRIGÉ, corps en Spectral comme les pages de notion.
 
-   Le corps est en SPECTRAL, comme les pages de notion : c'est le second
-   endroit du site, avec la liseuse, où l'on tient plusieurs centaines de
-   mots d'affilée. L'Inter d'interface n'y a pas sa place.
+   La marge est de la MARGINALIA : elle a le droit d'être vide. Deux
+   sections n'en ont pas, et c'est ce qui donne son poids aux autres.
    ═══════════════════════════════════════════════════════════════════ */
 :root{
   --bg:#15100b;--surface:#1e1710;--text:#f3e9d4;
@@ -59,55 +58,126 @@
   --f-ui:'Inter',system-ui,sans-serif;--f-serif:'Spectral',Georgia,serif;--f-hand:'Caveat',cursive;
   --candle:rgba(216,173,76,.18);
   --emphase:linear-gradient(150deg,#2c2117,#211a12,#1b150e);
+  --marge:210px;   /* largeur de la colonne de marge */
+  --gouttiere:44px;
 }
 *{box-sizing:border-box;}
 body{margin:0;background:var(--bg);color:var(--text);font-family:var(--f-ui);}
-.ap{max-width:760px;margin:0 auto;padding:52px clamp(20px,5vw,40px) 0;}
-.ap-fil{font-size:.78rem;color:var(--const);margin:0 0 26px;}
-.ap-fil a{color:var(--const);text-decoration:none;}
+/* Les surfaces que le navigateur dessine à notre place portent le thème
+   comme le reste — la bibliothèque et le carnet le font déjà. */
+::selection{background:rgba(216,173,76,.32);color:var(--text);}
+:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:3px;}
+
+.ap{max-width:1000px;margin:0 auto;padding:56px clamp(20px,5vw,44px) 0;}
+.ap-fil{font-size:.78rem;color:var(--const);margin:0 0 34px;}
+.ap-fil a{color:var(--const);text-decoration:none;border-bottom:0;}
 .ap-fil a:hover{color:var(--gold);}
-.ap-label{font-size:.72rem;font-weight:600;letter-spacing:.11em;text-transform:uppercase;
-  color:var(--gold);margin:0 0 12px;}
-h1{font-family:'Fraunces',serif;font-weight:900;letter-spacing:-.02em;line-height:1.06;
-  font-size:clamp(2.1rem,5.4vw,3.1rem);color:var(--ink);margin:0 0 20px;}
+
+/* ── La grille : marge | texte. Chaque section la rejoue, si bien que
+      chaque note est à la hauteur EXACTE du passage qu'elle annote —
+      c'est tout l'intérêt, et ça ne coûte pas une ligne de JS. */
+.ap-bloc{display:grid;grid-template-columns:var(--marge) minmax(0,1fr);
+  column-gap:var(--gouttiere);align-items:start;}
+.ap-corps{grid-column:2;min-width:0;}
+.ap-marge{grid-column:1;padding-top:.45rem;}
+
+h1{font-family:'Fraunces',serif;font-weight:900;letter-spacing:-.025em;line-height:1.02;
+  font-size:clamp(2.3rem,5.6vw,3.4rem);color:var(--ink);margin:0 0 22px;text-wrap:balance;}
 h1 em{font-style:italic;font-weight:500;color:var(--accent);}
-.ap-chapo{font-family:var(--f-serif);font-size:1.12rem;line-height:1.66;color:var(--muted);
-  margin:0 0 8px;}
-.ap-sec{border-top:1px solid var(--line);margin-top:56px;padding-top:30px;}
+.ap-chapo{font-family:var(--f-serif);font-size:1.16rem;line-height:1.62;color:var(--muted);
+  margin:0;max-width:56ch;}
+
+.ap-sec{margin-top:58px;}
+.ap-sec>.ap-corps,.ap-sec>.ap-marge{border-top:1px solid var(--line);padding-top:26px;}
+.ap-sec>.ap-marge{padding-top:29px;}
 h2{font-family:'Fraunces',serif;font-weight:900;letter-spacing:-.015em;
-  font-size:1.42rem;color:var(--ink);margin:0 0 16px;line-height:1.2;}
-.ap p{font-family:var(--f-serif);font-size:1.01rem;line-height:1.72;color:var(--muted);
-  margin:0 0 15px;}
+  font-size:1.34rem;color:var(--ink);margin:0 0 15px;line-height:1.22;text-wrap:balance;}
+.ap p{font-family:var(--f-serif);font-size:1.02rem;line-height:1.74;color:var(--muted);
+  margin:0 0 15px;max-width:66ch;}
+.ap-corps p:last-child{margin-bottom:0;}
 .ap p b{color:var(--ink);font-weight:600;}
 .ap p em{color:var(--ink-soft);}
-.ap a{color:var(--red-text);text-decoration:none;border-bottom:1px solid rgba(229,100,79,.36);}
-.ap a:hover{color:var(--gold);border-bottom-color:var(--gold);}
-.ap-fil a,.ap-src a{border-bottom:0;}
-/* Les sources : une ligne par œuvre servie, dérivée de la même table que le
-   colophon du pied de page et que les Book en JSON-LD. */
+.ap-corps a{color:var(--red-text);text-decoration:none;
+  border-bottom:1px solid rgba(229,100,79,.34);}
+.ap-corps a:hover{color:var(--gold);border-bottom-color:var(--gold);}
+
+/* ── La marginalia. Petite, en Inter (c'est de l'appareil, pas du texte),
+      et jamais estompée par l'opacité : une note éteinte se dit par la
+      couleur, règle déjà payée trois fois sur ce site. */
+.ap-note{font-family:var(--f-ui);font-size:.78rem;line-height:1.5;color:var(--const);}
+.ap-note-h{font-size:.68rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--gold);margin:0 0 10px;}
+.ap-note dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:5px 10px;}
+.ap-note dt{font-variant-numeric:tabular-nums;font-weight:600;color:var(--ink-soft);
+  text-align:right;white-space:nowrap;}
+.ap-note dd{margin:0;color:var(--const);}
+.ap-note p{font-family:var(--f-ui);font-size:.78rem;line-height:1.55;color:var(--const);
+  margin:0 0 9px;max-width:none;}
+.ap-note p:last-child{margin-bottom:0;}
+.ap-note b{color:var(--ink-soft);font-weight:600;}
+
+/* La signature : la seule note qui a du poids, parce que c'est la réponse
+   à la question que le visiteur est venu poser. */
+.ap-sign{font-family:'Fraunces',serif;font-weight:900;font-size:1.16rem;
+  letter-spacing:-.01em;color:var(--ink);margin:0 0 9px;line-height:1.15;}
+.ap-sign-r{font-family:var(--f-ui);font-size:.76rem;line-height:1.6;color:var(--const);margin:0;}
+.ap-sign-r span{display:block;}
+
+/* ── Les sources : une bibliographie, pas des cartes. */
 .ap-src{list-style:none;margin:0;padding:0;}
-.ap-src li{border-top:1px solid var(--line-soft);padding:15px 0;}
-.ap-src li:first-child{border-top:0;padding-top:4px;}
+.ap-src li{border-top:1px solid var(--line-soft);padding:16px 0;}
+.ap-src li:first-child{border-top:0;padding-top:2px;}
 .ap-src-t{font-family:'Fraunces',serif;font-weight:600;font-size:1.02rem;color:var(--ink);
-  margin:0 0 4px;display:block;}
-.ap-src-d{font-family:var(--f-serif);font-size:.95rem;line-height:1.6;color:var(--muted);margin:0;}
-.ap-src a{color:var(--gold);font-family:var(--f-ui);font-size:.82rem;}
-.ap-src a:hover{color:var(--ink);}
-/* Le bloc de contact : la surface d'emphase du socle — la bougie éclaire
-   d'en bas, jamais un aplat plus clair. */
+  margin:0 0 5px;display:block;}
+.ap-src-d{font-family:var(--f-serif);font-size:.96rem;line-height:1.62;color:var(--muted);
+  margin:0;max-width:60ch;}
+.ap-src a{font-family:var(--f-ui);font-size:.8rem;color:var(--gold);
+  text-decoration:none;border-bottom:1px solid transparent;white-space:nowrap;}
+.ap-src a:hover{border-bottom-color:var(--gold);}
+
+/* ── Le contact : la surface d'emphase du socle, la seule de la page.
+      La bougie éclaire d'en bas — jamais un aplat plus clair. */
 .ap-contact{background:var(--emphase);border:1px solid rgba(216,173,76,.20);
-  border-radius:16px;padding:26px 28px;margin-top:22px;}
-.ap-contact p:last-child{margin-bottom:0;}
-.ap-mail{display:inline-block;font-family:var(--f-ui);font-size:.92rem;font-weight:600;
-  color:var(--ink);background:transparent;border:1px solid var(--line-strong);
-  border-radius:100px;padding:9px 20px;text-decoration:none;margin-top:6px;}
+  border-radius:16px;padding:24px 26px;margin-top:20px;
+  box-shadow:0 18px 40px -26px rgba(0,0,0,.85);}
+.ap-contact p{font-size:.98rem;margin-bottom:16px;}
+.ap-liens{display:flex;flex-wrap:wrap;gap:10px;margin:0;}
+.ap-mail{display:inline-flex;align-items:center;font-family:var(--f-ui);font-size:.88rem;
+  font-weight:600;color:var(--ink);background:transparent;border:1px solid var(--line-strong);
+  border-radius:100px;padding:9px 19px;text-decoration:none;
+  transition:border-color .16s,color .16s;}
 .ap-mail:hover{border-color:var(--gold);color:var(--gold);}
-.ap-fin{margin:64px 0 0;}
-@media(max-width:700px){
-  .ap{padding-top:34px;}
-  .ap-sec{margin-top:42px;padding-top:24px;}
+.ap-fin{height:8px;}
+
+/* ── Sous 900 px la marge n'est plus une marge : elle passe AU-DESSUS de
+      la section qu'elle annote, en une ligne. Sous le texte elle serait
+      hors de vue au moment où elle sert — le piège déjà payé par la marge
+      de l'atelier, qui atterrissait à deux cent mille pixels du lecteur. */
+@media(max-width:900px){
+  .ap{padding-top:36px;}
+  .ap-bloc{grid-template-columns:minmax(0,1fr);}
+  .ap-corps,.ap-marge{grid-column:1;}
+  /* La marge passe au-dessus : il lui faut alors son propre blanc, sinon
+     la signature colle au titre qu'elle annote. */
+  .ap-marge{padding-top:0;order:-1;margin-bottom:24px;}
+  .ap-marge:empty{margin-bottom:0;}
+  .ap-sec{margin-top:44px;}
+  .ap-sec>.ap-marge{border-top:1px solid var(--line);padding-top:22px;}
+  .ap-sec>.ap-corps{border-top:0;padding-top:16px;}
+  .ap-note dl{grid-template-columns:auto 1fr;}
   .ap-contact{padding:20px;}
 }
+
+/* ── LE GESTE, et il n'y en a qu'un : les notes de marge S'INSCRIVENT à
+      mesure qu'on descend, comme on porte une annotation en lisant.
+      Le TEXTE, lui, ne bouge jamais — règle posée pour la colonne de
+      lecture de l'atelier, et elle vaut ici : on vient lire.
+      Piloté par la POSITION (donc réversible), armé par `js-ap` que le
+      module pose seul : sans JS, sous 900 px ou en reduced-motion, la
+      règle n'existe pas et la page est déjà dans son état fini. */
+.js-ap .ap-marge>*{opacity:var(--n,1);
+  transform:translateY(calc((1 - var(--n,1)) * 7px));
+  filter:blur(calc((1 - var(--n,1)) * 1.4px));}
 </style>
 <!-- A-PROPOS:LD:DÉBUT — DÉRIVÉ par tools/gen-seo.mjs, ne pas éditer à la main -->
 <script type="application/ld+json">
@@ -142,62 +212,113 @@ h2{font-family:'Fraunces',serif;font-weight:900;letter-spacing:-.015em;
 
   <p class="ap-fil"><a href="/">Lire Marx</a> &rsaquo; À propos</p>
 
-  <p class="ap-label">À propos</p>
-  <h1>Le site, et <em>qui le tient</em></h1>
-  <p class="ap-chapo">Lire Marx sert deux œuvres en texte intégral, avec l’appareil critique
-  en marge du chapitre plutôt que dans un volume séparé. Cette page dit qui le fabrique,
-  d’où viennent les textes et comment signaler une erreur.</p>
+  <!-- Le héros. Pas de sur-titre « À PROPOS » : le fil d'Ariane le dit
+       déjà, et le titre aussi — c'était trois fois le même mot dans le
+       premier écran. -->
+  <div class="ap-bloc">
+    <aside class="ap-marge ap-note">
+      <p class="ap-note-h">Tenu par</p>
+      <p class="ap-sign">maradomarx</p>
+      <p class="ap-sign-r">
+        <span>Lecteur de longue date</span>
+        <span>Formation en sciences sociales</span>
+        <span>Développeur de métier</span>
+      </p>
+    </aside>
+    <div class="ap-corps">
+      <h1>Le site, et <em>qui le tient</em></h1>
+      <p class="ap-chapo">Lire Marx sert deux œuvres en texte intégral, avec l’appareil
+      critique en marge du chapitre plutôt que dans un volume séparé. Cette page dit qui le
+      fabrique, d’où viennent les textes et comment signaler une erreur.</p>
+    </div>
+  </div>
 
-  <section class="ap-sec">
-    <h2>Ce que fait ce site</h2>
-    <p>Il donne à lire <b>Le Capital, Livre I</b> et les <b>Manuscrits de 1844</b> en entier,
-    et il pose autour du texte ce qui manque d’ordinaire quand on lit Marx seul : un résumé
-    en clair de chaque chapitre, une chronologie des faits que le chapitre raconte, un
-    cheminement qui montre comment une catégorie appelle la suivante, et des <b>simulations</b>
-    où l’on manipule soi-même les grandeurs — la journée de travail, le taux de plus-value,
-    la composition du capital.</p>
-    <p>S’y ajoutent un <a href="/glossaire/">abécédaire de soixante-quinze notions</a>, un
-    <a href="/oeuvres/place-publique">forum</a> où les discussions restent attachées au
-    passage qui les a fait naître, un carnet privé d’annotations, et
-    <a href="/jeu/">un jeu</a> où l’on fait tourner le circuit du capital pour voir d’où
-    vient la différence entre ce qu’on avance et ce qui revient.</p>
+  <section class="ap-sec ap-bloc">
+    <aside class="ap-marge ap-note">
+      <p class="ap-note-h">En chiffres</p>
+      <dl>
+        <dt>2</dt><dd>œuvres en texte intégral</dd>
+        <dt>33</dt><dd>chapitres du Livre I</dd>
+        <dt>3</dt><dd>cahiers de 1844</dd>
+        <dt>75</dt><dd>notions à l’abécédaire</dd>
+        <dt>12</dt><dd>œuvres au catalogue</dd>
+      </dl>
+    </aside>
+    <div class="ap-corps">
+      <h2>Ce que fait ce site</h2>
+      <p>Il donne à lire <b>Le Capital, Livre I</b> et les <b>Manuscrits de 1844</b> en
+      entier, et il pose autour du texte ce qui manque d’ordinaire quand on lit Marx seul :
+      un résumé en clair de chaque chapitre, une chronologie des faits que le chapitre
+      raconte, un cheminement qui montre comment une catégorie appelle la suivante, et des
+      <b>simulations</b> où l’on manipule soi-même les grandeurs — la journée de travail, le
+      taux de plus-value, la composition du capital.</p>
+      <p>S’y ajoutent un <a href="/glossaire/">abécédaire de soixante-quinze notions</a>, un
+      <a href="/oeuvres/place-publique">forum</a> où les discussions restent attachées au
+      passage qui les a fait naître, un carnet privé d’annotations, et
+      <a href="/jeu/">un jeu</a> où l’on fait tourner le circuit du capital pour voir d’où
+      vient la différence entre ce qu’on avance et ce qui revient.</p>
+    </div>
   </section>
 
-  <section class="ap-sec">
-    <h2>Pourquoi il existe</h2>
-    <p>Le texte de Marx est disponible partout et gratuitement — Wikisource, les Classiques
-    de l’UQAC, le Marxists Internet Archive. Ce qui manque n’est pas le texte : c’est
-    <em>tout ce qu’il faut avoir à côté pour le lire</em>. On trouve d’un côté du texte brut
-    sans le moindre appareil, de l’autre des commentaires qui parlent du livre sans jamais
-    le donner. Entre les deux, rien.</p>
-    <p>Ce site a été fabriqué pour combler ce trou, et d’abord pour l’usage de celui qui
-    l’écrit. L’ordre d’exposition du <em>Capital</em> n’est pas celui dans lequel on peut
-    l’aborder ; ses trois premiers chapitres découragent la plupart des lecteurs avant qu’ils
-    aient atteint le seul endroit où le livre devient limpide. Il fallait un outil qui tienne
-    le texte et son explication dans le même écran.</p>
+  <!-- Marge vide, et c'est volontaire : de la marginalia partout n'est plus
+       de la marginalia. Le vide ici donne son poids à la note d'à côté. -->
+  <section class="ap-sec ap-bloc">
+    <aside class="ap-marge ap-note">
+      <p class="ap-note-h">Le texte existe déjà</p>
+      <p>Wikisource, les Classiques des sciences sociales, le Marxists Internet
+      Archive. <b>Ce n’est pas le texte qui manquait.</b></p>
+    </aside>
+    <div class="ap-corps">
+      <h2>Pourquoi il existe</h2>
+      <p>Le texte de Marx est disponible partout et gratuitement. Ce qui manque n’est pas le
+      texte : c’est <em>tout ce qu’il faut avoir à côté pour le lire</em>. On trouve d’un côté
+      du texte brut sans le moindre appareil, de l’autre des commentaires qui parlent du livre
+      sans jamais le donner. Entre les deux, rien.</p>
+      <p>Ce site a été fabriqué pour combler ce trou, et d’abord pour l’usage de celui qui
+      l’écrit. L’ordre d’exposition du <em>Capital</em> n’est pas celui dans lequel on peut
+      l’aborder ; ses trois premiers chapitres découragent la plupart des lecteurs avant
+      qu’ils aient atteint le seul endroit où le livre devient limpide. Il fallait un outil
+      qui tienne le texte et son explication dans le même écran.</p>
+    </div>
   </section>
 
-  <section class="ap-sec">
-    <h2>Qui le tient</h2>
-    <p>Une seule personne, qui signe <b>maradomarx</b>. Pas un
-    universitaire : un lecteur de Marx de longue date, largement autodidacte, avec une
-    formation en sciences sociales, et développeur de métier — ce qui explique la forme du
-    site autant que son contenu.</p>
-    <p>Cela vaut d’être dit clairement, parce que c’est ce qui permet de juger ce qu’on lit
-    ici. <b>L’appareil critique de ce site n’est pas une source universitaire.</b> Il n’est
-    ni relu par des pairs, ni adossé à une institution. C’est une lecture, faite avec soin,
-    qui s’efforce de rester au plus près du texte et de dire d’où elle tient ce qu’elle
-    avance. Là où une question est disputée, le site le signale plutôt que de trancher.</p>
-    <p>En revanche, <b>rien n’y est produit automatiquement</b>. Les résumés, les
-    définitions, le cheminement, la chronologie et les simulations sont écrits et vérifiés à
-    la main, un par un. Ce qui est dérivé l’est de données du site lui-même — le catalogue,
-    les fiches de concept — et jamais d’un texte fabriqué à la volée.</p>
+  <section class="ap-sec ap-bloc">
+    <aside class="ap-marge ap-note">
+      <p class="ap-note-h">Ce que ce n’est pas</p>
+      <p>Ni relu par des pairs, ni adossé à une institution. <b>Ce n’est pas une source
+      universitaire</b>, et le savoir permet de juger ce qu’on y lit.</p>
+    </aside>
+    <div class="ap-corps">
+      <h2>Qui le tient</h2>
+      <p>Une seule personne, qui signe <b>maradomarx</b>. Pas un universitaire : un lecteur
+      de Marx de longue date, largement autodidacte, avec une formation en sciences sociales,
+      et développeur de métier — ce qui explique la forme du site autant que son contenu.</p>
+      <p>Cela vaut d’être dit clairement, parce que c’est ce qui permet de juger ce qu’on lit
+      ici. L’appareil critique de ce site est une lecture, faite avec soin, qui s’efforce de
+      rester au plus près du texte et de dire d’où elle tient ce qu’elle avance. Là où une
+      question est disputée, le site le signale plutôt que de trancher.</p>
+      <p>En revanche, <b>rien n’y est produit automatiquement</b>. Les résumés, les
+      définitions, le cheminement, la chronologie et les simulations sont écrits et vérifiés
+      à la main, un par un. Ce qui est dérivé l’est de données du site lui-même — le
+      catalogue, les fiches de concept — et jamais d’un texte fabriqué à la volée.</p>
+    </div>
   </section>
 
-  <section class="ap-sec">
-    <h2>Les textes servis, et d’où ils viennent</h2>
-    <p>Le site n’établit aucun texte : il sert des éditions existantes, et il les nomme.</p>
-    <!-- SOURCES:DÉBUT — DÉRIVÉ par tools/gen-seo.mjs, ne pas éditer à la main -->
+  <section class="ap-sec ap-bloc">
+    <aside class="ap-marge ap-note">
+      <p class="ap-note-h">Les dates</p>
+      <dl>
+        <dt>1867</dt><dd>Le Capital, Livre I</dd>
+        <dt>1872</dt><dd>traduction Roy, revue par Marx</dd>
+        <dt>1844</dt><dd>les Manuscrits sont écrits</dd>
+        <dt>1932</dt><dd>ils sont publiés, 88 ans après</dd>
+        <dt>1962</dt><dd>traduction Bottigelli</dd>
+      </dl>
+    </aside>
+    <div class="ap-corps">
+      <h2>Les textes servis, et d’où ils viennent</h2>
+      <p>Le site n’établit aucun texte : il sert des éditions existantes, et il les nomme.</p>
+      <!-- SOURCES:DÉBUT — DÉRIVÉ par tools/gen-seo.mjs, ne pas éditer à la main -->
     <ul class="ap-src">
       <li>
         <b class="ap-src-t">Le Capital — Livre I</b>
@@ -209,27 +330,34 @@ h2{font-family:'Fraunces',serif;font-weight:900;letter-spacing:-.015em;
       </li>
     </ul>
     <!-- SOURCES:FIN -->
-    <p>La traduction employée est indiquée sur la page de chaque œuvre et dans le pied de
-    page du site. Quand elle n’est pas dans le domaine public, le site ne prétend pas le
-    contraire : une mention erronée a d’ailleurs été affichée pendant des mois sur les
-    <em>Manuscrits</em>, puis corrigée après enquête — le traducteur n’était pas celui qu’on
-    croyait, et la traduction n’était pas libre.</p>
-  </section>
-
-  <section class="ap-sec">
-    <h2>Une erreur, une correction, une question</h2>
-    <p>Les erreurs sont probables et les signalements sont bienvenus — sur un contresens,
-    une date, une attribution, un lien mort, une formulation qui induit en erreur. C’est la
-    seule façon dont un site tenu par une personne peut devenir fiable.</p>
-    <div class="ap-contact">
-      <p>Le code du site est public, et son historique documente chaque décision éditoriale
-      et technique — y compris les erreurs et la façon dont elles ont été corrigées.</p>
-      <p><a class="ap-mail" href="mailto:contact@liremarx.com">contact@liremarx.com</a>
-      &nbsp;<a class="ap-mail" href="https://github.com/chevallierfabio-hue/lire-marx">Le dépôt public</a></p>
+      <p>La traduction employée est indiquée sur la page de chaque œuvre et dans le pied de
+      page du site. Quand elle n’est pas dans le domaine public, le site ne prétend pas le
+      contraire : une mention erronée a d’ailleurs été affichée pendant des mois sur les
+      <em>Manuscrits</em>, puis corrigée après enquête — le traducteur n’était pas celui
+      qu’on croyait, et la traduction n’était pas libre.</p>
     </div>
   </section>
 
-  <p class="ap-fin"></p>
+  <section class="ap-sec ap-bloc">
+    <aside class="ap-marge ap-note"></aside>
+    <div class="ap-corps">
+      <h2>Une erreur, une correction, une question</h2>
+      <p>Les erreurs sont probables et les signalements sont bienvenus — sur un contresens,
+      une date, une attribution, un lien mort, une formulation qui induit en erreur. C’est la
+      seule façon dont un site tenu par une personne peut devenir fiable.</p>
+      <div class="ap-contact">
+        <p>Le code du site est public, et son historique documente chaque décision
+        éditoriale et technique — y compris les erreurs et la façon dont elles ont été
+        corrigées.</p>
+        <p class="ap-liens">
+          <a class="ap-mail" href="mailto:contact@liremarx.com">contact@liremarx.com</a>
+          <a class="ap-mail" href="https://github.com/chevallierfabio-hue/lire-marx">Le dépôt public</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <div class="ap-fin"></div>
 
 </div>
 </main>
@@ -272,6 +400,71 @@ h2{font-family:'Fraunces',serif;font-weight:900;letter-spacing:-.015em;
 </footer>
 <!-- PIED:FIN -->
 
+<script>
+/* ═══════════════════════════════════════════════════════════════════
+   LE GESTE, et il n'y en a qu'un : les notes de marge s'inscrivent à
+   mesure qu'on descend, comme on porte une annotation en lisant.
+   -------------------------------------------------------------------
+   Vocabulaire de la maison : pilote de défilement par POSITION (donc
+   strictement réversible — on remonte, les notes se rangent), défaut CSS
+   posé, aucune classe écrite dans le HTML. Le pilote est DUPLIQUÉ et non
+   partagé : assets/home.js ne se charge pas ici, et la règle du projet
+   est de dupliquer les petits outils plutôt que de coupler.
+
+   LE TEXTE NE BOUGE JAMAIS. Règle posée pour la colonne de lecture de
+   l'atelier, et elle vaut ici : on vient lire. Seule la marge s'anime.
+   ═══════════════════════════════════════════════════════════════════ */
+(function(){
+  var mq = window.matchMedia;
+  /* La largeur se lit à la MEDIA QUERY et jamais à innerWidth : au moment
+     où le script s'exécute, la fenêtre peut annoncer 0 (onglet ouvert en
+     arrière-plan, onglet piloté) et la page partirait sans rien. Piège
+     déjà payé sur l'accueil et sur l'entrée du carnet. */
+  if (mq('(max-width:900px)').matches) return;
+  if (mq('(prefers-reduced-motion:reduce)').matches) return;
+
+  var notes = [].slice.call(document.querySelectorAll('.ap-marge > *'));
+  if (!notes.length) return;
+  document.documentElement.classList.add('js-ap');
+
+  var queued = false;
+  function run(){
+    queued = false;
+    var vh = window.innerHeight || 0;
+    if (!vh) return;                       /* pane masquée : rien à calculer */
+    for (var i = 0; i < notes.length; i++){
+      var el = notes[i], r = el.getBoundingClientRect();
+      /* La note s'inscrit sur les 18 derniers pourcents de sa montée vers
+         la ligne de lecture : elle est POSÉE avant qu'on la lise, jamais
+         en train d'apparaître sous l'œil. */
+      var n = (vh * 0.94 - r.top) / (vh * 0.18);
+      n = n < 0 ? 0 : n > 1 ? 1 : n;
+      var v = n.toFixed(3);                /* setProperty veut une CHAÎNE —
+                                              un nombre est ignoré en silence */
+      if (el.dataset.n !== v){ el.dataset.n = v; el.style.setProperty('--n', v); }
+    }
+  }
+  function driver(){ if (!queued){ queued = true; requestAnimationFrame(run); } }
+
+  document.addEventListener('scroll', driver, {passive:true, capture:true});
+  window.addEventListener('resize', driver, {passive:true});
+  run();
+  /* LE PIÈGE DE LA MESURE UNIQUE. Ce script s'exécute AVANT shell.js, qui
+     monte ensuite la topbar et la sidebar et déplace donc tout le contenu :
+     la première mesure est prise sur une mise en page qui n'est pas la
+     bonne. Les polices, elles, arrivent plus tard encore. Sans ces rappels,
+     une note pourrait rester à zéro tant qu'on n'a pas défilé — c'est
+     exactement ce qui figeait le catalogue de l'accueil sur une arrivée
+     directe en ancre.
+     Ils appellent run() DIRECTEMENT et non driver() : un rAF bridé (onglet
+     en arrière-plan) les rendrait inopérants, or c'est le cas qu'ils
+     rattrapent. */
+  requestAnimationFrame(run);
+  setTimeout(run, 400);
+  if (document.readyState !== 'complete') window.addEventListener('load', run, {once:true});
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(run);
+})();
+</script>
 <script src="/config.js"></script>
 <script src="/oeuvres/shell.js?v=2"></script>
 <script src="/oeuvres/shell-social.js"></script>
