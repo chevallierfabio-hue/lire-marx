@@ -547,7 +547,7 @@ body.at-reading .notes-fab{display:inline-flex;}
    la neutraliser le pied de page n'aurait pas la même tête d'une moitié du
    site à l'autre. `.lm-foot` (0,1,0) bat `footer` (0,0,1), mais seulement sur
    les propriétés qu'il redéclare. */
-.lm-foot{margin-top:96px;border-top:1px solid var(--line);background:var(--paper);
+.lm-foot{margin-top:0;border-top:1px solid var(--line);background:var(--paper);
   text-align:left;font-style:normal;color:var(--ink-soft);font-family:var(--f-ui);
   font-size:.84rem;line-height:1.55;padding:44px clamp(20px,4vw,56px) 32px;}
 .lm-foot-in{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,2fr);
@@ -570,7 +570,7 @@ body.at-reading .notes-fab{display:inline-flex;}
 .lm-foot-col a:focus-visible,.lm-foot-cgu:focus-visible{outline:2px solid var(--gold);
   outline-offset:3px;border-radius:3px;}
 @media(max-width:860px){
-  .lm-foot{margin-top:64px;padding:36px 20px 28px;}
+  .lm-foot{margin-top:0;padding:36px 20px 28px;}
   .lm-foot-in{grid-template-columns:1fr;gap:28px;}
   .lm-foot-nav{grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 18px;}
 }
