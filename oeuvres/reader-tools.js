@@ -210,7 +210,23 @@
     h+='<div class="rd-setrow"><span class="lab">Mode focus</span>'+seg('focus',[['0','Off'],['1','On']])+'</div>';
     h+='<div class="rd-setrow"><span class="lab">Mots du glossaire</span>'+seg('gloss',[['0','Off'],['1','On']])+'</div>';
     h+='<div class="rd-note">Le mode focus estompe tout sauf le paragraphe survolé (ou lu à voix haute). Les mots du glossaire se soulignent dans le texte et s\'expliquent au survol. Réglages mémorisés sur cet appareil.</div>';
+    if(synth){
+      h+='<h5>Écoute</h5>';
+      h+='<div class="rd-setrow"><span class="lab" id="rdlab-rate">Vitesse de lecture</span><span class="rd-step">'
+        +'<button type="button" class="rd-mini" data-rate="dn" aria-label="Diminuer : vitesse de lecture"><span aria-hidden="true">−</span></button>'
+        +'<span class="rd-val" data-ratev role="status" aria-live="polite" aria-atomic="true">'+S.rate.toFixed(1)+'×</span>'
+        +'<button type="button" class="rd-mini" data-rate="up" aria-label="Augmenter : vitesse de lecture"><span aria-hidden="true">+</span></button></span></div>';
+      h+='<div class="rd-vwrap"></div>';
+      h+='<div class="rd-note">Le surlignage suit le paragraphe lu. La qualité dépend des voix installées sur votre appareil.</div>';
+    }
     box.innerHTML=h;
+    if(synth){
+      renderVoiceSelect();
+      box.querySelectorAll('[data-rate]').forEach(function(b){ b.onclick=function(){
+        S.rate=clamp(+(S.rate+(b.getAttribute('data-rate')==='up'?0.1:-0.1)).toFixed(1),0.6,1.8);
+        saveS(); var v=box.querySelector('[data-ratev]'); if(v)v.textContent=S.rate.toFixed(1)+'×';
+      };});
+    }
     /* CHAQUE réglage terminait par renderSet(r), qui réécrit box.innerHTML :
        le bouton qu'on venait d'activer disparaissait, et le focus retombait
        sur <body>. Impossible d'agrandir le texte deux fois de suite sans
@@ -251,7 +267,7 @@
 
   /* ---- voix ---- */
   function renderVoiceSelect(){
-    if(!cur)return; var box=cur.readerEl.querySelector('[data-pop="audio"] .rd-vwrap'); if(!box)return;
+    if(!cur)return; var box=cur.readerEl.querySelector('.rd-vwrap'); if(!box)return;
     if(!synth){ box.innerHTML='<div class="rd-note">La synthèse vocale n’est pas disponible dans ce navigateur.</div>'; return; }
     var fv=frVoices().slice().sort(function(a,b){return voiceScore(b)-voiceScore(a);});
     var best=fv[0];
@@ -261,7 +277,7 @@
     var warn = fv.length
       ? '<div class="rd-note">La voix la plus humaine est choisie automatiquement. Les voix « en ligne » (Google sur Chrome, Siri/améliorées sur Mac et iPhone) sont de loin les plus naturelles — c’est dans Chrome que le français sonne le mieux.</div>'
       : '<div class="rd-note">Aucune voix française détectée : ouvrez la page dans Chrome (voix Google en ligne) ou installez une voix française améliorée dans les réglages de votre système pour une lecture naturelle.</div>';
-    box.innerHTML='<div class="rd-setrow"><span class="lab">Voix</span><select class="rd-vsel" data-rd-voice>'+opts+'</select></div>'+warn;
+    box.innerHTML='<div class="rd-setrow"><span class="lab" id="rdlab-voice">Voix</span><select class="rd-vsel" data-rd-voice aria-labelledby="rdlab-voice">'+opts+'</select></div>'+warn;
     var sels=box.querySelector('[data-rd-voice]');
     if(sels)sels.onchange=function(){ S.voice=sels.value; saveS(); };
   }
@@ -291,16 +307,19 @@
      +   '<button type="button" class="rd-btn" data-rd="prev" aria-label="Chapitre précédent"><span aria-hidden="true">◀</span> Préc.</button>'
      +   '<button type="button" class="rd-btn" data-rd="next" aria-label="Chapitre suivant">Suiv. <span aria-hidden="true">▶</span></button>'
      +   '<button type="button" class="rd-btn" data-rd="toc" aria-expanded="false" aria-controls="rdpop-toc">Sommaire</button>'
-     +   '<button type="button" class="rd-btn" data-rd="audio" aria-expanded="false" aria-controls="rdpop-audio"><span aria-hidden="true">▶</span> Écouter</button>'
+     +   '<button type="button" class="rd-btn" data-rd="audio"'+(synth?'':' aria-expanded="false" aria-controls="rdpop-audio"')+'><span aria-hidden="true">▶</span> Écouter</button>'
      +   '<button type="button" class="rd-btn" data-rd="clear" aria-expanded="false" aria-controls="rdpop-clear">En clair</button>'
      +   '<button type="button" class="rd-btn" data-rd="set" aria-expanded="false" aria-controls="rdpop-set"><span aria-hidden="true">Aa</span> Réglages</button>'
      + '</div>'
      + '<div class="rd-pop" id="rdpop-toc" data-pop="toc" role="group" aria-label="Sommaire" hidden></div>'
+     /* Vitesse et voix vivaient dans ce popover — que le bouton « Écouter »
+        n'ouvrait JAMAIS dès que la synthèse vocale existe (il lit ou met en
+        pause) : les réglages d'écoute étaient inatteignables, et le bouton
+        déclarait un aria-expanded qu'il ne tenait pas. Ils sont dans
+        « Aa Réglages », section « Écoute ». Le popover ne reste que pour
+        dire l'indisponibilité. Mission `atelier-a11y-2`. */
      + '<div class="rd-pop" id="rdpop-audio" data-pop="audio" role="group" aria-label="Écouter le texte" hidden><h5>Écouter le texte</h5>'
-     +   '<div class="rd-setrow"><span class="lab">Vitesse</span><span class="rd-step">'
-     +     '<button class="rd-mini" data-rate="dn">−</button><span class="rd-val" data-ratev>'+S.rate.toFixed(1)+'×</span><button class="rd-mini" data-rate="up">+</button></span></div>'
-     +   '<div class="rd-vwrap"></div>'
-     +   '<div class="rd-note">Le surlignage suit le paragraphe lu. La qualité dépend des voix installées sur votre appareil.</div></div>'
+     +   '<div class="rd-note">La synthèse vocale n’est pas disponible dans ce navigateur.</div></div>'
      + '<div class="rd-pop" id="rdpop-clear" data-pop="clear" role="group" aria-label="En clair" hidden><h5>En clair</h5>'+clearHtml+'</div>'
      + '<div class="rd-pop" id="rdpop-set" data-pop="set" role="group" aria-label="Réglages de lecture" hidden></div>'
      + '<div class="rd-xref"></div>';
@@ -342,10 +361,6 @@
       if(!synth){ togglePop(r,'audio'); return; }
       if(A.playing) pauseAudio(); else playAudio();
     };
-    tb.querySelectorAll('[data-rate]').forEach(function(b){ b.onclick=function(){
-      S.rate=clamp(+(S.rate+(b.getAttribute('data-rate')==='up'?0.1:-0.1)).toFixed(1),0.6,1.8);
-      saveS(); var v=tb.querySelector('[data-ratev]'); if(v)v.textContent=S.rate.toFixed(1)+'×';
-    };});
     tb.querySelector('[data-pop="toc"]').innerHTML='<h5>Sous-parties</h5>'+tocHtml(ws);
     tb.querySelectorAll('[data-goto]').forEach(function(b){ b.onclick=function(){
       var el=document.getElementById(b.getAttribute('data-goto'));

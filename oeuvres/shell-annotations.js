@@ -459,10 +459,14 @@
     fab.id = 'notesFab';
     fab.className = 'notes-fab';
     fab.textContent = 'Mes notes';
+    fab.setAttribute('aria-expanded','false');
+    fab.setAttribute('aria-controls','notesPanel');
     fab.addEventListener('click', function(){
       ensurePanel();
       if(panel.hidden){ renderPanel(); panel.hidden = false; }
       else panel.hidden = true;
+      fab.setAttribute('aria-expanded', panel.hidden ? 'false' : 'true');
+      if(pubFab && pubPanel) pubFab.setAttribute('aria-expanded', pubPanel.hidden ? 'false' : 'true');
     });
     document.body.appendChild(fab);
     return fab;
@@ -808,10 +812,14 @@
     pubFab.id = 'pubFab';
     pubFab.className = 'notes-fab notes-fab-pub';
     pubFab.textContent = 'Notes partagées';
+    pubFab.setAttribute('aria-expanded','false');
+    pubFab.setAttribute('aria-controls','publicPanel');
     pubFab.addEventListener('click', function(){
       ensurePubPanel();
       if(pubPanel.hidden){ renderPublic(); pubPanel.hidden = false; if(panel) panel.hidden = true; }
       else pubPanel.hidden = true;
+      pubFab.setAttribute('aria-expanded', pubPanel.hidden ? 'false' : 'true');
+      if(fab && panel) fab.setAttribute('aria-expanded', panel.hidden ? 'false' : 'true');
     });
     document.body.appendChild(pubFab);
     return pubFab;

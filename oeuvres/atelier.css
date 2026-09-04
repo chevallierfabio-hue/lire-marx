@@ -736,6 +736,10 @@ a.btn,a.lk,a.cap-btn-dark,a.cap-btn-light,a.cap-btn-outline,a.prog-no-auth-btn{
 
 /* Le petit label de colonne — même grammaire que les labels de section
    de l'accueil : capitales espacées, or. */
+/* .atl3-lab est un <h2> depuis `atelier-a11y-2` (« Le sommaire », « Dans
+   ce chapitre » suivaient le <h1> sans niveau intermédiaire) : on annule
+   les marges d'un titre, l'aspect ne change pas. */
+.atl3-lab{margin:0;line-height:1.3;}
 .atl3-lab{font-family:var(--f-ui);font-size:.72rem;font-weight:600;
   letter-spacing:.11em;text-transform:uppercase;color:var(--gold-deep);}
 
@@ -1310,3 +1314,11 @@ html.js-at3 .rdr-header.at3-alight .rdr-halo{
   html.js-at3 .rdr-header.at3-alight,
   html.js-at3 .rdr-header.at3-alight .rdr-halo{animation:none;}
 }
+
+/* ── WCAG 2.4.11 : le focus ne doit pas se cacher sous les barres collantes.
+   Dans l'atelier en lecture, topbar + destinations + barre de lecture font
+   ~164 px à 1280 (deux rangées de plus en dessous de ~1250) : une ancre ou
+   un focus clavier qui remonte se posait dessous. `scroll-padding` sur la
+   racine, gaté par la classe du body. */
+html:has(body.at-atelier.at-reading){scroll-padding-top:200px;}
+html:has(body.at-plein){scroll-padding-top:90px;}

@@ -1500,16 +1500,7 @@ d'un écran à l'autre.
 
 ### Ce qui reste (missions suivantes, dans cet ordre)
 
-- **`atelier-a11y-2`** — défauts vérifiés dans le code : `SHELL.tabs` pose
-  `role=tablist` sur le `<nav>`, qui perd son rôle de navigation ; la sidebar
-  est un `<aside>` alors qu'elle est LA navigation ; « Écouter » déclare un
-  `aria-expanded` qu'il ne tient pas dès que la synthèse vocale existe, donc
-  vitesse et voix sont **inatteignables** ; les « − / + » de vitesse n'ont pas
-  de nom ; le `<select>` de voix n'a pas de label ; le tiroir est un `dialog`
-  sans piège de focus ; les Manuscrits affichent encore « Choisis un manuscrit
-  ci-dessus, puis clique sur Charger le texte » (ni sélecteur ni bouton
-  n'existent) et leur échec de chargement n'est ni annoncé ni `role=alert` ;
-  `scroll-padding` sous les barres collantes (WCAG 2.4.11).
+- ✅ **`atelier-a11y-2`** — FAIT le même jour, voir ci-dessous.
 - **`recherche-index`** — la recherche promet « un concept, une date, un
   chapitre » et n'indexe que les 12 œuvres et 76 mots-clés de
   bibliotheque.json ; « fétichisme », « 1867 », « chapitre X » ne rendent
@@ -1519,6 +1510,64 @@ d'un écran à l'autre.
   chapitre.
 - **`recherche-texte`** — plein texte, via l'API de recherche de Wikisource
   pour Capital et les fragments locaux pour les Manuscrits.
+
+## Les défauts d'accessibilité vérifiés, corrigés (mission `atelier-a11y-2`, sept. 2026)
+
+Suite directe d'`atelier-premier-ecran`. Chaque point avait été VÉRIFIÉ dans
+le code avant d'être retenu — aucun n'est théorique.
+
+- **La barre des destinations est redevenue un landmark.** `SHELL.tabs`
+  posait `role="tablist"` sur le `<nav>` lui-même, ce qui écrasait son rôle
+  « navigation ». Le rôle vit maintenant sur une enveloppe `.tabs-list`
+  (`display:contents`, dans shell.css : la mise en page du `<nav>` ne change
+  pas), créée par `wireTabs` quand on lui passe un `<nav>` — les pages
+  n'ont pas eu à changer. **Tout futur `SHELL.tabs(nav, …)` en bénéficie.**
+- **La sidebar est un `<nav>`**, plus un `<aside>` : c'est LA navigation du
+  site, son `aria-label` le disait déjà. Le CSS ne visait que la classe.
+  `aria-label` : « Navigation du site ».
+- **« Écouter » ne ment plus, et les réglages d'écoute sont atteignables.**
+  Dès que la synthèse vocale existe, le bouton lit ou met en pause : il
+  n'ouvrait JAMAIS le popover qui portait vitesse et voix, tout en déclarant
+  un `aria-expanded`. Vitesse et voix vivent maintenant dans « Aa Réglages »,
+  section **« Écoute »** (les « − / + » ont un nom, le `<select>` de voix a
+  un `aria-labelledby`). Le popover audio ne reste que pour dire
+  l'indisponibilité, sans synthèse. `renderVoiceSelect` cherche `.rd-vwrap`
+  où qu'il soit.
+- **Le tiroir est modal** : `aria-modal="true"` posé à l'ouverture, piège
+  de Tab (`drawerTrap`, sur les deux pages — les deux retirés à la
+  fermeture). Sans lui, la tabulation sortait dans la page masquée derrière.
+  ⚠️ Sur les Manuscrits, `openDrawer` ne nomme pas le tiroir `d` comme sur
+  Capital : le premier jet a jeté un `ReferenceError`. Ne pas supposer que
+  les deux `openDrawer` ont les mêmes variables locales.
+- **Les douze marches du cheminement ne sont plus douze landmarks** :
+  `role="region"` retiré des `.wk-body` (le `aria-controls` du bouton
+  suffit). Un lecteur d'écran y trouvait douze régions anonymes avant le
+  pied de page.
+- **« Le sommaire » et « Dans ce chapitre » sont des `<h2>`** (les `<h3>` de
+  la marge suivaient le `<h1>` sans niveau intermédiaire). `.atl3-lab` reçoit
+  `margin:0`, l'aspect ne change pas.
+- **Les pastilles flottantes disent qu'elles ouvrent un panneau** :
+  `aria-expanded` + `aria-controls` (shell-annotations.js).
+- **Manuscrits** : l'état vide disait « Choisis un manuscrit ci-dessus, puis
+  clique sur Charger le texte » — ni sélecteur ni bouton n'existent depuis
+  `manuscrits-meme-atelier`. Il dit « Le texte s'affiche ici. Choisissez une
+  partie dans le sommaire. » Et `showMissingLocal` porte `role="alert"`,
+  annonce dans la région live et offre « Réessayer », comme Capital.
+- **WCAG 2.4.11** : `html:has(body.at-atelier.at-reading){scroll-padding-top:200px}`
+  (90 px en plein écran) — le focus et les ancres ne se posent plus sous les
+  barres collantes.
+- **Cache** : shell.css et shell.js passent en `?v=4` (40 + 24 références,
+  gabarit des notions compris), shell-annotations.js en `?v=2` sur ses trois
+  pages. La règle est la même que pour `home.js` : tout actif modifié en
+  même temps qu'un balisage porte une version neuve.
+
+**Vérifié** : landmarks à la sonde (nav « Navigation du site », nav
+« Destinations de l'œuvre », tablist interne, zéro `role=region`), panneau
+Réglages avec « Écoute » (vitesse nommée, voix labellisée), tiroir modal
+avec cycle de Tab dans les deux sens et Échap qui le ferme et retire
+`aria-modal`, `scroll-padding-top` à 200 px en lecture, les huit pages du
+shell chargées sans erreur avec la sidebar en `<nav>`. Détecteur statique :
+19 / 12 constats, 0 erreur (inchangé).
 
 ## Le Dossier remis en ordre (mission `dossier-lisible`, sept. 2026)
 

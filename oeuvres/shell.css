@@ -576,3 +576,7 @@ body.at-reading .notes-fab{display:inline-flex;}
    dans la feuille print du carnet : le pied de page appartient à la coquille,
    et l'argument vaut pour toutes les pages, pas seulement celle qui s'imprime. */
 @media print{.lm-foot{display:none!important;}}
+
+/* L'enveloppe des onglets (SHELL.tabs) : elle porte role=tablist à la
+   place du <nav>, et ne doit pas exister pour la mise en page. */
+.tabs-list{display:contents;}

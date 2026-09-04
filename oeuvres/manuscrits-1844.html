@@ -23,7 +23,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="fonts/fonts.css">
 <link rel="stylesheet" href="atelier.css?v=2">
-<link rel="stylesheet" href="shell.css?v=3">
+<link rel="stylesheet" href="shell.css?v=4">
 <link rel="stylesheet" href="reader-tools.css">
 <link rel="stylesheet" href="manuscrits-1844.css">
 <style>
@@ -299,7 +299,7 @@ nav.tabs.worktabs .tab:focus-visible{outline:2px solid var(--gold);
         <span class="atl3-toc-toggle-t" id="atl3TocToggleT">Choisir une partie</span>
       </button>
       <div class="atl3-toc-head">
-        <span class="atl3-lab">Le sommaire</span>
+        <h2 class="atl3-lab">Le sommaire</h2>
         <div class="atl3-prog" id="atl3Prog"></div>
       </div>
       <input class="atl3-filter" id="filter" type="search" placeholder="Filtrer les parties…" aria-label="Filtrer les parties">
@@ -318,7 +318,7 @@ nav.tabs.worktabs .tab:focus-visible{outline:2px solid var(--gold);
         <div class="atl3-midbar" id="atlMidbar"></div>
     <div class="reader">
       <div class="reader-head"><div class="reader-title" id="readerTitle">Note du traducteur</div></div>
-      <div class="placeholder" id="readerPlaceholder"><div><div class="pi"><svg viewBox="0 0 24 24" aria-hidden="true"><g class="s"><path d="M12 6.4C10 4.6 7.2 3.9 3.6 4.1v13.2c3.6-.2 6.4.5 8.4 2.3 2-1.8 4.8-2.5 8.4-2.3V4.1c-3.6-.2-6.4.5-8.4 2.3Z"/><path d="M12 6.4v13.2"/></g></svg></div><b>Choisis un manuscrit ci-dessus, puis clique sur « Charger le texte ».</b><br><span style="font-size:.9rem">Le manuscrit complet s'affichera ici.</span></div></div>
+      <div class="placeholder" id="readerPlaceholder"><div><div class="pi"><svg viewBox="0 0 24 24" aria-hidden="true"><g class="s"><path d="M12 6.4C10 4.6 7.2 3.9 3.6 4.1v13.2c3.6-.2 6.4.5 8.4 2.3 2-1.8 4.8-2.5 8.4-2.3V4.1c-3.6-.2-6.4.5-8.4 2.3Z"/><path d="M12 6.4v13.2"/></g></svg></div><b>Le texte s'affiche ici.</b><br><span style="font-size:.9rem">Choisissez une partie dans le sommaire.</span></div></div>
       <div class="reader-content" id="readerContent" hidden></div>
     </div>
       </section>
@@ -1244,7 +1244,7 @@ function syncTabsA11y(pid){
       +' aria-expanded="'+(margeOpen?'true':'false')+'">'
       +'<span class="atl3-m-toggle-k">Dans ce cahier</span>'
       +'<span class="atl3-m-toggle-t">'+esc(c.t)+'</span></button>'
-      +'<div class="atl3-m-head"><span class="atl3-lab">Dans ce cahier</span>'
+      +'<div class="atl3-m-head"><h2 class="atl3-lab">Dans ce cahier</h2>'
       +'<p class="atl3-m-ch">'+(c.grpRn?'<em>'+c.grpRn+'</em> ':'')+esc(c.t)+'</p></div>';
 
     /* VOS PASSAGES — en TÊTE, et en carte d'emphase : c'est l'outil
@@ -1389,11 +1389,26 @@ function syncTabsA11y(pid){
     byId('atlDrawer').hidden=false;
     document.body.classList.add('atl-drawer-on');
     var x=byId('atlDrawerX'); if(x)x.focus();
+    /* Piège de focus + aria-modal : voir capital-1.html (`drawerTrap`). */
+    var dd=byId('atlDrawer');
+    dd.setAttribute('aria-modal','true');
+    dd.addEventListener('keydown',drawerTrap);
     if(window.SHELL&&SHELL.announce)SHELL.announce('Ouvert : '+title);
+  }
+  function drawerTrap(e){
+    if(e.key!=='Tab')return;
+    var d=byId('atlDrawer');
+    var f=[].slice.call(d.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])'))
+      .filter(function(el){return el.getClientRects().length;});
+    if(!f.length)return;
+    var first=f[0],last=f[f.length-1];
+    if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}
+    else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
   }
   function closeDrawer(silent){
     var d=byId('atlDrawer');
     if(!d||d.hidden){ if(!silent)return; }
+    if(d){ d.removeEventListener('keydown',drawerTrap); d.removeAttribute('aria-modal'); }
     if(drawerNode&&drawerHome){
       drawerNode.classList.remove('atl-drawer-in');
       /* L'instrument retourne à sa place ET à son état : masqué s'il
@@ -1478,9 +1493,15 @@ function syncTabsA11y(pid){
     return main?main.innerHTML:'';
   }
   function showMissingLocal(path){
-    byId('readerContent').innerHTML='<div class="reader-error"><b>Texte momentanément indisponible.</b><p>Cette partie n’a pas pu être chargée. Réessaie dans un instant.</p></div>';
+    /* Un échec se DIT : role=alert pour l'aide technique, annonce dans la
+       région live, et un bouton pour réessayer — Capital offrait les trois,
+       cette page aucun. Mission `atelier-a11y-2`. */
+    byId('readerContent').innerHTML='<div class="reader-error" role="alert"><b>Texte momentanément indisponible.</b><p>Cette partie n’a pas pu être chargée. Vérifiez votre connexion, puis réessayez.</p><p><button type="button" class="btn red" data-retry-part>Réessayer</button></p></div>';
     byId('readerContent').hidden=false;
     byId('readerPlaceholder').hidden=true;
+    var rb=byId('readerContent').querySelector('[data-retry-part]');
+    if(rb)rb.onclick=function(){ loadPart(_manCurrentPart); };
+    if(window.SHELL&&SHELL.announce)SHELL.announce('Le texte n’a pas pu être chargé.');
   }
   function attachReader(i){
     // Contrat liseuse : on déclare la section affichée au shell pour
@@ -1930,7 +1951,7 @@ function syncTabsA11y(pid){
            +'<span class="wk-cahier">Cahier '+esc(w.cahier)+'</span></span>'
          +'<span class="wk-chev">'+MK_CHEV+'</span>'
         +'</button>'
-        +'<div class="wk-body" id="wk-b'+n+'" role="region" aria-labelledby="wk-h'+n+'"><div>'
+        +'<div class="wk-body" id="wk-b'+n+'"><div>'
           +'<p class="wk-f wk-pass">'+MK_PASS+'<span><span class="sr-only">Le ressort : </span>'
           +esc(w.ressort)+'</span></p>'
         +'</div></div>';
@@ -2087,9 +2108,9 @@ function syncTabsA11y(pid){
 })();
 </script>
 <script src="../config.js"></script>
-<script src="shell.js?v=3"></script>
+<script src="shell.js?v=4"></script>
 <script src="shell-social.js"></script>
-<script src="shell-annotations.js"></script>
+<script src="shell-annotations.js?v=2"></script>
 <script src="shell-progress.js"></script>
 <script src="reader-tools.js?v=2" defer></script>
 <script src="atelier-motion.js?v=2" defer></script>

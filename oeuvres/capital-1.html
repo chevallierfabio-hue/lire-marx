@@ -23,7 +23,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="fonts/fonts.css">
 <link rel="stylesheet" href="atelier.css?v=2">
-<link rel="stylesheet" href="shell.css?v=3">
+<link rel="stylesheet" href="shell.css?v=4">
 <link rel="stylesheet" href="reader-tools.css">
 <style>
 /* Aucun :root ici. La palette sombre-chaude est le système de record
@@ -746,9 +746,9 @@ nav.tabs.worktabs{position:sticky;top:44px;z-index:62;
 
 </style>
 <script src="../config.js"></script>
-<script src="shell.js?v=3"></script>
+<script src="shell.js?v=4"></script>
 <script src="shell-social.js"></script>
-<script src="shell-annotations.js"></script>
+<script src="shell-annotations.js?v=2"></script>
 <script src="shell-progress.js"></script>
 <script src="reader-tools.js?v=2" defer></script>
 <script src="atelier-motion.js?v=2" defer></script>
@@ -864,7 +864,7 @@ nav.tabs.worktabs{position:sticky;top:44px;z-index:62;
         <span class="atl3-toc-toggle-t" id="atl3TocToggleT">Choisir un chapitre</span>
       </button>
       <div class="atl3-toc-head">
-        <span class="atl3-lab">Le sommaire</span>
+        <h2 class="atl3-lab">Le sommaire</h2>
         <div class="atl3-prog" id="atl3Prog"></div>
       </div>
       <input class="atl3-filter" id="filter" type="search" placeholder="Filtrer les chapitres…" aria-label="Filtrer les chapitres">
@@ -2312,7 +2312,7 @@ function renderMarge(){
     +' aria-expanded="'+(margeOpen?'true':'false')+'">'
     +'<span class="atl3-m-toggle-k">Dans ce chapitre</span>'
     +'<span class="atl3-m-toggle-t">'+dEsc(c.chapTitle)+'</span></button>'
-    +'<div class="atl3-m-head"><span class="atl3-lab">Dans ce chapitre</span>'
+    +'<div class="atl3-m-head"><h2 class="atl3-lab">Dans ce chapitre</h2>'
     +'<p class="atl3-m-ch"><em>'+rn+'</em> '+dEsc(c.chapTitle)+'</p></div>';
 
   /* VOS PASSAGES — en TÊTE, et en carte d'emphase.
@@ -2505,11 +2505,28 @@ function openDrawer(kind,target){
   if(target==='s-trpf')setTimeout(function(){try{drawTRPF();}catch(e){}},0);
   setTimeout(syncGraphLabels,0);
   const x=document.getElementById('atlDrawerX'); if(x)x.focus();
+  /* Le tiroir est une boîte de dialogue : Tab y reste (WCAG 2.4.3). Sans
+     piège, la tabulation sortait dans la page masquée derrière — le shell
+     en avait un pour ses modales, pas le tiroir. `aria-modal` dit la même
+     chose à l'aide technique. Mission `atelier-a11y-2`. */
+  d.setAttribute('aria-modal','true');
+  d.addEventListener('keydown',drawerTrap);
   if(window.SHELL&&SHELL.announce)SHELL.announce('Ouvert : '+title);
+}
+function drawerTrap(e){
+  if(e.key!=='Tab')return;
+  const d=document.getElementById('atlDrawer');
+  const f=[...d.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')]
+    .filter(el=>el.getClientRects().length);
+  if(!f.length)return;
+  const first=f[0],last=f[f.length-1];
+  if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}
+  else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
 }
 function closeDrawer(silent){
   const d=document.getElementById('atlDrawer');
   if(!d||d.hidden){ if(!silent)return; }
+  if(d){ d.removeEventListener('keydown',drawerTrap); d.removeAttribute('aria-modal'); }
   if(drawerNode&&drawerHome){
     drawerNode.classList.remove('atl-drawer-in');
     drawerHome.insertBefore(drawerNode,drawerNext);
@@ -3617,7 +3634,7 @@ STEPS.forEach((s,i)=>{const n=i+1,col=stairColor(i/(WN-1));
       `<span class="wk-said"><span class="wk-t">${s.t}</span><span class="wk-pose">${s.pose}</span></span>`+
       `<span class="wk-chev">${MK_CHEV}</span>`+
     `</button>`+
-    `<div class="wk-body" id="wk-b${n}" role="region" aria-labelledby="wk-h${n}"><div>`+
+    `<div class="wk-body" id="wk-b${n}"><div>`+
       `<p class="wk-f wk-contra">${MK_CONTRA}<span><span class="sr-only">La contradiction interne : </span>${s.contra}</span></p>`+
       `<p class="wk-f wk-pass">${MK_PASS}<span><span class="sr-only">Ce qui force le passage : </span>${s.pass}</span></p>`+
       (lh?`<div class="step-links"><span class="step-links-lab">Voir à l'œuvre :</span>${lh}</div>`:'')+

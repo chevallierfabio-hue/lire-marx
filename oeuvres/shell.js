@@ -85,7 +85,11 @@
       ? '<div class="sb-work" id="sbWork"><div class="sb-h">' + esc(workTitle) + '</div>' + tabsHtml + '</div>'
       : '';
     return el(
-      '<aside class="sidebar" id="sidebar" aria-label="Navigation de l\'atelier">' +
+      /* <nav>, et non <aside> : c'est LA navigation du site (son aria-label
+         le disait déjà), un lecteur d'écran la cherche parmi les
+         landmarks « navigation », pas « complementary ». Le CSS ne vise
+         que la classe. Mission `atelier-a11y-2`. */
+      '<nav class="sidebar" id="sidebar" aria-label="Navigation du site">' +
         '<a class="sb-item" href="/" data-act="home"><span class="sb-dot" style="background:var(--gold)"></span>Accueil</a>' +
         '<a class="sb-item" href="/oeuvres/bibliotheque" data-act="biblio"><span class="sb-dot" style="background:var(--ink-soft)"></span>Bibliothèque</a>' +
                 /* Le glossaire suit la Bibliothèque : ce sont les deux outils du
@@ -121,7 +125,7 @@
            document — et non plus à une modale. C'est donc une ANCRE. */
         '<a class="sb-item" href="/mentions-legales" data-act="cgu"><span class="sb-dot" style="background:var(--ink-soft)"></span>CGU &amp; règles</a>' +
         sbWork +
-      '</aside>'
+      '</nav>'
     );
   }
 
@@ -480,6 +484,21 @@
      Réentrant : #subnav est reconstruit en innerHTML à chaque bascule. */
   function wireTabs(list, getPanelId){
     if(!list) return;
+    /* Le tablist ne se pose PAS sur un <nav> : role="tablist" y écrasait le
+       rôle « navigation », et la barre des destinations disparaissait de la
+       liste des landmarks. Les onglets sont enveloppés dans un
+       `.tabs-list` (display:contents — la mise en page du <nav> ne change
+       pas) qui porte le rôle. Réentrant : l'enveloppe est réutilisée. */
+    if(list.tagName === 'NAV'){
+      var inner = list.querySelector(':scope > .tabs-list');
+      if(!inner){
+        inner = document.createElement('div');
+        inner.className = 'tabs-list';
+        while(list.firstChild) inner.appendChild(list.firstChild);
+        list.appendChild(inner);
+      }
+      list = inner;
+    }
     list.setAttribute('role','tablist');
     var items = [].slice.call(list.querySelectorAll('button'));
     items.forEach(function(b, i){
