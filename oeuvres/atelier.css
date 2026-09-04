@@ -495,15 +495,6 @@ h2.sec em{font-style:italic;font-weight:500;color:var(--red-text);}
   .pg-prog{text-align:left;}
 }
 
-/* ═══ Les cartes « Trois idées » sont des portes (trois-idees-cliquables) ═══
-   Chaque idée mène à l'endroit qui l'incarne — chapitre, simulation ou
-   cheminement — et la carte le DIT (.cap-idea-cta) : pas de cul-de-sac,
-   pas de clic mystère. */
-.cap-idea-card[role="link"]{cursor:pointer;}
-.cap-idea-cta{margin-top:12px;font-family:var(--f-ui);font-size:.78rem;
-  font-weight:700;color:var(--red-text);}
-.cap-idea-card[role="link"]:hover .cap-idea-cta{text-decoration:underline;
-  text-underline-offset:3px;}
 
 /* ═══ Le mouvement des ateliers (mission `ateliers-mouvement`) ═══════════
    Le vocabulaire de l'accueil, porté aux pages d'atelier par
@@ -533,22 +524,6 @@ h2.sec em{font-style:italic;font-weight:500;color:var(--red-text);}
 .js-atlum .cap-start-main,.js-atlum .cap-start-side{position:relative;z-index:1;
   opacity:calc(.5 + .5 * var(--lum,1));}
 
-/* C. Les trois idées passent au RÉVÉLATEUR — ce sont des tirages
-      d'archive : l'image vient au bain, sous la barre dorée, et l'idée
-      apparaît avec elle. (Le geste des photos du catalogue de l'accueil.) */
-.js-atdev .cap-idea-vignette img{clip-path:inset(0 calc((1 - var(--dev,1)) * 100%) 0 0);}
-.js-atdev .cap-idea-vignette::before{content:'';position:absolute;top:0;bottom:0;
-  width:3px;z-index:5;pointer-events:none;
-  left:calc(var(--dev,0) * 100%);transform:translateX(-2px);
-  opacity:var(--bar,0);
-  background:linear-gradient(transparent,var(--gold) 28%,var(--gold) 72%,transparent);
-  box-shadow:0 0 18px 5px rgba(216,173,76,.5);}
-/* la carte n'est qu'un cadre vide tant que rien n'est tiré */
-.js-atdev .cap-idea-card{opacity:calc(.24 + .76 * var(--in,1));}
-/* la légende du tirage et le corps de la carte arrivent DERRIÈRE la barre */
-.js-atdev .cap-idea-vignette .hs-img-caption{opacity:var(--txt,1);}
-.js-atdev .cap-idea-body{opacity:var(--txt,1);
-  transform:translateY(calc((1 - var(--txt,1)) * 14px));}
 
 /* D. Les deux blocs d'action SE POSENT, comme des feuillets sur le
       bureau : ils arrivent plus haut et de biais, puis s'aplatissent. */
@@ -699,7 +674,6 @@ h2.sec em{font-style:italic;font-weight:500;color:var(--red-text);}
 
 /* De l'air dans le panneau d'accueil : les blocs ne se touchent plus. */
 #accueil .cap-start{margin-bottom:0;}
-#accueil .cap-ideas-grid{gap:18px;margin-bottom:0;}
 
 /* le titre de section prend l'encre comme celui du panneau — mais lui,
    il vit SOUS LE PLI : c'est un vrai scrub, pas une entrée orchestrée */
@@ -886,12 +860,6 @@ a.btn,a.lk,a.cap-btn-dark,a.cap-btn-light,a.cap-btn-outline,a.prog-no-auth-btn{
   color:var(--gold);margin-top:8px;text-decoration:underline;
   text-underline-offset:3px;}
 
-/* ── Le seuil (première visite) ── */
-.atl-seuil{padding:34px 0 60px;max-width:1000px;}
-.atl-seuil-lab{font-family:var(--f-ui);font-size:.72rem;font-weight:600;
-  letter-spacing:.11em;text-transform:uppercase;color:var(--gold-deep);
-  display:block;margin-bottom:10px;}
-.atl-seuil-go{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px;}
 
 /* ── Le dossier ─────────────────────────────────────────────────────────
    Six sections, onze mille pixels, un seul défilement. Ce qui manquait
@@ -1080,7 +1048,11 @@ a.btn,a.lk,a.cap-btn-dark,a.cap-btn-light,a.cap-btn-outline,a.prog-no-auth-btn{
    les aurait mises par-dessus le texte. Elles restent dans le document —
    c'est le shell qui les possède et la marge ne fait que les déclencher —
    mais elles ne s'affichent plus qu'aux largeurs où la marge se replie. */
-.atl3-m-notebtns{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+.atl3-pass-acts{display:flex;flex-wrap:wrap;gap:7px;margin-top:2px;}
+/* (`.atl3-m-notebtns` était une classe MORTE : renderMarge émet
+   `.atl3-pass-acts`. Sous 1240 px, les deux boutons de la marge ET les
+   deux pastilles flottantes s'affichaient donc ensemble — quatre
+   affordances pour deux actions. Mesuré, corrigé.) */
 .atl3-m-nb{font-family:var(--f-ui);font-size:.78rem;color:var(--ink);
   background:var(--card);border:1px solid var(--line-strong);border-radius:100px;
   padding:6px 13px;cursor:pointer;transition:border-color .16s,background .16s;}
@@ -1089,7 +1061,7 @@ a.btn,a.lk,a.cap-btn-dark,a.cap-btn-light,a.cap-btn-outline,a.prog-no-auth-btn{
   body.at-atelier .notes-fab{display:none!important;}
 }
 @media (max-width:1240px){
-  .atl3-m-notebtns{display:none;}
+  .atl3-pass-acts{display:none;}
 }
 
 
@@ -1133,9 +1105,16 @@ a.btn,a.lk,a.cap-btn-dark,a.cap-btn-light,a.cap-btn-outline,a.prog-no-auth-btn{
   line-height:1.25;color:var(--gold);margin-top:2px;}
 .atl3-pass-more{font-family:var(--f-ui);font-size:.74rem;color:var(--ink-soft);
   margin:0 0 8px;}
-.atl3-pass-acts{display:flex;flex-wrap:wrap;gap:7px;margin-top:2px;}
 /* Dans la carte d'emphase, les deux boutons se détachent du dégradé. */
 .atl3-pass .atl3-m-nb{background:rgba(243,233,212,.05);}
+/* « Vos passages » sans passage : section ordinaire, après le résumé. */
+.atl3-pass-plain .atl3-pass-top{margin-bottom:4px;}
+.atl3-pass-plain .atl3-pass-empty{color:var(--ink-soft);margin:0 0 8px;}
+/* La glose de l'onglet « Le dossier · pour approfondir » : même encre,
+   plus légère ; disparaît sous 600 px où la barre ne la tiendrait pas. */
+.worktabs .tab-glose{font-weight:400;color:var(--ink-soft);}
+.worktabs .tab.active .tab-glose{color:inherit;opacity:.8;}
+@media (max-width:599px){ .worktabs .tab-glose{display:none;} }
 
 /* ══════════════════════════════════════════════════════════════════════
    LECTURE PLEIN ÉCRAN
@@ -1160,6 +1139,25 @@ a.btn,a.lk,a.cap-btn-dark,a.cap-btn-light,a.cap-btn-outline,a.prog-no-auth-btn{
    plein écran où la colonne est large, rien ne change — le repli ne joue
    que s'il manque de la place. */
 .atl3-mid .rd-row{flex-wrap:wrap;overflow-x:visible;row-gap:6px;}
+/* UNE RANGÉE, pas quatre (mission `atelier-premier-ecran`). Mesuré à
+   1280 px : 8 boutons sur 4 rangées, 182 px de barre collante, 270 px de
+   coquille en tout sur un écran de 800 — un tiers de la hauteur. Trois de
+   ces boutons redisaient une colonne visible à côté d'eux : « Sommaire »
+   redit la colonne de gauche, « En clair » redit la marge, « Glossaire »
+   (le surlignage des termes) est un réglage de lecture et vit désormais
+   dans « Aa Réglages ». Les deux premiers ne reviennent qu'aux largeurs
+   où la colonne qu'ils redisent est repliée. */
+@media (min-width:900px){ .atl3-mid .rd-btn[data-rd="toc"]{display:none;} }
+@media (min-width:1241px){ .atl3-mid .rd-btn[data-rd="clear"]{display:none;} }
+.atl3-toolhead>.rd-row{flex:1 1 0;gap:6px;}
+/* Et la barre se resserre DANS LA COLONNE : reader-tools la dimensionne
+   pour une liseuse pleine largeur (54 px de marge de chaque côté, boutons
+   à .86rem). À 1280 px la colonne fait 508 px ; sans ce resserrement les
+   quatre outils et le bouton de mode se repliaient encore sur deux
+   rangées. Rien ne change en plein écran, où la colonne est large. */
+.atl3-mid .rd-toolbar{padding:12px 18px 10px;}
+.atl3-mid .rd-row .rd-btn{padding:6px 10px;font-size:.8rem;}
+.atl3-mid .atl3-full{padding:6px 10px;font-size:.74rem;gap:5px;}
 /* La barre de lecture se bloque SOUS la barre d'onglets, pas dessous elle.
    reader-tools la colle à 44 px — la hauteur de la seule topbar, ce qui
    était juste avant que l'atelier n'ajoute sa propre barre collante. Les

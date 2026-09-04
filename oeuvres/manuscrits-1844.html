@@ -22,7 +22,7 @@
 <meta property="og:locale" content="fr_FR">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="fonts/fonts.css">
-<link rel="stylesheet" href="atelier.css">
+<link rel="stylesheet" href="atelier.css?v=2">
 <link rel="stylesheet" href="shell.css?v=3">
 <link rel="stylesheet" href="reader-tools.css">
 <link rel="stylesheet" href="manuscrits-1844.css">
@@ -116,21 +116,6 @@ nav.tabs.worktabs .tab:focus-visible{outline:2px solid var(--gold);
 .cap-section-label{font-size:.72rem;font-weight:700;letter-spacing:.22em;
   text-transform:uppercase;color:var(--muted);margin-bottom:16px;
   display:block;font-family:var(--f-ui);}
-.cap-ideas-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:36px;}
-.cap-idea-card{background:var(--surface);border-radius:16px;overflow:hidden;
-  border:1px solid transparent;transition:transform .2s,box-shadow .2s;}
-.cap-idea-card:hover{transform:translateY(-3px);box-shadow:0 14px 34px -12px rgba(0,0,0,.65);border-color:rgba(243,233,212,.16);}
-.cap-idea-vignette{height:140px;position:relative;overflow:hidden;}
-.cap-idea-vignette img{width:100%;height:100%;object-fit:cover;filter:grayscale(1) contrast(1.05);display:block;}
-.cap-idea-vignette::after{content:'';position:absolute;inset:0;
-  background:rgba(213,64,47,.22);mix-blend-mode:multiply;pointer-events:none;}
-.cap-idea-vignette-grad{height:140px;position:relative;background:linear-gradient(135deg,#2A2724 0%,#1a1410 55%,#0f0c0a 100%);}
-.cap-idea-vignette-grad::before{content:'';position:absolute;inset:0;
-  background:radial-gradient(ellipse at 40% 30%,rgba(213,64,47,.22) 0%,transparent 60%);}
-.cap-idea-body{padding:18px 18px 16px;}
-.cap-idea-title{font-family:'Fraunces',serif;font-weight:700;font-size:1rem;
-  line-height:1.32;color:var(--ink);margin-bottom:7px;letter-spacing:-.01em;}
-.cap-idea-desc{font-size:.84rem;line-height:1.55;color:var(--ink-soft);font-family:'Spectral',Georgia,serif;}
 /* ── Blocs d'action ── */
 .cap-actions-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:4px;}
 .cap-action{border-radius:18px;padding:26px 26px 24px;}
@@ -224,12 +209,6 @@ nav.tabs.worktabs .tab:focus-visible{outline:2px solid var(--gold);
   stroke-width:1;stroke-linecap:round;stroke-linejoin:round;}
 .placeholder .pi svg .f{fill:currentColor;stroke:none;}
 
-/* ── Photographie d'archive ──
-   Duotone + assombrissement : à pleine luminosité ces tirages étaient l'objet
-   le plus clair de la page et crevaient la pénombre. Ils doivent être DANS la
-   lumière de la bougie, pas devant. */
-.cap-idea-vignette img{
-  filter:grayscale(1) contrast(1.06) sepia(.30) brightness(.66)!important;}
 
 /* ── Liseuse : les titres en rouge profond s'enfonçaient dans le brun-nuit ── */
 .reader .rkicker,.reader .rsrc,.reader h4,
@@ -303,55 +282,6 @@ nav.tabs.worktabs .tab:focus-visible{outline:2px solid var(--gold);
        « Chronologie », dans un site qui s'appelle Lire Marx. -->
   <nav class="tabs worktabs" id="worktabs" aria-label="Destinations de l'œuvre"></nav>
 
-  <!-- LE SEUIL — les trois idées, à la PREMIÈRE visite seulement, et
-       jamais à qui a déjà une reprise. Elles accueillaient tout le monde
-       à chaque retour, devant un livre qu'on venait de choisir. Même
-       arbitrage que sur Capital ; c'est ici leur seul emplacement. -->
-  <section class="atl-seuil" id="atlSeuil" hidden aria-labelledby="atlSeuilH">
-    <span class="atl-seuil-lab">Avant d'ouvrir les cahiers</span>
-    <h2 class="sec" id="atlSeuilH">Trois idées qui ouvrent <em>les Manuscrits</em></h2>
-    <p class="lead">Chacune mène à l'endroit des cahiers où elle se dit. Vous pouvez aussi entrer directement dans le texte.</p>
-  <div class="cap-ideas-grid">
-
-        <article class="cap-idea-card" role="link" tabindex="0" aria-label="L'aliénation — lire le Premier manuscrit" onclick="goLire(2)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
-          <div class="cap-idea-vignette">
-            <img src="../assets/img/archive/sortie-usine.jpg" alt="La Sortie de l'usine Lumière à Lyon, 1895" loading="lazy">
-          </div>
-          <div class="cap-idea-body">
-            <div class="cap-idea-title">Ce que tu produis te domine — c'est l'aliénation</div>
-            <div class="cap-idea-desc">Plus l'ouvrier produit de richesse, plus son produit lui échappe et le domine comme une puissance étrangère. Son propre travail se retourne contre lui.</div>
-            <div class="cap-idea-cta" aria-hidden="true">Lire le Premier manuscrit →</div>
-          </div>
-        </article>
-
-        <article class="cap-idea-card" role="link" tabindex="0" aria-label="La propriété privée conséquence — suivre le cheminement" onclick="goDeriv(3)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
-          <div class="cap-idea-vignette">
-            <img src="../assets/img/archive/manufacture.jpg" alt="Manufactures et travail collectif au XIXe siècle" loading="lazy">
-          </div>
-          <div class="cap-idea-body">
-            <div class="cap-idea-title">La propriété privée n'est pas la cause — c'est la conséquence</div>
-            <div class="cap-idea-desc">Les économistes posent la propriété comme un fait premier. Marx l'inverse : c'est le travail aliéné qui l'engendre, dont elle n'est que la forme consolidée.</div>
-            <div class="cap-idea-cta" aria-hidden="true">Suivre le cheminement →</div>
-          </div>
-        </article>
-
-        <article class="cap-idea-card" role="link" tabindex="0" aria-label="Récupérer son humanité — lire le Troisième manuscrit" onclick="goLire(4)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}">
-          <div class="cap-idea-vignette">
-            <img src="../assets/img/archive/halles-paris.jpg" alt="Les Halles de Paris, carte postale ancienne" loading="lazy">
-          </div>
-          <div class="cap-idea-body">
-            <div class="cap-idea-title">Récupérer son humanité n'est pas une utopie</div>
-            <div class="cap-idea-desc">Le communisme des Manuscrits n'est pas un partage des richesses : c'est l'abolition de l'aliénation et la réappropriation par l'homme de ses puissances propres.</div>
-            <div class="cap-idea-cta" aria-hidden="true">Lire le Troisième manuscrit →</div>
-          </div>
-        </article>
-
-      </div>
-    <div class="atl-seuil-go">
-      <button class="btn red" type="button" id="atlSeuilStart">Entrer dans le texte →</button>
-      <button class="btn" type="button" id="atlSeuilSkip">Ne plus afficher</button>
-    </div>
-  </section>
 
   <!-- LA COQUILLE À TROIS COLONNES — la même que Le Capital.
        Gauche : le sommaire (il a remplacé l'onglet « Parcourir », qui
@@ -834,7 +764,9 @@ function syncTabsA11y(pid){
      sidebar — la même navigation deux fois dans le même écran. Portage
      exact de la forme arrêtée sur Capital (`atelier-texte-au-centre`).
      ══════════════════════════════════════════════════════════════════ */
-  var TABS=[{id:'lire',label:'Lire le texte'},{id:'dossier',label:'Le dossier'}];
+  /* La glose est DANS le libellé (voir capital-1.html) : « Le dossier »
+     seul ne disait ni ce qu'il contient ni qu'il est facultatif. */
+  var TABS=[{id:'lire',label:'Lire le texte'},{id:'dossier',label:'Le dossier',glose:'pour approfondir'}];
   /* L'ORDRE DU DOSSIER VIT ICI, ET NULLE PART AILLEURS — le document le
      suit. Celui du lecteur : on voit le texte se déduire (le cheminement),
      puis les deux âges du texte (la chronologie), on manipule les concepts
@@ -866,7 +798,8 @@ function syncTabsA11y(pid){
     var bar=byId('worktabs');
     if(!bar)return;
     bar.innerHTML=TABS.map(function(p){
-      return '<button type="button" class="tab" data-panel="'+p.id+'">'+p.label+'</button>';}).join('');
+      return '<button type="button" class="tab" data-panel="'+p.id+'">'+p.label
+        +(p.glose?'<span class="tab-glose"> · '+p.glose+'</span>':'')+'</button>';}).join('');
     bar.querySelectorAll('.tab').forEach(function(b){
       b.addEventListener('click',function(){window.activateTab(b.dataset.panel);});});
   }
@@ -962,13 +895,11 @@ function syncTabsA11y(pid){
      non. Un seul basculement, au lieu de sept. */
   window.activateTab=function(id,anchor){
     if(id!=='dossier')id='lire';
-    var _sc=byId('atlSeuil');
-    if(_sc&&!_sc.hidden&&typeof dismissSeuil==='function')dismissSeuil();
     curTab=id; window.curTabId=id;
     document.querySelectorAll('#worktabs .tab').forEach(function(b){
       b.classList.toggle('active',b.dataset.panel===id);});
     var a3=byId('atl3'),dos=byId('dossier');
-    if(a3) a3.hidden=(id!=='lire')||!!document.body.classList.contains('atl-seuil-on');
+    if(a3) a3.hidden=(id!=='lire');
     if(dos) dos.hidden=(id!=='dossier');
     document.body.classList.toggle('at-dossier',id==='dossier');
     if(anchor){
@@ -1357,19 +1288,23 @@ function syncTabsA11y(pid){
         +'</ul>'
         +(nn>4?'<p class="atl3-pass-more">et '+(nn-4)+' de plus</p>':'');
     }else{
-      ph+='<p class="atl3-pass-empty"><b>Sélectionnez un passage du texte</b>'
-        +' pour le surligner, puis cliquez le surlignage pour y attacher une note.</p>';
+      ph+='<p class="atl3-pass-empty">Sélectionnez un passage du texte pour le surligner.</p>';
     }
     ph+='<div class="atl3-pass-acts">'
       +'<button type="button" class="atl3-m-nb" data-fab="notesFab">Mes notes</button>'
       +'<button type="button" class="atl3-m-nb" data-fab="pubFab">Notes partagées'+pub+'</button>'
       +'</div><a class="atl3-m-carnet" href="carnet">Ouvrir mon carnet →</a>';
-    h+='<section class="atl3-m-sec atl3-pass">'+ph+'</section>';
-
+    /* ORDRE : la carte d'emphase en tête quand il y a des passages ; sans
+       passage, le résumé passe devant et « Vos passages » suit en section
+       ordinaire (voir capital-1.html, mission `atelier-premier-ecran`). */
+    var passHtml=nn?'<section class="atl3-m-sec atl3-pass">'+ph+'</section>'
+                   :'<section class="atl3-m-sec atl3-pass-plain">'+ph+'</section>';
+    if(nn) h+=passHtml;
     /* En clair — le résumé argumenté. Il vivait dans l'onglet
        « Parcourir », derrière deux accordéons. */
     if(c.s) h+=margeSection('En clair','<div class="atl3-m-sum" id="atl3Sum">'+esc(c.s)+'</div>'
       +'<button type="button" class="atl3-m-more" data-more="atl3Sum">Lire la suite</button>');
+    if(!nn) h+=passHtml;
 
     /* L'instrument du laboratoire qui met CETTE partie en mouvement. */
     if(c.app.i && INSTR_LABELS[c.app.i])
@@ -2100,11 +2035,13 @@ function syncTabsA11y(pid){
 
     /* ══════════════════════════════════════════════════════════════
        L'OUVERTURE DES CAHIERS.
-       On tombait sur « Pour entrer » — trois cartes d'accroche — à chaque
-       visite, y compris la dixième. Désormais on tombe sur le TEXTE :
-       celui qu'on lisait, ou la première pièce. Les trois idées ne se
-       montrent qu'une fois, à qui n'a encore ni progression ni lecture en
-       cours. Même arbitrage que sur Capital.
+       On tombe sur le TEXTE : celui qu'on lisait, ou le Premier manuscrit.
+       Le seuil de première visite (trois cartes d'accroche) a été SUPPRIMÉ
+       en septembre 2026 (mission `atelier-premier-ecran`), comme sur
+       Capital : il masquait la coquille et remplaçait le livre. Sans
+       reprise, on ouvre le Premier manuscrit (partie 2) et non la note du
+       traducteur : c'est le livre qu'on vient lire, la note reste au
+       sommaire. Ne pas réintroduire d'écran d'entrée devant le texte.
        ══════════════════════════════════════════════════════════════ */
     var _h=(location.hash||'').replace(/^#/,'');
     var _t=tabForHash(_h);
@@ -2123,35 +2060,10 @@ function syncTabsA11y(pid){
     /* Un deep-link (#note=, #s=) a son propre aiguillage : on ne charge
        pas par-dessus. */
     if(!/^#(note=|s=)/.test(location.hash||'') && curTab==='lire'){
-      if(!seuilSeen() && !(r&&r.i!=null)) showSeuil();
-      else loadPart(r&&r.i!=null ? r.i : 0);
+      loadPart(r&&r.i!=null ? r.i : 2);
     }
   }
 
-  /* ── Le seuil ──────────────────────────────────────────────────── */
-  var SEUIL_KEY='liremarx.manuscrits.seuil.v1';
-  function seuilSeen(){ try{return localStorage.getItem(SEUIL_KEY)==='1';}catch(e){return true;} }
-  function markSeuil(){ try{localStorage.setItem(SEUIL_KEY,'1');}catch(e){} }
-  function dismissSeuil(){
-    var sc=byId('atlSeuil');
-    if(!sc||sc.hidden)return;
-    markSeuil();
-    document.body.classList.remove('atl-seuil-on');
-    sc.hidden=true;
-    var a3=byId('atl3');
-    if(a3)a3.hidden=(curTab!=='lire');
-  }
-  function showSeuil(){
-    var sc=byId('atlSeuil');
-    if(!sc)return;
-    document.body.classList.add('atl-seuil-on');
-    sc.hidden=false;
-    var a3=byId('atl3'); if(a3)a3.hidden=true;
-    var go=function(open){ dismissSeuil(); if(open)loadPart(2); };
-    byId('atlSeuilStart').onclick=function(){go(true);};
-    byId('atlSeuilSkip').onclick=function(){go(false);};
-  }
-  window.dismissSeuil=dismissSeuil;
 
   // Contrat de deep-link au passage : si la page a été ouverte avec
   // #note=<id> (Place publique / notifications) ou #s=N&q=..., on
@@ -2179,18 +2091,15 @@ function syncTabsA11y(pid){
 <script src="shell-social.js"></script>
 <script src="shell-annotations.js"></script>
 <script src="shell-progress.js"></script>
-<script src="reader-tools.js" defer></script>
-<script src="atelier-motion.js" defer></script>
+<script src="reader-tools.js?v=2" defer></script>
+<script src="atelier-motion.js?v=2" defer></script>
 <script>
 installShell({
   workId: 'manuscrits-1844',
-  workTitle: 'Manuscrits de 1844',
-  /* La sidebar listait les MÊMES neuf destinations que la barre
-     d'onglets, mot pour mot, dans le même écran. Elle en porte deux. */
-  tabs: [
-    {id:'lire',    label:'Lire le texte'},
-    {id:'dossier', label:'Le dossier'}
-  ]
+  workTitle: 'Manuscrits de 1844'
+  /* Plus d'onglets d'œuvre dans la sidebar : « Lire le texte / Le dossier »
+     y était répété mot pour mot sous la barre des destinations, dans le
+     même écran (voir capital-1.html). */
 });
 
 /* Le bloc d'onglets s'initialise AVANT que shell.js ne soit chargé : au

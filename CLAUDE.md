@@ -1073,10 +1073,9 @@ Deux destinations, et le texte est la première : `TABS = [lire, dossier]`.
   Ressources), qui restent **tous `class="panel active"` en
   permanence** ; c'est le conteneur qui s'affiche ou non, avec une
   navigation d'ancres (`#dossierNav`).
-- **Le seuil** — les trois idées ne s'affichent qu'à la **première visite**
-  (`localStorage`, `liremarx.capital.seuil.v1`), et jamais à qui a déjà une
-  reprise. **C'est leur SEUL emplacement depuis septembre 2026** — voir
-  « Le Dossier n'a plus de section Pour entrer » plus bas.
+- ~~**Le seuil** — les trois idées à la première visite~~ **SUPPRIMÉ** en
+  sept. 2026 (mission `atelier-premier-ecran`, voir plus bas) : les trois
+  idées n'ont plus aucun emplacement, sur aucune des deux pages.
 - Le bandeau de reprise (`.resume-band`, `renderResumeBand`) est **supprimé** :
   la page ouvre elle-même le chapitre où l'on s'était arrêté, le bandeau
   n'aurait fait que le redire.
@@ -1409,6 +1408,117 @@ ne l'a pas revérifié en `instant`.
 
 Fait : voir « Les Manuscrits prennent la même forme » plus bas. Les deux
 ateliers ont désormais exactement la même présentation.
+
+## L'atelier s'ouvre sur le livre (mission `atelier-premier-ecran`, sept. 2026)
+
+Demande du propriétaire, après un test avec un novice : « énormément de
+boutons, on ne comprend pas que c'est le livre qui s'ouvre, ni que le dossier
+est un appui pour approfondir ». Diagnostic mesuré avant de toucher au code,
+et il donnait raison au testeur :
+
+| à 1280 × 800, chapitre I chargé | avant | après |
+|---|---|---|
+| le livre visible à la première visite | **non** (seuil) | oui |
+| barre de lecture | 8 boutons, **4 rangées**, 182 px | 5 boutons, **1 rangée**, 68 px |
+| coquille collante (topbar + onglets + barre) | **270 px** | 164 px |
+| « Lire le texte / Le dossier » dans l'écran | **2 fois** | 1 fois |
+| « Sommaire », « En clair », « Glossaire » en doublon | 3 | 0 |
+
+### Ce qui a été fait
+
+- **LE SEUIL DE PREMIÈRE VISITE EST SUPPRIMÉ** — sur les deux ateliers.
+  `#atlSeuil`, les trois cartes `.cap-idea-card`, `SEUIL_KEY`, `showSeuil` /
+  `dismissSeuil`, la classe `body.atl-seuil-on`, le révélateur
+  `developIdeas` d'atelier-motion.js, tout le CSS des cartes : parti. Il
+  masquait la coquille entière (`#atl3.hidden = true`) et remplaçait le livre
+  par trois cartes d'accroche — c'est exactement ce que le testeur n'a pas
+  compris. **Arbitrage explicite du propriétaire : « le seuil avec les cartes
+  n'a plus de place à avoir sur le site ».** Ne pas réintroduire d'écran
+  d'entrée, de cartes d'accroche ni de tour guidé devant le texte. Les
+  données NN/g vont dans le même sens (tutoriels : succès et temps
+  identiques, difficulté perçue plus grande). Les « trois idées » n'ont plus
+  aucun emplacement, et c'est voulu.
+- **Sans reprise, les Manuscrits ouvrent le Premier manuscrit** (partie 2),
+  pas la note du traducteur : c'est le livre qu'on vient lire ; la note reste
+  au sommaire. (Le seuil faisait déjà ce choix par « Entrer dans le texte ».)
+- **« Le dossier · pour approfondir »** : la glose est DANS le libellé de
+  l'onglet (`TABS[].glose`, rendu par `buildTabs` sur les deux pages, style
+  `.tab-glose`), masquée sous 600 px. COGA 4.2.5 : chaque contrôle dit ce
+  qu'il fait. « Le dossier » seul ne disait ni ce qu'il contient ni qu'il est
+  facultatif.
+- **Plus d'onglets d'œuvre dans la sidebar** : `installShell` n'envoie plus
+  `tabs`, le bloc `sb-work` n'est donc plus construit. « Lire le texte / Le
+  dossier » y était répété mot pour mot sous la barre des destinations, dans
+  le même écran. `SHELL.setWorkTab` reste dans shell.js et ne fait plus rien
+  ici — inoffensif.
+- **La barre de lecture tient sur UNE rangée dans la colonne** : « Sommaire »
+  ne s'affiche qu'en dessous de 900 px (au-dessus, la colonne de gauche EST
+  le sommaire) ; « En clair » qu'en dessous de 1241 px (au-dessus, la marge
+  le porte) ; le surlignage des termes n'est plus un bouton « Glossaire » —
+  qui portait le même nom que l'entrée de sidebar menant à l'abécédaire —
+  mais un segment **« Mots du glossaire »** dans « Aa Réglages », à côté du
+  mode focus. Et la barre se resserre dans `.atl3-mid` (marges 18 px au lieu
+  de 54, boutons à .8rem) : sans ce resserrement, quatre outils et le bouton
+  de mode se repliaient encore. **Sous ~1250 px elle repasse sur deux
+  rangées, et c'est le repli voulu**, pas un bug.
+- **Dans la marge, « En clair » passe DEVANT « Vos passages » quand il n'y a
+  pas de passage.** L'arbitrage de `atelier-texte-au-centre` (la carte
+  d'emphase en tête) tient toujours dès qu'il y a un passage. Sans passage,
+  la carte n'était qu'une consigne sur un outil pas encore utilisé, posée en
+  pleine lumière comme première chose à lire : le résumé passe devant (COGA
+  4.4.8, le résumé AVANT le texte long), et « Vos passages » suit en section
+  ordinaire (`.atl3-pass-plain`) avec ses deux boutons de notes.
+- **Classe morte corrigée** : `.atl3-m-notebtns` n'existait dans aucun rendu
+  (renderMarge émet `.atl3-pass-acts`). Sous 1240 px, les deux boutons de la
+  marge ET les deux pastilles flottantes s'affichaient donc ensemble —
+  quatre affordances pour deux actions. Mesuré à 1000 px après correction :
+  boutons de marge masqués, pastilles visibles.
+- reader-tools.js passe au **vouvoiement** (deux chaînes de l'audio).
+
+### Ce que la recherche a établi, et qui vaut pour la suite
+
+Sources primaires relevées (WCAG 2.2, W3C COGA « Making Content Usable »,
+NN/g, liseuses de référence : Kindle, Apple Books, Play Books, Readwise,
+Scaife, quran.com) — les trois enseignements qui commandent :
+
+1. **Au premier écran il n'y a que le texte**, l'appareil est derrière un
+   seul geste, les mots sont courants (Table des matières, Notes, Aa,
+   Rechercher). Un seul niveau de divulgation (Nielsen 2006).
+2. **Pas de tour guidé, pas de coach marks** : l'aide arrive au moment du
+   besoin (sélection de texte, première ouverture du Dossier, recherche
+   vide), jamais avant.
+3. **La recherche est un chemin, pas la porte** : plus de la moitié des
+   utilisateurs sont « search-dominant », mais les novices ne reformulent
+   pas une requête vide. Il faut un champ visible, un état zéro-requête qui
+   enseigne, des résultats groupés par nature qui mènent AU bon endroit — et
+   la navigation à côté (WCAG 2.4.5 Multiple Ways). `Ctrl+K` n'est qu'un
+   accélérateur.
+
+La règle « pas plus de 7 boutons » est un folklore (Miller mal lu) : ce qui
+compte, c'est le RANG visuel de ce qui est affiché et ce qu'on doit retenir
+d'un écran à l'autre.
+
+### Ce qui reste (missions suivantes, dans cet ordre)
+
+- **`atelier-a11y-2`** — défauts vérifiés dans le code : `SHELL.tabs` pose
+  `role=tablist` sur le `<nav>`, qui perd son rôle de navigation ; la sidebar
+  est un `<aside>` alors qu'elle est LA navigation ; « Écouter » déclare un
+  `aria-expanded` qu'il ne tient pas dès que la synthèse vocale existe, donc
+  vitesse et voix sont **inatteignables** ; les « − / + » de vitesse n'ont pas
+  de nom ; le `<select>` de voix n'a pas de label ; le tiroir est un `dialog`
+  sans piège de focus ; les Manuscrits affichent encore « Choisis un manuscrit
+  ci-dessus, puis clique sur Charger le texte » (ni sélecteur ni bouton
+  n'existent) et leur échec de chargement n'est ni annoncé ni `role=alert` ;
+  `scroll-padding` sous les barres collantes (WCAG 2.4.11).
+- **`recherche-index`** — la recherche promet « un concept, une date, un
+  chapitre » et n'indexe que les 12 œuvres et 76 mots-clés de
+  bibliotheque.json ; « fétichisme », « 1867 », « chapitre X » ne rendent
+  rien, et tout résultat dépose en haut de la page de l'œuvre. Index dérivé
+  par gen-seo.mjs (chapitres + résumés, 75 notions, dates, instruments,
+  pages, actions), résultats groupés, état zéro-requête, deep-link par
+  chapitre.
+- **`recherche-texte`** — plein texte, via l'API de recherche de Wikisource
+  pour Capital et les fragments locaux pour les Manuscrits.
 
 ## Le Dossier remis en ordre (mission `dossier-lisible`, sept. 2026)
 

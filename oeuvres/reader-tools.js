@@ -189,7 +189,7 @@
       }).join('')+'</div>';
     }
     function segLab(n){
-      return n==='theme'?'Thème':n==='align'?'Alignement':n==='font'?'Police':n==='focus'?'Mode focus':n;
+      return n==='theme'?'Thème':n==='align'?'Alignement':n==='font'?'Police':n==='focus'?'Mode focus':n==='gloss'?'Mots du glossaire':n;
     }
     /* Les huit boutons − / + n'avaient pour nom accessible que « − » ou
        « + » : huit contrôles indiscernables. */
@@ -199,7 +199,7 @@
         +'<span class="rd-val" data-val="'+name+'" role="status" aria-live="polite" aria-atomic="true">'+disp+'</span>'
         +'<button type="button" class="rd-mini" data-inc="'+name+'" aria-label="Augmenter : '+lab.toLowerCase()+'"><span aria-hidden="true">+</span></button></span></div>';
     }
-    function stateVal(n){ return n==='theme'?S.theme : n==='align'?S.align : n==='font'?S.font : n==='focus'?(S.focus?1:0) : ''; }
+    function stateVal(n){ return n==='theme'?S.theme : n==='align'?S.align : n==='font'?S.font : n==='focus'?(S.focus?1:0) : n==='gloss'?(S.gloss?1:0) : ''; }
     var h='<h5>Réglages de lecture</h5>';
     h+='<div class="rd-setrow"><span class="lab">Thème</span>'+seg('theme',[['paper','Atelier'],['sepia','Papier'],['dark','Nuit']])+'</div>';
     h+=stepRow('Taille du texte','fs',Math.round(S.fs*100/1.04)+' %');
@@ -208,7 +208,8 @@
     h+='<div class="rd-setrow"><span class="lab">Alignement</span>'+seg('align',[['justify','Justifié'],['left','À gauche']])+'</div>';
     h+='<div class="rd-setrow"><span class="lab">Police</span>'+seg('font',[['standard','Standard'],['atkinson','Atkinson'],['lexend','Lexend'],['opendyslexic','Dyslexie']])+'</div>';
     h+='<div class="rd-setrow"><span class="lab">Mode focus</span>'+seg('focus',[['0','Off'],['1','On']])+'</div>';
-    h+='<div class="rd-note">Le mode focus estompe tout sauf le paragraphe survolé (ou lu à voix haute). Réglages mémorisés sur cet appareil.</div>';
+    h+='<div class="rd-setrow"><span class="lab">Mots du glossaire</span>'+seg('gloss',[['0','Off'],['1','On']])+'</div>';
+    h+='<div class="rd-note">Le mode focus estompe tout sauf le paragraphe survolé (ou lu à voix haute). Les mots du glossaire se soulignent dans le texte et s\'expliquent au survol. Réglages mémorisés sur cet appareil.</div>';
     box.innerHTML=h;
     /* CHAQUE réglage terminait par renderSet(r), qui réécrit box.innerHTML :
        le bouton qu'on venait d'activer disparaissait, et le focus retombait
@@ -235,6 +236,7 @@
       var n=b.getAttribute('data-set'), v=b.getAttribute('data-v');
       if(n==='theme')S.theme=v; else if(n==='align')S.align=v;
       else if(n==='font')S.font=v; else if(n==='focus')S.focus=(v==='1');
+      else if(n==='gloss'){ S.gloss=(v==='1'); if(S.gloss)wrapGloss(); else unwrapGloss(); }
       saveS(); applyTo(r); syncSeg(n);
     };});
     box.querySelectorAll('[data-dec],[data-inc]').forEach(function(b){ b.onclick=function(){
@@ -258,7 +260,7 @@
     fv.forEach(function(v){ opts+='<option value="'+esc(v.voiceURI||v.name)+'"'+((S.voice===(v.voiceURI||v.name))?' selected':'')+'>'+esc(v.name)+(v.localService===false?' · en ligne':'')+'</option>'; });
     var warn = fv.length
       ? '<div class="rd-note">La voix la plus humaine est choisie automatiquement. Les voix « en ligne » (Google sur Chrome, Siri/améliorées sur Mac et iPhone) sont de loin les plus naturelles — c’est dans Chrome que le français sonne le mieux.</div>'
-      : '<div class="rd-note">Aucune voix française détectée : ouvre le fichier dans Chrome (voix Google en ligne) ou installe une voix française améliorée dans les réglages de ton système pour une lecture naturelle.</div>';
+      : '<div class="rd-note">Aucune voix française détectée : ouvrez la page dans Chrome (voix Google en ligne) ou installez une voix française améliorée dans les réglages de votre système pour une lecture naturelle.</div>';
     box.innerHTML='<div class="rd-setrow"><span class="lab">Voix</span><select class="rd-vsel" data-rd-voice>'+opts+'</select></div>'+warn;
     var sels=box.querySelector('[data-rd-voice]');
     if(sels)sels.onchange=function(){ S.voice=sels.value; saveS(); };
@@ -291,7 +293,6 @@
      +   '<button type="button" class="rd-btn" data-rd="toc" aria-expanded="false" aria-controls="rdpop-toc">Sommaire</button>'
      +   '<button type="button" class="rd-btn" data-rd="audio" aria-expanded="false" aria-controls="rdpop-audio"><span aria-hidden="true">▶</span> Écouter</button>'
      +   '<button type="button" class="rd-btn" data-rd="clear" aria-expanded="false" aria-controls="rdpop-clear">En clair</button>'
-     +   '<button type="button" class="rd-btn" data-rd="gloss" aria-pressed="false">Glossaire</button>'
      +   '<button type="button" class="rd-btn" data-rd="set" aria-expanded="false" aria-controls="rdpop-set"><span aria-hidden="true">Aa</span> Réglages</button>'
      + '</div>'
      + '<div class="rd-pop" id="rdpop-toc" data-pop="toc" role="group" aria-label="Sommaire" hidden></div>'
@@ -299,7 +300,7 @@
      +   '<div class="rd-setrow"><span class="lab">Vitesse</span><span class="rd-step">'
      +     '<button class="rd-mini" data-rate="dn">−</button><span class="rd-val" data-ratev>'+S.rate.toFixed(1)+'×</span><button class="rd-mini" data-rate="up">+</button></span></div>'
      +   '<div class="rd-vwrap"></div>'
-     +   '<div class="rd-note">Le surlignage suit le paragraphe lu. La qualité dépend des voix installées sur ton appareil.</div></div>'
+     +   '<div class="rd-note">Le surlignage suit le paragraphe lu. La qualité dépend des voix installées sur votre appareil.</div></div>'
      + '<div class="rd-pop" id="rdpop-clear" data-pop="clear" role="group" aria-label="En clair" hidden><h5>En clair</h5>'+clearHtml+'</div>'
      + '<div class="rd-pop" id="rdpop-set" data-pop="set" role="group" aria-label="Réglages de lecture" hidden></div>'
      + '<div class="rd-xref"></div>';
@@ -333,10 +334,10 @@
     tb.querySelector('[data-rd="toc"]').onclick=function(){ togglePop(r,'toc'); };
     tb.querySelector('[data-rd="clear"]').onclick=function(){ togglePop(r,'clear'); };
     tb.querySelector('[data-rd="set"]').onclick=function(){ renderSet(r); togglePop(r,'set'); };
-    var gbtn=tb.querySelector('[data-rd="gloss"]');
-    if(gbtn){ gbtn.classList.toggle('on',!!S.gloss); gbtn.setAttribute('aria-pressed',S.gloss?'true':'false');
-      gbtn.onclick=function(){ S.gloss=!S.gloss; saveS(); if(S.gloss)wrapGloss(); else unwrapGloss();
-        gbtn.classList.toggle('on',S.gloss); gbtn.setAttribute('aria-pressed',S.gloss?'true':'false'); }; }
+    /* Le surlignage des termes du glossaire n'est plus un bouton de la
+       barre : c'est un réglage de lecture, dans « Aa Réglages » (segment
+       « Mots du glossaire »). Il disait « Glossaire » comme l'entrée de
+       sidebar qui mène à l'abécédaire — deux choses sous le même nom. */
     tb.querySelector('[data-rd="audio"]').onclick=function(){
       if(!synth){ togglePop(r,'audio'); return; }
       if(A.playing) pauseAudio(); else playAudio();
