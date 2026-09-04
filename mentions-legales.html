@@ -24,15 +24,19 @@
 <link rel="stylesheet" href="/oeuvres/shell.css?v=3">
 <style>
 /* ═══════════════════════════════════════════════════════════════════
-   /mentions-legales — un document, pas une démonstration
+   /mentions-legales — le vocabulaire du site, appliqué à un document
    -------------------------------------------------------------------
-   Contrairement à /a-propos, cette page ne fait PAS ce qu'elle décrit :
-   il n'y a rien à disposer en marge d'un texte de loi. Colonne unique,
-   AUCUNE animation, un sommaire en tête pour les trois destinations —
-   on vient ici chercher une clause précise et repartir, pas lire d'un
-   trait. La règle du projet (« le geste doit être pertinent vis-à-vis
-   de ce qu'il exprime ») s'applique à l'envers : ici, l'absence de
-   geste EST le geste juste.
+   Reprise de la mission : la première version isolait cette page du
+   reste du site (colonne unique, aucun geste), au nom d'une distinction
+   avec /a-propos qui ne convainquait pas assez pour justifier l'écart.
+   Elle adopte donc la même grammaire que le reste du site :
+
+   - la grille marge|texte de /a-propos, avec une marge qui porte de
+     VRAIS repères (contact, seuil d'âge, droits) et non du remplissage ;
+   - l'encre qui prend sur les titres de section au défilement — le
+     geste sitewide déjà en place sur l'accueil, la FAQ, le Dossier ;
+   - un sommaire en SCROLL-SPY, comme la barre d'ancres du Dossier :
+     de l'orientation, donc actif même sous reduced-motion.
 
    Page « de site » : pas d'atelier.css, tokens du shell redéclarés avec
    le jeu corrigé, corps en Spectral comme /a-propos et les notions.
@@ -49,51 +53,74 @@
   --f-ui:'Inter',system-ui,sans-serif;--f-serif:'Spectral',Georgia,serif;--f-hand:'Caveat',cursive;
   --candle:rgba(216,173,76,.18);
   --emphase:linear-gradient(150deg,#2c2117,#211a12,#1b150e);
+  --marge:220px;--gouttiere:44px;
 }
 *{box-sizing:border-box;}
 body{margin:0;background:var(--bg);color:var(--text);font-family:var(--f-ui);}
 ::selection{background:rgba(216,173,76,.32);color:var(--text);}
 :focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:3px;}
 
-.ml{max-width:720px;margin:0 auto;padding:56px clamp(20px,5vw,40px) 0;}
+.ml{max-width:1000px;margin:0 auto;padding:56px clamp(20px,5vw,44px) 0;}
 .ml-fil{font-size:.78rem;color:var(--const);margin:0 0 30px;}
 .ml-fil a{color:var(--const);text-decoration:none;border-bottom:0;}
 .ml-fil a:hover{color:var(--gold);}
 
 h1{font-family:'Fraunces',serif;font-weight:900;letter-spacing:-.02em;line-height:1.08;
-  font-size:clamp(1.9rem,4.6vw,2.5rem);color:var(--ink);margin:0 0 18px;text-wrap:balance;}
-.ml-chapo{font-family:var(--f-serif);font-size:1.06rem;line-height:1.66;color:var(--muted);
+  font-size:clamp(2rem,4.8vw,2.7rem);color:var(--ink);margin:0 0 18px;text-wrap:balance;}
+.ml-chapo{font-family:var(--f-serif);font-size:1.08rem;line-height:1.66;color:var(--muted);
   margin:0 0 30px;max-width:60ch;}
 
-/* Le sommaire : trois destinations, pas un menu de plus — on vient ici
-   pour UNE clause, on doit pouvoir l'atteindre sans tout lire. */
-.ml-som{list-style:none;margin:0 0 46px;padding:18px 20px;display:flex;flex-wrap:wrap;gap:8px 22px;
+/* ── Le sommaire : SCROLL-SPY, pas un décor. Trois destinations, la même
+      façon de dire « celui-ci » que la barre d'ancres du Dossier — dégradé
+      chaud + filet or au repos serait trop pour trois entrées ; ici l'état
+      actif se dit par la couleur et un petit trait sous le libellé. */
+.ml-som{list-style:none;margin:0 0 46px;padding:6px;display:flex;flex-wrap:wrap;gap:2px;
   background:var(--surface);border:1px solid var(--line);border-radius:12px;}
 .ml-som li{font-family:var(--f-ui);font-size:.84rem;}
-.ml-som a{color:var(--ink-soft);text-decoration:none;border-bottom:1px solid var(--line-strong);}
-.ml-som a:hover{color:var(--gold);border-bottom-color:var(--gold);}
+.ml-som a{display:inline-block;color:var(--const);text-decoration:none;padding:8px 14px;
+  border-radius:8px;border-bottom:0;transition:color .16s,background .16s;}
+.ml-som a:hover{color:var(--ink-soft);background:var(--hover);}
+.ml-som a.on{color:var(--gold);background:rgba(216,173,76,.10);font-weight:600;}
 
-.ml-sec{border-top:1px solid var(--line);margin-top:44px;padding-top:28px;scroll-margin-top:60px;}
+/* ── La grille : marge | texte, identique à /a-propos. */
+.ml-bloc{display:grid;grid-template-columns:var(--marge) minmax(0,1fr);
+  column-gap:var(--gouttiere);align-items:start;}
+.ml-corps{grid-column:2;min-width:0;}
+.ml-marge{grid-column:1;padding-top:.5rem;}
+
+.ml-sec{margin-top:54px;}
+.ml-sec>.ml-corps,.ml-sec>.ml-marge{border-top:1px solid var(--line);padding-top:26px;}
+.ml-sec>.ml-marge{padding-top:29px;}
 .ml-label{font-size:.72rem;font-weight:600;letter-spacing:.11em;text-transform:uppercase;
   color:var(--gold);margin:0 0 10px;}
 h2{font-family:'Fraunces',serif;font-weight:900;letter-spacing:-.015em;
-  font-size:1.36rem;color:var(--ink);margin:0 0 18px;line-height:1.22;}
+  font-size:1.4rem;color:var(--ink);margin:0 0 18px;line-height:1.22;}
 h3{font-family:var(--f-ui);font-weight:600;font-size:.92rem;color:var(--ink);
   margin:26px 0 8px;}
-.ml p{font-family:var(--f-serif);font-size:1.01rem;line-height:1.72;color:var(--muted);
-  margin:0 0 15px;}
-.ml p b{color:var(--ink);font-weight:600;}
-.ml p em{color:var(--ink-soft);font-style:italic;}
-.ml a{color:var(--red-text);text-decoration:none;border-bottom:1px solid rgba(229,100,79,.34);}
-.ml a:hover{color:var(--gold);border-bottom-color:var(--gold);}
-.ml ul.ml-liste{margin:0 0 15px;padding-left:1.2em;}
-.ml ul.ml-liste li{font-family:var(--f-serif);font-size:1.01rem;line-height:1.68;
-  color:var(--muted);margin:0 0 7px;}
-.ml ul.ml-liste li b{color:var(--ink);font-weight:600;}
+.ml-corps p{font-family:var(--f-serif);font-size:1.02rem;line-height:1.74;color:var(--muted);
+  margin:0 0 15px;max-width:66ch;}
+.ml-corps p:last-child{margin-bottom:0;}
+.ml-corps p b{color:var(--ink);font-weight:600;}
+.ml-corps p em{color:var(--ink-soft);font-style:italic;}
+.ml-corps a{color:var(--red-text);text-decoration:none;border-bottom:1px solid rgba(229,100,79,.34);}
+.ml-corps a:hover{color:var(--gold);border-bottom-color:var(--gold);}
 
-.ml-warn{font-family:var(--f-ui);font-size:.82rem;line-height:1.5;color:var(--const);
-  background:var(--card);border:1px solid var(--line);border-radius:10px;
-  padding:12px 16px;margin:0 0 20px;}
+/* ── La marge : des REPÈRES, pas un résumé du texte. Même grammaire que
+      la marginalia de /a-propos — petite, en Inter, jamais estompée par
+      l'opacité (une note éteinte se dit par la couleur). */
+.ml-note{font-family:var(--f-ui);font-size:.78rem;line-height:1.5;color:var(--const);}
+.ml-note-h{font-size:.72rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--gold);margin:0 0 10px;}
+.ml-note dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 10px;}
+.ml-note dt{font-variant-numeric:tabular-nums;font-weight:600;color:var(--ink-soft);
+  text-align:right;white-space:nowrap;}
+.ml-note dd{margin:0;color:var(--const);}
+.ml-note ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px;}
+.ml-note ul li{padding-left:14px;position:relative;}
+.ml-note ul li::before{content:'';position:absolute;left:0;top:.55em;width:5px;height:5px;
+  border-radius:50%;background:var(--gold);}
+.ml-note a{color:var(--ink-soft);text-decoration:none;border-bottom:1px solid var(--line-strong);}
+.ml-note a:hover{color:var(--gold);border-bottom-color:var(--gold);}
 
 .ml-contact{background:var(--emphase);border:1px solid rgba(216,173,76,.20);
   border-radius:16px;padding:22px 24px;margin-top:20px;
@@ -108,12 +135,35 @@ h3{font-family:var(--f-ui);font-weight:600;font-size:.92rem;color:var(--ink);
 
 .ml-fin{height:8px;}
 
-@media(max-width:640px){
+/* ── Sous 900 px, même repli que /a-propos : la marge passe AU-DESSUS
+      de sa section, en une ligne — sous le texte elle serait hors de
+      vue au moment où elle sert. */
+@media(max-width:900px){
   .ml{padding-top:36px;}
-  .ml-sec{margin-top:34px;padding-top:22px;}
-  .ml-som{padding:14px 16px;gap:6px 16px;}
-  .ml-contact{padding:18px;}
+  .ml-bloc{grid-template-columns:minmax(0,1fr);}
+  .ml-corps,.ml-marge{grid-column:1;}
+  .ml-marge{padding-top:0;order:-1;margin-bottom:20px;}
+  .ml-sec{margin-top:40px;}
+  .ml-sec>.ml-marge{border-top:1px solid var(--line);padding-top:20px;}
+  .ml-sec>.ml-corps{border-top:0;padding-top:14px;}
+  .ml-contact{padding:20px;}
 }
+@media(max-width:640px){
+  .ml-som{gap:0;}
+  .ml-som a{padding:8px 10px;font-size:.8rem;}
+}
+
+/* ── LE GESTE : les titres de section prennent l'encre au défilement —
+      même motif binaire que inkTitles/inkSections sur le Dossier, pas le
+      scrub mot-à-mot de l'accueil (réservé aux titres d'accroche). Un
+      titre de section vit sous le pli, on l'atteint en descendant : la
+      couleur suffit à le dire. Armé par js-ml (posé par le module
+      ci-dessous, jamais dans le balisage) : reduced-motion et < 768 px
+      gardent l'état fini, encré d'emblée — le CSS par défaut EST cet
+      état. Le sommaire, lui, n'est PAS gated : de l'orientation, pas de
+      la décoration, il reste utile là où le mouvement s'éteint. */
+html.js-ml h2{color:var(--muted);transition:color .3s ease;}
+html.js-ml h2.ml-ink{color:var(--ink);}
 </style>
 </head>
 <body>
@@ -123,124 +173,167 @@ h3{font-family:var(--f-ui);font-weight:600;font-size:.92rem;color:var(--ink);
 
   <p class="ml-fil"><a href="/">Lire Marx</a> &rsaquo; Mentions légales</p>
 
-  <p class="ml-label">Informations légales</p>
+  <p class="ml-label" style="margin-bottom:4px">Informations légales</p>
   <h1>Mentions légales, conditions d'utilisation &amp; confidentialité</h1>
   <p class="ml-chapo">Qui édite ce site, les règles du compte et du forum, et ce que le
   site fait de vos données&nbsp;: conservation, droits, contact.</p>
 
-  <ul class="ml-som">
-    <li><a href="#mentions">Mentions légales</a></li>
-    <li><a href="#cgu">Conditions d'utilisation</a></li>
-    <li><a href="#confidentialite">Confidentialité &amp; données</a></li>
-  </ul>
+  <nav class="ml-som" aria-label="Sommaire">
+    <li><a href="#mentions" data-sec="mentions">Mentions légales</a></li>
+    <li><a href="#cgu" data-sec="cgu">Conditions d'utilisation</a></li>
+    <li><a href="#confidentialite" data-sec="confidentialite">Confidentialité &amp; données</a></li>
+  </nav>
 
   <section class="ml-sec" id="mentions">
-    <p class="ml-label">I</p>
-    <h2>Mentions légales</h2>
-    <p><b>Édition du site.</b> Lire Marx est édité par <b>maradomarx</b>, personne
-    physique, à titre non professionnel et sans but lucratif — voir
-    <a href="/a-propos">la page qui présente le site</a>. Conformément à l'article
-    6-III de la loi n°&nbsp;2004-575 du 21 juin 2004 pour la confiance dans
-    l'économie numérique, un éditeur non professionnel peut ne pas faire figurer
-    son identité complète dans les présentes mentions dès lors qu'il l'a
-    communiquée à son hébergeur. Contact&nbsp;: <a href="mailto:contact@liremarx.com">contact@liremarx.com</a>.</p>
-    <p><b>Directeur de la publication.</b> La même personne, à la même adresse.</p>
-    <p><b>Hébergement du site.</b> Cloudflare, Inc. — 101 Townsend Street, San
-    Francisco, CA 94107, États-Unis.</p>
-    <p><b>Hébergement des comptes et de la base de données.</b> Supabase, Inc.</p>
-    <p><b>Propriété intellectuelle.</b> Les résumés, définitions, cheminements,
-    chronologies et simulations sont des créations originales de l'éditeur. Le
-    code du site est public&nbsp;: <a href="https://github.com/chevallierfabio-hue/lire-marx" rel="noopener">dépôt GitHub</a>.
-    Le statut des textes de Marx eux-mêmes (domaine public ou non selon la
-    traduction) est détaillé <a href="/a-propos">sur la page qui présente le site</a>.</p>
+    <div class="ml-bloc">
+      <div class="ml-marge">
+        <p class="ml-note-h">Repères</p>
+        <div class="ml-note">
+          <dl>
+            <dt>Édité par</dt><dd>maradomarx</dd>
+            <dt>Statut</dt><dd>personne physique, non professionnel</dd>
+            <dt>Contact</dt><dd><a href="mailto:contact@liremarx.com">contact@liremarx.com</a></dd>
+          </dl>
+        </div>
+      </div>
+      <div class="ml-corps">
+        <p class="ml-label">I</p>
+        <h2>Mentions légales</h2>
+        <p><b>Édition du site.</b> Lire Marx est édité par <b>maradomarx</b>, personne
+        physique, à titre non professionnel et sans but lucratif — voir
+        <a href="/a-propos">la page qui présente le site</a>. Conformément à l'article
+        6-III de la loi n°&nbsp;2004-575 du 21 juin 2004 pour la confiance dans
+        l'économie numérique, un éditeur non professionnel peut ne pas faire figurer
+        son identité complète dans les présentes mentions dès lors qu'il l'a
+        communiquée à son hébergeur. Contact&nbsp;: <a href="mailto:contact@liremarx.com">contact@liremarx.com</a>.</p>
+        <p><b>Directeur de la publication.</b> La même personne, à la même adresse.</p>
+        <p><b>Hébergement du site.</b> Cloudflare, Inc. — 101 Townsend Street, San
+        Francisco, CA 94107, États-Unis.</p>
+        <p><b>Hébergement des comptes et de la base de données.</b> Supabase, Inc.</p>
+        <p><b>Propriété intellectuelle.</b> Les résumés, définitions, cheminements,
+        chronologies et simulations sont des créations originales de l'éditeur. Le
+        code du site est public&nbsp;: <a href="https://github.com/chevallierfabio-hue/lire-marx" rel="noopener">dépôt GitHub</a>.
+        Le statut des textes de Marx eux-mêmes (domaine public ou non selon la
+        traduction) est détaillé <a href="/a-propos">sur la page qui présente le site</a>.</p>
+      </div>
+    </div>
   </section>
 
   <section class="ml-sec" id="cgu">
-    <p class="ml-label">II</p>
-    <h2>Conditions d'utilisation</h2>
-    <p>Le site donne accès, sans compte, à la lecture du texte, à l'appareil
-    critique, à l'abécédaire et au jeu. Un compte n'est nécessaire que pour
-    annoter, publier sur la Place publique ou envoyer des messages.</p>
-    <h3>Le compte</h3>
-    <p>Un compte se crée avec une adresse e-mail, un mot de passe et un pseudo
-    public. L'adresse n'est jamais affichée. <b>Le site est destiné aux
-    personnes de 15 ans et plus</b> — seuil retenu par la loi française pour le
-    consentement numérique d'un mineur (article 45 de la loi Informatique et
-    Libertés) ; le site ne procède à aucune vérification d'âge technique. Un
-    compte est personnel et ne se partage pas.</p>
-    <h3>Le forum (Place publique)</h3>
-    <p>Les règles affichées sur la Place publique elle-même font foi&nbsp;: on
-    parle du texte, on cite et on source, on ramène au passage. Le soutien
-    appuie une lecture — il n'existe pas de vote négatif. On se répond, on ne
-    s'attaque pas&nbsp;; le désaccord est bienvenu, l'invective se signale.</p>
-    <p>Chaque personne reste responsable de ce qu'elle publie. Un contenu peut
-    être signalé par n'importe quel lecteur connecté&nbsp;; un modérateur peut
-    le masquer (il reste alors visible, estompé, aux autres modérateurs) ou le
-    rétablir. L'auteur d'une note peut la supprimer lui-même tant qu'elle n'a
-    reçu aucune réponse.</p>
-    <p>Sont proscrits&nbsp;: les propos illicites, diffamatoires, haineux ou
-    harcelants&nbsp;; le spam et la promotion commerciale&nbsp;; l'usurpation
-    d'identité&nbsp;; toute atteinte aux droits d'un tiers.</p>
-    <h3>Disponibilité</h3>
-    <p>Le site est un projet personnel, gratuit, tenu par une seule personne.
-    Aucune continuité de service n'est garantie&nbsp;; en cas d'indisponibilité
-    prolongée, les données restent récupérables selon les modalités décrites
-    au titre III.</p>
-    <h3>Résiliation</h3>
-    <p>Chacun peut fermer son compte à tout moment depuis « Mon compte » →
-    <i>Compte</i> → <i>Supprimer mon compte</i>. L'éditeur peut suspendre ou
-    fermer un compte qui enfreint ces conditions, après signalement et examen.</p>
-    <h3>Droit applicable</h3>
-    <p>Les présentes conditions sont soumises au droit français. Tout litige
-    relève, à défaut de résolution amiable, des juridictions compétentes.</p>
+    <div class="ml-bloc">
+      <div class="ml-marge">
+        <p class="ml-note-h">En bref</p>
+        <div class="ml-note">
+          <ul>
+            <li>Compte&nbsp;: e-mail, mot de passe, pseudo public</li>
+            <li>Âge minimum&nbsp;: 15 ans</li>
+            <li>Forum&nbsp;: on cite, on ne s'attaque pas, pas de vote négatif</li>
+            <li>Service gratuit, sans garantie de continuité</li>
+          </ul>
+        </div>
+      </div>
+      <div class="ml-corps">
+        <p class="ml-label">II</p>
+        <h2>Conditions d'utilisation</h2>
+        <p>Le site donne accès, sans compte, à la lecture du texte, à l'appareil
+        critique, à l'abécédaire et au jeu. Un compte n'est nécessaire que pour
+        annoter, publier sur la Place publique ou envoyer des messages.</p>
+        <h3>Le compte</h3>
+        <p>Un compte se crée avec une adresse e-mail, un mot de passe et un pseudo
+        public. L'adresse n'est jamais affichée. <b>Le site est destiné aux
+        personnes de 15 ans et plus</b> — seuil retenu par la loi française pour le
+        consentement numérique d'un mineur (article 45 de la loi Informatique et
+        Libertés) ; le site ne procède à aucune vérification d'âge technique. Un
+        compte est personnel et ne se partage pas.</p>
+        <h3>Le forum (Place publique)</h3>
+        <p>Les règles affichées sur la Place publique elle-même font foi&nbsp;: on
+        parle du texte, on cite et on source, on ramène au passage. Le soutien
+        appuie une lecture — il n'existe pas de vote négatif. On se répond, on ne
+        s'attaque pas&nbsp;; le désaccord est bienvenu, l'invective se signale.</p>
+        <p>Chaque personne reste responsable de ce qu'elle publie. Un contenu peut
+        être signalé par n'importe quel lecteur connecté&nbsp;; un modérateur peut
+        le masquer (il reste alors visible, estompé, aux autres modérateurs) ou le
+        rétablir. L'auteur d'une note peut la supprimer lui-même tant qu'elle n'a
+        reçu aucune réponse.</p>
+        <p>Sont proscrits&nbsp;: les propos illicites, diffamatoires, haineux ou
+        harcelants&nbsp;; le spam et la promotion commerciale&nbsp;; l'usurpation
+        d'identité&nbsp;; toute atteinte aux droits d'un tiers.</p>
+        <h3>Disponibilité</h3>
+        <p>Le site est un projet personnel, gratuit, tenu par une seule personne.
+        Aucune continuité de service n'est garantie&nbsp;; en cas d'indisponibilité
+        prolongée, les données restent récupérables selon les modalités décrites
+        au titre III.</p>
+        <h3>Résiliation</h3>
+        <p>Chacun peut fermer son compte à tout moment depuis « Mon compte » →
+        <i>Compte</i> → <i>Supprimer mon compte</i>. L'éditeur peut suspendre ou
+        fermer un compte qui enfreint ces conditions, après signalement et examen.</p>
+        <h3>Droit applicable</h3>
+        <p>Les présentes conditions sont soumises au droit français. Tout litige
+        relève, à défaut de résolution amiable, des juridictions compétentes.</p>
+      </div>
+    </div>
   </section>
 
   <section class="ml-sec" id="confidentialite">
-    <p class="ml-label">III</p>
-    <h2>Confidentialité &amp; données personnelles</h2>
-    <p><b>Responsable du traitement.</b> maradomarx, éditeur individuel du site
-    — contact&nbsp;: <a href="mailto:contact@liremarx.com">contact@liremarx.com</a>.</p>
-    <p><b>Données traitées.</b> Adresse e-mail (connexion uniquement, jamais
-    affichée)&nbsp;; pseudo (public)&nbsp;; annotations privées&nbsp;; notes et
-    réponses publiées sur la Place publique&nbsp;; messages privés entre
-    comptes&nbsp;; signalements et soutiens. Aucune donnée n'est revendue ni
-    utilisée à des fins publicitaires&nbsp;; le site ne dépose aucun cookie de
-    mesure d'audience ou de publicité.</p>
-    <p><b>Finalités &amp; base légale.</b> Fournir la lecture annotée et sa
-    synchronisation entre appareils, le forum modéré et la messagerie
-    (exécution du service demandé par la personne concernée)&nbsp;; assurer la
-    modération et la sécurité du service (intérêt légitime de l'éditeur et des
-    autres membres).</p>
-    <p><b>Âge minimum.</b> Le site est destiné aux personnes de 15 ans et plus
-    (voir titre II).</p>
-    <p><b>Hébergement.</b> Authentification et base de données&nbsp;: Supabase,
-    Inc. Fichiers du site&nbsp;: Cloudflare, Inc.</p>
-    <p><b>Conservation.</b> Les données liées à un compte sont conservées tant
-    que ce compte existe, et supprimées à sa fermeture. Un compte inactif
-    plusieurs années peut être supprimé après notification par e-mail, sans
-    préjudice du droit de le recréer.</p>
-    <p><b>Stockage local.</b> Le navigateur conserve vos surlignages et votre
-    session de connexion sur votre propre appareil. C'est un stockage
-    <i>fonctionnel</i>, nécessaire au service, sans traceur publicitaire — il
-    n'appelle donc pas de bandeau de consentement au sens de la directive
-    ePrivacy.</p>
-    <h3>Vos droits</h3>
-    <p>Accès, rectification, effacement, opposition, et limitation du
-    traitement. La <b>suppression de compte</b>, accessible depuis « Mon
-    compte » → <i>Compte</i> → <i>Supprimer mon compte</i>, efface
-    <b>définitivement et immédiatement</b> le compte lui-même (adresse e-mail
-    comprise) ainsi que le profil, les annotations privées, les notes et
-    réponses publiques, les messages et les signalements qui lui sont liés — ce
-    n'est pas une simple désactivation. Pour toute autre demande, ou pour
-    exercer un droit sans passer par le bouton, écrire à l'adresse ci-dessous.</p>
-    <p>Vous disposez également du droit d'introduire une réclamation auprès de
-    la <a href="https://www.cnil.fr" rel="noopener">CNIL</a>, l'autorité française
-    de contrôle, si vous estimez que le traitement de vos données n'est pas
-    conforme.</p>
-    <div class="ml-contact">
-      <p>Pour exercer un droit, poser une question sur vos données, ou signaler
-      un contenu&nbsp;:</p>
-      <p><a class="ml-mail" href="mailto:contact@liremarx.com">contact@liremarx.com</a></p>
+    <div class="ml-bloc">
+      <div class="ml-marge">
+        <p class="ml-note-h">Vos droits</p>
+        <div class="ml-note">
+          <ul>
+            <li>Accès, rectification, effacement, opposition</li>
+            <li>Suppression&nbsp;: immédiate, depuis « Mon compte »</li>
+            <li>Réclamation&nbsp;: <a href="https://www.cnil.fr" rel="noopener">CNIL</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="ml-corps">
+        <p class="ml-label">III</p>
+        <h2>Confidentialité &amp; données personnelles</h2>
+        <p><b>Responsable du traitement.</b> maradomarx, éditeur individuel du site
+        — contact&nbsp;: <a href="mailto:contact@liremarx.com">contact@liremarx.com</a>.</p>
+        <p><b>Données traitées.</b> Adresse e-mail (connexion uniquement, jamais
+        affichée)&nbsp;; pseudo (public)&nbsp;; annotations privées&nbsp;; notes et
+        réponses publiées sur la Place publique&nbsp;; messages privés entre
+        comptes&nbsp;; signalements et soutiens. Aucune donnée n'est revendue ni
+        utilisée à des fins publicitaires&nbsp;; le site ne dépose aucun cookie de
+        mesure d'audience ou de publicité.</p>
+        <p><b>Finalités &amp; base légale.</b> Fournir la lecture annotée et sa
+        synchronisation entre appareils, le forum modéré et la messagerie
+        (exécution du service demandé par la personne concernée)&nbsp;; assurer la
+        modération et la sécurité du service (intérêt légitime de l'éditeur et des
+        autres membres).</p>
+        <p><b>Âge minimum.</b> Le site est destiné aux personnes de 15 ans et plus
+        (voir titre II).</p>
+        <p><b>Hébergement.</b> Authentification et base de données&nbsp;: Supabase,
+        Inc. Fichiers du site&nbsp;: Cloudflare, Inc.</p>
+        <p><b>Conservation.</b> Les données liées à un compte sont conservées tant
+        que ce compte existe, et supprimées à sa fermeture. Un compte inactif
+        plusieurs années peut être supprimé après notification par e-mail, sans
+        préjudice du droit de le recréer.</p>
+        <p><b>Stockage local.</b> Le navigateur conserve vos surlignages et votre
+        session de connexion sur votre propre appareil. C'est un stockage
+        <i>fonctionnel</i>, nécessaire au service, sans traceur publicitaire — il
+        n'appelle donc pas de bandeau de consentement au sens de la directive
+        ePrivacy.</p>
+        <h3>Vos droits</h3>
+        <p>Accès, rectification, effacement, opposition, et limitation du
+        traitement. La <b>suppression de compte</b>, accessible depuis « Mon
+        compte » → <i>Compte</i> → <i>Supprimer mon compte</i>, efface
+        <b>définitivement et immédiatement</b> le compte lui-même (adresse e-mail
+        comprise) ainsi que le profil, les annotations privées, les notes et
+        réponses publiques, les messages et les signalements qui lui sont liés — ce
+        n'est pas une simple désactivation. Pour toute autre demande, ou pour
+        exercer un droit sans passer par le bouton, écrire à l'adresse ci-dessous.</p>
+        <p>Vous disposez également du droit d'introduire une réclamation auprès de
+        la <a href="https://www.cnil.fr" rel="noopener">CNIL</a>, l'autorité française
+        de contrôle, si vous estimez que le traitement de vos données n'est pas
+        conforme.</p>
+        <div class="ml-contact">
+          <p>Pour exercer un droit, poser une question sur vos données, ou signaler
+          un contenu&nbsp;:</p>
+          <p><a class="ml-mail" href="mailto:contact@liremarx.com">contact@liremarx.com</a></p>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -290,5 +383,79 @@ h3{font-family:var(--f-ui);font-weight:600;font-size:.92rem;color:var(--ink);
 <script src="/oeuvres/shell.js?v=3"></script>
 <script src="/oeuvres/shell-social.js"></script>
 <script>installShell({ workTitle: 'Mentions légales', tabs: [] });</script>
+<script>
+(function(){
+  /* ═══════════════════════════════════════════════════════════════════
+     Le mouvement de /mentions-legales : deux gestes, et deux seulement.
+
+     1. LE SOMMAIRE EST UN SCROLL-SPY — de l'orientation, pas de la
+        décoration (même doctrine que la barre d'ancres du Dossier) :
+        il tourne TOUJOURS, y compris sous reduced-motion et < 768 px,
+        parce que c'est précisément là qu'on en a le plus besoin.
+     2. LES TITRES DE SECTION PRENNENT L'ENCRE au défilement — « l'encre
+        qui prend », le geste sitewide déjà posé sur l'accueil, la FAQ,
+        le Dossier. Gardé par js-ml : reduced-motion et < 768 px gardent
+        l'état fini (encré d'emblée), sans qu'aucune classe ne soit à
+        retirer — le CSS par défaut EST cet état.
+     ═══════════════════════════════════════════════════════════════════ */
+
+  var REDUCE = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var NARROW = window.matchMedia('(max-width:767px)').matches;
+
+  /* — Pilote de défilement, dupliqué à dessein (petit outil, pas de
+       couplage à assets/home.js qui ne se charge que sur l'accueil). — */
+  var subs = [], queued = false;
+  function run(){
+    queued = false;
+    var vh = window.innerHeight || 1;
+    subs.forEach(function(fn){ try{ fn(vh); }catch(e){} });
+  }
+  function driver(){ if(!queued){ queued = true; requestAnimationFrame(run); } }
+  function addSub(fn){
+    subs.push(fn);
+    try{ fn(window.innerHeight || 1); }catch(e){}
+  }
+  document.addEventListener('scroll', driver, {passive:true, capture:true});
+  window.addEventListener('resize', driver, {passive:true});
+
+  /* — 1. Sommaire scroll-spy — toujours actif. — */
+  (function(){
+    var links = [].slice.call(document.querySelectorAll('.ml-som a'));
+    var secs = links.map(function(a){ return document.getElementById(a.dataset.sec); }).filter(Boolean);
+    if(!links.length || !secs.length) return;
+    var on = null;
+    addSub(function(){
+      var line = 120;
+      var cur = secs[0].id;
+      secs.forEach(function(s){ if(s.getBoundingClientRect().top <= line) cur = s.id; });
+      if(cur === on) return;
+      on = cur;
+      links.forEach(function(a){
+        var actif = a.dataset.sec === cur;
+        a.classList.toggle('on', actif);
+        if(actif) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current');
+      });
+    });
+  })();
+
+  /* — 2. L'encre qui prend, sur les h2 de section. — */
+  if(!REDUCE && !NARROW){
+    document.documentElement.classList.add('js-ml');
+    var items = [].slice.call(document.querySelectorAll('.ml-corps h2')).map(function(h){
+      return {el:h, done:false};
+    });
+    addSub(function(vh){
+      var pending = false;
+      items.forEach(function(it){
+        if(it.done) return;
+        pending = true;
+        var r = it.el.getBoundingClientRect();
+        if(r.top < vh * 0.82){ it.el.classList.add('ml-ink'); it.done = true; }
+      });
+      if(!pending) return false;
+    });
+  }
+})();
+</script>
 </body>
 </html>
