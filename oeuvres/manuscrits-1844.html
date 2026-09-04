@@ -23,7 +23,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="fonts/fonts.css">
 <link rel="stylesheet" href="atelier.css?v=2">
-<link rel="stylesheet" href="shell.css?v=4">
+<link rel="stylesheet" href="shell.css?v=5">
 <link rel="stylesheet" href="reader-tools.css">
 <link rel="stylesheet" href="manuscrits-1844.css">
 <style>
@@ -740,7 +740,11 @@ function syncTabsA11y(pid){
      travail », le retour arrière quittait la page, et un rechargement
      ramenait à l'accueil. On n'écrase pas un deep-link #note=… : il est
      consommé au démarrage, avant le premier appel. */
-  if(a11yBooted && !/^#(note=|s=)/.test(location.hash)){
+  /* Un deep-link (#note=, #s=, et ceux de la recherche : #partie=, #cahier=,
+     #labo=, #explore=) n'est pas écrasé par le nom du panneau tant que le
+     boot ne l'a pas consommé — voir capital-1.html. */
+  var deep=/^#(note=|s=|partie=|cahier=|labo=|explore=)/.test(location.hash||'');
+  if(a11yBooted && !(deep && !window.__deepBooted)){
     try{ history.replaceState(null,'','#'+pid); }catch(e){}
   }
   /* body.at-inner ne pilote plus rien : il repliait le héros, qui n'existe
@@ -2037,9 +2041,20 @@ function syncTabsA11y(pid){
 
     /* Les anciens hash restent valides : #anatomie ouvre le Dossier sur
        l'instrument, et non un onglet qui n'existe plus. */
+    /* Contrat de deep-link de la RECHERCHE (mission `recherche-index`) :
+       #partie=<numéro du sommaire> ouvre une partie, #cahier=<index>
+       ouvre un cahier entier (la reprise), #labo=<instrument> et
+       #explore=<pièce> ouvrent le Dossier. Un hash consommé au boot n'est
+       pas rejoué. */
     function applyAtelierHash(){
       var h=(location.hash||'').replace(/^#/,'');
-      if(h==='anatomie'){ goLabo('ana'); }
+      if(h==='anatomie'){ goLabo('ana'); return; }
+      var m=h.match(/^(partie|cahier|labo|explore)=([\w-]+)$/); if(!m)return;
+      if(window.__hashConsumed===location.hash){ window.__hashConsumed=null; return; }
+      if(m[1]==='partie'){ window.activateTab('lire'); openChapter(+m[2]); }
+      else if(m[1]==='cahier'){ goLire(+m[2]); }
+      else if(m[1]==='labo') goLabo(m[2]);
+      else if(m[1]==='explore') goExplore(m[2]);
     }
     setTimeout(applyAtelierHash,0);
     window.addEventListener('hashchange', applyAtelierHash);
@@ -2081,7 +2096,13 @@ function syncTabsA11y(pid){
     /* Un deep-link (#note=, #s=) a son propre aiguillage : on ne charge
        pas par-dessus. */
     if(!/^#(note=|s=)/.test(location.hash||'') && curTab==='lire'){
-      loadPart(r&&r.i!=null ? r.i : 2);
+      var mh=(location.hash||'').match(/^#(partie|cahier)=(\d+)$/);
+      window.__deepBooted=true;
+      if(mh){
+        window.__hashConsumed=location.hash;
+        if(mh[1]==='partie') openChapter(+mh[2]); else loadPart(+mh[2]);
+      }
+      else loadPart(r&&r.i!=null ? r.i : 2);
     }
   }
 
@@ -2108,7 +2129,7 @@ function syncTabsA11y(pid){
 })();
 </script>
 <script src="../config.js"></script>
-<script src="shell.js?v=4"></script>
+<script src="shell.js?v=5"></script>
 <script src="shell-social.js"></script>
 <script src="shell-annotations.js?v=2"></script>
 <script src="shell-progress.js"></script>

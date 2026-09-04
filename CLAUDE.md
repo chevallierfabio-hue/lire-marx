@@ -1501,13 +1501,8 @@ d'un écran à l'autre.
 ### Ce qui reste (missions suivantes, dans cet ordre)
 
 - ✅ **`atelier-a11y-2`** — FAIT le même jour, voir ci-dessous.
-- **`recherche-index`** — la recherche promet « un concept, une date, un
-  chapitre » et n'indexe que les 12 œuvres et 76 mots-clés de
-  bibliotheque.json ; « fétichisme », « 1867 », « chapitre X » ne rendent
-  rien, et tout résultat dépose en haut de la page de l'œuvre. Index dérivé
-  par gen-seo.mjs (chapitres + résumés, 75 notions, dates, instruments,
-  pages, actions), résultats groupés, état zéro-requête, deep-link par
-  chapitre.
+- ✅ **`recherche-index`** — FAIT le même jour, voir « La recherche mène au
+  passage » ci-dessous.
 - **`recherche-texte`** — plein texte, via l'API de recherche de Wikisource
   pour Capital et les fragments locaux pour les Manuscrits.
 
@@ -1568,6 +1563,89 @@ avec cycle de Tab dans les deux sens et Échap qui le ferme et retire
 `aria-modal`, `scroll-padding-top` à 200 px en lecture, les huit pages du
 shell chargées sans erreur avec la sidebar en `<nav>`. Détecteur statique :
 19 / 12 constats, 0 erreur (inchangé).
+
+## La recherche mène au passage (mission `recherche-index`, sept. 2026)
+
+Troisième volet de la refonte d'accessibilité. **Mesuré avant** : le
+placeholder promettait « un concept, une date, un chapitre » et l'index ne
+contenait que les 12 œuvres et 76 mots-clés de `bibliotheque.json`.
+« fétichisme » ne rendait rien (une page entière lui est consacrée),
+« 1867 » et « chapitre X » non plus, « x » rendait toutes les œuvres parce
+que « Marx » contient un x — et **tout résultat, concept compris, déposait en
+haut de la page de l'œuvre**.
+
+### L'index est DÉRIVÉ : `oeuvres/recherche.json`
+
+Écrit par `tools/gen-seo.mjs` (section « L'index de la recherche »), lu par
+`wireSharedSearch` dans shell.js, **noindex** via `_headers`. 178 entrées :
+
+| cat | source | mène à |
+|---|---|---|
+| `chapitre` (33) | `ROY_STRUCT` + résumé `META[rn].s` | `/oeuvres/capital-1#ch=<romain>` |
+| `partie` (11) | `MAN_STRUCT`, numérotées comme `MAN_FLAT` | `/oeuvres/manuscrits-1844#partie=<n>` |
+| `notion` (75) | le glossaire dédoublonné (`INDEX_NOTIONS`) | la page de notion, sinon l'ancre de l'abécédaire |
+| `date` (16) | `CHRONO` | `#chrono` |
+| `outil` (23) | libellés des onglets du laboratoire et des explorations, des deux ateliers | `#labo=<station>`, `#explore=<pièce>`, `#deriv`, `#chrono` |
+| `oeuvre` / `a-venir` | `bibliotheque.json` | l'atelier / la bibliothèque |
+| `page` (8) | liste dans le générateur | la page |
+
+`hay` (la botte de foin) n'est jamais affiché ; `rn` sert aux requêtes
+« chapitre X » (jeton entier, jamais une sous-chaîne), `y` aux années. Le
+JSON n'est chargé qu'à la première frappe. **Repli** : s'il manque, shell.js
+reconstruit l'ancien index depuis `bibliotheque.json`.
+
+### Ce que fait la recherche, désormais
+
+- **Résultats groupés par nature**, dans un ordre fixe (chapitres, parties,
+  notions, dates, outils, œuvres, pages, à venir), 4 par groupe, 14 au plus.
+  Score : titre exact > titre commence par > titre contient > botte de foin.
+- **État zéro-requête au focus** : la reprise (lue à `SHELL.resume`, pour les
+  deux œuvres), les recherches récentes (`localStorage` `lm-recherche`,
+  quatre au plus, mémorisées au clic), trois exemples. C'est lui qui
+  ENSEIGNE ce qu'on peut chercher — les novices ne reformulent pas une
+  requête vide (Nielsen 1997).
+- **Un résultat mène AU bon endroit** par le contrat de deep-link ci-dessus.
+  Sur la page courante, le hash se pose sans recharger et se **rejoue s'il
+  est identique** (`hashchange` ne part pas tout seul dans ce cas).
+- Le message vide dit quoi essayer. Le placeholder et le nom accessible
+  disent la même chose (« un chapitre, une notion, une date ») ; `/` va au
+  champ (`aria-keyshortcuts`), sans jamais être la porte.
+
+### Le contrat de deep-link, étendu
+
+- **Capital** (`applyAtelierHash`) : `#ch=<romain>` → `gnumOfRn` +
+  `openChapter` ; `#labo=`, `#explore=`, `#deriv=`. `bootAtelier` lit
+  `#ch=` AVANT la reprise et le marque consommé (`window.__hashConsumed`),
+  sinon `applyAtelierHash`, qui tourne juste après, ouvrirait le chapitre
+  deux fois.
+- **Manuscrits** : `#partie=<gnum>` → `openChapter` (le sommaire),
+  `#cahier=<index>` → `loadPart` (la reprise), `#labo=`, `#explore=`. Même
+  garde.
+- ⚠️ **Le rappel post-`installShell` de `syncTabsA11y` récrivait `#lire`
+  par-dessus `#ch=X` avant que `bootAtelier` ne l'ait lu** : on arrivait sur
+  le chapitre I. La garde qui protégeait `#note=` et `#s=` couvre les hashs
+  de la recherche, TANT QUE `window.__deepBooted` n'est pas posé — après, le
+  nom du panneau reprend l'adresse comme avant.
+
+### Vérifié
+
+Depuis l'accueil : état vide (reprise + exemples), « fétichisme » → la
+notion et deux outils, « 1867 » → la date, « chapitre X » → le seul chapitre
+X, « plus-value » → quatre chapitres, quatre notions, le jeu, « aliénation »
+→ trois parties des Manuscrits, « zzz » → message. Clic sur « Chapitre X »
+→ Capital ouvert sur le chapitre X. Sur Capital : « Journée de travail »
+(outil) → Dossier, laboratoire, station `s-jour` ; « chapitre I » → retour
+au texte. Sur les Manuscrits : `#partie=4` → « Profit du capital » à
+32 500 px, `#labo=carte` → la carte, `#cahier=4` → Troisième manuscrit.
+`/` focalise le champ. `gen-seo --check` à jour et idempotent. shell.css et
+shell.js en `?v=5`.
+
+### Ce qui reste
+
+**`recherche-texte`** : le plein texte. Pour Capital, l'API de recherche de
+Wikisource restreinte au préfixe du Livre I rend des extraits par page,
+qu'on ouvrirait avec le contrat `#s=&q=` ; pour les Manuscrits, les
+fragments locaux s'indexeraient à la génération. Non fait.
 
 ## Le Dossier remis en ordre (mission `dossier-lisible`, sept. 2026)
 

@@ -23,7 +23,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="fonts/fonts.css">
 <link rel="stylesheet" href="atelier.css?v=2">
-<link rel="stylesheet" href="shell.css?v=4">
+<link rel="stylesheet" href="shell.css?v=5">
 <link rel="stylesheet" href="reader-tools.css">
 <style>
 /* Aucun :root ici. La palette sombre-chaude est le système de record
@@ -746,7 +746,7 @@ nav.tabs.worktabs{position:sticky;top:44px;z-index:62;
 
 </style>
 <script src="../config.js"></script>
-<script src="shell.js?v=4"></script>
+<script src="shell.js?v=5"></script>
 <script src="shell-social.js"></script>
 <script src="shell-annotations.js?v=2"></script>
 <script src="shell-progress.js"></script>
@@ -1541,7 +1541,13 @@ function syncTabsA11y(pid){
   const S=window.SHELL;if(!S)return;
   if(S.tabs) S.tabs(document.getElementById('worktabs'),b=>b.dataset.panel);
   if(S.setWorkTab)S.setWorkTab(pid);
-  if(a11yBooted && !/^#(note=|s=)/.test(location.hash)){
+  /* Un deep-link (#note=, #s=, et ceux de la recherche : #ch=, #labo=…)
+     n'est jamais écrasé par le nom du panneau TANT QUE bootAtelier ne l'a
+     pas consommé — le rappel post-installShell tournait avant lui et
+     récrivait « #lire » par-dessus « #ch=X » : on arrivait sur le
+     chapitre I. */
+  const deep=/^#(note=|s=|ch=|labo=|explore=|deriv=)/.test(location.hash||'');
+  if(a11yBooted && !(deep && !window.__deepBooted)){
     try{ history.replaceState(null,'','#'+pid); }catch(e){}
   }
   if(pid!=='lire') document.body.classList.remove('at-reading');
@@ -2242,6 +2248,13 @@ function watchAnnos(){
 /* Ouvrir un chapitre = écrire dans #chapSelect (l'état que toute la
    liseuse lit déjà) puis rendre. La colonne de gauche est une VUE de ce
    sélecteur, pas un second système de navigation. */
+/* Numéro global d'un chapitre à partir de son chiffre romain — un JETON
+   entier, jamais une sous-chaîne (« X » est contenu dans « XVII »). */
+function gnumOfRn(rn){
+  rn=String(rn||'').toUpperCase();
+  for(let i=0;i<CHAP_FLAT.length;i++) if(CHAP_FLAT[i].chapRn===rn) return i+1;
+  return 0;
+}
 function openChapter(g){
   const sl=document.getElementById('chapSelect');
   if(!sl||g<1||g>sl.options.length)return;
@@ -3705,6 +3718,10 @@ function bootAtelier(){
     if(sl.value) g=sl.selectedIndex+1;
     else { try{window.SHELL.resume.clear('capital-1');}catch(e){} }
   }
+  /* Un deep-link #ch=<romain> (la recherche) l'emporte sur la reprise. */
+  const mh=(location.hash||'').match(/^#ch=([ivxlc]+)$/i);
+  if(mh){ const gg=gnumOfRn(mh[1]); if(gg){ g=gg; window.__hashConsumed=location.hash; } }
+  window.__deepBooted=true;
   sl.selectedIndex=g-1;
   /* L'abonnement AVANT le premier rendu : une note synchronisée ou écrite
      pendant le chargement doit se voir sans attendre le chapitre suivant. */
@@ -4013,9 +4030,24 @@ try{if(window.Anno&&sel&&sel.value){const nn0=+sel.value.split('|')[0];if(nn0)wi
   window.addEventListener('hashchange', applyDeepLinkIfAny);
 
   // Deep-link Atelier : #feti ouvre l'exploration du fétichisme.
+  /* Le contrat de deep-link de la RECHERCHE (mission `recherche-index`) :
+     #ch=<romain> ouvre un chapitre, #labo=<station>, #explore=<pièce> et
+     #deriv=<marche> ouvrent le Dossier au bon endroit. Un hash déjà
+     consommé par bootAtelier (arrivée directe sur #ch=) n'est pas rejoué. */
   function applyAtelierHash(){
     var h=(location.hash||'').replace(/^#/,'');
     if(h==='feti' && typeof goExplore==='function') goExplore('x-feti');
+    var m=h.match(/^(ch|labo|explore|deriv)=([\w-]+)$/); if(!m)return;
+    if(window.__hashConsumed===location.hash){ window.__hashConsumed=null; return; }
+    if(m[1]==='ch'){
+      var g=(typeof gnumOfRn==='function')?gnumOfRn(m[2]):0;
+      if(!g)return;
+      if(typeof curTab!=='undefined'&&curTab!=='lire')activateTab('lire');
+      openChapter(g);
+    }
+    else if(m[1]==='labo'&&typeof goLabo==='function') goLabo(m[2]);
+    else if(m[1]==='explore'&&typeof goExplore==='function') goExplore(m[2]);
+    else if(m[1]==='deriv'&&typeof goDeriv==='function') goDeriv(+m[2]);
   }
   function bootAtelierHash(){ setTimeout(applyAtelierHash,0); }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', bootAtelierHash);

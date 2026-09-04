@@ -36,3 +36,8 @@
   X-Robots-Tag: noindex
 /jeu/build.json
   X-Robots-Tag: noindex
+
+# L'index de la recherche partagée (dérivé par tools/gen-seo.mjs) : un
+# fichier de données de plus, déjà rendu ailleurs sous forme de pages.
+/oeuvres/recherche.json
+  X-Robots-Tag: noindex

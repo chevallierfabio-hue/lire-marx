@@ -53,7 +53,7 @@
         '<a class="brandmark" id="shellBrand" href="/" aria-label="Lire Marx — retour à l\'accueil">Lire<span class="d">.</span>Marx</a>' +
         '<div class="tb-search">' +
           '<span class="tb-search-ic" aria-hidden="true">⌕</span>' +
-          '<input id="tbSearch" type="text" autocomplete="off" spellcheck="false" placeholder="Rechercher un concept, une date, un chapitre…" aria-label="Rechercher" role="combobox" aria-expanded="false" aria-controls="tbResults" aria-autocomplete="list" aria-haspopup="listbox">' +
+          '<input id="tbSearch" type="text" autocomplete="off" spellcheck="false" placeholder="Rechercher un chapitre, une notion, une date…" aria-label="Rechercher dans le site : un chapitre, une notion, une date" aria-keyshortcuts="/" role="combobox" aria-expanded="false" aria-controls="tbResults" aria-autocomplete="list" aria-haspopup="listbox">' +
           '<div id="tbResults" class="tb-results" role="listbox" hidden></div>' +
         '</div>' +
         '<div class="topbar-right">' +
@@ -288,10 +288,17 @@
   }
 
   // ----- Recherche partagée -----
-  // Index minimal construit depuis bibliotheque.json (œuvres + concepts).
-  // Pas encore d'index profond (chapitres / dates / sections) ; pour cela
-  // il faudra charger les manifests par œuvre. Suffit déjà à une
-  // recherche autonome fonctionnant identiquement sur toutes les pages.
+  // L'index est DÉRIVÉ par tools/gen-seo.mjs (oeuvres/recherche.json) :
+  // chapitres et parties avec leur résumé, les notions du glossaire, les
+  // dates de la chronologie, les instruments et explorations, les œuvres,
+  // les pages du site. Chaque résultat mène AU bon endroit (contrat de
+  // deep-link : #ch=, #partie=, #cahier=, #labo=, #explore=, #chrono, ancre
+  // de glossaire). Avant (mission `recherche-index`, sept. 2026), l'index ne
+  // contenait que les œuvres et 76 mots-clés de bibliotheque.json, et tout
+  // résultat déposait en haut de la page de l'œuvre — « fétichisme » ne
+  // rendait rien alors qu'une page entière lui est consacrée.
+  // Repli : si le JSON manque, on reconstruit l'ancien index depuis
+  // bibliotheque.json.
   function wireSharedSearch(){
     var inp = document.getElementById('tbSearch');
     var box = document.getElementById('tbResults');
@@ -303,51 +310,90 @@
       catch(e){ return (s == null ? '' : s).toString().toLowerCase(); }
     }
 
+    /* Les catégories, dans l'ordre d'affichage des groupes. `lab` est la
+       pastille du résultat, `grp` l'en-tête du groupe. */
+    var CAT = {
+      reprise:  { lab: 'Reprendre',  grp: 'Reprendre la lecture' },
+      recente:  { lab: 'Récente',    grp: 'Recherches récentes' },
+      exemple:  { lab: 'Essayer',    grp: 'Essayez' },
+      chapitre: { lab: 'Chapitre',   grp: 'Chapitres' },
+      partie:   { lab: 'Partie',     grp: 'Parties' },
+      notion:   { lab: 'Notion',     grp: 'Notions' },
+      date:     { lab: 'Date',       grp: 'Dates' },
+      outil:    { lab: 'Outil',      grp: 'Instruments et explorations' },
+      oeuvre:   { lab: 'Œuvre',      grp: 'Œuvres' },
+      page:     { lab: 'Page',       grp: 'Pages du site' },
+      'a-venir':{ lab: 'À venir',    grp: 'À venir' }
+    };
+    var ORDER = ['reprise','recente','exemple','chapitre','partie','notion','date','outil','oeuvre','page','a-venir'];
+    var PER_GROUP = 4, MAX = 14;
+
     var INDEX = null;
     var indexPending = null;
 
-    function buildIndex(){
-      if(INDEX) return Promise.resolve(INDEX);
-      if(indexPending) return indexPending;
-      indexPending = fetch('/oeuvres/bibliotheque.json', { cache: 'no-cache' })
+    function prep(it){
+      it.tn = norm(it.t);
+      it.h = it.tn + ' ' + norm(it.s || '') + ' ' + norm(it.hay || '');
+      return it;
+    }
+    function fallbackIndex(){
+      return fetch('/oeuvres/bibliotheque.json', { cache: 'no-cache' })
         .then(function(r){ if(!r.ok) throw new Error('biblio HTTP ' + r.status); return r.json(); })
         .then(function(json){
           var ix = [];
           (json.works || []).forEach(function(w){
             if(!w || !w.id) return;
-            var path = String(w.path || '');
+            var path = String(w.path || '').replace(/\.html$/, '');
             if(path && path.indexOf('/') !== 0) path = '/' + path;
             var available = w.status === 'available' && !!path;
-            var go = function(){ if(available) location.href = path; };
-            var subtitle = (w.author || '') + (w.year ? ' · ' + w.year : '');
-            var concepts = (w.concepts || []).join(' ');
-            var hay = norm([w.title, w.shortTitle, w.author, w.description, concepts].join(' '));
-            ix.push({
+            ix.push(prep({
               t: w.title || w.shortTitle || w.id,
-              s: subtitle,
-              cat: 'oeuvre',
-              lab: available ? 'Œuvre' : 'À venir',
-              act: go,
-              hay: hay
-            });
-            (w.concepts || []).forEach(function(c){
-              ix.push({
-                t: c,
-                s: w.shortTitle || w.title || '',
-                cat: 'concept',
-                lab: 'Concept',
-                act: go,
-                hay: norm(c)
-              });
-            });
+              s: (w.author || '') + (w.year ? ' · ' + w.year : ''),
+              cat: available ? 'oeuvre' : 'a-venir',
+              url: available ? path : '/oeuvres/bibliotheque',
+              hay: [w.description, (w.concepts || []).join(' ')].join(' ')
+            }));
           });
-          INDEX = ix;
           return ix;
-        })
-        .catch(function(){ INDEX = []; return INDEX; })
-        .then(function(ix){ indexPending = null; return ix; });
+        });
+    }
+    function buildIndex(){
+      if(INDEX) return Promise.resolve(INDEX);
+      if(indexPending) return indexPending;
+      indexPending = fetch('/oeuvres/recherche.json', { cache: 'no-cache' })
+        .then(function(r){ if(!r.ok) throw new Error('index HTTP ' + r.status); return r.json(); })
+        .then(function(json){ return (json.items || []).map(prep); })
+        .catch(function(){ return fallbackIndex().catch(function(){ return []; }); })
+        .then(function(ix){ INDEX = ix; indexPending = null; return ix; });
       return indexPending;
     }
+
+    /* Recherches récentes : ce qu'on a DÉJÀ cherché est le premier indice
+       de ce qu'on cherche (reconnaissance plutôt que rappel). */
+    var RK = 'lm-recherche';
+    function recents(){ try { var a = JSON.parse(localStorage.getItem(RK) || '[]'); return Array.isArray(a) ? a : []; } catch(e){ return []; } }
+    function remember(q){
+      q = (q || '').trim(); if(!q) return;
+      try {
+        var a = recents().filter(function(x){ return norm(x) !== norm(q); });
+        a.unshift(q);
+        localStorage.setItem(RK, JSON.stringify(a.slice(0, 4)));
+      } catch(e){}
+    }
+    /* La reprise, lue au module qui la possède. */
+    function resumeItems(){
+      var out = [];
+      try {
+        var R = window.SHELL && window.SHELL.resume;
+        if(!R) return out;
+        var c = R.get('capital-1');
+        if(c && c.num) out.push({ t: 'Le Capital — chapitre ' + c.num, s: c.title || '', cat: 'reprise', url: '/oeuvres/capital-1#ch=' + c.num });
+        var m = R.get('manuscrits-1844');
+        if(m && m.i != null) out.push({ t: 'Manuscrits de 1844 — ' + (m.title || 'reprendre'), s: '', cat: 'reprise', url: '/oeuvres/manuscrits-1844#cahier=' + m.i });
+      } catch(e){}
+      return out;
+    }
+    var EXEMPLES = ['plus-value', 'fétichisme', '1848', 'chapitre X', 'aliénation'];
 
     function close(){
       box.hidden = true;
@@ -355,8 +401,6 @@
       inp.removeAttribute('aria-activedescendant');
       cur = -1;
     }
-    /* Option survolée au clavier. Le CSS stylait déjà .tb-res.active — la
-       classe n'était jamais posée, et aucune touche fléchée n'était gérée. */
     var cur = -1;
     function opts(){ return [].slice.call(box.querySelectorAll('[role=option]')); }
     function mark(i){
@@ -368,45 +412,112 @@
       o[cur].scrollIntoView({block:'nearest'});
     }
 
+    /* Aller quelque part : un hash sur la page courante se pose sans
+       recharger — et se REJOUE s'il est identique (hashchange ne part pas
+       tout seul dans ce cas), sinon on navigue. */
+    function go(url){
+      try {
+        var a = document.createElement('a'); a.href = url;
+        if(a.pathname === location.pathname && a.hash){
+          var same = a.hash === location.hash;
+          location.hash = a.hash;
+          if(same) window.dispatchEvent(new HashChangeEvent('hashchange'));
+          return;
+        }
+      } catch(e){}
+      location.href = url;
+    }
+
+    function paint(groups, q){
+      box.innerHTML = '';
+      var n = 0;
+      ORDER.forEach(function(cat){
+        var list = groups[cat]; if(!list || !list.length) return;
+        var h = document.createElement('div');
+        h.className = 'tb-grp'; h.setAttribute('role','presentation');
+        h.textContent = CAT[cat].grp;
+        box.appendChild(h);
+        list.forEach(function(e){
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'tb-res';
+          b.setAttribute('role', 'option');
+          b.id = 'tbo-' + (n++);
+          b.tabIndex = -1;
+          b.innerHTML = '<span class="tb-res-main"><span class="tb-res-t">' + esc(e.t) + '</span>'
+            + (e.s ? '<span class="tb-res-s">' + esc(e.s) + '</span>' : '') + '</span>'
+            + '<span class="tb-res-cat tb-cat-' + cat + '">' + esc(CAT[cat].lab) + '</span>';
+          b.addEventListener('mousedown', function(ev){ ev.preventDefault(); });
+          b.addEventListener('click', function(){
+            if(e.act){ e.act(); return; }
+            if(q) remember(q);
+            inp.value = ''; close();
+            go(e.url);
+          });
+          box.appendChild(b);
+        });
+      });
+      box.hidden = false;
+      inp.setAttribute('aria-expanded','true');
+      cur = -1;
+      return n;
+    }
+
+    /* L'état sans requête : la reprise, les recherches récentes, trois
+       exemples. C'est lui qui ENSEIGNE ce qu'on peut chercher — les novices
+       ne reformulent pas une requête vide, ils concluent que ça n'existe
+       pas. */
+    function zeroState(){
+      var groups = {};
+      var rep = resumeItems(); if(rep.length) groups.reprise = rep;
+      var rec = recents().map(function(x){ return { t: x, cat: 'recente', act: function(){ inp.value = x; render(x); } }; });
+      if(rec.length) groups.recente = rec;
+      groups.exemple = EXEMPLES.filter(function(x){ return rec.every(function(r){ return norm(r.t) !== norm(x); }); })
+        .slice(0, 3).map(function(x){ return { t: x, cat: 'exemple', act: function(){ inp.value = x; render(x); } }; });
+      paint(groups, '');
+    }
+
+    function score(it, nq, chapRn, year){
+      if(chapRn){ return (it.cat === 'chapitre' || it.cat === 'partie') && norm(it.rn || '') === chapRn ? 9 : 0; }
+      if(year && it.cat === 'date') return String(it.y) === year ? 9 : (it.h.indexOf(nq) >= 0 ? 1 : 0);
+      if(it.tn === nq) return 6;
+      if(it.tn.indexOf(nq) === 0) return 4;
+      if(it.tn.indexOf(nq) >= 0) return 3;
+      if(it.h.indexOf(nq) >= 0) return 1;
+      return 0;
+    }
+
     function render(q){
       var nq = norm(q).trim();
-      if(!nq){ box.hidden = true; box.innerHTML = ''; return; }
+      if(!nq){ zeroState(); return; }
       buildIndex().then(function(ix){
+        if(norm(inp.value).trim() !== nq) return;   /* frappe plus récente */
+        var mc = nq.match(/^(?:chapitre|chap\.?|ch\.?)\s+([ivxlc]+)$/);
+        var chapRn = mc ? mc[1] : null;
+        var year = /^\d{4}$/.test(nq) ? nq : null;
         var hits = [];
-        for(var i = 0; i < ix.length && hits.length < 12; i++){
-          if(ix[i].hay.indexOf(nq) >= 0) hits.push(ix[i]);
-        }
+        ix.forEach(function(it, k){ var sc = score(it, nq, chapRn, year); if(sc) hits.push({ it: it, sc: sc, k: k }); });
+        hits.sort(function(a,b){ return b.sc - a.sc || a.k - b.k; });
         if(!hits.length){
-          box.innerHTML = '<div class="tb-empty">Aucun résultat pour « ' + esc(q) + ' »</div>';
+          box.innerHTML = '<div class="tb-empty">Aucun résultat pour « ' + esc(q) + ' ». Essayez un mot du texte, un chapitre (« chapitre X ») ou une année.</div>';
           box.hidden = false;
           inp.setAttribute('aria-expanded','true');
           announce('Aucun résultat pour ' + q);
           return;
         }
-        box.innerHTML = '';
-        hits.forEach(function(e){
-          var b = document.createElement('button');
-          b.type = 'button';
-          b.className = 'tb-res';
-          b.setAttribute('role', 'option');
-          b.id = 'tbo-' + (box.children.length);
-          /* Une option de listbox ne se tabule pas : on y circule aux
-             flèches depuis le champ (aria-activedescendant). */
-          b.tabIndex = -1;
-          b.innerHTML = '<span class="tb-res-main"><span class="tb-res-t">' + esc(e.t) + '</span><span class="tb-res-s">' + esc(e.s) + '</span></span><span class="tb-res-cat tb-cat-' + e.cat + '">' + esc(e.lab) + '</span>';
-          b.addEventListener('mousedown', function(ev){ ev.preventDefault(); });
-          b.addEventListener('click', function(){ inp.value = ''; close(); try { e.act(); } catch(x){} });
-          box.appendChild(b);
+        var groups = {}, total = 0;
+        hits.forEach(function(hh){
+          var cat = hh.it.cat; if(!CAT[cat]) cat = 'page';
+          groups[cat] = groups[cat] || [];
+          if(groups[cat].length < PER_GROUP && total < MAX){ groups[cat].push(hh.it); total++; }
         });
-        box.hidden = false;
-        inp.setAttribute('aria-expanded','true');
-        cur = -1;
-        announce(hits.length + (hits.length > 1 ? ' résultats' : ' résultat'));
+        var n = paint(groups, q);
+        announce(n + (n > 1 ? ' résultats' : ' résultat'));
       });
     }
 
     inp.addEventListener('input', function(){ render(inp.value); });
-    inp.addEventListener('focus', function(){ if(inp.value) render(inp.value); });
+    inp.addEventListener('focus', function(){ render(inp.value); });
     inp.addEventListener('keydown', function(e){
       if(e.key === 'Escape'){ close(); inp.blur(); return; }
       if(box.hidden) return;
@@ -419,6 +530,14 @@
     document.addEventListener('click', function(e){
       var w = document.querySelector('.tb-search');
       if(w && !w.contains(e.target)) close();
+    });
+    /* « / » va au champ — un accélérateur pour qui le connaît, jamais la
+       porte : le champ reste visible en permanence. */
+    document.addEventListener('keydown', function(e){
+      if(e.key !== '/' || e.ctrlKey || e.metaKey || e.altKey) return;
+      var t = e.target, tag = t && t.tagName;
+      if(tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || (t && t.isContentEditable)) return;
+      e.preventDefault(); inp.focus(); inp.select();
     });
   }
 

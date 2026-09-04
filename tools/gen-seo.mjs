@@ -150,6 +150,9 @@ const clean = p => '/' + p.replace(/\.html$/, '').replace(/^\/+/, '');
  * qui vient après : les pages de notion n'existent pas à l'avance, elles
  * dépendent de ce que le lexique a écrit. */
 const PAGES_NOTIONS = [];
+/* Les notions, telles que le glossaire les a dédoublonnées et nommées —
+ * l'index de recherche en dérive (voir « L'index de la recherche »). */
+let INDEX_NOTIONS = [];
 
 function lastmod(file) {
   try {
@@ -672,6 +675,9 @@ function identite(nom) {
     while (vus.has(id)) id = slug(t.nom) + '-' + n++;
     vus.add(id); t.id = id;
   }
+  INDEX_NOTIONS = termes.map((t) => ({
+    nom: decode(t.nom), de: t.de || '', def: t.def || '', id: t.id, page: !!t.page,
+    oeuvre: (t.sources[0] && t.sources[0].oeuvre) || '' }));
 
   const lettres = new Map();
   for (const t of termes) {
@@ -837,8 +843,8 @@ function identite(nom) {
 <link rel="stylesheet" href="/oeuvres/fonts/fonts.css" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="/oeuvres/fonts/fonts.css"></noscript>
 <link rel="stylesheet" href="/glossaire/notion.css">
-<link rel="preload" href="/oeuvres/shell.css?v=4" as="style" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="/oeuvres/shell.css?v=4"></noscript>
+<link rel="preload" href="/oeuvres/shell.css?v=5" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="/oeuvres/shell.css?v=5"></noscript>
 ${ld}
 </head>
 <body>
@@ -895,7 +901,7 @@ ${voisines.map((v) => `      <a href="${v.page ? `/glossaire/${v.id}` : `/glossa
 </main>
 ${PIED}
 <script src="/config.js"></script>
-<script src="/oeuvres/shell.js?v=4"></script>
+<script src="/oeuvres/shell.js?v=5"></script>
 <script src="/oeuvres/shell-social.js"></script>
 <script>installShell({ workTitle: 'Glossaire', tabs: [] });</script>
 </body>
@@ -934,6 +940,91 @@ ${PIED}
 }
 
 /* --------------------------- sitemap --------------------------- */
+/* ------------------- L'index de la recherche ---------------------------- *
+ * oeuvres/recherche.json — lu par la recherche partagée de shell.js.
+ * DÉRIVÉ, comme tout le reste : les chapitres et leur résumé (ROY_STRUCT +
+ * META), les parties des Manuscrits (MAN_STRUCT), les dates (CHRONO), les
+ * instruments et explorations (libellés des onglets des ateliers), les
+ * notions du glossaire (après dédoublonnage), les œuvres (bibliotheque.json)
+ * et les pages du site. Chaque entrée porte l'URL qui mène AU bon endroit —
+ * le contrat de deep-link : #ch=, #partie=, #cahier=, #labo=, #explore=,
+ * #chrono, ancre ou page de glossaire.
+ * Avant (sept. 2026), l'index vivait dans shell.js et ne contenait que les
+ * œuvres et leurs 76 mots-clés : « fétichisme », « 1867 » et « chapitre X »
+ * ne rendaient rien, et tout résultat déposait en haut de la page de
+ * l'œuvre. Mission `recherche-index`.
+ * Le champ `hay` (la botte de foin) n'est jamais affiché : résumés tronqués,
+ * texte nu. `rn` sert aux requêtes « chapitre X » (jeton entier), `y` aux
+ * années. */
+{
+  const strip = (t) => decode(String(t == null ? '' : t).replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ').trim();
+  const court = (t, n) => { t = strip(t); return t.length > n ? t.slice(0, n - 1).replace(/\s+\S*$/, '') + '…' : t; };
+  const items = [];
+
+  for (const w of biblio.works) {
+    const dispo = w.status === 'available';
+    items.push({ t: strip(w.title), s: [w.author, w.year].filter(Boolean).join(' · '),
+      cat: dispo ? 'oeuvre' : 'a-venir', url: dispo ? hrefOf(w) : '/oeuvres/bibliotheque',
+      hay: [w.shortTitle, w.description, (w.concepts || []).join(' ')].filter(Boolean).join(' ') });
+  }
+
+  const capSrc = readFileSync('oeuvres/capital-1.html', 'utf8');
+  const ROY = litteralJS(capSrc, 'ROY_STRUCT=', '[');
+  const META = litteralJS(capSrc, 'META=', '{');
+  for (const sec of ROY) for (const [rn, titre] of sec.chaps) {
+    items.push({ t: `Chapitre ${rn} — ${strip(titre)}`, s: `Le Capital · section ${sec.rn}, ${strip(sec.t)}`,
+      cat: 'chapitre', rn, url: `/oeuvres/capital-1#ch=${rn}`,
+      hay: `chapitre ${rn} ` + court(META[rn] && META[rn].s, 400) });
+  }
+  for (const e of litteralJS(capSrc, 'CHRONO=', '[')) {
+    items.push({ t: `${e.year} — ${strip(e.title)}`, s: 'La chronologie du Capital' + (e.chap ? ' · ' + strip(e.chap) : ''),
+      cat: 'date', y: e.year, url: '/oeuvres/capital-1#chrono', hay: court(e.desc, 300) });
+  }
+  const labels = (re) => [...capSrc.matchAll(re)].map((m) => [m[1], m[2]]);
+  for (const [id, lab] of labels(/data-sub="(s-[a-z]+)">([^<]*)/g))
+    items.push({ t: strip(lab), s: 'Le laboratoire · Le Capital', cat: 'outil', url: `/oeuvres/capital-1#labo=${id}`, hay: 'simulation modèle instrument laboratoire faire varier' });
+  for (const [id, lab] of labels(/data-x="(x-[a-z]+)">([^<]*)/g))
+    items.push({ t: strip(lab), s: 'Les explorations · Le Capital', cat: 'outil', url: `/oeuvres/capital-1#explore=${id}`, hay: 'exploration pièce' });
+  items.push({ t: 'La chronologie du Capital', s: 'Le dossier · Le Capital', cat: 'outil', url: '/oeuvres/capital-1#chrono', hay: 'frise dates histoire accumulation primitive 1450 1867' });
+  items.push({ t: "Le cheminement — l'ascension de l'abstrait au concret", s: 'Le dossier · Le Capital', cat: 'outil', url: '/oeuvres/capital-1#deriv', hay: 'déduction marches catégories dérivation' });
+
+  const manSrc = readFileSync('oeuvres/manuscrits-1844.html', 'utf8');
+  const MS = litteralJS(manSrc, 'MAN_STRUCT=', '[');
+  /* Le numéro de sommaire suit MAN_FLAT : deux pièces d'ouverture, puis les
+   * parties dans l'ordre des cahiers. */
+  let g = 0;
+  for (const [titre, hay] of [['Note du traducteur', 'Bottigelli traduction 1962'], ['Préface', 'avant-propos']]) {
+    g++; items.push({ t: titre, s: 'Manuscrits de 1844 · ouverture', cat: 'partie', url: `/oeuvres/manuscrits-1844#partie=${g}`, hay });
+  }
+  for (const sec of MS) for (const [titre, resume] of sec.chaps) {
+    g++; items.push({ t: strip(titre), s: `Manuscrits de 1844 · ${strip(sec.t)}`, cat: 'partie',
+      url: `/oeuvres/manuscrits-1844#partie=${g}`, hay: court(resume, 400) });
+  }
+  for (const [id, lab] of Object.entries(litteralJS(manSrc, 'INSTR_LABELS=', '{')))
+    items.push({ t: strip(lab), s: 'Le laboratoire · Manuscrits de 1844', cat: 'outil', url: `/oeuvres/manuscrits-1844#labo=${id}`, hay: 'instrument laboratoire manipuler' });
+  for (const [id, lab] of Object.entries(litteralJS(manSrc, 'EXPLO_LABELS=', '{')))
+    items.push({ t: strip(lab), s: 'Les explorations · Manuscrits de 1844', cat: 'outil', url: `/oeuvres/manuscrits-1844#explore=${id}`, hay: 'exploration pièce' });
+
+  for (const n of INDEX_NOTIONS) {
+    items.push({ t: n.nom, s: (n.de ? n.de + ' · ' : '') + n.oeuvre, cat: 'notion',
+      url: n.page ? `/glossaire/${n.id}` : `/glossaire/#${n.id}`, hay: court(n.def, 300) });
+  }
+
+  for (const [t, s, url, hay] of [
+    ['La bibliothèque', 'Toutes les œuvres, et par où commencer', '/oeuvres/bibliotheque', 'corpus livres œuvres rayons'],
+    ["Le glossaire — l'abécédaire de Marx", 'Les notions, de A à Z', '/glossaire/', 'définitions concepts vocabulaire lexique'],
+    ['Place publique', 'Le forum des lecteurs', '/oeuvres/place-publique', 'discussions notes partagées forum'],
+    ['Le circuit du capital', 'Le jeu de la plus-value', '/jeu/', 'jeu jouer simulation chariot'],
+    ['Mon carnet', 'Vos passages et vos notes', '/oeuvres/carnet', 'surlignages annotations notes'],
+    ['Messages', 'Vos conversations privées', '/oeuvres/messages', 'messagerie contacts'],
+    ['À propos', 'Qui tient Lire Marx, et comment', '/a-propos', 'auteur sources méthode contact'],
+    ['CGU & confidentialité', 'Mentions légales et règles du site', '/mentions-legales', 'cgu rgpd confidentialité règles'],
+  ]) items.push({ t, s, cat: 'page', url, hay });
+
+  writeIfNeeded('oeuvres/recherche.json',
+    JSON.stringify({ v: 1, source: 'tools/gen-seo.mjs', items }) + '\n', 'oeuvres/recherche.json (index de recherche)');
+}
+
 const entries = [
   ...SITE_PAGES.map(p => ({ ...p, loc: ORIGIN + p.url })),
   /* Les pages de notion. Priorité modeste : elles comptent, mais moins que

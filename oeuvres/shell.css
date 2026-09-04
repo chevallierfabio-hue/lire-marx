@@ -580,3 +580,14 @@ body.at-reading .notes-fab{display:inline-flex;}
 /* L'enveloppe des onglets (SHELL.tabs) : elle porte role=tablist à la
    place du <nav>, et ne doit pas exister pour la mise en page. */
 .tabs-list{display:contents;}
+
+/* ── La recherche partagée : groupes et catégories (mission recherche-index) ── */
+.tb-grp{font-family:var(--f-ui);font-size:.64rem;font-weight:600;letter-spacing:.11em;text-transform:uppercase;color:var(--gold,#d8ad4c);padding:9px 10px 3px;}
+.tb-grp:first-child{padding-top:5px;}
+.tb-cat-partie{background:rgba(92,138,163,.20);color:#a8c9da;}
+.tb-cat-notion{background:rgba(213,64,47,.18);color:#f0917f;}
+.tb-cat-outil{background:rgba(216,173,76,.18);color:#e5c176;}
+.tb-cat-page,.tb-cat-recente,.tb-cat-exemple{background:rgba(243,233,212,.10);color:var(--ink-soft);}
+.tb-cat-a-venir{background:rgba(243,233,212,.07);color:var(--const);}
+.tb-cat-reprise{background:rgba(213,64,47,.18);color:#f0917f;}
+.tb-empty{line-height:1.5;}
