@@ -627,10 +627,26 @@ l'export et `circuitChariot()`.
 `circuitChariot()`).** À MI-COURSE du chariot (`q > 0.48`, pas dès son
 entrée : proposée plus tôt, la fiche arrivait avant lui et on lisait « ce
 chariot se conduit » sans l'avoir encore vu rouler), une fiche
-se propose en haut à droite de la bande (`.circuit-reins`,
-`#chariotReins`) — son `top` doit rester sous la topbar, qui est en
-`position:fixed` à 44 px et en z-index 140 : la fiche, à z-index 5 dans la
-bande, passerait dessous. Aux rênes,
+se propose (`.circuit-reins`, `#chariotReins`).
+
+**Elle est un bandeau BAS-CENTRÉ (mission `reins-endroit-pertinent`, sept.
+2026), pas une carte en coin.** Posée en haut à droite à l'origine, elle
+finissait en pratique devant le chariot ou devant `.circuit-inner` (le
+texte de la section) : le premier grossit vers le centre de l'image à
+mi-course (le virage de la route, `Z_BEND`), et le second occupe presque
+toute la hauteur de la bande, centré — un coin quelconque du haut finit
+tôt ou tard dans l'un des deux. Mesuré (sonde temporaire sur
+`circuitChariot`, projection de sa boîte englobante à la caméra) : sur
+toute la fenêtre où la fiche est offerte, le chariot ne descend jamais
+sous ~81 % de la hauteur du canevas, et `.circuit-inner` s'arrête vers
+75-77 % — vrai à 1280×900 comme sur une fenêtre courte (768×660, sous les
+gardes de `circuitScrub`). Le bandeau vit donc tout en bas, sous les
+deux, avec une marge de 55 à 75 px selon la taille d'écran. C'est aussi la
+bande de `.lm-drive-hud` (la fiche « aux rênes » ci-dessous) : les deux ne
+sont jamais visibles ensemble (l'une disparaît quand `driving` devient
+vrai, l'autre n'apparaît qu'alors), la seconde prenant le relais de la
+première **au même endroit de l'écran** — une seule affordance de
+conduite, pas deux qui se disputent la place. Aux rênes,
 le canvas **quitte sa bande** : il est déplacé dans `document.body` et passe
 en `position:fixed` plein écran (`#circuit-bg.driving`, z-index 100 — sous
 la sidebar à 120 et la topbar à 140, qui restent utilisables), avec un voile

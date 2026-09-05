@@ -536,32 +536,39 @@ html.js-faq .hs-faq-mk::after{opacity:calc(.44 + var(--lit)*.56);}
    Les FLÈCHES ne prennent jamais les rênes — c'est ainsi qu'un lecteur au
    clavier fait défiler une page. Seules les lettres (ZQSD / WASD, lues par
    position physique) proposent la main ; les flèches ne conduisent qu'une
-   fois aux rênes. — */
-.circuit-reins{position:absolute;z-index:5;right:clamp(10px,2vw,28px);
-  top:clamp(64px,10vh,94px);width:min(196px,62vw);text-align:left;
-  padding:11px 12px 10px;border-radius:11px;
+   fois aux rênes.
+   La fiche est un bandeau bas-centré, pas une carte en coin : le chariot
+   grossit vers le centre de l'image à mi-course (c'est le virage de la
+   route, `Z_BEND`) et un coin haut ou latéral finit tôt ou tard dans son
+   passage ; `.circuit-inner` (le texte de la section) occupe pour sa part
+   presque toute la hauteur, centré. Mesuré (sonde temporaire sur
+   `circuitChariot`) : le chariot ne descend jamais sous ~81 % de la hauteur
+   du canevas pendant toute la fenêtre où la fiche est offerte, et
+   `.circuit-inner` s'arrête vers 75-77 %. Le bandeau vit donc tout en bas,
+   sous les deux — la même bande que `.lm-drive-hud` (la fiche « aux rênes »
+   ci-dessous) : les deux ne sont jamais visibles ensemble, et la seconde
+   prend le relais de la première au même endroit de l'écran. — */
+.circuit-reins{position:absolute;z-index:5;left:50%;
+  bottom:clamp(16px,4vh,30px);transform:translate(-50%,16px);
+  display:flex;align-items:center;flex-wrap:wrap;justify-content:center;gap:10px;
+  max-width:min(480px,86vw);text-align:left;
+  padding:9px 9px 9px 18px;border-radius:100px;
   background:rgba(30,23,16,.93);border:1px solid var(--border);
   box-shadow:0 14px 34px -12px rgba(0,0,0,.72);
-  opacity:0;visibility:hidden;transform:translateY(-14px);
+  opacity:0;visibility:hidden;
   transition:opacity .55s ease,transform .55s cubic-bezier(.16,1,.3,1),visibility .55s;}
-.circuit-reins.on{opacity:1;visibility:visible;transform:none;}
-.circuit-reins-h{font-family:'Fraunces',serif;font-weight:600;font-size:.82rem;
-  line-height:1.25;color:var(--text);margin:0 0 4px;}
-.circuit-reins-p{font-family:'Inter',system-ui,sans-serif;font-size:.615rem;
-  line-height:1.55;color:var(--muted);margin:0 0 8px;}
-.circuit-keys{display:flex;align-items:center;flex-wrap:wrap;gap:4px;margin:0 0 9px;
-  font-family:'Inter',system-ui,sans-serif;font-size:.55rem;color:var(--muted);}
-.kc{display:inline-flex;align-items:center;justify-content:center;
-  min-width:15px;height:15px;padding:0 3px;border-radius:4px;
-  border:1px solid var(--border);background:rgba(243,233,212,.06);
-  font-size:.53rem;font-weight:600;color:var(--text);line-height:1;}
-.circuit-reins-go{display:inline-flex;align-items:center;gap:5px;
-  font-family:'Inter',system-ui,sans-serif;font-weight:600;font-size:.655rem;
+.circuit-reins.on{opacity:1;visibility:visible;transform:translate(-50%,0);}
+.circuit-reins-p{font-family:'Inter',system-ui,sans-serif;font-size:.72rem;
+  line-height:1.4;color:var(--muted);margin:0;flex:1 1 auto;min-width:180px;}
+.circuit-reins-p b{color:var(--text);font-weight:600;}
+.circuit-reins-go{display:inline-flex;align-items:center;gap:5px;flex:0 0 auto;
+  font-family:'Inter',system-ui,sans-serif;font-weight:600;font-size:.7rem;
   color:var(--bg);background:var(--gold);border:0;border-radius:100px;
-  padding:6px 11px;cursor:pointer;transition:filter .16s,transform .16s;}
+  white-space:nowrap;padding:7px 13px;cursor:pointer;transition:filter .16s,transform .16s;}
 .circuit-reins-go:hover{filter:brightness(1.12);transform:translateY(-1px);}
-.circuit-reins-x{position:absolute;top:4px;right:6px;width:19px;height:19px;
-  border:0;background:transparent;color:var(--muted);font-size:.95rem;
+.circuit-reins-x{flex:0 0 auto;width:22px;height:22px;display:inline-flex;
+  align-items:center;justify-content:center;
+  border:0;background:transparent;color:var(--muted);font-size:1rem;
   line-height:1;cursor:pointer;border-radius:50%;}
 .circuit-reins-x:hover{color:var(--text);background:rgba(243,233,212,.07);}
 
@@ -1318,14 +1325,11 @@ html.no-motion header.topbar,html.no-motion header.topbar .topbar-in{transition:
       <span class="circuit-veil" aria-hidden="true"></span>
       <div class="circuit-reins" id="chariotReins" role="group"
            aria-label="Conduire le chariot">
+        <p class="circuit-reins-p">Ce chariot se conduit &mdash; <b>ZQSD</b> au
+          clavier. Il m&egrave;ne la page.</p>
+        <button type="button" class="circuit-reins-go" id="chariotReinsGo">Prendre les r&ecirc;nes</button>
         <button type="button" class="circuit-reins-x" id="chariotReinsX"
                 aria-label="Masquer la proposition">&times;</button>
-        <p class="circuit-reins-h">Prenez les r&ecirc;nes</p>
-        <p class="circuit-reins-p">Ce chariot se conduit. Il m&egrave;ne la page&nbsp;:
-          montez, elle remonte&nbsp;; descendez, elle descend.</p>
-        <p class="circuit-keys"><span>Au clavier</span> <span class="kc">Z</span><span
-          class="kc">Q</span><span class="kc">S</span><span class="kc">D</span></p>
-        <button type="button" class="circuit-reins-go" id="chariotReinsGo">Prendre les r&ecirc;nes</button>
       </div>
       <div class="circuit-inner">
         <p class="hs-sec-label">Le jeu</p>
