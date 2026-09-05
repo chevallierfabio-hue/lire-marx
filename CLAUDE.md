@@ -3749,9 +3749,13 @@ recherche pour de bon — c'est éditorial, pas technique, donc pas tranché ici
 ### L'Organization, le `sameAs` et l'homonyme
 
 `sameAs` ne contient QUE le dépôt public du site
-(`github.com/chevallierfabio-hue/lire-marx`, vérifié 200). **Ne rien y
-inventer : un `sameAs` faux est pire qu'un `sameAs` absent.** Ajouter un
-profil le jour où il existe vraiment.
+(`github.com/maradomarx/lire-marx`, vérifié 200 — le propriétaire a renommé
+son compte GitHub `chevallierfabio-hue` → `maradomarx` en septembre 2026 ;
+l'ancienne URL redirige, mais les trois liens en dur du site
+(`mentions-legales.html`, `index.html`, `a-propos.html`) et le remote git
+local ont été repointés directement sur la nouvelle pour ne pas dépendre
+d'une redirection). **Ne rien y inventer : un `sameAs` faux est pire qu'un
+`sameAs` absent.** Ajouter un profil le jour où il existe vraiment.
 
 **Il existe un homonyme actif : `liremarx.noblogs.org`**, blog savant sur
 Marx (recensions, Hegel, ontologie), bien référencé sur les mêmes sujets. Il
@@ -4151,7 +4155,8 @@ compressé (93 Ko → 28 Ko transférés). Il n'y a pas d'autre gain facile ici.
 ## Le jeu est branché sur le site (mission `brancher-le-jeu`, sept. 2026)
 
 *Le Circuit du Capital* vivait dans un dépôt séparé
-(`~/Desktop/circuit-du-capital`, `github.com/chevallierfabio-hue/circuit-du-capital`)
+(`~/Desktop/circuit-du-capital`, `github.com/maradomarx/circuit-du-capital`
+— compte GitHub renommé `chevallierfabio-hue` → `maradomarx` depuis)
 et n'était accessible nulle part depuis le site, qui l'annonçait pourtant
 « bientôt » depuis des mois — et dont la **description Google le promettait
 déjà au présent**. Il est en ligne.
