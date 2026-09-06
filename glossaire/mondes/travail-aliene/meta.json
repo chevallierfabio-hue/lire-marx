@@ -1,0 +1,47 @@
+{
+  "_": "LA TÊTE, L'APPAREIL ET LE MONDE de /glossaire/travail-aliene.",
+  "titre": "Travail aliéné",
+  "de": "Entfremdete Arbeit",
+  "chapo": "Le travail aliéné est le premier concept que Marx ait formé en propre, en 1844, dans des cahiers restés inédits jusqu'en 1932. Il part d'un fait que l'économie constate sans l'expliquer — l'ouvrier devient d'autant plus pauvre qu'il produit plus de richesse — et en tire quatre déterminations, dont la dernière renverse l'économie : la propriété privée n'est pas la cause du travail aliéné, elle en est le produit.",
+  "description": "Le travail aliéné chez Marx (Manuscrits de 1844) : les quatre déterminations — le produit, l'activité, l'être générique, l'autre homme — et pourquoi la propriété privée en est la conséquence.",
+  "source": {
+    "work": "manuscrits-1844",
+    "s": 3,
+    "cite": "Karl Marx, <i>Manuscrits de 1844</i>, premier manuscrit, « Le travail aliéné » — traduction Émile Bottigelli (1962)"
+  },
+  "ou": "<i>Manuscrits de 1844</i>, premier manuscrit, le dernier fragment, « Le travail aliéné » — écrit à Paris entre avril et août 1844, après les trois colonnes sur le salaire, le profit et la rente, et publié en 1932 seulement. Le troisième manuscrit en tire le communisme comme réappropriation.",
+  "outils": [
+    {
+      "label": "La carte des concepts — l'atelier des Manuscrits",
+      "url": "/oeuvres/manuscrits-1844#labo=carte"
+    }
+  ],
+  "voisins": [
+    "Objectivation",
+    "Être générique",
+    "Propriété privée",
+    "Communisme",
+    "Fétichisme",
+    "Force de travail"
+  ],
+  "monde": {
+    "_": "La scène : l'atelier de 1844 coupé en deux par un vide. À gauche l'ouvrier, à son établi, sous sa lampe ; ce qu'il fabrique — des objets de bois et de bronze — quitte l'établi, traverse le vide et s'assemble à droite en un ÉDIFICE qui grandit : des palais. À mesure que l'édifice monte, le côté de l'ouvrier se dépouille — la lampe baisse, les murs se resserrent : des tanières. À la troisième détermination, l'édifice se retourne et lui fait face comme une puissance ; à la quatrième, une seconde silhouette paraît devant l'édifice, celle à qui le produit appartient. Réversible : on remonte, les objets reviennent à l'établi.",
+    "alt": "Un atelier coupé en deux : à gauche un ouvrier à son établi sous une lampe faible, à droite un édifice qui grandit, fait des objets qu'il a fabriqués, et au sommet une silhouette qui le domine.",
+    "source": {
+      "texte": "D'après le texte — premier manuscrit, « Le travail aliéné »",
+      "q": "Il produit des palais, mais des tanières pour l'ouvrier"
+    },
+    "etapes": {
+      "fait": "L'atelier, en 1844. Un ouvrier, un établi, une lampe — et ce qu'il fabrique.",
+      "objet": "Chaque objet quitte l'établi et s'ajoute à un édifice, de l'autre côté : des palais. Plus l'édifice est grand, moins il reste ici.",
+      "acte": "Ce n'est pas l'objet qui s'en va : c'est le geste qui appartient déjà à un autre. La lampe baisse ; l'atelier se fait tanière.",
+      "genre": "L'édifice se retourne et lui fait face — la vie qu'il y a mise se dresse contre lui, étrangère.",
+      "autre": "Devant l'édifice, quelqu'un. Le produit n'est allé ni aux dieux ni à la nature : à un autre homme.",
+      "lectures": "Rien à restaurer : un rapport à changer. L'édifice est fait de ses mains ; c'est le rapport qui le lui rend étranger."
+    },
+    "fixe": {
+      "g": 4.55,
+      "legende": "Des palais pour l'un, des tanières pour l'autre : l'édifice est fait des objets de l'ouvrier, et quelqu'un d'autre s'y tient en maître."
+    }
+  }
+}

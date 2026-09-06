@@ -293,50 +293,14 @@
       "de": "Mehrwert",
       "def": "L'excédent de valeur créé par le travail au-delà de ce que coûte la force de travail. Elle ne naît pas de l'échange, qui ne fait que déplacer de la valeur, mais de la production.",
       "page": {
-        "chapo": "La plus-value est la valeur créée par le travail au-delà de ce que coûte la force de travail. Elle ne vient pas de l'échange, mais de la production — et le contrat de travail est parfaitement respecté.",
-        "corps": [
-          "Marx part d'une énigme que l'économie politique de son temps n'arrivait pas à résoudre&nbsp;: <b>d'où vient le profit&nbsp;?</b> On répondait volontiers qu'il naît de l'échange — acheter bas, vendre haut. Mais Marx observe que si tout le monde vend au-dessus de la valeur, tout le monde achète aussi au-dessus&nbsp;: ce que l'on gagne comme vendeur, on le reperd comme acheteur. L'échange redistribue de la valeur, il n'en crée pas. Le profit doit donc naître ailleurs, et pourtant sans qu'aucune règle de l'échange ne soit violée. Toute la difficulté est là.",
-          "La solution tient dans une marchandise d'un genre particulier&nbsp;: la <b>force de travail</b>. Comme toute marchandise, elle a une valeur — le coût de ce qu'il faut pour l'entretenir et la reproduire — et le capitaliste la paie à cette valeur. Mais son <i>usage</i> n'a rien de commun avec son <i>coût</i>&nbsp;: en la consommant, c'est-à-dire en faisant travailler, on obtient plus de valeur qu'elle n'en a coûté. Le capitaliste achète une journée entière et n'en paie que ce qu'elle vaut. L'écart n'est pas une entorse au contrat&nbsp;: il en est le produit.",
-          "La journée se divise alors en deux parts. Pendant les premières heures — le <b>travail nécessaire</b> — l'ouvrier reproduit la valeur de sa propre force de travail&nbsp;: il gagne son salaire. Au-delà commence le <b>surtravail</b>, qui ne lui rapporte rien et ne coûte rien au capital. C'est ce second morceau, une fois objectivé dans la marchandise, qu'on appelle plus-value. Le rapport des deux — le <b>taux de plus-value</b> — mesure exactement le degré d'exploitation, et il ne dépend ni de la taille de l'entreprise ni de son capital engagé.",
-          "De là découle tout le reste du livre. Comme la plus-value ne sort que du travail vivant, le capital n'a que deux moyens de l'augmenter&nbsp;: allonger la journée — la <i>plus-value absolue</i> — ou raccourcir le travail nécessaire en augmentant la productivité — la <i>plus-value relative</i>. Le premier chemin se heurte à une limite physique et à la loi&nbsp;; le second refond la technique, l'atelier, et jusqu'au corps de l'ouvrier. Et parce que le taux de profit rapporte la plus-value au capital <i>total</i>, machines comprises, il dissimule ce que le taux de plus-value montrait&nbsp;: le profit paraît sortir du capital, alors qu'il sort du travail."
-        ],
-        "outils": [
-          {
-            "label": "Le circuit du capital — le jeu",
-            "url": "/jeu/"
-          }
-        ],
-        "voisins": [
-          "Force de travail",
-          "Surtravail",
-          "Travail nécessaire",
-          "Taux de plus-value",
-          "Plus-value absolue",
-          "Plus-value relative",
-          "Taux de profit"
-        ]
+        "dossier": "plus-value"
       }
     },
     "Force de travail": {
       "de": "Arbeitskraft",
       "def": "La capacité de travailler, que l'ouvrier vend pour un temps déterminé. Marchandise unique : sa valeur est le coût de sa reproduction, son usage crée plus de valeur qu'elle n'en coûte.",
       "page": {
-        "chapo": "La force de travail est la capacité de travailler, que l'ouvrier vend pour un temps donné. C'est la seule marchandise dont l'usage produit plus de valeur qu'elle n'en coûte — et c'est de cet écart que naît la plus-value.",
-        "corps": [
-          "Marx est arrivé à une impasse. Le capital est de l'argent qui revient augmenté, mais l'échange de marchandises à leur valeur ne crée rien&nbsp;: il déplace. Pour que A—M—A′ ait un sens sans qu'aucune règle soit violée, il faudrait une marchandise dont la <b>consommation</b> produise de la valeur. Marx annonce qu'on la trouve sur le marché, et qu'elle porte un nom&nbsp;: la force de travail — non le travail, mais la capacité de travailler.",
-          "Elle n'existe comme marchandise qu'à deux conditions, et les deux sont des <b>libertés</b>. Son possesseur doit être libre de sa personne, donc ni esclave ni serf, pour pouvoir la vendre à temps. Et il doit être libre de tout moyen de production — sans quoi il vendrait ses produits plutôt que sa capacité. Cette double liberté n'est pas un état de nature&nbsp;: c'est le résultat de l'histoire que raconte l'accumulation primitive.",
-          "Sa valeur se détermine comme celle de toute marchandise&nbsp;: par le temps de travail nécessaire à la produire, c'est-à-dire ici à entretenir l'ouvrier et sa famille, et à le former. Marx ajoute une réserve qu'il ne fait pour aucune autre marchandise&nbsp;: ce minimum contient un <i>élément historique et moral</i>, et varie selon les pays et les époques. Ce n'est pas un seuil physiologique.",
-          "Toute la mécanique tient alors dans une asymétrie. Ce qui se paie, c'est la <b>valeur</b> de la force de travail&nbsp;; ce qui s'utilise, c'est son <b>usage</b>, et rien n'oblige les deux à coïncider. Si une demi-journée suffit à reproduire ce qu'elle coûte, la seconde moitié appartient à l'acheteur, qui a pourtant payé le prix convenu. C'est une chance pour lui, écrit Marx, et nullement une injustice envers le vendeur."
-        ],
-        "voisins": [
-          "Plus-value",
-          "Surtravail",
-          "Travail nécessaire",
-          "La forme-salaire",
-          "Le « prix du travail »",
-          "Accumulation primitive"
-        ],
-        "ou": "Livre I, chapitre VI — « Achat et vente de la force de travail »."
+        "dossier": "force-de-travail"
       }
     },
     "Fétichisme": {
@@ -352,21 +316,7 @@
     },
     "Travail aliéné": {
       "page": {
-        "chapo": "Le travail aliéné est le travail qui, sous la propriété privée, se retourne contre celui qui l'accomplit : plus l'ouvrier produit, plus le monde qui lui fait face est puissant, et plus il est pauvre lui-même.",
-        "ou": "Manuscrits de 1844, premier manuscrit — « Le travail aliéné », écrit à vingt-six ans et publié en 1932 seulement.",
-        "corps": [
-          "Marx écrit ces pages à Paris, à vingt-six ans, et elles resteront inconnues quatre-vingt-huit ans. Sa méthode y est frappante&nbsp;: il part des <b>prémisses de l'économie politique elle-même</b> — la propriété privée, la séparation du travail et du capital, la concurrence — et montre qu'elles conduisent à un résultat qu'elle énonce sans le comprendre. L'ouvrier devient d'autant plus pauvre qu'il produit plus de richesse.",
-          "L'aliénation prend quatre figures emboîtées. D'abord dans le <b>produit</b>&nbsp;: le travail se fixe dans un objet, et cet objet lui fait face comme une puissance étrangère. Ensuite dans <b>l'acte</b> même de travailler, qui ne lui appartient pas&nbsp;: il ne s'y affirme pas, il s'y nie, et ne se sent chez lui que lorsqu'il ne travaille pas. Puis dans son <b>être générique</b> — ce qui devrait le distinguer, produire librement et universellement, devient un simple moyen de subsister. Enfin dans le rapport aux <b>autres hommes</b>, car ce qui est arraché à l'un revient nécessairement à un autre.",
-          "Vient alors le renversement qui fait la force du texte. L'économie politique pose la propriété privée comme un fait premier et n'en rend jamais compte. Marx montre qu'elle est le <b>produit</b> du travail aliéné avant d'en devenir la cause&nbsp;: le rapport s'inverse ensuite et devient réciproque, comme entre les dieux et l'égarement religieux — les dieux n'en sont pas l'origine, ils en sont l'effet, puis ils l'entretiennent.",
-          "Vingt-trois ans séparent ces pages du <i>Capital</i>, et le terrain change. Marx n'y raisonnera plus sur l'homme et son essence mais sur des rapports sociaux&nbsp;; la plus-value, grandeur mesurable, y remplacera l'aliénation comme concept central. Lire les deux textes permet de suivre ce déplacement au lieu d'avoir à trancher entre deux Marx."
-        ],
-        "voisins": [
-          "Objectivation",
-          "Être générique",
-          "Propriété privée",
-          "Communisme",
-          "Plus-value"
-        ]
+        "dossier": "travail-aliene"
       }
     },
     "Objectivation": {

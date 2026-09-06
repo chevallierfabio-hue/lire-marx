@@ -5890,11 +5890,46 @@ passage est trouvé dans le DOM (le défilement `smooth` de `flashAnchor` ne
 progresse pas dans un onglet piloté — piège documenté). Image fixe produite
 en headless (SwiftShader) : 12 Ko en WebP.
 
+### Trois notions de plus (mission `glossaire-mondes-2`, le même jour)
+
+Le pilote validé (« top passons à la suite »), trois pages ont suivi, chacune
+avec son essai, ses citations liées et sa scène :
+
+| notion | source des citations | la scène |
+|---|---|---|
+| **Force de travail** | Roy, sections II et III (ch. V–VII, X) | le SEUIL du ch. VI : la place du marché (l'étal des subsistances, le sablier, l'arche gravée LIBERTÉ · ÉGALITÉ · PROPRIÉTÉ · BENTHAM) et la porte de l'atelier (No admittance…) ; deux figures égales sur le marché, puis l'homme aux écus devant et l'ouvrier derrière, et le jour tombe |
+| **Plus-value** | Roy, sections II et III (ch. V, VII, IX, X) | l'atelier du FILEUR : la fenêtre dit l'heure, les bobines s'ajoutent, la ligne a—b—c du ch. X s'écrit à la craie au sol ; trois shillings sur l'établi à six bobines, trois au coffre à douze ; la nuit et la lampe allongent b—c |
+| **Travail aliéné** | Bottigelli, premier manuscrit (`#s=3` = `parts[2]`) | l'atelier de 1844 coupé en deux : ce que l'ouvrier fabrique traverse le vide et bâtit un édifice à colonnes (« des palais ») pendant que son côté se resserre (« des tanières ») ; l'édifice se retourne vers lui ; quelqu'un paraît devant |
+
+**Ce que les scènes ont appris, à retenir pour les suivantes :**
+- **Une figure qui travaille se place DERRIÈRE l'établi, face à la caméra.**
+  Devant, on voit son dos et elle cache l'outil. Vécu deux fois (le fileur,
+  l'ouvrier de 1844).
+- **Un nom de variable ne doit jamais masquer `frame`** : le métier à filer
+  s'est appelé `frame`, et `return { frame }` renvoyait un `Group` — la
+  capture plantait sur « frame is not a function ». Il s'appelle `loom`.
+- **Les pavés se teintent d'un seul gris** : trois canaux tirés au hasard
+  font un sol multicolore, invisible dans le code et évident à l'image.
+- **Le texte servi des Manuscrits porte des césures invisibles (U+00AD)** :
+  « n'appa­raît » n'est pas « n'apparaît », et la liseuse ne retrouverait pas
+  la phrase. Le contrôle des citations compare au texte BRUT du fragment,
+  espaces normalisés mais césures conservées ; une citation refusée se
+  remplace par une autre, on ne « nettoie » pas le texte servi.
+- **La position de l'image fixe se choisit après l'avoir vue** : `fixe.g`
+  a été déplacé trois fois (plus-value 3,7 → 4,1 pour que le « c » et le
+  coffre soient dans le cadre).
+
+**Vérifié** sur les trois pages : contraste 0 échec (109 à 120 mesures,
+minimum 4,56), aucune cible sous 24 px hors liens en ligne, zéro
+débordement à 1380 et 375, console sans erreur, image fixe et légende à
+375, `--check` idempotent, détecteur : un constat par page (le tiret
+cadratin, famille documentée).
+
 ### Ce qui reste
 
-- **Le pilote attend la relecture du propriétaire** (texte ET monde) avant
-  d'enchaîner ; la branche `glossaire-mondes` n'est pas fusionnée.
-- Les onze autres pages de notion sont encore sur l'ancien gabarit court ;
+- Le pilote a été validé et fusionné ; les trois suivantes vivent sur
+  `glossaire-mondes-2`, à relire.
+- Les huit autres pages de notion sont encore sur l'ancien gabarit court ;
   chacune passera en dossier à son tour, avec sa scène.
 - Le `Article` en JSON-LD signe `Organization` : la page n'a pas de byline
   nominative, et un schéma n'affirme que ce que la page imprime.

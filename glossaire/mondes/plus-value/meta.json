@@ -1,0 +1,53 @@
+{
+  "_": "LA TÊTE, L'APPAREIL ET LE MONDE de /glossaire/plus-value.",
+  "titre": "Plus-value",
+  "de": "Mehrwert",
+  "chapo": "La plus-value est la valeur que le travail crée au-delà de ce que coûte la force de travail. Elle ne vient pas de l'échange, où l'on ne peut que redistribuer, mais de la production, où la journée se coupe en deux : le travail nécessaire, qui rembourse le salaire, et le surtravail, qui ne coûte rien au capital. Et le contrat, dit Marx, est rigoureusement respecté.",
+  "description": "La plus-value chez Marx : d'où vient le profit sans violer l'échange, la journée coupée en travail nécessaire et surtravail, le taux d'exploitation, et pourquoi Lefebvre dit « survaleur ».",
+  "source": {
+    "work": "capital-1",
+    "s": 3,
+    "cite": "Karl Marx, <i>Le Capital</i>, Livre I, chapitres V, VII, IX et X — traduction Joseph Roy (1872)"
+  },
+  "ou": "Livre&nbsp;I, chapitre VII, « Production de valeurs d'usage et production de la plus-value », après que le chapitre V a rendu le problème insoluble et que le chapitre VI a trouvé la force de travail. Le chapitre IX la mesure (le taux), le chapitre X en fait une lutte (la journée), les sections IV et V en distinguent les deux formes, absolue et relative.",
+  "outils": [
+    {
+      "label": "La journée de travail — le laboratoire",
+      "url": "/oeuvres/capital-1#labo=s-jour"
+    },
+    {
+      "label": "Le circuit du capital — le jeu",
+      "url": "/jeu/"
+    }
+  ],
+  "voisins": [
+    "Force de travail",
+    "Surtravail",
+    "Travail nécessaire",
+    "Taux de plus-value",
+    "Plus-value absolue",
+    "Plus-value relative",
+    "Taux de profit",
+    "Journée de travail"
+  ],
+  "monde": {
+    "_": "La scène : l'atelier du fileur de Marx, et la journée qui passe. La fenêtre dit l'heure (aube → midi → soir → nuit) ; sur l'établi, les filés s'accumulent bobine après bobine ; au sol, une ligne à la craie s'écrit en même temps — a—b, le travail nécessaire, puis b—c, le surtravail : la figure du chapitre X, prise au pied de la lettre. À six bobines, trois shillings sont posés sur l'établi : la force est payée. Les six suivantes, dans le même geste, vont au coffre du capitaliste. Puis la nuit tombe et la lampe s'allume : la journée s'allonge, bc avec elle — c'est la plus-value absolue. Réversible : on remonte, la craie s'efface, les bobines rentrent.",
+    "alt": "Un atelier de filature ; sur l'établi douze bobines de filés alignées et trois pièces d'argent ; au sol, une ligne tracée à la craie avec les lettres a, b et c ; par la fenêtre, le jour décline.",
+    "source": {
+      "texte": "D'après le texte — Livre I, chapitres VII et X",
+      "q": "Notre capitaliste a prévu le cas, et c’est ce qui le fait rire"
+    },
+    "etapes": {
+      "enigme": "L'atelier du fileur, à l'aube. Du coton d'un côté, des broches de l'autre, et un capitaliste qui attend que son argent fasse des petits.",
+      "lieu": "Le fileur file. Ce qui se passe ici ne se passe pas sur le marché : le travail, c'est l'usage de la force qu'on y a achetée.",
+      "distinction": "Six bobines, et trois shillings sur l'établi : la force de travail est payée à sa valeur. La ligne a—b est tracée.",
+      "mecanisme": "Le fileur continue. Six bobines de plus, dans le même geste, pour le coffre : b—c. Le tour est fait, et pas un liard n'a été volé.",
+      "ouvre": "La nuit tombe, la lampe s'allume, la ligne s'allonge : la journée est un droit contre un droit, et c'est la force qui décide.",
+      "lectures": "La craie reste au sol. Ce n'est pas le profit, ce n'est pas une fraude, ce ne sont pas les machines : c'est du travail qui a continué."
+    },
+    "fixe": {
+      "g": 4.1,
+      "legende": "Douze bobines pour six heures payées : la ligne a—b—c du chapitre X, tracée à la craie sur le sol de l'atelier du fileur."
+    }
+  }
+}
