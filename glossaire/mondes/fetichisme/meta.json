@@ -1,0 +1,51 @@
+{
+  "_": "LA TÊTE, L'APPAREIL ET LE MONDE de /glossaire/fetichisme. L'essai est dans essai.html, la scène dans monde.js. Assemblé par tools/gen-seo.mjs.",
+  "titre": "Fétichisme de la marchandise",
+  "de": "Fetischcharakter der Ware",
+  "chapo": "Le fétichisme de la marchandise n'est ni une croyance ni une erreur&nbsp;: c'est la forme sous laquelle un rapport social entre les hommes se présente réellement, dans une société marchande, comme un rapport entre des choses. Marx en fait le secret du chapitre premier du <i>Capital</i>, et la clé de tout ce qui suit.",
+  "description": "Le fétichisme de la marchandise chez Marx : pourquoi un rapport entre les hommes prend la forme d'un rapport entre les choses, et pourquoi le savoir n'y change rien.",
+  "source": {
+    "_": "La source des citations : work = id de bibliotheque.json (le deep-link #s=&q= s'ouvre sur cette page), s = section Wikisource par défaut, cite = ce qu'on imprime sous chaque citation.",
+    "work": "capital-1",
+    "s": 1,
+    "cite": "Karl Marx, <i>Le Capital</i>, Livre I, chapitre premier, IV — traduction Joseph Roy (1872)"
+  },
+  "ou": "Livre&nbsp;I, chapitre premier, quatrième et dernière section&nbsp;: « Le caractère fétiche de la marchandise et son secret ». Le fétiche revient à chaque forme plus développée — argent, capital, rente — et le Livre&nbsp;III en achève la série sous le nom de formule trinitaire.",
+  "outils": [
+    {
+      "label": "Le fétichisme — la pièce d'exploration de l'atelier",
+      "url": "/oeuvres/capital-1#explore=x-feti"
+    }
+  ],
+  "voisins": [
+    "Travaux privés",
+    "Valeur d’usage vs valeur",
+    "Le hiéroglyphe social",
+    "Les contre-mondes",
+    "Lever le voile",
+    "Forme argent",
+    "Travail aliéné"
+  ],
+  "monde": {
+    "_": "La scène : la table de bois de Marx, à la bougie — l'exemple par lequel il ouvre la section, pris au pied de la lettre. Autour d'elle, ce que le texte donne : les autres marchandises du chapitre I (la toile, l'habit, les bottes) devant lesquelles elle « se dresse sur sa tête », et le travail du menuisier qui « se voit » (rabot, scie, copeaux). Ordinaire tant qu'on la lit comme une table ; à la forme marchandise elle se soulève et se dresse sur sa tête, une étiquette de valeur pendue à un pied par un fil rouge ; au mécanisme elle danse et son ombre au mur devient deux personnes — le rapport social que la chose masque ; aux contre-mondes une lumière froide entre par la fenêtre et elle retombe sur ses pieds. Tout est fonction de la POSITION de lecture, donc réversible.",
+    "alt": "Une table de bois, seule, éclairée à la bougie ; elle se dresse sur sa tête, une étiquette de valeur pendue à un pied, et son ombre sur le mur a la silhouette de deux personnes.",
+    "etapes": {
+      "trivial": "La table de bois de Marx — l'exemple par lequel il ouvre la section. Tant qu'on la regarde comme une table, rien de mystérieux : le travail du menuisier se voit.",
+      "table": "Le bois est resté bois, et le rabot est encore là. C'est comme marchandise qu'elle change de conduite.",
+      "forme": "« Elle se dresse, pour ainsi dire, sur sa tête de bois en face des autres marchandises » — la toile, l'habit, les bottes — et la valeur lui pend comme une propriété.",
+      "danse": "« Des caprices plus bizarres que si elle se mettait à danser. » Son ombre, elle, dit ce qu'elle est : un rapport entre des personnes.",
+      "voile": "Là où le travail est commun, une autre lumière entre : la table retombe sur ses pieds, et le rapport se voit.",
+      "lectures": "La table est redevenue une table. La forme, elle, est toujours là."
+    },
+    "fixe": {
+      "_": "L'image fixe (monde.webp/.jpg), pour les écrans où la scène ne joue pas : tools/capture-monde.mjs la photographie à cette position de lecture g.",
+      "g": 3.55,
+      "legende": "La table de bois de Marx, dressée sur sa tête de bois ; son ombre, elle, dit ce qu'elle est : un rapport entre des personnes."
+    },
+    "source": {
+      "_": "La ligne fixe sous la scène, quelle que soit l'étape : elle dit que ce qu'on voit est DANS le livre, et mène au passage (deep-link sur q).",
+      "texte": "D'après le texte — Livre I, chapitre I, section IV",
+      "q": "elle se dresse, pour ainsi dire, sur sa tête de bois"
+    }
+  }
+}

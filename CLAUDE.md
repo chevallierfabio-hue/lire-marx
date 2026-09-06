@@ -5751,6 +5751,154 @@ Wikidata, les liens externes des articles Wikipédia FR, les profs de SES et de
 philo (le jeu est le meilleur argument auprès d'eux). C'est la variable la
 plus lourde et la seule qui ne se code pas.
 
+## Les pages-monde du glossaire (mission `glossaire-mondes`, sept. 2026)
+
+Demande du propriétaire : développer chaque concept de Marx en **page longue
+et exhaustive** — d'abord pour le référencement (une page par concept, qui
+sorte sur Google quand on cherche le mot), écrite **dans son registre** (il a
+donné son mémoire de M1 comme modèle de style), et dont chacune soit **un
+petit monde** : un objet artistique (3D, modélisation, graphe…) qui illustre
+le concept. Un autre agent travaillait en parallèle sur le jeu : rien sous
+`jeu/` n'a été touché.
+
+**Quatre arbitrages du propriétaire au lancement** :
+1. **Le mémoire sert de modèle de STYLE, et de rien d'autre.** Ses thèses
+   (données, rente, profilage) ne passent pas sur le site — le sujet du
+   mémoire reste privé, arbitrage déjà rendu pour `/a-propos`.
+2. **« Plus-value » en titre et dans le texte, « survaleur » expliqué** :
+   c'est le mot cherché et celui du texte servi (Roy) ; une page dit pourquoi
+   Lefebvre écrit survaleur quand elle en parle.
+3. **Pilote : le fétichisme de la marchandise** (`/glossaire/fetichisme`) —
+   très cherché, philosophique, et Marx fournit l'image lui-même.
+4. **Rythme : le pilote, puis trois à cinq notions par mission**, relues par
+   lui. Pas de génération en masse : ni le style ni les mondes ne tiendraient.
+
+### Le registre — ce qui a été relevé dans le mémoire, et qui commande l'écriture
+
+Phrases longues et articulées, « nous » d'exposé, la causalité toujours dite
+(« en cela que », « dès lors que », « toutefois », « or »), **l'ordre de
+l'exposé justifié en toutes lettres**, un concept posé par sa DIFFICULTÉ puis
+résolu par une distinction marxienne, l'exemple rendu concret exprès, la
+citation exacte avec sa référence, et une **position prise** dans les débats
+(« nous nous rangeons »). Aucun slogan. Une page suit six temps : la
+difficulté · où Marx le pose et pourquoi là · la distinction · le mécanisme ·
+ce que le concept ouvre · les lectures et les contresens.
+
+### Un dossier par notion : `glossaire/mondes/<slug>/`
+
+```
+essai.html    le corps — une <section class="nt-sec" data-etape="…"> par temps
+meta.json     la tête (titre, chapo, description), l'appareil (ou, outils,
+              voisins), la source des citations, les légendes du monde
+monde.js      la scène — window.LM_MONDE(canvas) → {set(g), frame(dt), resize(), render(), dispose()}
+monde.webp/.jpg  l'image fixe, produite par tools/capture-monde.mjs
+```
+
+Le lexique dit `"page": { "dossier": "<slug>" }` et ne garde que la
+définition courte de l'abécédaire ; `gen-seo.mjs` (`pageMonde`) ASSEMBLE le
+dossier dans un gabarit dédié — il n'écrit rien. Les onze autres pages de
+notion gardent l'ancien chemin (`page: {chapo, corps…}`) jusqu'à leur
+réécriture. Le pilote commun est `glossaire/monde-driver.js` ; le CSS vit en
+fin de `notion.css`.
+
+**Les citations MÈNENT AU PASSAGE.** Un `<blockquote data-s data-q>` ou un
+`<q data-s data-q>` de l'essai est une phrase RELEVÉE dans le texte que la
+liseuse sert (Roy, Wikisource — récupéré par l'API `parse` de la section),
+et devient un lien `#s=&q=` (le contrat de deep-link maison) vers le passage
+exact. C'est ce qui lève, pour ces pages, la règle « pas de citation de
+mémoire » : chaque citation est vérifiable d'un clic. `data-q` se copie du
+texte servi, **apostrophe typographique (’) et orthographe de Roy comprises**
+(« très-complexe », « complétement ») — ne pas « corriger », la liseuse
+cherche ces mots-là. Vérifié pour le pilote : les 25 phrases sont dans le
+texte servi (contrôle par `in` sur le texte de la section) ; le générateur
+refuse un `data-q` non reconnu, et un essai sous 1 200 mots.
+
+**La forme est celle de l'atelier : le texte au centre, le monde en marge.**
+Au-dessus de 1100 px, colonne de texte à gauche et scène collante à droite
+(`.nt-grid`) ; **la colonne de texte ne bouge jamais**, tout le mouvement vit
+dans la scène. Sous 1100 px la scène passe AU-DESSUS du texte, en image fixe,
+légende dessous (en surimpression, trois lignes mangeaient une image de deux
+cents pixels). Le sommaire numérote les six temps en romain, à la Fraunces
+italique or de la maison.
+
+**Le monde est piloté par la POSITION de lecture**, donc réversible :
+`g = index de la section sous la ligne de lecture (55 % de l'écran) +
+fraction parcourue`, et chaque scène écrit sa chorégraphie en fonctions de
+`g` (fenêtres `smoothstep`). Seuls le vacillement de la flamme et la danse
+sont temporels, et la danse n'a d'amplitude que dans sa fenêtre de `g`. Le
+pilote ne s'arme qu'à ≥ 1100 px (`matchMedia`, jamais `innerWidth`), hors
+reduced-motion, avec WebGL ; il charge Three.js puis la scène à la demande,
+et la boucle s'arrête hors écran ou onglet masqué. Sans lui, l'image fixe
+et sa légende sont l'état fini.
+
+**Le fétichisme, dit par sa scène** : la table de bois de Marx, à la bougie
+— et TOUT ce qui l'entoure vient du texte, c'est la règle pour habiller un
+monde : les autres marchandises du chapitre I devant lesquelles elle se
+dresse (la toile — les vingt mètres de l'étiquette —, l'habit au clou, les
+bottes), le travail du menuisier qui « se voit » (rabot, scie, copeaux), le
+tapis et la fenêtre au clair de lune de la maison. Retour du propriétaire à
+la première version : « pourquoi la table ? on ne comprend pas que ce soit
+le meilleur exemple » — la scène ne disait pas qu'elle était CELLE DE MARX.
+D'où les légendes qui citent la phrase, et **la ligne fixe sous la scène**
+(`.nt-monde-src`, `meta.monde.source`) : « D'après le texte — Livre I,
+chapitre I, section IV → », qui mène au passage. Toute scène doit dire d'où
+elle sort.
+Ordinaire tant qu'on la lit comme une table ; à la forme marchandise elle
+se soulève et **se dresse sur sa tête** (Roy : « elle se dresse, pour ainsi
+dire, sur sa tête de bois »), une étiquette de valeur pendue à un pied ; au
+mécanisme elle danse, et **son ombre au mur devient deux personnes** — le
+rapport social que la chose masque, et l'ombre n'est pas calculée mais
+DESSINÉE, c'est le point ; aux contre-mondes une lumière froide entre par
+la droite et elle retombe sur ses pieds ; aux lectures elle est redevenue
+une table. Le cadre est le plus souvent en PORTRAIT (la colonne collante) :
+la caméra tient le champ HORIZONTAL constant (`HFOV`) et déduit le vertical
+de l'aspect — en portrait elle voit plus de mur, qui est la place de l'ombre.
+
+### Pièges de cette mission
+
+1. **Les actifs du monde portent un `?v=` dérivé de leur contenu**
+   (`hashV` dans le générateur : `monde-driver.js`, `monde.js`, `notion.css`,
+   `three.min.js`). La page n'est jamais mise en cache, eux le sont quatre
+   heures — le piège de `home.js?v=2` et de `shell.css`, réglé ici une fois
+   pour toutes, sans geste à la main.
+2. **La sonde doit VERROUILLER la position.** `tools/capture-monde.mjs`
+   posait `g` puis attendait `fonts.ready` ; pendant l'attente, les remesures
+   du pilote (rAF, 400 ms, `load`, `fonts.ready` — le piège de la mesure
+   unique, à dessein) remettaient `g` à 0 : l'image fixe montrait une table
+   sur ses pieds. `window.__ntMonde.set()` verrouille désormais, `free()`
+   rend la main. Même piège pour toute vérification à la main.
+3. **Dans le vrai Chrome piloté aussi, `document.hidden` peut être vrai**
+   (fenêtre derrière) : rAF gelé, `g` figé à 0, `setTimeout` de la légende
+   étranglé. Le scrub se vérifie alors en appelant `free()` + `frame()` à
+   chaque position — fait : `g` monotone de 0 à 6 sur le document, fenêtres
+   de flip / danse / ombre / lumière dans l'ordre, retour à 0 en remontant.
+4. **Un outil du dossier qui vise le même endroit qu'une provenance en plus
+   précis** (`#explore=x-feti` contre `#explore`) remplace l'entrée
+   automatique au lieu de la doubler (`precis` dans `pageMonde`).
+5. Les renvois « Lire dans le texte → » sous les citations et les liens du
+   fil d'Ariane ne sont pas dans une phrase : WCAG 2.5.8 ne les exempte pas,
+   ils prennent leurs 24 px par rembourrage. Les `<q>` en ligne, eux, le sont.
+
+### Vérifié
+
+Contraste sur le rendu : **114 mesures, 0 échec, minimum 4,56:1**, aucun
+texte sous 11 px, aucune cible sous 24 × 24 hors liens en ligne. Détecteur
+statique : **0 constat** sur la page. `gen-seo --check` à jour et
+idempotent. Zéro débordement horizontal à 1380 et 375 px, console sans
+erreur. Deep-link `#s=1&q=…` : la section s'ouvre sur le chapitre I et le
+passage est trouvé dans le DOM (le défilement `smooth` de `flashAnchor` ne
+progresse pas dans un onglet piloté — piège documenté). Image fixe produite
+en headless (SwiftShader) : 12 Ko en WebP.
+
+### Ce qui reste
+
+- **Le pilote attend la relecture du propriétaire** (texte ET monde) avant
+  d'enchaîner ; la branche `glossaire-mondes` n'est pas fusionnée.
+- Les onze autres pages de notion sont encore sur l'ancien gabarit court ;
+  chacune passera en dossier à son tour, avec sa scène.
+- Le `Article` en JSON-LD signe `Organization` : la page n'a pas de byline
+  nominative, et un schéma n'affirme que ce que la page imprime.
+
 ## Conventions de travail
 
 - **Une mission par session.** Une demande utilisateur = un objectif clair,

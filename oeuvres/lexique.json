@@ -343,22 +343,7 @@
       "de": "Fetischcharakter der Ware",
       "def": "Le rapport entre des travaux humains apparaît comme un rapport entre des choses. Ce n'est pas une illusion d'optique : la forme marchandise produit réellement cette apparence.",
       "page": {
-        "chapo": "Le fétichisme n'est pas une erreur des hommes sur le monde : c'est la forme que le monde marchand prend réellement à leurs yeux. Un rapport social entre des personnes y apparaît comme un rapport entre des choses.",
-        "corps": [
-          "La section se trouve à la fin du chapitre premier, et c'est la plus célèbre du livre. Marx vient d'établir que la valeur d'une marchandise est du temps de travail social&nbsp;; il s'arrête alors sur une bizarrerie. Une table de bois n'a rien de mystérieux tant qu'on la regarde comme une table&nbsp;: son utilité se voit, et le travail du menuisier aussi. Le mystère ne commence ni avec la matière ni avec le travail — <b>il commence avec la forme marchandise</b>, et avec elle seulement.",
-          "D'où vient-il&nbsp;? De ce que les producteurs travaillent <b>séparément</b>, chacun pour son compte, sans se concerter. Leurs travaux ne deviennent sociaux qu'après coup, quand les produits s'échangent. Les hommes n'entrent donc pas directement en rapport les uns avec les autres&nbsp;: ce sont leurs produits qui le font à leur place. Le caractère social de leur travail leur revient alors comme une <i>propriété des choses</i> — la valeur — au lieu de leur apparaître comme ce qu'il est, un rapport entre eux.",
-          "Le point décisif, et le plus souvent manqué&nbsp;: <b>ce n'est pas une illusion qu'une explication dissiperait</b>. Marx note que la découverte scientifique de la valeur n'a rien changé à l'apparence, et ne pouvait rien y changer. Tant que la production reste marchande, les prix continuent de nous faire face comme des qualités des choses, exactement comme le soleil continue de se lever pour qui sait pourtant que la Terre tourne. L'apparence est produite par la forme&nbsp;; elle tombera avec elle.",
-          "C'est pourquoi Marx termine par quatre <i>contre-mondes</i>&nbsp;: Robinson dans son île, la corvée du moyen âge, l'économie familiale paysanne, et une association d'hommes libres. Dans aucun le rapport social n'a besoin d'être déchiffré — il se voit. En les mettant côte à côte, Marx montre que le fétichisme n'est pas une infirmité de l'esprit humain mais le trait d'une époque, et qu'il a une date de naissance."
-        ],
-        "voisins": [
-          "Travaux privés",
-          "Valeur d’usage vs valeur",
-          "Le hiéroglyphe social",
-          "Les contre-mondes",
-          "Lever le voile",
-          "Forme relative"
-        ],
-        "ou": "Livre I, chapitre premier — la quatrième et dernière section, sur le caractère fétiche de la marchandise."
+        "dossier": "fetichisme"
       }
     },
     "Armée de réserve": {
@@ -493,5 +478,5 @@
       }
     }
   },
-  "_page": "Le champ « page » ouvre une PAGE à la notion (/glossaire/<slug>). On ne l'écrit que lorsqu'on a quatre cents mots à dire, pas vingt-sept : en dessous, une page par terme serait du contenu mince — c'est la raison même pour laquelle l'abécédaire est resté une seule page. Les notions sans « page » restent des entrées de l'abécédaire, et c'est très bien."
+  "_page": "Le champ « page » ouvre une PAGE à la notion (/glossaire/<slug>). On ne l'écrit que lorsqu'on a quatre cents mots à dire, pas vingt-sept : en dessous, une page par terme serait du contenu mince — c'est la raison même pour laquelle l'abécédaire est resté une seule page. Les notions sans « page » restent des entrées de l'abécédaire, et c'est très bien. Depuis sept. 2026 (mission glossaire-mondes), « page » peut aussi valoir { \"dossier\": \"<slug>\" } : la notion est alors un ESSAI LONG avec son MONDE, dans glossaire/mondes/<slug>/ (essai.html + meta.json + monde.js), et c'est ce dossier que le générateur assemble — le lexique ne garde que la définition courte de l'abécédaire."
 }

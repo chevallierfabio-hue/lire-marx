@@ -21,7 +21,8 @@
  * en .html désigne donc une page qui redirige. Voir CLAUDE.md.
  */
 
-import { readFileSync, writeFileSync, readdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, readdirSync, existsSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 
 const ORIGIN = 'https://liremarx.com';
@@ -779,9 +780,229 @@ function identite(nom) {
     .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const nu = (t) => decode(String(t).replace(/<[^>]+>/g, ''));
 
+
+  /* ── Les PAGES-MONDE (mission `glossaire-mondes`, sept. 2026) ─────────
+   * Une notion dont le lexique dit `page: { dossier: '<slug>' }` est un
+   * ESSAI LONG avec son MONDE : glossaire/mondes/<slug>/ porte essai.html
+   * (le corps, une <section data-etape> par temps de l'exposé), meta.json
+   * (la tête, l'appareil, les légendes du monde) et monde.js (la scène,
+   * Three.js). Le générateur ASSEMBLE, il n'écrit rien : la matière est
+   * dans le dossier, la forme ici, le style dans notion.css.
+   *
+   * Les citations mènent au passage : un <blockquote data-s data-q> ou un
+   * <q data-s data-q> est une phrase RELEVÉE dans le texte que la liseuse
+   * sert, et devient un lien #s=&q= (le contrat de deep-link de la
+   * liseuse) vers le passage exact. C'est ce qui lève, pour ces pages, la
+   * règle « pas de citation de mémoire » : chaque citation est vérifiable
+   * d'un clic. data-q doit être copié du texte servi, apostrophe
+   * typographique comprise — le générateur ne peut pas le vérifier, la
+   * liseuse le fera (« Passage introuvable » si la phrase diverge).
+   *
+   * Les actifs du monde (monde-driver.js, monde.js) portent un ?v= dérivé
+   * de leur contenu : la page n'est jamais mise en cache, eux le sont
+   * quatre heures — le piège documenté pour home.js et shell.css, réglé
+   * ici une fois pour toutes. */
+  const hashV = (f) => createHash('sha1').update(readFileSync(f)).digest('hex').slice(0, 8);
+  const ROMAINS = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
+  function pageMonde(t) {
+    const dossier = `glossaire/mondes/${t.page.dossier}`;
+    const meta = JSON.parse(readFileSync(`${dossier}/meta.json`, 'utf8'));
+    let essai = readFileSync(`${dossier}/essai.html`, 'utf8').replace(/<!--[^]*?-->/g, '').trim();
+    const url = `${ORIGIN}/glossaire/${t.id}`;
+    const titre = nu(meta.titre || t.nom);
+    const desc = nu(meta.description || meta.chapo);
+    const src = meta.source || {};
+    const lien = (sEl, q) => `/oeuvres/${src.work}#s=${sEl || src.s}&q=${encodeURIComponent(q)}`;
+
+    /* Les sections : numéro romain, légende du monde, sommaire. */
+    const sections = [];
+    essai = essai.replace(/<section class="nt-sec" data-etape="([^"]+)" id="([^"]+)">\s*<h2>([^]*?)<\/h2>/g,
+      (m, etape, id, h2) => {
+        const n = sections.length;
+        sections.push({ etape, id, h2 });
+        const leg = (meta.monde && meta.monde.etapes && meta.monde.etapes[etape]) || '';
+        return `<section class="nt-sec" data-etape="${etape}" id="${id}" data-legende="${echap(nu(leg))}">\n<h2><span class="nt-sec-n" aria-hidden="true">${ROMAINS[n]}</span>${h2}</h2>`;
+      });
+    if (sections.length < 3) throw new Error(`« ${titre} » : l'essai n'a que ${sections.length} section(s).`);
+    if (meta.monde && meta.monde.etapes) {
+      const manquantes = sections.filter((s) => !meta.monde.etapes[s.etape]).map((s) => s.etape);
+      if (manquantes.length) throw new Error(`« ${titre} » : étapes sans légende dans meta.json : ${manquantes.join(', ')}`);
+    }
+    /* Les citations. */
+    let nbCit = 0;
+    essai = essai.replace(/<blockquote data-s="(\d+)" data-q="([^"]+)">([^]*?)<\/blockquote>/g, (m, sEl, q, inner) => {
+      nbCit++;
+      return `<blockquote>${inner.trim()}<cite>${src.cite || ''}<a href="${lien(sEl, q)}">Lire dans le texte →</a></cite></blockquote>`;
+    });
+    essai = essai.replace(/<q data-s="(\d+)" data-q="([^"]+)">([^]*?)<\/q>/g, (m, sEl, q, inner) => {
+      nbCit++;
+      return `<a class="nt-q" href="${lien(sEl, q)}" title="Lire ce passage dans le texte"><q>${inner}</q></a>`;
+    });
+    if (/data-q=/.test(essai)) throw new Error(`« ${titre} » : une citation n'a pas été reconnue (data-q resté dans l'essai).`);
+    const mots = nu(essai).split(/\s+/).filter(Boolean).length;
+    if (mots < 1200) throw new Error(`« ${titre} » : ${mots} mots — une page-monde en veut au moins 1 200.`);
+
+    /* Les instruments viennent des provenances ; un outil du dossier qui
+       vise le MÊME endroit en plus précis (#explore=x-feti contre #explore)
+       remplace l'entrée automatique au lieu de la doubler. */
+    const precis = (meta.outils || []).map((o) => o.url);
+    const outils = [
+      ...t.sources.filter((sc) => !precis.some((u) => u.startsWith(sc.url)))
+        .map((sc) => ({ label: `${nu(sc.groupe)} — ${sc.oeuvre}`, url: sc.url })),
+      ...(meta.outils || []),
+    ];
+    const voisines = (meta.voisins || [])
+      .map((v) => termes.find((x) => identite(x.nom) === identite(v)))
+      .filter(Boolean);
+    if ((meta.voisins || []).length !== voisines.length) throw new Error(
+      `Voisines introuvables pour « ${titre} » : ${(meta.voisins || [])
+        .filter((v) => !termes.some((x) => identite(x.nom) === identite(v)))
+        .map((v) => `« ${v} »`).join(', ')}`);
+
+    /* Le monde : scène si elle existe, image fixe si elle existe. */
+    const aScene = existsSync(`${dossier}/monde.js`);
+    const still = ['webp', 'jpg', 'png'].map((e) => `${dossier}/monde.${e}`).find((f) => existsSync(f));
+    const og = existsSync(`${dossier}/monde.jpg`) ? `${ORIGIN}/${dossier}/monde.jpg`
+      : `${ORIGIN}/assets/img/archive/das-kapital-titre-1867.jpg`;
+    const alt = echap(nu((meta.monde && meta.monde.alt) || ''));
+    /* La légende de départ est celle de l'IMAGE FIXE (meta.monde.fixe) : tant
+       que la scène ne joue pas, c'est elle qu'on voit ; le pilote la remplace
+       par la légende de l'étape dès que la scène démarre. */
+    const legende0 = echap(nu((meta.monde && meta.monde.fixe && meta.monde.fixe.legende)
+      || (meta.monde && meta.monde.etapes && meta.monde.etapes[sections[0].etape]) || ''));
+    const monde = `  <aside class="nt-monde" aria-label="Le monde de la notion"${aScene
+      ? ` data-three="/vendor/three.min.js?v=${hashV('vendor/three.min.js')}" data-scene="/${dossier}/monde.js?v=${hashV(`${dossier}/monde.js`)}"` : ''}>
+    <canvas hidden role="img" aria-label="${alt}"></canvas>
+${still ? `    <img class="nt-monde-still" src="/${still}" alt="${alt}" width="1200" height="750" decoding="async">` : `    <div class="nt-monde-still" role="img" aria-label="${alt}"></div>`}
+${meta.monde && meta.monde.source ? `    <p class="nt-monde-src"><a href="${lien(src.s, meta.monde.source.q)}" title="Lire ce passage dans le texte">${meta.monde.source.texte} →</a></p>\n` : ''}    <p class="nt-monde-cap">${legende0}</p>
+  </aside>`;
+
+    const ld = [
+      { '@context': 'https://schema.org', '@type': 'DefinedTerm',
+        '@id': url, name: titre, description: desc, url, inLanguage: 'fr',
+        ...(meta.de || t.de ? { alternateName: nu(meta.de || t.de) } : {}),
+        inDefinedTermSet: { '@id': `${ORIGIN}/glossaire/#glossaire` } },
+      { '@context': 'https://schema.org', '@type': 'Article',
+        headline: `${titre} — Marx, définition et explication`,
+        description: desc, url, inLanguage: 'fr', wordCount: mots,
+        about: { '@id': url },
+        isPartOf: { '@id': `${ORIGIN}/glossaire/#glossaire` },
+        author: { '@id': `${ORIGIN}/#organisation` },
+        publisher: { '@id': `${ORIGIN}/#organisation` },
+        image: og },
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Lire Marx', item: `${ORIGIN}/` },
+          { '@type': 'ListItem', position: 2, name: 'Glossaire', item: `${ORIGIN}/glossaire/` },
+          { '@type': 'ListItem', position: 3, name: titre },
+        ] },
+    ].map((o) => `${OPEN}\n${JSON.stringify(o, null, 2)}\n${CLOSE}`).join('\n');
+
+    const html = `<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>${echap(titre)} — Marx, définition et explication | Lire Marx</title>
+<!-- PAGE GÉNÉRÉE par tools/gen-seo.mjs depuis ${dossier}/ (essai.html,
+     meta.json, monde.js). Ne pas éditer à la main : tout changement serait
+     écrasé. Le texte se modifie dans l'essai, la scène dans monde.js, la
+     forme dans le générateur, le style dans glossaire/notion.css. -->
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="48x48" href="/assets/img/logo/icon-48.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/assets/img/logo/icon-192.png">
+<link rel="apple-touch-icon" href="/assets/img/logo/apple-touch-icon.png">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="${echap(desc)}">
+<meta property="og:title" content="${echap(titre)} — Marx, définition et explication">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lire Marx">
+<meta property="og:description" content="${echap(desc)}">
+<meta property="og:url" content="${url}">
+<meta property="og:image" content="${og}">
+<meta property="og:locale" content="fr_FR">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="${url}">
+<link rel="stylesheet" href="/oeuvres/fonts/fonts.css" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="/oeuvres/fonts/fonts.css"></noscript>
+<link rel="stylesheet" href="/glossaire/notion.css?v=${hashV('glossaire/notion.css')}">
+<link rel="preload" href="/oeuvres/shell.css?v=5" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="/oeuvres/shell.css?v=5"></noscript>
+${ld}
+</head>
+<body>
+<main class="wrap" id="contenu" tabindex="-1">
+<article class="nt nt--monde">
+<div class="nt-grid">
+<div class="nt-col">
+
+  <nav class="nt-fil" aria-label="Fil d'Ariane">
+    <a href="/">Lire Marx</a><span aria-hidden="true">›</span><a href="/glossaire/">Glossaire</a><span aria-hidden="true">›</span>${t.nom}
+  </nav>
+
+  <p class="nt-label">La notion</p>
+  <h1 class="nt-h1">${meta.titre || t.nom}${(meta.de || t.de) ? `<span class="nt-de" lang="de">${meta.de || t.de}</span>` : ''}</h1>
+  <p class="nt-chapo">${meta.chapo}</p>
+
+  <nav class="nt-som" aria-label="Sommaire">
+    <p class="nt-som-t">Dans cet essai</p>
+    <ol>
+${sections.map((s) => `      <li><a href="#${s.id}">${s.h2}</a></li>`).join('\n')}
+    </ol>
+  </nav>
+
+  <div class="nt-corps nt-essai">
+${essai}
+  </div>
+
+  <p class="nt-colophon">Les citations sont relevées dans le texte que ce site sert — ${src.cite || ''} — et chacune mène au passage dans la liseuse.</p>
+
+  <div class="nt-appareil">
+    <div class="nt-bloc nt-bloc--source">
+      <p class="nt-bloc-t">Où Marx l'établit</p>
+      <p>${meta.ou || 'Voir les pièces de l’atelier ci-contre.'}</p>
+    </div>
+    <div class="nt-bloc">
+      <p class="nt-bloc-t">Le voir fonctionner</p>
+      <ul class="nt-liens">
+${outils.map((o) => `        <li><a href="${o.url}">${o.label}</a></li>`).join('\n')}
+      </ul>
+    </div>
+  </div>
+
+${voisines.length ? `  <div class="nt-voisines">
+    <p class="nt-bloc-t">Notions voisines</p>
+    <div class="nt-puces">
+${voisines.map((v) => `      <a href="${v.page ? `/glossaire/${v.id}` : `/glossaire/#${v.id}`}">${v.nom}</a>`).join('\n')}
+    </div>
+  </div>
+` : ''}
+  <div class="nt-fin">
+    <a class="nt-btn" href="/glossaire/">Revenir à l'abécédaire</a>
+  </div>
+
+</div>
+${monde}
+</div>
+</article>
+</main>
+${PIED}
+<script src="/config.js"></script>
+<script src="/oeuvres/shell.js?v=5"></script>
+<script src="/oeuvres/shell-social.js"></script>
+<script>installShell({ workTitle: 'Glossaire', tabs: [] });</script>
+${aScene ? `<script src="/glossaire/monde-driver.js?v=${hashV('glossaire/monde-driver.js')}" defer></script>` : ''}
+</body>
+</html>
+`;
+    writeIfNeeded(`glossaire/${t.id}.html`, html, `glossaire/${t.id}.html`);
+    PAGES_NOTIONS.push({ file: `glossaire/${t.id}.html`, url: `/glossaire/${t.id}` });
+    if (!check) console.log(`  monde : « ${titre} » — ${sections.length} sections, ${mots} mots, ${nbCit} citations liées au texte${aScene ? ', scène' : ''}${still ? ', image fixe' : ', SANS image fixe'}`);
+  }
+
   const avecPage = termes.filter((t) => t.page);
   for (const t of avecPage) {
     const pg = t.page;
+    if (pg && pg.dossier) { pageMonde(t); continue; }
     const url = `${ORIGIN}/glossaire/${t.id}`;
     const titre = nu(t.nom);
     const desc = nu(pg.chapo);
