@@ -6020,6 +6020,45 @@ la colonne de texte et non dans le coin, où ils le recouvraient.
 débordement à 1380 et 375, console sans erreur, image fixe et légende à 375
 (la scène ne joue pas, l'aside redevient un bloc), `--check` idempotent.
 
+### Force de travail, refaite : le passage (`glossaire-mondes-3`)
+
+Même règle que le travail aliéné : la figure vient du texte, l'architecture
+en découle. Le chapitre VI se termine en franchissant un seuil — « quitter
+cette sphère bruyante où tout se passe à la surface » pour « le laboratoire
+secret de la production ». **La page est ce travelling**, en plein écran
+(`layout: plein`) : une rue. La place du marché avec l'étal des
+subsistances, le sablier, l'arche gravée LIBERTÉ · ÉGALITÉ · PROPRIÉTÉ ·
+BENTHAM ; la rue ; l'atelier, sa porte, son écriteau, sa lanterne ; et
+DEDANS l'établi, le métier à filer, l'horloge à douze heures. La caméra a un
+**plan clé par étape** (position + visée), interpolés en `smoothstep` ; la
+sixième étape se joue en trois temps — jusqu'au seuil, PAR la porte, puis
+vers le fileur — sinon la ligne droite traverse le mur et l'écran est noir
+(vécu). Le trou de la porte est fait de **deux faces planes** et non d'un
+bloc, pour que la caméra puisse le traverser, et il devient transparent au
+passage.
+
+**Deux vrais corps, scannés, CC0** (Smithsonian, fiches NMAAHC
+2011.155.289 et 2011.155.290 — `metadata_usage.access: CC0` dans l'API Open
+Access) : l'homme aux écus est un des abolitionnistes de *The Fugitive's
+Story* de John Rogers (1869), détaché de son groupe de quatre par deux plans
+(`--keep=1,0,0,0.04;0,0,-1,0.03` : à droite ET derrière, les corps ayant été
+localisés par k-means à quatre centres par tranche de hauteur), habillé par
+couleurs de sommets (redingote, gilet, cheveux) et coiffé d'un
+**haut-de-forme** avec une **canne** procéduraux ; le possesseur de force de
+travail est le laboureur de *The Wounded Scout*, le même que le sculpteur
+(`ouvrier.bin`, copié dans le dossier : chaque dossier reste autonome).
+Égaux sur le marché, **face à face, l'ouvrier à droite** (la colonne de texte
+couvre la gauche) ; à la cinquième étape ils marchent vers la porte, l'homme
+aux écus dépasse l'ouvrier — « prend les devants » au pied de la lettre —
+et le jour tombe ; dedans, le fileur est au métier.
+
+**Le cadrage se vise à GAUCHE du sujet, d'une part proportionnelle à la
+distance** (`aim.x = sujet.x − 0.3·distance`) : c'est ce qui met le sujet
+dans la moitié droite quelle que soit la profondeur du plan. Pendant la
+marche, le sujet n'est pas la porte mais les deux figures (la visée les
+suit). L'étal est placé **à droite des figures** parce qu'il est le sujet des
+étapes 2 et 4 : à leur gauche, il tombait sous le voile.
+
 ### Ce qui reste
 
 - Le pilote a été validé et fusionné ; les trois suivantes vivent sur

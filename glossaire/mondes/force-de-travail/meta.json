@@ -11,21 +11,40 @@
   },
   "ou": "Livre&nbsp;I, chapitre VI, « Achat et vente de la force de travail » — la solution des contradictions de la formule générale (chapitre V). Le chapitre VII en tire la plus-value, le chapitre X la journée de travail, le chapitre XIX le salaire comme « prix du travail ».",
   "outils": [
-    { "label": "La journée de travail — le laboratoire", "url": "/oeuvres/capital-1#labo=s-jour" }
+    {
+      "label": "La journée de travail — le laboratoire",
+      "url": "/oeuvres/capital-1#labo=s-jour"
+    }
   ],
-  "voisins": ["Plus-value", "Surtravail", "Travail nécessaire", "La forme-salaire", "Le « prix du travail »", "Accumulation primitive", "Fétichisme"],
+  "voisins": [
+    "Plus-value",
+    "Surtravail",
+    "Travail nécessaire",
+    "La forme-salaire",
+    "Le « prix du travail »",
+    "Accumulation primitive",
+    "Fétichisme"
+  ],
   "monde": {
-    "_": "La scène : le seuil du chapitre VI. À gauche la place du marché, en plein jour — l'étal des moyens de subsistance qui font la valeur de la force (pain, toile, charbon), et l'arche où sont gravés les quatre mots de l'Éden : Liberté, Égalité, Propriété, Bentham. À droite la porte de l'atelier, sombre, avec son écriteau No admittance except on business. Deux figures : l'homme aux écus et le possesseur de force de travail. Ils se tiennent côte à côte sur le marché, égaux ; à mesure qu'on lit, ils marchent vers la porte, le premier prend les devants, le second suit — et la lumière du jour cède à celle de l'atelier. Le sablier posé sur l'étal dit que ce qui se vend est un TEMPS d'usage, non la personne. Tout est fonction de la position de lecture, donc réversible.",
-    "alt": "Une place de marché en plein jour, une arche où sont gravés Liberté, Égalité, Propriété, Bentham, et deux silhouettes qui marchent vers la porte sombre d'un atelier : l'une en avant, l'autre qui suit.",
-    "source": { "texte": "D'après le texte — Livre I, chapitre VI", "q": "pour les suivre tous deux dans le laboratoire secret de la production" },
-    "etapes": {
-      "enigme": "La place du marché, en plein jour. Deux échangistes, au même titre : l'un a de l'argent, l'autre n'a que sa force.",
-      "definition": "Sur l'étal, ce qu'il faut pour vivre un jour ; dans le sablier, le temps pour lequel la force se vend — jamais en bloc, sinon de marchand on se fait marchandise.",
-      "distinction": "Ce qui s'achète est une puissance, comme la puissance de digérer n'est pas encore la digestion. Le travail, lui, n'existe pas encore.",
-      "valeur": "La force vaut ses subsistances : six heures. Son usage, une journée entière. La différence est ce que l'acheteur avait en vue.",
-      "seuil": "Ils quittent l'Éden — Liberté, Égalité, Propriété, Bentham — pour le laboratoire secret. L'un prend les devants ; l'autre suit, comme qui a porté sa peau au marché.",
-      "lectures": "De l'autre côté de la porte, deux échangistes égaux sont un maître et un subordonné. Le contrat ne mentait pas : la marchandise ne se consomme pas comme les autres."
+    "_": "La scène : LE PASSAGE, en plein écran. Le chapitre VI se termine en franchissant un seuil ; la page est ce travelling. Une rue : à gauche la place du marché en plein jour — l'étal des subsistances qui font la valeur de la force (pain, toile, charbon), le sablier (ce qui se vend est un temps), l'arche gravée LIBERTÉ · ÉGALITÉ · PROPRIÉTÉ · BENTHAM ; à droite l'atelier, sa porte, son écriteau No admittance except on business, et dedans l'établi, le métier, l'horloge à douze heures. Deux VRAIS corps scannés (Smithsonian, CC0) : l'homme aux écus, un abolitionniste en redingote du groupe The Fugitive's Story de John Rogers (1869), coiffé d'un haut-de-forme et d'une canne ; le possesseur de force de travail, le laboureur de The Wounded Scout (1864). Égaux sur le marché, face à face ; à la cinquième étape ils marchent vers la porte, le premier devant, le second derrière, le jour tombe ; à la sixième on est dedans, et le fileur travaille. Tout est fonction de la position de lecture, donc réversible.",
+    "layout": "plein",
+    "alt": "Une place de marché au XIXe siècle, un étal de subsistances, une arche gravée Liberté, Égalité, Propriété, Bentham ; deux hommes, l'un en redingote et haut-de-forme, l'autre en chemise, marchent vers la porte sombre d'un atelier.",
+    "source": {
+      "texte": "D'après le texte — Livre I, chapitre VI",
+      "q": "pour les suivre tous deux dans le laboratoire secret de la production"
     },
-    "fixe": { "g": 4.6, "legende": "Le seuil du laboratoire secret : l'homme aux écus prend les devants, le possesseur de force de travail le suit — derrière eux, l'Éden du marché." }
+    "credit": "Figures : d'après un abolitionniste de The Fugitive's Story (1869) et le laboureur de The Wounded Scout (1864), John Rogers — scans du Smithsonian (NMAAHC), CC0.",
+    "etapes": {
+      "enigme": "La place du marché, en plein jour. Deux échangistes au même titre : l'un a de l'argent, l'autre n'a que sa force.",
+      "definition": "Sur l'étal, ce qu'il faut pour vivre un jour ; dans le sablier, le temps pour lequel la force se vend — jamais en bloc, sinon de marchand on se fait marchandise.",
+      "distinction": "Face à face, comme deux vendeurs. Ce qui s'achète est une puissance : le travail, lui, n'existe pas encore.",
+      "valeur": "La force vaut ses subsistances : six heures, trois shillings posés sur l'étal. Son usage, une journée entière.",
+      "seuil": "Ils quittent l'Éden — Liberté, Égalité, Propriété, Bentham — pour le laboratoire secret. L'un prend les devants ; l'autre suit, comme qui a porté sa peau au marché.",
+      "lectures": "Dedans : un établi, un métier, une horloge à douze heures. Deux échangistes égaux sont un maître et un subordonné — le contrat ne mentait pas."
+    },
+    "fixe": {
+      "g": 4.6,
+      "legende": "Le seuil du laboratoire secret : l'homme aux écus prend les devants, le possesseur de force de travail le suit ; derrière eux, l'Éden du marché."
+    }
   }
 }
