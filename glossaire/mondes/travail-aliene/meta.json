@@ -1,0 +1,49 @@
+{
+  "_": "LA TÊTE, L'APPAREIL ET LE MONDE de /glossaire/travail-aliene.",
+  "titre": "Travail aliéné",
+  "de": "Entfremdete Arbeit",
+  "chapo": "Le travail aliéné est le premier concept que Marx ait formé en propre, en 1844, dans des cahiers restés inédits jusqu'en 1932. Il part d'un fait que l'économie constate sans l'expliquer — l'ouvrier devient d'autant plus pauvre qu'il produit plus de richesse — et en tire quatre déterminations, dont la dernière renverse l'économie : la propriété privée n'est pas la cause du travail aliéné, elle en est le produit.",
+  "description": "Le travail aliéné chez Marx (Manuscrits de 1844) : les quatre déterminations — le produit, l'activité, l'être générique, l'autre homme — et pourquoi la propriété privée en est la conséquence.",
+  "source": {
+    "work": "manuscrits-1844",
+    "s": 3,
+    "cite": "Karl Marx, <i>Manuscrits de 1844</i>, premier manuscrit, « Le travail aliéné » — traduction Émile Bottigelli (1962)"
+  },
+  "ou": "<i>Manuscrits de 1844</i>, premier manuscrit, le dernier fragment, « Le travail aliéné » — écrit à Paris entre avril et août 1844, après les trois colonnes sur le salaire, le profit et la rente, et publié en 1932 seulement. Le troisième manuscrit en tire le communisme comme réappropriation.",
+  "outils": [
+    {
+      "label": "La carte des concepts — l'atelier des Manuscrits",
+      "url": "/oeuvres/manuscrits-1844#labo=carte"
+    }
+  ],
+  "voisins": [
+    "Objectivation",
+    "Être générique",
+    "Propriété privée",
+    "Communisme",
+    "Fétichisme",
+    "Force de travail"
+  ],
+  "monde": {
+    "_": "La scène : LE SCULPTEUR ET LA STATUE, en plein écran. Marx donne l'image (« l'homme façonne aussi d'après les lois de la beauté » ; « plus l'homme met de choses en Dieu, moins il en garde en lui-même »). À droite de la statue, face à elle, le sculpteur : un vrai travailleur scanné — le laboureur du groupe The Wounded Scout de John Rogers (1864, Smithsonian, domaine public), chemise aux manches relevées, pantalon, pieds nus —, son ombre portée au mur par la lanterne, et le geste du maillet. À droite, le bloc de marbre d'où la statue sort à mesure qu'on lit — un plan de coupe descend, le bloc se réduit, les éclats volent. Première détermination : elle se dresse devant lui, achevée, et son ombre à lui a déjà diminué. Deuxième : le maillet et le ciseau frappent seuls, le geste ne lui appartient plus. Troisième : elle se tourne et lui fait face. Quatrième : le marbre devient bronze, elle a le visage d'un autre homme — la statue est un vrai scan de Théodoric le Grand (Peter Vischer, Innsbruck, 1513), un seigneur en armure. Fin : le socle porte encore les traces de son ciseau. Tout est fonction de g, donc réversible.",
+    "layout": "plein",
+    "alt": "Un atelier de sculpteur à la lanterne : à droite un ouvrier en chemise, maillet levé, devant le bloc de marbre d'où sort la statue d'un homme en armure ; son ombre au mur.",
+    "source": {
+      "texte": "D'après le texte — premier manuscrit, « Le travail aliéné »",
+      "q": "Il produit des palais, mais des tanières pour l'ouvrier"
+    },
+    "credit": "Statue : Théodoric le Grand, Peter Vischer l'Ancien d'après Dürer, 1512-13, Hofkirche d'Innsbruck — scan threedscans.com (Oliver Laric), sans restriction de droits. Sculpteur : d'après le laboureur de The Wounded Scout, John Rogers, 1864, Smithsonian American Art Museum, domaine public.",
+    "etapes": {
+      "fait": "L'atelier, à la lanterne. Un sculpteur, un bloc de marbre où quelque chose commence à paraître, et son ombre au mur.",
+      "objet": "La statue est achevée : elle se dresse devant lui, étrangère. Ce qu'il y a mis, il ne l'a plus — lui a déjà diminué.",
+      "acte": "Le maillet et le ciseau frappent seuls. Le geste n'est plus le sien : il appartient à un autre.",
+      "genre": "Elle se tourne et lui fait face. La vie qu'il a mise dans le marbre le regarde.",
+      "autre": "Le marbre devient bronze : c'est un homme, en armure. Le produit n'est allé ni aux dieux ni à la nature — à un autre homme.",
+      "lectures": "Sur le socle, les traces du ciseau. Rien à restaurer : le marbre est celui qu'il a taillé ; c'est le rapport qui le lui rend étranger."
+    },
+    "fixe": {
+      "g": 2.15,
+      "legende": "La statue est achevée et se dresse devant lui, étrangère ; le sculpteur, maillet levé, a déjà diminué — et son ombre au mur avec lui."
+    }
+  }
+}

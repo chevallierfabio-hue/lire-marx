@@ -5890,11 +5890,141 @@ passage est trouvé dans le DOM (le défilement `smooth` de `flashAnchor` ne
 progresse pas dans un onglet piloté — piège documenté). Image fixe produite
 en headless (SwiftShader) : 12 Ko en WebP.
 
+### Trois notions de plus (mission `glossaire-mondes-2`, le même jour)
+
+Le pilote validé (« top passons à la suite »), trois pages ont suivi, chacune
+avec son essai, ses citations liées et sa scène :
+
+| notion | source des citations | la scène |
+|---|---|---|
+| **Force de travail** | Roy, sections II et III (ch. V–VII, X) | le SEUIL du ch. VI : la place du marché (l'étal des subsistances, le sablier, l'arche gravée LIBERTÉ · ÉGALITÉ · PROPRIÉTÉ · BENTHAM) et la porte de l'atelier (No admittance…) ; deux figures égales sur le marché, puis l'homme aux écus devant et l'ouvrier derrière, et le jour tombe |
+| **Plus-value** | Roy, sections II et III (ch. V, VII, IX, X) | l'atelier du FILEUR : la fenêtre dit l'heure, les bobines s'ajoutent, la ligne a—b—c du ch. X s'écrit à la craie au sol ; trois shillings sur l'établi à six bobines, trois au coffre à douze ; la nuit et la lampe allongent b—c |
+| **Travail aliéné** | Bottigelli, premier manuscrit (`#s=3` = `parts[2]`) | l'atelier de 1844 coupé en deux : ce que l'ouvrier fabrique traverse le vide et bâtit un édifice à colonnes (« des palais ») pendant que son côté se resserre (« des tanières ») ; l'édifice se retourne vers lui ; quelqu'un paraît devant |
+
+**Ce que les scènes ont appris, à retenir pour les suivantes :**
+- **Une figure qui travaille se place DERRIÈRE l'établi, face à la caméra.**
+  Devant, on voit son dos et elle cache l'outil. Vécu deux fois (le fileur,
+  l'ouvrier de 1844).
+- **Un nom de variable ne doit jamais masquer `frame`** : le métier à filer
+  s'est appelé `frame`, et `return { frame }` renvoyait un `Group` — la
+  capture plantait sur « frame is not a function ». Il s'appelle `loom`.
+- **Les pavés se teintent d'un seul gris** : trois canaux tirés au hasard
+  font un sol multicolore, invisible dans le code et évident à l'image.
+- **Le texte servi des Manuscrits porte des césures invisibles (U+00AD)** :
+  « n'appa­raît » n'est pas « n'apparaît », et la liseuse ne retrouverait pas
+  la phrase. Le contrôle des citations compare au texte BRUT du fragment,
+  espaces normalisés mais césures conservées ; une citation refusée se
+  remplace par une autre, on ne « nettoie » pas le texte servi.
+- **La position de l'image fixe se choisit après l'avoir vue** : `fixe.g`
+  a été déplacé trois fois (plus-value 3,7 → 4,1 pour que le « c » et le
+  coffre soient dans le cadre).
+
+**Vérifié** sur les trois pages : contraste 0 échec (109 à 120 mesures,
+minimum 4,56), aucune cible sous 24 px hors liens en ligne, zéro
+débordement à 1380 et 375, console sans erreur, image fixe et légende à
+375, `--check` idempotent, détecteur : un constat par page (le tiret
+cadratin, famille documentée).
+
+### Le retour du propriétaire, et la refonte du travail aliéné (`glossaire-mondes-2`, suite)
+
+Retour sur les trois pages : « pas mal, mais on est trop sur du dessin 3D,
+c'est moche et pas vraiment explicatif ». Puis, sur ma proposition de
+planches SVG uniformes : **« non. Il ne faut pas créer un modèle mais
+réfléchir à une expression propre pour chaque page. Pour le fétichisme
+c'était très bien. Pour le reste il faut partir de ce que dit le concept
+pour construire l'architecture de la page ensuite. Il faut aussi
+privilégier la 3D car c'est plus beau que le SVG. »** Trois règles en
+sortent, et elles priment sur tout ce qui précède :
+
+1. **Pas de moule.** Chaque notion a SA figure, prise dans ce que Marx dit
+   (le fétichisme : la table qui se dresse), et l'architecture de la page en
+   découle — colonne collante ou plein écran, c'est la figure qui décide.
+   Un décor interchangeable derrière le même gabarit, c'est ce qui a été
+   refusé.
+2. **La 3D, mais à hauteur du texte** : ombres portées réelles
+   (`shadowMap`, `PCFSoft`), matières, profondeur, et de VRAIES formes là où
+   il en faut (scans du domaine public) plutôt que des pions en cylindres.
+3. **La figure doit expliquer**, pas illustrer : si on la retire, l'argument
+   doit perdre quelque chose.
+
+**Travail aliéné, refait : le sculpteur et la statue.** Marx donne l'image
+(« l'homme façonne aussi d'après les lois de la beauté » ; « plus l'homme
+met de choses en Dieu, moins il en garde en lui-même »). Architecture
+**« plein »** (`meta.monde.layout: "plein"`) : la scène est fixe derrière
+toute la page, le texte passe devant dans une colonne de 600 px posée sur
+un voile qui s'éteint vers la droite (`.nt--plein`, dans notion.css) ; la
+statue vit dans la moitié droite — la caméra vise 0,9 à GAUCHE d'elle pour
+ça. Le sculpteur n'est qu'une **ombre réelle** portée sur le mur par la
+lanterne (une figure sombre au bord du cadre, éclairée par un `SpotLight`
+qui projette) et le geste du maillet ; la statue **sort du bloc au
+défilement** (plan de coupe `clippingPlanes` sur le matériau, `clipShadows`,
+bloc dont la hauteur suit, éclats en `Points`). Puis : achevée, elle se
+dresse devant lui tandis que son ombre à lui diminue (1re) ; le ciseau
+frappe seul (2e) ; elle se tourne et lui fait face (3e) ; **le marbre
+devient bronze** — couleur, `metalness`, `roughness` interpolés, la texture
+retirée — et c'est un homme en armure (4e) ; la caméra redescend au socle.
+
+**La statue est un vrai scan** : *Théodoric le Grand*, Peter Vischer
+l'Ancien d'après Dürer, 1512-13, Hofkirche d'Innsbruck, sur
+threedscans.com (Oliver Laric) — scans publiés **sans restriction de
+droits** (vérifié : Salon für Kunstbuch, 3DPrint.com). Le crédit est
+imprimé sous la scène (`meta.monde.credit`). Importé par
+**`tools/import-scan.mjs`** : OBJ (1 M de triangles, 82 Mo) → regroupement
+de sommets sur une grille → **50 000 triangles, 433 Ko** dans un petit
+binaire maison (`statue.bin` : positions Uint16 quantifiées dans la boîte,
+indices) que le monde lit par `fetch` + `DataView`, normales calculées au
+chargement. Pas de GLTFLoader : `vendor/three.min.js` reste le cœur r137,
+et c'est voulu. La scène expose `ready` (la promesse du chargement) et
+`capture-monde.mjs` l'attend avant de photographier.
+
+**Le sculpteur est lui aussi un vrai scan** (retour du propriétaire : « il
+faut le travailleur à droite, là il est caché par le texte, et qu'il passe
+un cap de design, qu'il ressemble à un véritable travailleur »). Aucune
+statue d'ouvrier sur threedscans ; le **Smithsonian Open Access** en a une
+qui dit exactement l'époque : le laboureur du groupe *The Wounded Scout, a
+Friend in the Swamp* de **John Rogers (1864, plâtre peint, SAAM, domaine
+public** — la page du musée le dit). Chemise aux manches relevées,
+pantalon, pieds nus. Le paquet Voyager est **compressé Draco** : décodé
+hors ligne avec le `draco_decoder.js` de three (dépôt du jeu) en CommonJS
+(`undraco.cjs`, outil de séance, non versionné — le résultat l'est). Puis
+`import-scan.mjs` a appris à **détacher une figure d'un groupe** : plans
+`--keep` limités à une bande de hauteur (celui qui sépare deux têtes n'est
+pas celui des jambes — les deux corps ont été localisés par k-means par
+tranches), boîtes `--drop`, et `--largest` après **soudure des sommets**
+(un maillage décodé de Draco dédouble ses sommets aux coutures d'UV : sans
+soudure, le corps tombe en cent morceaux). Son bras droit, qui enlaçait le
+soldat, est parti avec la coupe : c'est celui qu'on remplace, levé, avec le
+maillet. Habillé par **couleurs de sommets** selon la hauteur (chemise,
+pantalon, peau, tablier de cuir devant) — il se tient droit, les bandes
+suffisent ; sur l'Hermès penché de Vienne, essayé avant, elles ne
+marchaient pas. Placé **à droite de la statue, de trois quarts face**, sa
+coupe (son côté droit) vers le mur ; il rapetisse et s'assombrit à mesure
+que la statue prend la lumière. La légende et le crédit vivent à droite de
+la colonne de texte et non dans le coin, où ils le recouvraient.
+
+**Pièges de cette refonte :**
+- **Le scan de ZBrush est exporté Y VERS LE BAS.** Monté tel quel, le socle
+  de bronze apparaissait en haut et l'on cadrait des jambes. `scale(k,-k,k)`
+  ET inversion de l'ordre des sommets de chaque triangle (sinon les faces
+  sont à l'envers, l'éclairage et les ombres aussi), normales recalculées
+  APRÈS.
+- **Le scan regarde vers −Z** : face à la caméra, c'est `rotation.y = π`
+  (`FACE`). À vérifier à l'image pour tout nouveau scan.
+- **Une lanterne à mi-hauteur au centre du cadre** pend devant tout : la
+  source de lumière se met hors du cadre principal, en haut à gauche, et
+  vise la statue.
+- Le crédit sous la scène doit rester ≥ 11 px (`.72rem`), comme tout
+  texte fonctionnel ; la capture le masque comme la légende.
+
+**Vérifié** : contraste 0 échec (108 mesures, minimum 5,68), zéro
+débordement à 1380 et 375, console sans erreur, image fixe et légende à 375
+(la scène ne joue pas, l'aside redevient un bloc), `--check` idempotent.
+
 ### Ce qui reste
 
-- **Le pilote attend la relecture du propriétaire** (texte ET monde) avant
-  d'enchaîner ; la branche `glossaire-mondes` n'est pas fusionnée.
-- Les onze autres pages de notion sont encore sur l'ancien gabarit court ;
+- Le pilote a été validé et fusionné ; les trois suivantes vivent sur
+  `glossaire-mondes-2`, à relire.
+- Les huit autres pages de notion sont encore sur l'ancien gabarit court ;
   chacune passera en dossier à son tour, avec sa scène.
 - Le `Article` en JSON-LD signe `Organization` : la page n'a pas de byline
   nominative, et un schéma n'affirme que ce que la page imprime.
