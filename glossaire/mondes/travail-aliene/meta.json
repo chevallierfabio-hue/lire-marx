@@ -25,23 +25,25 @@
     "Force de travail"
   ],
   "monde": {
-    "_": "La scène : l'atelier de 1844 coupé en deux par un vide. À gauche l'ouvrier, à son établi, sous sa lampe ; ce qu'il fabrique — des objets de bois et de bronze — quitte l'établi, traverse le vide et s'assemble à droite en un ÉDIFICE qui grandit : des palais. À mesure que l'édifice monte, le côté de l'ouvrier se dépouille — la lampe baisse, les murs se resserrent : des tanières. À la troisième détermination, l'édifice se retourne et lui fait face comme une puissance ; à la quatrième, une seconde silhouette paraît devant l'édifice, celle à qui le produit appartient. Réversible : on remonte, les objets reviennent à l'établi.",
-    "alt": "Un atelier coupé en deux : à gauche un ouvrier à son établi sous une lampe faible, à droite un édifice qui grandit, fait des objets qu'il a fabriqués, et au sommet une silhouette qui le domine.",
+    "_": "La scène : LE SCULPTEUR ET LA STATUE, en plein écran. Marx donne l'image (« l'homme façonne aussi d'après les lois de la beauté » ; « plus l'homme met de choses en Dieu, moins il en garde en lui-même »). À gauche, le sculpteur : on ne voit de lui que son ombre au mur, portée par la lanterne, et le geste du maillet. À droite, le bloc de marbre d'où la statue sort à mesure qu'on lit — un plan de coupe descend, le bloc se réduit, les éclats volent. Première détermination : elle se dresse devant lui, achevée, et son ombre à lui a déjà diminué. Deuxième : le maillet et le ciseau frappent seuls, le geste ne lui appartient plus. Troisième : elle se tourne et lui fait face. Quatrième : le marbre devient bronze, elle a le visage d'un autre homme — la statue est un vrai scan de Théodoric le Grand (Peter Vischer, Innsbruck, 1513), un seigneur en armure. Fin : le socle porte encore les traces de son ciseau. Tout est fonction de g, donc réversible.",
+    "layout": "plein",
+    "alt": "Un atelier de sculpteur à la lanterne : à gauche l'ombre du sculpteur sur le mur, à droite la statue d'un homme en armure qui sort d'un bloc de marbre.",
     "source": {
       "texte": "D'après le texte — premier manuscrit, « Le travail aliéné »",
       "q": "Il produit des palais, mais des tanières pour l'ouvrier"
     },
+    "credit": "Statue : Théodoric le Grand, Peter Vischer l'Ancien d'après Dürer, 1512-13, Hofkirche d'Innsbruck — scan threedscans.com (Oliver Laric), sans restriction de droits.",
     "etapes": {
-      "fait": "L'atelier, en 1844. Un ouvrier, un établi, une lampe — et ce qu'il fabrique.",
-      "objet": "Chaque objet quitte l'établi et s'ajoute à un édifice, de l'autre côté : des palais. Plus l'édifice est grand, moins il reste ici.",
-      "acte": "Ce n'est pas l'objet qui s'en va : c'est le geste qui appartient déjà à un autre. La lampe baisse ; l'atelier se fait tanière.",
-      "genre": "L'édifice se retourne et lui fait face — la vie qu'il y a mise se dresse contre lui, étrangère.",
-      "autre": "Devant l'édifice, quelqu'un. Le produit n'est allé ni aux dieux ni à la nature : à un autre homme.",
-      "lectures": "Rien à restaurer : un rapport à changer. L'édifice est fait de ses mains ; c'est le rapport qui le lui rend étranger."
+      "fait": "L'atelier, à la lanterne. Un sculpteur, dont on ne voit que l'ombre, et un bloc de marbre où quelque chose commence à paraître.",
+      "objet": "La statue est achevée : elle se dresse devant lui, étrangère. Ce qu'il y a mis, il ne l'a plus — son ombre a déjà diminué.",
+      "acte": "Le maillet et le ciseau frappent seuls. Le geste n'est plus le sien : il appartient à un autre.",
+      "genre": "Elle se tourne et lui fait face. La vie qu'il a mise dans le marbre le regarde.",
+      "autre": "Le marbre devient bronze : c'est un homme, en armure. Le produit n'est allé ni aux dieux ni à la nature — à un autre homme.",
+      "lectures": "Sur le socle, les traces du ciseau. Rien à restaurer : le marbre est celui qu'il a taillé ; c'est le rapport qui le lui rend étranger."
     },
     "fixe": {
-      "g": 4.55,
-      "legende": "Des palais pour l'un, des tanières pour l'autre : l'édifice est fait des objets de l'ouvrier, et quelqu'un d'autre s'y tient en maître."
+      "g": 4.7,
+      "legende": "Le sculpteur n'est plus qu'une ombre ; la statue qu'il a taillée est devenue un homme en armure, et lui fait face."
     }
   }
 }

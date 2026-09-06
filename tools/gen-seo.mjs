@@ -870,12 +870,18 @@ function identite(nom) {
        par la légende de l'étape dès que la scène démarre. */
     const legende0 = echap(nu((meta.monde && meta.monde.fixe && meta.monde.fixe.legende)
       || (meta.monde && meta.monde.etapes && meta.monde.etapes[sections[0].etape]) || ''));
-    const monde = `  <aside class="nt-monde" aria-label="Le monde de la notion"${aScene
+    /* Deux architectures : « marge » (la scène collante à droite du texte,
+       celle du fétichisme) et « plein » (la scène en plein écran derrière
+       la page, le texte dans une colonne sur un voile — la statue du
+       travail aliéné). Le dossier choisit (meta.monde.layout). */
+    const plein = meta.monde && meta.monde.layout === 'plein';
+    const credit = meta.monde && meta.monde.credit ? `    <p class="nt-monde-credit">${meta.monde.credit}</p>\n` : '';
+    const monde = `  <aside class="nt-monde${plein ? ' nt-monde--plein' : ''}" aria-label="Le monde de la notion"${aScene
       ? ` data-three="/vendor/three.min.js?v=${hashV('vendor/three.min.js')}" data-scene="/${dossier}/monde.js?v=${hashV(`${dossier}/monde.js`)}"` : ''}>
     <canvas hidden role="img" aria-label="${alt}"></canvas>
 ${still ? `    <img class="nt-monde-still" src="/${still}" alt="${alt}" width="1200" height="750" decoding="async">` : `    <div class="nt-monde-still" role="img" aria-label="${alt}"></div>`}
 ${meta.monde && meta.monde.source ? `    <p class="nt-monde-src"><a href="${lien(src.s, meta.monde.source.q)}" title="Lire ce passage dans le texte">${meta.monde.source.texte} →</a></p>\n` : ''}    <p class="nt-monde-cap">${legende0}</p>
-  </aside>`;
+${credit}  </aside>`;
 
     const ld = [
       { '@context': 'https://schema.org', '@type': 'DefinedTerm',
@@ -931,7 +937,7 @@ ${ld}
 </head>
 <body>
 <main class="wrap" id="contenu" tabindex="-1">
-<article class="nt nt--monde">
+<article class="nt nt--monde${plein ? ' nt--plein' : ''}">
 <div class="nt-grid">
 <div class="nt-col">
 

@@ -69,8 +69,9 @@ try {
   await page.evaluate(async (g, w, h) => {
     const aside = document.querySelector('.nt-monde');
     aside.style.cssText = `position:fixed;left:0;top:0;width:${w}px;height:${h}px;z-index:99999;margin:0;border:0;border-radius:0;aspect-ratio:auto`;
-    aside.querySelectorAll('.nt-monde-cap,.nt-monde-src').forEach((e) => { e.style.display = 'none'; });
+    aside.querySelectorAll('.nt-monde-cap,.nt-monde-src,.nt-monde-credit').forEach((e) => { e.style.display = 'none'; });
     const M = window.__ntMonde;
+    if (M.monde.ready) await M.monde.ready;   /* une statue à charger, par exemple */
     M.monde.resize();
     M.set(g);
     if (document.fonts && document.fonts.ready) await document.fonts.ready;

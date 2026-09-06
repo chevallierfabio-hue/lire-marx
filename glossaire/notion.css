@@ -216,3 +216,37 @@ body{background:var(--bg);color:var(--text);font-family:var(--f-ui);
 /* ── la signature de source, sous l'essai ── */
 .nt-colophon{margin-top:26px;padding-top:16px;border-top:1px solid var(--border);
   font-family:var(--f-ui);font-size:.8rem;line-height:1.6;color:var(--muted);}
+
+
+/* ═══ L'architecture « plein » : la scène derrière la page ═══
+   Quand le monde est une scène à hauteur d'homme (la statue du travail
+   aliéné), la colonne collante la rognerait. La scène occupe alors tout
+   l'écran, fixe, et le texte passe devant, dans une colonne posée sur un
+   voile qui s'éteint vers la droite — le monde reste visible à côté de la
+   ligne qu'on lit. Sous 1100 px, rien de tout cela : l'image fixe au-dessus
+   du texte, comme partout. */
+@media(min-width:1100px){
+  html.js-monde .nt--plein .nt-monde--plein{position:fixed;inset:0;height:auto;top:0;
+    border:0;border-radius:0;z-index:0;}
+  html.js-monde .nt--plein .nt-monde--plein::before{display:none;}
+  html.js-monde .nt--plein .nt-grid{display:block;}
+  html.js-monde .nt--plein .nt-col{position:relative;z-index:1;max-width:600px;
+    padding:0 40px 0 0;}
+  html.js-monde .nt--plein .nt-col::before{content:'';position:fixed;inset:0;z-index:-1;
+    pointer-events:none;
+    background:linear-gradient(to right,rgba(13,10,7,.94) 0,rgba(13,10,7,.9) 560px,rgba(13,10,7,.55) 820px,rgba(13,10,7,0) 1040px);}
+  html.js-monde .nt--plein .nt-monde-cap{left:auto;right:40px;bottom:64px;max-width:420px;
+    padding:14px 18px;border-radius:12px;background:rgba(13,10,7,.72);
+    border:1px solid rgba(243,233,212,.12);}
+  html.js-monde .nt--plein .nt-monde-src{left:auto;right:40px;top:64px;}
+  html.js-monde .nt--plein .nt-monde-credit{position:absolute;right:40px;bottom:14px;margin:0;
+    font-family:var(--f-ui);font-size:.72rem;color:var(--muted);max-width:420px;text-align:right;}
+  html.js-monde .nt--plein .nt-sec{min-height:78vh;}
+  html.js-monde .nt--plein .lm-foot{position:relative;z-index:1;}
+}
+.nt-monde-credit{display:none;}
+html.js-monde .nt--plein .nt-monde-credit{display:block;}
+@media(max-width:480px){
+  .nt-monde-src{top:8px;left:10px;}
+  .nt-monde-src a{font-size:.62rem;letter-spacing:.06em;padding:5px 9px;}
+}

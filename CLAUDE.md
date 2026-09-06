@@ -5925,6 +5925,76 @@ débordement à 1380 et 375, console sans erreur, image fixe et légende à
 375, `--check` idempotent, détecteur : un constat par page (le tiret
 cadratin, famille documentée).
 
+### Le retour du propriétaire, et la refonte du travail aliéné (`glossaire-mondes-2`, suite)
+
+Retour sur les trois pages : « pas mal, mais on est trop sur du dessin 3D,
+c'est moche et pas vraiment explicatif ». Puis, sur ma proposition de
+planches SVG uniformes : **« non. Il ne faut pas créer un modèle mais
+réfléchir à une expression propre pour chaque page. Pour le fétichisme
+c'était très bien. Pour le reste il faut partir de ce que dit le concept
+pour construire l'architecture de la page ensuite. Il faut aussi
+privilégier la 3D car c'est plus beau que le SVG. »** Trois règles en
+sortent, et elles priment sur tout ce qui précède :
+
+1. **Pas de moule.** Chaque notion a SA figure, prise dans ce que Marx dit
+   (le fétichisme : la table qui se dresse), et l'architecture de la page en
+   découle — colonne collante ou plein écran, c'est la figure qui décide.
+   Un décor interchangeable derrière le même gabarit, c'est ce qui a été
+   refusé.
+2. **La 3D, mais à hauteur du texte** : ombres portées réelles
+   (`shadowMap`, `PCFSoft`), matières, profondeur, et de VRAIES formes là où
+   il en faut (scans du domaine public) plutôt que des pions en cylindres.
+3. **La figure doit expliquer**, pas illustrer : si on la retire, l'argument
+   doit perdre quelque chose.
+
+**Travail aliéné, refait : le sculpteur et la statue.** Marx donne l'image
+(« l'homme façonne aussi d'après les lois de la beauté » ; « plus l'homme
+met de choses en Dieu, moins il en garde en lui-même »). Architecture
+**« plein »** (`meta.monde.layout: "plein"`) : la scène est fixe derrière
+toute la page, le texte passe devant dans une colonne de 600 px posée sur
+un voile qui s'éteint vers la droite (`.nt--plein`, dans notion.css) ; la
+statue vit dans la moitié droite — la caméra vise 0,9 à GAUCHE d'elle pour
+ça. Le sculpteur n'est qu'une **ombre réelle** portée sur le mur par la
+lanterne (une figure sombre au bord du cadre, éclairée par un `SpotLight`
+qui projette) et le geste du maillet ; la statue **sort du bloc au
+défilement** (plan de coupe `clippingPlanes` sur le matériau, `clipShadows`,
+bloc dont la hauteur suit, éclats en `Points`). Puis : achevée, elle se
+dresse devant lui tandis que son ombre à lui diminue (1re) ; le ciseau
+frappe seul (2e) ; elle se tourne et lui fait face (3e) ; **le marbre
+devient bronze** — couleur, `metalness`, `roughness` interpolés, la texture
+retirée — et c'est un homme en armure (4e) ; la caméra redescend au socle.
+
+**La statue est un vrai scan** : *Théodoric le Grand*, Peter Vischer
+l'Ancien d'après Dürer, 1512-13, Hofkirche d'Innsbruck, sur
+threedscans.com (Oliver Laric) — scans publiés **sans restriction de
+droits** (vérifié : Salon für Kunstbuch, 3DPrint.com). Le crédit est
+imprimé sous la scène (`meta.monde.credit`). Importé par
+**`tools/import-scan.mjs`** : OBJ (1 M de triangles, 82 Mo) → regroupement
+de sommets sur une grille → **50 000 triangles, 433 Ko** dans un petit
+binaire maison (`statue.bin` : positions Uint16 quantifiées dans la boîte,
+indices) que le monde lit par `fetch` + `DataView`, normales calculées au
+chargement. Pas de GLTFLoader : `vendor/three.min.js` reste le cœur r137,
+et c'est voulu. La scène expose `ready` (la promesse du chargement) et
+`capture-monde.mjs` l'attend avant de photographier.
+
+**Pièges de cette refonte :**
+- **Le scan de ZBrush est exporté Y VERS LE BAS.** Monté tel quel, le socle
+  de bronze apparaissait en haut et l'on cadrait des jambes. `scale(k,-k,k)`
+  ET inversion de l'ordre des sommets de chaque triangle (sinon les faces
+  sont à l'envers, l'éclairage et les ombres aussi), normales recalculées
+  APRÈS.
+- **Le scan regarde vers −Z** : face à la caméra, c'est `rotation.y = π`
+  (`FACE`). À vérifier à l'image pour tout nouveau scan.
+- **Une lanterne à mi-hauteur au centre du cadre** pend devant tout : la
+  source de lumière se met hors du cadre principal, en haut à gauche, et
+  vise la statue.
+- Le crédit sous la scène doit rester ≥ 11 px (`.72rem`), comme tout
+  texte fonctionnel ; la capture le masque comme la légende.
+
+**Vérifié** : contraste 0 échec (108 mesures, minimum 5,68), zéro
+débordement à 1380 et 375, console sans erreur, image fixe et légende à 375
+(la scène ne joue pas, l'aside redevient un bloc), `--check` idempotent.
+
 ### Ce qui reste
 
 - Le pilote a été validé et fusionné ; les trois suivantes vivent sur
