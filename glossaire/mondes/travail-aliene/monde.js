@@ -63,6 +63,7 @@ window.LM_MONDE = function (canvas) {
   spot.target.position.set(0.4, 0.9, -1.8); scene.add(spot); scene.add(spot.target);
   var fill = new THREE.PointLight(0xffb15c, 0.7, 10, 1.8); fill.position.set(2.6, 1.6, 2.4); scene.add(fill);
   var cold = new THREE.DirectionalLight(0x9fb4d0, 0); cold.position.set(3, 4, -2); scene.add(cold);
+  var warm = new THREE.PointLight(0xffc27a, 0, 9, 1.5); warm.position.set(3.2, 2.4, 2.6); scene.add(warm);
   var brass = std({ color: 0x9a7b30, roughness: 0.35, metalness: 0.8 });
   var lantern = new THREE.Group();
   var cage = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.11, 0.3, 10, 1, true), std({ color: 0x2a2018, roughness: 0.6, metalness: 0.5, side: THREE.DoubleSide, transparent: true, opacity: 0.35 })); lantern.add(cage);
@@ -90,7 +91,7 @@ window.LM_MONDE = function (canvas) {
   var statue = null, FACE = Math.PI;   /* le scan regarde vers -Z : face à la caméra, c'est π */
   var scene_ = document.querySelector('.nt-monde');
   var dir = (scene_ && scene_.dataset.scene ? scene_.dataset.scene : '/glossaire/mondes/travail-aliene/monde.js').replace(/monde\.js.*$/, '');
-  var ready = fetch(dir + 'statue.bin').then(function (r) { return r.arrayBuffer(); }).then(function (ab) {
+  function loadBin(name) { return fetch(dir + name).then(function (r) { return r.arrayBuffer(); }).then(function (ab) {
     var dv = new DataView(ab);
     var nv = dv.getUint32(4, true), ni = dv.getUint32(8, true), ib = dv.getUint32(12, true);
     var mn = [dv.getFloat32(16, true), dv.getFloat32(20, true), dv.getFloat32(24, true)], ex = [dv.getFloat32(28, true), dv.getFloat32(32, true), dv.getFloat32(36, true)];
@@ -100,7 +101,10 @@ window.LM_MONDE = function (canvas) {
     for (var j = 0; j < ni; j++) { idx[j] = ib === 4 ? dv.getUint32(o, true) : dv.getUint16(o, true); o += ib; }
     var geo = new THREE.BufferGeometry();
     geo.setAttribute('position', new THREE.BufferAttribute(pos, 3)); geo.setIndex(new THREE.BufferAttribute(idx, 1));
-    geo.computeBoundingBox();
+    geo.computeBoundingBox(); return geo;
+  }); }
+  var ready = loadBin('statue.bin').then(function (geo) {
+    var idx = geo.index.array;
     var bb = geo.boundingBox, size = new THREE.Vector3(); bb.getSize(size);
     var k = H / size.y;
     /* le scan est exporté Y VERS LE BAS (ZBrush) : on le retourne, et l'on
@@ -110,7 +114,7 @@ window.LM_MONDE = function (canvas) {
     for (var f = 0; f < idx.length; f += 3) { var tmp = idx[f + 1]; idx[f + 1] = idx[f + 2]; idx[f + 2] = tmp; }
     geo.index.needsUpdate = true; geo.computeVertexNormals(); geo.computeBoundingBox();
     /* les coordonnées de texture : une projection cylindrique suffit pour du marbre veiné */
-    var uv = new Float32Array(nv * 2), p = geo.attributes.position.array;
+    var nv = geo.attributes.position.count, uv = new Float32Array(nv * 2), p = geo.attributes.position.array;
     for (var q = 0; q < nv; q++) { uv[q * 2] = (Math.atan2(p[q * 3 + 2], p[q * 3]) / Math.PI + 1) * 1.5; uv[q * 2 + 1] = p[q * 3 + 1] / H * 2; }
     geo.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
     statue = new THREE.Mesh(geo, statueMat); statue.castShadow = true; statue.receiveShadow = true;
@@ -118,22 +122,57 @@ window.LM_MONDE = function (canvas) {
     return statue;
   }).catch(function () { return null; });
 
-  /* ── le sculpteur : une figure sombre au bord du cadre, dont on lit l'ombre ── */
+  /* ── le sculpteur : un vrai travailleur, scanné ──
+     Le laboureur du groupe de John Rogers, The Wounded Scout (1864, plâtre
+     peint, Smithsonian American Art Museum, domaine public) : chemise aux
+     manches relevées, pantalon, pieds nus. Détaché de l'autre figure par
+     tools/import-scan.mjs (deux plans, plus grande composante) ; son bras
+     droit, qui enlaçait le soldat, est parti avec la coupe : c'est celui
+     qu'on remplace, levé, avec le maillet. Habillé par couleurs de sommets
+     (chemise, pantalon, peau) selon la hauteur — il se tient droit, les
+     bandes suffisent. Il regarde la statue, sa coupe tournée vers le mur. */
   var sculptor = new THREE.Group();
-  var dark = std({ color: 0x1c1612, roughness: 1 });
-  var sLegs = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.15, 0.85, 10), dark); sLegs.position.y = 0.42; sculptor.add(sLegs);
-  var sBody = new THREE.Mesh(new THREE.CylinderGeometry(0.21, 0.24, 0.7, 12), dark); sBody.position.y = 1.2; sculptor.add(sBody);
-  var sHead = new THREE.Mesh(new THREE.SphereGeometry(0.13, 14, 12), dark); sHead.position.set(0.03, 1.7, 0.02); sculptor.add(sHead);
-  var sArmL = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.045, 0.62, 8), dark); sArmL.position.set(-0.27, 1.35, 0.15); sArmL.rotation.x = -1.2; sArmL.rotation.z = 0.25; sculptor.add(sArmL);
-  var sArmR = new THREE.Group(); var armMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.045, 0.6, 8), dark); armMesh.position.y = -0.3; sArmR.add(armMesh);
+  var SC_H = 1.72;
+  var SKIN = new THREE.Color(0x8a6244), SHIRT = new THREE.Color(0xd9cdb4), PANTS = new THREE.Color(0x4a3b2e), LEATHER = new THREE.Color(0x5a3a22);
+  var workerMat = std({ vertexColors: true, roughness: 0.85 });
+  var workerMesh = null;
+  var readyWorker = loadBin('sculpteur.bin').then(function (geo) {
+    var bb = geo.boundingBox, size = new THREE.Vector3(); bb.getSize(size); var k = SC_H / size.y;
+    geo.translate(-(bb.min.x + bb.max.x) / 2, -bb.min.y, -(bb.min.z + bb.max.z) / 2); geo.scale(k, k, k);
+    geo.computeVertexNormals();
+    var p = geo.attributes.position.array, n = geo.attributes.position.count, col = new Float32Array(n * 3);
+    var NECK = SC_H * 0.905, WAIST = SC_H * 0.585, ANKLE = SC_H * 0.11, HANDX = SC_H * 0.10, SLEEVEX = SC_H * 0.09;
+    for (var i = 0; i < n; i++) {
+      var x = p[i * 3], y = p[i * 3 + 1], z = p[i * 3 + 2], c;
+      if (y > NECK) c = SKIN;
+      else if (y > WAIST) { c = SHIRT; if (x > SLEEVEX && y < SC_H * 0.75) c = SKIN; if (z > SC_H * 0.05 && y < SC_H * 0.8) c = LEATHER; }
+      else if (y > ANKLE) { c = PANTS; if (x > HANDX && y > SC_H * 0.38 && y < WAIST) c = SKIN; if (z > SC_H * 0.05 && y > SC_H * 0.3) c = LEATHER; }
+      else c = SKIN;
+      col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b;
+    }
+    geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+    workerMesh = new THREE.Mesh(geo, workerMat); workerMesh.castShadow = true; workerMesh.receiveShadow = true;
+    sculptor.add(workerMesh); return workerMesh;
+  }).catch(function () { return null; });
+  /* son bras droit, levé, et le maillet — le bras que la coupe a emporté */
+  var sleeve = std({ color: 0xd9cdb4, roughness: 0.9 }), skinMat = std({ color: 0x8a6244, roughness: 0.8 });
+  var sArmR = new THREE.Group();
+  var upper = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.05, 0.34, 10), sleeve); upper.position.y = -0.17; sArmR.add(upper);
+  var elbow = new THREE.Group(); elbow.position.y = -0.34; sArmR.add(elbow);
+  var fore = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.038, 0.32, 10), skinMat); fore.position.y = -0.16; elbow.add(fore);
+  var hand = new THREE.Mesh(new THREE.SphereGeometry(0.05, 10, 8), skinMat); hand.position.y = -0.33; hand.scale.set(0.8, 1, 0.6); elbow.add(hand);
   var mallet = new THREE.Group();
-  var mHead = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.16, 12), std({ map: roughTex, color: 0x7a5a38, roughness: 0.8 })); mHead.rotation.z = Math.PI / 2; mHead.position.y = -0.62; mallet.add(mHead);
-  var mHandle = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.016, 0.3, 8), std({ color: 0x5a3b20, roughness: 0.8 })); mHandle.position.y = -0.5; mallet.add(mHandle);
-  sArmR.add(mallet); sArmR.position.set(0.28, 1.45, 0.1); sculptor.add(sArmR);
-  sculptor.traverse(function (o) { if (o.isMesh) { o.castShadow = true; } });
+  var mHead = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.16, 12), std({ color: 0x4a3018, roughness: 0.85 })); mHead.rotation.z = Math.PI / 2; mHead.position.y = 0.16; mallet.add(mHead);
+  var mHandle = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.016, 0.3, 8), std({ color: 0x5a3b20, roughness: 0.8 })); mHandle.position.y = 0.03; mallet.add(mHandle);
+  mallet.position.y = -0.33; elbow.add(mallet);
+  sArmR.traverse(function (o) { if (o.isMesh) o.castShadow = true; });
+  sArmR.position.set(-0.21, SC_H * 0.84, 0.02); sculptor.add(sArmR);
   var chisel = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.008, 0.28, 8), std({ color: 0x8e9299, metalness: 0.85, roughness: 0.35 })); chisel.castShadow = true; scene.add(chisel);
-  var SCULPT0 = new THREE.Vector3(0.1, 0, 0.55);
-  sculptor.position.copy(SCULPT0); sculptor.rotation.y = 1.1; scene.add(sculptor);
+  /* à droite de la statue, face à elle ; sa coupe (son côté droit) regarde le mur */
+  var SCULPT0 = new THREE.Vector3(STATUE.x + 1.35, 0, STATUE.z - 0.1);
+  /* trois quarts face : on voit son visage et le bras au maillet ; sa coupe (son côté droit) part vers le mur */
+  sculptor.position.copy(SCULPT0); sculptor.rotation.y = -Math.PI / 2 + 0.55; scene.add(sculptor);
+  ready = Promise.all([ready, readyWorker]).then(function (r) { return r[0]; });
 
   /* ── les éclats ── */
   var NCH = 140, chipPos = new Float32Array(NCH * 3), chips = [];
@@ -162,27 +201,32 @@ window.LM_MONDE = function (canvas) {
     T += dt; compute();
     var fl = 1 + 0.07 * Math.sin(T * 7.3) + 0.04 * Math.sin(T * 11.1 + 1);
     spot.intensity = 2.4 * fl * (1 - 0.35 * st.bronze); fill.intensity = 0.7 * fl; flame.scale.set(0.16 * (0.9 + 0.1 * fl), 0.24 * (0.9 + 0.15 * fl), 1);
-    lantern.rotation.z = 0.04 * Math.sin(T * 0.8); cold.intensity = 1.1 * st.bronze;
+    lantern.rotation.z = 0.04 * Math.sin(T * 0.8); cold.intensity = 1.1 * st.bronze; warm.intensity = 1.6 * st.bronze;
     /* la coupe et le bloc */
     var cutY = BASE_H + H * st.cut;
     cutPlane.constant = -(cutY - 0.002);
     var bh = Math.max(0.001, H * st.cut); block.scale.y = bh; block.position.set(STATUE.x, BASE_H + bh / 2, STATUE.z);
     block.visible = st.cut > 0.003;
-    /* le sculpteur : présent, puis de moins en moins */
-    var sc = 1 - st.shrink; sculptor.scale.setScalar(Math.max(0.05, sc));
+    /* le sculpteur : présent, puis de moins en moins — il rapetisse un peu
+       et s'assombrit jusqu'à n'être plus qu'une silhouette, pendant que la
+       statue prend la lumière */
+    var sc = 1 - 0.55 * st.shrink; sculptor.scale.setScalar(Math.max(0.3, sc));
+    workerMat.color.setRGB(1 - 0.85 * st.shrink, 1 - 0.85 * st.shrink, 1 - 0.85 * st.shrink);
+    sleeve.color.copy(SHIRT).multiplyScalar(1 - 0.85 * st.shrink); skinMat.color.copy(SKIN).multiplyScalar(1 - 0.85 * st.shrink);
     var work = st.carve * (1 - st.alone);
     var swing = work * (0.5 + 0.5 * Math.sin(T * 6.5));
-    sArmR.rotation.x = -1.6 + swing * 1.1;
-    /* le ciseau : à la main, puis seul, au point de coupe */
-    var cutPoint = new THREE.Vector3(STATUE.x - BW * 0.5, cutY, STATUE.z + BW * 0.5);
-    var hand = new THREE.Vector3(-0.05, 1.25, 0.55).applyAxisAngle(new THREE.Vector3(0, 1, 0), sculptor.rotation.y).multiplyScalar(sc).add(sculptor.position);
-    chisel.position.lerpVectors(hand, cutPoint, st.alone); chisel.rotation.z = lerp(-0.6, -0.9, st.alone); chisel.rotation.y = 0.6;
+    sArmR.rotation.x = -2.3 + swing * 1.2; elbow.rotation.x = 0.9 - swing * 0.5;
+    /* le ciseau : à la main gauche, contre le bloc, puis seul, au point de coupe */
+    var cutPoint = new THREE.Vector3(STATUE.x + BW * 0.5 + 0.02, cutY, STATUE.z + BW * 0.5);
+    var hand = new THREE.Vector3(0.22, SC_H * 0.5, 0.05).applyAxisAngle(new THREE.Vector3(0, 1, 0), sculptor.rotation.y).multiplyScalar(sc).add(sculptor.position);
+    var handPoint = new THREE.Vector3(STATUE.x + BW * 0.5 + 0.03, SC_H * 0.52 * sc, STATUE.z + 0.45);
+    chisel.position.lerpVectors(handPoint, cutPoint, st.alone); chisel.rotation.z = lerp(1.2, 0.9, st.alone); chisel.rotation.y = 0.0;
     if (st.alone > 0) { chisel.position.x += 0.02 * Math.sin(T * 6.5) * st.alone; }
-    mallet.position.y = 0; if (st.alone > 0.5) { mallet.visible = false; } else { mallet.visible = true; }
+    mallet.visible = st.alone < 0.5;
     /* les éclats volent au point de coupe quand on taille */
     var act = st.carve;
     for (var i = 0; i < NCH; i++) { var ch = chips[i]; ch.t += dt * 1.1; if (ch.t > 1.4) { ch.t = 0; ch.vx = (rnd() - 0.5) * 1.6; ch.vz = (rnd() - 0.5) * 1.6; ch.vy = 0.6 + rnd() * 1.6; }
-      var t2 = ch.t; chipPos[i * 3] = cutPoint.x + 0.3 + ch.vx * t2; chipPos[i * 3 + 1] = Math.max(0.02, cutY + ch.vy * t2 - 2.4 * t2 * t2); chipPos[i * 3 + 2] = cutPoint.z - 0.3 + ch.vz * t2; }
+      var t2 = ch.t, src = st.alone > 0.5 ? cutPoint : handPoint; chipPos[i * 3] = src.x + ch.vx * t2; chipPos[i * 3 + 1] = Math.max(0.02, src.y + ch.vy * t2 - 2.4 * t2 * t2); chipPos[i * 3 + 2] = src.z + ch.vz * t2; }
     chipGeo.attributes.position.needsUpdate = true; chipPts.material.opacity = 0.9 * act;
     /* la statue se tourne, puis devient bronze */
     if (statue) {
@@ -194,9 +238,9 @@ window.LM_MONDE = function (canvas) {
     var cy = lerp(2.55, 1.35, 1 - st.cut);
     /* on vise à GAUCHE de la statue : la colonne de texte occupe les 600
        premiers pixels, la statue doit vivre dans la moitié droite */
-    var ax = STATUE.x - 0.9 + 0.5 * st.close, ay = lerp(cy, 1.2, ss(1.5, 2.2, G)); ay = lerp(ay, 1.95, st.close); ay = lerp(ay, 0.55, st.end);
+    var ax = STATUE.x - 0.85 + 0.25 * st.close, ay = lerp(cy, 1.2, ss(1.5, 2.2, G)); ay = lerp(ay, 1.95, st.close); ay = lerp(ay, 0.55, st.end);
     var cz = lerp(5.4, 3.4, st.close); cz = lerp(cz, 4.6, st.end);
-    camera.position.set(0.45 + 0.02 * Math.sin(T * 0.3), lerp(cy + 0.15, 1.7, ss(1.5, 2.2, G)) + 0.015 * Math.sin(T * 0.41), cz);
+    camera.position.set(0.7 + 0.02 * Math.sin(T * 0.3), lerp(cy + 0.15, 1.7, ss(1.5, 2.2, G)) + 0.015 * Math.sin(T * 0.41), cz);
     camera.position.y = lerp(camera.position.y, 1.95, st.close); camera.position.y = lerp(camera.position.y, 1.1, st.end);
     aim.set(ax, ay, STATUE.z); camera.lookAt(aim);
     render();
@@ -205,5 +249,5 @@ window.LM_MONDE = function (canvas) {
   function resize() { var w = canvas.clientWidth, h = canvas.clientHeight; if (!w || !h) return; renderer.setSize(w, h, false); camera.aspect = w / h; camera.fov = w / h > 1.2 ? 38 : Math.min(70, 2 * Math.atan(Math.tan(50 * Math.PI / 360) / camera.aspect) * 180 / Math.PI); camera.updateProjectionMatrix(); }
   function dispose() { scene.traverse(function (o) { if (o.geometry) o.geometry.dispose(); if (o.material) { if (o.material.map) o.material.map.dispose(); o.material.dispose(); } }); renderer.dispose(); }
   compute();
-  return { set: set, frame: frame, resize: resize, render: render, dispose: dispose, state: st, ready: ready, setFace: function (r) { FACE = r; } };
+  return { set: set, frame: frame, resize: resize, render: render, dispose: dispose, state: st, ready: ready, setFace: function (r) { FACE = r; }, camera: camera, sculptor: sculptor, statue: function () { return statue; } };
 };

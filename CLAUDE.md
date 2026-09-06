@@ -5977,6 +5977,31 @@ chargement. Pas de GLTFLoader : `vendor/three.min.js` reste le cœur r137,
 et c'est voulu. La scène expose `ready` (la promesse du chargement) et
 `capture-monde.mjs` l'attend avant de photographier.
 
+**Le sculpteur est lui aussi un vrai scan** (retour du propriétaire : « il
+faut le travailleur à droite, là il est caché par le texte, et qu'il passe
+un cap de design, qu'il ressemble à un véritable travailleur »). Aucune
+statue d'ouvrier sur threedscans ; le **Smithsonian Open Access** en a une
+qui dit exactement l'époque : le laboureur du groupe *The Wounded Scout, a
+Friend in the Swamp* de **John Rogers (1864, plâtre peint, SAAM, domaine
+public** — la page du musée le dit). Chemise aux manches relevées,
+pantalon, pieds nus. Le paquet Voyager est **compressé Draco** : décodé
+hors ligne avec le `draco_decoder.js` de three (dépôt du jeu) en CommonJS
+(`undraco.cjs`, outil de séance, non versionné — le résultat l'est). Puis
+`import-scan.mjs` a appris à **détacher une figure d'un groupe** : plans
+`--keep` limités à une bande de hauteur (celui qui sépare deux têtes n'est
+pas celui des jambes — les deux corps ont été localisés par k-means par
+tranches), boîtes `--drop`, et `--largest` après **soudure des sommets**
+(un maillage décodé de Draco dédouble ses sommets aux coutures d'UV : sans
+soudure, le corps tombe en cent morceaux). Son bras droit, qui enlaçait le
+soldat, est parti avec la coupe : c'est celui qu'on remplace, levé, avec le
+maillet. Habillé par **couleurs de sommets** selon la hauteur (chemise,
+pantalon, peau, tablier de cuir devant) — il se tient droit, les bandes
+suffisent ; sur l'Hermès penché de Vienne, essayé avant, elles ne
+marchaient pas. Placé **à droite de la statue, de trois quarts face**, sa
+coupe (son côté droit) vers le mur ; il rapetisse et s'assombrit à mesure
+que la statue prend la lumière. La légende et le crédit vivent à droite de
+la colonne de texte et non dans le coin, où ils le recouvraient.
+
 **Pièges de cette refonte :**
 - **Le scan de ZBrush est exporté Y VERS LE BAS.** Monté tel quel, le socle
   de bronze apparaissait en haut et l'on cadrait des jambes. `scale(k,-k,k)`

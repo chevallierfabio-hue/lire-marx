@@ -235,12 +235,13 @@ body{background:var(--bg);color:var(--text);font-family:var(--f-ui);
   html.js-monde .nt--plein .nt-col::before{content:'';position:fixed;inset:0;z-index:-1;
     pointer-events:none;
     background:linear-gradient(to right,rgba(13,10,7,.94) 0,rgba(13,10,7,.9) 560px,rgba(13,10,7,.55) 820px,rgba(13,10,7,0) 1040px);}
-  html.js-monde .nt--plein .nt-monde-cap{left:auto;right:40px;bottom:64px;max-width:420px;
+  /* la légende se pose en haut à droite, sous le lien de source : le bas du cadre est aux figures */
+  html.js-monde .nt--plein .nt-monde-cap{left:auto;right:40px;top:104px;bottom:auto;max-width:380px;
     padding:14px 18px;border-radius:12px;background:rgba(13,10,7,.72);
     border:1px solid rgba(243,233,212,.12);}
   html.js-monde .nt--plein .nt-monde-src{left:auto;right:40px;top:64px;}
-  html.js-monde .nt--plein .nt-monde-credit{position:absolute;right:40px;bottom:14px;margin:0;
-    font-family:var(--f-ui);font-size:.72rem;color:var(--muted);max-width:420px;text-align:right;}
+  html.js-monde .nt--plein .nt-monde-credit{position:absolute;right:40px;top:auto;bottom:14px;margin:0;
+    font-family:var(--f-ui);font-size:.72rem;color:var(--muted);max-width:380px;text-align:right;}
   html.js-monde .nt--plein .nt-sec{min-height:78vh;}
   html.js-monde .nt--plein .lm-foot{position:relative;z-index:1;}
 }
